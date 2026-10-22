@@ -4590,18 +4590,21 @@
         "title": "Prepare fresh privacy test data before the Mac session",
         "state": "active",
         "owner": "Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review",
-        "observed_at": "2026-10-22T09:11:00.320658+00:00",
+        "observed_at": "2026-10-22T09:15:33.098794+00:00",
         "origin": "observed",
-        "activity": "Selected bounded preparation using existing checked CLI; command/artifact preflight and independentplanreview in progress. No build/fixture execution yet.",
-        "next_action": "Review concrete commands/bounds, qualify existing CLI/helper identity, then prepare fresh private/general roots and separate canonicaladvance rehearsal. Keep native/usercontrol gate deferred.",
+        "activity": "Independent Sol revised-plan review PASS; explicit build/processgroup/disk/token/siblinghelper limits adopted. Narrow current-source CLI build completed; fixture runner implementation under independent inspection, not executed yet.",
+        "next_action": "Validate completed build receipt/frozenhelperidentity and review concrete fixture runner, then execute one bounded fresh synthetic preparation. ActualMacopening/stalebanner/controlobservations remain deferred.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/privacy-native-fixture-preflight.md",
-          "docs/work/active/vacation-campaign/native-queue.md"
+          "docs/work/active/vacation-campaign/native-queue.md",
+          "docs/work/active/vacation-campaign/evidence/mac13-preparation-plan.md",
+          "docs/work/active/vacation-campaign/evidence/mac13-preparation-plan-review.md",
+          "docs/work/active/vacation-campaign/evidence/mac13-cli-command-preflight.md"
         ],
         "gates": {
-          "implementation": "No new product source; selected existing CLI preparation only",
+          "implementation": "Existing public CLI route selected; no product source change. Approved bounded preparation plan.",
           "checks": "Pending planreview/source-bound build/actual freshfixturechecks",
           "integration": "Evidence-only, normal product integration alreadymain213",
           "native": "Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending",
@@ -4619,8 +4622,8 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T08:33:21.425791+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr212-verified-pr213-pending.json"
+    "last_refresh_at": "2026-10-22T09:15:33.098794+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr213-verified.json"
   },
   "resource_observation": {
     "observed_at": "2026-10-22T09:00:34.325051+00:00",

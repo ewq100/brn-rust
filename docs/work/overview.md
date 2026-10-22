@@ -14,16 +14,16 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Prepare fresh privacy test data before the Mac session
 
 Task ID: `privacy-native-fixture-preparation`
-Owner: Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review · State: **active** · Last observed: 2026-10-22T09:11:00.320658+00:00
-Activity: Selected bounded preparation using existing checked CLI; command/artifact preflight and independentplanreview in progress. No build/fixture execution yet.
-Next: Review concrete commands/bounds, qualify existing CLI/helper identity, then prepare fresh private/general roots and separate canonicaladvance rehearsal. Keep native/usercontrol gate deferred.
+Owner: Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review · State: **active** · Last observed: 2026-10-22T09:15:33.098794+00:00
+Activity: Independent Sol revised-plan review PASS; explicit build/processgroup/disk/token/siblinghelper limits adopted. Narrow current-source CLI build completed; fixture runner implementation under independent inspection, not executed yet.
+Next: Validate completed build receipt/frozenhelperidentity and review concrete fixture runner, then execute one bounded fresh synthetic preparation. ActualMacopening/stalebanner/controlobservations remain deferred.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** No new product source; selected existing CLI preparation only
+- **implementation:** Existing public CLI route selected; no product source change. Approved bounded preparation plan.
 - **checks:** Pending planreview/source-bound build/actual freshfixturechecks
 - **integration:** Evidence-only, normal product integration alreadymain213
 - **native:** Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending
