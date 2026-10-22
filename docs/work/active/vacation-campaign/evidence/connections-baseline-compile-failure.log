@@ -1,0 +1,25 @@
+   Compiling tokio-rustls v0.26.5
+   Compiling hyper-rustls v0.27.10
+   Compiling rustls-platform-verifier v0.7.1
+   Compiling reqwest v0.13.5
+   Compiling rig-reqwest v0.44.0
+   Compiling rig-core v0.44.0
+   Compiling rmcp v2.2.0
+   Compiling rig-agent v0.44.0
+   Compiling rig-rmcp v0.44.0
+   Compiling rig-memory v0.44.0
+   Compiling rig v0.44.0
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-threads-app)
+   Compiling brn-writing-ui v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-writing-ui)
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-desktop)
+error[E0609]: no field `markdown` on type `brn_threads_app::Record`
+    --> crates/brn-desktop/src/threads_tiled_tests.rs:1354:22
+     |
+1354 |                     .markdown,
+     |                      ^^^^^^^^ unknown field
+     |
+     = note: available fields are: `id`, `version`, `archived`, `data`
+
+For more information about this error, try `rustc --explain E0609`.
+error: could not compile `brn-desktop` (bin "brn-desktop" test) due to 1 previous error

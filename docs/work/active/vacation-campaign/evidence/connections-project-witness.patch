@@ -1,0 +1,170 @@
+diff --git a/crates/brn-desktop/src/threads_tiled_tests.rs b/crates/brn-desktop/src/threads_tiled_tests.rs
+index 200df8db..59642073 100644
+--- a/crates/brn-desktop/src/threads_tiled_tests.rs
++++ b/crates/brn-desktop/src/threads_tiled_tests.rs
+@@ -1207,6 +1207,165 @@ fn connections_tile_lists_visible_links_filters_relations_and_recenters(cx: &mut
+     });
+ }
+ 
++#[gpui_kit::test]
++fn connections_result_is_cleared_when_project_unlink_revokes_neighbor_visibility(
++    cx: &mut TestAppContext,
++) {
++    let f = fixture(cx, true, 1600., 1100.);
++    let centre = f.note.as_ref().unwrap().id.clone();
++    let (shared_project, private_note, private_before) = update_returning(cx, &f, |view| {
++        let origin = view
++            .workspace
++            .project_command(
++                "connections-freshness-origin",
++                ProjectCommand::Create {
++                    title: "Private source project".into(),
++                },
++            )
++            .unwrap()
++            .writes
++            .into_iter()
++            .find(|write| matches!(write.after.data, RecordData::Project(_)))
++            .unwrap()
++            .after
++            .id;
++        let shared = view
++            .workspace
++            .project_command(
++                "connections-freshness-shared",
++                ProjectCommand::Create {
++                    title: "Shared project".into(),
++                },
++            )
++            .unwrap()
++            .writes
++            .into_iter()
++            .find(|write| matches!(write.after.data, RecordData::Project(_)))
++            .unwrap()
++            .after
++            .id;
++        let private_note = view
++            .workspace
++            .project_command(
++                "connections-freshness-private-note",
++                ProjectCommand::CreateDocument {
++                    project: origin,
++                    title: "Scope marker private draft".into(),
++                    markdown: "Connections privacy marker: copper-orchid-731.".into(),
++                },
++            )
++            .unwrap()
++            .writes
++            .into_iter()
++            .find(|write| matches!(write.after.data, RecordData::Note(_)))
++            .unwrap()
++            .after;
++        view.workspace
++            .project_command(
++                "connections-freshness-link-centre",
++                ProjectCommand::LinkDocument {
++                    project: shared.clone(),
++                    note: centre.clone(),
++                },
++            )
++            .unwrap();
++        view.workspace
++            .project_command(
++                "connections-freshness-link-private",
++                ProjectCommand::LinkDocument {
++                    project: shared.clone(),
++                    note: private_note.id.clone(),
++                },
++            )
++            .unwrap();
++        owner_write(
++            view,
++            "connections-freshness-edge",
++            vec![link_data(&centre, &private_note.id, relations::RELATED)],
++        );
++        view.refresh();
++        let stored = view
++            .workspace
++            .store
++            .record(&private_note.id)
++            .unwrap()
++            .unwrap();
++        (shared, private_note.id, stored)
++    });
++
++    // The private document is retained in its owner Project and explicitly
++    // shared into a second Project, so unlinking the latter is a real allowed
++    // revocation rather than a blocked last-link removal.
++    update(cx, &f, |view, window, cx| {
++        view.show_tile(TileKind::Projects, window, cx);
++    });
++    click(cx, &f, format!("project-row-{shared_project}"));
++    click(cx, &f, format!("project-doc-{centre}"));
++    click(cx, &f, "note-connections");
++    let connection_id = format!("connection-{private_note}");
++    cx.update_window(f.window, |_, window, cx| {
++        window.render_frame(cx);
++        assert!(window.find("connections-status").visible());
++        assert!(window.find(connection_id.clone()).visible());
++        f.view.read_with(cx, |view, _| {
++            assert!(
++                view.workspace
++                    .store
++                    .record_visible_in_chat(&private_note, Some(&shared_project))
++                    .unwrap()
++            );
++            let result = view.graph.result.as_ref().unwrap();
++            assert!(
++                result.hops[0]
++                    .shown
++                    .iter()
++                    .any(|node| node.id == private_note)
++            );
++        });
++    })
++    .unwrap();
++
++    // This is the actual Project-row Unlink control and its apply_project
++    // callback, not a direct graph refresh or a test-only state mutation.
++    cx.update_window(f.window, |_, window, cx| {
++        window.click(format!("project-unlink-{private_note}"), cx);
++    })
++    .unwrap();
++    cx.read(|cx| {
++        f.view.read_with(cx, |view, _| {
++            assert!(
++                !view
++                    .workspace
++                    .store
++                    .record_visible_in_chat(&private_note, Some(&shared_project))
++                    .unwrap()
++            );
++            assert_eq!(
++                view.workspace.store.record(&private_note).unwrap().unwrap(),
++                private_before,
++                "unlink changes project membership without changing the retained Note"
++            );
++            assert_eq!(
++                view.workspace
++                    .store
++                    .note(&private_note)
++                    .unwrap()
++                    .unwrap()
++                    .markdown,
++                "Connections privacy marker: copper-orchid-731."
++            );
++        });
++    });
++    cx.update_window(f.window, |_, window, cx| {
++        window.render_frame(cx);
++        assert!(
++            window.try_find(connection_id).is_none(),
++            "Connections must immediately drop a neighbor no longer visible in the selected Project"
++        );
++    })
++    .unwrap();
++}
++
+ #[gpui_kit::test]
+ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestAppContext) {
+     let f = fixture(cx, true, 1400., 1100.);

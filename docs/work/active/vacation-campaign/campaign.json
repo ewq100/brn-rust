@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T11:29:17.516569+00:00",
-    "remaining_percent": 41,
+    "observed_at": "2026-10-22T11:39:25.938261+00:00",
+    "remaining_percent": 40,
     "reset_unix": 1793083360,
-    "ordinary_work": "Actual59%used/41%remaining, ordinaryUsageAllowed=true; secondary unavailable. Headless work admitted; native deferral/account closure/expiry unchanged.",
+    "ordinary_work": "Actual60% used/40% remaining; ordinaryUsageAllowed=true; secondary unavailable. New bounded headless Connections diagnosis admitted; native/account limits unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T11:30:11.962594+00:00",
+    "observed_at": "2026-10-22T11:45:39.193008+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4998,28 +4998,91 @@
       {
         "id": "displayed-note-scope-ownership-assessment",
         "title": "Check that a displayed note keeps its intended writing scope",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna source assessment; lead disposition",
-        "observed_at": "2026-10-22T11:30:11.962594+00:00",
+        "observed_at": "2026-10-22T11:37:12.422914+00:00",
         "origin": "observed",
-        "activity": "Selected the remaining host pairing of note_project and note_writing_scope with the shared NoteLifecycle. Current captured search/import/queue owners and recent recovery privacy guard are reused; inspect only whether ordinary open/reload/project navigation can leave a mismatched writing scope.",
-        "next_action": "Trace actual writers/consumers and existing source-bound witnesses. Select no refactor/test unless a concrete supported ordering or invariant gap is shown.",
+        "activity": "Ordinary displayed-note writing/setup/review scope pairing is coherent and checked; no generic owner refactor selected. Separate possible stale Connections view after project unlink found in actual callback/render source, not yet reproduced.",
+        "next_action": "Separate connections-project-freshness task owns runtime witness and correction only if confirmed. Retain unchanged writing scope and checked service authority.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-desktop/src/threads_ui.rs",
           "crates/brn-desktop/src/threads_projects.rs",
-          "docs/work/active/vacation-campaign/evidence/state-ownership-milestone-20261022.md"
+          "docs/work/active/vacation-campaign/evidence/state-ownership-milestone-20261022.md",
+          "docs/work/active/vacation-campaign/evidence/displayed-note-scope-assessment.md"
         ],
         "gates": {
           "implementation": "Read-only bounded assessment; no source candidate selected.",
-          "checks": "Pending source/caller/existing-witness map; no builds or native action.",
+          "checks": "PASS source/caller/existing witness map; no runtime reproduction or native evidence.",
           "integration": "Inapplicable unless a separate repair is selected.",
           "native": "Owner-deferred; no interaction.",
           "owner_acceptance": "Preserve existing selected scope semantics; consequential choices require separate disposition."
         },
         "attempts": [],
         "resource_plan": "Reuse completed Luna medium helper for separable read-only scope pairing on frozenmain10f2ff80 while hosted main215 checks run. Lead owns integration/shared records; no source edits/builds/account/native/network/new models or nested agents. Stop after concrete mapping and at most one supported defect candidate; do not repeat completed file-picker/reference-search/queue/comment/recovery-route audits."
+      },
+      {
+        "id": "connections-project-freshness",
+        "title": "Clear outdated Connections after project membership changes",
+        "state": "active",
+        "owner": "Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review",
+        "observed_at": "2026-10-22T11:45:39.193008+00:00",
+        "origin": "observed",
+        "activity": "Second witness baseline reached runtime but failed to locate Unlink control; it did not execute revocation or reproduce stale output. After two witness failures, explicit independent source reassessment now checks a supported concurrent-pane route. No production change.",
+        "next_action": "Wait for bounded layout/reachability diagnosis. Retry only a source-backed corrected public-control route; reject/defer if no real trigger. Preserve both failures and no bug claim.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/displayed-note-scope-assessment.md",
+          "crates/brn-desktop/src/threads_connections.rs",
+          "crates/brn-desktop/src/threads_projects.rs",
+          "docs/work/active/vacation-campaign/evidence/connections-project-witness.md",
+          "docs/work/active/vacation-campaign/evidence/connections-project-witness.patch",
+          "docs/work/active/vacation-campaign/evidence/connections-project-run.py",
+          "docs/work/active/vacation-campaign/evidence/connections-baseline-compile-failure.json",
+          "docs/work/active/vacation-campaign/evidence/connections-baseline-compile-failure.log",
+          "docs/work/active/vacation-campaign/evidence/connections-freshness-design-assessment.md",
+          "docs/work/active/vacation-campaign/evidence/connections-baseline-control-failure.json",
+          "docs/work/active/vacation-campaign/evidence/connections-baseline-control-failure.log"
+        ],
+        "gates": {
+          "implementation": "Proposed only; test author in isolated mac-test-roots branch from main10f2ff80.",
+          "checks": "UNCONFIRMED: first compile failure then wrong pane/control fixture. Both retained; no runtime stale-visibility reproduction.",
+          "integration": "Pending candidate/review/checks; no publication selected yet.",
+          "native": "Owner-deferred; no actual interaction.",
+          "owner_acceptance": "Preserve accepted visibility, selected scope and note bytes; no new product meaning."
+        },
+        "attempts": [
+          {
+            "observed_at": "2026-10-22T11:40:32.131581+00:00",
+            "candidate": "dce95a88df1c22cd6b24b2bdb9fb671465c4912e",
+            "kind": "focused before-source baseline",
+            "state": "failed",
+            "runner": "/tmp/brn-connections-project-qualification/run.py",
+            "receipt": "/tmp/brn-connections-project-qualification/baseline/result.json",
+            "limits": "900s total incl30s cleanup reserve,8MiB sampledlog,1GiB diskfloor,offline synthetic only",
+            "outcome": "Compile FAIL E0609: test treated Store::note Record as Note payload. No runtime reproduction or production repair.",
+            "change": "Test author correcting only typed payload assertion; original dce95a88 preserved.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/connections-baseline-compile-failure.json",
+              "docs/work/active/vacation-campaign/evidence/connections-baseline-compile-failure.log",
+              "docs/work/active/vacation-campaign/evidence/connections-project-witness.patch"
+            ]
+          },
+          {
+            "observed_at": "2026-10-22T11:43:55.525020+00:00",
+            "candidate": "dd0bbc0082d1b402de6986ef809d21ec3092ff13",
+            "outcome": "FAIL before intended assertion: test compiles/runs1 but Project Unlink control is absent after Connections navigation. Visibility revocation not executed; hypothesis unconfirmed.",
+            "change": "Stop/reassess supported pane reachability before any further run or production correction.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/connections-baseline-control-failure.json",
+              "docs/work/active/vacation-campaign/evidence/connections-baseline-control-failure.log",
+              "docs/work/active/vacation-campaign/evidence/connections-project-witness-corrected.md"
+            ]
+          }
+        ],
+        "resource_plan": "Luna medium bounded test author owns only existing desktop test/source files in isolated branch; lead one local build slot and shared records. Independent Sol consequential review after candidate. Fresh explicit synthetic data, pinned locked/offline qualified helper reuse, no account/native/network/dependency/credential/runtime-prompt edits. Stop if visibility revocation is not real, baseline cannot prove gap, or two failed approaches; no extra tests/refactor without evidence."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -5034,9 +5097,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr215-merged-pending.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T11:32:26.207787+00:00",
-    "runtime_capacity": "Lead integration; Luna bounded displayed-note scope assessment active. Sol reviewer complete; stale canceled run_activity pending_init not an observed writer. No active local build/native/account actor.",
-    "build_slot": "Final234 qualifier completed all8stagesPASS717.09s; allgroupsabsent/leadersreaped/noerrors; no active localbuild.",
+    "observed_at": "2026-10-22T11:45:39.193008+00:00",
+    "runtime_capacity": "Lead integration; Sol independent witness-reachability reassessment active; Luna stopped after test-only dd0bbc00. No active local writer/build/native/account.",
+    "build_slot": "Both baseline jobs completed and childgroups absent; PTYs29449/75425 closed. No new run until explicit reassessment.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {

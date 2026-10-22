@@ -32,23 +32,23 @@ Gates:
 
 </details>
 
-### Check that a displayed note keeps its intended writing scope
+### Clear outdated Connections after project membership changes
 
-Task ID: `displayed-note-scope-ownership-assessment`
-Owner: Bounded Luna source assessment; lead disposition · State: **active** · Last observed: 2026-10-22T11:30:11.962594+00:00
-Activity: Selected the remaining host pairing of note_project and note_writing_scope with the shared NoteLifecycle. Current captured search/import/queue owners and recent recovery privacy guard are reused; inspect only whether ordinary open/reload/project navigation can leave a mismatched writing scope.
-Next: Trace actual writers/consumers and existing source-bound witnesses. Select no refactor/test unless a concrete supported ordering or invariant gap is shown.
+Task ID: `connections-project-freshness`
+Owner: Bounded Luna witness author; lead diagnosis/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T11:45:39.193008+00:00
+Activity: Second witness baseline reached runtime but failed to locate Unlink control; it did not execute revocation or reproduce stale output. After two witness failures, explicit independent source reassessment now checks a supported concurrent-pane route. No production change.
+Next: Wait for bounded layout/reachability diagnosis. Retry only a source-backed corrected public-control route; reject/defer if no real trigger. Preserve both failures and no bug claim.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Read-only bounded assessment; no source candidate selected.
-- **checks:** Pending source/caller/existing-witness map; no builds or native action.
-- **integration:** Inapplicable unless a separate repair is selected.
-- **native:** Owner-deferred; no interaction.
-- **owner acceptance:** Preserve existing selected scope semantics; consequential choices require separate disposition.
+- **implementation:** Proposed only; test author in isolated mac-test-roots branch from main10f2ff80.
+- **checks:** UNCONFIRMED: first compile failure then wrong pane/control fixture. Both retained; no runtime stale-visibility reproduction.
+- **integration:** Pending candidate/review/checks; no publication selected yet.
+- **native:** Owner-deferred; no actual interaction.
+- **owner acceptance:** Preserve accepted visibility, selected scope and note bytes; no new product meaning.
 
 </details>
 
@@ -329,6 +329,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `tls-advisory-resolution` — Resolve recent certificate-trust dependency advisories
 - `current-lock-advisory-scan` — Check maintained dependency locks against current advisories
 - `helper-zip-advisory-assessment` — Assess document-helper ZIP advisories
+- `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
 
 ## Dependencies
 
@@ -383,4 +384,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T11:30:11.962594+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T11:45:39.193008+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
