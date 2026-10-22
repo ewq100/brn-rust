@@ -257,10 +257,11 @@ impl ThreadsUi {
             return;
         }
         let destination = self.destination();
-        let edited = self.editing_queue.is_some();
+        let editing_item = self.queued_edit_for_current_chat().map(str::to_owned);
+        let edited = editing_item.is_some();
         // Every waiting item ahead of the new one, in any chat.
         let ahead = self.queue_state().queue.len();
-        let result = if let Some(item) = &self.editing_queue {
+        let result = if let Some(item) = &editing_item {
             self.workspace
                 .edit_queued(
                     &format!("edit-queue:{}", uuid::Uuid::new_v4()),
@@ -277,7 +278,9 @@ impl ThreadsUi {
         };
         match result {
             Ok(thread) => {
-                self.editing_queue = None;
+                if edited {
+                    self.editing_queue = None;
+                }
                 self.save_composer(destination, String::new());
                 self.composer
                     .update(cx, |e, cx| e.set_value("", window, cx));
@@ -607,7 +610,10 @@ impl ThreadsUi {
                                         window,
                                         cx,
                                     );
-                                    this.editing_queue = Some(edit.id.clone());
+                                    this.editing_queue = Some(QueuedEdit {
+                                        item: edit.id.clone(),
+                                        thread: edit.thread.clone(),
+                                    });
                                     this.composer.update(cx, |e, cx| {
                                         e.set_value(edit.text.clone(), window, cx)
                                     });
