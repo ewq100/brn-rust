@@ -1810,11 +1810,12 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
     drop(other);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
-            view.writing
-                .note_editor
-                .update(cx, |editor, cx| editor.focus(window, cx));
+            view.writing.note_editor.update(cx, |editor, cx| {
+                let end = editor.value().len();
+                editor.set_selected_range(0..end, cx);
+                editor.focus(window, cx);
+            });
         });
-        window.press("cmd-a", cx);
     })
     .unwrap();
     // The first refused character makes the editor read-only on redraw.
