@@ -852,6 +852,146 @@ async fn actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree()
         json!(budget_tool_definitions(&scope))
     );
 }
+
+#[tokio::test]
+async fn actual_http_provider_routes_dispatch_unique_quote_with_required_nullable_offsets() {
+    use crate::provider_formats_tests::{client, definition, success, text_sse, tool_sse};
+
+    const ROUTES: [(Provider, &str, bool); 3] = [
+        (Provider::Chatgpt, "gpt-5.5", true),
+        (Provider::Copilot, "gpt-5.5", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ];
+
+    for (provider, model_name, responses) in ROUTES {
+        let (_root, request, note) = tests::fixture();
+        let (scope, input) = begin(&request).unwrap();
+        let canonical_before = current(&scope, &note);
+        let call_id = "call_0";
+        let arguments = json!({
+            "id":note,
+            "version":1,
+            "start":null,
+            "end":null,
+            "expected_text":"Mon",
+            "replacement_text":"Tues",
+            "request_key":"http-unique-quote",
+            "reason":"Correct the exact local passage"
+        });
+        let (_provider_root, client, http) = client(
+            provider,
+            model_name,
+            vec![
+                success(tool_sse(
+                    responses,
+                    &[("prepare_note_edit", arguments.clone())],
+                )),
+                success(text_sse(responses, "Prepared the exact local edit.")),
+            ],
+        )
+        .await;
+        let model = match client.inner {
+            OwnedClient::Chatgpt(inner) => {
+                rig_core::DynModel::<rig_core::operation::Completion>::from(
+                    inner.completion(model_name.to_owned()),
+                )
+            }
+            OwnedClient::Copilot(inner) => {
+                rig_core::DynModel::<rig_core::operation::Completion>::from(
+                    crate::auth::copilot_completion(&inner, model_name.to_owned(), responses),
+                )
+            }
+        };
+
+        let answer = run_model(
+            model,
+            scope.clone(),
+            &input,
+            ReasoningEffort::Medium,
+            4,
+            responses,
+            CancellationToken::new(),
+            Arc::new(|_| {}),
+        )
+        .await;
+        assert!(
+            matches!(answer.terminal, AiTerminal::Completed),
+            "{answer:?}"
+        );
+
+        let bodies = http.bodies();
+        assert_eq!(bodies.len(), 2, "one tool round and one final response");
+        let advertised = definition(&bodies[0], responses, "prepare_note_edit")
+            .unwrap_or_else(|| panic!("missing prepare_note_edit on {provider:?}/{model_name}"));
+        let schema = &advertised["parameters"];
+        assert_eq!(schema["additionalProperties"], false);
+        assert_eq!(
+            schema["required"],
+            json!([
+                "id",
+                "version",
+                "start",
+                "end",
+                "expected_text",
+                "replacement_text",
+                "request_key",
+                "reason"
+            ])
+        );
+        assert_eq!(
+            schema["properties"]["start"]["type"],
+            json!(["integer", "null"])
+        );
+        assert_eq!(
+            schema["properties"]["end"]["type"],
+            json!(["integer", "null"])
+        );
+
+        let continuation = &bodies[1][if responses { "input" } else { "messages" }];
+        let results = continuation
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|item| item["type"] == "function_call_output" || item["role"] == "tool")
+            .collect::<Vec<_>>();
+        assert_eq!(results.len(), 1, "the exact tool call must have one result");
+        let (result_call_id, encoded_result) = if responses {
+            (
+                results[0]["call_id"].as_str().unwrap(),
+                results[0]["output"].as_str().unwrap(),
+            )
+        } else {
+            (
+                results[0]["tool_call_id"].as_str().unwrap(),
+                results[0]["content"].as_str().unwrap(),
+            )
+        };
+        assert_eq!(result_call_id, call_id);
+        let result: Value = serde_json::from_str(encoded_result).unwrap();
+        let operation = result["operation"].as_str().unwrap();
+        assert!(
+            !operation.is_empty(),
+            "the exact call must prepare an operation"
+        );
+
+        let candidates = scope.store.lock().unwrap().candidates().unwrap();
+        assert_eq!(candidates.len(), 1);
+        let candidate = candidates
+            .iter()
+            .find(|candidate| candidate.operation.as_str() == operation)
+            .expect("tool result must identify the prepared candidate");
+        let RecordData::Note(prepared_note) = &candidate.request.writes[0].data else {
+            panic!("prepared write must remain a Note")
+        };
+        let RecordData::Note(mut expected_note) = canonical_before.data.clone() else {
+            panic!("canonical record must be a Note")
+        };
+        expected_note.markdown = "Tuesday".into();
+        assert_eq!(prepared_note, &expected_note);
+        assert_eq!(current(&scope, &note), canonical_before);
+        http.assert_consumed();
+    }
+}
 #[test]
 fn outside_private_scope_refuses_and_in_scope_local_edit_preserves_private_visibility() {
     let (_root, mut request, general) = tests::fixture();

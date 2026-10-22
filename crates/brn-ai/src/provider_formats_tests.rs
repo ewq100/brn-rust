@@ -27,7 +27,7 @@ fn preamble(body: &Value, provider: Provider, responses: bool) -> String {
     }
 }
 
-fn definition(body: &Value, responses: bool, name: &str) -> Option<Value> {
+pub(crate) fn definition(body: &Value, responses: bool, name: &str) -> Option<Value> {
     body["tools"].as_array().unwrap().iter().find_map(|tool| {
         let tool = if responses { tool } else { &tool["function"] };
         (tool["name"] == name).then(|| tool.clone())
@@ -1400,7 +1400,7 @@ mod rewrite_tests {
 type ScriptedStreamReply = (String, http_client::Result<MockHttpResponse>);
 
 #[derive(Clone)]
-struct ScriptHttp {
+pub(crate) struct ScriptHttp {
     unary: SequencedHttpClient,
     unary_urls: Arc<Mutex<VecDeque<String>>>,
     streams: Arc<Mutex<VecDeque<ScriptedStreamReply>>>,
@@ -1423,13 +1423,13 @@ impl ScriptHttp {
         self.unexpected.fetch_add(1, Ordering::SeqCst);
         http_client::Error::StreamEnded
     }
-    fn assert_consumed(&self) {
+    pub(crate) fn assert_consumed(&self) {
         assert_eq!(self.unexpected.load(Ordering::SeqCst), 0);
         assert!(self.unary_urls.lock().unwrap().is_empty());
         assert_eq!(self.unary.remaining_responses(), 0);
         assert!(self.streams.lock().unwrap().is_empty());
     }
-    fn bodies(&self) -> Vec<Value> {
+    pub(crate) fn bodies(&self) -> Vec<Value> {
         self.requests
             .lock()
             .unwrap()
@@ -1559,7 +1559,7 @@ fn response_end(output: Vec<Value>) -> String {
     ) + "data: [DONE]\n\n"
 }
 
-fn text_sse(responses: bool, text: &str) -> String {
+pub(crate) fn text_sse(responses: bool, text: &str) -> String {
     if responses {
         event(json!({"type":"response.output_text.delta","delta":text,
             "item_id":"msg_synthetic","output_index":0,"content_index":0,"sequence_number":1}))
@@ -1578,7 +1578,7 @@ fn text_sse(responses: bool, text: &str) -> String {
     }
 }
 
-fn tool_sse(responses: bool, calls: &[(&str, Value)]) -> String {
+pub(crate) fn tool_sse(responses: bool, calls: &[(&str, Value)]) -> String {
     tool_sse_with_prefix(responses, calls, "")
 }
 
@@ -1618,7 +1618,7 @@ fn tool_sse_with_prefix(responses: bool, calls: &[(&str, Value)], prefix: &str) 
     }
 }
 
-async fn client(
+pub(crate) async fn client(
     provider: Provider,
     model: &str,
     streams: Vec<MockHttpResponse>,
@@ -1696,7 +1696,7 @@ async fn client_replies(
     (root, client, http)
 }
 
-fn success(sse: String) -> MockHttpResponse {
+pub(crate) fn success(sse: String) -> MockHttpResponse {
     let mut headers = http_client::HeaderMap::new();
     headers.insert("content-type", "text/event-stream".parse().unwrap());
     MockHttpResponse::SuccessWithHeaders(sse.into(), headers)
