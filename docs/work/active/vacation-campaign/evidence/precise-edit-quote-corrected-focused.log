@@ -1,0 +1,34 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 1m 17s
+     Running unittests src/lib.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_ai-bcb2bd2be1aa4497)
+
+running 16 tests
+test threads::note_edit_tests::legacy_range_serialization_and_fingerprint_match_independent_base_golden ... ok
+test threads::note_edit_tests::bound_arguments_conflict_even_before_prepare_and_after_success ... ok
+test threads::note_edit_tests::local_candidate_cannot_refresh_into_unread_whole_replacement ... ok
+test threads::note_edit_tests::full_range_requires_whole_read_and_known_base_promotes_after_local_apply ... ok
+
+thread 'threads::note_edit_tests::actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree' (18348570) panicked at crates/brn-ai/src/threads_note_edit_tests.rs:802:10:
+quote call prepared an operation
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test threads::note_edit_tests::dirty_writing_defers_then_saved_owner_text_stales_local_candidate ... ok
+test threads::note_edit_tests::malformed_local_edit_skips_valid_sibling_before_bounded_correction ... ok
+test threads::note_edit_tests::actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree ... FAILED
+test threads::note_edit_tests::rig_typed_adapter_rejects_each_missing_nullable_key_before_effects ... ok
+test threads::note_edit_tests::repeated_unicode_passage_changes_only_exact_occurrence_and_allows_deletion ... ok
+test threads::note_edit_tests::outside_private_scope_refuses_and_in_scope_local_edit_preserves_private_visibility ... ok
+test threads::note_edit_tests::review_first_local_edit_remains_pending_and_conflicting_undo_preserves_later_work ... ok
+test threads::note_edit_tests::protected_local_edit_needs_exact_review_or_scoped_owner_instruction_and_undo_is_checked ... ok
+test threads::note_edit_tests::wrong_text_nonboundary_unicode_invalid_range_and_stale_base_never_mutate_or_relocate ... ok
+test threads::note_edit_tests::nullable_offsets_are_required_and_unique_full_note_quote_keeps_full_read_guard ... ok
+test threads::note_edit_tests::unique_quote_uses_exact_current_note_bytes_and_refuses_missing_or_overlapping_matches ... ok
+test threads::note_edit_tests::large_note_local_edit_preserves_exact_bytes_metadata_and_incomplete_coverage_on_replay_continue ... ok
+
+failures:
+
+failures:
+    threads::note_edit_tests::actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree
+
+test result: FAILED. 15 passed; 1 failed; 0 ignored; 0 measured; 484 filtered out; finished in 0.17s
+
+error: test failed, to rerun pass `-p brn-ai --lib`

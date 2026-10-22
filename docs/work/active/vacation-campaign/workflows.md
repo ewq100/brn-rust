@@ -47,11 +47,11 @@ an explicit denominator gap.
 | 24 | File import/conversion: useful info/full note, Xberg modes, 8 kinds, conversion settings | `ThreadsUi::choose_import/convert_file`, `threads_documents.rs`, `Worker` | conversion/worker target and intent; cancel token; conversion report exposes gaps; failure leaves source external and no false completion | documents/intake tests; **UNQUALIFIED** |
 | 25 | Export/full backup and restore destination | `ThreadsUi::choose_output/output/choose_backup_folder`, `Worker`; app/core backup services | OS-selected destination + worker completion; export/backup report success only when complete; errors keep destination/result actionable; restore safety is core-owned | backup tests + end-to-end scripts; **UNQUALIFIED** |
 
-Status counts: 25 provisional domains; 0 fully qualified under the full campaign
+Historical snapshot counts: 25 provisional domains; 0 fully qualified under the full campaign
 acceptance standard; 2 implemented lifecycle pilots (Note and Review) with final
 integrated source/native acceptance pending; 23 unqualified. The final production Linux X11 Note journey passed on the committed pilot
 material (exact contentv3 and empty recovery); broad native qualification remains open. OS route completeness and the denominator remain open.
-Counts describe current evidence, not inferred coverage from module or test names.
+These counts describe that earlier snapshot, not current progress. Use the selected task record and overview for subsequent state-ownership integrations and qualification; module or test names never establish coverage.
 
 Source map: `crates/brn-desktop/src/threads_ui.rs` (state, lifecycle, workers,
 bindings), `threads_state.rs`, `threads_shell.rs`, `threads_tiles.rs`,

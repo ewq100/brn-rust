@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T00:54:43.355989+00:00",
-    "remaining_percent": 65,
+    "observed_at": "2026-10-22T01:02:05.121016+00:00",
+    "remaining_percent": 64,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual35% used /65% remaining, ordinaryUsageAllowed=true; secondary unavailable. No owner pause; fixed expiry unchanged. Account test session exhausted separately.",
+    "ordinary_work": "Admitted: actual36% used /64% remaining; ordinaryUsageAllowed=true, secondary unavailable. No owner pause; fixed expiry unchanged. AI test session remains closed separately.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -758,7 +758,8 @@
         "resource_waits": [],
         "evidence": [
           "docs/work/active/agent-first-simplification/reconciliation.md",
-          "docs/work/active/agent-first-simplification/outcome-comparison.md"
+          "docs/work/active/agent-first-simplification/outcome-comparison.md",
+          "docs/work/active/vacation-campaign/workflows.md"
         ],
         "gates": {
           "implementation": "complete two-page routing/label correction only",
@@ -2510,10 +2511,10 @@
         "title": "Assess explicit destination ownership for file imports",
         "state": "active",
         "owner": "lead bounded design; economical implementation and independent review only if selected",
-        "activity": "PR201published787ffbec after actualmain200fc49 merged into qualified2ecf634d; wholepublishedtreeequalPASS, fiveimportdestinationfiles only. Requiredhead and precedingmain checks pending.",
-        "observed_at": "2026-10-22T00:38:02.629178+00:00",
+        "activity": "Published PR201 head787ffbec has passed all four required checks. Three required checks passed on preceding main200; its final Ubuntu check is still running.",
+        "observed_at": "2026-10-22T01:02:05.121016+00:00",
         "origin": "observed",
-        "next_action": "Inspect requiredPR201exacthead and precedingmain200 checks/liveprotection before normalmerge; actualresultingmainseparate.",
+        "next_action": "Wait for the actual preceding-main200 final required result; then inspect live protection/exact heads and perform a separate normal merge. Verify resulting-main201 separately.",
         "depends_on": [
           {
             "task": "run-continuation-ownership",
@@ -2539,7 +2540,7 @@
         "gates": {
           "implementation": "PASS complete independent Sol review exact2ecf634d; no actionable findings.",
           "checks": "PASS focused1, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; frozen unlaunchedbinary.",
-          "integration": "PR201published787ffbec onmainfc49, qualifiedwhole-treeequal; requiredhead/mainpending",
+          "integration": "PR201 published787ffbec on mainfc49, qualified whole-tree equal; all four required head checks PASS, preceding-main Ubuntu pending.",
           "native": "Existing actual Mac gate deferred; no native claim.",
           "owner_acceptance": "Not claimed."
         },
@@ -2827,10 +2828,10 @@
         "title": "Prepare exact edits from one unique quoted passage",
         "state": "active",
         "owner": "Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review",
-        "activity": "Independent complete82dc62f0 review found two test defects (mixed-pair Serde expectation and unread full-note success fixture). Focusedcompile also failed because OperationId does not implement Ord. After two failed compiles lead reassessed actual types/dispatch/read guards, retained failures and corrected only tests; focused checks now running. Missing actual HTTP route and research overlap witnesses remain acceptance obligations.",
-        "observed_at": "2026-10-22T00:54:43.355989+00:00",
+        "activity": "Frozen28fd581e complete independent Sol reviewPASS, both prior P2s fixed. Actual focused17/0 plus researchcaller1/0PASS; includes null/null production dispatch through3simulatedHTTPproviderformats. Fullscripted runtime, strictlint, CLIguidecache/build gates running in sole slot.",
+        "observed_at": "2026-10-22T01:00:43.783991+00:00",
         "origin": "observed",
-        "next_action": "Finish corrected focused run; reuse actual provider HTTP fixture for null/null dispatch and research overlap caller witness; independently re-review final actual candidate and run final relevant gates. No account/native actions.",
+        "next_action": "Finish final28 qualification, preserve original failures and limits, then publish one separate reviewed candidate after predecessor trace/currentmain reconciled. Actual account usefulness unmeasured; closed account session not reopened.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2844,11 +2845,15 @@
           "docs/work/active/vacation-campaign/evidence/quote-provider-fixture-map.md",
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md",
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log",
-          "docs/work/active/vacation-campaign/evidence/quote-http-route-plan.md"
+          "docs/work/active/vacation-campaign/evidence/quote-http-route-plan.md",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-final-review.md",
+          "docs/work/active/vacation-campaign/evidence/quote-http-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-focused.log"
         ],
         "gates": {
-          "implementation": "Production source independently reviewed82; two P2 test findings and missing focused evidence pending corrected final review.",
-          "checks": "Initiale4 and82 compileFAIL retained; lead corrected test assumptions and exact ordered operation comparison after reassessment. Focused current dirtycandidate running; no pass claimed.",
+          "implementation": "PASS complete actual28 independent Sol review, no actionable findings; prior P2s valid/fixed, real research/HTTP fixture gaps addressed.",
+          "checks": "PASS focused17/0 including3HTTPformats and actualresearch1/0; finalscriptedfullruntime/lint/CLI/build/fmt/links running, no broad pass claimed.",
           "integration": "pending separate reviewed candidate if selected; no new account authority",
           "native": "actual Mac deferred",
           "owner_acceptance": "not claimed"
@@ -2869,6 +2874,13 @@
               "docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log",
               "docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md"
             ]
+          },
+          {
+            "outcome": "Corrected focused run compiled,15passed/1failed: new exact-call success assertion exposed same-Note active candidate collision. Existing service correctly refused a second pending candidate; raw result retained.",
+            "change": "Reassessed existing pending-slot contract (store replace/prepare). Isolate exact-range and null-selector successes in fresh fixtures instead of weakening candidate guard; compare each exact tool result to its own durable prepared operation. No production guard change. HTTP route witness uses one local edit per fresh Note.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log"
+            ]
           }
         ],
         "resource_plan": "Lead owns test corrections/source and sole shared build slot after two compile failures; independent Sol final review remains required. One bounded Luna read-only HTTP seam assessment complete, no live calls or additional harness. Actual runtime4slots; no concurrent source writers. Final full gates after source settles; reassess new failure before retry.",
@@ -2883,13 +2895,13 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T00:33:31.941Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-ai-session-closure-update.json"
+    "last_refresh_at": "2026-10-22T00:56:56.381Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-run-state-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T00:54:43.355989+00:00",
-    "runtime_capacity": "Lead active; independent Sol82 review complete, bounded Luna HTTP route assessment complete. No concurrent source writer.",
-    "build_slot": "Lead corrected focused note-edit build/test active, session72195; no other Rust build.",
+    "observed_at": "2026-10-22T01:00:43.783991+00:00",
+    "runtime_capacity": "Lead active; source author and consequential final28 independent review complete; no active helper writers.",
+    "build_slot": "Lead sole build: final28 fullscriptedruntime/lint/CLI pipeline session9765, /tmp/brn-quote-selector-qualification/final.log.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
@@ -2910,10 +2922,10 @@
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Required CI head201/main200 still running; independent precise-edit deterministic qualification continues.",
+    "wait_reason": "PR201 required head checks pass; final required main200 Ubuntu lane pending. Final exact-quote deterministic qualification runs independently.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability codex/precise-edit-unique-quote HEAD82dc62f0 with lead-owned test corrections; final candidate not frozen.",
+    "worker_checkout": "export-durability clean frozen28fd581e, no source writer; final gates running.",
     "fixture_worker_checkout": "mac-test-roots clean frozen eac295b1; temporary golden fixture restored and raw capture retained.",
     "documentation_worker_checkout": "architecture-status-route clean frozen PR201head787ffbec, qualified2ec whole-treeequal.",
     "required_ci_runs": [

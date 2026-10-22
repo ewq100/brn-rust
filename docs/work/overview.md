@@ -11,9 +11,9 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Assess explicit destination ownership for file imports
 
-Owner: lead bounded design; economical implementation and independent review only if selected · State: **active** · Last observed: 2026-10-22T00:38:02.629178+00:00
-Activity: PR201published787ffbec after actualmain200fc49 merged into qualified2ecf634d; wholepublishedtreeequalPASS, fiveimportdestinationfiles only. Requiredhead and precedingmain checks pending.
-Next: Inspect requiredPR201exacthead and precedingmain200 checks/liveprotection before normalmerge; actualresultingmainseparate.
+Owner: lead bounded design; economical implementation and independent review only if selected · State: **active** · Last observed: 2026-10-22T01:02:05.121016+00:00
+Activity: Published PR201 head787ffbec has passed all four required checks. Three required checks passed on preceding main200; its final Ubuntu check is still running.
+Next: Wait for the actual preceding-main200 final required result; then inspect live protection/exact heads and perform a separate normal merge. Verify resulting-main201 separately.
 Depends on: run-continuation-ownership when Prior state candidates integrate before publication of this dependent candidate. (reported satisfied: true)
 
 <details>
@@ -23,7 +23,7 @@ Gates:
 
 - **implementation:** PASS complete independent Sol review exact2ecf634d; no actionable findings.
 - **checks:** PASS focused1, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; frozen unlaunchedbinary.
-- **integration:** PR201published787ffbec onmainfc49, qualifiedwhole-treeequal; requiredhead/mainpending
+- **integration:** PR201 published787ffbec on mainfc49, qualified whole-tree equal; all four required head checks PASS, preceding-main Ubuntu pending.
 - **native:** Existing actual Mac gate deferred; no native claim.
 - **owner acceptance:** Not claimed.
 
@@ -84,27 +84,28 @@ Attempts:
 
 ### Prepare exact edits from one unique quoted passage
 
-Owner: Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review · State: **active** · Last observed: 2026-10-22T00:54:43.355989+00:00
-Activity: Independent complete82dc62f0 review found two test defects (mixed-pair Serde expectation and unread full-note success fixture). Focusedcompile also failed because OperationId does not implement Ord. After two failed compiles lead reassessed actual types/dispatch/read guards, retained failures and corrected only tests; focused checks now running. Missing actual HTTP route and research overlap witnesses remain acceptance obligations.
-Next: Finish corrected focused run; reuse actual provider HTTP fixture for null/null dispatch and research overlap caller witness; independently re-review final actual candidate and run final relevant gates. No account/native actions.
+Owner: Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review · State: **active** · Last observed: 2026-10-22T01:00:43.783991+00:00
+Activity: Frozen28fd581e complete independent Sol reviewPASS, both prior P2s fixed. Actual focused17/0 plus researchcaller1/0PASS; includes null/null production dispatch through3simulatedHTTPproviderformats. Fullscripted runtime, strictlint, CLIguidecache/build gates running in sole slot.
+Next: Finish final28 qualification, preserve original failures and limits, then publish one separate reviewed candidate after predecessor trace/currentmain reconciled. Actual account usefulness unmeasured; closed account session not reopened.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Production source independently reviewed82; two P2 test findings and missing focused evidence pending corrected final review.
-- **checks:** Initiale4 and82 compileFAIL retained; lead corrected test assumptions and exact ordered operation comparison after reassessment. Focused current dirtycandidate running; no pass claimed.
+- **implementation:** PASS complete actual28 independent Sol review, no actionable findings; prior P2s valid/fixed, real research/HTTP fixture gaps addressed.
+- **checks:** PASS focused17/0 including3HTTPformats and actualresearch1/0; finalscriptedfullruntime/lint/CLI/build/fmt/links running, no broad pass claimed.
 - **integration:** pending separate reviewed candidate if selected; no new account authority
 - **native:** actual Mac deferred
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json](active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json), [docs/work/active/vacation-campaign/evidence/quote-provider-fixture-map.md](active/vacation-campaign/evidence/quote-provider-fixture-map.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md](active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log](active/vacation-campaign/evidence/precise-edit-quote-attempt82.log), [docs/work/active/vacation-campaign/evidence/quote-http-route-plan.md](active/vacation-campaign/evidence/quote-http-route-plan.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json](active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json), [docs/work/active/vacation-campaign/evidence/quote-provider-fixture-map.md](active/vacation-campaign/evidence/quote-provider-fixture-map.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md](active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log](active/vacation-campaign/evidence/precise-edit-quote-attempt82.log), [docs/work/active/vacation-campaign/evidence/quote-http-route-plan.md](active/vacation-campaign/evidence/quote-http-route-plan.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log](active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-final-review.md](active/vacation-campaign/evidence/precise-edit-quote-final-review.md), [docs/work/active/vacation-campaign/evidence/quote-http-implementation.md](active/vacation-campaign/evidence/quote-http-implementation.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-focused.log](active/vacation-campaign/evidence/precise-edit-quote-focused.log)
 
 Attempts:
 
 - Initiale4b9418d focusedcompileFAIL E0107/E0277/E0308 importedcoreResult alias inrequirednullableSerde helper; no tests executed.: Use std::result::Result<...,D::Error>. Same correctionpass restores oldrange refusal text, adds privacy-safe staticquote reason and targeted realtyped/partialcoveragewitnesses; finalreview/checkspending. ([docs/work/active/vacation-campaign/evidence/precise-edit-quote-initial.sh](active/vacation-campaign/evidence/precise-edit-quote-initial.sh), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-initial.log](active/vacation-campaign/evidence/precise-edit-quote-initial.log))
 - Corrective82dc62f0 compileFAIL E0277: OperationId has PartialEq/Eq but not Ord; no tests executed. Independent review additionally found two necessarily failing test expectations.: After second failure lead paused/reassessed actual pinned types and dispatch/full-read boundaries. Compare exact original ordered operation list (no sort), preserve mixed-pair semantic refusal and no allocation, select proper local quote and assert that exact tool call result; extend actual research overlap witness. Actual provider HTTP evidence selected, no scope/authority expansion. ([docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log](active/vacation-campaign/evidence/precise-edit-quote-attempt82.log), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md](active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md))
+- Corrected focused run compiled,15passed/1failed: new exact-call success assertion exposed same-Note active candidate collision. Existing service correctly refused a second pending candidate; raw result retained.: Reassessed existing pending-slot contract (store replace/prepare). Isolate exact-range and null-selector successes in fresh fixtures instead of weakening candidate guard; compare each exact tool result to its own durable prepared operation. No production guard change. HTTP route witness uses one local edit per fresh Note. ([docs/work/active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log](active/vacation-campaign/evidence/precise-edit-quote-corrected-focused.log))
 
 </details>
 

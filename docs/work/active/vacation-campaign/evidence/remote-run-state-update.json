@@ -1,0 +1,62 @@
+{
+  "observed_at": "2026-10-22T00:56:56.381Z",
+  "source_commit": "6cb07786672a7efdfdad1c5b9485a312518334bc",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "new_sequence": 60,
+  "blocks_before": 37,
+  "blocks_after": 37,
+  "preservation_verified": true,
+  "changed_blocks": [
+    "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+    "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+    "a37e5801-b0c8-4330-800f-13d98b10338a"
+  ],
+  "operation_results": [
+    {
+      "operation_index": 0,
+      "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+        "relative_position_base64": "AOX+6tEI4QdB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "hash": "e3ac28c2ccc071235fc1d0c6d1795522e59a13495b6c8f15b94e8bde8fdaa0f5"
+        }
+      ]
+    },
+    {
+      "operation_index": 1,
+      "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+        "relative_position_base64": "AJuY17sC+BBB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "hash": "be4b8b530079fff0d9230b6b88c78f43e0703031da50c6b9f2da6a56e47dd56b"
+        }
+      ]
+    },
+    {
+      "operation_index": 2,
+      "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+      "created_block_ids": [],
+      "continuation_position": {
+        "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+        "relative_position_base64": "AJuY17sC/QJB"
+      },
+      "affected_blocks": [
+        {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "hash": "be9c94ed25f98a268e0c6e305aac64828b728ef5bc2b7385c0fc5ee23cad3453"
+        }
+      ]
+    }
+  ],
+  "limits": "Saved Markdown and ordering verified; no rendered-layout claim. Repository record remains authoritative."
+}
