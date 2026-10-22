@@ -361,6 +361,7 @@ impl ThreadsUi {
     fn run_knowledge_check(&mut self, cx: &mut Context<Self>) {
         let data = self.data_dir.clone();
         self.knowledge.running = true;
+        self.knowledge.result = None;
         self.knowledge.error = None;
         // A separate read view keeps the check off the UI thread.
         self.knowledge.task = Some(cx.spawn(async move |this, cx| {

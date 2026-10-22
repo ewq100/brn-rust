@@ -1210,8 +1210,8 @@ fn connections_tile_lists_visible_links_filters_relations_and_recenters(cx: &mut
 #[gpui_kit::test]
 fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestAppContext) {
     let f = fixture(cx, true, 1400., 1100.);
-    update_returning(cx, &f, |view| {
-        owner_write(
+    let (archived_id, remaining_id) = update_returning(cx, &f, |view| {
+        let dupes = owner_write(
             view,
             "dupes",
             vec![
@@ -1220,6 +1220,7 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
             ],
         );
         view.refresh();
+        (dupes[0].id.clone(), dupes[1].id.clone())
     });
     click(cx, &f, "home");
     reveal(cx, &f, "home-content", "knowledge-run");
@@ -1237,4 +1238,85 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
         );
         assert!(view.worker.is_none(), "seeding a review starts no run");
     });
+
+    // Resolve the synthetic duplicate through the checked owner change, then
+    // dispatch the replacement from the real control. Inspect its immediate
+    // frame before the background read can publish the fresh check.
+    click(cx, &f, "home");
+    let before_archive = update_returning(cx, &f, |view| {
+        let before = view.workspace.store.records().unwrap();
+        let note = view.workspace.store.note(&archived_id).unwrap().unwrap();
+        view.workspace
+            .owner_change(
+                "resolve-knowledge-duplicate",
+                &ChangeRequest {
+                    reason: "Resolve synthetic duplicate for knowledge refresh".into(),
+                    writes: vec![Put {
+                        id: archived_id.clone(),
+                        expected_version: Some(note.version),
+                        archived: true,
+                        data: note.data.clone(),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        view.refresh();
+        before
+    });
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.try_find("knowledge-summary").is_some());
+        assert!(window.try_find("knowledge-review").is_some());
+    })
+    .unwrap();
+    reveal(cx, &f, "home-content", "knowledge-run");
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("knowledge-run").visible());
+        window.click("knowledge-run", cx);
+        assert_eq!(
+            window.find("knowledge-run").label(),
+            Some("Check knowledge, unavailable: a check is running")
+        );
+        assert!(window.try_find("knowledge-summary").is_none());
+        assert!(window.try_find("knowledge-review").is_none());
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        window.render_frame(cx);
+        f.view.read_with(cx, |view, _| {
+            let fresh = view.knowledge.result.as_ref().unwrap();
+            assert_eq!(fresh.notes, check.notes - 1);
+            assert_eq!(fresh.links, check.links);
+            assert!(!fresh.counts.contains_key(&FindingKind::DuplicateTitle));
+            let archived = view.workspace.store.note(&archived_id).unwrap().unwrap();
+            let remaining = view.workspace.store.note(&remaining_id).unwrap().unwrap();
+            assert!(archived.archived);
+            let old_archived = before_archive.iter().find(|r| r.id == archived_id).unwrap();
+            assert_eq!(archived.version, old_archived.version + 1);
+            assert_eq!(archived.data, old_archived.data);
+            assert!(!remaining.archived);
+            assert_eq!(
+                &remaining,
+                before_archive
+                    .iter()
+                    .find(|r| r.id == remaining_id)
+                    .unwrap()
+            );
+            let after = view.workspace.store.records().unwrap();
+            assert_eq!(after.len(), before_archive.len());
+            for record in &before_archive {
+                let actual = after.iter().find(|r| r.id == record.id).unwrap();
+                if record.id == archived_id {
+                    assert!(actual.archived);
+                    assert_eq!(actual.version, record.version + 1);
+                    assert_eq!(actual.data, record.data);
+                } else {
+                    assert_eq!(actual, record, "unexpected durable fixture change");
+                }
+            }
+            assert!(view.worker.is_none());
+        });
+    })
+    .unwrap();
 }
