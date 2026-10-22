@@ -28,7 +28,7 @@
   "capability_observations": {
     "surface": "Local Codex desktop; owner confirms this Mac can stay powered on with Codex running.",
     "quota": "See admission observation; no purchases/reset credits.",
-    "wake": "Repeated same-chat heartbeat delivery observed19–20October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
+    "wake": "Repeated same-chat heartbeat delivery observed19\u201320October. Delivery alone does not establish completed unattended tasks or guaranteed future uptime.",
     "cloud": "Prior cloud limitations retained separately; no cloud dispatch required or launched."
   },
   "local_continuation": {
@@ -58,7 +58,7 @@
     "lead": "Retain current selected lead configuration; no runtime model or global settings change.",
     "inspection": "Prefer Luna medium for bounded inventories, docs and test/log triage.",
     "review": "Use meaningful independent review of complete actual candidates; exact source/coverage in task receipts. Checks, native observation, owner acceptance and integration remain separate.",
-    "concurrency": "Owner permits4–6 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
+    "concurrency": "Owner permits4\u20136 or more useful helpers; no permanent artificial3 cap. Use actual runtime capacity (currently4 total slots incl lead, hence3 active helpers), including nested/review agents. Isolate source writers and serialize shared-target builds. No automatic Astra.",
     "effective_model_verification": "Requested child model/effort recorded; effective configuration not independently exposed.",
     "remote_dispatch": "None; local heartbeat selected and authorized. Prior cloud limitations are historical.",
     "implementations": "Use Luna for small clearly specified verifiable fixes; Sol for difficult or consequential changes. Dated implementation assignments belong to task receipts."
@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T04:56:30.476551+00:00",
-    "remaining_percent": 55,
+    "observed_at": "2026-10-22T05:17:25.342789+00:00",
+    "remaining_percent": 54,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual45% used/55% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause, fixed expiry unchanged; account-test session remains closed.",
+    "ordinary_work": "Admitted: actual46% used/54% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause, fixed expiry unchanged; account-test session closed.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T05:04:25.758623+00:00",
+    "observed_at": "2026-10-22T05:17:25.342789+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -176,7 +176,7 @@
           "https://github.com/ewq100/brn-rust/pull/176"
         ],
         "gates": {
-          "implementation": "complete; final writing.rs SHA b14e8bc9…932ffe8",
+          "implementation": "complete; final writing.rs SHA b14e8bc9\u2026932ffe8",
           "checks": "all four required exact-head checks passed at 7e41da52; optional Windows Core failed",
           "integration": "verified normal merge1ea0ac875f6e7aa128ce21bde781075e87784fff; required main checks passed",
           "native": "captured off/on/off and inclusion on/off/on observed on qualified source87; unchanged records",
@@ -299,7 +299,7 @@
           "docs/work/active/agent-first-simplification/reconciliation.md"
         ],
         "gates": {
-          "implementation": "merged in earlier campaign PR163–174; per-slice identities retained in receipts",
+          "implementation": "merged in earlier campaign PR163\u2013174; per-slice identities retained in receipts",
           "checks": "all four required head/main gates through174 passed; optional Windows failures retained",
           "integration": "verified per dated integration receipt; no whole-program completion claim",
           "native": "partial actual Mac feedback/Apply/Undo/reopen evidence; Save/backup/unsaved journeys pending",
@@ -431,7 +431,7 @@
         ],
         "gates": {
           "implementation": "inapplicable: exercising existing test and public routes; no source change selected",
-          "checks": "passed: explicit existing ignored witness1passed/0failed/0ignored; public records6→7 with Runs1→2, unchanged owner Message and source bytes",
+          "checks": "passed: explicit existing ignored witness1passed/0failed/0ignored; public records6\u21927 with Runs1\u21922, unchanged owner Message and source bytes",
           "integration": "inapplicable: no source changes; qualification record saved locally while PR179 head stays frozen",
           "native": "headless toolkit only; actual OS interaction not exercised",
           "owner_acceptance": "not claimed"
@@ -2212,7 +2212,7 @@
         "attempts": [
           {
             "outcome": "Baseline7462 actual savedHigh vs expectedMedium fails0/1; first3d passes existing342 but independent review finds changedHelperOff/On reset.",
-            "change": "Extend existing positive Save test with Low→Off→Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
+            "change": "Extend existing positive Save test with Low\u2192Off\u2192Codex, unchanged High expected; actual29a negative fails savedLow vsHigh. MinimalOff reset restores prior behavior; finalfde1/0+342/0/1 and strict gates pass.",
             "evidence": [
               "docs/work/active/vacation-campaign/evidence/settings-draft-isolation-qualification.json"
             ]
@@ -3644,7 +3644,7 @@
       },
       {
         "state": "active",
-        "observed_at": "2026-10-22T04:37:21.884812+00:00",
+        "observed_at": "2026-10-22T05:17:25.342789+00:00",
         "origin": "observed",
         "depends_on": [],
         "resource_waits": [],
@@ -3661,7 +3661,7 @@
         "gates": {
           "implementation": "PASS independent complete3file d521 review; current session checked only before non-explicit replacement; explicit same-note Recover retained.",
           "checks": "PASS combined exactdfe4: writing UI44/0, independent host12/0, desktop344/0/1ignored+3outside-modulefiltered, provider500/0/1intentionalchildignored; strict affectedalltargetlint, ordinaryproductionnativebuild/notlaunched, fmt, overview,625files2850links0failures, cleanHEAD.",
-          "integration": "PR209 published exactdfe4 on main20811c48; complete independent4file review PASS and finalcombinedlocalchecks PASS. Required hostedhead/precedingmain pending; not merged.",
+          "integration": "MERGED normally 5fab84d8 after exact head/preceding-main/live protection PASS; resulting-main209 pending.",
           "native": "No native observation; owner availability remains deferred.",
           "owner_acceptance": "No new consequential product choice selected."
         },
@@ -3669,8 +3669,8 @@
         "id": "note-reload-generation-guard",
         "title": "Keep the visible edit when Reload encounters a newer recovery generation",
         "owner": "Bounded Luna test-only author; lead diagnosis; independent Sol review",
-        "activity": "The exact shared replacement guard is independently approved at formatted d521. Final shared UI44/0, independent host12/0 and production desktop344/0/1ignored (3 outside-module filtered) passed; strict lint, production native build, format and links passed. Original intended baseline failure and formatting correction remain visible. Combined unchanged with the other approved component on actual main208 as dfe4cf91; complete independent batch review approved, final combined checks PASS. Published as PR209 at frozen exact dfe4cf91; required hosted checks now pending.",
-        "next_action": "Keep PR209 exact dfe4 frozen. Inspect all four required exact-head and preceding-main208 checks plus live protection before normal merge; resulting-main separately.",
+        "activity": "PR209 exact dfe4 passed all four required head and preceding-main208 checks plus live protection. Normally merged as 5fab84d87f2cff3bc03f40fa5987c1fe73be98ab; whole qualified candidate tree equals actual main209. Resulting-main run39726448605 still in progress; three optional Windows failures remain visible.",
+        "next_action": "Inspect all four required resulting-main209 checks separately; retain actual preview step outcomes. Do not rerun unchanged local checks.",
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md",
           "crates/brn-writing-ui/src/note.rs",
@@ -3688,12 +3688,14 @@
           "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.sh",
           "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.log",
           "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/pr209-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr209-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr209-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr209-integration.json"
         ]
       },
       {
         "state": "active",
-        "observed_at": "2026-10-22T04:37:21.884812+00:00",
+        "observed_at": "2026-10-22T05:17:25.342789+00:00",
         "origin": "observed",
         "depends_on": [],
         "resource_waits": [],
@@ -3701,7 +3703,7 @@
         "gates": {
           "implementation": "PASS independent complete final a6b6 review; initial UTF8 P2 valid/fixed. Output cap is accepted/read output after exit, not hard live disk growth.",
           "checks": "PASS combined exactdfe4: writing UI44/0, independent host12/0, desktop344/0/1ignored+3outside-modulefiltered, provider500/0/1intentionalchildignored; strict affectedalltargetlint, ordinaryproductionnativebuild/notlaunched, fmt, overview,625files2850links0failures, cleanHEAD.",
-          "integration": "PR209 published exactdfe4 on main20811c48; complete independent4file review PASS and finalcombinedlocalchecks PASS. Required hostedhead/precedingmain pending; not merged.",
+          "integration": "MERGED normally 5fab84d8 after exact head/preceding-main/live protection PASS; resulting-main209 pending.",
           "native": "No native observation; owner availability remains deferred.",
           "owner_acceptance": "No new consequential product choice selected."
         },
@@ -3709,8 +3711,8 @@
         "id": "provider-test-child-bounds",
         "title": "Bound the synthetic provider stderr fixture and retain owned-child cleanup",
         "owner": "Bounded Luna test-only author; independent Sol review; lead checks/integration",
-        "activity": "Independently approved a6b6 passed final full500 library checks,1 intentionally ignored child fixture, strict alltargetlint andformat. Controlled stall failed as expected after1.01s and reaped ownedPID61304 withsignal9; exact source restored before final checks. UTF8 P2 valid/fixed. Combined unchanged with the other approved component on actual main208 as dfe4cf91; complete independent batch review approved, final combined checks PASS. Published as PR209 at frozen exact dfe4cf91; required hosted checks now pending.",
-        "next_action": "Keep PR209 exact dfe4 frozen. Inspect all four required exact-head and preceding-main208 checks plus live protection before normal merge; resulting-main separately.",
+        "activity": "PR209 exact dfe4 passed all four required head and preceding-main208 checks plus live protection. Normally merged as 5fab84d87f2cff3bc03f40fa5987c1fe73be98ab; whole qualified candidate tree equals actual main209. Resulting-main run39726448605 still in progress; three optional Windows failures remain visible.",
+        "next_action": "Inspect all four required resulting-main209 checks separately; retain actual preview step outcomes. Do not rerun unchanged local checks.",
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/test-child-readiness-audit.md",
           "crates/brn-ai/src/provider_stderr_tests.rs",
@@ -3730,7 +3732,9 @@
           "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.sh",
           "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-final.log",
           "docs/work/active/vacation-campaign/evidence/note-recovery-reliability-batch-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/pr209-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr209-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr209-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr209-integration.json"
         ]
       },
       {
@@ -3962,25 +3966,42 @@
         "title": "Measure the existing app refresh on a larger synthetic workspace",
         "state": "active",
         "owner": "Bounded Luna diagnostic-only author; independent Sol review; lead singlebuildactor",
-        "observed_at": "2026-10-22T05:04:25.758623+00:00",
+        "observed_at": "2026-10-22T05:17:25.342789+00:00",
         "origin": "observed",
-        "activity": "Lead selects one headless diagnostic inexistingthreads_omakase_tests harness,10kNotes via20x500checkedownerbatches; actualrefresh methodonlytimed aftersetup/constructor. Reused cleanmac-test-roots branchcodex/desktop-refresh-scale-diagnostic frommain20811c48; no productionchange/newlatencytarget.",
-        "next_action": "Prepare a reviewable diagnostic-onlyfixture patch, fullindependentreview/no liveworker, then one pinnedheadless filteredrun. Print population/profile/time; distinguish no-request/receipt-heavybranches honestly. Do not infernative/fullappresponsiveness frommethodtime.",
+        "activity": "Exact diagnostic-only be97dc0a source and execution adapter independently approved. Initial valid P2 stale-row/failed-refresh false-sample path fixed before workload by clean-notice assertions outside timer. Reserve the single bounded headless filtered run now; no production change.",
+        "next_action": "Lead executes the one reviewed runner, retaining raw log and completion, actual dimensions/profile/time, unchanged checkout and owned-group cleanup; assess result without a new latency target or automatic repeat.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-preflight.md",
           "crates/brn-desktop/src/threads_omakase_tests.rs",
-          "crates/brn-threads-app/tests/user_scale.rs"
+          "crates/brn-threads-app/tests/user_scale.rs",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-initial-review.md",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-final-review.md",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-runner-review.md",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-run.sh",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-supervise.py",
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale.patch"
         ],
         "gates": {
-          "implementation": "Diagnostic-onlytestauthor selected; no productioncode/permanentbenchmarkframework.",
-          "checks": "One headlessfiltereddiagnosticpending; no latencythresholdmanufactured.",
+          "implementation": "PASS complete exact be97dc0a independent final review; initial P2 valid/fixed; test-only branch not selected for integration.",
+          "checks": "RESERVED one headless filtered run: exact reviewed runner09af74ac/supervisor5115b3d4, pinned1.98.1/offline/jobs1/test opt1; 30min trigger/1GiB sampled stop, finite owned-group cleanup.",
           "integration": "No productPRselected; diagnosticbranchwillnotbemergedwithoutseparatejustification.",
           "native": "HeadlessTestAppContextonly; actualMac/IME/rendering/ownerexperience deferred.",
           "owner_acceptance": "Not claimed."
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Reserved before launch; no execution result yet.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-run.sh",
+              "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-supervise.py",
+              "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-runner-review.md"
+            ],
+            "change": "One exact headless direct-refresh diagnostic on main208-based be97dc0a; no native/isolated CPU/full startup/latency acceptance claim. Initial record validation rejected the disposition field instead of required change; corrected before any launch."
+          }
+        ],
         "resource_plan": "One boundedLuna medium author, independentSolreview andlead within4slots. One syntheticworkspace<=10kNotes, fixedsmallbodies,20checkedbatches; existingofflinefixture andpollNone. No providerworker/AI/account/nativeapp launch/model/dependency/globalchange/nestedhelper; leadserializespinnedofflinejobs1 build and finiteexecution/diskguard. Stopafterone actualdiagnostic; nopersistednewlatencygate/framework."
       }
     ],
@@ -3992,32 +4013,25 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T04:49:27.391119+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-backup-qualified-update.json"
+    "last_refresh_at": "2026-10-22T05:09:24.253Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-index-assessment-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T05:04:25.758623+00:00",
-    "runtime_capacity": "Lead andboundedLuna diagnostic-onlywriter, independentSolreview next; allcostreviewcomplete.",
-    "build_slot": "Free: sole cost2162 finished101 atstrict50msgate; exactsource94ef restored, workerHEADa499clean. No activebuild.",
+    "observed_at": "2026-10-22T05:17:25.342789+00:00",
+    "runtime_capacity": "Lead sole build actor; Luna author completed; independent Sol final source/adapter review completed.",
+    "build_slot": "Reserved for one independently reviewed headless refresh diagnostic; no competing build at reservation.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [
-      {
-        "session_id": 87909,
-        "scope": "PR209 requiredheadchecks",
-        "command": "gh pr checks209 --required --watch --interval60",
-        "log": "/tmp/brn-pr209-required.log"
-      }
-    ],
+    "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR209 finalMacCore headpending; main208all4PASS. Newselectedheadlessrefreshdiagnosticauthoring; no activebuild.",
+    "wait_reason": "No headless dispatch wait; main209 resulting checks remain pending separately.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen7dde; ordinaryCLI built and artifact frozen, no writer.",
     "fixture_worker_checkout": "mac-test-roots clean switched from retaineda499characterization to codex/desktop-refresh-scale-diagnostic onmain20811c48; owns onlyexistingheadlesstestfile.",
     "documentation_worker_checkout": "architecture-status-route frozen combined dfe4 on actualmain208; no writer.",
     "required_ci_runs": [
-      39723336384
+      39726448605
     ]
   },
   "native_availability": {

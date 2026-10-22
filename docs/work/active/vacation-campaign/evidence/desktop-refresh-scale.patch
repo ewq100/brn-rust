@@ -1,0 +1,115 @@
+diff --git a/crates/brn-desktop/src/threads_omakase_tests.rs b/crates/brn-desktop/src/threads_omakase_tests.rs
+index b4397287..102c3551 100644
+--- a/crates/brn-desktop/src/threads_omakase_tests.rs
++++ b/crates/brn-desktop/src/threads_omakase_tests.rs
+@@ -707,6 +707,110 @@ fn notes_tile_sections_letters_and_filter_stay_bounded_with_many_notes(cx: &mut
+     });
+ }
+ 
++#[gpui_kit::test]
++fn ten_thousand_notes_report_headless_refresh_duration(cx: &mut TestAppContext) {
++    const NOTES: usize = 10_000;
++    let f = fixture(cx, |workspace| {
++        let owner = HostAuthority::owner("synthetic desktop refresh scale fixture");
++        for batch in 0..NOTES / 500 {
++            let op = workspace
++                .store
++                .allocate_operation(&format!("desktop-refresh-scale-batch:{batch}"))
++                .unwrap();
++            let writes = (0..500)
++                .map(|offset| Put {
++                    id: op.creation_id(offset),
++                    expected_version: None,
++                    archived: false,
++                    data: RecordData::Note(Note::working(
++                        format!("Refresh scale note {}", batch * 500 + offset),
++                        "Synthetic desktop refresh scale body.",
++                    )),
++                })
++                .collect();
++            let request = ChangeRequest {
++                reason: "Synthetic desktop refresh scale notes".into(),
++                writes,
++                inputs: vec![],
++            };
++            workspace
++                .store
++                .prepare_owner(&op, &request, &owner)
++                .unwrap();
++            assert!(matches!(
++                workspace.store.apply(&op, &owner).unwrap(),
++                ApplyOutcome::Applied(_)
++            ));
++        }
++    });
++
++    let (elapsed, counts) = update(cx, &f, |view, _, _| {
++        assert!(
++            view.notice.text().is_empty(),
++            "fixture startup left a notice before the measured refresh: {}",
++            view.notice.text()
++        );
++        assert_ne!(
++            view.notice_tone(),
++            Tone::Error,
++            "fixture startup left an error tone before the measured refresh"
++        );
++        let started = std::time::Instant::now();
++        view.refresh();
++        let elapsed = started.elapsed();
++        assert!(
++            view.notice.text().is_empty(),
++            "refresh reported an error instead of producing a valid sample: {}",
++            view.notice.text()
++        );
++        assert_ne!(
++            view.notice_tone(),
++            Tone::Error,
++            "refresh left an error tone despite the timing sample"
++        );
++        let notes = view
++            .records
++            .iter()
++            .filter(|record| matches!(&record.data, RecordData::Note(_)))
++            .count();
++        assert_eq!(notes, NOTES, "the refresh fixture must load every Note");
++        let writing_requests = view
++            .records
++            .iter()
++            .filter(|record| {
++                matches!(&record.data, RecordData::Message(message) if message.role == "writing-request")
++            })
++            .count();
++        (
++            elapsed,
++            (
++                notes,
++                view.records.len(),
++                view.history.len(),
++                view.candidates.len(),
++                view.buffers.len(),
++                view.assets.len(),
++                view.topics.is_some(),
++                writing_requests,
++                view.writing.applied_rewrite.len(),
++            ),
++        )
++    });
++    eprintln!(
++        "desktop_refresh_diagnostic profile=headless_gpui_refresh_only native_interaction=unobserved notes={} records={} receipts={} candidates={} recovery_buffers={} assets={} topics_configured={} writing_requests={} applied_rewrite={} request_apply_path=unactivated elapsed_us={}",
++        counts.0,
++        counts.1,
++        counts.2,
++        counts.3,
++        counts.4,
++        counts.5,
++        counts.6,
++        counts.7,
++        counts.8,
++        elapsed.as_micros(),
++    );
++}
++
+ #[gpui_kit::test]
+ fn dirty_note_requires_an_explicit_save_before_commenting(cx: &mut TestAppContext) {
+     let mut note = None;
