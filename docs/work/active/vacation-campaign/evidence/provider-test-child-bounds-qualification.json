@@ -1,0 +1,22 @@
+{
+  "observed_at": "2026-10-22T04:24:30.971011+00:00",
+  "candidate": "a6b6d9902c8797a696cb96e1d9e848c564425b9e",
+  "base": "8c18845ca5b70a43d36b0bc0d2811da573086a79",
+  "final_process_exit_code": 0,
+  "library": {
+    "passed": 500,
+    "failed": 0,
+    "ignored": 1,
+    "ignored_case": "Parent-owned isolated synthetic stderr fixture remains intentionally ignored in ordinary discovery; parent checks one child test and three routes."
+  },
+  "strict_all_target_clippy": "PASS",
+  "format_whitespace_clean_head": "PASS",
+  "source_sha256": "764ac8d1ccb09684c1f2b7996897d7834415798425cc2b78ff28ee99379c4c77",
+  "negative_control": "Expected0/1 FAIL after1.01s parent watchdog; ownedPID61304 actual wait signal9/reaped. Diagnostic compilation plus execution91.331s. Exact source/hash/cleanHEAD restored before final full library/lint.",
+  "negative_receipt": "provider-test-child-bounds-negative-receipt.json",
+  "initial_p2": "LossyUTF8 acceptance valid/fixed; strict decoding uses constant diagnostics without rawbytes.",
+  "review": "provider-test-child-bounds-final-review.md",
+  "commands": "provider-test-child-bounds-final.sh",
+  "raw": "provider-test-child-bounds-final.log",
+  "limits": "Synthetic/offline format tests, no live provider/account/native acceptance.64KiB per stream is accepted/pre-read bound after exit, not hard live disk quota. OS kill/wait limits retained. Hosted/integration gates separate."
+}

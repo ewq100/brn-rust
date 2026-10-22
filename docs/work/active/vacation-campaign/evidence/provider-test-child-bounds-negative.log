@@ -1,0 +1,21 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 1m 29s
+     Running unittests src/lib.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_ai-bcb2bd2be1aa4497)
+
+running 1 test
+
+thread 'provider_formats_tests::provider_stderr_tests::rejected_tool_arguments_and_partial_text_never_reach_process_stderr' (18566920) panicked at crates/brn-ai/src/provider_stderr_tests.rs:18:13:
+synthetic provider stderr child timed out
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+BRN_NEGATIVE_STDERR_CHILD_REAP pid=61304 status=Ok(ExitStatus(unix_wait_status(9)))
+test provider_formats_tests::provider_stderr_tests::rejected_tool_arguments_and_partial_text_never_reach_process_stderr ... FAILED
+
+failures:
+
+failures:
+    provider_formats_tests::provider_stderr_tests::rejected_tool_arguments_and_partial_text_never_reach_process_stderr
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 500 filtered out; finished in 1.01s
+
+error: test failed, to rerun pass `-p brn-ai --lib`

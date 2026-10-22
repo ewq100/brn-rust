@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-10-22T04:24:57.631190+00:00",
+  "source_commit": "7dde6a41a4fbc66468e0400d2cc3c859f04c8ef5",
+  "source_tree": "0a3e4464a9e9e1f413177dd2c740f82bcd36e2aa",
+  "source_worktree": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+  "source_clean_after_build": true,
+  "binary": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-backup-interruption-7dde6a41/brn",
+    "sha256": "edf780009231fb887ef9db15d9e34e9bb1557caa914976e1675b8f80de412301",
+    "bytes": 71484016
+  },
+  "command": "cargo build -p brn --locked --offline --jobs 1",
+  "features": "default, ordinary non-test CLI",
+  "process_exit_code": 0,
+  "rust_toolchain": "1.98.1-aarch64-apple-darwin",
+  "build_script": "/tmp/brn-public-backup-interruption/build.sh",
+  "build_log": "/tmp/brn-public-backup-interruption/build.log",
+  "limits": "Build/source-bound artifact only; no new command run yet, no native/account/live-provider or release claim. Current-main identity must be reconciled separately."
+}

@@ -1,0 +1,32 @@
+{
+  "observed_at": "2026-10-22T04:16:47.985958+00:00",
+  "candidate": "a6b6d9902c8797a696cb96e1d9e848c564425b9e",
+  "command": [
+    "cargo",
+    "test",
+    "-p",
+    "brn-ai",
+    "--lib",
+    "provider_formats_tests::provider_stderr_tests::rejected_tool_arguments_and_partial_text_never_reach_process_stderr",
+    "--locked",
+    "--offline",
+    "--jobs",
+    "1",
+    "--",
+    "--exact",
+    "--nocapture"
+  ],
+  "control": "Test-only child sleeps10s before scripted fixtures; same parent watchdog uses1s diagnostic constant, Drop emits owned PID and actual wait status. No live provider action.",
+  "qualified_source_sha256": "764ac8d1ccb09684c1f2b7996897d7834415798425cc2b78ff28ee99379c4c77",
+  "timeout_seconds": 180,
+  "process_exit_code": 101,
+  "outer_timeout": false,
+  "elapsed_seconds": 91.331,
+  "source_restored_sha256": "764ac8d1ccb09684c1f2b7996897d7834415798425cc2b78ff28ee99379c4c77",
+  "clean_head_restored": true,
+  "owned_child_reaped_sigkill": true,
+  "owned_pid": 61304,
+  "expected_timeout_assertion": true,
+  "expected_test_failure": true,
+  "verdict": "PASS expected watchdog failure and owned child reaping; exact source restored"
+}

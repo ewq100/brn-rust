@@ -1,0 +1,5 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-app)
+   Compiling brn v0.0.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn)
+    Finished `dev` profile [unoptimized] target(s) in 10.20s

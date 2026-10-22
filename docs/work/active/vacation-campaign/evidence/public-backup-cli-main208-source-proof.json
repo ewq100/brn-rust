@@ -1,0 +1,9 @@
+{
+  "observed_at": "2026-10-22T04:29:11.402421+00:00",
+  "built_source": "7dde6a41a4fbc66468e0400d2cc3c859f04c8ef5",
+  "normal_merged_main": "11c48f9b91cb0d4e9deba9e0f45b43ef284b63e1",
+  "whole_git_tree_equal": true,
+  "git_tree": "0a3e4464a9e9e1f413177dd2c740f82bcd36e2aa",
+  "binary_receipt": "public-backup-cli-build-qualification.json",
+  "limits": "Exact build/source tree equality, not new workload/native/release evidence. Main208 required checks pending separately."
+}

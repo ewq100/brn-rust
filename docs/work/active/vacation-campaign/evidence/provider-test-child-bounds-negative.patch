@@ -1,0 +1,32 @@
+diff --git a/crates/brn-ai/src/provider_stderr_tests.rs b/crates/brn-ai/src/provider_stderr_tests.rs
+index 59ab6a94..d142eabc 100644
+--- a/crates/brn-ai/src/provider_stderr_tests.rs
++++ b/crates/brn-ai/src/provider_stderr_tests.rs
+@@ -2,7 +2,7 @@ use super::*;
+ 
+ const CHILD: &str = "provider_formats_tests::provider_stderr_tests::provider_stderr_child";
+ const CHILD_ENV: &str = "BRN_SYNTHETIC_STDERR_CHILD";
+-const CHILD_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(30);
++const CHILD_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(1);
+ const MAX_CHILD_OUTPUT: u64 = 64 * 1024;
+ 
+ struct OwnedChild(Option<std::process::Child>);
+@@ -30,7 +30,9 @@ impl Drop for OwnedChild {
+             if child.try_wait().ok().flatten().is_none() {
+                 let _ = child.kill();
+             }
+-            let _ = child.wait();
++            let pid = child.id();
++            let status = child.wait();
++            eprintln!("BRN_NEGATIVE_STDERR_CHILD_REAP pid={pid} status={status:?}");
+         }
+     }
+ }
+@@ -98,6 +100,7 @@ fn rejected_tool_arguments_and_partial_text_never_reach_process_stderr() {
+ #[tokio::test]
+ #[ignore = "only the parent test launches this isolated synthetic stderr fixture"]
+ async fn provider_stderr_child() {
++    std::thread::sleep(std::time::Duration::from_secs(10));
+     assert_eq!(
+         std::env::var(CHILD_ENV).unwrap(),
+         "synthetic-three-routes-v1"
