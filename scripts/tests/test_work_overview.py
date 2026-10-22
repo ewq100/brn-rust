@@ -148,6 +148,31 @@ class WorkOverviewTests(unittest.TestCase):
             self.assertEqual(self.record.read_bytes(), record_before)
             self.assertFalse(self.output.parent.exists())
 
+    def test_active_only_custom_projection_links_record_and_all_task_ids(self):
+        active = task("active", resource_waits=["native slot"])
+        ready = task("ready", state="ready", title="Ready task")
+        blocked = task(
+            "blocked",
+            state="blocked",
+            title="Blocked task",
+            depends_on=[{"task": "active", "condition": "active completes", "satisfied": False}],
+        )
+        self.save(view(active, ready, blocked))
+        record_before = self.record.read_bytes()
+
+        result, _, stderr = self.run_main()
+
+        self.assertEqual(result, 0, stderr)
+        output = self.output.read_text(encoding="utf-8")
+        self.assertIn("## Completed\n\nNone recorded.", output)
+        self.assertIn("[selected work record](../../campaign.json)", output)
+        self.assertIn("--record PATH_TO_SELECTED_RECORD --task TASK_ID", output)
+        self.assertIn("replacing PATH_TO_SELECTED_RECORD with the linked selected record path", output)
+        self.assertEqual(output.count("Inspect one validated task"), 1)
+        for task_id in ("active", "ready", "blocked"):
+            self.assertIn(f"Task ID: `{task_id}`", output)
+        self.assertEqual(self.record.read_bytes(), record_before)
+
     def test_malformed_update_preserves_old_file_and_check_detects_staleness_without_write(self):
         self.save(view(task()))
         self.assertEqual(self.run_main()[0], 0)
@@ -288,10 +313,9 @@ class WorkOverviewTests(unittest.TestCase):
         section = output.split("## Completed", 1)[1]
         self.assertIn("Completion here means the selected task scope is complete", section)
         self.assertIn("does not establish every gate, native observation, or owner acceptance", section)
-        self.assertIn("[selected work record](../../campaign.json)", section)
-        self.assertIn("--record PATH_TO_SELECTED_RECORD --task TASK_ID", section)
-        self.assertIn("replacing PATH_TO_SELECTED_RECORD with the linked record path", section)
-        self.assertIn("TASK_ID with an ID listed below", section)
+        self.assertIn("[selected work record](../../campaign.json)", output)
+        self.assertIn("--record PATH_TO_SELECTED_RECORD --task TASK_ID", output)
+        self.assertIn("TASK_ID with an ID shown on a task below", output)
         self.assertIn("- `done` — First task", section)
         self.assertNotIn("<details>", section)
         self.assertNotIn("implementation claim", section)

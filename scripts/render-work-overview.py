@@ -149,7 +149,7 @@ def _safe_label(text):
 
 
 def _task_block(task):
-    lines = [f"### {task['title']}", "", f"Owner: {task['owner']} · State: **{task['state']}** · Last {task['origin']}: {task['observed_at']}",
+    lines = [f"### {task['title']}", "", f"Task ID: `{task['id']}`", f"Owner: {task['owner']} · State: **{task['state']}** · Last {task['origin']}: {task['observed_at']}",
              f"Activity: {task['activity']}", f"Next: {task['next_action']}"]
     if task["depends_on"]:
         lines.append("Depends on: " + "; ".join(f"{dep['task']} when {dep['condition']} (reported satisfied: {str(dep['satisfied']).lower()})" for dep in task["depends_on"]))
@@ -176,10 +176,12 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
     def eligible(task):
         return task["state"] == "ready" and not unmet(task)
 
+    record_target = os.path.relpath(Path(record_path).resolve(), output_path.parent)
+    record_link = f"[selected work record]({quote(record_target, safe='/._-()')})"
     out = ["# Development overview", "", f"**Goal:** {view['goal']}"]
     if "owner_attention" in view:
         out.append(f"**Owner attention:** {view['owner_attention']}")
-    out.extend(("", "Activity below is the last reported or observed update. It does not establish that work is running now.", "", "Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.", ""))
+    out.extend(("", "Activity below is the last reported or observed update. It does not establish that work is running now.", "", "Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.", "", f"Task details: {record_link}. Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown on a task below.", ""))
     sections = ("Working on", "Next", "Needs attention", "Completed")
     for heading in sections:
         out.extend((f"## {heading}", ""))
@@ -194,11 +196,8 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
         if not selected:
             out.extend(("None recorded.", ""))
         elif heading == "Completed":
-            record_target = os.path.relpath(Path(record_path).resolve(), output_path.parent)
-            record_link = f"[selected work record]({quote(record_target, safe='/._-()')})"
             out.extend((
                 "Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.",
-                f"The selected record retains exact task fields, detailed evidence, and attempt history. Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked record path and TASK_ID with an ID listed below. The record is {record_link}.",
                 "",
             ))
             out.extend(f"- `{task['id']}` — {task['title']}" for task in selected)
@@ -209,7 +208,7 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
                     waiting = unmet(task)
                     if waiting:
                         if task["state"] == "active":
-                            out.extend((f"### {task['title']}", "", f"Owner: {task['owner']}", "", "Waiting:", "", *[f"- {reason}" for reason in waiting], ""))
+                            out.extend((f"### {task['title']}", "", f"Task ID: `{task['id']}`", f"Owner: {task['owner']}", "", "Waiting:", "", *[f"- {reason}" for reason in waiting], ""))
                         else:
                             out.extend((_task_block(task), "", "Waiting:", "", *[f"- {reason}" for reason in waiting], ""))
                     else:
