@@ -13,17 +13,8 @@ pub(crate) enum DefaultCredentials {
 }
 impl Workspace {
     pub fn settings(&self) -> AppResult<WorkspaceSettings> {
-        self.records()?
-            .into_iter()
-            .find_map(|record| {
-                if !record.archived
-                    && let RecordData::Settings(settings) = record.data
-                {
-                    Some(settings)
-                } else {
-                    None
-                }
-            })
+        self.store
+            .workspace_settings()?
             .ok_or_else(|| AppError::Invalid("Workspace configuration is missing".into()))
     }
     pub(crate) fn bootstrap_settings(&mut self, credentials: DefaultCredentials) -> AppResult<()> {
