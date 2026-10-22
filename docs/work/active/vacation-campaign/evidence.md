@@ -720,3 +720,9 @@ One [normal AI-Off synthetic DOCX import](evidence/asset-backup-cli-no-retained-
 ## 21 October UTC: concise overview verified on main
 
 [PR198 resulting-main](evidence/pr198-resulting-main.json) passes all four required checks plus Documentation and tooling on exact7fd7142c. Original failures, immutable receipts and all completed task facts remain preserved. No new headless candidate is justified by the existing bounded assessments; actual Mac scenarios remain deferred by owner availability. Recovery should reconcile genuinely changed evidence/gates rather than replay audits or passing journeys. No native/owner acceptance/release claim.
+
+## 22 October UTC: desktop context owners merged; knowledge refresh qualified
+
+[PR203 resulting-main](evidence/pr203-resulting-main.json) passes all four required checks. [Fresh PR204 guard](evidence/pr204-premerge.json) passes all four exact-head and preceding-main checks plus live protection before a separate normal merge; [merged main42906128](evidence/pr204-integration.json) exactly matches the complete qualified f79 tree. Resulting-main remains a separate gate.
+
+[Knowledge refresh qualification](evidence/knowledge-refresh-qualification.json) binds final6746 to independent review, full347/0/1, strictlint, ordinarynativebuild and formatting. The supported old-source failure and all three prior harness failures remain preserved. A previously vacuous finding-ID absence assertion was removed after review; registered pending/summary/Review controls and fresh-result/durable-record assertions remain. Replacement-error behavior is source-reviewed only. [PR205 publication](evidence/pr205-publication.json) reconciles actual main204 and proves whole-tree equality. No native interaction, account tests or release occurred.

@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-10-22T02:20:05.134742+00:00",
+  "pr": 205,
+  "url": "https://github.com/ewq100/brn-rust/pull/205",
+  "branch": "codex/knowledge-check-refresh",
+  "published_head": "a77b2edece4fb91ec6303f829d9ed8792b9adf95",
+  "base": "42906128b1b97dd4eec8d2885a53cd450c27b9d2",
+  "qualified_candidate": "6746eea67ee227209bb39fb0f879c12a6d7f88b3",
+  "whole_tree_equal": true,
+  "qualified_tree": "442939265fc8f5c4d4b7acfdc0e71d8b118acaf8",
+  "required_checks": "Pending actual published-head/preceding-main checks; live guard required before merge.",
+  "limits": "No native/owner acceptance or release; replacement-error source-reviewed only."
+}

@@ -1,0 +1,36 @@
+{
+  "observed_at": "2026-10-22T02:18:46.622550+00:00",
+  "candidate": "6746eea67ee227209bb39fb0f879c12a6d7f88b3",
+  "base": "f79f6540276c00155ab3bc0d7f019f4ea5d00c9e",
+  "review": "knowledge-refresh-final-review.md",
+  "results": {
+    "old_source_supported_baseline": "FAIL1 at intended retained summary assertion, preceded by supported pending marker",
+    "corrected_focused": {
+      "candidate": "9eeee56167a0f311315d4743a0b0423d750fc9ad",
+      "passed": 1,
+      "failed": 0,
+      "final_difference": "Only removed vacuous unregistered finding-ID assertion; production identical"
+    },
+    "final_full_native_toolkit": {
+      "passed": 347,
+      "failed": 0,
+      "ignored": 1
+    },
+    "strict_native_all_target_clippy": "PASS",
+    "ordinary_native_build": "PASS",
+    "format_whitespace": "PASS"
+  },
+  "binary": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-knowledge-refresh-6746eea6/brn-desktop",
+    "sha256": "20b8b5cb0fc28612acaef9761288aed5790c5a391d3bdff7c2c1e60b5106d2d6",
+    "launched": false
+  },
+  "script_sha256": "2b5e3ddcb6c908ed0abe47a7f885a52dc7f4bad3610b2d62e6b1d87514f4b55f",
+  "log_sha256": "32a484d40c3ebba461577c23253294a817c850fb8a81fd58a27942936f863acb",
+  "limits": [
+    "Successful replacement exercised; replacement-error behavior implemented/source-reviewed only, no injected failure.",
+    "Original three harness failures retained separately; supported baseline independently reassessed and explicitly selected.",
+    "Existing ignored fixture and block0.1.6 future compatibility warning retained.",
+    "Toolkit evidence only, no native input/rendering/IME/VoiceOver/owner acceptance/account test."
+  ]
+}
