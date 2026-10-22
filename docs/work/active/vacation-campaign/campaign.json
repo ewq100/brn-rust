@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T02:01:16.523547+00:00",
+    "observed_at": "2026-10-22T02:04:05.006654+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3098,10 +3098,10 @@
         "title": "Keep previous knowledge findings out of a replacement check",
         "state": "active",
         "owner": "Lead diagnosis/selection; bounded Luna test-only author first",
-        "observed_at": "2026-10-22T02:01:16.523547+00:00",
+        "observed_at": "2026-10-22T02:04:05.006654+00:00",
         "origin": "observed",
-        "activity": "Second b048 actual test-only1FAIL reached pending control but compared AX accessible label to visible Checking text; no selected stale-summary assertion reached. Lead paused after two harness failures and inspected exact pinned TestWindow/ElementSnapshot and button implementation.",
-        "next_action": "One final old-source baseline after replacing unsupported visual-label assumption with registered control disabled=true. Summary/review absence assertions remain unchanged. If another harness failure occurs, defer this seam instead of repeating; no production fix selected.",
+        "activity": "Third baselineb8141b57 actual1FAIL at disabled snapshot None instead of Some(true); again selected stale-summary assertion not reached. Current test execution loop is stopped at its limit. No product fix or reproduced-defect claim. Independent read-only seam/cause reassessment selected before any further build.",
+        "next_action": "Retain all failures. Independent reviewer must validate actual observed control semantics and disposition: defer current seam or provide concrete source-bound alternative before lead selects further work. No fourth baseline or production mutation admitted now.",
         "depends_on": [
           {
             "task": "queued-edit-destination-ownership",
@@ -3118,11 +3118,13 @@
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh",
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md",
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.log",
-          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.sh"
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.sh",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.log",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.sh"
         ],
         "gates": {
           "implementation": "Hypothesis only; no production change selected before red observation.",
-          "checks": "Initial actual1FAIL at missing unregistered test element; no product defect confirmed. Final old-source regression pending.",
+          "checks": "Three actual1FAIL harness observations retained; selected app behavior unconfirmed. Test retry loop stopped.",
           "integration": "No candidate; future source only after diagnosis, independent review and required gates.",
           "native": "Actual Mac unavailable; toolkit only.",
           "owner_acceptance": "No owner decision selected for bounded misleading replacement presentation."
@@ -3144,9 +3146,17 @@
               "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.log",
               "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.sh"
             ]
+          },
+          {
+            "outcome": "Leadb8141b57 actual1FAIL: registered Button ElementSnapshot.disabled() is None, despite source disabled(running). The assumed state observation is unsupported for this wrapper; pending summary/refusal still not reached.",
+            "change": "Honor selected final-baseline limit: stop tests and production dispatch. Reassess actual wrapper observation/source policy independently, using the second attempt actual accessible-label evidence and pinned implementation. No automatic further retry or source fix.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.log",
+              "docs/work/active/vacation-campaign/evidence/knowledge-refresh-third-baseline.sh"
+            ]
           }
         ],
-        "resource_plan": "One Luna medium sole test writer in reusable architecture-status-route atf79 new codex/knowledge-check-refresh. Preserve all original test assertions. No build/test/sourcefix/framework/newcase/network/native/account/nestedhelpers by author. Lead sole build slot. Stop on deterministic harness ambiguity."
+        "resource_plan": "Author completed. Lead stopped build/test loop after third harness failure; one independent Sol read-only reassessment of actual pinned observation semantics/source policy. No writer, sourcefix, build, native or account action."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -3161,9 +3171,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-desktop-batch-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:59:19.067792+00:00",
-    "runtime_capacity": "Lead plus bounded Luna knowledge-refresh regression author; batch reviewer complete. Four slots respected.",
-    "build_slot": "No active Rust build; old-source knowledge regression99840 completed exit101 at harness lookup. Author correcting test-only seam.",
+    "observed_at": "2026-10-22T02:04:05.006654+00:00",
+    "runtime_capacity": "Lead plus selected independent read-only Sol seam reassessment; no source writers.",
+    "build_slot": "No active Rust build. Knowledge baseline38520 completed exit101 at unsupported disabled snapshot; retry loop stopped.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
