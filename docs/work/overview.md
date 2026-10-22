@@ -11,23 +11,24 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 
 ## Working on
 
-### Assess a proportionate dependency advisory check
+### Resolve recent certificate-trust dependency advisories
 
-Task ID: `dependency-advisory-preflight`
-Owner: Bounded Luna read-only preflight; lead exposure/scope disposition · State: **active** · Last observed: 2026-10-22T09:56:14.143962+00:00
-Activity: Reconciled main213, all open PRs and idle build slot; selected read-only existing-tool/configuration and official advisory feasibility inspection for maintained root/document-helper dependencies. No tool install or dependency change.
-Next: Inspect helper evidence, choose one justified existing-tool or official-data check; distinguish version matches from actual reachability/exposure. Avoid homemade full-audit claims or blind upgrades.
+Task ID: `tls-advisory-resolution`
+Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T09:59:06.821095+00:00
+Activity: Lead independently verified official RustSec0381/0382/0383 match locked roots1.0.9/certs1.0.9/webpki0.103.15; all concern one underlying distrusted certificate family. Independent scope/feature/patch assessment selected before a candidate.
+Next: Confirm active dependency paths, minimal compatible patch versions and proportionate validation; choose isolated lock-only repair if supported. No existing app/fixture launch or account test.
+Depends on: dependency-advisory-preflight when Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (reported satisfied: true)
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Read-only preflight selected; no product change
-- **checks:** Pending evidence/source/tooling assessment
-- **integration:** No candidate selected
-- **native:** Not needed; owner deferral unchanged
-- **owner acceptance:** Not claimed
+- **implementation:** Assessment selected; no dependency update yet
+- **checks:** Official advisory/version matches confirmed; runtime exposure/full clearance not claimed
+- **integration:** No candidate/PR yet; independent review and actual required checks required
+- **native:** No native action selected; owner deferral unchanged
+- **owner acceptance:** No changed product meaning; security maintenance in existing scope
 
 </details>
 
@@ -304,6 +305,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `privacy-native-fixture-preflight` — Prepare a short path to the future Mac privacy check
 - `privacy-native-fixture-preparation` — Prepare fresh privacy test data before the Mac session
 - `native-artifact-preparation` — Prepare a matching Mac app without opening it
+- `dependency-advisory-preflight` — Assess a proportionate dependency advisory check
 
 ## Dependencies
 
@@ -332,6 +334,8 @@ graph TD
   t107["Diagnose the database crash during simultaneous startup"]
   t113["Prepare fresh privacy test data before the Mac session"]
   t115["Observe private and public recovery-copy controls on the Mac"]
+  t116["Assess a proportionate dependency advisory check"]
+  t117["Resolve recent certificate-trust dependency advisories"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
@@ -346,8 +350,9 @@ graph TD
   t101 -->|Publication only: PR210 normally integrated, then reconcile CI-only diff onto actualmain. Implementation may use already reviewed/qualifiedeae now. (satisfied)| t103
   t107 -->|Independent causal/scope disposition adopted: selected privacy behavior may proceed to normal required CI with unresolved startup debt retained; no full-app or repaired-flake claim. (satisfied)| t106
   t113 -->|Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (satisfied)| t115
+  t116 -->|Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (satisfied)| t117
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T09:56:14.143962+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T09:59:06.821095+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

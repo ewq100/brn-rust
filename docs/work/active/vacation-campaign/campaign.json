@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T09:56:14.143962+00:00",
+    "observed_at": "2026-10-22T09:59:06.821095+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4735,27 +4735,58 @@
       {
         "id": "dependency-advisory-preflight",
         "title": "Assess a proportionate dependency advisory check",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna read-only preflight; lead exposure/scope disposition",
-        "observed_at": "2026-10-22T09:56:14.143962+00:00",
+        "observed_at": "2026-10-22T09:59:06.821095+00:00",
         "origin": "observed",
-        "activity": "Reconciled main213, all open PRs and idle build slot; selected read-only existing-tool/configuration and official advisory feasibility inspection for maintained root/document-helper dependencies. No tool install or dependency change.",
-        "next_action": "Inspect helper evidence, choose one justified existing-tool or official-data check; distinguish version matches from actual reachability/exposure. Avoid homemade full-audit claims or blind upgrades.",
+        "activity": "Read-only preflight found three official RustSec version matches for the same distrusted-certificate issue in root TLS dependencies. Local advisory database predates records; cargo-audit/deny absent. Helper locks lack these named packages. No actual exploitation/full audit claimed.",
+        "next_action": "Select narrow consequential exposure/update assessment before changing dependencies; do not add broad audit policy or blind upgrades.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/development/verification.md",
-          "docs/work/active/vacation-campaign/plan.md"
+          "docs/work/active/vacation-campaign/plan.md",
+          "docs/work/active/vacation-campaign/evidence/dependency-advisory-preflight.md"
         ],
         "gates": {
           "implementation": "Read-only preflight selected; no product change",
-          "checks": "Pending evidence/source/tooling assessment",
+          "checks": "PASS bounded manifest/lock/tooling/official source inspection; full advisory and runtime exposure clearance not claimed",
           "integration": "No candidate selected",
           "native": "Not needed; owner deferral unchanged",
           "owner_acceptance": "Not claimed"
         },
         "attempts": [],
         "resource_plan": "One Luna medium read-only helper; lead consequential assessment. No builds/tool installation/runtime/account/desktop/security/global config changes, no nested agents for small scope."
+      },
+      {
+        "id": "tls-advisory-resolution",
+        "title": "Resolve recent certificate-trust dependency advisories",
+        "state": "active",
+        "owner": "Lead dependency/integration owner; independent Sol exposure/repair assessment",
+        "observed_at": "2026-10-22T09:59:06.821095+00:00",
+        "origin": "observed",
+        "activity": "Lead independently verified official RustSec0381/0382/0383 match locked roots1.0.9/certs1.0.9/webpki0.103.15; all concern one underlying distrusted certificate family. Independent scope/feature/patch assessment selected before a candidate.",
+        "next_action": "Confirm active dependency paths, minimal compatible patch versions and proportionate validation; choose isolated lock-only repair if supported. No existing app/fixture launch or account test.",
+        "depends_on": [
+          {
+            "task": "dependency-advisory-preflight",
+            "condition": "Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit",
+            "satisfied": true
+          }
+        ],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/dependency-advisory-preflight.md"
+        ],
+        "gates": {
+          "implementation": "Assessment selected; no dependency update yet",
+          "checks": "Official advisory/version matches confirmed; runtime exposure/full clearance not claimed",
+          "integration": "No candidate/PR yet; independent review and actual required checks required",
+          "native": "No native action selected; owner deferral unchanged",
+          "owner_acceptance": "No changed product meaning; security maintenance in existing scope"
+        },
+        "attempts": [],
+        "resource_plan": "One independent Sol high assessment for consequential TLS decision; lead integration/resource owner. No installed audit tool required by default, no broad upgrades. Minimum compatible patch only if actual evidence supports it; stop on constraints/incompatible scope, reassess after two failures."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
