@@ -3,8 +3,11 @@
 ## Assignment and source
 
 Owner requested moving builds to the saved cloud machine and testing the real
-Linux UI independently of the Mac screen. Local work only; no branch publication,
-PR, merge, release, provider access or private data is authorized here.
+Linux UI independently of the Mac screen. The first milestone was local-only.
+The owner subsequently authorized draft PR220, the complete applicable deferred
+UI inventory, and merge after independent review and exact-head required checks.
+Release, provider access and private data remain outside scope. See the
+[expanded Linux evidence](deferred/README.md) for current results.
 
 Started from saved `work` at `aebfa12b`, clean. Fetched origin and created isolated
 `codex/linux-cloud-native-20261022` from verified main
@@ -106,8 +109,9 @@ No Mac close/menu/accessibility, IME, clipboard, native file picker, hardware GP
 Wayland, live AI, retrieval model, all-journey or owner acceptance is claimed.
 Linux Super shortcuts and some Mac glyph help text remain; conventional Ctrl
 application shortcut adaptation is outside this minimal working-cloud milestone.
-Windows and unrelated refactors are untouched. Work is retained locally only.
+Windows and unrelated refactors are untouched. The initial milestone was retained locally.
 The application exited normally after the reopened capture. Only this task's
 recorded Openbox/Xvfb PIDs were stopped. Synthetic data, tools, builds and evidence
 remain available; `/workspace/brn-environment/start-linux-current.md` points to
-this handoff. Ready for publication approval; no publication action was taken.
+this handoff. Subsequent authorization published draft PR220; the deferred record
+above owns the expanded qualification and integration gates.

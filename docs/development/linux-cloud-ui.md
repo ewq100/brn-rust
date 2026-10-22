@@ -106,3 +106,21 @@ Linux observation does not replace Mac close/menu/accessibility, IME, clipboard,
 file-picker, signing or hardware-GPU qualification. Offline note editing does
 not qualify live AI, retrieval-model installation, all product journeys or
 owner acceptance.
+
+## Linux accessibility and exact Unicode input
+
+The retained task setup at `/workspace/brn-environment/a11y` supplies rootless
+signed Debian AT-SPI GI and xclip packages. After normal activation, source
+`/workspace/brn-environment/a11y/activate.sh` before launching the app. Its isolated
+session bus is task-local; do not change host security settings or reuse another
+machine's credentials. `query.py dump` reads actual platform nodes;
+`query.py action --name EXACT --role ROLE` requires one unambiguous actionable
+node. A successful action receipt alone is not acceptance: verify the resulting
+settled view and persisted state. Some controls change from button to toggle
+button after initial rendering; inspect the current tree.
+
+Use clipboard paste for exact UTF-8/multiline fixtures. `xdotool type --file`
+dropped Unicode/newlines here. Wait for copy/paste and rendering before reading
+clipboard or taking evidence. This proves clipboard recovery, not IME input.
+See the [full deferred inventory](../work/active/linux-cloud-native/deferred/README.md)
+for portable results and original Mac-only gaps.
