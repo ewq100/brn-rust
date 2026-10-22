@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T12:32:19.376188+00:00",
-    "remaining_percent": 38,
+    "observed_at": "2026-10-22T13:06:49.036440+00:00",
+    "remaining_percent": 37,
     "reset_unix": 1793083360,
-    "ordinary_work": "Actual62%used/38%remaining; ordinaryUsageAllowed=true; secondary unavailable. Headless exit-preservation design/API preflight admitted; native/account constraints unchanged.",
+    "ordinary_work": "Actual63%used/37%remaining; ordinaryUsageAllowed=true; secondary unavailable. Complete frozen Note-exit candidate independent review and selected offline checks admitted. No native/account actor.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -5278,10 +5278,10 @@
         "title": "Preserve live-only note typing before normal Close or Quit",
         "state": "active",
         "owner": "Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T13:00:06.269249+00:00",
+        "observed_at": "2026-10-22T13:06:49.036440+00:00",
         "origin": "observed",
-        "activity": "Lead implemented bounded shared Note-owner byte-durability admission, shared actual Close/Cmd-Q guard before worker cancellation, and captured local-only discard confirmation with final stale-intent check. Production/docs commitse05f6ed6. Luna extends only existing U4 journey; no build/test during source writes.",
-        "next_action": "Finish/freeze meaningful journey extensions, inspect full actual candidate and obtain independent Sol review. Then select final component, independent host, desktop, strict combined native lint, format/docs and ordinary app checks sequentially; no duplicate account/native work.",
+        "activity": "Complete six-file candidate frozen6da1735b; clean actual parent e05f6ed6 retains production and contracts. Final existing-journey extension inspects Close/Cmd-Q refusal, Enter/Cancel, durable recovery, externally saved closed session, stale confirmation and explicit local discard. Independent Sol full review active; no build active.",
+        "next_action": "Resolve independent complete-candidate review, then run selected final writing component, host, desktop, strict combined lint and ordinary app checks sequentially. Record actual failures; native remains owner-deferred.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5299,12 +5299,14 @@
           "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reassessment.md",
           "docs/work/active/vacation-campaign/evidence/note-exit-run-observed.py",
           "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.json",
-          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.log"
+          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.log",
+          "docs/work/active/vacation-campaign/evidence/note-exit-final-test-author.md",
+          "docs/work/active/vacation-campaign/evidence/note-exit-final-test-author-reconciliation.md"
         ],
         "gates": {
-          "implementation": "Implemented draft0a31086f + contractdocse05f6ed6; final test author, complete candidate review and qualification pending. No PR yet.",
+          "implementation": "Implemented frozen6da1735b including contracts; full independent candidate review pending. No PR.",
           "checks": "BASELINE meaningful FAIL at Close admission; original two setup failures retained. No native/multiline/SQLite I/O-specific claim.",
-          "integration": "No new PR until complete candidate reviewed/qualified. Preceding-main216 checks still pending.",
+          "integration": "No PR until reviewed/qualified. Preceding main5c606c10 all four required resulting-main checks PASS; live protection and exact candidate checks remain required.",
           "native": "Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.",
           "owner_acceptance": "Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded."
         },

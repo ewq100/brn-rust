@@ -14,18 +14,18 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:00:06.269249+00:00
-Activity: Lead implemented bounded shared Note-owner byte-durability admission, shared actual Close/Cmd-Q guard before worker cancellation, and captured local-only discard confirmation with final stale-intent check. Production/docs commitse05f6ed6. Luna extends only existing U4 journey; no build/test during source writes.
-Next: Finish/freeze meaningful journey extensions, inspect full actual candidate and obtain independent Sol review. Then select final component, independent host, desktop, strict combined native lint, format/docs and ordinary app checks sequentially; no duplicate account/native work.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:06:49.036440+00:00
+Activity: Complete six-file candidate frozen6da1735b; clean actual parent e05f6ed6 retains production and contracts. Final existing-journey extension inspects Close/Cmd-Q refusal, Enter/Cancel, durable recovery, externally saved closed session, stale confirmation and explicit local discard. Independent Sol full review active; no build active.
+Next: Resolve independent complete-candidate review, then run selected final writing component, host, desktop, strict combined lint and ordinary app checks sequentially. Record actual failures; native remains owner-deferred.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Implemented draft0a31086f + contractdocse05f6ed6; final test author, complete candidate review and qualification pending. No PR yet.
+- **implementation:** Implemented frozen6da1735b including contracts; full independent candidate review pending. No PR.
 - **checks:** BASELINE meaningful FAIL at Close admission; original two setup failures retained. No native/multiline/SQLite I/O-specific claim.
-- **integration:** No new PR until complete candidate reviewed/qualified. Preceding-main216 checks still pending.
+- **integration:** No PR until reviewed/qualified. Preceding main5c606c10 all four required resulting-main checks PASS; live protection and exact candidate checks remain required.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
 
