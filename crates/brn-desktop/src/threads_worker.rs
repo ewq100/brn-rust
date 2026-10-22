@@ -1,8 +1,11 @@
-//! The current worker's channel protocol, not the full Run lifecycle.
+//! The current worker's channel protocol and invocation-owned continuation payload.
 //!
 //! This boundary admits one old-worker batch through its first terminal event.
 //! The host still owns presentation and consumes that terminal before replacing
 //! the worker; the existing checked service owns durable Run and queue effects.
+//! A saved prompt belongs only to its Run invocation. The host commits and arms
+//! it, then consumes it at the terminal boundary; this module never decides
+//! persistence, cancellation, queue policy or replacement dispatch.
 use super::{ConversionResult, DocumentConversionSettings, ReferenceImportIntent, WorkerKind};
 use std::sync::{Arc, atomic::AtomicBool, mpsc::Receiver};
 use tokio_util::sync::CancellationToken;
@@ -58,6 +61,7 @@ enum WorkerOperation {
     Run {
         identity: RunIdentity,
         edit_note_target: Option<EditNoteTarget>,
+        continuation: Option<String>,
     },
     Import {
         reference: Option<ReferenceImportIntent>,
@@ -101,6 +105,7 @@ impl Worker {
             operation: WorkerOperation::Run {
                 identity: RunIdentity { thread, run_id },
                 edit_note_target,
+                continuation: None,
             },
         }
     }
@@ -153,6 +158,47 @@ impl Worker {
             WorkerOperation::Run {
                 edit_note_target, ..
             } => edit_note_target.as_ref(),
+            _ => None,
+        }
+    }
+
+    /// Attach a committed saved prompt to this Run. The Run identity remains
+    /// the sole source of the destination thread.
+    pub(super) fn arm_continuation(&mut self, prompt: String) -> Result<(), String> {
+        match &mut self.operation {
+            WorkerOperation::Run { continuation, .. } if continuation.is_none() => {
+                *continuation = Some(prompt);
+                Ok(())
+            }
+            WorkerOperation::Run { .. } => Err("Run already has a continuation".into()),
+            _ => Err("Only a Run can own a continuation".into()),
+        }
+    }
+
+    pub(super) fn continuation(&self) -> Option<&str> {
+        match &self.operation {
+            WorkerOperation::Run { continuation, .. } => continuation.as_deref(),
+            _ => None,
+        }
+    }
+
+    pub(super) fn discard_continuation(&mut self) -> bool {
+        match &mut self.operation {
+            WorkerOperation::Run { continuation, .. } => continuation.take().is_some(),
+            _ => false,
+        }
+    }
+
+    /// Consume the saved prompt while its original Run identity is still live.
+    pub(super) fn take_terminal_continuation(&mut self) -> Option<(String, String)> {
+        match &mut self.operation {
+            WorkerOperation::Run {
+                identity,
+                continuation,
+                ..
+            } => continuation
+                .take()
+                .map(|prompt| (prompt, identity.thread.clone())),
             _ => None,
         }
     }
@@ -228,6 +274,34 @@ mod tests {
                 None,
             ),
         )
+    }
+
+    #[test]
+    fn continuation_is_run_only_rejects_overwrite_and_is_consumed_once() {
+        let (_sender, mut worker) = worker();
+        assert_eq!(worker.continuation(), None);
+        worker
+            .arm_continuation("saved prompt".into())
+            .expect("first continuation arms");
+        assert_eq!(worker.continuation(), Some("saved prompt"));
+        assert!(worker.arm_continuation("replacement".into()).is_err());
+        assert_eq!(worker.continuation(), Some("saved prompt"));
+        assert_eq!(
+            worker.take_terminal_continuation(),
+            Some(("saved prompt".into(), "original-chat".into()))
+        );
+        assert_eq!(worker.take_terminal_continuation(), None);
+
+        let (_sender, receiver) = mpsc::sync_channel(1);
+        let mut import = Worker::import(
+            receiver,
+            CancellationToken::new(),
+            Arc::new(AtomicBool::new(false)),
+            None,
+        );
+        assert!(import.arm_continuation("saved prompt".into()).is_err());
+        assert_eq!(import.continuation(), None);
+        assert_eq!(import.take_terminal_continuation(), None);
     }
 
     #[test]

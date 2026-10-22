@@ -381,7 +381,11 @@ impl ThreadsUi {
             return false;
         }
         let Some((run, fence)) = terminal else {
-            if self.pending_send.is_none() {
+            if !self
+                .worker
+                .as_ref()
+                .is_some_and(|worker| worker.continuation().is_some())
+            {
                 self.pause_failed_worker();
             }
             return false;
