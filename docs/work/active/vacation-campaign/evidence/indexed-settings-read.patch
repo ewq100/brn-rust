@@ -1,0 +1,38 @@
+diff --git a/crates/brn-threads-app/src/settings.rs b/crates/brn-threads-app/src/settings.rs
+index 30bdb132..204130ba 100644
+--- a/crates/brn-threads-app/src/settings.rs
++++ b/crates/brn-threads-app/src/settings.rs
+@@ -13,17 +13,8 @@ pub(crate) enum DefaultCredentials {
+ }
+ impl Workspace {
+     pub fn settings(&self) -> AppResult<WorkspaceSettings> {
+-        self.records()?
+-            .into_iter()
+-            .find_map(|record| {
+-                if !record.archived
+-                    && let RecordData::Settings(settings) = record.data
+-                {
+-                    Some(settings)
+-                } else {
+-                    None
+-                }
+-            })
++        self.store
++            .workspace_settings()?
+             .ok_or_else(|| AppError::Invalid("Workspace configuration is missing".into()))
+     }
+     pub(crate) fn bootstrap_settings(&mut self, credentials: DefaultCredentials) -> AppResult<()> {
+diff --git a/crates/brn-threads-core/src/store.rs b/crates/brn-threads-core/src/store.rs
+index 7f2f4449..d8102396 100644
+--- a/crates/brn-threads-core/src/store.rs
++++ b/crates/brn-threads-core/src/store.rs
+@@ -626,6 +626,9 @@ impl Store {
+         let rows = stmt.query_map([], |r| r.get::<_, String>(0))?;
+         rows.map(|row| Ok(serde_json::from_str(&row?)?)).collect()
+     }
++    pub fn workspace_settings(&self) -> Result<Option<WorkspaceSettings>> {
++        workspace_settings_on(&self.conn)
++    }
+     pub fn revision(&self, id: &str, version: u64) -> Result<Option<Record>> {
+         let body: Option<String> = self
+             .conn

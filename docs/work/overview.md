@@ -57,22 +57,47 @@ Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audi
 
 ### Read saved Settings without decoding every note
 
-Owner: Bounded Luna medium author; independent Sol review; lead checks/integration · State: **active** · Last observed: 2026-10-22T05:24:05.524428+00:00
-Activity: Selected narrow existing-query reuse after one warm direct-refresh sample80.819ms and structural confirmation of three all-record reads. Core already owns workspace_settings_on and unique partial one_workspace_settings index; expose its existing read through Store, use from Workspace::settings. No UI selector, cache/invalidation, schema/index change or Topics visibility rewrite.
-Next: Prepare one small reviewable candidate on actualmain2095fab using clean architecture-status-route checkout; preserve prior frozen dfe4 branch. Independently review exact complete change and choose existing configuration/affected-core/app/desktop checks, then one distinct changed-source diagnostic if useful. No latency target or blanket speed claim.
+Owner: Bounded Luna medium author; independent Sol review; lead checks/integration · State: **active** · Last observed: 2026-10-22T05:28:32.103826+00:00
+Activity: Exact two-file eae61dde candidate on actualmain2095fab independently approved with no findings. Existing SQL/helper/index/writer unchanged, app missing error retained. Removed redundant all-records selector; no new wrapper test or cache. Approved execution adapter reserved for one existing-check pass now.
+Next: Run one pinned offline serialized final gate through approved adapter; inspect suite counts, strict lint, production build/notlaunch, actual compilation and unchanged checkout. Retain failures; do not publish before qualification.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Selected for bounded existing service/query reuse only; no source change yet.
-- **checks:** Pending candidate/review; preserve existing Settings missing/archived behavior and core writer/authorization rules. No new test for trivial forwarding alone.
+- **implementation:** PASS complete independent exacteae two-file review; core query/index bytes unchanged, missing/archived and error surface reviewed.
+- **checks:** RESERVED approved adapter e153e9d2/bc3843f5: core,11app suites,desktopUI,strictaffectedalltargetlint,nativebuild/notlaunch,fmt/diff; no execution result yet.
 - **integration:** Pending complete actual candidate review/checks, live protection/exacthead/precedingmain then normal merge; no published PR yet.
 - **native:** Headless task only; no actual native interaction or owner acceptance claim.
 - **owner acceptance:** No new consequential product choice selected.
 
-Evidence: [crates/brn-threads-core/src/store.rs](../../crates/brn-threads-core/src/store.rs), [crates/brn-threads-app/src/settings.rs](../../crates/brn-threads-app/src/settings.rs), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-completion.json](active/vacation-campaign/evidence/desktop-refresh-scale-completion.json), [docs/work/active/vacation-campaign/evidence/desktop-refresh-read-amplification.md](active/vacation-campaign/evidence/desktop-refresh-read-amplification.md)
+Evidence: [crates/brn-threads-core/src/store.rs](../../crates/brn-threads-core/src/store.rs), [crates/brn-threads-app/src/settings.rs](../../crates/brn-threads-app/src/settings.rs), [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-completion.json](active/vacation-campaign/evidence/desktop-refresh-scale-completion.json), [docs/work/active/vacation-campaign/evidence/desktop-refresh-read-amplification.md](active/vacation-campaign/evidence/desktop-refresh-read-amplification.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-implementation.md](active/vacation-campaign/evidence/indexed-settings-read-implementation.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-review.md](active/vacation-campaign/evidence/indexed-settings-read-review.md), [docs/work/active/vacation-campaign/evidence/indexed-settings-read.patch](active/vacation-campaign/evidence/indexed-settings-read.patch), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-final.sh](active/vacation-campaign/evidence/indexed-settings-read-final.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-supervise.py](active/vacation-campaign/evidence/indexed-settings-read-supervise.py)
+
+Attempts:
+
+- Reserved before launch; no qualification result yet.: Execute approved unchanged eae candidate once under finite process-group/disk/deadline guards. No fixture overlay, extra model/account/native actor or automatic repeat. ([docs/work/active/vacation-campaign/evidence/indexed-settings-read-final.sh](active/vacation-campaign/evidence/indexed-settings-read-final.sh), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-supervise.py](active/vacation-campaign/evidence/indexed-settings-read-supervise.py), [docs/work/active/vacation-campaign/evidence/indexed-settings-read-review.md](active/vacation-campaign/evidence/indexed-settings-read-review.md))
+
+</details>
+
+### Check coverage for refresh after accumulated writing history
+
+Owner: Bounded Luna read-only preflight; lead selection · State: **active** · Last observed: 2026-10-22T05:31:17.453528+00:00
+Activity: Selected source-only preflight for an explicitly unactivated boundary in the first refresh sample: actual writing-request/Apply/history reconstruction. Assess existing coverage and a smallest useful offline witness before selecting any workload or product change.
+Next: Inspect exact eae/main209 desktop refresh callers and existing offline writing request/Apply fixtures/tests; report whether a consequential uncovered scale/reconstruction boundary exists and whether an existing bounded fixture can test it. Stop with no-change if existing coverage adequate.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Read-only preflight only; no new fixture/product source selected.
+- **checks:** No workloads/builds/measurements authorized by this preflight.
+- **integration:** No PR or new product behavior selected.
+- **native:** No native/IME/owner interaction claim.
+- **owner acceptance:** No new product decision required.
+
+Evidence: [docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-result-review.md](active/vacation-campaign/evidence/desktop-refresh-scale-result-review.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_writing_tests.rs](../../crates/brn-desktop/src/threads_writing_tests.rs)
 
 </details>
 
@@ -334,4 +359,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T05:24:40.668568+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T05:31:17.453528+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

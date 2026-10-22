@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T05:17:25.342789+00:00",
-    "remaining_percent": 54,
+    "observed_at": "2026-10-22T05:28:32.103826+00:00",
+    "remaining_percent": 53,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual46% used/54% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause, fixed expiry unchanged; account-test session closed.",
+    "ordinary_work": "Admitted: actual47% used/53% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause; fixed expiry/account bounds unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T05:24:40.668568+00:00",
+    "observed_at": "2026-10-22T05:31:17.453528+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4015,28 +4015,69 @@
         "title": "Read saved Settings without decoding every note",
         "state": "active",
         "owner": "Bounded Luna medium author; independent Sol review; lead checks/integration",
-        "observed_at": "2026-10-22T05:24:05.524428+00:00",
+        "observed_at": "2026-10-22T05:28:32.103826+00:00",
         "origin": "observed",
-        "activity": "Selected narrow existing-query reuse after one warm direct-refresh sample80.819ms and structural confirmation of three all-record reads. Core already owns workspace_settings_on and unique partial one_workspace_settings index; expose its existing read through Store, use from Workspace::settings. No UI selector, cache/invalidation, schema/index change or Topics visibility rewrite.",
-        "next_action": "Prepare one small reviewable candidate on actualmain2095fab using clean architecture-status-route checkout; preserve prior frozen dfe4 branch. Independently review exact complete change and choose existing configuration/affected-core/app/desktop checks, then one distinct changed-source diagnostic if useful. No latency target or blanket speed claim.",
+        "activity": "Exact two-file eae61dde candidate on actualmain2095fab independently approved with no findings. Existing SQL/helper/index/writer unchanged, app missing error retained. Removed redundant all-records selector; no new wrapper test or cache. Approved execution adapter reserved for one existing-check pass now.",
+        "next_action": "Run one pinned offline serialized final gate through approved adapter; inspect suite counts, strict lint, production build/notlaunch, actual compilation and unchanged checkout. Retain failures; do not publish before qualification.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-threads-core/src/store.rs",
           "crates/brn-threads-app/src/settings.rs",
           "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-completion.json",
-          "docs/work/active/vacation-campaign/evidence/desktop-refresh-read-amplification.md"
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-read-amplification.md",
+          "docs/work/active/vacation-campaign/evidence/indexed-settings-read-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/indexed-settings-read-review.md",
+          "docs/work/active/vacation-campaign/evidence/indexed-settings-read.patch",
+          "docs/work/active/vacation-campaign/evidence/indexed-settings-read-final.sh",
+          "docs/work/active/vacation-campaign/evidence/indexed-settings-read-supervise.py"
         ],
         "gates": {
-          "implementation": "Selected for bounded existing service/query reuse only; no source change yet.",
-          "checks": "Pending candidate/review; preserve existing Settings missing/archived behavior and core writer/authorization rules. No new test for trivial forwarding alone.",
+          "implementation": "PASS complete independent exacteae two-file review; core query/index bytes unchanged, missing/archived and error surface reviewed.",
+          "checks": "RESERVED approved adapter e153e9d2/bc3843f5: core,11app suites,desktopUI,strictaffectedalltargetlint,nativebuild/notlaunch,fmt/diff; no execution result yet.",
           "integration": "Pending complete actual candidate review/checks, live protection/exacthead/precedingmain then normal merge; no published PR yet.",
           "native": "Headless task only; no actual native interaction or owner acceptance claim.",
           "owner_acceptance": "No new consequential product choice selected."
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Reserved before launch; no qualification result yet.",
+            "change": "Execute approved unchanged eae candidate once under finite process-group/disk/deadline guards. No fixture overlay, extra model/account/native actor or automatic repeat.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/indexed-settings-read-final.sh",
+              "docs/work/active/vacation-campaign/evidence/indexed-settings-read-supervise.py",
+              "docs/work/active/vacation-campaign/evidence/indexed-settings-read-review.md"
+            ]
+          }
+        ],
         "resource_plan": "One bounded Luna medium author plus independent Sol high reviewer and lead within actual4slots; no nestedhelpers. Author may edit only core Store read wrapper and app Settings delegation plus concise affected README if needed; do not build/test/workload/push/launchaccount/native. Lead owns serialized pinned offline jobs1 checks and fresh synthetic data. Stop for authority/schema/duplicatepolicy change; no broad API/cache/benchmark framework.",
         "design": "Reuse existing indexed canonical query and type instead of copying the Settings selector into UI or creating a snapshot/cache. Keep absence mapping identical at app boundary. Existing UNIQUE one_workspace_settings rules out first-match ambiguity. A settings read is not a whole-database validity check; do not silently alter write policy or imply an integrity scan."
+      },
+      {
+        "id": "request-history-refresh-preflight",
+        "title": "Check coverage for refresh after accumulated writing history",
+        "state": "active",
+        "owner": "Bounded Luna read-only preflight; lead selection",
+        "observed_at": "2026-10-22T05:31:17.453528+00:00",
+        "origin": "observed",
+        "activity": "Selected source-only preflight for an explicitly unactivated boundary in the first refresh sample: actual writing-request/Apply/history reconstruction. Assess existing coverage and a smallest useful offline witness before selecting any workload or product change.",
+        "next_action": "Inspect exact eae/main209 desktop refresh callers and existing offline writing request/Apply fixtures/tests; report whether a consequential uncovered scale/reconstruction boundary exists and whether an existing bounded fixture can test it. Stop with no-change if existing coverage adequate.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/desktop-refresh-scale-result-review.md",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_writing_tests.rs"
+        ],
+        "gates": {
+          "implementation": "Read-only preflight only; no new fixture/product source selected.",
+          "checks": "No workloads/builds/measurements authorized by this preflight.",
+          "integration": "No PR or new product behavior selected.",
+          "native": "No native/IME/owner interaction claim.",
+          "owner_acceptance": "No new product decision required."
+        },
+        "attempts": [],
+        "resource_plan": "One bounded Luna medium read-only report while lead owns existing Settings checks; within4slots with independent review. No source/Git edits/builds/tests/fixtures/account/native/network/nestedhelpers; one report then stop."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -4047,18 +4088,18 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T05:18:56.270Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr209-merge-update.json"
+    "last_refresh_at": "2026-10-22T05:27:43.859Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-refresh-diagnostic-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T05:24:05.524428+00:00",
-    "runtime_capacity": "Lead, boundedLuna indexed Settings reuse author, independentSol diagnostic-result review; within4slots.",
-    "build_slot": "Free: sole headlessrefresh58746 finished0 after105.27s, group absent/reaped, unchanged be97 checkout. No active build.",
+    "observed_at": "2026-10-22T05:28:32.103826+00:00",
+    "runtime_capacity": "Lead solebuildactor; Luna author and independentSol complete; next result review after actual checks.",
+    "build_slot": "Reserved for one approved eae indexed Settings final gate; no competing build at reservation.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "No ordinary dispatch wait; indexed Settings reuse selected. Main209 resulting checks pending separately.",
+    "wait_reason": "No ordinary dispatch wait; selected final checks now reserved.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen7dde; ordinaryCLI built and artifact frozen, no writer.",
