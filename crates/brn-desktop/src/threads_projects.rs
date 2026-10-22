@@ -144,6 +144,7 @@ impl ThreadsUi {
         // A returned receipt is an applied change, like ApplyOutcome::Applied.
         self.confirm("Project saved.");
         self.refresh();
+        self.refresh_connections(cx);
         cx.notify();
         Ok(receipt)
     }
