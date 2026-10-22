@@ -34,17 +34,17 @@ Gates:
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:49:31.427690+00:00
-Activity: Corrected06bb runtime failed before Close: per-character actual input accepted only first P before existing readonly guard took effect, not the asserted multiline string. No exit-loss runtime proof. Two unsuccessful setup attempts now stopped for independent source/route reassessment.
-Next: Await consequential reassessment of a single Unicode-character actual input witness; preserve guard behavior rather than force hidden/fake multiline text. No third run or product repair until this route/preconditions are reconciled.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:54:06.528892+00:00
+Activity: Meaningful before-source FAIL0/1 at intended installed Close predicate1848 on1cf745d9: exact live õ, unchanged canonical Note, other open recovery and full history all passed first; predicate still permits close.50.24s cleanup/source PASS. No actual OS close or destruction performed.
+Next: Implement adopted shared Note-owner exact-byte preservation admission, shared desktop Close/Cmd-Q guard before cancellation, and explicit captured local-only discard confirmation with stale-intent protection. Extend existing journey for safe resolution, durable external Save and confirmation behavior; independent full candidate review before qualification/publication.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Before-source witness/foundation ee01e812 only; callback semantics unchanged, no admission repair.
-- **checks:** Before-source runtime pending; no claimed native or I/O-specific fault observation.
+- **implementation:** Reproduction confirmed; consequential lead implementation admitted, not yet implemented.
+- **checks:** BASELINE meaningful FAIL at Close admission; original two setup failures retained. No native/multiline/SQLite I/O-specific claim.
 - **integration:** No new PR until complete candidate reviewed/qualified. Preceding-main216 checks still pending.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
@@ -417,4 +417,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T12:49:31.427690+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T12:54:06.528892+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

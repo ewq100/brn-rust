@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T12:49:31.427690+00:00",
+    "observed_at": "2026-10-22T12:54:06.528892+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5277,10 +5277,10 @@
         "title": "Preserve live-only note typing before normal Close or Quit",
         "state": "active",
         "owner": "Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T12:49:31.427690+00:00",
+        "observed_at": "2026-10-22T12:54:06.528892+00:00",
         "origin": "observed",
-        "activity": "Corrected06bb runtime failed before Close: per-character actual input accepted only first P before existing readonly guard took effect, not the asserted multiline string. No exit-loss runtime proof. Two unsuccessful setup attempts now stopped for independent source/route reassessment.",
-        "next_action": "Await consequential reassessment of a single Unicode-character actual input witness; preserve guard behavior rather than force hidden/fake multiline text. No third run or product repair until this route/preconditions are reconciled.",
+        "activity": "Meaningful before-source FAIL0/1 at intended installed Close predicate1848 on1cf745d9: exact live \u00f5, unchanged canonical Note, other open recovery and full history all passed first; predicate still permits close.50.24s cleanup/source PASS. No actual OS close or destruction performed.",
+        "next_action": "Implement adopted shared Note-owner exact-byte preservation admission, shared desktop Close/Cmd-Q guard before cancellation, and explicit captured local-only discard confirmation with stale-intent protection. Extend existing journey for safe resolution, durable external Save and confirmation behavior; independent full candidate review before qualification/publication.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5294,11 +5294,15 @@
           "docs/work/active/vacation-campaign/evidence/note-exit-baseline-compile-failure.log",
           "docs/work/active/vacation-campaign/evidence/note-exit-run-corrected.py",
           "docs/work/active/vacation-campaign/evidence/note-exit-baseline-input-failure.json",
-          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-input-failure.log"
+          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-input-failure.log",
+          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reassessment.md",
+          "docs/work/active/vacation-campaign/evidence/note-exit-run-observed.py",
+          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.json",
+          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.log"
         ],
         "gates": {
-          "implementation": "Before-source witness/foundation ee01e812 only; callback semantics unchanged, no admission repair.",
-          "checks": "Before-source runtime pending; no claimed native or I/O-specific fault observation.",
+          "implementation": "Reproduction confirmed; consequential lead implementation admitted, not yet implemented.",
+          "checks": "BASELINE meaningful FAIL at Close admission; original two setup failures retained. No native/multiline/SQLite I/O-specific claim.",
           "integration": "No new PR until complete candidate reviewed/qualified. Preceding-main216 checks still pending.",
           "native": "Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.",
           "owner_acceptance": "Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded."
@@ -5323,6 +5327,17 @@
               "docs/work/active/vacation-campaign/evidence/note-exit-baseline-input-failure.json",
               "docs/work/active/vacation-campaign/evidence/note-exit-baseline-input-failure.log"
             ]
+          },
+          {
+            "observed_at": "2026-10-22T12:54:06.528892+00:00",
+            "candidate": "1cf745d9f31802641d16384841675479edcd7c9c",
+            "outcome": "Meaningful before-source FAIL at actual installed close predicate after exact live \u00f5/canonical/recovery/history setup passed.0passed/1failed,50.24s; cleanup/source PASS. Post-Close assertions and continuation not reached; no native teardown.",
+            "change": "Admit the adopted bounded Note-owner/desktop repair and necessary existing-journey extensions. Do not alter checked data authority, native/account boundaries or broader draft policy.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.json",
+              "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reproduced.log",
+              "docs/work/active/vacation-campaign/evidence/note-exit-baseline-reassessment.md"
+            ]
           }
         ],
         "resource_plan": "Luna medium owns only unchanged exit-hook extraction plus one existing desktop test journey in clean mac-test-roots branch codex/note-exit-preservation-20261022 from5c606c10; no build/test launch, SQL fault, new dependencies, host permissions/disk, native/account/network or nested agents. Lead owns single build and consequential repair; Sol design/candidate review separately. Stop if supported U4 route cannot establish live-only bytes or baseline needs copied/test-only callback simulation."
@@ -5340,9 +5355,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-connections-merged.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T12:49:31.427690+00:00",
-    "runtime_capacity": "Lead integration; Sol bounded baseline reassessment active; Luna witness author complete. Source frozen06bb, no local build/native/account.",
-    "build_slot": "Free; both baseline children reaped and groups absent; no next build until route reassessment.",
+    "observed_at": "2026-10-22T12:54:06.528892+00:00",
+    "runtime_capacity": "Lead consequential Note owner/desktop implementation and integration; helpers complete; no native/account actor.",
+    "build_slot": "Free; meaningful baseline child reaped/group absent. No builds during source edits.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
