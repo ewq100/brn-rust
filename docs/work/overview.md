@@ -14,9 +14,9 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Guide local AI edits away from guessed text positions
 
 Task ID: `precise-edit-selector-guidance`
-Owner: bounded Luna source writer in export-durability; lead builds/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T16:12:08.067325+00:00
-Activity: PR219 normally merged24a77f4f after all4required exact-head and preceding-main checks PASS plus liveprotection/tree validation. Required resulting-main checks pending separately. No additional live account or native test.
-Next: Reconcile merged production tree with qualifiede5; integrate into preserved lead records; inspect all4 exact resulting-main required checks. Keep live reliability unverified and account sessions closed.
+Owner: bounded Luna source writer in export-durability; lead builds/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T16:30:21.716637+00:00
+Activity: PR219 merged24a77f4f; all3 required Mac resulting-main checks PASS. Required Ubuntu core default tests passed and helper integration is running. No required failure observed. Optional Windows core/combined Unix-only compilation failures retained; no all-CI-green claim.
+Next: Verify final required Ubuntu core result and direct exact-main check-run identities, then close guidance engineering task and refresh owner progress. Do not rerun live account tests or infer model reliability.
 
 <details>
 <summary>Gate status</summary>
@@ -25,7 +25,7 @@ Gates:
 
 - **implementation:** PASS independent complete actuale5e9613b review; scope4files only, sliceorigin/freshkey/hostguards and19→20cacheidentity verified.
 - **checks:** PASS local531/0/2 andCLIidentity1/0, lint/build/format/docs; all4 required hostedheadPASS; optionalWindows existingUnix-only compileFAIL retained. Resultingmain pending.
-- **integration:** MERGED24a77f4f PR219 after all4required exact-head/precedingmain PASS; resultingmain pending.
+- **integration:** MERGED24a77f4f, whole tree identical qualifiede5; all4required head/preceding-main PASS; all3requiredMac resulting-main PASS, Ubuntu core resulting-main pending.
 - **native:** Owner-deferred; no native action.
 - **owner acceptance:** Not claimed.
 
@@ -284,4 +284,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T16:12:08.067325+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T16:30:21.716637+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

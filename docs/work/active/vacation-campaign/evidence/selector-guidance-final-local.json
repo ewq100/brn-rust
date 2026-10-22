@@ -37,5 +37,11 @@
     "Both account sessions remain closed; no retry permission from guidance change."
   ],
   "pr": "https://github.com/ewq100/brn-rust/pull/219",
-  "required_hosted_checks": "Pending exact-head and resulting-main separately; do not merge until gates pass."
+  "required_hosted_checks": "Pending exact-head and resulting-main separately; do not merge until gates pass.",
+  "environment_record": {
+    "file": "selector-guidance-environment.sh",
+    "sha256": "ac34adecc93112ed2a5b3a0fc390810f24c5016b04b068b6ee280fc71cfa3a73",
+    "actual_sourced_path": "/tmp/brn-launcher-focus-qualification/environment.sh",
+    "note": "Archived exact environment used by original qualification script. Script/log/source identities remain unchanged."
+  }
 }

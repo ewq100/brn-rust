@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T16:12:08.067325+00:00",
+    "observed_at": "2026-10-22T16:30:21.716637+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5613,10 +5613,10 @@
         "title": "Guide local AI edits away from guessed text positions",
         "state": "active",
         "owner": "bounded Luna source writer in export-durability; lead builds/integration; independent Sol review",
-        "observed_at": "2026-10-22T16:12:08.067325+00:00",
+        "observed_at": "2026-10-22T16:30:21.716637+00:00",
         "origin": "observed",
-        "activity": "PR219 normally merged24a77f4f after all4required exact-head and preceding-main checks PASS plus liveprotection/tree validation. Required resulting-main checks pending separately. No additional live account or native test.",
-        "next_action": "Reconcile merged production tree with qualifiede5; integrate into preserved lead records; inspect all4 exact resulting-main required checks. Keep live reliability unverified and account sessions closed.",
+        "activity": "PR219 merged24a77f4f; all3 required Mac resulting-main checks PASS. Required Ubuntu core default tests passed and helper integration is running. No required failure observed. Optional Windows core/combined Unix-only compilation failures retained; no all-CI-green claim.",
+        "next_action": "Verify final required Ubuntu core result and direct exact-main check-run identities, then close guidance engineering task and refresh owner progress. Do not rerun live account tests or infer model reliability.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5632,12 +5632,17 @@
           "docs/work/active/vacation-campaign/evidence/pr219-windows.log.gz",
           "docs/work/active/vacation-campaign/evidence/pr219-premerge.json",
           "docs/work/active/vacation-campaign/evidence/pr219-integration.json",
-          "docs/work/active/vacation-campaign/evidence/pr219-head-required-jobs.json"
+          "docs/work/active/vacation-campaign/evidence/pr219-head-required-jobs.json",
+          "docs/work/active/vacation-campaign/evidence/pr219-main-windows-core.json",
+          "docs/work/active/vacation-campaign/evidence/pr219-main-windows-core.log.gz",
+          "docs/work/active/vacation-campaign/evidence/pr219-main-windows-combined.json",
+          "docs/work/active/vacation-campaign/evidence/pr219-main-windows-combined.log.gz",
+          "docs/work/active/vacation-campaign/evidence/selector-guidance-environment.sh"
         ],
         "gates": {
           "implementation": "PASS independent complete actuale5e9613b review; scope4files only, sliceorigin/freshkey/hostguards and19→20cacheidentity verified.",
           "checks": "PASS local531/0/2 andCLIidentity1/0, lint/build/format/docs; all4 required hostedheadPASS; optionalWindows existingUnix-only compileFAIL retained. Resultingmain pending.",
-          "integration": "MERGED24a77f4f PR219 after all4required exact-head/precedingmain PASS; resultingmain pending.",
+          "integration": "MERGED24a77f4f, whole tree identical qualifiede5; all4required head/preceding-main PASS; all3requiredMac resulting-main PASS, Ubuntu core resulting-main pending.",
           "native": "Owner-deferred; no native action.",
           "owner_acceptance": "Not claimed."
         },
@@ -5657,7 +5662,7 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr219-merged.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T16:13:57.795961+00:00",
+    "observed_at": "2026-10-22T16:30:21.716637+00:00",
     "runtime_capacity": "Luna implementation and independentSol review complete. Lead sole integration/CI/facts owner; no active source writer.",
     "build_slot": "Free; final e5 qualification complete, no cargo/rustc owned job.",
     "desktop_account_actor": "No controlled desktop/account actor. One post-repair live attempt finished and sessionclosed; originalapp63750 preserved, native ownerdeferral unchanged.",
@@ -5682,7 +5687,7 @@
         "pr": 219,
         "run_id": 39811859007,
         "head": "24a77f4f44072a084423f71bca0356f140dcd968",
-        "state": "Resulting-main checks in progress; required head passed, merged whole tree equals qualifiede5."
+        "state": "All3requiredMac PASS; requiredUbuntu core helperintegration stillrunning. OptionalWindows core/combinedFAIL retained."
       }
     ]
   },

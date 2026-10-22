@@ -1,0 +1,196 @@
+{
+  "observed_at": "2026-10-22T16:18:58.240624+00:00",
+  "job": {
+    "id": 119939956929,
+    "run_id": 39811859007,
+    "workflow_name": "BRN CI",
+    "head_branch": "main",
+    "run_url": "https://api.github.com/repos/ewq100/brn-rust/actions/runs/39811859007",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOUumqvM8AAAAb7PqAwQ",
+    "head_sha": "24a77f4f44072a084423f71bca0356f140dcd968",
+    "url": "https://api.github.com/repos/ewq100/brn-rust/actions/jobs/119939956929",
+    "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39811859007/job/119939956929",
+    "status": "completed",
+    "conclusion": "failure",
+    "created_at": "2026-10-22T16:11:33Z",
+    "started_at": "2026-10-22T16:11:35Z",
+    "completed_at": "2026-10-22T16:15:22Z",
+    "name": "Core and CLI (windows-2025)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-22T16:11:36Z",
+        "completed_at": "2026-10-22T16:11:36Z"
+      },
+      {
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-22T16:11:36Z",
+        "completed_at": "2026-10-22T16:11:46Z"
+      },
+      {
+        "name": "Run ./.github/actions/setup-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-22T16:11:46Z",
+        "completed_at": "2026-10-22T16:13:00Z"
+      },
+      {
+        "name": "Check formatting",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 4,
+        "started_at": "2026-10-22T16:13:00Z",
+        "completed_at": "2026-10-22T16:13:00Z"
+      },
+      {
+        "name": "Check production provider retirement",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 5,
+        "started_at": "2026-10-22T16:13:00Z",
+        "completed_at": "2026-10-22T16:13:00Z"
+      },
+      {
+        "name": "Check production intake retirement",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 6,
+        "started_at": "2026-10-22T16:13:00Z",
+        "completed_at": "2026-10-22T16:13:00Z"
+      },
+      {
+        "name": "Prepare both locked document helper graphs",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 7,
+        "started_at": "2026-10-22T16:13:00Z",
+        "completed_at": "2026-10-22T16:13:00Z"
+      },
+      {
+        "name": "Build the default workspace",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 8,
+        "started_at": "2026-10-22T16:13:00Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Lint the default workspace",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 9,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Test the default workspace",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 10,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Both document helpers normal API and restrictions",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 11,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Scripted document CLI route (no live provider)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 12,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Test provider capability fixtures offline",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 13,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Lint provider capability fixtures",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 14,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Check CLI help on Unix",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 15,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Check CLI help on Windows",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 16,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Run offline end-to-end fixtures",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 17,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Post Run ./.github/actions/setup-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 33,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:19Z"
+      },
+      {
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 34,
+        "started_at": "2026-10-22T16:15:19Z",
+        "completed_at": "2026-10-22T16:15:21Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 35,
+        "started_at": "2026-10-22T16:15:21Z",
+        "completed_at": "2026-10-22T16:15:21Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/ewq100/brn-rust/check-runs/119939956929",
+    "labels": [
+      "windows-2025"
+    ],
+    "runner_id": 1000003896,
+    "runner_name": "GitHub Actions 1000003896",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  "raw_log_sha256": "ebb3b10527ccde6372c16a2c6fc167adee8a83d3e08e2cc471bfeb81765ea4b9",
+  "stored_log": "pr219-main-windows-core.log.gz",
+  "stored_log_sha256": "c2091383bc59a2f5c74567f2c52c8e43a33f683f0ae66dbe98abc7881e4d1783",
+  "required": false,
+  "disposition": "Retain optional failure separately; no all-CI-green claim. Candidate changes only runtime guide and bundle/cache identity."
+}
