@@ -14,18 +14,18 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:31:40.691434+00:00
-Activity: Independent reassessment confirmed Base0.7.3 binds cmd-a only on Mac. Test-only660a7371 uses supported UTF-8 selection before the unchanged actual character input. Production, component and contract bytes remain identical to155bb. Final source review refresh and affected Mac desktop/lint running; no PR push or merge yet.
-Next: Inspect affected checks and exact source review; if they pass, normally push660a to existing217 and inspect fresh exact-head hosted results. Reuse unchanged production build/components; keep original Ubuntu failure and all assertions. A further failure requires causal reassessment.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:34:09.510996+00:00
+Activity: Portable test-only660a7371 independently approved and passed full Mac desktop350/0/1ignored, strict combined lint and pinned format. Production/component/contracts unchanged from155bb. Normal push to existing217 confirmed through GraphQL, REST and remote ref; fresh hosted checks pending. Original Ubuntu failure retained.
+Next: Keep217 head frozen at660a. Inspect corrected Ubuntu widget lane plus all four required exact-head checks and live protection; only then normal merge, with resulting-main checked separately. Continue eligible headless work; no native/account actor.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Production155bb reviewed; test-only portable selection660a implemented, final delta review pending. No assertions or platform gates removed.
-- **checks:** Local155bb PASS and requiredMacwidget/retrievalPASS; new Ubuntu fixture setupFAIL1827 beforeClose; relevant correction required beforemerge. Corehosted lanespending.
-- **integration:** Published PR217 exact155bb; four required hosted checks pending. No merge; normal protected integration remains authorized after actual checks.
+- **implementation:** PASS independent full155bb review plus exact660a portable-selection delta approval; no unresolved findings.
+- **checks:** PASS660a full Mac desktop350/0/1ignored, strict combined lint/format; unchanged component/ordinary build reused. Corrected Ubuntu and required hosted exact660a checks pending.
+- **integration:** PR217 normally updated to660a; no merge. Live protection/required exact-head/preceding-main and resulting-main remain separate.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
 

@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-10-22T13:34:09.510996+00:00",
+  "pr": {
+    "baseRefOid": "5c606c102d5d121105896c48dc7b39e78d26bdb3",
+    "headRefOid": "660a737174030320ca4c412248117a168e69c8d6",
+    "statusCheckRollup": [],
+    "url": "https://github.com/ewq100/brn-rust/pull/217"
+  },
+  "rest": {
+    "base": "5c606c102d5d121105896c48dc7b39e78d26bdb3",
+    "head": "660a737174030320ca4c412248117a168e69c8d6",
+    "state": "open"
+  },
+  "remote_ref": "660a737174030320ca4c412248117a168e69c8d6",
+  "local": "note-exit-portable-local.json",
+  "normal_push": true,
+  "original_failure_retained": true,
+  "receipt_recovery": "Initial immediate head assertion failed; returned value was not saved, so no cause claimed. That assertion prevented current task/publication facts from being written. A shell sequencing omission still committed valid local qualification receipts only. Fresh GraphQL, REST and remote ref now independently agree660a; current facts reconciled in this separate fail-fast update."
+}
