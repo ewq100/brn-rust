@@ -264,6 +264,18 @@ impl TraceCollector {
             "note_connections" => {
                 json!({"id": n("id"), "hops": n("hops"), "sources": n("sources")})
             }
+            "prepare_note_edit" => json!({
+                "id": n("id"), "version": n("version"),
+                "start": n("start"), "end": n("end"),
+                "expected_bytes": args
+                    .get("expected_text")
+                    .and_then(Value::as_str)
+                    .map_or(0, str::len),
+                "replacement_bytes": args
+                    .get("replacement_text")
+                    .and_then(Value::as_str)
+                    .map_or(0, str::len),
+            }),
             "read_source" => json!({"source": "supplied"}),
             "read_skill" => json!({"name": n("id")}),
             "prepare_changes" | "refresh_candidate" => {
@@ -363,6 +375,22 @@ impl TraceCollector {
                 json!({"neighbours": neighbours.len(), "ids": neighbours})
             }
             "prepare_changes" | "refresh_candidate" => json!({"operation": value.get("operation")}),
+            "prepare_note_edit" => match value.get("outcome").and_then(Value::as_str) {
+                Some("Invalid") => {
+                    let reason = value
+                        .get("reason")
+                        .and_then(Value::as_str)
+                        .unwrap_or("")
+                        .chars()
+                        .take(256)
+                        .collect::<String>();
+                    json!({"outcome":"Invalid", "reason":reason})
+                }
+                _ => value
+                    .get("operation")
+                    .map(|operation| json!({"operation":operation}))
+                    .unwrap_or(Value::Null),
+            },
             "research" => json!({
                 "outcomes": value
                     .get("reports")
@@ -582,5 +610,52 @@ mod tests {
             TraceCollector::result("read_records", Some(&json!({"records":[]}))),
             json!({"rows":0,"ids":[],"truncated":false})
         );
+    }
+
+    #[test]
+    fn precise_edit_trace_keeps_only_exact_metadata_and_utf8_lengths() {
+        let args = json!({
+            "id":"note-private", "version":7, "start":2, "end":8,
+            "expected_text":"é🙂", "replacement_text":"✓",
+            "reason":"private rationale", "request_key":"private-key",
+            "extra":"private passage",
+        });
+        assert_eq!(
+            TraceCollector::new(super::TraceLevel::Summary).unwrap().args("prepare_note_edit", &args),
+            json!({"id":"note-private", "version":7, "start":2, "end":8,
+                "expected_bytes":6, "replacement_bytes":3})
+        );
+        assert_eq!(
+            TraceCollector::new(super::TraceLevel::Full).unwrap().args("prepare_note_edit", &args),
+            json!({"id":"note-private", "version":7, "start":2, "end":8,
+                "expected_bytes":6, "replacement_bytes":3})
+        );
+    }
+
+    #[test]
+    fn precise_edit_trace_projects_prepared_operation_and_bounded_invalid_reason() {
+        assert_eq!(
+            TraceCollector::result(
+                "prepare_note_edit",
+                Some(&json!({"operation":"op-private-id", "request_hash":"private-hash",
+                    "writes":[{"data":{"Note":{"markdown":"private markdown"}}}],
+                    "reason":"private prepared reason"})),
+            ),
+            json!({"operation":"op-private-id"})
+        );
+        assert_eq!(
+            TraceCollector::result(
+                "prepare_note_edit",
+                Some(&json!({"outcome":"Invalid", "reason":"static host rejection",
+                    "request_key":"private-key", "expected_text":"private passage"})),
+            ),
+            json!({"outcome":"Invalid", "reason":"static host rejection"})
+        );
+        let long_reason = "é".repeat(300);
+        let projected = TraceCollector::result(
+            "prepare_note_edit",
+            Some(&json!({"outcome":"Invalid", "reason":long_reason})),
+        );
+        assert_eq!(projected["reason"].as_str().unwrap().chars().count(), 256);
     }
 }
