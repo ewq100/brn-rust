@@ -1,0 +1,15 @@
+# Test child readiness/liveness audit
+
+Reviewed frozen checkout `/Users/evokessler/.codex/worktrees/export-durability/brn-rust`, branch `codex/backup-process-witness-bounds`, HEAD `7dde6a41a4fbc66468e0400d2cc3c859f04c8ef5`. The checkout was clean before and after review. No source files changed; no builds or tests were run. This is a source-level liveness assessment, not a reproduced hang.
+
+The lead-side `mac-core-test-body-triage.md` was consulted as requested: its separate deadline and lock witnesses are intentional and retained. The already-repaired backup/restore path and `process_test.rs` were excluded from findings. Other inspected subprocess witnesses had explicit readiness/deadline or timeout handling (including export’s 5-second readiness bound, skill-package’s 10-second deadline, and CLI child waits with bounded receive/kill paths).
+
+## Findings
+
+1. `crates/brn-ai/src/provider_stderr_tests.rs:14-29` launches its ignored child and calls `Command::output()` with no deadline or owned-child guard. The child performs six synthetic `run(...).await` calls at lines 74-76 and 100-102 before printing its completion marker at line 108; the `run` awaits have no timeout at this call site. If a scripted provider/client regression leaves one run pending, the ordinary parent test blocks collecting output indefinitely. The test currently checks successful exit, output/redaction, and marker behavior, but has no hang or unwind cleanup witness. Smallest remedy if selected: bound the parent wait and keep child ownership through timeout/unwind, reusing an applicable existing owned-child pattern or a narrowly local equivalent; preserve captured-output assertions. No failure was observed because execution was out of scope.
+
+2. `crates/brn-intake/src/helper_runtime_linux.rs:294-321` launches the ignored restriction child twice with bare `Command::output()`. There is no timeout or child guard on either invocation. In the child at lines 327-345, restriction setup and syscall witnesses run synchronously; a regression in restriction setup or a syscall witness that does not return can leave the parent indefinitely blocked in either `output()`. The test currently asserts the first child’s success/output and the second child’s `SIGSYS` termination at lines 308-324, but not bounded completion or parent-unwind cleanup. Smallest remedy if selected: retain both the success and signal assertions while using bounded, kill-and-reap ownership around each child. The shared `brn-threads-core::process_test::OwnedChild` is crate-private (lines 7-45), so it cannot be directly reused from this intake crate without an API/scope change; prefer an existing intake-local process test utility if one exists, otherwise a narrowly scoped test helper. No failure was observed; this is a Linux test-harness liveness gap.
+
+## Qualification limits
+
+Both findings concern deterministic tests that synchronously wait for child completion without a parent-side deadline; they do not establish that either child currently hangs. No test/build, native run, CI operation, or code change was performed. No broader process framework or deletion recommendation is made.

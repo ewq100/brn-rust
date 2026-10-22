@@ -96,9 +96,9 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T04:00:40.584033+00:00",
+    "observed_at": "2026-10-22T04:06:56.528812+00:00",
     "remaining_percent": 58,
-    "reset_unix": 1793083361,
+    "reset_unix": 1793083360,
     "ordinary_work": "Admitted: actual42% used/58% remaining, ordinaryUsageAllowed=true; secondary unavailable. No owner pause; original expiry unchanged. Account session separately closed.",
     "exception": {
       "scope": "visibility/instruction adoption only",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T04:02:58.533785+00:00",
+    "observed_at": "2026-10-22T04:06:56.528812+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3579,8 +3579,8 @@
         "resource_plan": "One economical bounded Luna read-only helper while lead owns PR207 integration. No nestedhelpers or localsharedbuild; only GitHub read APIs and task-owned logs/report. No cache deletion, reruns, billing/credentials/account/provider/native changes."
       },
       {
-        "state": "active",
-        "observed_at": "2026-10-22T04:02:58.533785+00:00",
+        "state": "complete",
+        "observed_at": "2026-10-22T04:06:56.528812+00:00",
         "origin": "observed",
         "depends_on": [],
         "resource_waits": [],
@@ -3589,23 +3589,24 @@
           "implementation": "Read-only bounded assessment; no repair selected before evidence.",
           "checks": "Source/caller and existing witness assessment only; no build or test launch authorized to helper.",
           "integration": "Inapplicable until an actual selected correction.",
-          "native": "Deferred for owner-reported extended screen unavailability.",
+          "native": "Inapplicable test-only assessment; no native evidence.",
           "owner_acceptance": "No new decision selected."
         },
         "resource_plan": "Two useful bounded read-only helper flows plus lead within four actual slots. Luna performs defined assessment; lead validates any finding and owns all source/build/integration decisions. No nested helper, account/provider/native/global changes. Stop after one assessment or two failed inspection approaches; no invented migration or coverage quota.",
         "id": "test-child-readiness-audit",
         "title": "Find remaining unbounded owned-child waits in deterministic tests",
         "owner": "Bounded Luna assessment; lead validation",
-        "activity": "Inspect test-only process readiness/wait and unwind ownership outside the now-qualified backup/restore helper. Distinguish intentional bounded deadline/lock tests from actual unbounded waits.",
-        "next_action": "At most two source-backed findings with valid trigger, exact location and existing coverage; or explicit no-change conclusion. Reuse existing CI timing evidence; do not remove tests or expand into a generic framework.",
+        "activity": "Source audit found bare Command::output waits in the synthetic provider stderr child and Linux restriction fixture. Lead confirmed both call sites and current local catalog watchdog pattern. No actual hang claimed.",
+        "next_action": "Select only Mac-relevant synthetic provider child bound/cleanup. Further Linux restriction-fixture improvement is explicitly lower priority; no dispatch now.",
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md"
+          "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md",
+          "docs/work/active/vacation-campaign/evidence/test-child-readiness-audit.md"
         ]
       },
       {
-        "state": "active",
-        "observed_at": "2026-10-22T04:02:58.533785+00:00",
+        "state": "complete",
+        "observed_at": "2026-10-22T04:06:56.528812+00:00",
         "origin": "observed",
         "depends_on": [],
         "resource_waits": [],
@@ -3621,12 +3622,65 @@
         "id": "note-lifecycle-transition-audit",
         "title": "Check note switching and recovery for unsaved-work loss",
         "owner": "Bounded Luna assessment; lead validation",
-        "activity": "Inspect actual shared NoteLifecycle and both host consumers at current source, specifically ignored newer generations, refused Save, refresh and switching/recovery. Use existing witnesses and preserve checked store authority.",
-        "next_action": "Return at most two concrete source-backed loss/stale-owner risks or no-change verdict. Do not migrate healthy state, implement changes or repeat passed journeys.",
+        "activity": "Source audit found an ordinary Reload/switch path that can replace visible stale-generation text after another owner-host write advanced its durable session. Lead verified checked update/session API and both callers; a bounded reproduction is selected before production change.",
+        "next_action": "Separate note-reload-generation-guard task owns real host reproduction and, only if confirmed, a shared transition guard. Preserve explicit same-note Recover and existing Save/Discard guards.",
         "evidence": [
           "crates/brn-writing-ui/src/note.rs",
           "crates/brn-writing-ui/README.md",
-          "docs/work/active/vacation-campaign/evidence/state-ownership-milestone-20261022.md"
+          "docs/work/active/vacation-campaign/evidence/state-ownership-milestone-20261022.md",
+          "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md"
+        ]
+      },
+      {
+        "state": "active",
+        "observed_at": "2026-10-22T04:06:56.528812+00:00",
+        "origin": "observed",
+        "depends_on": [],
+        "resource_waits": [],
+        "attempts": [],
+        "gates": {
+          "implementation": "Pending bounded candidate; no production change accepted before actual reproduction/review.",
+          "checks": "Pending meaningful affected checks after source freeze.",
+          "integration": "No PR or merge; current maintenance PR208 remains frozen.",
+          "native": "No native observation; owner availability remains deferred.",
+          "owner_acceptance": "No new consequential product choice selected."
+        },
+        "resource_plan": "Lead plus two bounded Luna authors in separate reused clean checkouts; consequential independent Sol review after final source within four total slots. No nested agents. One lead-owned shared build target, serialized. No account/provider/native/dependency/toolchain/global changes. Stop/reassess after two failed approaches or semantic scope expansion.",
+        "id": "note-reload-generation-guard",
+        "title": "Keep the visible edit when Reload encounters a newer recovery generation",
+        "owner": "Bounded Luna test-only author; lead diagnosis; independent Sol review",
+        "activity": "Source-backed suspected equality-shortcut gap. First extend an existing real host witness to assert ordinary Reload and note switch preserve the older visible attempt when the durable session advanced; explicit same-note Recover must remain allowed.",
+        "next_action": "Run the test-only baseline once. Validate actual failure, then select the smallest shared open-note transition correction; no per-keystroke database polling or state-machine rewrite.",
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md",
+          "crates/brn-writing-ui/src/note.rs",
+          "crates/brn-writing-ui/examples/writing_host/journey.rs"
+        ]
+      },
+      {
+        "state": "active",
+        "observed_at": "2026-10-22T04:06:56.528812+00:00",
+        "origin": "observed",
+        "depends_on": [],
+        "resource_waits": [],
+        "attempts": [],
+        "gates": {
+          "implementation": "Pending bounded candidate; no production change accepted before actual reproduction/review.",
+          "checks": "Pending meaningful affected checks after source freeze.",
+          "integration": "No PR or merge; current maintenance PR208 remains frozen.",
+          "native": "No native observation; owner availability remains deferred.",
+          "owner_acceptance": "No new consequential product choice selected."
+        },
+        "resource_plan": "Lead plus two bounded Luna authors in separate reused clean checkouts; consequential independent Sol review after final source within four total slots. No nested agents. One lead-owned shared build target, serialized. No account/provider/native/dependency/toolchain/global changes. Stop/reassess after two failed approaches or semantic scope expansion.",
+        "id": "provider-test-child-bounds",
+        "title": "Bound the synthetic provider stderr fixture and retain owned-child cleanup",
+        "owner": "Bounded Luna test-only author; independent Sol review; lead checks/integration",
+        "activity": "Select finite parent completion wait and kill/reap cleanup for the isolated synthetic stderr witness, preserving its exact capture/redaction/success assertions and ignored child route. No live provider call.",
+        "next_action": "Implement only this test harness outcome, source-only initial checks. Lead validates one normal witness and a bounded negative control after independent review; do not expand to Linux or a cross-crate process framework.",
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/test-child-readiness-audit.md",
+          "crates/brn-ai/src/provider_stderr_tests.rs",
+          "crates/brn-ai/src/skill_packages_tests.rs"
         ]
       }
     ],
@@ -3642,19 +3696,19 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-maintenance-ready-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T04:02:58.533785+00:00",
-    "runtime_capacity": "Four total slots; lead and two bounded read-only Luna assessments selected, no nested helpers or source writers.",
-    "build_slot": "Free; no builds dispatched.",
+    "observed_at": "2026-10-22T04:06:56.528812+00:00",
+    "runtime_capacity": "Four slots; two isolated bounded Luna author flows plus lead selected, with independent Sol review next. No nested helpers.",
+    "build_slot": "Free; lead will run note baseline first.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Hosted PR207 main and PR208 head gates pending while independent assessments proceed.",
+    "wait_reason": "PR207 main and PR208 head required gates run separately while new small headless outcomes proceed.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen combined7dde; no source writer.",
-    "fixture_worker_checkout": "mac-test-roots holds frozen selected-task reading candidate cadcec; no writer. Earlier CLI28 artifact/source receipts remain retained.",
-    "documentation_worker_checkout": "architecture-status-route frozen PR20718aba; nowriter.",
+    "fixture_worker_checkout": "mac-test-roots eligible for isolated provider test-only branch; no shared writer.",
+    "documentation_worker_checkout": "architecture-status-route now clean note-reload-generation-guard from actual main2078c188; prior merged207 source retained by commit.",
     "required_ci_runs": [
       39719250248
     ]

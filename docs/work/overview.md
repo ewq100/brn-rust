@@ -84,45 +84,45 @@ Attempts:
 
 </details>
 
-### Find remaining unbounded owned-child waits in deterministic tests
+### Keep the visible edit when Reload encounters a newer recovery generation
 
-Owner: Bounded Luna assessment; lead validation · State: **active** · Last observed: 2026-10-22T04:02:58.533785+00:00
-Activity: Inspect test-only process readiness/wait and unwind ownership outside the now-qualified backup/restore helper. Distinguish intentional bounded deadline/lock tests from actual unbounded waits.
-Next: At most two source-backed findings with valid trigger, exact location and existing coverage; or explicit no-change conclusion. Reuse existing CI timing evidence; do not remove tests or expand into a generic framework.
+Owner: Bounded Luna test-only author; lead diagnosis; independent Sol review · State: **active** · Last observed: 2026-10-22T04:06:56.528812+00:00
+Activity: Source-backed suspected equality-shortcut gap. First extend an existing real host witness to assert ordinary Reload and note switch preserve the older visible attempt when the durable session advanced; explicit same-note Recover must remain allowed.
+Next: Run the test-only baseline once. Validate actual failure, then select the smallest shared open-note transition correction; no per-keystroke database polling or state-machine rewrite.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Read-only bounded assessment; no repair selected before evidence.
-- **checks:** Source/caller and existing witness assessment only; no build or test launch authorized to helper.
-- **integration:** Inapplicable until an actual selected correction.
-- **native:** Deferred for owner-reported extended screen unavailability.
-- **owner acceptance:** No new decision selected.
+- **implementation:** Pending bounded candidate; no production change accepted before actual reproduction/review.
+- **checks:** Pending meaningful affected checks after source freeze.
+- **integration:** No PR or merge; current maintenance PR208 remains frozen.
+- **native:** No native observation; owner availability remains deferred.
+- **owner acceptance:** No new consequential product choice selected.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/development-maintenance-batch-qualification.json](active/vacation-campaign/evidence/development-maintenance-batch-qualification.json), [docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md](active/vacation-campaign/evidence/mac-core-test-body-triage.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/note-lifecycle-transition-audit.md](active/vacation-campaign/evidence/note-lifecycle-transition-audit.md), [crates/brn-writing-ui/src/note.rs](../../crates/brn-writing-ui/src/note.rs), [crates/brn-writing-ui/examples/writing_host/journey.rs](../../crates/brn-writing-ui/examples/writing_host/journey.rs)
 
 </details>
 
-### Check note switching and recovery for unsaved-work loss
+### Bound the synthetic provider stderr fixture and retain owned-child cleanup
 
-Owner: Bounded Luna assessment; lead validation · State: **active** · Last observed: 2026-10-22T04:02:58.533785+00:00
-Activity: Inspect actual shared NoteLifecycle and both host consumers at current source, specifically ignored newer generations, refused Save, refresh and switching/recovery. Use existing witnesses and preserve checked store authority.
-Next: Return at most two concrete source-backed loss/stale-owner risks or no-change verdict. Do not migrate healthy state, implement changes or repeat passed journeys.
+Owner: Bounded Luna test-only author; independent Sol review; lead checks/integration · State: **active** · Last observed: 2026-10-22T04:06:56.528812+00:00
+Activity: Select finite parent completion wait and kill/reap cleanup for the isolated synthetic stderr witness, preserving its exact capture/redaction/success assertions and ignored child route. No live provider call.
+Next: Implement only this test harness outcome, source-only initial checks. Lead validates one normal witness and a bounded negative control after independent review; do not expand to Linux or a cross-crate process framework.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Read-only bounded assessment; no repair selected before evidence.
-- **checks:** Source/caller and existing witness assessment only; no build or test launch authorized to helper.
-- **integration:** Inapplicable until an actual selected correction.
-- **native:** Deferred for owner-reported extended screen unavailability.
-- **owner acceptance:** No new decision selected.
+- **implementation:** Pending bounded candidate; no production change accepted before actual reproduction/review.
+- **checks:** Pending meaningful affected checks after source freeze.
+- **integration:** No PR or merge; current maintenance PR208 remains frozen.
+- **native:** No native observation; owner availability remains deferred.
+- **owner acceptance:** No new consequential product choice selected.
 
-Evidence: [crates/brn-writing-ui/src/note.rs](../../crates/brn-writing-ui/src/note.rs), [crates/brn-writing-ui/README.md](../../crates/brn-writing-ui/README.md), [docs/work/active/vacation-campaign/evidence/state-ownership-milestone-20261022.md](active/vacation-campaign/evidence/state-ownership-milestone-20261022.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/test-child-readiness-audit.md](active/vacation-campaign/evidence/test-child-readiness-audit.md), [crates/brn-ai/src/provider_stderr_tests.rs](../../crates/brn-ai/src/provider_stderr_tests.rs), [crates/brn-ai/src/skill_packages_tests.rs](../../crates/brn-ai/src/skill_packages_tests.rs)
 
 </details>
 
@@ -336,6 +336,8 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `public-cli-restore-interruption` — Verify the public restore command recovers from an interrupted copy
 - `project-dialog-target-ownership` — Check Project dialogs keep the identity and version shown when opened
 - `mac-core-ci-variance-20261022` — Explain the latest longer Mac check using completed job evidence
+- `test-child-readiness-audit` — Find remaining unbounded owned-child waits in deterministic tests
+- `note-lifecycle-transition-audit` — Check note switching and recovery for unsaved-work loss
 
 ## Dependencies
 
@@ -373,4 +375,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T04:02:58.533785+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T04:06:56.528812+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
