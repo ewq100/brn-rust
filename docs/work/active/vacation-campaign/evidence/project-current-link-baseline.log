@@ -1,0 +1,23 @@
+Filesystem      Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s5   228Gi   185Gi    16Gi    93%    1.6M  166M    1%   /System/Volumes/Data
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 50.24s
+     Running tests/projects.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/projects-9eef44db2b5df17b)
+
+running 1 test
+
+thread 'project_document_links_reject_superseded_notes_but_allow_unlinking_existing_links' (18495665) panicked at crates/brn-threads-app/tests/projects.rs:201:5:
+a newly selected superseded document must be refused
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test project_document_links_reject_superseded_notes_but_allow_unlinking_existing_links ... FAILED
+
+failures:
+
+failures:
+    project_document_links_reject_superseded_notes_but_allow_unlinking_existing_links
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 8 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p brn-threads-app --test projects`

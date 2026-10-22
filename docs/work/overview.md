@@ -35,28 +35,28 @@ Attempts:
 
 </details>
 
-### Verify the public restore command recovers from an interrupted copy
+### Refuse a new Project link when its selected document has been superseded
 
-Owner: Lead bounded qualification/driver review; Luna driver author · State: **active** · Last observed: 2026-10-22T03:08:59.109199+00:00
-Activity: Initial inert driver independently reviewed; four valid P2 groups concern source pinning, bounded/failure evidence, receipt/drain errors and owned-child cleanup. Lead additionally requires inherited HOME and preservation of earlier complete public restore. Corrections in progress; no task workload executed.
-Next: Complete corrected driver, disposition findings and independently review exact hash before single admitted workload. Keep lead production at main205 while pinning source; newer main206 differs by reviewed test-only witness.
+Owner: Lead diagnosis/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T03:17:36.398205+00:00
+Activity: Actual test-only8c47 old-source baseline1FAIL at intended superseded new-link refusal after current-link/supersession setup passed. Narrow production guard authored; contract sentence/final independent review/checks pending.
+Next: Freeze complete test/guard/contract candidate; independent review and Projects/core strict checks once after final changes before publication.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Driver/preflight only, no source candidate.
-- **checks:** No task workload executed yet; CLI help inspected.
-- **integration:** Evidence only unless an actual defect is diagnosed.
-- **native:** CLI process/storage observation only; no OS UI or power-loss proof.
-- **owner acceptance:** No owner decision selected.
+- **implementation:** Selected; no candidate yet.
+- **checks:** Focused old-source regression then applicable Projects/core strictlint/fmt; exact commands selected by lead before execution.
+- **integration:** Independent review and all actual required head/main gates remain required.
+- **native:** No native dialog observation; shared service authority repair.
+- **owner acceptance:** No owner decision selected for retaining existing current-document eligibility.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/public-cli-restore-interruption-design.md](active/vacation-campaign/evidence/public-cli-restore-interruption-design.md), [docs/work/active/vacation-campaign/evidence/public-cli-restore-driver-initial-review.md](active/vacation-campaign/evidence/public-cli-restore-driver-initial-review.md), [docs/work/active/vacation-campaign/evidence/public-cli-restore-driver-initial.py](active/vacation-campaign/evidence/public-cli-restore-driver-initial.py), [docs/work/active/vacation-campaign/evidence/public-cli-restore-source-preflight.json](active/vacation-campaign/evidence/public-cli-restore-source-preflight.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/project-dialog-target-audit.md](active/vacation-campaign/evidence/project-dialog-target-audit.md), [crates/brn-threads-core/src/projects.rs](../../crates/brn-threads-core/src/projects.rs), [crates/brn-threads-core/src/context.rs](../../crates/brn-threads-core/src/context.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [crates/brn-threads-app/tests/projects.rs](../../crates/brn-threads-app/tests/projects.rs), [docs/work/active/vacation-campaign/evidence/project-current-link-test.md](active/vacation-campaign/evidence/project-current-link-test.md), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.sh](active/vacation-campaign/evidence/project-current-link-baseline.sh), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.log](active/vacation-campaign/evidence/project-current-link-baseline.log)
 
 Attempts:
 
-- Initial driver source-only review requests four P2 corrections; no CLI workload launched.: Lead accepts findings; bounded Luna corrects driver only, then independent exact-source review before one attempt. Also remove HOME override and add preserved earlier complete output. ([docs/work/active/vacation-campaign/evidence/public-cli-restore-driver-initial-review.md](active/vacation-campaign/evidence/public-cli-restore-driver-initial-review.md))
+- Lead initial Cargo invocation exit1 before test due missing -- separator; no fixture/product conclusion. Corrected invocation reaches intended baseline1FAIL, exit101.: Preserved original invocation/log; corrected only command syntax. Select LinkDocument-only current-eligibility guard; retain UnlinkDocument and existing identity. ([docs/work/active/vacation-campaign/evidence/project-current-link-baseline-invocation-error.sh](active/vacation-campaign/evidence/project-current-link-baseline-invocation-error.sh), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline-invocation-error.log](active/vacation-campaign/evidence/project-current-link-baseline-invocation-error.log), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.sh](active/vacation-campaign/evidence/project-current-link-baseline.sh), [docs/work/active/vacation-campaign/evidence/project-current-link-baseline.log](active/vacation-campaign/evidence/project-current-link-baseline.log))
 
 </details>
 
@@ -266,6 +266,8 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `passage-comment-draft-ownership-audit` — Check passage-comment drafts across navigation and refused posting
 - `state-ownership-milestone-review` — Reconcile the implemented reducers and state owners
 - `native-future-compatibility-warning-triage` — Identify the native dependency warning before it becomes an upgrade blocker
+- `public-cli-restore-interruption` — Verify the public restore command recovers from an interrupted copy
+- `project-dialog-target-ownership` — Check Project dialogs keep the identity and version shown when opened
 
 ## Dependencies
 

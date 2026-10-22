@@ -1,0 +1,1 @@
+{"receipt": "/private/tmp/brn-public-restore-interruption-20261022T0314/receipt.json", "outcome": "qualified_partial_copy_retry_and_exact_data_checks_passed", "source_backup_sha256": "0b798697f8919833ac009ad64a903c367c19333acf9fb651533ede8cde7251b7", "task_root_bytes": 137054132, "receipt_written": true}

@@ -1,0 +1,41 @@
+{
+  "observed_at": "2026-10-22T03:16:17.785969+00:00",
+  "driver_sha256": "17fa8390811d961db2940dd95582b3e16cb597b57aad97195a069905d64f4cfd",
+  "driver": "public-cli-restore-driver.py",
+  "raw_result": "public-cli-restore-interruption-result.json",
+  "output_prefix_archive": "docs/work/active/vacation-campaign/evidence/public-cli-restore-interruption-output-prefixes.tar.gz",
+  "output_prefix_archive_sha256": "1fea6b533e0365e9b9c6209c3e2489a1e6285db0dc4f7589305568ec19614b9a",
+  "output_prefixes": 12,
+  "outcome": "qualified_partial_copy_retry_and_exact_data_checks_passed",
+  "exit_code": 0,
+  "interruption_attempts": 1,
+  "postkill_stage_bytes": 2537782,
+  "source_backup_bytes": 34222080,
+  "note_utf8_bytes": 8388548,
+  "source_proof": {
+    "binary": "/Users/evokessler/.codex/artifacts/brn-precise-edit-quote-28fd581e/brn",
+    "binary_sha256": "242b141ce518f0ff87d58f7e36b3250269c344211d1552a3d96206cfc62e5f7d",
+    "frozen_source": "28fd581ea8451ecd95d899248132b62c8f890d03",
+    "main205_sha": "0016b21057b44fa9a64cef2d77d4ae09e317f540",
+    "actual_head": "df8c2be8b070d059a33517734ed0bfafee735dad",
+    "compared_paths": [
+      "Cargo.toml",
+      "Cargo.lock",
+      "rust-toolchain.toml",
+      "crates/brn",
+      "crates/brn-ai",
+      "crates/brn-threads-core",
+      "crates/brn-threads-app",
+      "crates/brn-threads-intake",
+      "crates/brn-intake",
+      "crates/brn-retrieval"
+    ],
+    "source_to_main205_diff": "empty",
+    "main205_to_actual_head_diff": "empty",
+    "selected_paths_working_or_untracked_diff": "empty"
+  },
+  "checks": "Owned child actualSIGKILL/reaped, absent final before one retry, same partialstage retained; publicretry removed stage; all logicalrows/schema exact except documented profile normalization, noteUTF8/sourcebackup/sourceworkspace/sentinel/earliercomplete tree unchanged; all outputdrains and durable receipt PASS.",
+  "limits": "One frozen source28 CLI equivalent to pinned main205 dependency closure on this Mac; no power-loss/hardware/native/owner acceptance/liveaccount/release proof. No need repeat unchanged journey.",
+  "fixture_root": "/private/tmp/brn-public-restore-interruption-20261022T0314",
+  "bounds": "8MiB input, <=128MiB backup, <=512MiB task-root checkpoint and >=2GiB initial free; actualroot137054132bytes. Not OS-enforced storage/RAM quota."
+}

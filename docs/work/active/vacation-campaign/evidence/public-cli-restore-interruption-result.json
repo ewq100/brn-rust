@@ -1,0 +1,366 @@
+{
+  "qualification": "public-cli-restore-interruption",
+  "run_id": "c30d2ec9-df35-4d6c-a636-c1baa9ceda27",
+  "root": "/private/tmp/brn-public-restore-interruption-20261022T0314",
+  "source_proof": {
+    "binary": "/Users/evokessler/.codex/artifacts/brn-precise-edit-quote-28fd581e/brn",
+    "binary_sha256": "242b141ce518f0ff87d58f7e36b3250269c344211d1552a3d96206cfc62e5f7d",
+    "frozen_source": "28fd581ea8451ecd95d899248132b62c8f890d03",
+    "main205_sha": "0016b21057b44fa9a64cef2d77d4ae09e317f540",
+    "actual_head": "df8c2be8b070d059a33517734ed0bfafee735dad",
+    "compared_paths": [
+      "Cargo.toml",
+      "Cargo.lock",
+      "rust-toolchain.toml",
+      "crates/brn",
+      "crates/brn-ai",
+      "crates/brn-threads-core",
+      "crates/brn-threads-app",
+      "crates/brn-threads-intake",
+      "crates/brn-intake",
+      "crates/brn-retrieval"
+    ],
+    "source_to_main205_diff": "empty",
+    "main205_to_actual_head_diff": "empty",
+    "selected_paths_working_or_untracked_diff": "empty"
+  },
+  "commands": [
+    {
+      "label": "init-test",
+      "argv": [
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/source",
+        "init",
+        "--purpose",
+        "test"
+      ],
+      "timeout_seconds": 60,
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.022,
+      "timed_out": false,
+      "output": {
+        "stdout": {
+          "complete": true,
+          "bytes": 618,
+          "saved_bytes": 618,
+          "sha256": "d46ab7cfc6d826f8533a8a9f9f8f0d5fb88a3fa1b770a3731a67453472854734",
+          "thread_alive": false
+        },
+        "stderr": {
+          "complete": true,
+          "bytes": 0,
+          "saved_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "thread_alive": false
+        }
+      },
+      "output_prefix_paths": {
+        "stdout": "/private/tmp/brn-public-restore-interruption-20261022T0314/init-test.capture.stdout.prefix",
+        "stderr": "/private/tmp/brn-public-restore-interruption-20261022T0314/init-test.capture.stderr.prefix"
+      },
+      "output_complete": true
+    },
+    {
+      "label": "note-create",
+      "argv": [
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/source",
+        "note-create",
+        "--title",
+        "Public restore interruption qualification · Ω",
+        "--text-file",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/synthetic-note.md"
+      ],
+      "timeout_seconds": 60,
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.913,
+      "timed_out": false,
+      "output": {
+        "stdout": {
+          "complete": true,
+          "bytes": 8512595,
+          "saved_bytes": 65536,
+          "sha256": "2e49bbd2af04ac6838956a581fd650d6f71a04c81c4fca36b1d3edabcc187dc9",
+          "thread_alive": false
+        },
+        "stderr": {
+          "complete": true,
+          "bytes": 0,
+          "saved_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "thread_alive": false
+        }
+      },
+      "output_prefix_paths": {
+        "stdout": "/private/tmp/brn-public-restore-interruption-20261022T0314/note-create.capture.stdout.prefix",
+        "stderr": "/private/tmp/brn-public-restore-interruption-20261022T0314/note-create.capture.stderr.prefix"
+      },
+      "output_complete": true
+    },
+    {
+      "label": "backup",
+      "argv": [
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/source",
+        "backup",
+        "--destination",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/source-backup.sqlite3"
+      ],
+      "timeout_seconds": 60,
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.421,
+      "timed_out": false,
+      "output": {
+        "stdout": {
+          "complete": true,
+          "bytes": 390,
+          "saved_bytes": 390,
+          "sha256": "5ecdef4891d9cf5f82a0a46f55d676bc77e4d221bcbf01234a254311e4eb3d76",
+          "thread_alive": false
+        },
+        "stderr": {
+          "complete": true,
+          "bytes": 0,
+          "saved_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "thread_alive": false
+        }
+      },
+      "output_prefix_paths": {
+        "stdout": "/private/tmp/brn-public-restore-interruption-20261022T0314/backup.capture.stdout.prefix",
+        "stderr": "/private/tmp/brn-public-restore-interruption-20261022T0314/backup.capture.stderr.prefix"
+      },
+      "output_complete": true
+    },
+    {
+      "label": "restore-complete",
+      "argv": [
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/complete-restored",
+        "restore",
+        "--source",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/source-backup.sqlite3"
+      ],
+      "timeout_seconds": 60,
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.545,
+      "timed_out": false,
+      "output": {
+        "stdout": {
+          "complete": true,
+          "bytes": 432,
+          "saved_bytes": 432,
+          "sha256": "0c018a02777efb4098b90801896ece7d8c0dde57f6b34274a0326476baaf15fd",
+          "thread_alive": false
+        },
+        "stderr": {
+          "complete": true,
+          "bytes": 0,
+          "saved_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "thread_alive": false
+        }
+      },
+      "output_prefix_paths": {
+        "stdout": "/private/tmp/brn-public-restore-interruption-20261022T0314/restore-complete.capture.stdout.prefix",
+        "stderr": "/private/tmp/brn-public-restore-interruption-20261022T0314/restore-complete.capture.stderr.prefix"
+      },
+      "output_complete": true
+    },
+    {
+      "label": "restore-interrupt-once",
+      "argv": [
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/restored",
+        "restore",
+        "--source",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/source-backup.sqlite3"
+      ],
+      "observation_seconds": 10,
+      "status": "killed_partial_stage_qualified",
+      "observed_stage": {
+        "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0",
+        "workspace_bytes": 2500678,
+        "db_files": [
+          {
+            "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0/workspace/threads.sqlite3-wal",
+            "bytes": 2463792
+          },
+          {
+            "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0/workspace/threads.sqlite3",
+            "bytes": 4096
+          }
+        ]
+      },
+      "signal_attempted": true,
+      "signal": 9,
+      "exit": -9,
+      "reaped": true,
+      "seconds": 0.05,
+      "output": {
+        "stdout": {
+          "complete": true,
+          "bytes": 0,
+          "saved_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "thread_alive": false
+        },
+        "stderr": {
+          "complete": true,
+          "bytes": 0,
+          "saved_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "thread_alive": false
+        }
+      },
+      "output_prefix_paths": {
+        "stdout": "/private/tmp/brn-public-restore-interruption-20261022T0314/restore-interrupt.capture.stdout.prefix",
+        "stderr": "/private/tmp/brn-public-restore-interruption-20261022T0314/restore-interrupt.capture.stderr.prefix"
+      },
+      "output_complete": true
+    },
+    {
+      "label": "restore-retry",
+      "argv": [
+        "--json",
+        "--data-dir",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/restored",
+        "restore",
+        "--source",
+        "/private/tmp/brn-public-restore-interruption-20261022T0314/source-backup.sqlite3"
+      ],
+      "timeout_seconds": 60,
+      "status": "ok",
+      "exit": 0,
+      "seconds": 0.537,
+      "timed_out": false,
+      "output": {
+        "stdout": {
+          "complete": true,
+          "bytes": 423,
+          "saved_bytes": 423,
+          "sha256": "059edcd105ee7ae12c70abd198a2a369967b867ba0abd0e703890092104e623e",
+          "thread_alive": false
+        },
+        "stderr": {
+          "complete": true,
+          "bytes": 0,
+          "saved_bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "thread_alive": false
+        }
+      },
+      "output_prefix_paths": {
+        "stdout": "/private/tmp/brn-public-restore-interruption-20261022T0314/restore-retry.capture.stdout.prefix",
+        "stderr": "/private/tmp/brn-public-restore-interruption-20261022T0314/restore-retry.capture.stderr.prefix"
+      },
+      "output_complete": true
+    }
+  ],
+  "outcome": "qualified_partial_copy_retry_and_exact_data_checks_passed",
+  "fixture": {
+    "note_title": "Public restore interruption qualification · Ω",
+    "note_bytes": 8388548,
+    "note_sha256": "914e092cae630d083d2fe506e834e4a095ac8d443874188d2001c7d6728c1f1d",
+    "sibling_sentinel_sha256": "bbc8bd9d18869740a3e80ce3c94183e99277ee1f85243449a9776da247324a66"
+  },
+  "source_backup": {
+    "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/source-backup.sqlite3",
+    "bytes": 34222080,
+    "sha256": "0b798697f8919833ac009ad64a903c367c19333acf9fb651533ede8cde7251b7"
+  },
+  "source_snapshot_sha256": "beee98a1080ab323f7fc6e98ca15865e512202fafe35de0ad71700c0c770fc1a",
+  "source_note_sha256": "914e092cae630d083d2fe506e834e4a095ac8d443874188d2001c7d6728c1f1d",
+  "initial_complete_restore": {
+    "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/complete-restored",
+    "tree": [
+      {
+        "path": ".brn-threads-data",
+        "kind": "file",
+        "mode": 420,
+        "bytes": 22,
+        "sha256": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d"
+      },
+      {
+        "path": "threads.sqlite3",
+        "kind": "file",
+        "mode": 420,
+        "bytes": 34222080,
+        "sha256": "8adfd02ec1906501039827c98eb535b72c1b2c99a2eaa008b0a3df1ec19b6704"
+      },
+      {
+        "path": "threads.sqlite3-shm",
+        "kind": "file",
+        "mode": 420,
+        "bytes": 32768,
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      },
+      {
+        "path": "threads.sqlite3-wal",
+        "kind": "file",
+        "mode": 420,
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "tree_sha256": "650eac17ecc7d65cfb86ed3b22addddb407f6771050c5009ce17eb4f29e3173a"
+  },
+  "post_kill_stages": [
+    {
+      "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0",
+      "workspace_bytes": 2537782,
+      "db_files": [
+        {
+          "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0/workspace/threads.sqlite3-wal",
+          "bytes": 2500896
+        },
+        {
+          "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0/workspace/threads.sqlite3",
+          "bytes": 4096
+        }
+      ]
+    }
+  ],
+  "post_kill_observed_stage": {
+    "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0",
+    "workspace_bytes": 2537782,
+    "db_files": [
+      {
+        "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0/workspace/threads.sqlite3-wal",
+        "bytes": 2500896
+      },
+      {
+        "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0/workspace/threads.sqlite3",
+        "bytes": 4096
+      }
+    ]
+  },
+  "qualified_partial_stage": {
+    "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0",
+    "workspace_bytes": 2537782,
+    "db_files": [
+      {
+        "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0/workspace/threads.sqlite3-wal",
+        "bytes": 2500896
+      },
+      {
+        "path": "/private/tmp/brn-public-restore-interruption-20261022T0314/destination-parent/.brn-restore-stage-ca08c794-075c-4a3e-a4d1-01e1c98b6fb0/workspace/threads.sqlite3",
+        "bytes": 4096
+      }
+    ]
+  },
+  "remaining_restore_stages": [],
+  "restored_snapshot_sha256": "6043652724ee5dc91dcf1dd597faff8df574bd367bc2163c01934daf59a60c05",
+  "restored_note_sha256": "914e092cae630d083d2fe506e834e4a095ac8d443874188d2001c7d6728c1f1d",
+  "earlier_complete_restore_unchanged": true,
+  "task_root_bytes": 137054132
+}

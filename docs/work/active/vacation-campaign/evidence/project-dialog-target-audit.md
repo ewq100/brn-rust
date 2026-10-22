@@ -1,0 +1,15 @@
+# Project dialog target ownership audit
+
+**Result: two bounded stale-canonical-value defects.** Source-only assessment of create/settings/move/link dialogs in `crates/brn-desktop/src/threads_projects.rs`; Trash/delete remains excluded per the existing audits. No source or test changes were made and no commands, builds, tests, native interaction, account, network, SQL, credential, or dependency work was performed.
+
+## Findings
+
+1. **Move Chat can act on a project represented by an obsolete title.** `move_chat_dialog` snapshots active project `(ID, title)` pairs when opened (`threads_projects.rs:767-773`), then closes over the ID and submits `MoveChat` directly when the row is clicked (`:782-799`). If the project is renamed while the dialog remains open, the row still presents the old title; clicking it moves the chat to that project ID with no version/canonical-value recheck. The core only confirms that the destination ID is currently an active project (`crates/brn-threads-core/src/projects.rs:464-472`), then updates its latest row. This preserves identity but can make the user's selection mean a different displayed/canonical project than the one currently named by that row. There is no dialog-level revalidation or mutation witness in `threads_projects_tests.rs`.
+
+2. **Link Document can link a note that became superseded after the picker opened.** The dialog snapshots active, unsuperseded Notes (`threads_projects.rs:845-852`) and submits only project and note IDs on row click (`:860-875`). Core checks that the note is active and a Note, but does not check `superseded_by` (`crates/brn-threads-core/src/projects.rs:486-499`). If a note is superseded between dialog construction and selection, the stale row remains clickable and the command successfully appends that retired note ID to the project's documents. This creates a link the current-document picker would not offer and whose target is treated as superseded by the reader. Existing dialog tests exercise ordinary linking only (`threads_projects_tests.rs:113-141, 452-487`); no stale-supersession witness was located.
+
+## Other selected dialogs and limits
+
+- Settings captures the exact project ID and version alongside the fields initialized from that record; Configure checks the expected version before writing (`threads_projects.rs:626-680`; core `projects.rs:428-445`). Selection/canonical changes therefore fail stale submission rather than applying old fields to a new version.
+- Create project has no existing target. Create chat/document captures the owning project ID when invoked and core requires that ID still identify an active project (`projects.rs:402-425, 518-545`). The dialogs do not show a project label that can become stale; selection changes elsewhere do not retarget the captured identity.
+- The Move Chat finding concerns stale visible naming; the command still targets the captured project ID. The Link finding has a concrete stale eligibility state and successful write. Assessment is source inspection only and does not establish native/modal behavior or runtime reproduction. No qualification, acceptance, or product-change disposition is implied.
