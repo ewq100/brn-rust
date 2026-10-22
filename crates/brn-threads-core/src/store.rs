@@ -626,6 +626,9 @@ impl Store {
         let rows = stmt.query_map([], |r| r.get::<_, String>(0))?;
         rows.map(|row| Ok(serde_json::from_str(&row?)?)).collect()
     }
+    pub fn workspace_settings(&self) -> Result<Option<WorkspaceSettings>> {
+        workspace_settings_on(&self.conn)
+    }
     pub fn revision(&self, id: &str, version: u64) -> Result<Option<Record>> {
         let body: Option<String> = self
             .conn
