@@ -250,7 +250,7 @@ Waiting:
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
-Full task details, gates, evidence, and attempts remain in the [selected work record](active/vacation-campaign/campaign.json). Find each task by its listed ID.
+Full task details, gates, evidence, and attempts remain in the [selected work record](active/vacation-campaign/campaign.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked record path and TASK_ID with an ID listed below.
 
 - `visibility-adoption` — Clearer instructions and one progress view
 - `feedback-accessibility` — Mac feedback choices expose their selected state

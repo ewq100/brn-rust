@@ -129,11 +129,11 @@ impl StagedBackup {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[cfg(unix)]
-    use crate::stage::tree;
     use crate::stage::{STAGE_MARKER, stages};
     use crate::store::validate_database;
     use crate::{ApplyOutcome, ChangeRequest, HostAuthority, Note, Put, Record, RecordData};
+    #[cfg(unix)]
+    use crate::{process_test::OwnedChild, stage::tree};
 
     fn root() -> tempfile::TempDir {
         tempfile::TempDir::new_in(fs::canonicalize(std::env::temp_dir()).unwrap()).unwrap()
@@ -445,68 +445,101 @@ mod tests {
         assert_eq!(fs::read_dir(&folder).unwrap().count(), 2);
     }
 
-    /// Child half of the SIGKILL test: holds a staged backup until killed.
-    #[cfg(unix)]
-    #[test]
-    #[ignore = "runs only as the child of the SIGKILL stage test"]
-    fn stage_holder_child() {
-        let Some(folder) = std::env::var_os("BRN_STAGE_CHILD_PARENT") else {
-            return;
-        };
-        let folder = PathBuf::from(folder);
-        let store = Store::open(folder.join("child-source")).unwrap();
-        let _stage = StagedBackup::create(&store.conn, &folder.join("never.sqlite3")).unwrap();
-        println!("BRN_STAGE_READY");
-        std::io::Write::flush(&mut std::io::stdout()).unwrap();
-        std::thread::sleep(Duration::from_secs(60));
-    }
-
     #[cfg(unix)]
     #[test]
     fn a_sigkilled_backup_process_leaves_a_stage_the_next_backup_removes() {
-        use std::io::BufRead;
-        let (_root, store, folder) = backup_folder();
-        let mut child = std::process::Command::new(std::env::current_exe().unwrap())
-            .args([
-                "--exact",
-                "backup::tests::stage_holder_child",
-                "--ignored",
-                "--nocapture",
-                "--test-threads=1",
-            ])
-            .env("BRN_STAGE_CHILD_PARENT", &folder)
-            .stdin(std::process::Stdio::null())
-            .stdout(std::process::Stdio::piped())
-            .stderr(std::process::Stdio::null())
-            .spawn()
+        const CHILD_STAGE_ROOT: &str = "BRN_TEST_BACKUP_PROCESS_STAGE_ROOT";
+        const READY: &str = "backup-process-stage-ready";
+        if let Some(folder) = std::env::var_os(CHILD_STAGE_ROOT) {
+            let folder = PathBuf::from(folder);
+            let source = Store::open(folder.join("child-source")).unwrap();
+            let stage = StagedBackup::create(&source.conn, &folder.join("never.sqlite3")).unwrap();
+            let ready = folder.join(READY);
+            let ready_temporary = folder.join(format!("{READY}.tmp"));
+            fs::write(
+                &ready_temporary,
+                stage._stage.path().as_os_str().as_encoded_bytes(),
+            )
             .unwrap();
-        let mut lines = std::io::BufReader::new(child.stdout.take().unwrap()).lines();
-        loop {
-            let line = lines
-                .next()
-                .expect("the child must report its stage before exiting")
-                .unwrap();
-            if line.contains("BRN_STAGE_READY") {
-                break;
+            fs::rename(ready_temporary, ready).unwrap();
+            let started = std::time::Instant::now();
+            while started.elapsed() < Duration::from_secs(30) {
+                assert!(stage._stage.path().is_dir());
+                std::thread::sleep(Duration::from_millis(20));
             }
+            panic!("backup stage child exceeded its 30-second fail-safe");
         }
-        child.kill().unwrap(); // SIGKILL
-        child.wait().unwrap();
+
+        let (_root, mut store, folder) = backup_folder();
+        let sentinel = note(&mut store, "source backup sentinel");
+        let mut command = std::process::Command::new(std::env::current_exe().unwrap());
+        command
+            .arg("--exact")
+            .arg("backup::tests::a_sigkilled_backup_process_leaves_a_stage_the_next_backup_removes")
+            .env(CHILD_STAGE_ROOT, &folder)
+            .stdin(std::process::Stdio::null())
+            .stdout(std::process::Stdio::null())
+            .stderr(std::process::Stdio::null());
+        let mut child = OwnedChild::spawn(&mut command).unwrap();
+        let ready = folder.join(READY);
+        let ready_deadline = std::time::Instant::now() + Duration::from_secs(10);
+        while !ready.exists() && std::time::Instant::now() < ready_deadline {
+            if let Some(status) = child.try_wait() {
+                panic!("backup stage child exited before readiness: {status}");
+            }
+            std::thread::sleep(Duration::from_millis(10));
+        }
+        assert!(ready.is_file(), "backup stage child did not become ready");
+        use std::os::unix::ffi::OsStringExt;
+        let reported_stage = PathBuf::from(std::ffi::OsString::from_vec(fs::read(&ready).unwrap()));
+        let canonical_folder = folder.canonicalize().unwrap();
+        assert_eq!(reported_stage.parent(), Some(canonical_folder.as_path()));
+        assert!(
+            reported_stage
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .starts_with(StageKind::Backup.prefix())
+        );
+        assert!(stages(&canonical_folder, StageKind::Backup).contains(&reported_stage));
+        assert!(reported_stage.join("snapshot.sqlite3").is_file());
+        let child_stage_tree = tree(&reported_stage);
+
+        let status = child.kill_and_reap();
+        use std::os::unix::process::ExitStatusExt;
+        assert_eq!(
+            status.signal(),
+            Some(9),
+            "the owned child must end by SIGKILL"
+        );
+        assert_eq!(
+            tree(&reported_stage),
+            child_stage_tree,
+            "SIGKILL leaves the complete staged snapshot"
+        );
         assert!(!folder.join("never.sqlite3").exists());
-        let left = stages(&folder, StageKind::Backup);
-        assert_eq!(left.len(), 1, "the killed process leaves its stage");
-        let marker = fs::File::open(left[0].join(STAGE_MARKER)).unwrap();
+        let marker = fs::File::open(reported_stage.join(STAGE_MARKER)).unwrap();
         marker.try_lock().expect("the OS released the killed lock");
         drop(marker);
+
         let destination = folder.join("backup.sqlite3");
         store.backup(&destination).unwrap();
-        assert_eq!(stages(&folder, StageKind::Backup), Vec::<PathBuf>::new());
+        assert!(
+            !reported_stage.exists(),
+            "public backup retry removes the old stage"
+        );
+        assert!(stages(&canonical_folder, StageKind::Backup).is_empty());
+        assert!(!folder.join("never.sqlite3").exists());
         validate_database(&destination).unwrap();
+        assert_eq!(store.record(&sentinel.id).unwrap(), Some(sentinel.clone()));
+        let restored = Store::restore(&destination, folder.join("published-backup-check")).unwrap();
+        assert_eq!(restored.record(&sentinel.id).unwrap(), Some(sentinel));
         assert!(
             folder
                 .join("child-source")
                 .join(crate::DATA_MARKER)
-                .is_file()
+                .is_file(),
+            "the child source sentinel is preserved"
         );
     }
 

@@ -18,6 +18,8 @@
 
 `docs/status.md` locates the selected assignment and its authoritative task record; the documentation index is navigation. When the campaign ends, route to the next assignment's ordinary record and update the overview source (`--record`); don't require future tasks to use a vacation file or introduce a second tracker. An observation repeated inside an immutable receipt remains evidence for that time/source, not another editable current record. Git history preserves superseded plans/status; don't erase failed attempts to make a present view look green.
 
+Before opening a large selected record, find the task ID with a targeted search and inspect its validated object using `python3 scripts/render-work-overview.py --task TASK_ID`. This prints only that task; pass `--record PATH` when the selected record is not the default campaign file.
+
 ## Select, implement, check, correct
 
 Confirm branch/HEAD, remote state and unrelated changes. Read the selected task and its relevant contracts/source/callers. Use an isolated checkout and synthetic data. Apply the [strategic guide](strategic-programming.md) for a meaningful new boundary; an obvious repair needs only a concise approach. Do not impose a spec/ticket chain on small work.
