@@ -11,11 +11,10 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Assess explicit destination ownership for file imports
 
-Owner: lead bounded design; economical implementation and independent review only if selected · State: **active** · Last observed: 2026-10-21T23:53:43.332772+00:00
-Activity: Reviewed exact2ecf634d passes captured-reference/ordinarycompletion witness1, full346/0/1existingignored, strictlint, ordinarynativebuild, fmt. Frozen unlaunched binary retained; publication waits prior dependent state integrations.
-Next: Reconcile current main after preceding integration, publish separate import-destination PR with qualified-tree equality and normal exacthead/main gates.
-Depends on: run-continuation-ownership when Prior state candidates integrate before publication of this dependent candidate. (reported satisfied: false)
-Resource waits: Prior activity and continuation candidate integrations.
+Owner: lead bounded design; economical implementation and independent review only if selected · State: **active** · Last observed: 2026-10-22T00:38:02.629178+00:00
+Activity: PR201published787ffbec after actualmain200fc49 merged into qualified2ecf634d; wholepublishedtreeequalPASS, fiveimportdestinationfiles only. Requiredhead and precedingmain checks pending.
+Next: Inspect requiredPR201exacthead and precedingmain200 checks/liveprotection before normalmerge; actualresultingmainseparate.
+Depends on: run-continuation-ownership when Prior state candidates integrate before publication of this dependent candidate. (reported satisfied: true)
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -24,44 +23,19 @@ Gates:
 
 - **implementation:** PASS complete independent Sol review exact2ecf634d; no actionable findings.
 - **checks:** PASS focused1, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; frozen unlaunchedbinary.
-- **integration:** Pending only if a candidate is selected; existing review/required gates apply.
+- **integration:** PR201published787ffbec onmainfc49, qualifiedwhole-treeequal; requiredhead/mainpending
 - **native:** Existing actual Mac gate deferred; no native claim.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md](active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [docs/work/active/vacation-campaign/evidence/import-target-design.md](active/vacation-campaign/evidence/import-target-design.md), [docs/work/active/vacation-campaign/evidence/import-target-implementation.md](active/vacation-campaign/evidence/import-target-implementation.md), [docs/work/active/vacation-campaign/evidence/import-target-review.md](active/vacation-campaign/evidence/import-target-review.md), [docs/work/active/vacation-campaign/evidence/import-target-qualification.json](active/vacation-campaign/evidence/import-target-qualification.json), [docs/work/active/vacation-campaign/evidence/import-target-final.log](active/vacation-campaign/evidence/import-target-final.log), [docs/work/active/vacation-campaign/evidence/import-target-final.sh](active/vacation-campaign/evidence/import-target-final.sh)
-
-</details>
-
-### Give Run coordination a coherent state and transition owner
-
-Owner: lead design/integration; two bounded Luna inventories; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T00:13:33.198968+00:00
-Activity: PR199 normally mergedb069bf8f after all4required exacthead and precedingmain checks plus liveprotection passed. Wholemergedtree equals reviewed/qualifiedf6dd4d66. Resultingmain39698249037 runs separately; no native/owner acceptance claim.
-Next: Inspect all4required exact resultingmain checks onb069bf8f; continue published continuationPR200 and independent trace diagnosis in parallel.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** PASS complete independent review plus finalf6dd4d66 delta addendum; no actionable findings.
-- **checks:** PASS finalf6dd4d66 focused3, quiet1, full345/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace; binary frozen unlaunched. Initial failure retained.
-- **integration:** Normal protected mergeb069bf8f, wholequalifiedtreeequal; all4requiredhead+precedingmainPASS; resultingmain39698249037pending.
-- **native:** Actual Mac interaction remains deferred; no native/IME/owner acceptance inferred.
-- **owner acceptance:** Not claimed.
-
-Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [docs/work/active/vacation-campaign/worker-identity.md](active/vacation-campaign/worker-identity.md), [docs/development/strategic-programming.md](../development/strategic-programming.md), [docs/work/active/vacation-campaign/evidence/run-coordination-map.md](active/vacation-campaign/evidence/run-coordination-map.md), [docs/work/active/vacation-campaign/evidence/run-coordination-tests.md](active/vacation-campaign/evidence/run-coordination-tests.md), [docs/work/active/vacation-campaign/evidence/run-activity-implementation.md](active/vacation-campaign/evidence/run-activity-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [docs/work/active/vacation-campaign/evidence/run-activity-review.md](active/vacation-campaign/evidence/run-activity-review.md), [docs/work/active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log](active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log), [docs/work/active/vacation-campaign/evidence/run-activity-final.log](active/vacation-campaign/evidence/run-activity-final.log), [docs/work/active/vacation-campaign/evidence/run-activity-final.sh](active/vacation-campaign/evidence/run-activity-final.sh), [docs/work/active/vacation-campaign/evidence/run-activity-qualification.json](active/vacation-campaign/evidence/run-activity-qualification.json), [https://github.com/ewq100/brn-rust/pull/199](https://github.com/ewq100/brn-rust/pull/199), [docs/work/active/vacation-campaign/evidence/remote-run-activity-update.json](active/vacation-campaign/evidence/remote-run-activity-update.json), [docs/work/active/vacation-campaign/evidence/pr199-premerge.json](active/vacation-campaign/evidence/pr199-premerge.json), [docs/work/active/vacation-campaign/evidence/pr199-integration.json](active/vacation-campaign/evidence/pr199-integration.json)
-
-Attempts:
-
-- Initial1af5a124:3focused+1quiet+345full testsPASS,0failed,1existingignored; strictlintFAIL unnecessary_unwrap.: Use if let Some(identity) directly; exact correctedf6dd4d66 undergoing final gates. ([docs/work/active/vacation-campaign/evidence/run-activity-review.md](active/vacation-campaign/evidence/run-activity-review.md), [docs/work/active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log](active/vacation-campaign/evidence/run-activity-attempt-1af5a124.log))
+Evidence: [docs/work/active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md](active/vacation-campaign/evidence/ordinary-import-preflight-disposition.md), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_chat.rs](../../crates/brn-desktop/src/threads_chat.rs), [crates/brn-desktop/src/threads_projects.rs](../../crates/brn-desktop/src/threads_projects.rs), [docs/work/active/vacation-campaign/evidence/import-target-design.md](active/vacation-campaign/evidence/import-target-design.md), [docs/work/active/vacation-campaign/evidence/import-target-implementation.md](active/vacation-campaign/evidence/import-target-implementation.md), [docs/work/active/vacation-campaign/evidence/import-target-review.md](active/vacation-campaign/evidence/import-target-review.md), [docs/work/active/vacation-campaign/evidence/import-target-qualification.json](active/vacation-campaign/evidence/import-target-qualification.json), [docs/work/active/vacation-campaign/evidence/import-target-final.log](active/vacation-campaign/evidence/import-target-final.log), [docs/work/active/vacation-campaign/evidence/import-target-final.sh](active/vacation-campaign/evidence/import-target-final.sh), [https://github.com/ewq100/brn-rust/pull/201](https://github.com/ewq100/brn-rust/pull/201), [docs/work/active/vacation-campaign/evidence/pr201-publication.json](active/vacation-campaign/evidence/pr201-publication.json)
 
 </details>
 
 ### Keep Stop and send continuation attached to its Run
 
-Owner: lead design/integration; bounded Luna author; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T00:13:33.198968+00:00
-Activity: PR200 published exact413003ef after merging actualmainb069bf8f into frozenbd60131d. Wholepublishedtree equals reviewed/qualifiedbd60131d; no sourcechange or repeatedlocalgates. Requiredhead and precedingmain199 qualification pending.
-Next: Inspect PR200 exacthead requiredchecks and actual precedingmainb069bf8f gates/liveprotection before normalmerge. No bypass; actualmainchecks separate.
+Owner: lead design/integration; bounded Luna author; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T00:38:02.629178+00:00
+Activity: PR200 normallymergedfc49e3b0 after all4required head and actualprecedingmain checks plusliveprotectionPASS. Wholemergedtree equals qualifiedbd60131d. Resultingmain39700729291pending.
+Next: Inspect all4required actualresultingmainfc49e3b0 checks before downstreamnormalmerge. Continue publishedimportPR201 and exactquotedeterministicdesign independently.
 Depends on: run-coordination-state-ownership when Prior activity candidate normally merged and whole-tree equal before publishing; its resultingmain remains separately required before this merge. (reported satisfied: true)
 
 <details>
@@ -71,11 +45,11 @@ Gates:
 
 - **implementation:** PASS complete independent Sol review of exactbd60131d, no actionable findings.
 - **checks:** PASS focusedWorker8, steering23, full346/0/1existingignored, strictnativealltargetlint, ordinarynativebuild, fmt/whitespace. Binary frozen unlaunched.
-- **integration:** PR200published413003ef oncurrentmainb069bf8f; qualifiedwhole-treeequalityPASS, actualrequiredhead/mainpending.
+- **integration:** Normalprotectedmergefc49e3b0; qualifiedtreeequal and head/precedingmainPASS; resultingmain39700729291pending
 - **native:** Actual interaction deferred under owner unavailable instruction.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_steering_tests.rs](../../crates/brn-desktop/src/threads_steering_tests.rs), [docs/work/active/vacation-campaign/evidence/run-continuation-implementation.md](active/vacation-campaign/evidence/run-continuation-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-review.md](active/vacation-campaign/evidence/run-continuation-review.md), [docs/work/active/vacation-campaign/evidence/run-continuation-qualification.json](active/vacation-campaign/evidence/run-continuation-qualification.json), [docs/work/active/vacation-campaign/evidence/run-continuation-final.log](active/vacation-campaign/evidence/run-continuation-final.log), [docs/work/active/vacation-campaign/evidence/run-continuation-final.sh](active/vacation-campaign/evidence/run-continuation-final.sh), [https://github.com/ewq100/brn-rust/pull/200](https://github.com/ewq100/brn-rust/pull/200), [docs/work/active/vacation-campaign/evidence/pr200-publication.json](active/vacation-campaign/evidence/pr200-publication.json)
+Evidence: [docs/work/active/vacation-campaign/evidence/run-continuation-design.md](active/vacation-campaign/evidence/run-continuation-design.md), [crates/brn-desktop/src/threads_worker.rs](../../crates/brn-desktop/src/threads_worker.rs), [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs), [crates/brn-desktop/src/threads_steering_tests.rs](../../crates/brn-desktop/src/threads_steering_tests.rs), [docs/work/active/vacation-campaign/evidence/run-continuation-implementation.md](active/vacation-campaign/evidence/run-continuation-implementation.md), [docs/work/active/vacation-campaign/evidence/run-continuation-review.md](active/vacation-campaign/evidence/run-continuation-review.md), [docs/work/active/vacation-campaign/evidence/run-continuation-qualification.json](active/vacation-campaign/evidence/run-continuation-qualification.json), [docs/work/active/vacation-campaign/evidence/run-continuation-final.log](active/vacation-campaign/evidence/run-continuation-final.log), [docs/work/active/vacation-campaign/evidence/run-continuation-final.sh](active/vacation-campaign/evidence/run-continuation-final.sh), [https://github.com/ewq100/brn-rust/pull/200](https://github.com/ewq100/brn-rust/pull/200), [docs/work/active/vacation-campaign/evidence/pr200-publication.json](active/vacation-campaign/evidence/pr200-publication.json), [docs/work/active/vacation-campaign/evidence/pr200-premerge.json](active/vacation-campaign/evidence/pr200-premerge.json), [docs/work/active/vacation-campaign/evidence/pr200-integration.json](active/vacation-campaign/evidence/pr200-integration.json)
 
 Attempts:
 
@@ -110,22 +84,22 @@ Attempts:
 
 ### Assess an exact quote selector that avoids AI offset arithmetic
 
-Owner: Lead design; bounded Luna contract assessment; independent consequential review before implementation · State: **active** · Last observed: 2026-10-22T00:31:58.900886+00:00
-Activity: Selected after3failed accounttasks and unsuccessful guidance correction. Assess explicit backward-compatible unique-quote input on existing tool; not fuzzy matching or reinterpretation of a wrong suppliedrange. No implementation/accountlaunch selected yet.
-Next: Design one explicit unique-current-quote selector alongside unchanged explicit-range mode. Resolve closed schema/provider encoding, overlap-aware uniqueness, version/scope/access, immutablebinding/replay and whole-read coverage before implementation.
+Owner: Lead design; bounded Luna contract assessment; independent consequential review before implementation · State: **active** · Last observed: 2026-10-22T00:40:01.119772+00:00
+Activity: Independent designreview conditionallyaccepted; P2 missingguideidentitycoherence addressed in accepted packet with distinctbundle19 and current19/prior17 fixtures. Lead selects one bounded implementation, not further livecalls.
+Next: Implement required-null exactselector with private sharedlocator, legacybinding/replay golden and focused boundaries; complete independent candidate review and deterministic source-bound checks. No accountdispatch.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** pending bounded design; no candidate
+- **implementation:** Design independently accepted with documented P2 correction and conditions; implementation selected/pending
 - **checks:** pending deterministic witnesses only; current account session exhausted
 - **integration:** pending separate reviewed candidate if selected; no new account authority
 - **native:** actual Mac deferred
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs)
+Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md)
 
 </details>
 
@@ -219,15 +193,6 @@ Evidence: [docs/work/active/vacation-campaign/evidence/needs-you-menu-accessibil
 Waiting:
 
 - resource: Owner reports extended screen unavailability; native gate only, no desktop attempt until changed availability.
-
-### Assess explicit destination ownership for file imports
-
-Owner: lead bounded design; economical implementation and independent review only if selected
-
-Waiting:
-
-- prerequisite run-continuation-ownership: Prior state candidates integrate before publication of this dependent candidate. (reported satisfied: false; task state: active)
-- resource: Prior activity and continuation candidate integrations.
 
 ### Check a precise AI edit on fresh synthetic data
 
@@ -328,6 +293,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `settings-rejected-save-retention` — Keep unsaved Settings choices after a refused save
 - `overview-reading-volume` — Keep the startup progress view concise as evidence grows
 - `ordinary-import-completion-preflight` — Check ordinary file imports across failure, cancellation and navigation
+- `run-coordination-state-ownership` — Give Run coordination a coherent state and transition owner
 - `precise-edit-coordinate-guidance` — Clarify exact passage-edit coordinates for the AI
 - `run-partial-answer-ownership` — Assess keeping the partial answer with its active Run
 
@@ -354,7 +320,7 @@ graph TD
   t7 -->|PR179 normally merged so documentation can build on the integrated source. (satisfied)| t13
   t28 -->|PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (satisfied)| t30
   t32 -->|Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (satisfied)| t34
-  t69 -->|Prior state candidates integrate before publication of this dependent candidate. (not satisfied)| t67
+  t69 -->|Prior state candidates integrate before publication of this dependent candidate. (satisfied)| t67
   t68 -->|Prior activity candidate normally merged and whole-tree equal before publishing; its resultingmain remains separately required before this merge. (satisfied)| t69
 ```
 

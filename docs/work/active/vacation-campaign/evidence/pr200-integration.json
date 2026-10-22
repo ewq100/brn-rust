@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-22T00:38:02.629178+00:00",
+  "pr": 200,
+  "qualified_source": "bd60131dfd8b4652b17c0b142c411bfe87550570",
+  "head": "413003efb5318127e6f63fd5d3c88bf6aa113de9",
+  "merge_commit": "fc49e3b004845c941423332b42cfe31ee7a64fc5",
+  "merged_at": "2026-10-22T00:36:44Z",
+  "strategy": "normal protected merge, no bypass",
+  "qualified_whole_tree_equal": true,
+  "required_head": 4,
+  "required_preceding_main": 4,
+  "premerge": "pr200-premerge.json",
+  "resulting_main_run": 39700729291,
+  "resulting_main": "pending separate actualrequiredchecks",
+  "native": "deferred",
+  "owner_acceptance": "not claimed"
+}

@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-22T00:38:02.629178+00:00",
+  "pr": 201,
+  "url": "https://github.com/ewq100/brn-rust/pull/201",
+  "branch": "codex/import-target-owner",
+  "head": "787ffbec3ca6362b9728810a628e2958f8a35e3f",
+  "base": "fc49e3b004845c941423332b42cfe31ee7a64fc5",
+  "qualified_source": "2ecf634d7de93fbf7381317168109b6d199531e4",
+  "qualified_whole_tree_equal": true,
+  "diff_files": [
+    "crates/brn-desktop/src/threads_chat.rs",
+    "crates/brn-desktop/src/threads_projects.rs",
+    "crates/brn-desktop/src/threads_tiles.rs",
+    "crates/brn-desktop/src/threads_ui.rs",
+    "crates/brn-desktop/src/threads_writing.rs"
+  ],
+  "independent_review": "import-target-review.md",
+  "qualification": "import-target-qualification.json",
+  "required_head_and_actual_preceding_main": "pending before any normal merge"
+}
