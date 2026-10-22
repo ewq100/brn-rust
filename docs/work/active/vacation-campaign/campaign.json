@@ -5278,10 +5278,10 @@
         "title": "Preserve live-only note typing before normal Close or Quit",
         "state": "active",
         "owner": "Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T13:16:10.779307+00:00",
+        "observed_at": "2026-10-22T13:17:19.154236+00:00",
         "origin": "observed",
-        "activity": "Final155bb independently APPROVED with no unresolved source findings; P1 Quit bypass valid/fixed and2unused bindings fixed. All selected local gates passed; exact ordinary binary/hash retained. Six-file source candidate ready for separate protected publication; native observation deferred.",
-        "next_action": "Publish clean155bb branch against actualmain5c606c10, attach PR and preserve exact publication identity. Inspect required exact-head/preceding-main/protection before normal merge, resulting-main separately.",
+        "activity": "Reviewed/locally qualified exact155bb published as PR217 and attached. Actual six-file PR diff/base5c606c10 verified, no duplicate open candidate. Required hosted checks running; branch frozen. Preceding-main all four requiredPASS; optional Windows failures retained, Mac/Ubuntu main lanes now completePASS.",
+        "next_action": "Continue independent headless work while PR217 runs; inspect actual exact-head required checks/live protection before normal merge, then required resulting-main separately. Keep PR head stable; no native/account actor.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5310,12 +5310,13 @@
           "docs/work/active/vacation-campaign/evidence/note-exit-first-desktop.log",
           "docs/work/active/vacation-campaign/evidence/note-exit-quit-diagnosis.md",
           "docs/work/active/vacation-campaign/evidence/note-exit-final-local.json",
-          "docs/work/active/vacation-campaign/evidence/note-exit-candidate-review.md"
+          "docs/work/active/vacation-campaign/evidence/note-exit-candidate-review.md",
+          "docs/work/active/vacation-campaign/evidence/pr217-publication.json"
         ],
         "gates": {
           "implementation": "PASS independent complete six-file review155bb, no unresolved findings. Note-owner preservation and captured local-discard; no Store/schema/runtime prompt change.",
           "checks": "PASS local350desktop/0/1ignored; writing44unit+12host and independenthost12; strict combinedlint, ordinarybuild, format/docs. Original failure retained; hosted gates pending.",
-          "integration": "No PR until reviewed/qualified. Preceding main5c606c10 all four required resulting-main checks PASS; live protection and exact candidate checks remain required.",
+          "integration": "Published PR217 exact155bb; four required hosted checks pending. No merge; normal protected integration remains authorized after actual checks.",
           "native": "Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.",
           "owner_acceptance": "Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded."
         },
