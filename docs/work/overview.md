@@ -60,6 +60,31 @@ Attempts:
 
 </details>
 
+### Bound backup-process readiness and clean up its owned test child
+
+Owner: Lead design/integration; bounded Luna test-only author; independent Sol review · State: **active** · Last observed: 2026-10-22T03:33:41.318238+00:00
+Activity: Finaldc169 independently approved; completecore219/0/0 plus strictalltargetlint/fmt/diff PASS. Removed only obsoleteignored childhelper. One expected readinessnegative1FAIL after10.02s proves ownedwaitSIGKILL9; exactqualifiedsource restoredclean. Candidate retained, no PR yet.
+Next: Keep test-onlycandidatefrozen; afterPR207 normalintegration reconcile actualmain before publication, review reuse/combinedtree and applicablechecks. Avoid CI restart from publishing stale base.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** PASS exactdc169 complete4fileindependentreview; sharedUnix test-only childowner, boundedreadiness, helperretirement.
+- **checks:** PASS core219/0/0, strictalltargetlint/fmt/diff. Actualnegative readinessFAIL+ownedreap9 with exactsourcerestoration; parsererrorrecordretained.
+- **integration:** Candidate source retained on isolatedbranch; no PR/merge yet, awaiting mainreconciliation afterPR207.
+- **native:** No native or power-loss claim.
+- **owner acceptance:** No owner decision selected.
+
+Evidence: [crates/brn-threads-core/src/backup.rs](../../crates/brn-threads-core/src/backup.rs), [crates/brn-threads-core/src/restore.rs](../../crates/brn-threads-core/src/restore.rs), [docs/work/active/vacation-campaign/evidence/restore-process-stage-review.md](active/vacation-campaign/evidence/restore-process-stage-review.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-implementation.md](active/vacation-campaign/evidence/backup-process-bounds-implementation.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-review.md](active/vacation-campaign/evidence/backup-process-bounds-review.md), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-final.sh](active/vacation-campaign/evidence/backup-process-bounds-final.sh), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-final.log](active/vacation-campaign/evidence/backup-process-bounds-final.log), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.sh](active/vacation-campaign/evidence/backup-process-bounds-negative.sh), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.log](active/vacation-campaign/evidence/backup-process-bounds-negative.log), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.patch](active/vacation-campaign/evidence/backup-process-bounds-negative.patch), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json](active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json](active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-qualification.json](active/vacation-campaign/evidence/backup-process-bounds-qualification.json)
+
+Attempts:
+
+- Expectednegative1FAIL at missingready after10.02s; actualownedChildwaitOk signal9. Lead initialreceiptparser mismatchedRustdebugspelling, nottestbehavior.: Correctedreceiptparseragainstpreservedlogwithout rerun; originalreceiptretained. Exactdc169filebytes/hash/cleanHEAD restored; nofullrerunneeded foridenticalsource. ([docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json](active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json](active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.patch](active/vacation-campaign/evidence/backup-process-bounds-negative.patch), [docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative.log](active/vacation-campaign/evidence/backup-process-bounds-negative.log))
+
+</details>
+
 ## Next
 
 None recorded.

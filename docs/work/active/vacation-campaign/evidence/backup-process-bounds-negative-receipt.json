@@ -1,0 +1,17 @@
+{
+  "observed_at": "2026-10-22T03:32:13.921790+00:00",
+  "candidate": "dc16973f711828ae8fc3c7923ab150bd1091f963",
+  "negative_exit_code": 101,
+  "expected_readiness_failure_and_owned_wait_signal9": true,
+  "negative_patch": "negative.patch",
+  "raw_log": "negative.log",
+  "restored_source_hashes": {
+    "backup.rs": "0ad3fbcd3fe18f99ee0d2c48b5cd16308c5153b35dbec9945ac64c31ad4a3f26",
+    "process_test.rs": "3c0c40187009f3cfaba1380ff601989a1e183e1b1053cc62803a473904896748"
+  },
+  "restored_clean_HEAD": true,
+  "qualification_reuse": "Prior complete core/lint/fmt passed on exactly restored dc169 bytes. Diagnostic target artifact remains from negative build; do not call that binary qualified.",
+  "owned_child_pid": 54274,
+  "actual_wait_trace": "BRN_NEGATIVE_OWNED_CHILD_REAP pid=54274 status=Ok(ExitStatus(unix_wait_status(9)))",
+  "lead_parser_correction": "Initial receipt verification expected Rust debug spelling UnixWaitStatus(9); actual source/toolchain prints ExitStatus(unix_wait_status(9)). Corrected only parser against preserved actual log. No workload rerun; source restoration was already completed/verified before that assertion."
+}

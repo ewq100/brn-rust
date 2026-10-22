@@ -1,0 +1,20 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 8.97s
+     Running unittests src/lib.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_threads_core-de10105332b95afc)
+
+running 1 test
+
+thread 'backup::tests::a_sigkilled_backup_process_leaves_a_stage_the_next_backup_removes' (18512321) panicked at crates/brn-threads-core/src/backup.rs:492:9:
+backup stage child did not become ready
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+BRN_NEGATIVE_OWNED_CHILD_REAP pid=54274 status=Ok(ExitStatus(unix_wait_status(9)))
+test backup::tests::a_sigkilled_backup_process_leaves_a_stage_the_next_backup_removes ... FAILED
+
+failures:
+
+failures:
+    backup::tests::a_sigkilled_backup_process_leaves_a_stage_the_next_backup_removes
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 42 filtered out; finished in 10.02s
+
+error: test failed, to rerun pass `-p brn-threads-core --lib`

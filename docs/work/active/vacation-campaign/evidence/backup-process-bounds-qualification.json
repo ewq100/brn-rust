@@ -1,0 +1,22 @@
+{
+  "observed_at": "2026-10-22T03:33:41.318238+00:00",
+  "base": "79fa3980c5022e475b07888d9e08f396f45b0238",
+  "candidate": "dc16973f711828ae8fc3c7923ab150bd1091f963",
+  "checkout": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust",
+  "independent_review": "PASS immutable full4filecandidate; cleanrestoration independently confirmed separately if appended",
+  "qualification": {
+    "core_passed": 219,
+    "core_failed": 0,
+    "core_ignored": 0,
+    "strict_alltarget_core_clippy": "PASS",
+    "format_and_diff": "PASS",
+    "clean_final_source": "PASS exactrestored hashes innegative-receipt"
+  },
+  "retirement": "Removed only ignoredbackup child helper/stdout readiness route; same exactparent testchildmode preserves witness. All219ordinarytestpasses retained; distinctsameprocesslivewitness unchanged.",
+  "negative_control": "One missing-readiness attempt: intended1FAIL after10.02s and actualownedPIDwaitstatusSIGKILL9. Exactqualifiedsource restored. Leaddebugstringparser correction retained without workloadrepeat.",
+  "commands": "backup-process-bounds-final.sh",
+  "raw_log": "backup-process-bounds-final.log",
+  "raw_log_sha256": "b652fb181dbf9e6c9582f8c005056e5fd947a51d66dd3c00f3ade17c299b5e33",
+  "limits": "Test-only readiness deadline and best-effort owned process cleanup, not hardbounded OS wait, production crash/powerloss/native/release proof. Diagnostic targetbinary isnotqualifiedfinalbinary; sourcereuseonly.",
+  "integration": "No PR yet; freeze candidate then reconcile actualmain afterPR207 integration to avoid expensive requiredCI restart."
+}

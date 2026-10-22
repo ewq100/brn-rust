@@ -1,0 +1,28 @@
+diff --git a/crates/brn-threads-core/src/backup.rs b/crates/brn-threads-core/src/backup.rs
+index 5b812291..90fbfc6c 100644
+--- a/crates/brn-threads-core/src/backup.rs
++++ b/crates/brn-threads-core/src/backup.rs
+@@ -454,7 +454,7 @@ mod tests {
+             let folder = PathBuf::from(folder);
+             let source = Store::open(folder.join("child-source")).unwrap();
+             let stage = StagedBackup::create(&source.conn, &folder.join("never.sqlite3")).unwrap();
+-            let ready = folder.join(READY);
++            let ready = folder.join("withheld-ready-negative-control");
+             let ready_temporary = folder.join(format!("{READY}.tmp"));
+             fs::write(
+                 &ready_temporary,
+diff --git a/crates/brn-threads-core/src/process_test.rs b/crates/brn-threads-core/src/process_test.rs
+index 856a9648..bb874156 100644
+--- a/crates/brn-threads-core/src/process_test.rs
++++ b/crates/brn-threads-core/src/process_test.rs
+@@ -40,7 +40,9 @@ impl Drop for OwnedChild {
+             if child.try_wait().ok().flatten().is_none() {
+                 let _ = child.kill();
+             }
+-            let _ = child.wait();
++            let owned_pid = child.id();
++            let waited = child.wait();
++            eprintln!("BRN_NEGATIVE_OWNED_CHILD_REAP pid={owned_pid} status={waited:?}");
+         }
+     }
+ }
