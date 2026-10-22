@@ -150,6 +150,91 @@ fn project_context_shared_identity_knowledge_setting_movement_and_replay() {
     assert_eq!(w.store.record(&message.id).unwrap().unwrap(), message);
 }
 #[test]
+fn project_document_links_reject_superseded_notes_but_allow_unlinking_existing_links() {
+    let (_root, mut w) = fixture();
+    let origin = project(&mut w, "Origin");
+    let destination = project(&mut w, "Destination");
+    let retired = w.new_note("Guide", "Original saved guide").unwrap();
+    let current = w
+        .new_note("Guide current", "Replacement saved guide")
+        .unwrap();
+
+    // Both Notes are current at link time, so linking them to separate Projects
+    // establishes the positive control and a pre-existing link to preserve.
+    command(
+        &mut w,
+        ProjectCommand::LinkDocument {
+            project: origin.clone(),
+            note: retired.id.clone(),
+        },
+    );
+    command(
+        &mut w,
+        ProjectCommand::LinkDocument {
+            project: destination.clone(),
+            note: current.id.clone(),
+        },
+    );
+
+    let mut retired_data = retired.data.clone();
+    let RecordData::Note(note) = &mut retired_data else {
+        panic!("new_note must return a Note")
+    };
+    note.superseded_by = Some(current.id.clone());
+    w.owner_change(
+        "supersede-project-document",
+        &ChangeRequest {
+            reason: "Supersede linked document".into(),
+            inputs: vec![],
+            writes: vec![Put {
+                id: retired.id.clone(),
+                expected_version: Some(retired.version),
+                archived: false,
+                data: retired_data,
+            }],
+        },
+    )
+    .unwrap();
+
+    let records_before_refusal = w.records().unwrap();
+    let history_before_refusal = w.history().unwrap();
+    assert!(
+        w.project_command(
+            "link-superseded-project-document",
+            ProjectCommand::LinkDocument {
+                project: destination.clone(),
+                note: retired.id.clone(),
+            },
+        )
+        .is_err(),
+        "a newly selected superseded document must be refused"
+    );
+    assert_eq!(w.records().unwrap(), records_before_refusal);
+    assert_eq!(w.history().unwrap(), history_before_refusal);
+
+    // Supersession does not silently retarget the pre-existing link. Its owner
+    // can explicitly unlink the retired identity while the replacement remains
+    // linked to the other Project.
+    command(
+        &mut w,
+        ProjectCommand::UnlinkDocument {
+            project: origin.clone(),
+            note: retired.id.clone(),
+        },
+    );
+    let RecordData::Project(origin_project) = w.store.record(&origin).unwrap().unwrap().data else {
+        panic!("origin remains a Project")
+    };
+    assert!(!origin_project.documents.contains(&retired.id));
+    let RecordData::Project(destination_project) =
+        w.store.record(&destination).unwrap().unwrap().data
+    else {
+        panic!("destination remains a Project")
+    };
+    assert_eq!(destination_project.documents, [current.id]);
+}
+
+#[test]
 fn delete_preview_guards_choices_and_restore_preserve_later_shared_work() {
     let (root, mut w) = fixture();
     let p = project(&mut w, "Japan");

@@ -490,6 +490,13 @@ impl Store {
                     .iter()
                     .find(|r| r.id == *note && !r.archived && matches!(r.data, RecordData::Note(_)))
                     .ok_or_else(|| Error::Invalid("Choose an active saved document".into()))?;
+                if matches!(command, ProjectCommand::LinkDocument { .. })
+                    && matches!(&n.data, RecordData::Note(note) if note.superseded_by.is_some())
+                {
+                    return Err(Error::Invalid(
+                        "Choose the current replacement document".into(),
+                    ));
+                }
                 let RecordData::Project(p) = &mut r.data else {
                     unreachable!()
                 };
