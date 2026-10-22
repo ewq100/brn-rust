@@ -34,9 +34,9 @@ Gates:
 ### Keep completed history from crowding the startup summary
 
 Task ID: `bounded-completed-overview`
-Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:21:00.470102+00:00
-Activity: Prerequisite217normallymerged. Worker normallyreconciledactualmain765→cleancomposition23f78a80; actual3filetoolingdiff/sourceequivalence preserved. Focused16Python/regen/check/docs625/2813/diffPASS. Boundedindependentcompositionverificationrunning; noPRyet.
-Next: Verify complete reviewed3filecomposition thennormalpublish/freezePR; reuse source-boundreview/qualification, inspect freshrequiredhead+precedingmain765gates and liveprotection beforemerge.
+Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:22:05.121064+00:00
+Activity: Source-identical composition23f78a80 independently approved and normallypublishedPR218; actualthreefilediff/head/base765verified, appattached. Branchfrozenforrequiredexactheadchecks. Final16Python/renderer/docs/diffPASS; currentleadrecord preserved.
+Next: Inspect freshrequired23f hostedchecks andall4precedingmain765checks, liveprotection/allPRs; normalmergeonlywhensatisfied, theninspectresultingmainseparately. Native/account unchanged.
 Depends on: note-exit-preservation when Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: true)
 
 <details>
@@ -44,9 +44,9 @@ Depends on: note-exit-preservation when Publication only: PR217 normally merged;
 
 Gates:
 
-- **implementation:** PASS complete8a175c40 independent review; latest10 completed index plus unfinished dependency ancestor closure; full record validation/lookup preserved. Byte-identical scripts adopted in lead.
+- **implementation:** PASS complete8a independentreview andexact23f source-identicalcompositionverification;3filesonly, recordunchanged. Leadscriptssourceidentical.
 - **checks:** PASS final16Python/renderercheck/docs890files3116links0fail/diff. Actual lead record bytes unchanged across qualification; meaningful graph baseline raw retained, intermediate fixture correction output-loss limit disclosed.
-- **integration:** Worker23f78a80 composedactualmain765withunchangedreviewed8ascripts/tests andgeneratedpage. NoPRyet; completecompositionverificationnext. Normalmergewaits requiredhead andprecedingmain.
+- **integration:** PR218 normallypublished/frozen23f78a80 frommain765; notmerged. Requiredexacthead andprecedingmain gates pending, thenliveprotection/normalmerge/resultingmain.
 - **native:** Inapplicable: development view only.
 - **owner acceptance:** No new product meaning or shipped behavior.
 
@@ -308,4 +308,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T14:21:00.470102+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T14:22:05.121064+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

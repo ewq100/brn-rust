@@ -1,0 +1,21 @@
+test_active_and_blocked_history_stays_in_record_not_summary (scripts.tests.test_work_overview.WorkOverviewTests.test_active_and_blocked_history_stays_in_record_not_summary) ... ok
+test_active_only_custom_projection_links_record_and_all_task_ids (scripts.tests.test_work_overview.WorkOverviewTests.test_active_only_custom_projection_links_record_and_all_task_ids) ... ok
+test_completed_index_is_bounded_chronological_and_older_task_remains_retrievable (scripts.tests.test_work_overview.WorkOverviewTests.test_completed_index_is_bounded_chronological_and_older_task_remains_retrievable) ... ok
+test_current_check_does_not_rewrite (scripts.tests.test_work_overview.WorkOverviewTests.test_current_check_does_not_rewrite) ... ok
+test_dependencies_show_unfinished_ancestor_closure_and_validate_full_history (scripts.tests.test_work_overview.WorkOverviewTests.test_dependencies_show_unfinished_ancestor_closure_and_validate_full_history) ... ok
+test_malformed_update_preserves_old_file_and_check_detects_staleness_without_write (scripts.tests.test_work_overview.WorkOverviewTests.test_malformed_update_preserves_old_file_and_check_detects_staleness_without_write) ... ok
+test_next_requires_complete_prerequisite_and_no_resource_wait (scripts.tests.test_work_overview.WorkOverviewTests.test_next_requires_complete_prerequisite_and_no_resource_wait) ... ok
+test_rejects_duplicate_ids_unknown_dependencies_and_bad_evidence (scripts.tests.test_work_overview.WorkOverviewTests.test_rejects_duplicate_ids_unknown_dependencies_and_bad_evidence) ... ok
+test_rejects_missing_id_cycle_and_naive_timestamp (scripts.tests.test_work_overview.WorkOverviewTests.test_rejects_missing_id_cycle_and_naive_timestamp) ... ok
+test_render_keeps_observation_static_gates_distinct_and_resources_out_of_graph (scripts.tests.test_work_overview.WorkOverviewTests.test_render_keeps_observation_static_gates_distinct_and_resources_out_of_graph) ... ok
+test_reported_condition_satisfaction_not_prerequisite_state_controls_next (scripts.tests.test_work_overview.WorkOverviewTests.test_reported_condition_satisfaction_not_prerequisite_state_controls_next) ... ok
+test_task_lookup_and_check_are_mutually_exclusive (scripts.tests.test_work_overview.WorkOverviewTests.test_task_lookup_and_check_are_mutually_exclusive) ... ok
+test_task_lookup_does_not_create_missing_output_parent (scripts.tests.test_work_overview.WorkOverviewTests.test_task_lookup_does_not_create_missing_output_parent) ... ok
+test_task_lookup_prints_exact_selected_object_and_preserves_record_and_output (scripts.tests.test_work_overview.WorkOverviewTests.test_task_lookup_prints_exact_selected_object_and_preserves_record_and_output) ... ok
+test_task_lookup_unknown_id_returns_two_without_output (scripts.tests.test_work_overview.WorkOverviewTests.test_task_lookup_unknown_id_returns_two_without_output) ... ok
+test_task_lookup_validates_other_tasks_before_printing_selection (scripts.tests.test_work_overview.WorkOverviewTests.test_task_lookup_validates_other_tasks_before_printing_selection) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.014s
+
+OK

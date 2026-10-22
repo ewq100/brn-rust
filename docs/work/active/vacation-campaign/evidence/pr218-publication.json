@@ -1,0 +1,116 @@
+{
+  "observed_at": "2026-10-22T14:22:05.121064+00:00",
+  "pr": {
+    "baseRefOid": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+    "files": [
+      {
+        "path": "docs/work/overview.md",
+        "additions": 11,
+        "deletions": 31,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "scripts/render-work-overview.py",
+        "additions": 27,
+        "deletions": 4,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "scripts/tests/test_work_overview.py",
+        "additions": 125,
+        "deletions": 8,
+        "changeType": "MODIFIED"
+      }
+    ],
+    "headRefOid": "23f78a80f87b91938788d8622ca06ef23c20754d",
+    "mergeStateStatus": "BLOCKED",
+    "number": 218,
+    "state": "OPEN",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39794973539/job/119879879878",
+        "name": "Documentation and tooling",
+        "startedAt": "2026-10-22T14:21:34Z",
+        "status": "QUEUED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39794973539/job/119879879734",
+        "name": "Core and CLI (ubuntu-24.04)",
+        "startedAt": "2026-10-22T14:21:34Z",
+        "status": "QUEUED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39794973539/job/119879879786",
+        "name": "Core and CLI (windows-2025)",
+        "startedAt": "2026-10-22T14:21:34Z",
+        "status": "QUEUED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39794973539/job/119879879761",
+        "name": "Core and CLI (macos-15)",
+        "startedAt": "2026-10-22T14:21:34Z",
+        "status": "QUEUED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39794973539/job/119879879326",
+        "name": "Native UI build and state (ubuntu-24.04)",
+        "startedAt": "2026-10-22T14:21:34Z",
+        "status": "QUEUED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39794973539/job/119879879577",
+        "name": "Native UI build and state (macos-15)",
+        "startedAt": "2026-10-22T14:21:34Z",
+        "status": "QUEUED",
+        "workflowName": "BRN CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "0001-01-01T00:00:00Z",
+        "conclusion": "",
+        "detailsUrl": "https://github.com/ewq100/brn-rust/actions/runs/39794973539/job/119879880060",
+        "name": "Native retrieval and combined build (macos-15)",
+        "startedAt": "2026-10-22T14:21:34Z",
+        "status": "QUEUED",
+        "workflowName": "BRN CI"
+      }
+    ],
+    "title": "Keep the development overview focused on current work",
+    "url": "https://github.com/ewq100/brn-rust/pull/218"
+  },
+  "candidate_tree": "61a1eb1dba9ca509cde1ec1eef35f7d0ec36ea05",
+  "reviewed_source": "8a175c4099e2ec89b892fccf169c9b417d0ddbf6",
+  "composition_review": "docs/work/active/vacation-campaign/evidence/bounded-overview-composition-review.md",
+  "commands": [
+    "normal git merge origin/main at765f2dda",
+    "python3 -m unittest scripts.tests.test_work_overview -v (16PASS)",
+    "python3 scripts/render-work-overview.py (--check separately)PASS",
+    "python3 scripts/check-markdown-links.py (625files/2813links0fail)",
+    "git diff --check PASS",
+    "normal git push and gh pr create"
+  ],
+  "integration": "Published frozenreviewed23f; no merge. Requiredhead andprecedingmain765mustPASSbefore freshprotectednormalmerge. No source/runtime/native/account/release change."
+}
