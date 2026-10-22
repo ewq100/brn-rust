@@ -75,7 +75,8 @@ fn rejected_tool_arguments_and_partial_text_never_reach_process_stderr() {
             "synthetic child output exceeded the capture limit"
         );
     }
-    let stdout = String::from_utf8_lossy(&std::fs::read(&stdout_path).unwrap()).into_owned();
+    let stdout = String::from_utf8(std::fs::read(&stdout_path).unwrap())
+        .unwrap_or_else(|_| panic!("synthetic child stdout was not UTF-8"));
     assert!(
         stdout.contains("R4_ROUTES_VALIDATED:3"),
         "child did not finish all routes"
@@ -84,7 +85,8 @@ fn rejected_tool_arguments_and_partial_text_never_reach_process_stderr() {
         stdout.contains("1 passed; 0 failed"),
         "child test did not execute"
     );
-    let stderr = String::from_utf8_lossy(&std::fs::read(&stderr_path).unwrap()).into_owned();
+    let stderr = String::from_utf8(std::fs::read(&stderr_path).unwrap())
+        .unwrap_or_else(|_| panic!("synthetic child stderr was not UTF-8"));
     for marker in ["PARTIAL", name.as_str(), argument.as_str(), prior.as_str()] {
         assert!(
             !stderr.contains(marker),
