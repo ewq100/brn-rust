@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-10-22T03:07:39.985149+00:00",
+  "pr": 206,
+  "candidate": "3414b992809a9a3049ba2dd710369accc1f79247",
+  "preceding_main": "0016b21057b44fa9a64cef2d77d4ae09e317f540",
+  "resulting_main": "79fa3980c5022e475b07888d9e08f396f45b0238",
+  "merged_at": "2026-10-22T03:07:20Z",
+  "whole_tree_equal_to_published_candidate": true,
+  "method": "Normal protected merge with exact head, no bypass/admin/auto/force",
+  "premerge_receipt": "pr206-premerge.json",
+  "resulting_main_checks": "pending separately",
+  "qualification_reuse": "Published diff exactly matches independently reviewed f465; core219/0/1 and lint/fmt receipt retained. Published whole tree includes qualified knowledge-refresh main205."
+}

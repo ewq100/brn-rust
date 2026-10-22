@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-10-22T02:58:47.791110+00:00",
+  "binary": "/Users/evokessler/.codex/artifacts/brn-precise-edit-quote-28fd581e/brn",
+  "sha256": "242b141ce518f0ff87d58f7e36b3250269c344211d1552a3d96206cfc62e5f7d",
+  "qualified_source": "28fd581ea8451ecd95d899248132b62c8f890d03",
+  "current_main": "0016b21057b44fa9a64cef2d77d4ae09e317f540",
+  "all_changes": [
+    "crates/brn-desktop/README.md",
+    "crates/brn-desktop/src/threads_chat.rs",
+    "crates/brn-desktop/src/threads_chat_tests.rs",
+    "crates/brn-desktop/src/threads_connections.rs",
+    "crates/brn-desktop/src/threads_tiled_tests.rs",
+    "crates/brn-desktop/src/threads_ui.rs",
+    "crates/brn-desktop/src/threads_writing.rs",
+    "crates/brn-desktop/src/threads_writing_tests.rs",
+    "docs/architecture/threads-behavior.md"
+  ],
+  "runtime_graph_unchanged": true,
+  "verdict": "PASS frozen qualified CLI and all non-desktop runtime source/Cargo/toolchain graph unchanged. This preflight launches no workload and does not prove interruption.",
+  "scope": "Fresh task-owned synthetic CLI tests only; no preserved native workspace/account or user data."
+}
