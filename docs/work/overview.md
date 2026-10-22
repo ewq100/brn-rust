@@ -7,7 +7,7 @@ Activity below is the last reported or observed update. It does not establish th
 
 Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.
 
-Task details: [selected work record](active/vacation-campaign/campaign.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown on a task below.
+Task details and full history: [selected work record](active/vacation-campaign/campaign.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.
 
 ## Working on
 
@@ -28,26 +28,6 @@ Gates:
 - **integration:** Published PR217 exact155bb; four required hosted checks pending. No merge; normal protected integration remains authorized after actual checks.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
-
-</details>
-
-### Keep completed history from crowding the startup summary
-
-Task ID: `bounded-completed-overview`
-Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:22:29.972895+00:00
-Activity: Luna froze clean3-file ddf07b97: bounded10latest-observed completed list, parsed timezone ordering/IDties, total/fullrecordroute; existing regression extended for12tasks and exact omitted-task lookup. Reported15PythonPASS, worker regenerate/check/docsPASS. Independent Sol complete candidate review active.
-Next: Resolve independent review, then adopt identical renderer/test locally and regenerate from actual current record with proportionate checks/size receipt. Keep separate product candidate unpublished until217integrated, reconcile newmain, then publish normal required checks.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Implemented ddf07b97 draft; independent review pending. Record/schema and runtime unchanged.
-- **checks:** Author reports focused15PASS/renderercheck/docs625files2813links/diffPASS; source review and actual lead projection qualification pending.
-- **integration:** No PR; must reconcile actual main and avoid superseding open217. Normal required checks remain.
-- **native:** Inapplicable: development view only.
-- **owner acceptance:** No new product meaning or shipped behavior.
 
 </details>
 
@@ -256,6 +236,31 @@ Waiting:
 
 - resource: Owner-reported extended Mac screen unavailability; no access/unlock/close/launch until changed availability.
 
+### Keep completed history from crowding the startup summary
+
+Task ID: `bounded-completed-overview`
+Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **ready** · Last observed: 2026-10-22T13:25:58.817213+00:00
+Activity: Independent complete ddf review APPROVED/no findings. Lead adopted byte-identical renderer/test and regenerated actual current record:35085→25021bytes,471→362lines; exact authoritative record unchanged across qualification.15PythonPASS/overview/docs/diffPASS. Tooling not merged to main.
+Next: After PR217 normal merge, reconcile actualmain without replacing current records; publish source-equivalent tooling candidate, inspect required checks/protection and resulting-main normally.
+Depends on: note-exit-preservation when Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: false)
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** PASS independently reviewed ddf renderer/test; adopted identical scripts in lead projection. No record/schema/runtime change.
+- **checks:** PASS lead focused15Python, actual-current-record regen/check,883files3116links0fail, whitespace. Record bytes unchanged; author baseline failure report-only limitation retained.
+- **integration:** No PR yet; source candidate preserved. Publication awaits preceding217normalmerge, not new owner approval.
+- **native:** Inapplicable: development view only.
+- **owner acceptance:** No new product meaning or shipped behavior.
+
+</details>
+
+Waiting:
+
+- prerequisite note-exit-preservation: Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: false; task state: active)
+
 ### Observe note preservation during Mac Close and Quit
 
 Task ID: `note-exit-native-qualification`
@@ -287,127 +292,18 @@ Waiting:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-- `visibility-adoption` — Clearer instructions and one progress view
-- `feedback-accessibility` — Mac feedback choices expose their selected state
-- `resulting-main-checks` — Confirm checks after the Mac correction merged
-- `mac-journeys` — Check saving, reopening and backup in the real Mac app
-- `exact-note-reading` — AI note reads use the exact note identity
-- `reliability-foundations` — Earlier reliability and agent-workflow improvements
-- `review-group-fixture` — Prepare grouped-review test workspace
-- `review-group-toggle` — Expose grouped Include/Omit selection to accessibility tools
-- `shared-intake-verification` — Check that command-line and desktop imports reuse the same conversation
-- `remote-progress-view` — Read development progress remotely in BRN Space
-- `state-gap-triage` — Inspect remaining Save and run-preview coordination risks
-- `writing-account-route` — Qualify a bounded real-account writing proposal
-- `progress-record-integration` — Integrate remote progress routing and verification records
-- `backup-failure-audit` — Inspect backup and restore failure boundaries
-- `export-publication-durability` — Flush complete export folders before reporting success
-- `queue-recovery-audit` — Inspect saved-message recovery after Stop and restart
-- `ci-cost-triage` — Measure current automated-check feedback cost
-- `action-history-audit` — Inspect Action and history Undo safeguards
-- `action-completion-witness` — Exercise Confirm done and its exact Undo in the desktop journey
-- `historical-authority-routing` — Route older agent-first results to current task facts
-- `project-trash-audit` — Inspect Project deletion and Trash recovery safety
-- `mac-core-ci-time-budget` — Allow the complete Mac Core check to finish within a bounded job
-- `mac-ci-cache-investigation` — Find why Mac CI recompiles converters and misses reuse
-- `ci-main-cache-save-policy` — Keep shared Rust caches without duplicate PR uploads
-- `merged-pr-cache-cleanup` — Retire disposable cache copies for merged PR182
-- `general-search-audit` — Inspect stale search results across view and scope changes
-- `composer-drafts-audit` — Inspect drafts and attachments when switching conversations
-- `writing-draft-recovery` — Preserve unsent drafts when a note creates its writing conversation
-- `skill-catalog-ui-audit` — Inspect stale skill choices and scope changes
-- `inactive-project-skill-controls` — Show unavailable skill choices correctly in inactive Projects
-- `note-format-reveal-audit` — Inspect formatting and passage reveal across note changes
-- `needs-you-menu-accessibility-audit` — Inspect the accessibility name of Needs you menu choices
-- `warm-helper-cache-audit` — Measure the remaining converter build cost after a cache hit
-- `ci-document-helper-cache` — Reuse converter dependencies without mixing build identities
-- `writing-setup-navigation-audit` — Inspect writing settings when the selected note changes
-- `native-backup-cli-restore` — Restore the Mac-created backup into a fresh test folder
-- `saved-proposal-stale-cli` — Confirm a saved AI proposal cannot overwrite a later saved edit
-- `asset-backup-cli-preflight` — Check recovery of a backup containing a real attachment
-- `retained-asset-restore-witness` — Check exact stored attachment data after reopen and restore
-- `ubuntu-required-gate-cache-audit` — Assess the slower required build gate after Mac cache reuse improved
-- `invalid-backup-error-audit` — Explain when a restore source is not a BRN backup
-- `mac-mcp-test-roots` — Make core checks work with normal Mac temporary folders
-- `residual-mac-ci-audit` — Measure the remaining Mac check time
-- `image-retention-preresearch` — Check the existing offline path for embedded images
-- `architecture-status-routing` — Keep architecture requirements separate from dated progress
-- `layout-focus-audit` — Inspect keyboard focus when panels close or maximize
-- `launcher-focus-return-witness` — Check typing returns to the chat after quick search closes
-- `ci-main192-cache-observation` — Check why the latest Mac build time varies
-- `lifecycle-test-retirement-audit` — Check for redundant lifecycle tests
-- `project-trash-recovery-audit` — Check project removal and restoration boundaries
-- `mac-core-test-body-triage` — Locate the remaining time inside Mac checks
-- `offline-interruption-preflight` — Select a useful interruption and recovery check
-- `malformed-input-boundary-preflight` — Select a useful malformed-input or size-limit check
-- `preview-file-cancellation` — Keep preview-file waiting interruptible
-- `export-interruption-witness` — Check a killed export can be retried safely
-- `settings-draft-activation-audit` — Check unsaved Settings stay separate from active configuration
-- `settings-draft-isolation` — Keep unsaved provider choices out of other Settings actions
-- `settings-refresh-form-preflight` — Assess keeping Settings drafts coherent during refresh
-- `settings-worker-draft-retention` — Keep unsaved model choices when unrelated work finishes
-- `next-headless-gap-preflight` — Select the next evidence-backed reliability gap
-- `settings-rejected-save-preflight` — Check whether a rejected Settings save keeps the form intact
-- `settings-rejected-save-retention` — Keep unsaved Settings choices after a refused save
-- `overview-reading-volume` — Keep the startup progress view concise as evidence grows
-- `ordinary-import-completion-preflight` — Check ordinary file imports across failure, cancellation and navigation
-- `ordinary-import-target-ownership` — Assess explicit destination ownership for file imports
-- `run-coordination-state-ownership` — Give Run coordination a coherent state and transition owner
-- `run-continuation-ownership` — Keep Stop and send continuation attached to its Run
-- `precise-edit-trace-evidence` — Make precise-edit rejections diagnosable without exposing note text
-- `precise-edit-coordinate-guidance` — Clarify exact passage-edit coordinates for the AI
-- `run-partial-answer-ownership` — Assess keeping the partial answer with its active Run
-- `precise-edit-unique-quote-selector` — Prepare exact edits from one unique quoted passage
-- `reference-search-request-ownership` — Assess one owner for reference-search cancellation and freshness
-- `queued-edit-destination-ownership` — Keep a queued-message edit attached to its original chat
-- `worker-progress-ownership-assessment` — Assess operation-scoped progress ownership
-- `file-picker-lifecycle-assessment` — Check delayed file-picker completion ownership
-- `strict-mac-keyword-scale` — Check search responsiveness with 10,000 synthetic notes on this Mac
-- `knowledge-check-refresh-ownership` — Keep previous knowledge findings out of a replacement check
-- `passage-comment-draft-ownership-audit` — Check passage-comment drafts across navigation and refused posting
-- `restore-process-stage-ownership` — Check that interrupted restore work is reclaimed safely
-- `state-ownership-milestone-review` — Reconcile the implemented reducers and state owners
-- `native-future-compatibility-warning-triage` — Identify the native dependency warning before it becomes an upgrade blocker
-- `public-cli-restore-interruption` — Verify the public restore command recovers from an interrupted copy
-- `project-dialog-target-ownership` — Check Project dialogs keep the identity and version shown when opened
-- `project-current-document-link` — Refuse a new Project link when its selected document has been superseded
-- `backup-process-witness-bounds` — Bound backup-process readiness and clean up its owned test child
-- `selected-task-reading-route` — Read one current task without loading the entire campaign history
-- `mac-core-ci-variance-20261022` — Explain the latest longer Mac check using completed job evidence
-- `test-child-readiness-audit` — Find remaining unbounded owned-child waits in deterministic tests
-- `note-lifecycle-transition-audit` — Check note switching and recovery for unsaved-work loss
-- `note-reload-generation-guard` — Keep the visible edit when Reload encounters a newer recovery generation
-- `provider-test-child-bounds` — Bound the synthetic provider stderr fixture and retain owned-child cleanup
-- `public-backup-interruption-preflight` — Assess whether a public backup interrupted during copying needs a distinct witness
-- `public-cli-backup-interruption` — Qualify a public backup interrupted while copying
-- `derived-index-recovery-audit` — Inspect recovery of damaged or stale derived search indexes
-- `derived-index-integrity-recovery` — Assess automatic detection of an inconsistent derived search index
-- `desktop-refresh-scale-preflight` — Locate a useful headless check for app refresh at larger workspace size
-- `desktop-refresh-scale-diagnostic` — Measure the existing app refresh on a larger synthetic workspace
-- `indexed-settings-read-reuse` — Read saved Settings without decoding every note
-- `request-history-refresh-preflight` — Check coverage for refresh after accumulated writing history
-- `ci-supported-platform-cache-scope` — Keep shared build-cache use focused on Mac and Linux
-- `review-draft-failure-preflight` — Check edited proposals survive refused preparation and replacement
-- `recovery-copy-privacy-preflight` — Check recovery copies preserve private-note boundaries
-- `recovery-copy-privacy-guard` — Prevent recovery copies from becoming general knowledge accidentally
-- `launcher-request-close-preflight` — Check quick search request ownership when it closes
-- `comment-draft-ownership-preflight` — Check comment drafts remain attached to their saved passage
-- `active-overview-reading-route` — Keep raw check history out of the startup summary
-- `recovery-copy-route-audit` — Check every recovery-copy entry point uses the privacy guard
-- `privacy-native-fixture-preflight` — Prepare a short path to the future Mac privacy check
-- `privacy-native-fixture-preparation` — Prepare fresh privacy test data before the Mac session
-- `native-artifact-preparation` — Prepare a matching Mac app without opening it
-- `dependency-advisory-preflight` — Assess a proportionate dependency advisory check
-- `tls-advisory-resolution` — Resolve recent certificate-trust dependency advisories
-- `current-lock-advisory-scan` — Check maintained dependency locks against current advisories
-- `helper-zip-advisory-assessment` — Assess document-helper ZIP advisories
+121 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+
+- `overview-growth-preflight` — Assess the growing completed-work list in the startup overview
+- `connections-project-freshness` — Clear outdated Connections after project membership changes
+- `note-exit-preservation-assessment` — Check Close and Quit preserve typing after a refused storage write
+- `note-storage-refusal-preflight` — Check unsaved note preservation when storage refuses a write
+- `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
 - `offline-native-retrieval-guide` — Document the existing offline native-library setup
 - `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
-- `connections-project-freshness` — Clear outdated Connections after project membership changes
-- `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
-- `note-storage-refusal-preflight` — Check unsaved note preservation when storage refuses a write
-- `note-exit-preservation-assessment` — Check Close and Quit preserve typing after a refused storage write
-- `overview-growth-preflight` — Assess the growing completed-work list in the startup overview
+- `mac-core-ci-variance-20261022` — Explain the latest longer Mac check using completed job evidence
+- `tls-advisory-resolution` — Resolve recent certificate-trust dependency advisories
+- `helper-zip-advisory-assessment` — Assess document-helper ZIP advisories
 
 ## Dependencies
 
@@ -444,6 +340,7 @@ graph TD
   t122["Clear outdated Connections after project membership changes"]
   t123["Observe Connections after Project Unlink and Undo on the Mac"]
   t127["Preserve live-only note typing before normal Close or Quit"]
+  t129["Keep completed history from crowding the startup summary"]
   t130["Observe note preservation during Mac Close and Quit"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
@@ -463,6 +360,7 @@ graph TD
   t118 -->|Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment (satisfied)| t119
   t117 -->|Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (satisfied)| t120
   t122 -->|Connections repair normally merged and all four required resulting-main checks PASS. (satisfied)| t123
+  t127 -->|Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (not satisfied)| t129
   t127 -->|PR217 normally merged with all four required resulting-main checks PASS. (not satisfied)| t130
 ```
 

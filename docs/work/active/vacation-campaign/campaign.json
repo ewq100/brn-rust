@@ -5394,23 +5394,31 @@
       {
         "id": "bounded-completed-overview",
         "title": "Keep completed history from crowding the startup summary",
-        "state": "active",
+        "state": "ready",
         "owner": "Bounded Luna medium author; lead integration; independent Sol review",
-        "observed_at": "2026-10-22T13:22:29.972895+00:00",
+        "observed_at": "2026-10-22T13:25:58.817213+00:00",
         "origin": "observed",
-        "activity": "Luna froze clean3-file ddf07b97: bounded10latest-observed completed list, parsed timezone ordering/IDties, total/fullrecordroute; existing regression extended for12tasks and exact omitted-task lookup. Reported15PythonPASS, worker regenerate/check/docsPASS. Independent Sol complete candidate review active.",
-        "next_action": "Resolve independent review, then adopt identical renderer/test locally and regenerate from actual current record with proportionate checks/size receipt. Keep separate product candidate unpublished until217integrated, reconcile newmain, then publish normal required checks.",
-        "depends_on": [],
+        "activity": "Independent complete ddf review APPROVED/no findings. Lead adopted byte-identical renderer/test and regenerated actual current record:35085\u219225021bytes,471\u2192362lines; exact authoritative record unchanged across qualification.15PythonPASS/overview/docs/diffPASS. Tooling not merged to main.",
+        "next_action": "After PR217 normal merge, reconcile actualmain without replacing current records; publish source-equivalent tooling candidate, inspect required checks/protection and resulting-main normally.",
+        "depends_on": [
+          {
+            "task": "note-exit-preservation",
+            "condition": "Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate.",
+            "satisfied": false
+          }
+        ],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/overview-growth-preflight.md",
           "scripts/render-work-overview.py",
-          "docs/work/active/vacation-campaign/evidence/bounded-overview-author.md"
+          "docs/work/active/vacation-campaign/evidence/bounded-overview-author.md",
+          "docs/work/active/vacation-campaign/evidence/bounded-overview-review.md",
+          "docs/work/active/vacation-campaign/evidence/bounded-overview-lead-qualification.json"
         ],
         "gates": {
-          "implementation": "Implemented ddf07b97 draft; independent review pending. Record/schema and runtime unchanged.",
-          "checks": "Author reports focused15PASS/renderercheck/docs625files2813links/diffPASS; source review and actual lead projection qualification pending.",
-          "integration": "No PR; must reconcile actual main and avoid superseding open217. Normal required checks remain.",
+          "implementation": "PASS independently reviewed ddf renderer/test; adopted identical scripts in lead projection. No record/schema/runtime change.",
+          "checks": "PASS lead focused15Python, actual-current-record regen/check,883files3116links0fail, whitespace. Record bytes unchanged; author baseline failure report-only limitation retained.",
+          "integration": "No PR yet; source candidate preserved. Publication awaits preceding217normalmerge, not new owner approval.",
           "native": "Inapplicable: development view only.",
           "owner_acceptance": "No new product meaning or shipped behavior."
         },
