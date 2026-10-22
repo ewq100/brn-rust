@@ -1,0 +1,48 @@
+{
+  "observed_at": "2026-10-22T13:14:19.487571+00:00",
+  "source": "155bb86776eea697135de8d6782bddc4481b3de0",
+  "tree": "68f6817fbbd7e12e8e592ceaf7b278077e2d832d",
+  "base": "5c606c102d5d121105896c48dc7b39e78d26bdb3",
+  "results": {
+    "writing_component": "PASS44unit+12host; reused exact unchanged writing source from6da",
+    "independent_writing_host": "PASS12; unchanged component/host source",
+    "desktop": "PASS350/0/1ignored",
+    "lint": "PASS strict all-target brn-writing-ui+brn-desktop native-ui,native-test-support",
+    "ordinary_build": "PASS shipping native-ui only, no launch",
+    "format": "PASS pinned1.98.1 four changed Rust files",
+    "documentation": "PASS worker625files2813local-links0fail; pinned formatting and whitespacePASS"
+  },
+  "artifacts": [
+    {
+      "path": "/Users/evokessler/.codex/artifacts/brn-note-exit/155bb867/brn-desktop",
+      "bytes": 166024944,
+      "sha256": "d66945794e9a925e64eace3752585fde6f36e4df364301ad301fdb33b14881b8"
+    },
+    {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-xberg-helper",
+      "bytes": 131732512,
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b"
+    },
+    {
+      "path": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/brn-xberg-helper-brn",
+      "bytes": 131924176,
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+    }
+  ],
+  "checks": [
+    "docs/work/active/vacation-campaign/evidence/note-exit-final-desktop-result.json",
+    "docs/work/active/vacation-campaign/evidence/note-exit-final-desktop.log",
+    "docs/work/active/vacation-campaign/evidence/note-exit-final-lint-result.json",
+    "docs/work/active/vacation-campaign/evidence/note-exit-final-lint.log",
+    "docs/work/active/vacation-campaign/evidence/note-exit-final-ordinary-build-result.json",
+    "docs/work/active/vacation-campaign/evidence/note-exit-final-ordinary-build.log"
+  ],
+  "limits": [
+    "No native/OS close/app termination/IME/VoiceOver/owner acceptance",
+    "No actual SQLite I/O fault injection",
+    "Two initial baseline setup failures and meaningful original Close failure retained",
+    "First final suite failed at genuine draft Quit bypass; corrected and original assertions retained",
+    "Review and hosted/integration gates remain separate",
+    "Known unrelated cold-start crash unresolved; no full-app reliability guarantee"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "head": "155bb86776eea697135de8d6782bddc4481b3de0",
+  "tree": "68f6817fbbd7e12e8e592ceaf7b278077e2d832d",
+  "stage": "desktop",
+  "argv": [
+    "cargo",
+    "test",
+    "-p",
+    "brn-desktop",
+    "--features",
+    "native-ui,native-test-support",
+    "--locked",
+    "--offline",
+    "--jobs",
+    "1"
+  ],
+  "started_at": "2026-10-22T13:12:21.681150+00:00",
+  "temporary_root": "/tmp/brn-note-exit-qualification/corrected-desktop/data",
+  "target": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target",
+  "scope": "Offline synthetic toolkit/compilation only; no native observation/account/model/library acquisition.",
+  "completed_at": "2026-10-22T13:13:17.928352+00:00",
+  "seconds": 56.25541333295405,
+  "exit_code": 0,
+  "stop_reason": null,
+  "signals": [],
+  "cleanup_errors": [],
+  "group_absent": true,
+  "leader_reaped": true,
+  "source_unchanged": true,
+  "log_sha256": "4d7b8eff2e7028e547885740db092946d39f853c2600a4c1876a6b56b0485f80"
+}

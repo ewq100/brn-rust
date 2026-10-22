@@ -14,20 +14,40 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:12:48.832582+00:00
-Activity: Confirmed P1 draft Quit bypass from nested same-window update during key dispatch; independent reviewer agreed. Corrected frozen155bb867 defers shared admission until window restored, keeps original regression assertions, removes2unused test bindings. Affected desktop/lint/ordinary build running sequentially; source review refresh active.
-Next: Inspect corrected full-suite result and review disposition. On a second failed final approach, reassess evidence before further retry. If all gates pass, qualify exact binary/helpers and publish one reviewed outcome.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:16:10.779307+00:00
+Activity: Final155bb independently APPROVED with no unresolved source findings; P1 Quit bypass valid/fixed and2unused bindings fixed. All selected local gates passed; exact ordinary binary/hash retained. Six-file source candidate ready for separate protected publication; native observation deferred.
+Next: Publish clean155bb branch against actualmain5c606c10, attach PR and preserve exact publication identity. Inspect required exact-head/preceding-main/protection before normal merge, resulting-main separately.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Implemented frozen155bb867; independent final review refresh pending. P1 Quit finding adopted/fixed in source; checks pending.
-- **checks:** FAIL desktop349/1/1ignored at new Cmd-Q1889; component/host PASS, lint/build not launched. Native owner-deferred.
+- **implementation:** PASS independent complete six-file review155bb, no unresolved findings. Note-owner preservation and captured local-discard; no Store/schema/runtime prompt change.
+- **checks:** PASS local350desktop/0/1ignored; writing44unit+12host and independenthost12; strict combinedlint, ordinarybuild, format/docs. Original failure retained; hosted gates pending.
 - **integration:** No PR until reviewed/qualified. Preceding main5c606c10 all four required resulting-main checks PASS; live protection and exact candidate checks remain required.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
+
+</details>
+
+### Assess the growing completed-work list in the startup overview
+
+Task ID: `overview-growth-preflight`
+Owner: Bounded Luna medium read-only preflight; lead decision · State: **active** · Last observed: 2026-10-22T13:15:32.757996+00:00
+Activity: Current generated overview is423lines and includes the full growing completed-task index. Inspect previous reading-volume decisions and renderer before deciding whether an additional change has concrete value.
+Next: Return justified nochange or one minimal output improvement with full-history route and proportionate script validation; no implementation dispatched.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** No product/tooling change selected; read-only assessment only.
+- **checks:** Source/count inspection pending; no builds.
+- **integration:** No candidate or PR.
+- **native:** Inapplicable: documentation projection only.
+- **owner acceptance:** No new product behavior decision selected.
 
 </details>
 
