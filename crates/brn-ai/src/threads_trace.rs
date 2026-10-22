@@ -264,18 +264,30 @@ impl TraceCollector {
             "note_connections" => {
                 json!({"id": n("id"), "hops": n("hops"), "sources": n("sources")})
             }
-            "prepare_note_edit" => json!({
-                "id": n("id"), "version": n("version"),
-                "start": n("start"), "end": n("end"),
-                "expected_bytes": args
-                    .get("expected_text")
+            "prepare_note_edit" => {
+                let id = args
+                    .get("id")
                     .and_then(Value::as_str)
-                    .map_or(0, str::len),
-                "replacement_bytes": args
-                    .get("replacement_text")
-                    .and_then(Value::as_str)
-                    .map_or(0, str::len),
-            }),
+                    .filter(|id| id.len() <= 256)
+                    .map_or(Value::Null, |id| json!(id));
+                let number = |key: &str| {
+                    args.get(key)
+                        .and_then(Value::as_u64)
+                        .map_or(Value::Null, |value| json!(value))
+                };
+                json!({
+                    "id": id, "version": number("version"),
+                    "start": number("start"), "end": number("end"),
+                    "expected_bytes": args
+                        .get("expected_text")
+                        .and_then(Value::as_str)
+                        .map_or(0, str::len),
+                    "replacement_bytes": args
+                        .get("replacement_text")
+                        .and_then(Value::as_str)
+                        .map_or(0, str::len),
+                })
+            }
             "read_source" => json!({"source": "supplied"}),
             "read_skill" => json!({"name": n("id")}),
             "prepare_changes" | "refresh_candidate" => {
@@ -621,14 +633,35 @@ mod tests {
             "extra":"private passage",
         });
         assert_eq!(
-            TraceCollector::new(super::TraceLevel::Summary).unwrap().args("prepare_note_edit", &args),
+            TraceCollector::new(super::TraceLevel::Summary)
+                .unwrap()
+                .args("prepare_note_edit", &args),
             json!({"id":"note-private", "version":7, "start":2, "end":8,
                 "expected_bytes":6, "replacement_bytes":3})
         );
         assert_eq!(
-            TraceCollector::new(super::TraceLevel::Full).unwrap().args("prepare_note_edit", &args),
+            TraceCollector::new(super::TraceLevel::Full)
+                .unwrap()
+                .args("prepare_note_edit", &args),
             json!({"id":"note-private", "version":7, "start":2, "end":8,
                 "expected_bytes":6, "replacement_bytes":3})
+        );
+        assert_eq!(
+            TraceCollector::new(super::TraceLevel::Summary)
+                .unwrap()
+                .args(
+                    "prepare_note_edit",
+                    &json!({
+                        "id":{"private":"payload"}, "version":["private"],
+                        "start":{"offset":3}, "end":[9],
+                        "expected_text":{"passage":"private"},
+                        "replacement_text":["private"],
+                    }),
+                ),
+            json!({
+                "id":null, "version":null, "start":null, "end":null,
+                "expected_bytes":0, "replacement_bytes":0,
+            })
         );
     }
 
@@ -637,17 +670,21 @@ mod tests {
         assert_eq!(
             TraceCollector::result(
                 "prepare_note_edit",
-                Some(&json!({"operation":"op-private-id", "request_hash":"private-hash",
+                Some(
+                    &json!({"operation":"op-private-id", "request_hash":"private-hash",
                     "writes":[{"data":{"Note":{"markdown":"private markdown"}}}],
-                    "reason":"private prepared reason"})),
+                    "reason":"private prepared reason"})
+                ),
             ),
             json!({"operation":"op-private-id"})
         );
         assert_eq!(
             TraceCollector::result(
                 "prepare_note_edit",
-                Some(&json!({"outcome":"Invalid", "reason":"static host rejection",
-                    "request_key":"private-key", "expected_text":"private passage"})),
+                Some(
+                    &json!({"outcome":"Invalid", "reason":"static host rejection",
+                    "request_key":"private-key", "expected_text":"private passage"})
+                ),
             ),
             json!({"outcome":"Invalid", "reason":"static host rejection"})
         );
