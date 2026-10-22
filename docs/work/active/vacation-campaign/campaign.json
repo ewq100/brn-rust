@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T15:43:13.877642+00:00",
+    "observed_at": "2026-10-22T15:49:15.521475+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5613,20 +5613,26 @@
         "title": "Guide local AI edits away from guessed text positions",
         "state": "active",
         "owner": "bounded Luna source writer in export-durability; lead builds/integration; independent Sol review",
-        "observed_at": "2026-10-22T15:43:13.877642+00:00",
+        "observed_at": "2026-10-22T15:49:15.521475+00:00",
         "origin": "observed",
-        "activity": "Read-only audit found strategy-selection failure, not demonstrated quote-selector defect or proven guidance cause. Selected minimal parent-guide clarification: prefer host unique-quote selection when absolute offsets are not established, and do not guess another range after mismatch. Existing skill/tool safeguards retained; no fallback or runtime/service change. Bounded Luna implementation active in isolated cleanmain-based checkout.",
-        "next_action": "Review complete four-file guidance/bundle-identity candidate independently, run relevant existing guide/summary/CLI identity checks, then normal protected integration and separate resulting-main gates. No further account test selected.",
+        "activity": "PR219 published at reviewed/qualified e5e9613b; independentreviewAPPROVED, runtime531PASS/0FAIL/2existingignored, CLIidentity1PASS, strictlint/ordinarybuild/format/docsPASS. Four required exact-head hosted checks pending; no model/native efficacy claim.",
+        "next_action": "Keep PR219 head stable. Inspect actual live required checks/protection and preceding-main; normal merge only after all four exact-head PASS, then separately inspect resulting-main.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/post-quote-repair-account-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/post-quote-guidance-audit.md"
+          "docs/work/active/vacation-campaign/evidence/post-quote-guidance-audit.md",
+          "docs/work/active/vacation-campaign/evidence/selector-guidance-review.md",
+          "docs/work/active/vacation-campaign/evidence/selector-guidance-final-local.json",
+          "docs/work/active/vacation-campaign/evidence/selector-guidance-final-local.log",
+          "docs/work/active/vacation-campaign/evidence/selector-guidance-final-local.sh",
+          "docs/work/active/vacation-campaign/evidence/pr219-publication.json",
+          "https://github.com/ewq100/brn-rust/pull/219"
         ],
         "gates": {
-          "implementation": "In progress: parent runtime guide clarity only; guidance19→20 with existing identity witnesses. Development-agent configuration and installed skill package unchanged.",
-          "checks": "Fresh live failure retained; no test of guidance repair yet.",
-          "integration": "No candidate or merge selected yet.",
+          "implementation": "PASS independent complete actuale5e9613b review; scope4files only, sliceorigin/freshkey/hostguards and19→20cacheidentity verified.",
+          "checks": "PASS final exacte5 local531/0/2 plus CLIidentity1/0, strictlint/build/format/docs; existingignored retained. Hosted required checks pending.",
+          "integration": "OPEN PR219 e5e9613b; no merge yet, required head/main gates pending.",
           "native": "Owner-deferred; no native action.",
           "owner_acceptance": "Not claimed."
         },
@@ -5634,7 +5640,7 @@
         "resource_plan": "Single writer export-durability branchcodex/precise-edit-selector-guidance-20261022, allowedparentguide and3existingbundleidentityfiles only; no helperbuild/account/native. Lead sole sharedtarget/integrationowner; Solreviewafteractualcandidate. No newtests/framework/provider/model."
       }
     ],
-    "owner_attention": "No owner action needed. One post-repair AI edit test failed safely; both notes unchanged. A bounded headless guidance audit is active; Mac checks remain deferred."
+    "owner_attention": "No owner action needed. Reviewed passage-edit guidance PR219 awaits required hosted checks; local checks passed. Live test failure preserved; Mac checks remain deferred."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -5646,20 +5652,26 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-post-quote-repair-account.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T15:43:13.877642+00:00",
-    "runtime_capacity": "Bounded Luna source writer export-durability, lead facts/checks/integration, independent Sol available. Three active slots max; stale pending-init helper not dispatched.",
-    "build_slot": "Free; cached ordinary current-source CLI build passed; no active cargo/rustc.",
+    "observed_at": "2026-10-22T15:49:15.521475+00:00",
+    "runtime_capacity": "Luna implementation and independentSol review complete. Lead sole integration/CI/facts owner; no active source writer.",
+    "build_slot": "Free; final e5 qualification complete, no cargo/rustc owned job.",
     "desktop_account_actor": "No controlled desktop/account actor. One post-repair live attempt finished and sessionclosed; originalapp63750 preserved, native ownerdeferral unchanged.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Concrete post-live guidance correction selected; continue review/check/integration flow. No account/native test selected.",
+    "wait_reason": "PR219 awaits four actual exact-head required hosted checks; no further account/native test selected.",
     "resumption": "Continue current selected headless preflight; preserve old session closure and daily counts; one account actor and one shared build slot.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability branchcodex/precise-edit-selector-guidance-20261022 basedmain6e9, taskprecise-edit-selector-guidance, singleLuna writer. Prior23f PR218 branch preserved.",
+    "worker_checkout": "export-durability cleanfrozen e5 PR219; keep head stable during required CI.",
     "fixture_worker_checkout": "mac-test-roots frozen clean174e381f PR217; no source writer/build/native/account.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
-    "required_ci_runs": []
+    "required_ci_runs": [
+      {
+        "pr": 219,
+        "head": "e5e9613b96b2a1fa5392da0ad0e693e9be57c396",
+        "state": "Pending actual hosted checks"
+      }
+    ]
   },
   "native_availability": {
     "observed_at": "2026-10-21T03:56:18.778419+00:00",

@@ -1,0 +1,41 @@
+{
+  "observed_at": "2026-10-22T15:49:15.521475+00:00",
+  "candidate": "e5e9613b96b2a1fa5392da0ad0e693e9be57c396",
+  "base": "6e9fbad772dd40d2f038b85d0615c2a1fa667ea0",
+  "tree": "356b3380f0571d08533457f05a86f07e0e9de9d2",
+  "independent_review": "selector-guidance-review.md",
+  "local_results": {
+    "scripted_runtime_library": {
+      "passed": 531,
+      "failed": 0,
+      "ignored": 2
+    },
+    "existing_cli_guide_identity": {
+      "passed": 1,
+      "failed": 0,
+      "filtered": 16
+    },
+    "strict_ai_cli_all_target_lint": "PASS",
+    "ordinary_cli_build": "PASS",
+    "formatting": "PASS",
+    "source_checkout_markdown_links": {
+      "files": 625,
+      "local_links": 2813,
+      "failed": 0
+    },
+    "diff_whitespace": "PASS"
+  },
+  "ignored": [
+    "provider_stderr_child: parent-owned isolated stderr fixture",
+    "manual_one_start_prepare_diagnostic: future principal activation required"
+  ],
+  "log_sha256": "239e916cd3f6e954e3d2a73029e3ac0d87c17be9cb1eff65e150dde07bea53d7",
+  "script_sha256": "1310a83769d29876a1bccebb815971143b2240112f493cb41c97816d75d34a77",
+  "limits": [
+    "No provider/account/native test of this candidate.",
+    "Clarity hypothesis from prior safe failure, not demonstrated live reliability fix.",
+    "Both account sessions remain closed; no retry permission from guidance change."
+  ],
+  "pr": "https://github.com/ewq100/brn-rust/pull/219",
+  "required_hosted_checks": "Pending exact-head and resulting-main separately; do not merge until gates pass."
+}

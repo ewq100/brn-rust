@@ -1,0 +1,15 @@
+{
+  "observed_at": "2026-10-22T15:49:15.521475+00:00",
+  "pr": {
+    "baseRefName": "main",
+    "headRefOid": "e5e9613b96b2a1fa5392da0ad0e693e9be57c396",
+    "isDraft": false,
+    "mergeStateStatus": "BLOCKED",
+    "number": 219,
+    "state": "OPEN",
+    "url": "https://github.com/ewq100/brn-rust/pull/219"
+  },
+  "qualified_tree": "356b3380f0571d08533457f05a86f07e0e9de9d2",
+  "local_qualification": "selector-guidance-final-local.json",
+  "required_checks": "Pending"
+}
