@@ -1,0 +1,19 @@
+{
+  "observed_at": "2026-10-22T02:44:42.453528+00:00",
+  "base": "0016b21057b44fa9a64cef2d77d4ae09e317f540",
+  "published_candidate": "3414b992809a9a3049ba2dd710369accc1f79247",
+  "qualified_core": "f4650db41dde3c1460af946aa59244f74a481671",
+  "complete_actual_diff_identical_to_reviewed": true,
+  "changed": [
+    "crates/brn-threads-core/src/restore.rs"
+  ],
+  "restore_file_sha256": "74b9871721d453f300fc6a50e9853d0cf4ace4492c284366b55b565537f17d24",
+  "additional_main_changes": [
+    "crates/brn-desktop/README.md",
+    "crates/brn-desktop/src/threads_connections.rs",
+    "crates/brn-desktop/src/threads_tiled_tests.rs",
+    "docs/architecture/threads-behavior.md"
+  ],
+  "reuse": "All core source/dependencies and exact actual candidate diff unchanged from independently reviewed/qualified f465. New main contains only independently reviewed/qualified knowledge desktop/docs changes; no Cargo graph, core or dependency change. Reuse219/0/1 core plus strict lint/fmt; actual protected head/main checks still required.",
+  "limits": "Combined whole tree differs from old f465 by integrated knowledge files; do not claim whole-tree equality to f465. No native/power-loss/owner acceptance or release."
+}

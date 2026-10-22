@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-10-22T02:46:53.780187+00:00",
+  "pr": 206,
+  "url": "https://github.com/ewq100/brn-rust/pull/206",
+  "branch": "codex/restore-process-interruption",
+  "published_head": "3414b992809a9a3049ba2dd710369accc1f79247",
+  "base": "0016b21057b44fa9a64cef2d77d4ae09e317f540",
+  "qualified_core": "f4650db41dde3c1460af946aa59244f74a481671",
+  "complete_actual_diff_identical_to_reviewed": true,
+  "reuse_receipt": "restore-process-stage-integrated-base.json",
+  "required_checks": "Pending actual exact-head/preceding-main and live-protection gates; resulting-main separately.",
+  "limits": "Combined whole tree differs from old f465 by integrated knowledge files; do not claim whole-tree equality to f465. No native/power-loss/owner acceptance or release."
+}

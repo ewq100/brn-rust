@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T02:43:14.630437+00:00",
+    "observed_at": "2026-10-22T02:46:53.780187+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3106,10 +3106,10 @@
         "title": "Keep previous knowledge findings out of a replacement check",
         "state": "active",
         "owner": "Lead diagnosis/implementation/integration; bounded Luna original regression author; independent Sol review",
-        "observed_at": "2026-10-22T02:20:05.134742+00:00",
+        "observed_at": "2026-10-22T02:46:53.780187+00:00",
         "origin": "observed",
-        "activity": "Confirmed old-source stale-summary defect with supported actual control witness. Final6746eea6 independently approved; full347/0/1, strict lint, ordinary native build, formatting and625file2850link checks PASS. Published PR205a77b2ede after main204 reconciliation; entire publication tree equals qualified6746.",
-        "next_action": "Keep PR205 head stable. Inspect all4 required exact-head/preceding-main and live protection before normal merge, then resulting-main separately.",
+        "activity": "PR205 normal merged0016b210 after all four exact-head and preceding-main required checks plus live protection PASS. Whole resulting tree equals independently reviewed/qualified6746. Resulting-main gate pending separately.",
+        "next_action": "Inspect all four required checks on main0016b210; reuse qualified source. Native and replacement-error injection remain separate limitations.",
         "depends_on": [
           {
             "task": "queued-edit-destination-ownership",
@@ -3139,12 +3139,14 @@
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-final.sh",
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-final.log",
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/pr205-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr205-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr205-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr205-integration.json"
         ],
         "gates": {
           "implementation": "PASS final6746 independent Sol review, no outstanding findings; one-line old-result retirement, no automatic invalidation framework.",
           "checks": "PASS focused1 on production-identical9eeee; final6746 full347/0/1existing ignored, strictalltarget native lint, ordinarynative build, format/links. Failed-replacement behavior source-reviewed only.",
-          "integration": "PR205a77b2ede published; qualified whole-tree equality PASS. Required head/preceding-main checks pending.",
+          "integration": "MERGED PR2050016b210; all4 head/preceding-main/protection and whole qualified-tree equality PASS; resulting-main pending.",
           "native": "Actual Mac unavailable; toolkit only.",
           "owner_acceptance": "No owner decision selected for bounded misleading replacement presentation."
         },
@@ -3216,10 +3218,10 @@
         "title": "Check that interrupted restore work is reclaimed safely",
         "state": "active",
         "owner": "Lead test design/integration; bounded Luna test-only author; independent Sol review",
-        "observed_at": "2026-10-22T02:38:26.145151+00:00",
+        "observed_at": "2026-10-22T02:46:53.780187+00:00",
         "origin": "observed",
-        "activity": "Finalf465 independently reviewed/qualified: core219/0/1existingignored, strict lint/fmt. One deliberately broken child-lock negative control failed exactly at live-stage preservation; exact qualified file restored with byte/hash/clean HEAD proof. No production change.",
-        "next_action": "Publish reviewed test-only outcome after current main is reconciled; reuse unchanged core qualification explicitly, then required exact-head/main gates. No duplicate broad run needed for restored byte-identical source.",
+        "activity": "Published PR2063414b992 on current main2050016b210. Complete actual one-file diff exactly equals reviewed/qualifiedf465; core source/dependencies unchanged. Prior core219/0/1 and strictlint/fmt reused explicitly, plus actual negative-control proof. Required gates pending.",
+        "next_action": "Keep PR206 head stable; inspect actual all4 exact-head/preceding-main checks and live protection before normal merge, then resulting-main separately.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3236,12 +3238,14 @@
           "docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.patch",
           "docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.sh",
           "docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control.log",
-          "docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control-receipt.json"
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-negative-control-receipt.json",
+          "docs/work/active/vacation-campaign/evidence/restore-process-stage-integrated-base.json",
+          "docs/work/active/vacation-campaign/evidence/pr206-publication.json"
         ],
         "gates": {
           "implementation": "PASS finalf465 independent Sol complete review, both originalP2s valid/fixed.",
           "checks": "PASS core219/0/1, strictalltargetlint/fmt. Expected negativecontrol1FAIL at actual live-stage guard; exact finalsource restored.",
-          "integration": "No PR yet; final source frozen for protected publication.",
+          "integration": "PR2063414b992 published; complete actual reviewed-diff equality and unchanged core/dependency proof PASS. Required head/main gates pending.",
           "native": "Headless process/OS lock evidence only, no native app or power-loss proof.",
           "owner_acceptance": "No owner decision selected."
         },
@@ -3302,28 +3306,21 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-knowledge-refresh-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T02:43:14.630437+00:00",
+    "observed_at": "2026-10-22T02:46:53.780187+00:00",
     "runtime_capacity": "Four actual slots including lead. Bounded Luna author and independent Sol reviewer completed restore candidate; no current source writer. Historical pending_init run_activity_author is not admitted work.",
     "build_slot": "Final restore-process core qualification complete; shared build slot free at this observation.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [
-      {
-        "kind": "PR205 required checks",
-        "session_id": 43314,
-        "output": "/tmp/brn-pr205-required.log",
-        "head": "a77b2edece4fb91ec6303f829d9ed8792b9adf95"
-      }
-    ],
+    "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Main204 fully verified; PR205 required UbuntuCore remains pending at last direct observation, other3required pass. Restore outcome frozen/qualified awaiting stable main reconciliation.",
+    "wait_reason": "Required gates for selected knowledge/restore tasks; use actual task receipts and live APIs, no stale PR205 watch.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability clean codex/restore-process-interruption; exact candidate/next action in selected restore-process-stage-ownership task.",
+    "worker_checkout": "export-durability frozen PR206 branch; exact current head/base in selected restore-process-stage-ownership task.",
     "fixture_worker_checkout": "mac-test-roots clean published quote PR203a780c87d; qualified frozen28 retained.",
-    "documentation_worker_checkout": "architecture-status-route clean codex/knowledge-check-refresh; frozen PR205 head; exact identity in selected knowledge-check-refresh-ownership task.",
+    "documentation_worker_checkout": "architecture-status-route frozen merged PR205 source; no writer.",
     "required_ci_runs": [
-      39710733091
+      39712960408
     ]
   },
   "native_availability": {
