@@ -46,7 +46,7 @@ account attempt or Mac interaction occurred.
 | MAC11 | PASS: three named actionable Note rows in Recent/Linked/All; each named activation; unrelated Note then filter/Tab/Space opens target; unchanged durable snapshots. `mac11-*` | Mac AX/keyboard observation |
 | MAC12 | PASS: actual outer menu item has full title + reason and click action; named activation opens exact writing context; bounded 26px row; unchanged durable snapshots. `mac12-*` | Mac menu/AX |
 | MAC13 | PASS: public stale copy exact; private refusal repeated, no new Note/receipt/recovery changes; general search has zero private hits and export excludes private text. Both use clean v1 UI, checked external v2, real stale Save banner. `mac13-*` | Actual Mac UI |
-| MAC14 | PASS: Project B Unlink removes private neighbor; native history Undo restores exact operation; same B scope and center, exact Note bytes/provenance unchanged. Immediate retirement before refresh was not measured. Repeated settled Undo shows 1 of 1 neighbor. `mac14-repeat-*` | Actual Mac UI |
+| MAC14 | PARTIAL: settled unlink/Undo passed. Project B Unlink removes private neighbor; native history Undo restores exact operation; same B scope and center, exact Note bytes/provenance unchanged. Immediate retirement before refresh was not observed and remains unverified. Repeated settled Undo shows 1 of 1 neighbor. `mac14-repeat-*` | Actual Mac UI |
 | MAC15 | PASS: distinct OS Alt-F4 and registered Super+Q preserve exact multiline Unicode recovery/session/base; external edit conflict refuses both exits, Enter does not discard, Cancel retains live-only õ; explicit Discard and quit preserves external edit and canonical data. `mac15-*` | macOS Close/Quit lifecycle, IME |
 | MAC06 v1 | PASS: only selected captured comment addressed with Apply, exact revised note, excluded comment pending; native Note rewrite Undo restores original bytes and pending feedback, sentinel unchanged. `mac06-*` | Actual Mac v1 session; no v2/provider qualification |
 | Inactive skills | PASS: inactive scope Enable unavailable; attempted click unchanged; exact-current inventory Remove succeeds; mismatched stale Remove disabled. Active scope Inspect shows v2 bytes; Enable current stores v2 digest with selected=false, separate native selection sets true. `skills-*` | Actual Mac controls; legitimate disabled stale binding differs from raw enabled/stale headless seed |
@@ -94,7 +94,10 @@ behavioral evidence. Offscreen actions can report accepted without changing UI;
 always verify settled visual and persisted outcomes. Initial role assumptions
 (button versus toggle button) caused missing-target errors; do not interpret
 those harness failures as application mutations. Disabled skill controls remain incorrectly exposed as AT-SPI enabled/sensitive
-despite being visually disabled/actionless. No full accessibility pass is
+despite being visually disabled/actionless. This is an unpassed baseline
+accessibility caveat, not an introduced safety regression: the relevant
+skills/projects/connections source is byte-identical to baseline main24a77.
+The inventory therefore does not establish nine fully passed rows. No full accessibility pass is
 claimed. No hardware GPU, Wayland, macOS menu/AX/VoiceOver/IME, native file-picker,
 GUI backup Restore, fresh live-model or release readiness qualification is claimed.
 
