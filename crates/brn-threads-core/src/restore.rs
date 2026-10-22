@@ -197,51 +197,18 @@ fn require_fresh_destination(destination: &Path) -> Result<()> {
 mod tests {
     use super::*;
     #[cfg(unix)]
+    use crate::process_test::OwnedChild;
+    #[cfg(unix)]
     use crate::stage::tree;
     use crate::stage::{STAGE_MARKER, stages};
     #[cfg(unix)]
-    use std::{
-        process::{Child, ExitStatus, Stdio},
-        thread,
-        time::Instant,
-    };
+    use std::{process::Stdio, thread, time::Instant};
 
     /// The staged workspace and its stage wrapper are both gone.
     fn assert_stage_gone(staging: &Path) {
         assert!(!staging.exists());
         let wrapper = staging.parent().unwrap();
         assert!(!wrapper.exists(), "{} must be removed", wrapper.display());
-    }
-
-    #[cfg(unix)]
-    struct OwnedChild(Option<Child>);
-
-    #[cfg(unix)]
-    impl OwnedChild {
-        fn kill_and_reap(&mut self) -> ExitStatus {
-            let child = self.0.as_mut().expect("owned child is present");
-            let status = match child.try_wait().unwrap() {
-                Some(status) => status,
-                None => {
-                    child.kill().unwrap();
-                    child.wait().unwrap()
-                }
-            };
-            self.0.take();
-            status
-        }
-    }
-
-    #[cfg(unix)]
-    impl Drop for OwnedChild {
-        fn drop(&mut self) {
-            if let Some(mut child) = self.0.take() {
-                if child.try_wait().ok().flatten().is_none() {
-                    let _ = child.kill();
-                }
-                let _ = child.wait();
-            }
-        }
     }
 
     #[test]
@@ -403,19 +370,17 @@ mod tests {
         let earlier_before = tree(&earlier);
 
         let ready = root.path().join("restore-process-stage-ready");
-        let mut child = OwnedChild(Some(
-            std::process::Command::new(std::env::current_exe().unwrap())
-                .arg("--exact")
-                .arg("restore::tests::a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent")
-                .env(CHILD_ROOT, root.path())
-                .stdout(Stdio::null())
-                .stderr(Stdio::null())
-                .spawn()
-                .unwrap(),
-        ));
+        let mut command = std::process::Command::new(std::env::current_exe().unwrap());
+        command
+            .arg("--exact")
+            .arg("restore::tests::a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent")
+            .env(CHILD_ROOT, root.path())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null());
+        let mut child = OwnedChild::spawn(&mut command).unwrap();
         let ready_deadline = Instant::now() + Duration::from_secs(10);
         while !ready.exists() && Instant::now() < ready_deadline {
-            if let Some(status) = child.0.as_mut().unwrap().try_wait().unwrap() {
+            if let Some(status) = child.try_wait() {
                 panic!("restore stage child exited before readiness: {status}");
             }
             thread::sleep(Duration::from_millis(10));

@@ -155,6 +155,72 @@ class WorkOverviewTests(unittest.TestCase):
         self.assertEqual(self.run_main("--check")[0], 0)
         self.assertEqual(self.output.stat().st_mtime_ns, before)
 
+    def test_task_lookup_prints_exact_selected_object_and_preserves_record_and_output(self):
+        first = task()
+        selected = task("two", title="Second task", activity="Review õun")
+        self.save(view(first, selected))
+        record_before = self.record.read_bytes()
+        self.output.parent.mkdir(parents=True)
+        self.output.write_bytes(b"existing output\x00\xff")
+        output_before = self.output.read_bytes()
+
+        result, stdout, stderr = self.run_main("--task", "two")
+
+        self.assertEqual(result, 0, stderr)
+        self.assertEqual(stdout, json.dumps(selected, ensure_ascii=False, indent=2) + "\n")
+        self.assertEqual(stderr, "")
+        self.assertEqual(self.record.read_bytes(), record_before)
+        self.assertEqual(self.output.read_bytes(), output_before)
+
+    def test_task_lookup_does_not_create_missing_output_parent(self):
+        self.save(view(task()))
+        self.assertFalse(self.output.parent.exists())
+
+        result, stdout, stderr = self.run_main("--task", "one")
+
+        self.assertEqual(result, 0, stderr)
+        self.assertEqual(json.loads(stdout), task())
+        self.assertEqual(stderr, "")
+        self.assertFalse(self.output.parent.exists())
+
+    def test_task_lookup_unknown_id_returns_two_without_output(self):
+        self.save(view(task()))
+        record_before = self.record.read_bytes()
+
+        result, stdout, stderr = self.run_main("--task", "missing")
+
+        self.assertEqual(result, 2)
+        self.assertEqual(stdout, "")
+        self.assertIn("unknown task ID: missing", stderr)
+        self.assertEqual(self.record.read_bytes(), record_before)
+        self.assertFalse(self.output.parent.exists())
+
+    def test_task_lookup_validates_other_tasks_before_printing_selection(self):
+        invalid_sibling = task("broken", evidence=[])
+        self.save(view(task(), invalid_sibling))
+
+        result, stdout, stderr = self.run_main("--task", "one")
+
+        self.assertEqual(result, 2)
+        self.assertEqual(stdout, "")
+        self.assertIn("tasks[1].evidence", stderr)
+        self.assertFalse(self.output.parent.exists())
+
+    def test_task_lookup_and_check_are_mutually_exclusive(self):
+        self.save(view(task()))
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+            with self.assertRaises(SystemExit) as raised:
+                renderer.main([
+                    "--record", str(self.record), "--output", str(self.output),
+                    "--task", "one", "--check",
+                ])
+
+        self.assertEqual(raised.exception.code, 2)
+        self.assertEqual(stdout.getvalue(), "")
+        self.assertIn("not allowed with argument", stderr.getvalue())
+        self.assertFalse(self.output.parent.exists())
+
     def test_completed_tasks_use_compact_index_and_link_selected_record(self):
         completed = task("done", state="complete", attempts=[{
             "outcome": "corrected", "change": "Updated the source", "evidence": ["docs/work/active/proof.md"]
@@ -169,6 +235,9 @@ class WorkOverviewTests(unittest.TestCase):
         self.assertIn("Completion here means the selected task scope is complete", section)
         self.assertIn("does not establish every gate, native observation, or owner acceptance", section)
         self.assertIn("[selected work record](../../campaign.json)", section)
+        self.assertIn("--record PATH_TO_SELECTED_RECORD --task TASK_ID", section)
+        self.assertIn("replacing PATH_TO_SELECTED_RECORD with the linked record path", section)
+        self.assertIn("TASK_ID with an ID listed below", section)
         self.assertIn("- `done` — First task", section)
         self.assertNotIn("<details>", section)
         self.assertNotIn("implementation claim", section)
