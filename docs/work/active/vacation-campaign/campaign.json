@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T01:54:39.384052+00:00",
+    "observed_at": "2026-10-22T01:59:19.067792+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3098,10 +3098,10 @@
         "title": "Keep previous knowledge findings out of a replacement check",
         "state": "active",
         "owner": "Lead diagnosis/selection; bounded Luna test-only author first",
-        "observed_at": "2026-10-22T01:54:39.384052+00:00",
+        "observed_at": "2026-10-22T01:59:19.067792+00:00",
         "origin": "observed",
-        "activity": "Source hypothesis atf79: run_knowledge_check starts a new task and clears error but retains old result; old summary/findings/review action may remain during Checking. Existing test only exercises first check. Select a test-only extension of that existing actual-control journey before deciding any repair.",
-        "next_action": "Freeze a test-only existing-journey extension and execute once on unchanged production. Require a meaningful visible pending/refreshed-result failure; diagnose before minimal correction.",
+        "activity": "First test-only041e9a33 compiled/executed1FAIL before intended assertion: knowledge-finding-0 has no test registration. This is a harness lookup failure, not a reproduced app defect. Author correcting only observation seam; old source and raw failure preserved.",
+        "next_action": "Remove unregistered finding queries without hooks/source changes; use existing summary/review controls and deterministic immediate Checking frame. Freeze and run second old-source attempt; reassess if it fails for another harness cause.",
         "depends_on": [
           {
             "task": "queued-edit-destination-ownership",
@@ -3113,16 +3113,29 @@
         "evidence": [
           "crates/brn-desktop/src/threads_connections.rs",
           "crates/brn-desktop/src/threads_tiled_tests.rs",
-          "docs/work/active/vacation-campaign/connections-pending.md"
+          "docs/work/active/vacation-campaign/connections-pending.md",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.log",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md"
         ],
         "gates": {
           "implementation": "Hypothesis only; no production change selected before red observation.",
-          "checks": "Pending actual old-source test-only run; no native/account action.",
+          "checks": "Initial actual1FAIL at missing unregistered test element; no product defect confirmed. Final old-source regression pending.",
           "integration": "No candidate; future source only after diagnosis, independent review and required gates.",
           "native": "Actual Mac unavailable; toolkit only.",
           "owner_acceptance": "No owner decision selected for bounded misleading replacement presentation."
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "041e9a33 actual test-only1FAIL at missing ElementId knowledge-finding-0 (plain div has no test_support); source hypothesis not reached. Author also lacked PATH rustfmt; lead pinned fmt check identified one wrapping difference, not a compile failure.",
+            "change": "Remove only unregistered queries and unnecessary initial clipping preconditions; original review assertions and pending summary/review absence remain. Use pinned rustfmt. No production/test hook or broader policy change; second actual attempt after frozen test-only correction.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.log",
+              "docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh",
+              "docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md"
+            ]
+          }
+        ],
         "resource_plan": "One Luna medium sole test writer in reusable architecture-status-route atf79 new codex/knowledge-check-refresh. Preserve all original test assertions. No build/test/sourcefix/framework/newcase/network/native/account/nestedhelpers by author. Lead sole build slot. Stop on deterministic harness ambiguity."
       }
     ],
@@ -3138,9 +3151,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-desktop-batch-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:54:39.384052+00:00",
+    "observed_at": "2026-10-22T01:59:19.067792+00:00",
     "runtime_capacity": "Lead plus bounded Luna knowledge-refresh regression author; batch reviewer complete. Four slots respected.",
-    "build_slot": "No active Rust build; strict scale5539 complete PASS. Frozenf79 combined desktop source already fully checked.",
+    "build_slot": "No active Rust build; old-source knowledge regression99840 completed exit101 at harness lookup. Author correcting test-only seam.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
