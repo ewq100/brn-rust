@@ -96,7 +96,7 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T07:55:52Z",
+    "observed_at": "2026-10-22T08:08:24Z",
     "remaining_percent": 48,
     "reset_unix": 1793083360,
     "ordinary_work": "Admitted actual52% used/48% remaining, ordinaryUsageAllowed=true; secondary unavailable. Fixedexpiry/noownerpause/closedaccountsession unchanged.",
@@ -4507,8 +4507,8 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T07:59:32.679835+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr212-pending-update.json"
+    "last_refresh_at": "2026-10-22T08:09:58.371851+00:00",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr212-merged-update.json"
   },
   "resource_observation": {
     "observed_at": "2026-10-22T08:07:51.915312+00:00",
@@ -4522,10 +4522,10 @@
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen4c786a96 test-onlycoldstartupwitness oncodex/sqlite-cold-start-guard from main211; preserveaa25ed CIbranch/oldbackupbranch/frozenCLIartifact.",
-    "fixture_worker_checkout": "mac-test-roots clean at frozen88c diagnostic; assigned Python-only active overview correction, preserving old branch/commit and all helper artifacts.",
+    "fixture_worker_checkout": "mac-test-roots Python-only writer on codex/concise-active-overview from main212e918b2b3; preserve old frozen88c diagnostic branch/artifact. No Rust build or shared target mutation.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
-      39742208600
+      39745276731
     ]
   },
   "native_availability": {
