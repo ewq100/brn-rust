@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T14:52:39.164772+00:00",
+    "observed_at": "2026-10-22T14:58:43.201635+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2666,10 +2666,10 @@
         "title": "Check a precise AI edit on fresh synthetic data",
         "state": "blocked",
         "owner": "lead single account actor; bounded Luna preflight only",
-        "activity": "Finalattempt Completed but taskFAIL: exact edit49..61 then47..59 refused, requested43..55. Originaltarget/sentinel unchanged, nocandidates. All3sessionattempts exhausted; finalafterquota66%remaining permits ordinaryheadlesswork only.",
-        "observed_at": "2026-10-22T00:31:58.900886+00:00",
+        "activity": "Original3boundedaccountattempts remaintaskFAIL/closed00:31; nofourthlaunchorrenamedsession. Subsequentdiagnosed exact-quote selector PR203 was deterministicallyqualified andintegratede4bb65e3withall4requiredpre/postPASS; actualmainancestryreconciled. Repairsourceisverified, live usefulnessafterrepairunmeasured.",
+        "observed_at": "2026-10-22T14:58:43.201635+00:00",
         "origin": "observed",
-        "next_action": "No further live launches in this session or renamed retry session. Continue explicit unique-exact-quote design/independent review/deterministic qualification. Future genuine account session requires policy/admission and distinct diagnosed repair; failed qualification remains visible.",
+        "next_action": "Reuse integratedPR203 anditsdeterministicqualification; do not repeatalreadycompleteddesign/review. Keepclosed-accountsessionstop. Anyfuturelivequalificationneedsaseparatelyadmittedgenuineconsolidatedsession anddistinctuseful/diagnosedscenario, ledgerreservation/bounds/quota, neverasessionrename toretry.",
         "depends_on": [],
         "resource_waits": [
           "Consolidated accounttest session exhausted3attempts; no automatic retry."
@@ -2695,12 +2695,14 @@
           "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-driver-review.md",
           "docs/work/active/vacation-campaign/evidence/targeted-edit-driver-envelope-check.json",
           "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-raw.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/pr203-resulting-main.json",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-qualification.json"
         ],
         "gates": {
-          "implementation": "No product change selected; reuse existing exact edit capability and normal runtime.",
-          "checks": "FAIL all3 bounded account tasks; final Completed terminal not candidate success. Fullcanonicalrecordsunchanged/nocandidates. Session closed.",
-          "integration": "No product candidate unless an actual diagnosed repair is needed; existing reviewed gates remain.",
+          "implementation": "PASS diagnosed unique-exact-quote selector PR203 integratedanddeterministicallyqualified; no claim that itfixedlive-modelusefulness.",
+          "checks": "Original3liveaccounttaskFAIL/dataunchanged, sessionclosed; post-repairlive usefulnessunmeasured. PR203 selecteddeterministic andrequiredpre/postmaingatesPASS.",
+          "integration": "PR203 repairintegratede4bb65e3withall4requiredresultingmainPASS; no successfulaccountqualificationoradditionalaccountlaunch.",
           "native": "No native interaction; owner deferral remains.",
           "owner_acceptance": "Not claimed."
         },

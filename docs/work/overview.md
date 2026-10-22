@@ -118,9 +118,9 @@ Waiting:
 ### Check a precise AI edit on fresh synthetic data
 
 Task ID: `targeted-edit-account-qualification`
-Owner: lead single account actor; bounded Luna preflight only · State: **blocked** · Last observed: 2026-10-22T00:31:58.900886+00:00
-Activity: Finalattempt Completed but taskFAIL: exact edit49..61 then47..59 refused, requested43..55. Originaltarget/sentinel unchanged, nocandidates. All3sessionattempts exhausted; finalafterquota66%remaining permits ordinaryheadlesswork only.
-Next: No further live launches in this session or renamed retry session. Continue explicit unique-exact-quote design/independent review/deterministic qualification. Future genuine account session requires policy/admission and distinct diagnosed repair; failed qualification remains visible.
+Owner: lead single account actor; bounded Luna preflight only · State: **blocked** · Last observed: 2026-10-22T14:58:43.201635+00:00
+Activity: Original3boundedaccountattempts remaintaskFAIL/closed00:31; nofourthlaunchorrenamedsession. Subsequentdiagnosed exact-quote selector PR203 was deterministicallyqualified andintegratede4bb65e3withall4requiredpre/postPASS; actualmainancestryreconciled. Repairsourceisverified, live usefulnessafterrepairunmeasured.
+Next: Reuse integratedPR203 anditsdeterministicqualification; do not repeatalreadycompleteddesign/review. Keepclosed-accountsessionstop. Anyfuturelivequalificationneedsaseparatelyadmittedgenuineconsolidatedsession anddistinctuseful/diagnosedscenario, ledgerreservation/bounds/quota, neverasessionrename toretry.
 Resource waits: Consolidated accounttest session exhausted3attempts; no automatic retry.
 
 <details>
@@ -128,9 +128,9 @@ Resource waits: Consolidated accounttest session exhausted3attempts; no automati
 
 Gates:
 
-- **implementation:** No product change selected; reuse existing exact edit capability and normal runtime.
-- **checks:** FAIL all3 bounded account tasks; final Completed terminal not candidate success. Fullcanonicalrecordsunchanged/nocandidates. Session closed.
-- **integration:** No product candidate unless an actual diagnosed repair is needed; existing reviewed gates remain.
+- **implementation:** PASS diagnosed unique-exact-quote selector PR203 integratedanddeterministicallyqualified; no claim that itfixedlive-modelusefulness.
+- **checks:** Original3liveaccounttaskFAIL/dataunchanged, sessionclosed; post-repairlive usefulnessunmeasured. PR203 selecteddeterministic andrequiredpre/postmaingatesPASS.
+- **integration:** PR203 repairintegratede4bb65e3withall4requiredresultingmainPASS; no successfulaccountqualificationoradditionalaccountlaunch.
 - **native:** No native interaction; owner deferral remains.
 - **owner acceptance:** Not claimed.
 
@@ -287,4 +287,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T14:52:39.164772+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T14:58:43.201635+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
