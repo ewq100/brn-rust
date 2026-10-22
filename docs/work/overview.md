@@ -14,8 +14,8 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Guide local AI edits away from guessed text positions
 
 Task ID: `precise-edit-selector-guidance`
-Owner: bounded Luna source writer in export-durability; lead builds/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T15:49:15.521475+00:00
-Activity: PR219 published at reviewed/qualified e5e9613b; independentreviewAPPROVED, runtime531PASS/0FAIL/2existingignored, CLIidentity1PASS, strictlint/ordinarybuild/format/docsPASS. Four required exact-head hosted checks pending; no model/native efficacy claim.
+Owner: bounded Luna source writer in export-durability; lead builds/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T15:57:18.662292+00:00
+Activity: PR219 stable e5; all local checks/reviewPASS. RequiredMacNativeUI nowPASS; remainingrequired jobs inprogress. OptionalWindows failed with existingUnix-only filesystem compilation; exact-head job/rawlogs retained. No source change/retry.
 Next: Keep PR219 head stable. Inspect actual live required checks/protection and preceding-main; normal merge only after all four exact-head PASS, then separately inspect resulting-main.
 
 <details>
@@ -24,7 +24,7 @@ Next: Keep PR219 head stable. Inspect actual live required checks/protection and
 Gates:
 
 - **implementation:** PASS independent complete actuale5e9613b review; scope4files only, sliceorigin/freshkey/hostguards and19→20cacheidentity verified.
-- **checks:** PASS final exacte5 local531/0/2 plus CLIidentity1/0, strictlint/build/format/docs; existingignored retained. Hosted required checks pending.
+- **checks:** PASS exacte5 local531/0/2 plus CLIidentity1/0, strictlint/build/format/docs. Hosted requiredMacNativeUI PASS; remainingrequired pending. OptionalWindows existing Unix-only compileFAIL retained; no allCIgreen claim.
 - **integration:** OPEN PR219 e5e9613b; no merge yet, required head/main gates pending.
 - **native:** Owner-deferred; no native action.
 - **owner acceptance:** Not claimed.
@@ -284,4 +284,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T15:49:15.521475+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T15:57:18.662292+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

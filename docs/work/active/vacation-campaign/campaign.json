@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T15:49:15.521475+00:00",
+    "observed_at": "2026-10-22T15:57:18.662292+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5613,9 +5613,9 @@
         "title": "Guide local AI edits away from guessed text positions",
         "state": "active",
         "owner": "bounded Luna source writer in export-durability; lead builds/integration; independent Sol review",
-        "observed_at": "2026-10-22T15:49:15.521475+00:00",
+        "observed_at": "2026-10-22T15:57:18.662292+00:00",
         "origin": "observed",
-        "activity": "PR219 published at reviewed/qualified e5e9613b; independentreviewAPPROVED, runtime531PASS/0FAIL/2existingignored, CLIidentity1PASS, strictlint/ordinarybuild/format/docsPASS. Four required exact-head hosted checks pending; no model/native efficacy claim.",
+        "activity": "PR219 stable e5; all local checks/reviewPASS. RequiredMacNativeUI nowPASS; remainingrequired jobs inprogress. OptionalWindows failed with existingUnix-only filesystem compilation; exact-head job/rawlogs retained. No source change/retry.",
         "next_action": "Keep PR219 head stable. Inspect actual live required checks/protection and preceding-main; normal merge only after all four exact-head PASS, then separately inspect resulting-main.",
         "depends_on": [],
         "resource_waits": [],
@@ -5627,11 +5627,13 @@
           "docs/work/active/vacation-campaign/evidence/selector-guidance-final-local.log",
           "docs/work/active/vacation-campaign/evidence/selector-guidance-final-local.sh",
           "docs/work/active/vacation-campaign/evidence/pr219-publication.json",
-          "https://github.com/ewq100/brn-rust/pull/219"
+          "https://github.com/ewq100/brn-rust/pull/219",
+          "docs/work/active/vacation-campaign/evidence/pr219-windows.json",
+          "docs/work/active/vacation-campaign/evidence/pr219-windows.log.gz"
         ],
         "gates": {
           "implementation": "PASS independent complete actuale5e9613b review; scope4files only, sliceorigin/freshkey/hostguards and19→20cacheidentity verified.",
-          "checks": "PASS final exacte5 local531/0/2 plus CLIidentity1/0, strictlint/build/format/docs; existingignored retained. Hosted required checks pending.",
+          "checks": "PASS exacte5 local531/0/2 plus CLIidentity1/0, strictlint/build/format/docs. Hosted requiredMacNativeUI PASS; remainingrequired pending. OptionalWindows existing Unix-only compileFAIL retained; no allCIgreen claim.",
           "integration": "OPEN PR219 e5e9613b; no merge yet, required head/main gates pending.",
           "native": "Owner-deferred; no native action.",
           "owner_acceptance": "Not claimed."
@@ -5652,7 +5654,7 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr219-open.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T15:49:15.521475+00:00",
+    "observed_at": "2026-10-22T15:57:18.662292+00:00",
     "runtime_capacity": "Luna implementation and independentSol review complete. Lead sole integration/CI/facts owner; no active source writer.",
     "build_slot": "Free; final e5 qualification complete, no cargo/rustc owned job.",
     "desktop_account_actor": "No controlled desktop/account actor. One post-repair live attempt finished and sessionclosed; originalapp63750 preserved, native ownerdeferral unchanged.",
@@ -5668,8 +5670,9 @@
     "required_ci_runs": [
       {
         "pr": 219,
+        "run_id": 39808309862,
         "head": "e5e9613b96b2a1fa5392da0ad0e693e9be57c396",
-        "state": "Pending actual hosted checks"
+        "state": "Required MacNativeUI PASS; remainingrequired inprogress; optionalWindowsFAIL retained."
       }
     ]
   },
