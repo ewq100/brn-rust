@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-22T03:53:16.349854+00:00",
+  "pr": 207,
+  "candidate": "18abae94fae754834af14214b9fc8910562d046d",
+  "preceding_main": "79fa3980c5022e475b07888d9e08f396f45b0238",
+  "resulting_main": "8c18845ca5b70a43d36b0bc0d2811da573086a79",
+  "merged_at": "2026-10-22T03:52:40Z",
+  "whole_tree_equal_to_qualified_candidate": true,
+  "method": "Normal exact-head protected merge, no admin/bypass/auto/force",
+  "premerge_receipt": "pr207-premerge.json",
+  "resulting_main_checks": "pending separately"
+}

@@ -1,0 +1,614 @@
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 37.50s
+     Running unittests src/lib.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_threads_core-de10105332b95afc)
+
+running 43 tests
+test backup::tests::occupied_destination_is_rejected_before_sqlite_copy ... ok
+test backup::tests::missing_parent_and_directory_destination_preserve_source ... ok
+test backup::tests::a_backup_sweeps_only_its_own_parent ... ok
+test backup::tests::publication_collision_preserves_new_destination_and_cleans_only_owned_stage ... ok
+test backup::tests::stage_keeps_final_absent_until_complete_snapshot_is_published ... ok
+test backup::tests::a_live_stage_survives_another_backup ... ok
+test backup::tests::invalid_snapshot_and_abandoned_stage_clean_up_without_final_file ... ok
+test backup::tests::parent_flush_failure_keeps_complete_published_snapshot_and_cleans_stage ... ok
+test backup::tests::relative_core_destination_preserves_process_directory ... ok
+test locator::tests::a_file_through_a_symlinked_folder_maps_to_its_real_path ... ok
+test locator::tests::non_file_locators_are_unchanged ... ok
+test locator::tests::tmp_maps_to_private_tmp ... ok
+test locator::tests::an_older_spelling_matches_and_another_file_with_the_same_name_does_not ... ok
+test locator::tests::only_a_host_recorded_source_matches_under_an_older_spelling ... ok
+test backup::tests::a_killed_backups_stage_is_removed_by_the_next_backup_to_that_folder ... ok
+test backup::tests::symlink_ancestors_and_final_symlinks_are_refused_without_changes ... ok
+test backup::tests::stage_named_entries_that_are_not_brn_stages_are_never_followed_or_removed ... ok
+test restore::tests::invalid_corrupt_incompatible_sources_leave_destination_and_source_unchanged ... ok
+test backup::tests::a_sigkilled_backup_process_leaves_a_stage_the_next_backup_removes ... ok
+test restore::tests::a_live_restore_stage_survives ... ok
+test backup::tests::wal_snapshot_remains_standalone_and_restores_original_recovery_after_later_writes ... ok
+test run_attention::tests::a_notice_on_a_cancelled_run_is_replaced ... ok
+test run_attention::tests::an_existing_thread_write_is_edited_never_duplicated ... ok
+test run_attention::tests::an_unchanged_or_archived_chat_gets_no_write ... ok
+test run_attention::tests::clearing_terminal_notices_keeps_every_other_item ... ok
+test run_attention::tests::per_run_notice_marks_only_lease_free_runs ... ok
+test run_attention::tests::review_is_skipped_when_any_item_already_names_the_operation ... ok
+test run_attention::tests::two_runs_ended_in_one_chat_leave_one_notice ... ok
+test run_attention::tests::without_a_notice_only_the_review_is_added ... ok
+test stage::tests::a_stage_is_private_marked_locked_and_removed_on_drop ... ok
+test restore::tests::abandoned_stage_and_sqlite_copy_failure_clean_up_without_publication ... ok
+test restore::tests::publication_failure_cleans_owned_stage_and_preserves_empty_destination ... ok
+test store::storage_open_tests::data_folder_failures_are_named_in_owner_terms ... ok
+test stage::tests::an_abandoned_stage_keeps_its_folder_and_frees_its_lock ... ok
+test restore::tests::collision_and_rename_refuse_occupied_destination_and_clean_only_owned_stage ... ok
+test stage::tests::a_sweep_removes_only_abandoned_stages_of_its_kind_with_exact_names ... ok
+test store::storage_open_tests::existing_connection_path_never_creates_a_database_after_path_check ... ok
+test restore::tests::empty_destination_and_nested_missing_parents_restore_and_preserve_source_bytes ... ok
+test restore::tests::post_publication_flush_or_reopen_failure_preserves_complete_destination ... ok
+test restore::tests::relative_source_works_absolute_destination_is_required_without_cwd_change ... ok
+test restore::tests::staging_never_exposes_ready_destination ... ok
+test restore::tests::symlink_destinations_and_ancestors_are_refused_before_and_after_staging ... ok
+test restore::tests::a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent ... ok
+
+test result: ok. 43 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.65s
+
+     Running tests/backup_directory.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/backup_directory-cc39c7d33f99fdc3)
+
+running 5 tests
+test backup_selection_cannot_replay_a_delegation_receipt_with_matching_raw_string ... ok
+test stale_configure_and_its_replay_preserve_saved_folder ... ok
+test selection_requires_owner_and_existing_absolute_external_directory_including_aliases ... ok
+test folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_without_filesystem ... ok
+test explicit_backup_refuses_workspace_and_alias_and_preserves_reopen_while_parent_is_allowed ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/candidate_refresh.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/candidate_refresh-f0131f25d00326cb)
+
+running 1 test
+test runtime_refresh_checks_family_fence_all_versions_and_preserves_apply_authority ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/chat_format.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/chat_format-d1a6aff821e55b59)
+
+running 1 test
+test private_note_scope_survives_serialization_without_changing_legacy_bytes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/chat_storage.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/chat_storage-5394ece77d96bbb8)
+
+running 11 tests
+test composer_transfer_distinguishes_absent_and_generation_zero_recovery ... ok
+test composer_transfer_refuses_stale_generations_and_occupied_targets_without_changes ... ok
+test composer_transfer_rolls_back_target_when_source_clear_fails ... ok
+test latest_composer_draft_survives_restart_and_delayed_clear_is_rejected ... ok
+test composer_transfer_survives_restart_and_fences_the_old_destination ... ok
+test scoped_ids_assets_and_sources_do_not_enter_unrelated_context ... ok
+test derived_directory_is_allowed_only_as_a_real_directory ... ok
+test unavailable_backup_folder_leaves_old_format_and_records_unchanged ... ok
+test adopted_upgrade_requires_external_backup_and_preserves_the_v3_snapshot ... ok
+test a_known_v3_backup_restores_as_v4_without_changing_source_snapshot ... ok
+test backup_restore_and_upgrade_ignore_derived_data ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s
+
+     Running tests/converge.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/converge-46b20f818dfa8713)
+
+running 4 tests
+test a_binding_mismatch_is_immutable_request ... ok
+test a_working_run_makes_archive_a_change_with_a_fence ... ok
+test the_existing_functions_still_append_on_a_no_op ... ok
+test every_converging_variant_is_unchanged_on_a_no_op ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/core.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/core-568c6f5461946bfc)
+
+running 45 tests
+test data_selection_refuses_symlink_ancestor_without_creating_database ... ok
+test a_second_edit_session_names_the_open_one_and_leaves_it_untouched ... ok
+test discarded_and_saved_sessions_clear_buffer_text_but_keep_late_write_tombstones ... ok
+test current_candidate_and_receipt_readers_exclude_retired_and_applied_requests ... ok
+test configuration_replay_checks_immutable_payload_before_receipt ... ok
+test comment_utf8_anchors_and_separate_record_versions_are_checked ... ok
+test configuration_reads_and_fences_runs_at_the_actual_writer_boundary ... ok
+test another_spelling_of_the_same_file_does_not_refresh_but_another_file_does ... ok
+test enabled_maintenance_keeps_standing_ordinary_fallback_for_instruction_runs ... ok
+test assets_require_owner_group_and_inherit_protection_and_dirty_guard ... ok
+test exact_protected_target_and_capability_scope ... ok
+test explicit_selection_refuses_old_and_foreign_identity ... ok
+test exact_source_identity_is_unique_and_failed_duplicate_has_no_partial_effect ... ok
+test host_input_binding_is_durable_before_preparation_and_changed_retry_is_rejected ... ok
+test failed_candidate_replacement_keeps_original_active_and_guarded ... ok
+test full_import_is_protected_and_confirmation_requires_explicit_authority ... ok
+test host_run_fence_blocks_superseded_commit_but_receipt_replay_survives_cancellation ... ok
+test missing_storage_refuses_recreation_and_preserves_recovery_evidence ... ok
+test direct_owner_metadata_protection_and_lifecycle_changes_make_candidates_stale ... ok
+test human_action_completion_requires_evidence_and_scope_and_thread_resolve_cannot_complete_action ... ok
+test ordinary_content_revision_can_explicitly_clear_confirmation_without_confirmation_grant ... ok
+test only_one_working_run_per_thread_and_new_invocation_can_interrupt_prior_atomically ... ok
+test complete_backup_restores_assets_sources_pending_candidates_history_and_buffers ... ok
+test lost_prepare_and_apply_responses_replay_across_connections_and_restart ... ok
+test protected_supersede_requires_distinct_capability ... ok
+test pending_candidate_requires_retirement_and_confirmation_is_revision_bound ... ok
+test existing_zero_byte_foreign_and_incompatible_databases_are_refused_without_mutation ... ok
+test meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only ... ok
+test run_management_is_host_only_monotonic_and_cancellation_cannot_be_undone ... ok
+test persisted_guards_defer_whole_group_and_generation_cannot_resurrect ... ok
+test replacement_replay_binds_original_and_request_across_restart_and_application ... ok
+test runtime_settings_snapshot_covers_account_changes_and_provider_aliases ... ok
+test thread_review_attention_can_reference_known_operations_but_links_remain_records_only ... ok
+test save_maps_utf8_comments_and_marks_intersection_unresolved_in_actual_write_set ... ok
+test stale_open_type_save_preserves_buffer ... ok
+test source_observation_metadata_does_not_refresh_but_new_external_version_does ... ok
+test two_live_connections_order_dirty_guard_before_grouped_apply ... ok
+test undo_identity_is_bound_before_receipt_replay ... ok
+test undo_save_restores_supported_anchor_at_new_compensating_revision ... ok
+test paused_and_review_first_grants_require_exact_target_and_action ... ok
+test working_run_start_rechecks_current_selection_and_accepts_planned_settings_overlay ... ok
+test undo_checks_actual_write_set_preserves_link_later_edits_and_lists_direct_dependents ... ok
+test wrong_reference_rolls_back_group_and_occupied_backup_remains_intact ... ok
+test workspace_settings_are_owner_only_and_persist_maintenance_review_policy ... ok
+test undo_restores_exact_direct_input_footing_even_when_derived_text_was_identical ... ok
+
+test result: ok. 45 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+     Running tests/current_inputs.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/current_inputs-708e9f1fb8438dae)
+
+running 9 tests
+test input_changed_before_prepare_remains_stale_and_cannot_be_owner_approved_away ... ok
+test missing_current_input_is_stale_and_missing_historical_revision_is_invalid ... ok
+test self_input_checks_prestate_and_undo_does_not_reapply_current_read_requirement ... ok
+test mixed_inputs_preserve_history_and_require_every_current_read_without_duplicate_stale_ids ... ok
+test owner_replacement_preserves_current_inputs_and_explicit_historical_replacement_is_reviewable ... ok
+test changed_current_input_on_another_connection_stales_the_whole_group ... ok
+test old_request_bytes_hash_and_applied_replay_survive_reopen_and_input_changes ... ok
+test undo_restores_older_provenance_without_turning_it_into_a_new_current_read ... ok
+test inactive_current_inputs_stale_even_at_exact_version_but_historical_citations_apply ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/cw2_visibility.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/cw2_visibility-4eedf6d2676b5b27)
+
+running 7 tests
+test archived_historical_input_is_not_apply_authority ... ok
+test actual_owner_apply_rejects_archived_historical_input_even_when_current_revision_is_visible ... ok
+test actual_owner_candidate_apply_keeps_only_working_note_selected_conversation_exception ... ok
+test owner_apply_rechecks_historical_visibility_and_restored_access_needs_explicit_review ... ok
+test canonical_view_token_ignores_local_buffers_but_tracks_exact_candidate_pool_and_access_changes ... ok
+test visible_historical_edit_remains_applicable_while_current_edit_stales ... ok
+test revoked_v1_evidence_allows_safe_undo_but_fences_reapplying_candidate_content ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/data_folder.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/data_folder-d05c8880351cb01d)
+
+running 5 tests
+test a_read_only_disk_is_named ... ok
+test a_folder_without_permission_is_named ... ok
+test a_symlinked_path_is_refused_by_name ... ok
+test a_file_in_place_of_the_folder_is_named ... ok
+test skills_sidecar_directory_is_narrowly_admitted_and_non_directories_refused ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/delegation.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/delegation-b39ec33953911ecd)
+
+running 8 tests
+test missing_settings_deny_standing_writes_but_allow_scoped_and_owner_writes ... ok
+test generic_configuration_cannot_forge_or_clear_choice ... ok
+test legacy_request_bytes_hash_and_receipt_replay_after_choice_and_reopen ... ok
+test stale_provider_form_preserves_new_review_choice_and_pause ... ok
+test a_settings_stop_records_interrupted_matching_its_notice ... ok
+test choices_bind_intent_preserve_concurrent_provider_and_replay_without_reapplying ... ok
+test legacy_and_archived_settings_deny_standing_authority ... ok
+test both_choices_and_pause_fence_every_working_run_and_block_stale_connection ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/document_conversion.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/document_conversion-e5638641ec0e1a57)
+
+running 1 test
+test schema9_snapshot_stays9_and_only_unpublished_restore_copy_upgrades ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/edit_tokens.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/edit_tokens-5030824d99f4ccab)
+
+running 14 tests
+test owner_typing_adopts_a_caller_session_and_the_caller_token_stops ... ok
+test bound_writes_need_their_own_token_and_refusals_write_nothing ... ok
+test owner_discard_and_save_close_caller_sessions_without_a_token ... ok
+test a_bound_stale_save_keeps_the_buffer_and_the_token_survives_reopen ... ok
+test actors_commit_with_receipts_and_never_change_identity ... ok
+test reclaim_is_refused_in_owner_workspaces_and_rotates_in_test_workspaces ... ok
+test schema_5_upgrade_is_refused_with_a_working_run ... ok
+test tokens_match_the_pattern_differ_and_only_their_hash_is_stored ... ok
+test the_no_upgrade_open_refuses_schema_5_and_changes_nothing ... ok
+test purpose_is_set_at_creation_only_and_owner_by_default ... ok
+test a_test_backup_with_a_caller_session_restores_as_an_owner_workspace ... ok
+test schema_5_upgrade_is_refused_with_an_open_edit_or_without_a_folder ... ok
+test older_backups_restore_as_schema_10_owner_workspaces ... ok
+test schema_5_upgrade_backs_up_first_and_ends_at_7_as_an_owner_workspace ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.56s
+
+     Running tests/inspect.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/inspect-9a9137c182032cf3)
+
+running 11 tests
+test list_page_limits_outside_one_to_a_hundred_are_refused ... ok
+test page_limits_outside_one_to_a_hundred_are_refused ... ok
+test record_page_filters_by_kind_in_id_order_with_a_cursor ... ok
+test receipt_page_filters_by_record_and_refuses_unknown_records ... ok
+test operation_lookup_reports_all_four_states_and_never_allocates ... ok
+test candidate_page_lists_only_unapplied_unretired_candidates ... ok
+test recovery_page_lists_open_sessions_in_id_order ... ok
+test receipt_pages_never_repeat_and_see_later_receipts ... ok
+test note_thread_needs_you_and_project_pages_match_the_app_filters ... ok
+test run_page_filters_by_thread_and_state ... ok
+test message_page_keeps_creation_order_per_chat ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running tests/mcp_format.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/mcp_format-2322ff13226fa6d7)
+
+running 1 test
+test checked_settings_and_backup_retain_explicit_disabled_mcp_policy ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/mcp_policy.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/mcp_policy-8f24b32ccfa027fe)
+
+running 4 tests
+test policy_is_explicit_replay_bound_preserves_configure_and_fences_current_runs ... ok
+test private_and_project_access_are_explicit_and_raw_owner_policy_is_bounded ... ok
+test exact_reviewed_input_scope_instruction_and_run_fence_are_checked_fresh ... ok
+test still_valid_grant_cannot_cross_store_reopen_or_unchanged_backup_restore ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/message_search_scope.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/message_search_scope-26f1554206e78d67)
+
+running 13 tests
+test a_chat_with_its_own_attachments_is_searchable_only_from_itself ... ok
+test an_archived_general_chats_notes_stay_private_to_it ... ok
+test a_general_chat_is_searchable_wherever_general_notes_appear ... ok
+test a_project_without_brn_knowledge_shows_only_its_own_chats ... ok
+test a_trashed_chats_notes_stay_out_of_search_until_restore ... ok
+test a_deleted_project_hides_its_chats_and_restore_returns_them ... ok
+test a_project_chat_is_searchable_only_in_its_project ... ok
+test a_chat_moved_out_of_a_project_stays_searchable_only_from_itself ... ok
+test partial_progress_and_writing_requests_are_never_searchable ... ok
+test project_delete_terminal_fence_overflow_refuses_atomically ... ok
+test an_archived_project_chats_notes_stay_project_documents ... ok
+test an_archived_or_resolved_chat_keeps_its_message_scope ... ok
+test project_delete_advances_only_actual_terminal_and_live_archive_transitions_once ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/note_read.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/note_read-73fd3516e20ca138)
+
+running 2 tests
+test headings_ignore_fenced_code_and_range_cursors_preserve_utf8 ... ok
+test saved_tail_fact_is_readable_after_restart_without_mixing_versions ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/project_format.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/project_format-2f6f39db31909f21)
+
+running 1 test
+test schema_four_requires_a_verified_external_snapshot_before_project_adoption ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/revision_read.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/revision_read-08d60a8d06fad69d)
+
+running 1 test
+test bounded_accepted_revision_pages_and_slices_survive_restart_and_archive ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+     Running tests/search_reader.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/search_reader-0bb9f7d442f939f3)
+
+running 3 tests
+test snapshots_report_a_rising_watermark_and_only_changed_records ... ok
+test readers_refuse_unvalidated_or_old_workspaces_without_changing_them ... ok
+test search_eligibility_matches_core_context_for_random_graphs ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/skill_policy.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/skill_policy-98ad41361eb70367)
+
+running 3 tests
+test raw_owner_replacement_cannot_bypass_binding_bounds_or_project_checks ... ok
+test project_selection_is_exact_and_clear_remains_available_after_archive ... ok
+test scoped_policy_replay_fences_and_preserves_fresh_configuration_and_backup ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/steering.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/steering-e284d0fe7b86ae3f)
+
+running 8 tests
+test checked_apply_failure_rolls_back_preparation_message_and_fence ... ok
+test cannot_rebind_an_existing_unrelated_committed_receipt ... ok
+test saves_exact_message_and_fences_stale_writes_and_completion_atomically ... ok
+test existing_wrong_thread_membership_is_rejected_without_partial_effects ... ok
+test lost_response_replays_after_later_run_resolution_archive_and_reopen ... ok
+test rejects_any_other_working_invocation_in_the_same_thread ... ok
+test terminal_race_keeps_terminal_state_and_accepts_only_one_message ... ok
+test invalid_destinations_text_authority_and_fence_overflow_do_not_partially_write ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/writing.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/writing-6ee36d972d5ba938)
+
+running 6 tests
+test frozen_b873_evidence_bytes_and_request_hash_survive_optional_suggestions ... ok
+test legacy_snapshot_defaults_general_feedback_and_empty_output_keeps_legacy_shape ... ok
+test historical_request_role_keeps_gate_when_current_message_is_modified ... ok
+test runtime_and_owner_replacement_cannot_remove_or_downgrade_writing_marker ... ok
+test owner_review_preserves_dirty_guards_and_exact_versions ... ok
+test maintenance_and_content_instruction_cannot_bypass_durable_review_and_replay ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/writing_setup.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/writing_setup-038d62749b41dd8a)
+
+running 12 tests
+test setup_is_owner_only_and_stale_groups_are_atomic ... ok
+test v1_fixed_payload_and_hash_remain_exact_and_v2_limits_count_utf8_bytes ... ok
+test raw_ordinary_conversation_setup_is_rejected_without_creating_private_scope ... ok
+test immutable_context_duplicate_identity_and_invalid_references_are_refused ... ok
+test knowledge_off_working_note_uses_bound_conversation_and_references_keep_project_scope ... ok
+test schema6_upgrade_refuses_active_edits_and_missing_backup_before_mutation ... ok
+test checked_setup_mutation_requires_active_context_even_with_current_thread_input ... ok
+test owner_host_schema6_open_uses_remembered_external_backup_first ... ok
+test v2_candidate_replacement_cannot_drop_or_downgrade_setup_current_input ... ok
+test upgrade_failure_after_backup_rolls_back_all_schema_changes_and_can_resume ... ok
+test deferred_setup_undo_keeps_identity_after_unrelated_conversation_attention_and_restart ... ok
+test schema6_refusal_backup_first_upgrade_reopen_and_restore_preserve_v1_candidates ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+   Doc-tests brn_threads_core
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 50.05s
+     Running tests/projects.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/projects-9eef44db2b5df17b)
+
+running 9 tests
+test unlink_preserves_private_retention_elsewhere_and_last_link_requires_explicit_keep ... ok
+test stale_preview_and_changed_trash_fail_atomically_without_losing_records ... ok
+test project_document_links_reject_superseded_notes_but_allow_unlinking_existing_links ... ok
+test existing_terminal_private_actions_go_to_trash_without_becoming_general_and_restore_terminal ... ok
+test private_actions_on_shared_documents_need_explicit_choices_and_never_leak ... ok
+test moved_chat_keeps_private_provenance_and_undo_does_not_erase_it ... ok
+test project_context_shared_identity_knowledge_setting_movement_and_replay ... ok
+test project_import_retains_source_figures_and_private_history_after_shared_origin_deletion ... ok
+test delete_preview_guards_choices_and_restore_preserve_later_shared_work ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.14s
+
+    Checking brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-core)
+    Checking brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-ai)
+    Checking brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-threads-app)
+    Finished `dev` profile [unoptimized] target(s) in 10.77s
+test_child_env_keeps_home_and_temp_inside_the_root_without_brn_variables (test_cli_journey.ChildEnvironment.test_child_env_keeps_home_and_temp_inside_the_root_without_brn_variables) ... ok
+test_a_hung_child_is_killed_with_its_process_group (test_cli_journey.EnvelopeChecks.test_a_hung_child_is_killed_with_its_process_group) ... ok
+test_malformed_stdout_is_rejected_with_the_step_index (test_cli_journey.EnvelopeChecks.test_malformed_stdout_is_rejected_with_the_step_index) ... ok
+test_null_command_is_accepted_only_for_pre_command_usage (test_cli_journey.EnvelopeChecks.test_null_command_is_accepted_only_for_pre_command_usage) ... ok
+test_a_leak_into_the_parent_fails_and_is_named (test_cli_journey.ParentCheck.test_a_leak_into_the_parent_fails_and_is_named) ... ok
+test_scratch_under_the_child_tmpdir_stays_inside_the_root (test_cli_journey.ParentCheck.test_scratch_under_the_child_tmpdir_stays_inside_the_root) ... ok
+test_same_pages_accepts_matching_pages (test_cli_journey.RoundTwoBHelperTests.test_same_pages_accepts_matching_pages) ... ok
+test_same_pages_fails_when_pages_differ_from_the_list (test_cli_journey.RoundTwoBHelperTests.test_same_pages_fails_when_pages_differ_from_the_list) ... ok
+test_a_stale_token_refusal_is_an_expected_rejected_envelope (test_cli_journey.RoundTwoHelperTests.test_a_stale_token_refusal_is_an_expected_rejected_envelope) ... ok
+test_contract_3_statuses_and_option_names (test_cli_journey.RoundTwoHelperTests.test_contract_3_statuses_and_option_names) ... ok
+test_pages_follow_the_cursor_and_require_a_mirrored_page (test_cli_journey.RoundTwoHelperTests.test_pages_follow_the_cursor_and_require_a_mirrored_page) ... ok
+test_comparison_keeps_error_assertion_and_backtrace_differences (test_development_tooling.CiTests.test_comparison_keeps_error_assertion_and_backtrace_differences) ... ok
+test_failed_informational_platform_remains_red (test_development_tooling.CiTests.test_failed_informational_platform_remains_red) ... ok
+test_main_exit_requires_overall_success_and_all_applicable_ready (test_development_tooling.CiTests.test_main_exit_requires_overall_success_and_all_applicable_ready) ... ok
+test_missing_cancelled_or_failed_applicable_checks_do_not_pass (test_development_tooling.CiTests.test_missing_cancelled_or_failed_applicable_checks_do_not_pass) ... ok
+test_checkout_changes_are_explicit_and_cannot_reuse_start_identity (test_development_tooling.EvidenceTests.test_checkout_changes_are_explicit_and_cannot_reuse_start_identity) ... ok
+test_interrupted_never_passes_and_initial_record_is_running (test_development_tooling.EvidenceTests.test_interrupted_never_passes_and_initial_record_is_running) ... ok
+test_pass_failure_exact_identity_and_atomic_publication (test_development_tooling.EvidenceTests.test_pass_failure_exact_identity_and_atomic_publication) ... ok
+test_refuses_arbitrary_gate_and_checkout_output (test_development_tooling.EvidenceTests.test_refuses_arbitrary_gate_and_checkout_output) ... ok
+test_untracked_contents_invalidate_snapshot (test_development_tooling.EvidenceTests.test_untracked_contents_invalidate_snapshot) ... ok
+test_balanced_paths_encoded_spaces_and_html_anchor (test_development_tooling.MarkdownTests.test_balanced_paths_encoded_spaces_and_html_anchor) ... ok
+test_blockquoted_fences_exclude_samples_without_hiding_real_links (test_development_tooling.MarkdownTests.test_blockquoted_fences_exclude_samples_without_hiding_real_links) ... ok
+test_collects_all_missing_files_and_fragments (test_development_tooling.MarkdownTests.test_collects_all_missing_files_and_fragments) ... ok
+test_explicit_historical_policy_still_validates_incoming (test_development_tooling.MarkdownTests.test_explicit_historical_policy_still_validates_incoming) ... ok
+test_fences_inline_samples_and_reference_links (test_development_tooling.MarkdownTests.test_fences_inline_samples_and_reference_links) ... ok
+test_heading_link_destinations_with_parentheses_do_not_pollute_slug (test_development_tooling.MarkdownTests.test_heading_link_destinations_with_parentheses_do_not_pollute_slug) ... ok
+test_nested_labels_check_outer_links_and_inner_images (test_development_tooling.MarkdownTests.test_nested_labels_check_outer_links_and_inner_images) ... ok
+test_answer_checks_normalise_text (test_evaluate_wiki_v2.AnswerAndWriteChecks.test_answer_checks_normalise_text) ... ok
+test_no_writes_ignores_a_chat_to_source_link_but_not_a_note_link (test_evaluate_wiki_v2.AnswerAndWriteChecks.test_no_writes_ignores_a_chat_to_source_link_but_not_a_note_link) ... ok
+test_no_writes_only_counts_note_link_action (test_evaluate_wiki_v2.AnswerAndWriteChecks.test_no_writes_only_counts_note_link_action) ... ok
+test_base_name_and_case_filter (test_evaluate_wiki_v2.ArmTests.test_base_name_and_case_filter) ... ok
+test_environment_sets_model_dir_only_for_its_arm (test_evaluate_wiki_v2.ArmTests.test_environment_sets_model_dir_only_for_its_arm) ... ok
+test_helper_option (test_evaluate_wiki_v2.ArmTests.test_helper_option) ... ok
+test_latin_square_balances_positions (test_evaluate_wiki_v2.ArmTests.test_latin_square_balances_positions) ... ok
+test_parse_with_overrides (test_evaluate_wiki_v2.ArmTests.test_parse_with_overrides) ... ok
+test_plan_rotates_skips_and_adds_diagnostics (test_evaluate_wiki_v2.ArmTests.test_plan_rotates_skips_and_adds_diagnostics) ... ok
+test_rejects_malformed_specs (test_evaluate_wiki_v2.ArmTests.test_rejects_malformed_specs) ... ok
+test_report_lists_blockers_first_and_rerun_supersedes (test_evaluate_wiki_v2.BlockerAndReportTests.test_report_lists_blockers_first_and_rerun_supersedes) ... ok
+test_safety_and_zero_tolerance (test_evaluate_wiki_v2.BlockerAndReportTests.test_safety_and_zero_tolerance) ... ok
+test_transport_failure_never_counts_as_pass (test_evaluate_wiki_v2.BlockerAndReportTests.test_transport_failure_never_counts_as_pass) ... ok
+test_clean (test_evaluate_wiki_v2.EndStateDistinguishesMessyFromClean.test_clean) ... ok
+test_messy (test_evaluate_wiki_v2.EndStateDistinguishesMessyFromClean.test_messy) ... ok
+test_real_fixture_is_valid (test_evaluate_wiki_v2.FixtureTests.test_real_fixture_is_valid) ... ok
+test_reference_errors (test_evaluate_wiki_v2.FixtureTests.test_reference_errors) ... ok
+test_review_alias_binds_after_knowledge_review (test_evaluate_wiki_v2.FixtureTests.test_review_alias_binds_after_knowledge_review) ... ok
+test_stem_overlap_rule (test_evaluate_wiki_v2.FixtureTests.test_stem_overlap_rule) ... ok
+test_valid_small_fixture (test_evaluate_wiki_v2.FixtureTests.test_valid_small_fixture) ... ok
+test_wrong_version (test_evaluate_wiki_v2.FixtureTests.test_wrong_version) ... ok
+test_host_links_do_not_connect_or_count (test_evaluate_wiki_v2.GraphChecks.test_host_links_do_not_connect_or_count) ... ok
+test_isolated_none_and_not_orphan (test_evaluate_wiki_v2.GraphChecks.test_isolated_none_and_not_orphan) ... ok
+test_no_silent_loss (test_evaluate_wiki_v2.GraphChecks.test_no_silent_loss) ... ok
+test_relation_share_excludes_host_links (test_evaluate_wiki_v2.GraphChecks.test_relation_share_excludes_host_links) ... ok
+test_search_rank (test_evaluate_wiki_v2.GraphChecks.test_search_rank) ... ok
+test_topics_contains_links_and_pages_still_listed (test_evaluate_wiki_v2.GraphChecks.test_topics_contains_links_and_pages_still_listed) ... ok
+test_topics_cover (test_evaluate_wiki_v2.GraphChecks.test_topics_cover) ... ok
+test_kc_delta (test_evaluate_wiki_v2.KnowledgeCheckTests.test_kc_delta) ... ok
+test_kc_delta_without_capture_is_unknown (test_evaluate_wiki_v2.KnowledgeCheckTests.test_kc_delta_without_capture_is_unknown) ... ok
+test_kinds_resolved_is_report_only_info (test_evaluate_wiki_v2.KnowledgeCheckTests.test_kinds_resolved_is_report_only_info) ... ok
+test_created_sources_counted_from_receipts (test_evaluate_wiki_v2.LineageAndSourceChecks.test_created_sources_counted_from_receipts) ... ok
+test_input_lineage_accepts_the_version_read_before_the_step_advanced_it (test_evaluate_wiki_v2.LineageAndSourceChecks.test_input_lineage_accepts_the_version_read_before_the_step_advanced_it) ... ok
+test_input_lineage_keys (test_evaluate_wiki_v2.LineageAndSourceChecks.test_input_lineage_keys) ... ok
+test_input_lineage_source_of_step (test_evaluate_wiki_v2.LineageAndSourceChecks.test_input_lineage_source_of_step) ... ok
+test_sources_linked_by_link_or_applied_input (test_evaluate_wiki_v2.LineageAndSourceChecks.test_sources_linked_by_link_or_applied_input) ... ok
+test_cost_ratios_compare_each_arm_to_the_first (test_evaluate_wiki_v2.MetricTests.test_cost_ratios_compare_each_arm_to_the_first) ... ok
+test_discovery_and_reads (test_evaluate_wiki_v2.MetricTests.test_discovery_and_reads) ... ok
+test_helper_metrics_and_nested_evidence (test_evaluate_wiki_v2.MetricTests.test_helper_metrics_and_nested_evidence) ... ok
+test_helper_reads_satisfy_read_checks (test_evaluate_wiki_v2.MetricTests.test_helper_reads_satisfy_read_checks) ... ok
+test_median_range (test_evaluate_wiki_v2.MetricTests.test_median_range) ... ok
+test_no_hit_gives_none_and_budget_flag (test_evaluate_wiki_v2.MetricTests.test_no_hit_gives_none_and_budget_flag) ... ok
+test_private_exposure_counts_results_and_reads_but_not_errors (test_evaluate_wiki_v2.MetricTests.test_private_exposure_counts_results_and_reads_but_not_errors) ... ok
+test_reformulations_before_first_hit (test_evaluate_wiki_v2.MetricTests.test_reformulations_before_first_hit) ... ok
+test_run_cost_prices_parent_and_helpers_separately (test_evaluate_wiki_v2.MetricTests.test_run_cost_prices_parent_and_helpers_separately) ... ok
+test_run_metrics_sum_and_earliest (test_evaluate_wiki_v2.MetricTests.test_run_metrics_sum_and_earliest) ... ok
+test_untraced_arm (test_evaluate_wiki_v2.MetricTests.test_untraced_arm) ... ok
+test_usage_cost_discounts_cached_input_per_model (test_evaluate_wiki_v2.MetricTests.test_usage_cost_discounts_cached_input_per_model) ... ok
+test_offline_run_never_configures_a_provider (test_evaluate_wiki_v2.OfflineEndToEnd.test_offline_run_never_configures_a_provider) ... {"event": "seeded T1@1000 in 0.2s"}
+{"event": "warmed T1-1000 for arm A"}
+{"event": "warmed T1-1000 for arm B-x"}
+{"mode": "offline", "fixture": "valid", "checked": 1, "ok": true, "report": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust/target/eval-v2-tests/tmpxvmi2dxk/root/offline.json"}
+ok
+test_helper_arm_configures_the_helper_and_others_turn_it_off (test_evaluate_wiki_v2.PipelineWithStubBinary.test_helper_arm_configures_the_helper_and_others_turn_it_off) ... ok
+test_live_codex_arm_needs_an_absolute_auth_file (test_evaluate_wiki_v2.PipelineWithStubBinary.test_live_codex_arm_needs_an_absolute_auth_file) ... ok
+test_nonzero_exit_is_a_transport_failure (test_evaluate_wiki_v2.PipelineWithStubBinary.test_nonzero_exit_is_a_transport_failure) ... ok
+test_setup_failure_is_persisted_and_reported (test_evaluate_wiki_v2.PipelineWithStubBinary.test_setup_failure_is_persisted_and_reported) ... ok
+test_stale_slot_without_result_is_replaced_and_crash_stub_is_running (test_evaluate_wiki_v2.PipelineWithStubBinary.test_stale_slot_without_result_is_replaced_and_crash_stub_is_running) ... ok
+test_tool_limit_terminal_is_evaluated_not_a_transport_failure (test_evaluate_wiki_v2.PipelineWithStubBinary.test_tool_limit_terminal_is_evaluated_not_a_transport_failure) ... ok
+test_actions (test_evaluate_wiki_v2.ResumeTests.test_actions) ... ok
+test_open_root_requires_marker (test_evaluate_wiki_v2.ResumeTests.test_open_root_requires_marker) ... ok
+test_slot_attempts_read_persisted_results (test_evaluate_wiki_v2.ResumeTests.test_slot_attempts_read_persisted_results) ... ok
+test_environment_points_temp_dirs_under_root (test_evaluate_wiki_v2.RootAndResumeTests.test_environment_points_temp_dirs_under_root) ... ok
+test_next_attempt_and_slot_folder (test_evaluate_wiki_v2.RootAndResumeTests.test_next_attempt_and_slot_folder) ... ok
+test_marker_scans_titles_and_relations (test_evaluate_wiki_v2.SafetyScopeTests.test_marker_scans_titles_and_relations) ... ok
+test_no_writes_is_a_safety_check (test_evaluate_wiki_v2.SafetyScopeTests.test_no_writes_is_a_safety_check) ... ok
+test_condense_drops_unchanged_filler_text_and_filler_links (test_evaluate_wiki_v2.SnapshotTests.test_condense_drops_unchanged_filler_text_and_filler_links) ... ok
+test_condense_receipt (test_evaluate_wiki_v2.SnapshotTests.test_condense_receipt) ... ok
+test_copy_tree_and_exclusive_root (test_evaluate_wiki_v2.SnapshotTests.test_copy_tree_and_exclusive_root) ... ok
+test_arm_filter_and_unrunnable_check (test_evaluate_wiki_v2.StateChecks.test_arm_filter_and_unrunnable_check) ... ok
+test_chat_notes_and_superseded_are_not_current (test_evaluate_wiki_v2.StateChecks.test_chat_notes_and_superseded_are_not_current) ... ok
+test_link_exists_with_relation (test_evaluate_wiki_v2.StateChecks.test_link_exists_with_relation) ... ok
+test_marker_absent_general_ignores_chat_notes (test_evaluate_wiki_v2.StateChecks.test_marker_absent_general_ignores_chat_notes) ... ok
+test_new_notes_and_titles (test_evaluate_wiki_v2.StateChecks.test_new_notes_and_titles) ... ok
+test_note_contains_scope_alternatives_and_after_step (test_evaluate_wiki_v2.StateChecks.test_note_contains_scope_alternatives_and_after_step) ... ok
+test_note_updated_and_title (test_evaluate_wiki_v2.StateChecks.test_note_updated_and_title) ... ok
+test_protected_preserved (test_evaluate_wiki_v2.StateChecks.test_protected_preserved) ... ok
+test_report_only_never_fails (test_evaluate_wiki_v2.StateChecks.test_report_only_never_fails) ... ok
+test_evaluated_terminals (test_evaluate_wiki_v2.TerminalTests.test_evaluated_terminals) ... ok
+test_failure_summary_keeps_only_the_redacted_detail_fields (test_evaluate_wiki_v2.TerminalTests.test_failure_summary_keeps_only_the_redacted_detail_fields) ... ok
+test_provider_resends_are_counted_across_steps (test_evaluate_wiki_v2.TerminalTests.test_provider_resends_are_counted_across_steps) ... ok
+test_tool_limit_step_is_checked_and_marks_budget (test_evaluate_wiki_v2.TerminalTests.test_tool_limit_step_is_checked_and_marks_budget) ... ok
+test_transport_terminal_does_not_count_as_ran (test_evaluate_wiki_v2.TerminalTests.test_transport_terminal_does_not_count_as_ran) ... ok
+test_missing_trace_gives_unknown (test_evaluate_wiki_v2.TraceChecks.test_missing_trace_gives_unknown) ... ok
+test_private_exposures_and_exempt_private_thread (test_evaluate_wiki_v2.TraceChecks.test_private_exposures_and_exempt_private_thread) ... ok
+test_read_range_accepts_whole_note_reads (test_evaluate_wiki_v2.TraceChecks.test_read_range_accepts_whole_note_reads) ... ok
+test_read_range_overlap (test_evaluate_wiki_v2.TraceChecks.test_read_range_overlap) ... ok
+test_read_with_current_version (test_evaluate_wiki_v2.TraceChecks.test_read_with_current_version) ... ok
+test_statuses (test_evaluate_wiki_v2.UndoChecks.test_statuses) ... ok
+test_undo_ignores_the_thread_context_epoch_but_not_content (test_evaluate_wiki_v2.UndoVerification.test_undo_ignores_the_thread_context_epoch_but_not_content) ... ok
+test_evaluate_checks_marks_unverified (test_evaluate_wiki_v2.UnverifiedTests.test_evaluate_checks_marks_unverified) ... ok
+test_none_is_not_a_pass (test_evaluate_wiki_v2.UnverifiedTests.test_none_is_not_a_pass) ... ok
+test_planned_uses_persisted_effective_repetitions (test_evaluate_wiki_v2.UnverifiedTests.test_planned_uses_persisted_effective_repetitions) ... ok
+test_unverifiable_check_is_excluded_for_all_arms_and_listed (test_evaluate_wiki_v2.UnverifiedTests.test_unverifiable_check_is_excluded_for_all_arms_and_listed) ... ok
+test_unverified_safety_is_surfaced (test_evaluate_wiki_v2.UnverifiedTests.test_unverified_safety_is_surfaced) ... ok
+test_unverified_sample_without_exclusion_group_does_not_pass (test_evaluate_wiki_v2.UnverifiedTests.test_unverified_sample_without_exclusion_group_does_not_pass) ... ok
+test_current_tree (test_intake_retirement.RetirementTests.test_current_tree) ... ok
+test_each_legacy_path_is_detected (test_intake_retirement.RetirementTests.test_each_legacy_path_is_detected) ... ok
+test_history_and_explicit_historical_eval_support_are_not_live_readers (test_intake_retirement.RetirementTests.test_history_and_explicit_historical_eval_support_are_not_live_readers) ... ok
+test_module_dependency_feature_and_build_negative_controls (test_intake_retirement.RetirementTests.test_module_dependency_feature_and_build_negative_controls) ... ok
+test_workflow_argument_and_prerequisite_order_negative_controls (test_intake_retirement.RetirementTests.test_workflow_argument_and_prerequisite_order_negative_controls) ... ok
+test_either_missing_helper_refuses_before_creating_output (test_macos_packaging.LauncherTests.test_either_missing_helper_refuses_before_creating_output) ... ok
+test_explicit_launcher_existing_contract (test_macos_packaging.LauncherTests.test_explicit_launcher_existing_contract) ... ok
+test_invalid_input_and_occupied_output_refuse (test_macos_packaging.LauncherTests.test_invalid_input_and_occupied_output_refuse) ... ok
+test_missing_bundled_helper_and_failure_are_visible (test_macos_packaging.LauncherTests.test_missing_bundled_helper_and_failure_are_visible) ... ok
+test_relocation_and_upgrade_keep_recipient_workspace (test_macos_packaging.LauncherTests.test_relocation_and_upgrade_keep_recipient_workspace) ... ok
+test_actual_macho_signing_extraction_manifest_and_collision (test_macos_packaging.NativePackageTests.test_actual_macho_signing_extraction_manifest_and_collision) ... ok
+test_archive_path_and_link_attacks (test_prepare_xberg_adapted.PrepareTests.test_archive_path_and_link_attacks) ... ok
+test_bad_archive (test_prepare_xberg_adapted.PrepareTests.test_bad_archive) ... ok
+test_changed_patch (test_prepare_xberg_adapted.PrepareTests.test_changed_patch) ... ok
+test_complete_reproduction_and_stock_unchanged (test_prepare_xberg_adapted.PrepareTests.test_complete_reproduction_and_stock_unchanged) ... ok
+test_occupied_and_mutated_source (test_prepare_xberg_adapted.PrepareTests.test_occupied_and_mutated_source) ... ok
+test_output_symlink_and_outside_root (test_prepare_xberg_adapted.PrepareTests.test_output_symlink_and_outside_root) ... ok
+test_setup_cleanup_rebuilds_checkout_specific_cached_generation (test_prepare_xberg_adapted.PrepareTests.test_setup_cleanup_rebuilds_checkout_specific_cached_generation) ... ok
+test_setup_cleanup_rebuilds_partial_cached_generation (test_prepare_xberg_adapted.PrepareTests.test_setup_cleanup_rebuilds_partial_cached_generation) ... ok
+test_setup_cleanup_refuses_symlinked_target_parent (test_prepare_xberg_adapted.PrepareTests.test_setup_cleanup_refuses_symlinked_target_parent) ... ok
+test_setup_cleanup_unlinks_leaf_without_touching_foreign_tree (test_prepare_xberg_adapted.PrepareTests.test_setup_cleanup_unlinks_leaf_without_touching_foreign_tree) ... ok
+test_fork_pr_stale_sha_incomplete_or_wrong_workflow_refuse (test_preview_release.EligibilityTests.test_fork_pr_stale_sha_incomplete_or_wrong_workflow_refuse) ... ok
+test_four_passed_required_jobs_allow_informational_platform_failure (test_preview_release.EligibilityTests.test_four_passed_required_jobs_allow_informational_platform_failure) ... ok
+test_missing_failed_skipped_stale_duplicate_required_jobs_refuse (test_preview_release.EligibilityTests.test_missing_failed_skipped_stale_duplicate_required_jobs_refuse) ... ok
+test_no_local_token_discovery (test_preview_release.EligibilityTests.test_no_local_token_discovery) ... ok
+test_unchanged_or_unapproved_manifest_refuses (test_preview_release.EligibilityTests.test_unchanged_or_unapproved_manifest_refuses) ... ok
+test_deleted_replaced_published_or_retargeted_draft_blocks_final_patch (test_preview_release.PublicationTests.test_deleted_replaced_published_or_retargeted_draft_blocks_final_patch) ... ok
+test_exact_existing_draft_resumes_without_replacing_assets (test_preview_release.PublicationTests.test_exact_existing_draft_resumes_without_replacing_assets) ... ok
+test_existing_published_release_is_never_overwritten (test_preview_release.PublicationTests.test_existing_published_release_is_never_overwritten) ... ok
+test_main_advance_or_bad_upload_leaves_draft_unpublished (test_preview_release.PublicationTests.test_main_advance_or_bad_upload_leaves_draft_unpublished) ... ok
+test_missing_adapted_or_legacy_binary_set_is_not_releasable (test_preview_release.PublicationTests.test_missing_adapted_or_legacy_binary_set_is_not_releasable) ... ok
+test_publish_only_after_uploads_and_final_exact_identity_guard (test_preview_release.PublicationTests.test_publish_only_after_uploads_and_final_exact_identity_guard) ... ok
+test_tag_or_release_identity_is_never_retargeted (test_preview_release.PublicationTests.test_tag_or_release_identity_is_never_retargeted) ... ok
+test_wrong_source_corrupt_archive_checksum_or_incomplete_receipt_refuses (test_preview_release.PublicationTests.test_wrong_source_corrupt_archive_checksum_or_incomplete_receipt_refuses) ... ok
+test_duplicate_version_across_pages_refuses (test_preview_release.ReleaseLookupTests.test_duplicate_version_across_pages_refuses) ... ok
+test_published_state_preserved_and_nonpreview_identity_refuses (test_preview_release.ReleaseLookupTests.test_published_state_preserved_and_nonpreview_identity_refuses) ... ok
+test_untagged_draft_on_later_page_is_found (test_preview_release.ReleaseLookupTests.test_untagged_draft_on_later_page_is_found) ... ok
+test_applied_inputs_are_available_without_request_bodies (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_applied_inputs_are_available_without_request_bodies) ... ok
+test_codex_auth_file_is_not_cleared_by_cache_selection (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_codex_auth_file_is_not_cleared_by_cache_selection) ... ok
+test_created_note_undo_requires_archival (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_created_note_undo_requires_archival) ... ok
+test_disconnected_summaries_do_not_pass_synthesis_lineage (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_disconnected_summaries_do_not_pass_synthesis_lineage) ... ok
+test_evaluator_does_not_import_sqlite3 (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_evaluator_does_not_import_sqlite3) ... ok
+test_failed_assertions_or_undo_cannot_count_as_verified (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_failed_assertions_or_undo_cannot_count_as_verified) ... ok
+test_late_undo_failure_retains_the_completed_provider_and_snapshot (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_late_undo_failure_retains_the_completed_provider_and_snapshot) ... Safety blockers: none
+
+Per case (passes/planned repetitions; medians):
+  T1@1000 A: 0/1 fail first_read=None searches=None bytes=None rounds=None cost=n/a (parent n/a, helper n/a) tokens=None elapsed_ms=None
+
+Model matrix (by arm):
+  arm | provider | model | effort | helper | cases | samples | bytes | first_read | rounds | searches | cost | parent_cost | helper_cost | tokens | helper_runs | research_runs | helper_tokens | peak_input | elapsed_ms | citations | transport | safety
+  A | Codex | m | low | - | 0/1 | 0/0 | None | None | None | None | n/a | n/a | n/a | None | None | 0/0 | None | None | None | 0/0/0/0/0 | 1 | 0
+  citations are exact/relocated/stale/mismatch/rejected; cost is median Codex credits per run
+
+Transport/setup failures (never counted as passes):
+  T1@1000 A rep 1 attempt 1: setup_failure seeder failed: boom
+
+Small N: report passes out of repetitions and medians with ranges; no p-values are claimed.
+{"case": "conversation-only", "arm": "tmpi2sv8dfy", "step": 0, "terminal": "Completed", "seconds": 0}
+ok
+test_live_codex_needs_an_absolute_auth_file (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_live_codex_needs_an_absolute_auth_file) ... ok
+test_nested_configuration_is_excluded (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_nested_configuration_is_excluded) ... ok
+test_occupied_root_is_preserved (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_occupied_root_is_preserved) ... ok
+test_protected_change_is_detected (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_protected_change_is_detected) ... ok
+test_provider_failure_is_not_completed (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_provider_failure_is_not_completed) ... ok
+test_redaction_preserves_schema_nulls_for_failed_run_inspection (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_redaction_preserves_schema_nulls_for_failed_run_inspection) ... ok
+test_relative_root_is_refused (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_relative_root_is_refused) ... ok
+test_truncated_operation_inputs_fail_loudly (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_truncated_operation_inputs_fail_loudly) ... ok
+test_undo_requires_restoration_of_affected_content (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_undo_requires_restoration_of_affected_content) ... ok
+test_unrelated_records_must_survive_undo (test_wiki_guidance_eval.WikiGuidanceEvaluationTests.test_unrelated_records_must_survive_undo) ... ok
+test_sibling_defaults_and_explicit_historical_selection (test_wiki_helper_paths.HelperPathsTests.test_sibling_defaults_and_explicit_historical_selection) ... ok
+test_v2_uses_each_arm_and_keeps_active_research_helper_independent (test_wiki_helper_paths.HelperPathsTests.test_v2_uses_each_arm_and_keeps_active_research_helper_independent) ... ok
+test_completed_tasks_use_compact_index_and_link_selected_record (test_work_overview.WorkOverviewTests.test_completed_tasks_use_compact_index_and_link_selected_record) ... ok
+test_current_check_does_not_rewrite (test_work_overview.WorkOverviewTests.test_current_check_does_not_rewrite) ... ok
+test_malformed_update_preserves_old_file_and_check_detects_staleness_without_write (test_work_overview.WorkOverviewTests.test_malformed_update_preserves_old_file_and_check_detects_staleness_without_write) ... ok
+test_next_requires_complete_prerequisite_and_no_resource_wait (test_work_overview.WorkOverviewTests.test_next_requires_complete_prerequisite_and_no_resource_wait) ... ok
+test_rejects_duplicate_ids_unknown_dependencies_and_bad_evidence (test_work_overview.WorkOverviewTests.test_rejects_duplicate_ids_unknown_dependencies_and_bad_evidence) ... ok
+test_rejects_missing_id_cycle_and_naive_timestamp (test_work_overview.WorkOverviewTests.test_rejects_missing_id_cycle_and_naive_timestamp) ... ok
+test_render_keeps_observation_static_gates_distinct_and_resources_out_of_graph (test_work_overview.WorkOverviewTests.test_render_keeps_observation_static_gates_distinct_and_resources_out_of_graph) ... ok
+test_reported_condition_satisfaction_not_prerequisite_state_controls_next (test_work_overview.WorkOverviewTests.test_reported_condition_satisfaction_not_prerequisite_state_controls_next) ... ok
+test_task_lookup_and_check_are_mutually_exclusive (test_work_overview.WorkOverviewTests.test_task_lookup_and_check_are_mutually_exclusive) ... ok
+test_task_lookup_does_not_create_missing_output_parent (test_work_overview.WorkOverviewTests.test_task_lookup_does_not_create_missing_output_parent) ... ok
+test_task_lookup_prints_exact_selected_object_and_preserves_record_and_output (test_work_overview.WorkOverviewTests.test_task_lookup_prints_exact_selected_object_and_preserves_record_and_output) ... ok
+test_task_lookup_unknown_id_returns_two_without_output (test_work_overview.WorkOverviewTests.test_task_lookup_unknown_id_returns_two_without_output) ... ok
+test_task_lookup_validates_other_tasks_before_printing_selection (test_work_overview.WorkOverviewTests.test_task_lookup_validates_other_tasks_before_printing_selection) ... ok
+
+----------------------------------------------------------------------
+Ran 188 tests in 11.648s
+
+OK
+work overview is current: /Users/evokessler/.codex/worktrees/export-durability/brn-rust/docs/work/overview.md
+Markdown links: 625 files, 2850 local links, 0 failures; historical outgoing policy=docs/archive/ only

@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-10-22T04:01:07.568923+00:00",
+  "pr": {
+    "baseRefName": "main",
+    "createdAt": "2026-10-22T04:00:46Z",
+    "headRefOid": "7dde6a41a4fbc66468e0400d2cc3c859f04c8ef5",
+    "isDraft": false,
+    "number": 208,
+    "state": "OPEN",
+    "title": "Harden development checks and shorten task-context reads",
+    "url": "https://github.com/ewq100/brn-rust/pull/208"
+  },
+  "base_at_publication": "8c18845ca5b70a43d36b0bc0d2811da573086a79",
+  "local_qualification": "development-maintenance-batch-qualification.json",
+  "independent_review": "development-maintenance-batch-review.md",
+  "hosted_required_checks": "pending",
+  "merged": false
+}

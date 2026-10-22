@@ -1,0 +1,496 @@
+{
+  "scope": "Completed macOS Core and CLI job comparison; read-only GitHub metadata/logs",
+  "runs": [
+    {
+      "label": "main205",
+      "run_id": 39712960408,
+      "event": "push",
+      "run_sha": "0016b21057b44fa9a64cef2d77d4ae09e317f540",
+      "run_status": "completed",
+      "run_conclusion": "cancelled",
+      "job_id": 119608907840,
+      "job_name": "Core and CLI (macos-15)",
+      "job_status": "completed",
+      "job_conclusion": "success",
+      "runner_name": "GitHub Actions 1000003627",
+      "labels": [
+        "macos-15"
+      ],
+      "started_at": "2026-10-22T02:45:37Z",
+      "completed_at": "2026-10-22T03:01:34Z",
+      "job_seconds": 957,
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success",
+          "seconds": 1
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success",
+          "seconds": 3
+        },
+        {
+          "number": 3,
+          "name": "Run ./.github/actions/setup-rust",
+          "conclusion": "success",
+          "seconds": 48
+        },
+        {
+          "number": 4,
+          "name": "Check formatting",
+          "conclusion": "skipped",
+          "seconds": 0
+        },
+        {
+          "number": 5,
+          "name": "Check production provider retirement",
+          "conclusion": "success",
+          "seconds": 1
+        },
+        {
+          "number": 6,
+          "name": "Check production intake retirement",
+          "conclusion": "success",
+          "seconds": 0
+        },
+        {
+          "number": 7,
+          "name": "Prepare both locked document helper graphs",
+          "conclusion": "success",
+          "seconds": 124
+        },
+        {
+          "number": 8,
+          "name": "Build the default workspace",
+          "conclusion": "success",
+          "seconds": 18
+        },
+        {
+          "number": 9,
+          "name": "Lint the default workspace",
+          "conclusion": "success",
+          "seconds": 26
+        },
+        {
+          "number": 10,
+          "name": "Test the default workspace",
+          "conclusion": "success",
+          "seconds": 328
+        },
+        {
+          "number": 11,
+          "name": "Both document helpers normal API and restrictions",
+          "conclusion": "success",
+          "seconds": 206
+        },
+        {
+          "number": 12,
+          "name": "Scripted document CLI route (no live provider)",
+          "conclusion": "success",
+          "seconds": 34
+        },
+        {
+          "number": 13,
+          "name": "Test provider capability fixtures offline",
+          "conclusion": "success",
+          "seconds": 138
+        },
+        {
+          "number": 14,
+          "name": "Lint provider capability fixtures",
+          "conclusion": "success",
+          "seconds": 15
+        },
+        {
+          "number": 15,
+          "name": "Check CLI help on Unix",
+          "conclusion": "success",
+          "seconds": 0
+        },
+        {
+          "number": 16,
+          "name": "Check CLI help on Windows",
+          "conclusion": "skipped",
+          "seconds": 0
+        },
+        {
+          "number": 17,
+          "name": "Run offline end-to-end fixtures",
+          "conclusion": "success",
+          "seconds": 3
+        },
+        {
+          "number": 33,
+          "name": "Post Run ./.github/actions/setup-rust",
+          "conclusion": "success",
+          "seconds": 0
+        },
+        {
+          "number": 34,
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success",
+          "seconds": 1
+        },
+        {
+          "number": 35,
+          "name": "Complete job",
+          "conclusion": "success",
+          "seconds": 10
+        }
+      ]
+    },
+    {
+      "label": "main206",
+      "run_id": 39715111426,
+      "event": "push",
+      "run_sha": "79fa3980c5022e475b07888d9e08f396f45b0238",
+      "run_status": "completed",
+      "run_conclusion": "failure",
+      "job_id": 119615626870,
+      "job_name": "Core and CLI (macos-15)",
+      "job_status": "completed",
+      "job_conclusion": "success",
+      "runner_name": "GitHub Actions 1000003640",
+      "labels": [
+        "macos-15"
+      ],
+      "started_at": "2026-10-22T03:08:48Z",
+      "completed_at": "2026-10-22T03:39:19Z",
+      "job_seconds": 1831,
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success",
+          "seconds": 1
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success",
+          "seconds": 3
+        },
+        {
+          "number": 3,
+          "name": "Run ./.github/actions/setup-rust",
+          "conclusion": "success",
+          "seconds": 23
+        },
+        {
+          "number": 4,
+          "name": "Check formatting",
+          "conclusion": "skipped",
+          "seconds": 0
+        },
+        {
+          "number": 5,
+          "name": "Check production provider retirement",
+          "conclusion": "success",
+          "seconds": 0
+        },
+        {
+          "number": 6,
+          "name": "Check production intake retirement",
+          "conclusion": "success",
+          "seconds": 1
+        },
+        {
+          "number": 7,
+          "name": "Prepare both locked document helper graphs",
+          "conclusion": "success",
+          "seconds": 637
+        },
+        {
+          "number": 8,
+          "name": "Build the default workspace",
+          "conclusion": "success",
+          "seconds": 124
+        },
+        {
+          "number": 9,
+          "name": "Lint the default workspace",
+          "conclusion": "success",
+          "seconds": 63
+        },
+        {
+          "number": 10,
+          "name": "Test the default workspace",
+          "conclusion": "success",
+          "seconds": 445
+        },
+        {
+          "number": 11,
+          "name": "Both document helpers normal API and restrictions",
+          "conclusion": "success",
+          "seconds": 343
+        },
+        {
+          "number": 12,
+          "name": "Scripted document CLI route (no live provider)",
+          "conclusion": "success",
+          "seconds": 23
+        },
+        {
+          "number": 13,
+          "name": "Test provider capability fixtures offline",
+          "conclusion": "success",
+          "seconds": 112
+        },
+        {
+          "number": 14,
+          "name": "Lint provider capability fixtures",
+          "conclusion": "success",
+          "seconds": 9
+        },
+        {
+          "number": 15,
+          "name": "Check CLI help on Unix",
+          "conclusion": "success",
+          "seconds": 0
+        },
+        {
+          "number": 16,
+          "name": "Check CLI help on Windows",
+          "conclusion": "skipped",
+          "seconds": 0
+        },
+        {
+          "number": 17,
+          "name": "Run offline end-to-end fixtures",
+          "conclusion": "success",
+          "seconds": 2
+        },
+        {
+          "number": 33,
+          "name": "Post Run ./.github/actions/setup-rust",
+          "conclusion": "success",
+          "seconds": 42
+        },
+        {
+          "number": 34,
+          "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+          "conclusion": "success",
+          "seconds": 0
+        },
+        {
+          "number": 35,
+          "name": "Complete job",
+          "conclusion": "success",
+          "seconds": 2
+        }
+      ]
+    }
+  ],
+  "cache": {
+    "key": "v0-rust-macOS-ARM64-default-d9baa4d448b113de44d1e765f31756a4d46680b8efb1da913177d12d2337015b-headless-Darwin-arm64-4b070e83-bf6157b2",
+    "main205": "full exact-key hit; archive 1327152455 bytes (~1266 MB); restore action 27686 ms",
+    "main206": "No cache found for identical computed key (action duration 962 ms); post-run cache save sent 1327307246 bytes and action completed success in 41132 ms"
+  },
+  "cargo_finished_profiles": {
+    "main205": [
+      {
+        "step": "Prepare both locked document helper graphs",
+        "reported": "0m 53.83s",
+        "line": "2026-10-22T02:47:28.3693650Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 53.83s"
+      },
+      {
+        "step": "Prepare both locked document helper graphs",
+        "reported": "1m 2s",
+        "line": "2026-10-22T02:48:32.1983660Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 1m 02s"
+      },
+      {
+        "step": "Build the default workspace",
+        "reported": "0m 17.44s",
+        "line": "2026-10-22T02:48:52.4072750Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 17.44s"
+      },
+      {
+        "step": "Lint the default workspace",
+        "reported": "0m 26.11s",
+        "line": "2026-10-22T02:49:18.7244530Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 26.11s"
+      },
+      {
+        "step": "Test the default workspace",
+        "reported": "3m 52s",
+        "line": "2026-10-22T02:53:12.2001740Z ^[[1m^[[92m    Finished^[[0m `test` profile [optimized] target(s) in 3m 52s"
+      },
+      {
+        "step": "Both document helpers normal API and restrictions",
+        "reported": "1m 14s",
+        "line": "2026-10-22T02:56:01.8962020Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized] target(s) in 1m 14s"
+      },
+      {
+        "step": "Both document helpers normal API and restrictions",
+        "reported": "0m 19.66s",
+        "line": "2026-10-22T02:56:22.4365000Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 19.66s"
+      },
+      {
+        "step": "Both document helpers normal API and restrictions",
+        "reported": "1m 24s",
+        "line": "2026-10-22T02:57:46.8383170Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized] target(s) in 1m 24s"
+      },
+      {
+        "step": "Both document helpers normal API and restrictions",
+        "reported": "0m 24.75s",
+        "line": "2026-10-22T02:58:12.6320750Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 24.75s"
+      },
+      {
+        "step": "Scripted document CLI route (no live provider)",
+        "reported": "0m 23.42s",
+        "line": "2026-10-22T02:58:36.3692770Z ^[[1m^[[92m    Finished^[[0m `test` profile [optimized] target(s) in 23.42s"
+      },
+      {
+        "step": "Scripted document CLI route (no live provider)",
+        "reported": "0m 9s",
+        "line": "2026-10-22T02:58:46.1462210Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 9.00s"
+      },
+      {
+        "step": "Test provider capability fixtures offline",
+        "reported": "1m 59s",
+        "line": "2026-10-22T03:00:45.6830990Z ^[[1m^[[92m    Finished^[[0m `test` profile [optimized] target(s) in 1m 59s"
+      },
+      {
+        "step": "Lint provider capability fixtures",
+        "reported": "0m 14.13s",
+        "line": "2026-10-22T03:01:18.9698380Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 14.13s"
+      }
+    ],
+    "main206": [
+      {
+        "step": "Prepare both locked document helper graphs",
+        "reported": "5m 22s",
+        "line": "2026-10-22T03:14:45.4539960Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 5m 22s"
+      },
+      {
+        "step": "Prepare both locked document helper graphs",
+        "reported": "5m 3s",
+        "line": "2026-10-22T03:19:50.5163370Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 5m 03s"
+      },
+      {
+        "step": "Build the default workspace",
+        "reported": "2m 4s",
+        "line": "2026-10-22T03:21:57.6723320Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 2m 04s"
+      },
+      {
+        "step": "Lint the default workspace",
+        "reported": "1m 2s",
+        "line": "2026-10-22T03:23:00.7479510Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 1m 02s"
+      },
+      {
+        "step": "Test the default workspace",
+        "reported": "5m 42s",
+        "line": "2026-10-22T03:28:43.7241080Z ^[[1m^[[92m    Finished^[[0m `test` profile [optimized] target(s) in 5m 42s"
+      },
+      {
+        "step": "Both document helpers normal API and restrictions",
+        "reported": "1m 1s",
+        "line": "2026-10-22T03:31:27.0584590Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized] target(s) in 1m 01s"
+      },
+      {
+        "step": "Both document helpers normal API and restrictions",
+        "reported": "2m 2s",
+        "line": "2026-10-22T03:33:30.0929950Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 2m 02s"
+      },
+      {
+        "step": "Both document helpers normal API and restrictions",
+        "reported": "0m 57.61s",
+        "line": "2026-10-22T03:34:27.7977290Z ^[[1m^[[92m    Finished^[[0m `test` profile [unoptimized] target(s) in 57.61s"
+      },
+      {
+        "step": "Both document helpers normal API and restrictions",
+        "reported": "1m 40s",
+        "line": "2026-10-22T03:36:08.6632960Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 1m 40s"
+      },
+      {
+        "step": "Scripted document CLI route (no live provider)",
+        "reported": "0m 15.76s",
+        "line": "2026-10-22T03:36:24.7271200Z ^[[1m^[[92m    Finished^[[0m `test` profile [optimized] target(s) in 15.76s"
+      },
+      {
+        "step": "Scripted document CLI route (no live provider)",
+        "reported": "0m 5.74s",
+        "line": "2026-10-22T03:36:31.2202680Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 5.74s"
+      },
+      {
+        "step": "Test provider capability fixtures offline",
+        "reported": "1m 36s",
+        "line": "2026-10-22T03:38:07.6489010Z ^[[1m^[[92m    Finished^[[0m `test` profile [optimized] target(s) in 1m 36s"
+      },
+      {
+        "step": "Lint provider capability fixtures",
+        "reported": "0m 8.9s",
+        "line": "2026-10-22T03:38:32.8435940Z ^[[1m^[[92m    Finished^[[0m `dev` profile [unoptimized] target(s) in 8.90s"
+      }
+    ]
+  },
+  "test_harness_sums_seconds": {
+    "main205": {
+      "Test the default workspace": {
+        "suites": 106,
+        "sum_reported_seconds": 90.9
+      },
+      "Both document helpers normal API and restrictions": {
+        "suites": 6,
+        "sum_reported_seconds": 1.47
+      },
+      "Scripted document CLI route (no live provider)": {
+        "suites": 1,
+        "sum_reported_seconds": 0.6
+      },
+      "Test provider capability fixtures offline": {
+        "suites": 2,
+        "sum_reported_seconds": 18.81
+      }
+    },
+    "main206": {
+      "Test the default workspace": {
+        "suites": 106,
+        "sum_reported_seconds": 98.43
+      },
+      "Both document helpers normal API and restrictions": {
+        "suites": 6,
+        "sum_reported_seconds": 1.01
+      },
+      "Scripted document CLI route (no live provider)": {
+        "suites": 1,
+        "sum_reported_seconds": 0.64
+      },
+      "Test provider capability fixtures offline": {
+        "suites": 2,
+        "sum_reported_seconds": 16.01
+      }
+    }
+  },
+  "raw_files": {
+    "main205-job119608907840.log": {
+      "bytes": 515109,
+      "sha256": "dd07aa15b241a468597b29015f5d539516997ea4457112c73ec07214b5162d26"
+    },
+    "main206-job119615626870.log": {
+      "bytes": 872018,
+      "sha256": "64ae6a85336ab1a8f48355b9241153100658b133c6986e9af5370bff05a37ca8"
+    },
+    "run39715111426-jobs.json": {
+      "bytes": 36953,
+      "sha256": "2d37f83600aa4e21c800f62491f08a1d9ef3f7b8c99ec6688276b548c6e40021"
+    },
+    "run39715111426.json": {
+      "bytes": 11757,
+      "sha256": "02f2313b7baf015e55b7aeb1b8a287e9f557f66198c5b35a89602c139536eb3c"
+    },
+    "run39712960408.json": {
+      "bytes": 11756,
+      "sha256": "b038d559992c3c1428eef1022e8fc26ec7b050dc275ceed182f8f9107fcff89b"
+    },
+    "compare-main205-main206.json": {
+      "bytes": 27875,
+      "sha256": "7bebc48968bbd8253bafadfb770fdaf1e7f8275f7509f7f28695d3050f3881ea"
+    },
+    "run39712960408-jobs.json": {
+      "bytes": 36959,
+      "sha256": "c9d385d3c6da16cfcbd81435d2f990c5a61bcb165cbcc916751b4c56bd4d4999"
+    }
+  }
+}

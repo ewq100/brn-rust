@@ -1,0 +1,42 @@
+{
+  "observed_at": "2026-10-22T04:00:40.584033+00:00",
+  "candidate": "7dde6a41a4fbc66468e0400d2cc3c859f04c8ef5",
+  "base": "8c18845ca5b70a43d36b0bc0d2811da573086a79",
+  "source_clean_after_qualification": true,
+  "qualification_process_exit_code": 0,
+  "core": {
+    "passed": 219,
+    "failed": 0,
+    "ignored": 0
+  },
+  "projects": {
+    "passed": 9,
+    "failed": 0,
+    "ignored": 0
+  },
+  "python_tests_passed": 188,
+  "strict_core_app_all_target_clippy": "PASS",
+  "format": "PASS",
+  "overview": "PASS",
+  "markdown_links": "625 files,2850 local links,0 failures",
+  "whitespace": "PASS",
+  "commands": "development-maintenance-batch-final.sh",
+  "raw_log": "development-maintenance-batch-final.log",
+  "independent_review": "development-maintenance-batch-review.md",
+  "component_entire_files_equal": {
+    "dc16973f711828ae8fc3c7923ab150bd1091f963": [
+      "crates/brn-threads-core/src/backup.rs",
+      "crates/brn-threads-core/src/restore.rs",
+      "crates/brn-threads-core/src/lib.rs",
+      "crates/brn-threads-core/src/process_test.rs"
+    ],
+    "cadcec0373e4542ffb1e43a8152bba343e142f8f": [
+      "scripts/render-work-overview.py",
+      "scripts/tests/test_work_overview.py",
+      "docs/development/workflow.md",
+      "docs/work/overview.md"
+    ]
+  },
+  "negative_control": "Prior component negative control reused explicitly; exact component files unchanged. Original failure/parser error/source restoration retained.",
+  "limits": "No native/owner acceptance/power-loss/live-model/release claim. Hosted head/main gates pending separately."
+}

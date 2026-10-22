@@ -96,9 +96,9 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T03:47:56.429185+00:00",
+    "observed_at": "2026-10-22T04:00:40.584033+00:00",
     "remaining_percent": 58,
-    "reset_unix": 1793083360,
+    "reset_unix": 1793083361,
     "ordinary_work": "Admitted: actual42% used/58% remaining, ordinaryUsageAllowed=true; secondary unavailable. No owner pause; original expiry unchanged. Account session separately closed.",
     "exception": {
       "scope": "visibility/instruction adoption only",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T03:47:56.429185+00:00",
+    "observed_at": "2026-10-22T04:01:07.568923+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3403,10 +3403,10 @@
         "title": "Refuse a new Project link when its selected document has been superseded",
         "state": "active",
         "owner": "Lead diagnosis/integration; bounded Luna author; independent Sol review",
-        "observed_at": "2026-10-22T03:22:09.978746+00:00",
+        "observed_at": "2026-10-22T04:00:40.584033+00:00",
         "origin": "observed",
-        "activity": "The correction is independently reviewed and locally verified. PR207 is published on main206; required checks are running. It refuses a new Project link to a replaced note while preserving existing link identity and explicit removal.",
-        "next_action": "Keep PR207 stable. Verify all four required checks on its exact head and preceding main, plus live protection, before a normal merge. Check the resulting main separately.",
+        "activity": "PR207 merged normally as main8c188 after all four exact-head and preceding-main required checks and live protection passed. The integrated whole tree equals the qualified candidate. Resulting-main checks are running separately.",
+        "next_action": "Inspect all four required resulting-main checks at8c188; retain optional failures and actual preview-step outcomes. No source change or repeat local checks selected.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3423,12 +3423,14 @@
           "docs/work/active/vacation-campaign/evidence/project-current-link-final.sh",
           "docs/work/active/vacation-campaign/evidence/project-current-link-final.log",
           "docs/work/active/vacation-campaign/evidence/project-current-link-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/pr207-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr207-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr207-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr207-integration.json"
         ],
         "gates": {
           "implementation": "PASS LinkDocument-only currenteligibilityguard; Unlink/replay/identityunchanged; independentcomplete3file review approved.",
           "checks": "PASS Projects9/0, core219/0/1existingignored, strictcore+app alltargetlint/fmt/links/diff/cleanHEAD; actualredbaseline retained.",
-          "integration": "Published PR20718aba onmain20679fa; exact requiredhead/preceding-main and protection pending.",
+          "integration": "Normal merge207 PASS exact-head/protection/preceding-main; resulting-main8c188 checks pending.",
           "native": "No native dialog observation; shared service authority repair.",
           "owner_acceptance": "No owner decision selected for retaining existing current-document eligibility."
         },
@@ -3451,10 +3453,10 @@
         "title": "Bound backup-process readiness and clean up its owned test child",
         "state": "active",
         "owner": "Lead design/integration; bounded Luna test-only author; independent Sol review",
-        "observed_at": "2026-10-22T03:33:41.318238+00:00",
+        "observed_at": "2026-10-22T04:01:07.568923+00:00",
         "origin": "observed",
-        "activity": "The backup test now has a finite readiness wait and shared child cleanup. Independent review and all219 core checks passed; the obsolete ignored helper is removed. A controlled ten-second readiness failure confirmed the owned child was killed and reaped. Exact qualified source is restored.",
-        "next_action": "AfterPR207 integration, reconcileactualmain and combine this independenttest-onlymaintenance with qualifiedselected-task readingroute into one reviewable development-maintenance batch. Inspectcompleteactualbatch, runcombinedcore gate, preserveindividualreceipts, onefreshrequiredCI cycle; nofalseproductdependency.",
+        "activity": "The backup test now has a finite readiness wait and shared child cleanup. Independent review and all219 core checks passed; the obsolete ignored helper is removed. A controlled ten-second readiness failure confirmed the owned child was killed and reaped. Exact qualified source is restored. The unchanged component is now combined on main207 at7dde; complete independent batch review and final core219/0/0, Projects9/0, Python188, strict lint/format/overview/links passed. Published together as PR208 at the exact qualified head.",
+        "next_action": "Keep PR208 frozen. Inspect all four required exact-head and preceding-main checks, then live protection, before normal merge; verify resulting main separately.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3471,12 +3473,17 @@
           "docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-receipt.json",
           "docs/work/active/vacation-campaign/evidence/backup-process-bounds-negative-initial-receipt-parser-error.json",
           "docs/work/active/vacation-campaign/evidence/backup-process-bounds-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/backup-process-bounds-production-reuse.json"
+          "docs/work/active/vacation-campaign/evidence/backup-process-bounds-production-reuse.json",
+          "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-review.md",
+          "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-final.sh",
+          "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-final.log",
+          "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/pr208-publication.json"
         ],
         "gates": {
           "implementation": "PASS exactdc169 complete4fileindependentreview; sharedUnix test-only childowner, boundedreadiness, helperretirement.",
           "checks": "PASS core219/0/0, strictalltargetlint/fmt/diff. Actualnegative readinessFAIL+ownedreap9 with exactsourcerestoration; parsererrorrecordretained.",
-          "integration": "Candidate source retained on isolatedbranch; no PR/merge yet, awaiting mainreconciliation afterPR207.",
+          "integration": "PR208 published at7dde on main2078c188; required hosted checks pending, no merge.",
           "native": "No native or power-loss claim.",
           "owner_acceptance": "No owner decision selected."
         },
@@ -3499,10 +3506,10 @@
         "title": "Read one current task without loading the entire campaign history",
         "state": "active",
         "owner": "Bounded Luna tooling author; lead review/integration",
-        "observed_at": "2026-10-22T03:43:19.021953+00:00",
+        "observed_at": "2026-10-22T04:01:07.568923+00:00",
         "origin": "observed",
-        "activity": "The read-only task lookup is implemented and independently reviewed at cadcec. All 188 Python checks passed. A real lookup returned the exact selected task in 3,657 bytes from a 269,329-byte record and preserved both source and output. Review caught and fixed the custom-record guidance.",
-        "next_action": "Retain the qualified source. After PR207 integration, combine the two independent development-maintenance outcomes into one reviewed batch and one required CI cycle. Keep all task facts in the existing record.",
+        "activity": "The read-only task lookup is implemented and independently reviewed at cadcec. All 188 Python checks passed. A real lookup returned the exact selected task in 3,657 bytes from a 269,329-byte record and preserved both source and output. Review caught and fixed the custom-record guidance. The unchanged component is now combined on main207 at7dde; complete independent batch review and final core219/0/0, Projects9/0, Python188, strict lint/format/overview/links passed. Published together as PR208 at the exact qualified head.",
+        "next_action": "Keep PR208 frozen. Inspect all four required exact-head and preceding-main checks, then live protection, before normal merge; verify resulting main separately.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3514,12 +3521,17 @@
           "docs/work/active/vacation-campaign/evidence/selected-task-route-initial-review.md",
           "docs/work/active/vacation-campaign/evidence/selected-task-route-final-review.md",
           "docs/work/active/vacation-campaign/evidence/selected-task-route-initial-functional-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/selected-task-route-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/selected-task-route-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-review.md",
+          "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-final.sh",
+          "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-final.log",
+          "docs/work/active/vacation-campaign/evidence/development-maintenance-batch-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/pr208-publication.json"
         ],
         "gates": {
           "implementation": "PASS final cadcec independent complete review; custom-record P2 valid/fixed.",
           "checks": "PASS Python188, actual lookup/unknown exit0/2 and byte preservation, default/custom overview and links. Earlier functional proof reused explicitly: lookup main function is byte-identical.",
-          "integration": "Qualified branch only; no PR or merge yet. Selected for a small development-maintenance batch after current main is reconciled.",
+          "integration": "PR208 published at7dde on main2078c188; required hosted checks pending, no merge.",
           "native": "Inapplicable developerreadroute; noBRNruntime/nativechanges.",
           "owner_acceptance": "No ownerdecision selected."
         },
@@ -3539,23 +3551,26 @@
       {
         "id": "mac-core-ci-variance-20261022",
         "title": "Explain the latest longer Mac check using completed job evidence",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna log assessment; lead disposition",
-        "observed_at": "2026-10-22T03:46:47.109829+00:00",
+        "observed_at": "2026-10-22T04:00:40.584033+00:00",
         "origin": "observed",
-        "activity": "New completed main206 Mac Core job took about30 minutes, versus about16 on main205; current PR207 is still waiting on that lane. Existing cache/test-cost investigations are reused. Select one bounded comparison of these completed jobs, not another optimization or repeated local build.",
-        "next_action": "Compare actual step/cache/compile timing of main206 and main205; identify concrete cache/profile differences or leave runner variance unproven. Retain source logs and at most one evidenced next action. No new CI run, cache deletion or workflow change.",
+        "activity": "Completed-job comparison: main205 restored a full1.327GB exact-key cache; main206 missed the identical key and rebuilt more helpers/workspace code. Job15m57 versus30m31; workspace harness totals90.90 versus98.43seconds. Cache unavailability cause and CPU variance remain unproven.",
+        "next_action": "Keep workflow/tests unchanged. Only if a naturally occurring subsequent main Mac Core job again misses this exact key, inspect current cache availability/eviction before selecting any optimization. No forced rerun or cache operation.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/pr205-resulting-main.json",
           "docs/work/active/vacation-campaign/evidence/pr206-resulting-main.json",
           ".github/workflows/ci.yml",
-          "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md"
+          "docs/work/active/vacation-campaign/evidence/mac-core-test-body-triage.md",
+          "docs/work/active/vacation-campaign/evidence/mac-core-ci-variance-20261022.md",
+          "docs/work/active/vacation-campaign/evidence/mac-core-ci-variance-20261022.json",
+          "docs/work/active/vacation-campaign/evidence/mac-core-ci-variance-20261022-raw.tar.gz"
         ],
         "gates": {
           "implementation": "Read-only diagnosis; no CI change selected.",
-          "checks": "Actual completed hosted logs and job metadata only; no new tests/builds.",
+          "checks": "PASS actual completed metadata/log comparison; raw evidence retained, no new test/build. Lead assessed timing and limits.",
           "integration": "Inapplicable unless separately selected actual repair.",
           "native": "No native interaction.",
           "owner_acceptance": "No owner decision selected."
@@ -3576,28 +3591,21 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-maintenance-ready-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T03:47:56.429185+00:00",
-    "runtime_capacity": "Four actual slots including lead. One bounded Luna compares completed CI logs; both source authors and consequential reviewers have finished. No source writer or nested helper.",
-    "build_slot": "Free. Exact backup candidate is restored; the diagnostic target binary is not the qualified artifact.",
+    "observed_at": "2026-10-22T04:00:40.584033+00:00",
+    "runtime_capacity": "Four actual slots including lead. Both authors, independent batch reviewer and bounded CI log assessor finished. No source writer or nested helper.",
+    "build_slot": "Free after final combined7dde core219/Projects9/Python188/lint/format/links PASS.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [
-      {
-        "session_id": 61899,
-        "pr": 207,
-        "log": "/tmp/brn-pr207-required.log",
-        "mode": "Read-only requiredchecks watch interval60; inspectactualcompletion beforeusing"
-      }
-    ],
+    "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "One required Mac Core gate remains on PR207. Completed main206 gates passed. Preserve both qualified maintenance candidates until current main is reconciled, then use one complete reviewed batch.",
+    "wait_reason": "PR207 resulting-main and PR208 exact-head required checks pending; no active local build/source writer.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability frozen backup-process-witness-bounds dc169; exactcandidate/nextgate inselectedtask.",
+    "worker_checkout": "export-durability frozen combined7dde; no source writer.",
     "fixture_worker_checkout": "mac-test-roots holds frozen selected-task reading candidate cadcec; no writer. Earlier CLI28 artifact/source receipts remain retained.",
     "documentation_worker_checkout": "architecture-status-route frozen PR20718aba; nowriter.",
     "required_ci_runs": [
-      39716336994
+      39719250248
     ]
   },
   "native_availability": {
