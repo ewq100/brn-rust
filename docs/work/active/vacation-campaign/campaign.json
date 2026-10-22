@@ -459,7 +459,8 @@
         "resource_waits": [],
         "evidence": [
           "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
-          "docs/work/active/vacation-campaign/evidence/remote-progress-page.json"
+          "docs/work/active/vacation-campaign/evidence/remote-progress-page.json",
+          "docs/work/active/vacation-campaign/evidence/remote-knowledge-refresh-update.json"
         ],
         "gates": {
           "implementation": "complete: account-accessible Space summary and home-page navigation; no product source change",
@@ -3259,40 +3260,25 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T01:55:42.669Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-desktop-batch-update.json"
+    "last_refresh_at": "2026-10-22T02:21:23.386Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-knowledge-refresh-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T02:11:05.041905+00:00",
-    "runtime_capacity": "Lead plus independent Sol final reviewer selected; no additional source author.",
-    "build_slot": "No active Rust build; supported baseline61144 exit101 at intended old-summary assertion. New minimal candidate awaits final review/qualification.",
+    "observed_at": "2026-10-22T02:33:02.672555+00:00",
+    "runtime_capacity": "Four actual slots including lead. Bounded Luna author and independent Sol reviewer completed restore candidate; no current source writer. Historical pending_init run_activity_author is not admitted work.",
+    "build_slot": "Final restore-process core qualification complete; shared build slot free at this observation.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [
-      {
-        "kind": "Main203 workflow",
-        "session_id": 50991,
-        "output": "/tmp/brn-main203-watch.log",
-        "run": 39708067715,
-        "sha": "e4bb65e3738e59267d1dc09aa6421f9d86a9b478"
-      },
-      {
-        "kind": "PR204 required checks",
-        "head": "f260ca3aeed0d7d9aee020027eb6f89abb7073f6",
-        "output": "/tmp/brn-pr204-required.log",
-        "session_id": 51537
-      }
-    ],
-    "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
+    "read_only_ci_watches": [],
+    "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR204 head/main203 required checks before merge; independent knowledge refresh reproduction continues.",
+    "wait_reason": "Protected PR205 head/preceding-main checks and main204 checks still pending; restore-process final candidate independently reviewed/qualified for later stable-main publication.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability clean publishedPR204f260ca3a; stable head, no writer.",
+    "worker_checkout": "export-durability clean codex/restore-process-interruption; exact candidate/next action in selected restore-process-stage-ownership task.",
     "fixture_worker_checkout": "mac-test-roots clean published quote PR203a780c87d; qualified frozen28 retained.",
-    "documentation_worker_checkout": "architecture-status-route codex/knowledge-check-refresh from qualifiedf79, assigned only existing tiled regression extension.",
+    "documentation_worker_checkout": "architecture-status-route clean codex/knowledge-check-refresh; frozen PR205 head; exact identity in selected knowledge-check-refresh-ownership task.",
     "required_ci_runs": [
-      39708067715,
-      39708301538
+      39710733091
     ]
   },
   "native_availability": {
