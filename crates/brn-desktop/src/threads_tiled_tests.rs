@@ -1208,6 +1208,290 @@ fn connections_tile_lists_visible_links_filters_relations_and_recenters(cx: &mut
 }
 
 #[gpui_kit::test]
+fn connections_result_is_cleared_when_project_unlink_revokes_neighbor_visibility(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx, true, 1600., 1100.);
+    let centre = f.note.as_ref().unwrap().id.clone();
+    let (shared_project, private_note, private_before) = update_returning(cx, &f, |view| {
+        let origin = view
+            .workspace
+            .project_command(
+                "connections-freshness-origin",
+                ProjectCommand::Create {
+                    title: "Private source project".into(),
+                },
+            )
+            .unwrap()
+            .writes
+            .into_iter()
+            .find(|write| matches!(write.after.data, RecordData::Project(_)))
+            .unwrap()
+            .after
+            .id;
+        let shared = view
+            .workspace
+            .project_command(
+                "connections-freshness-shared",
+                ProjectCommand::Create {
+                    title: "Shared project".into(),
+                },
+            )
+            .unwrap()
+            .writes
+            .into_iter()
+            .find(|write| matches!(write.after.data, RecordData::Project(_)))
+            .unwrap()
+            .after
+            .id;
+        let private_note = view
+            .workspace
+            .project_command(
+                "connections-freshness-private-note",
+                ProjectCommand::CreateDocument {
+                    project: origin,
+                    title: "Scope marker private draft".into(),
+                    markdown: "Connections privacy marker: copper-orchid-731.".into(),
+                },
+            )
+            .unwrap()
+            .writes
+            .into_iter()
+            .find(|write| matches!(write.after.data, RecordData::Note(_)))
+            .unwrap()
+            .after;
+        view.workspace
+            .project_command(
+                "connections-freshness-link-centre",
+                ProjectCommand::LinkDocument {
+                    project: shared.clone(),
+                    note: centre.clone(),
+                },
+            )
+            .unwrap();
+        view.workspace
+            .project_command(
+                "connections-freshness-link-private",
+                ProjectCommand::LinkDocument {
+                    project: shared.clone(),
+                    note: private_note.id.clone(),
+                },
+            )
+            .unwrap();
+        owner_write(
+            view,
+            "connections-freshness-edge",
+            vec![link_data(&centre, &private_note.id, relations::RELATED)],
+        );
+        view.refresh();
+        let stored = view
+            .workspace
+            .store
+            .record(&private_note.id)
+            .unwrap()
+            .unwrap();
+        (shared, private_note.id, stored)
+    });
+
+    // The private document is retained in its owner Project and explicitly
+    // shared into a second Project, so unlinking the latter is a real allowed
+    // revocation rather than a blocked last-link removal.
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Projects, window, cx);
+    });
+    click(cx, &f, format!("project-row-{shared_project}"));
+    click(cx, &f, format!("project-doc-{centre}"));
+    click(cx, &f, "note-connections");
+    let connection_id = format!("connection-{private_note}");
+    let unlink_id = format!("project-unlink-{private_note}");
+    cx.update_window(f.window, |_, window, cx| {
+        window.render_frame(cx);
+        assert!(window.find("connections-status").visible());
+        assert!(window.find(connection_id.clone()).visible());
+        f.view.read_with(cx, |view, _| {
+            assert!(
+                view.workspace
+                    .store
+                    .record_visible_in_chat(&private_note, Some(&shared_project))
+                    .unwrap()
+            );
+            let result = view.graph.result.as_ref().unwrap();
+            assert!(
+                result.hops[0]
+                    .shown
+                    .iter()
+                    .any(|node| node.id == private_note)
+            );
+        });
+    })
+    .unwrap();
+
+    // Ordinary navigation replaced the Projects pane with the Note pane.
+    // Open Projects beside the completed graph through its public menu so the
+    // later unlink click is actually reachable without reopening the Note.
+    click(cx, &f, "open-beside");
+    choose(cx, &f, "Projects");
+    cx.update_window(f.window, |_, window, cx| {
+        window.render_frame(cx);
+        assert_in_window(window, &f, &unlink_id);
+        assert!(window.find(unlink_id.clone()).visible());
+        f.view.read_with(cx, |view, _| {
+            for kind in [TileKind::Note, TileKind::Connections, TileKind::Projects] {
+                assert!(view.layout.visible().iter().any(|tile| tile.kind == kind));
+            }
+            assert_eq!(view.open_note_id(), Some(centre.as_str()));
+            assert_eq!(view.note_project.as_deref(), Some(shared_project.as_str()));
+            assert_eq!(
+                view.selected_project.as_deref(),
+                Some(shared_project.as_str())
+            );
+            assert!(!view.graph.pending);
+            let result = view.graph.result.as_ref().unwrap();
+            assert_eq!(result.centre.id, centre);
+            assert!(
+                result.hops[0]
+                    .shown
+                    .iter()
+                    .any(|node| node.id == private_note)
+            );
+        });
+    })
+    .unwrap();
+
+    // This is the actual Project-row Unlink control and its apply_project
+    // callback, not a direct graph refresh or a test-only state mutation.
+    cx.update_window(f.window, |_, window, cx| {
+        window.click(unlink_id.clone(), cx);
+    })
+    .unwrap();
+    cx.read(|cx| {
+        f.view.read_with(cx, |view, _| {
+            assert!(
+                !view
+                    .workspace
+                    .store
+                    .record_visible_in_chat(&private_note, Some(&shared_project))
+                    .unwrap()
+            );
+            assert_eq!(
+                view.workspace.store.record(&private_note).unwrap().unwrap(),
+                private_before,
+                "unlink changes project membership without changing the retained Note"
+            );
+            let retained = view.workspace.store.note(&private_note).unwrap().unwrap();
+            let RecordData::Note(retained) = retained.data else {
+                panic!("the retained record remains a Note");
+            };
+            assert_eq!(
+                retained.markdown,
+                "Connections privacy marker: copper-orchid-731."
+            );
+            assert_eq!(view.open_note_id(), Some(centre.as_str()));
+            assert_eq!(view.note_project.as_deref(), Some(shared_project.as_str()));
+            assert!(
+                view.layout
+                    .visible()
+                    .iter()
+                    .any(|tile| tile.kind == TileKind::Connections)
+            );
+            assert!(
+                !view.graph.result.as_ref().is_some_and(|result| result
+                    .hops
+                    .iter()
+                    .flat_map(|hop| &hop.shown)
+                    .any(|node| node.id == private_note)),
+                "Connections graph must discard the revoked Note"
+            );
+        });
+    });
+    cx.update_window(f.window, |_, window, cx| {
+        window.render_frame(cx);
+        assert!(window.find("connections-content").visible());
+        assert!(
+            window.try_find(connection_id.clone()).is_none(),
+            "Connections must immediately drop a neighbor no longer visible in the selected Project"
+        );
+    })
+    .unwrap();
+
+    // The replacement request must finish without reviving the revoked Note.
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        window.render_frame(cx);
+        assert!(window.find("connections-content").visible());
+        assert!(window.try_find(connection_id.clone()).is_none());
+        f.view.read_with(cx, |view, _| {
+            assert!(!view.graph.pending);
+            let result = view.graph.result.as_ref().unwrap();
+            assert_eq!(result.centre.id, centre);
+            assert!(
+                !result
+                    .hops
+                    .iter()
+                    .flat_map(|hop| &hop.shown)
+                    .any(|node| { node.id == private_note })
+            );
+        });
+    })
+    .unwrap();
+
+    // Undo the exact unlink through the public Changes row while keeping the
+    // Connections pane in the layout.
+    let unlink_operation = cx.read(|cx| {
+        let view = f.view.read(cx);
+        let receipt = view
+            .workspace
+            .history()
+            .unwrap()
+            .into_iter()
+            .rev()
+            .find(|receipt| {
+                receipt.writes.iter().any(|write| {
+                    write.after.id == shared_project
+                        && matches!(&write.after.data, RecordData::Project(project) if !project.documents.contains(&private_note))
+                        && write.before.as_ref().is_some_and(|before| matches!(&before.data, RecordData::Project(project) if project.documents.contains(&private_note)))
+                })
+            })
+            .expect("the checked unlink receipt is present");
+        receipt.operation.as_str().to_owned()
+    });
+    click(cx, &f, "history");
+    let undo_id = format!("undo-{unlink_operation}");
+    reveal(cx, &f, "history-content", &undo_id);
+    click(cx, &f, undo_id.clone());
+    cx.update_window(f.window, |_, window, cx| {
+        window.render_frame(cx);
+        assert!(window.find("connections-content").visible());
+        f.view.read_with(cx, |view, _| {
+            assert_eq!(view.open_note_id(), Some(centre.as_str()));
+            assert_eq!(view.note_project.as_deref(), Some(shared_project.as_str()));
+            assert!(
+                view.workspace
+                    .store
+                    .record_visible_in_chat(&private_note, Some(&shared_project))
+                    .unwrap()
+            );
+            assert_eq!(
+                view.workspace.store.record(&private_note).unwrap().unwrap(),
+                private_before
+            );
+            assert!(!view.graph.pending);
+            let result = view.graph.result.as_ref().unwrap();
+            assert_eq!(result.centre.id, centre);
+            assert!(
+                result
+                    .hops
+                    .iter()
+                    .flat_map(|hop| &hop.shown)
+                    .any(|node| { node.id == private_note })
+            );
+        });
+        assert!(window.find(connection_id.clone()).visible());
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
 fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestAppContext) {
     let f = fixture(cx, true, 1400., 1100.);
     let (archived_id, remaining_id) = update_returning(cx, &f, |view| {
