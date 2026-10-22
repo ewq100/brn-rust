@@ -126,7 +126,7 @@ Gates:
 - **native:** Headless service timing on physical Mac; no OS input or rendering.
 - **owner acceptance:** Not claimed.
 
-Evidence: [crates/brn-threads-app/tests/user_scale.rs](../../crates/brn-threads-app/tests/user_scale.rs), [docs/development/verification.md](../development/verification.md)
+Evidence: [crates/brn-threads-app/tests/user_scale.rs](../../crates/brn-threads-app/tests/user_scale.rs), [docs/development/verification.md](../development/verification.md), [docs/work/active/vacation-campaign/evidence/strict-mac-scale-run.sh](active/vacation-campaign/evidence/strict-mac-scale-run.sh), [docs/work/active/vacation-campaign/evidence/strict-mac-scale-supervise.py](active/vacation-campaign/evidence/strict-mac-scale-supervise.py)
 
 </details>
 
