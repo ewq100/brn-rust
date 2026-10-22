@@ -1,0 +1,313 @@
+{
+  "observed_at": "2026-10-22T16:42:31.667876+00:00",
+  "main": "24a77f4f44072a084423f71bca0356f140dcd968",
+  "job": {
+    "id": 119939956231,
+    "run_id": 39811859007,
+    "workflow_name": "BRN CI",
+    "head_branch": "main",
+    "run_url": "https://api.github.com/repos/ewq100/brn-rust/actions/runs/39811859007",
+    "run_attempt": 1,
+    "node_id": "CR_kwDOUumqvM8AAAAb7Pp-Bw",
+    "head_sha": "24a77f4f44072a084423f71bca0356f140dcd968",
+    "url": "https://api.github.com/repos/ewq100/brn-rust/actions/jobs/119939956231",
+    "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39811859007/job/119939956231",
+    "status": "completed",
+    "conclusion": "success",
+    "created_at": "2026-10-22T16:11:33Z",
+    "started_at": "2026-10-22T16:11:35Z",
+    "completed_at": "2026-10-22T16:37:33Z",
+    "name": "Core and CLI (ubuntu-24.04)",
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-22T16:11:36Z",
+        "completed_at": "2026-10-22T16:11:37Z"
+      },
+      {
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-22T16:11:37Z",
+        "completed_at": "2026-10-22T16:11:39Z"
+      },
+      {
+        "name": "Run ./.github/actions/setup-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-22T16:11:39Z",
+        "completed_at": "2026-10-22T16:12:01Z"
+      },
+      {
+        "name": "Check formatting",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-22T16:12:01Z",
+        "completed_at": "2026-10-22T16:12:04Z"
+      },
+      {
+        "name": "Check production provider retirement",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-22T16:12:04Z",
+        "completed_at": "2026-10-22T16:12:04Z"
+      },
+      {
+        "name": "Check production intake retirement",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-22T16:12:04Z",
+        "completed_at": "2026-10-22T16:12:05Z"
+      },
+      {
+        "name": "Prepare both locked document helper graphs",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-22T16:12:05Z",
+        "completed_at": "2026-10-22T16:22:46Z"
+      },
+      {
+        "name": "Build the default workspace",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-22T16:22:46Z",
+        "completed_at": "2026-10-22T16:23:02Z"
+      },
+      {
+        "name": "Lint the default workspace",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-22T16:23:02Z",
+        "completed_at": "2026-10-22T16:23:23Z"
+      },
+      {
+        "name": "Test the default workspace",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-22T16:23:23Z",
+        "completed_at": "2026-10-22T16:28:26Z"
+      },
+      {
+        "name": "Both document helpers normal API and restrictions",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11,
+        "started_at": "2026-10-22T16:28:26Z",
+        "completed_at": "2026-10-22T16:35:27Z"
+      },
+      {
+        "name": "Scripted document CLI route (no live provider)",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 12,
+        "started_at": "2026-10-22T16:35:27Z",
+        "completed_at": "2026-10-22T16:35:27Z"
+      },
+      {
+        "name": "Test provider capability fixtures offline",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-22T16:35:27Z",
+        "completed_at": "2026-10-22T16:37:18Z"
+      },
+      {
+        "name": "Lint provider capability fixtures",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 14,
+        "started_at": "2026-10-22T16:37:18Z",
+        "completed_at": "2026-10-22T16:37:31Z"
+      },
+      {
+        "name": "Check CLI help on Unix",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 15,
+        "started_at": "2026-10-22T16:37:31Z",
+        "completed_at": "2026-10-22T16:37:31Z"
+      },
+      {
+        "name": "Check CLI help on Windows",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 16,
+        "started_at": "2026-10-22T16:37:31Z",
+        "completed_at": "2026-10-22T16:37:31Z"
+      },
+      {
+        "name": "Run offline end-to-end fixtures",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 17,
+        "started_at": "2026-10-22T16:37:31Z",
+        "completed_at": "2026-10-22T16:37:31Z"
+      },
+      {
+        "name": "Post Run ./.github/actions/setup-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 33,
+        "started_at": "2026-10-22T16:37:31Z",
+        "completed_at": "2026-10-22T16:37:32Z"
+      },
+      {
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 34,
+        "started_at": "2026-10-22T16:37:32Z",
+        "completed_at": "2026-10-22T16:37:32Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 35,
+        "started_at": "2026-10-22T16:37:32Z",
+        "completed_at": "2026-10-22T16:37:32Z"
+      }
+    ],
+    "check_run_url": "https://api.github.com/repos/ewq100/brn-rust/check-runs/119939956231",
+    "labels": [
+      "ubuntu-24.04"
+    ],
+    "runner_id": 1000003892,
+    "runner_name": "GitHub Actions 1000003892",
+    "runner_group_id": 0,
+    "runner_group_name": "GitHub Actions"
+  },
+  "check_run": {
+    "id": 119939956231,
+    "name": "Core and CLI (ubuntu-24.04)",
+    "node_id": "CR_kwDOUumqvM8AAAAb7Pp-Bw",
+    "head_sha": "24a77f4f44072a084423f71bca0356f140dcd968",
+    "external_id": "fe6f6741-b9ee-55e6-ae77-340ee47256d1",
+    "url": "https://api.github.com/repos/ewq100/brn-rust/check-runs/119939956231",
+    "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39811859007/job/119939956231",
+    "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39811859007/job/119939956231",
+    "status": "completed",
+    "conclusion": "success",
+    "started_at": "2026-10-22T16:11:35Z",
+    "completed_at": "2026-10-22T16:37:33Z",
+    "output": {
+      "title": null,
+      "summary": null,
+      "text": null,
+      "annotations_count": 0,
+      "annotations_url": "https://api.github.com/repos/ewq100/brn-rust/check-runs/119939956231/annotations"
+    },
+    "check_suite": {
+      "id": 107901447037
+    },
+    "app": {
+      "id": 15368,
+      "client_id": "Iv1.05c79e9ad1f6bdfa",
+      "slug": "github-actions",
+      "node_id": "MDM6QXBwMTUzNjg=",
+      "owner": {
+        "login": "github",
+        "id": 9919,
+        "node_id": "MDEyOk9yZ2FuaXphdGlvbjk5MTk=",
+        "avatar_url": "https://avatars.githubusercontent.com/u/9919?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/github",
+        "html_url": "https://github.com/github",
+        "followers_url": "https://api.github.com/users/github/followers",
+        "following_url": "https://api.github.com/users/github/following{/other_user}",
+        "gists_url": "https://api.github.com/users/github/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/github/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/github/subscriptions",
+        "organizations_url": "https://api.github.com/users/github/orgs",
+        "repos_url": "https://api.github.com/users/github/repos",
+        "events_url": "https://api.github.com/users/github/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/github/received_events",
+        "type": "Organization",
+        "user_view_type": "public",
+        "site_admin": false
+      },
+      "name": "GitHub Actions",
+      "description": "Automate your workflow from idea to production",
+      "external_url": "https://help.github.com/en/actions",
+      "html_url": "https://github.com/apps/github-actions",
+      "created_at": "2018-07-30T09:30:17Z",
+      "updated_at": "2026-06-18T16:17:48Z",
+      "permissions": {
+        "actions": "write",
+        "administration": "read",
+        "artifact_metadata": "write",
+        "attestations": "write",
+        "checks": "write",
+        "code_quality": "write",
+        "contents": "write",
+        "copilot_requests": "write",
+        "deployments": "write",
+        "discussions": "write",
+        "drives": "write",
+        "issues": "write",
+        "merge_queues": "write",
+        "metadata": "read",
+        "models": "read",
+        "packages": "write",
+        "pages": "write",
+        "pull_requests": "write",
+        "repository_hooks": "write",
+        "repository_projects": "write",
+        "security_events": "write",
+        "statuses": "write",
+        "vulnerability_alerts": "read"
+      },
+      "events": [
+        "branch_protection_rule",
+        "check_run",
+        "check_suite",
+        "create",
+        "delete",
+        "deployment",
+        "deployment_status",
+        "discussion",
+        "discussion_comment",
+        "fork",
+        "gollum",
+        "issues",
+        "issue_comment",
+        "label",
+        "merge_group",
+        "milestone",
+        "page_build",
+        "public",
+        "pull_request",
+        "pull_request_review",
+        "pull_request_review_comment",
+        "push",
+        "registry_package",
+        "release",
+        "repository",
+        "repository_dispatch",
+        "status",
+        "watch",
+        "workflow_dispatch",
+        "workflow_run"
+      ]
+    },
+    "pull_requests": []
+  },
+  "raw_log_sha256": "427a21a31d100a11f4d9a3edb08d157e8b28c3149748ea82260affbab40ecab9",
+  "stored_log_sha256": "8f51baaca07158d993b87aa034f3c20ea97a6f410de2316e07ee2029749bae47",
+  "log_last_line": "2026-10-22T16:37:32.3259376Z Cleaning up orphan processes",
+  "explicit_failure_marker_count": 0,
+  "observation": "Downloaded job log reaches cleanup16:37:32 while authoritative check status may still be inprogress. No required PASS inferred from cleanup or absence of markers; await exactcheck terminalresult. No rerun/sourcechange.",
+  "lead_reconciliation": "Earlier direct check observation in this session was in_progress after the downloaded log had reached cleanup; final direct exact-head check later completed success. Saved metadata snapshots are observation times, not proof of continuing execution. No rerun, timeout adjustment or cache-cost attribution was selected."
+}

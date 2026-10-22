@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner action needed. PR219 is merged after all four required head checks; separate resulting-main checks are running. Live usefulness remains unverified; Mac checks remain deferred.
+**Owner attention:** No owner action needed now. PR219 is verified and merged; the selected headless queue is clear. Actual Mac checks remain deferred until changed availability. Closed account tests and startup-crash revisit conditions remain explicit.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,25 +11,7 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 
 ## Working on
 
-### Guide local AI edits away from guessed text positions
-
-Task ID: `precise-edit-selector-guidance`
-Owner: bounded Luna source writer in export-durability; lead builds/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T16:30:21.716637+00:00
-Activity: PR219 merged24a77f4f; all3 required Mac resulting-main checks PASS. Required Ubuntu core default tests passed and helper integration is running. No required failure observed. Optional Windows core/combined Unix-only compilation failures retained; no all-CI-green claim.
-Next: Verify final required Ubuntu core result and direct exact-main check-run identities, then close guidance engineering task and refresh owner progress. Do not rerun live account tests or infer model reliability.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS independent complete actuale5e9613b review; scope4files only, sliceorigin/freshkey/hostguards and19→20cacheidentity verified.
-- **checks:** PASS local531/0/2 andCLIidentity1/0, lint/build/format/docs; all4 required hostedheadPASS; optionalWindows existingUnix-only compileFAIL retained. Resultingmain pending.
-- **integration:** MERGED24a77f4f, whole tree identical qualifiede5; all4required head/preceding-main PASS; all3requiredMac resulting-main PASS, Ubuntu core resulting-main pending.
-- **native:** Owner-deferred; no native action.
-- **owner acceptance:** Not claimed.
-
-</details>
+None recorded.
 
 ## Next
 
@@ -117,9 +99,9 @@ Waiting:
 ### Check a precise AI edit on fresh synthetic data
 
 Task ID: `targeted-edit-account-qualification`
-Owner: lead single account actor; bounded Luna preflight only · State: **blocked** · Last observed: 2026-10-22T15:40:32.523856+00:00
-Activity: One genuinely new post-PR203 current-source live attempt FAIL: Completed transport, two incorrect integer ranges, no exact-quote-mode call or candidate. Target/sentinel unchanged. Newone-run sessionclosed; all4attempts today retained. PR203 deterministic/integration evidence unchanged; no quote-usefulness claim.
-Next: Keep both closed account sessions and failures. Inspect loaded shipped guidance headlessly; no new account attempt selected. Native Apply/Undo remains owner-deferred.
+Owner: lead single account actor; bounded Luna preflight only · State: **blocked** · Last observed: 2026-10-22T16:45:05.410707+00:00
+Activity: Four attempts on 22 October remain task failures in two closed sessions: the original three and one separately admitted post-repair test. The latter completed transport but made no quote-mode call or proposal; target and sentinel stayed unchanged. Subsequent guide clarification PR219 is merged and deterministically verified, not live-qualified.
+Next: Reuse PR203 selector and PR219 guide qualification without repeating completed work. Keep both sessions closed. Any later live test needs a distinct useful, separately admitted scenario, fresh quota and ledger reservation; no session rename or repeated generation for a pass. Native Apply/Undo remains deferred.
 Resource waits: New one-run post-repair session closed; no automatic retry.
 
 <details>
@@ -246,8 +228,9 @@ Waiting:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-126 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+127 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `precise-edit-selector-guidance` — Guide local AI edits away from guessed text positions
 - `bounded-completed-overview` — Keep the startup summary focused on current work
 - `note-exit-preservation` — Preserve live-only note typing before normal Close or Quit
 - `note-exit-native-fixture-preflight` — Prepare a short route to the future Mac Close and Quit check
@@ -257,7 +240,6 @@ Completion here means the selected task scope is complete; it does not establish
 - `connections-project-freshness` — Clear outdated Connections after project membership changes
 - `note-exit-preservation-assessment` — Check Close and Quit preserve typing after a refused storage write
 - `note-storage-refusal-preflight` — Check unsaved note preservation when storage refuses a write
-- `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
 
 ## Dependencies
 
@@ -284,4 +266,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T16:30:21.716637+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T16:45:05.410707+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
