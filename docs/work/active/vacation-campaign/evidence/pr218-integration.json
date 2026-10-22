@@ -1,0 +1,20 @@
+{
+  "observed_at": "2026-10-22T14:51:13.561733+00:00",
+  "pr": {
+    "headRefOid": "23f78a80f87b91938788d8622ca06ef23c20754d",
+    "mergeCommit": {
+      "oid": "6e9fbad772dd40d2f038b85d0615c2a1fa667ea0"
+    },
+    "mergedAt": "2026-10-22T14:51:10Z",
+    "number": 218,
+    "state": "MERGED",
+    "url": "https://github.com/ewq100/brn-rust/pull/218"
+  },
+  "resulting_main": "6e9fbad772dd40d2f038b85d0615c2a1fa667ea0",
+  "qualified_candidate": "23f78a80f87b91938788d8622ca06ef23c20754d",
+  "qualified_tree": "61a1eb1dba9ca509cde1ec1eef35f7d0ec36ea05",
+  "resulting_main_tree": "61a1eb1dba9ca509cde1ec1eef35f7d0ec36ea05",
+  "whole_tree_equal": true,
+  "merge": "Normal authorized protected merge after independent complete review and all applicable exact-head/preceding-main gates. No admin bypass. Three reviewed tooling files only; source-identical composition approved.",
+  "post_merge": "Resulting-main checks pending separately; native owner-deferred; no release or owner acceptance."
+}

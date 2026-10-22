@@ -1,0 +1,124 @@
+{
+  "observed_at": "2026-10-22T14:50:35.535824+00:00",
+  "source": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+  "required_names": [
+    "Core and CLI (macos-15)",
+    "Core and CLI (ubuntu-24.04)",
+    "Native UI build and state (macos-15)",
+    "Native retrieval and combined build (macos-15)"
+  ],
+  "all_required_pass": true,
+  "checks": [
+    {
+      "name": "Package and publish approved Apple Silicon preview",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "queued",
+      "conclusion": null,
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39798931371/job/119893756278",
+      "started_at": "2026-10-22T14:48:28Z",
+      "completed_at": null,
+      "app_id": 15368
+    },
+    {
+      "name": "Native UI build and state (macos-15)",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39794656344/job/119878846730",
+      "started_at": "2026-10-22T14:19:23Z",
+      "completed_at": "2026-10-22T14:24:36Z",
+      "app_id": 15368
+    },
+    {
+      "name": "Native retrieval and combined build (ubuntu-24.04)",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "in_progress",
+      "conclusion": null,
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39794656344/job/119878846685",
+      "started_at": "2026-10-22T14:19:22Z",
+      "completed_at": null,
+      "app_id": 15368
+    },
+    {
+      "name": "Native retrieval and combined build (macos-15)",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39794656344/job/119878846640",
+      "started_at": "2026-10-22T14:19:23Z",
+      "completed_at": "2026-10-22T14:27:59Z",
+      "app_id": 15368
+    },
+    {
+      "name": "Native UI build and state (ubuntu-24.04)",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39794656344/job/119878846628",
+      "started_at": "2026-10-22T14:19:22Z",
+      "completed_at": "2026-10-22T14:29:30Z",
+      "app_id": 15368
+    },
+    {
+      "name": "Native retrieval and combined build (windows-2025)",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "completed",
+      "conclusion": "failure",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39794656344/job/119878846621",
+      "started_at": "2026-10-22T14:19:23Z",
+      "completed_at": "2026-10-22T14:23:47Z",
+      "app_id": 15368
+    },
+    {
+      "name": "Core and CLI (macos-15)",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39794656344/job/119878846485",
+      "started_at": "2026-10-22T14:19:25Z",
+      "completed_at": "2026-10-22T14:40:38Z",
+      "app_id": 15368
+    },
+    {
+      "name": "Core and CLI (windows-2025)",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "completed",
+      "conclusion": "failure",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39794656344/job/119878846460",
+      "started_at": "2026-10-22T14:19:22Z",
+      "completed_at": "2026-10-22T14:22:46Z",
+      "app_id": 15368
+    },
+    {
+      "name": "Native UI build and state (windows-2025)",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "completed",
+      "conclusion": "failure",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39794656344/job/119878846444",
+      "started_at": "2026-10-22T14:19:22Z",
+      "completed_at": "2026-10-22T14:26:17Z",
+      "app_id": 15368
+    },
+    {
+      "name": "Core and CLI (ubuntu-24.04)",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39794656344/job/119878846439",
+      "started_at": "2026-10-22T14:19:22Z",
+      "completed_at": "2026-10-22T14:40:22Z",
+      "app_id": 15368
+    },
+    {
+      "name": "Documentation and tooling",
+      "head_sha": "765f2dda2de6ce9f3e41540638a27fc5e31766e0",
+      "status": "completed",
+      "conclusion": "success",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39794656344/job/119878846275",
+      "started_at": "2026-10-22T14:19:22Z",
+      "completed_at": "2026-10-22T14:19:52Z",
+      "app_id": 15368
+    }
+  ],
+  "limits": "All4required resultingmainPASS; actualMac/owneracceptance separate; optionalfailuresretained."
+}

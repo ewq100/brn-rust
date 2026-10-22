@@ -11,32 +11,12 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 
 ## Working on
 
-### Preserve live-only note typing before normal Close or Quit
-
-Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:21:00.470102+00:00
-Activity: PR217 normallymerged765f2dda at14:19:16UTC afterfreshstrictprotection, all4required exact174 +precedingmainPASS andcorrectedUbuntuUIterminalPASS. Whole mergedtree equals qualified174be2b. Lead reconciledmain; resulting-main checks pending separately; nativeownerdeferred.
-Next: Inspect allfour required765f2dda resulting-main checks, preserve anyfailure/diagnose beforelatermerge. NativeMAC15 staysdeferreduntilownerchangedaccess. Boundedoverviewmaypublishbutitsmergewaits thismain.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS independent complete final174 review; prior P1 Quit and P2 clean-checkpoint findings valid/fixed; no unresolved source findings.
-- **checks:** PASS local351desktop/0/1ignored +all4required exact174 andcorrectedUbuntuUIterminalPASS. OptionalWindowsUnix-onlyFAIL retained. Resultingmain pending; native separate.
-- **integration:** Normal protectedmerge765f2dda PASSwholequalifiedtreebe2b. All4required resulting-main checks pending separately; no release/native/owneracceptance.
-- **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
-- **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
-
-</details>
-
 ### Keep completed history from crowding the startup summary
 
 Task ID: `bounded-completed-overview`
-Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:22:05.121064+00:00
-Activity: Source-identical composition23f78a80 independently approved and normallypublishedPR218; actualthreefilediff/head/base765verified, appattached. Branchfrozenforrequiredexactheadchecks. Final16Python/renderer/docs/diffPASS; currentleadrecord preserved.
-Next: Inspect freshrequired23f hostedchecks andall4precedingmain765checks, liveprotection/allPRs; normalmergeonlywhensatisfied, theninspectresultingmainseparately. Native/account unchanged.
+Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:52:39.164772+00:00
+Activity: PR218 normallymerged6e9fbad7 at14:51:10 afterfreshstrictprotection/allPRs andall4requiredexact23f+preceding765PASS; docs/correctedUbuntuUI alsoPASS. Wholequalifiedtree61a1equalsmerge. Leadreconciledmain; derivative-onlyoverviewconflictregeneratedfrombyte-unchangedauthoritativeleadrecord. Resultingmainchecks pending.
+Next: Inspect allfour required6e9fbad7 resulting-main checks; preserve/diagnose anyrequired failure beforefurtherintegration. Keepactualnative andexistingaccounttestdeferrals. No newsourcewriter/build selected.
 Depends on: note-exit-preservation when Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: true)
 
 <details>
@@ -46,7 +26,7 @@ Gates:
 
 - **implementation:** PASS complete8a independentreview andexact23f source-identicalcompositionverification;3filesonly, recordunchanged. Leadscriptssourceidentical.
 - **checks:** PASS final16Python/renderercheck/docs890files3116links0fail/diff. Actual lead record bytes unchanged across qualification; meaningful graph baseline raw retained, intermediate fixture correction output-loss limit disclosed.
-- **integration:** PR218 normallypublished/frozen23f78a80 frommain765; notmerged. Requiredexacthead andprecedingmain gates pending, thenliveprotection/normalmerge/resultingmain.
+- **integration:** Normalprotectedmerge6e9fbad7 PASSwholequalifiedtree61a1equality. Fourrequiredhead/preceding765PASS; requiredresulting6e9checks pending. No bypass/release.
 - **native:** Inapplicable: development view only.
 - **owner acceptance:** No new product meaning or shipped behavior.
 
@@ -240,10 +220,10 @@ Waiting:
 ### Observe note preservation during Mac Close and Quit
 
 Task ID: `note-exit-native-qualification`
-Owner: Single native actor after owner reports changed availability · State: **blocked** · Last observed: 2026-10-22T13:21:06.206143+00:00
-Activity: MAC15 scenario defined for changed exit controls. No fresh fixture/app/desktop attempt while owner unavailable; original apps/workspaces preserved.
+Owner: Single native actor after owner reports changed availability · State: **blocked** · Last observed: 2026-10-22T14:52:39.164772+00:00
+Activity: NoteClose/Quit repair now integratedwithall4requiredhead/mainPASS; supportedMAC15three-rootpreflightretained. Actualfixtures/apps/desktopnotexecutedwhileownerunavailable. Oldapps/workspaces preserved.
 Next: After owner reports changed access and PR217 required integrated-main gates pass, prepare supported fresh fixtures and execute source-bound MAC15. Live-only refusal fixture must be qualified; leave unsupported portions pending.
-Depends on: note-exit-preservation when PR217 normally merged with all four required resulting-main checks PASS. (reported satisfied: false)
+Depends on: note-exit-preservation when PR217 normally merged with all four required resulting-main checks PASS. (reported satisfied: true)
 Resource waits: Owner reports extended screen unavailability; native gate only.
 
 <details>
@@ -253,7 +233,7 @@ Gates:
 
 - **implementation:** Scenario defined; no new product source.
 - **checks:** Future fixture/source/binary/helper reconciliation required; current toolkit evidence separate.
-- **integration:** PR217 pending required checks/normal merge/resulting-main.
+- **integration:** PASS PR217 normalmerge765andall4requiredresulting765checks; currentmain6e9onlytoolingdelta. Actualnative remainsowner-deferred.
 - **native:** Owner-deferred; no actual Mac Close/Quit/confirmation observation.
 - **owner acceptance:** Not claimed.
 
@@ -261,15 +241,15 @@ Gates:
 
 Waiting:
 
-- prerequisite note-exit-preservation: PR217 normally merged with all four required resulting-main checks PASS. (reported satisfied: false; task state: active)
 - resource: Owner reports extended screen unavailability; native gate only.
 
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-124 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+125 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `note-exit-preservation` — Preserve live-only note typing before normal Close or Quit
 - `note-exit-native-fixture-preflight` — Prepare a short route to the future Mac Close and Quit check
 - `clean-note-exit-assessment` — Keep an already-saved clean note from blocking exit
 - `shared-cli-desktop-intake-preflight` — Assess the remaining manual CLI-to-desktop intake check
@@ -279,7 +259,6 @@ Completion here means the selected task scope is complete; it does not establish
 - `note-storage-refusal-preflight` — Check unsaved note preservation when storage refuses a write
 - `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
 - `offline-native-retrieval-guide` — Document the existing offline native-library setup
-- `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
 
 ## Dependencies
 
@@ -303,9 +282,9 @@ graph TD
   t113 -->|Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (satisfied)| t115
   t122 -->|Connections repair normally merged and all four required resulting-main checks PASS. (satisfied)| t123
   t127 -->|Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (satisfied)| t129
-  t127 -->|PR217 normally merged with all four required resulting-main checks PASS. (not satisfied)| t130
+  t127 -->|PR217 normally merged with all four required resulting-main checks PASS. (satisfied)| t130
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T14:46:22.516261+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T14:52:39.164772+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
