@@ -1366,3 +1366,91 @@ fn a_short_window_keeps_a_running_queue_to_one_quiet_row(cx: &mut TestAppContext
         assert!(!view.queue_state().paused);
     });
 }
+
+/// Editing one chat's waiting item must not redirect a later send after the
+/// owner navigates to another chat. The held local worker keeps both messages
+/// waiting and prevents any provider dispatch.
+#[gpui_kit::test]
+fn editing_a_queued_message_does_not_redirect_the_next_chat_send(cx: &mut TestAppContext) {
+    let mut other = String::new();
+    let f = fixture(cx, 1250., 860., |workspace, thread, other_chat| {
+        other = other_chat.to_owned();
+        workspace
+            .queue_message("destination-regression-a", thread, "Original A message")
+            .unwrap();
+        workspace
+            .pause_queue("destination-regression-paused")
+            .unwrap();
+    });
+    let (run, sender, lease) = update(cx, &f, |view, window, cx| {
+        let run = record_run(&mut view.workspace, &f.thread, RunState::Working, "");
+        let (sender, lease) = hold_worker(view, &f.thread, &run);
+        view.refresh();
+        view.apply_layout(Preset::Write, window, cx);
+        cx.notify();
+        (run, sender, lease)
+    });
+
+    // Activate the real Edit control for A's queue row, then type its unsaved
+    // replacement. Navigating to B must preserve that text as A's draft.
+    click(cx, &f, "queue-edit-0");
+    update(cx, &f, |view, window, cx| {
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("A's edited draft", window, cx)
+        });
+        view.open_thread(&other, window, cx);
+        assert_eq!(view.composer.read(cx).value().as_ref(), "");
+        assert_eq!(
+            view.composer_drafts
+                .text(&ComposerDestination::Thread(f.thread.clone())),
+            "A's edited draft"
+        );
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("B's independent message", window, cx)
+        });
+    });
+
+    // Use the actual composer action. Since the worker is held locally, this
+    // must append a waiting B item and cannot contact a provider.
+    click(cx, &f, "ask-delegate");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let queue = view.queue_state().queue;
+        assert_eq!(queue[0].text, "Original A message", "{queue:?}");
+        assert_eq!(queue.len(), 2, "{queue:?}");
+        assert_eq!(queue[0].thread, f.thread);
+        assert_eq!(queue[1].thread, other);
+        assert_eq!(queue[1].text, "B's independent message");
+        assert!(view.queue_state().paused);
+        assert!(
+            view.worker.is_some(),
+            "the synthetic local worker stays held"
+        );
+        assert!(matches!(
+            view.workspace.store.record(&run).unwrap().unwrap().data,
+            RecordData::Run(Run {
+                state: RunState::Working,
+                ..
+            })
+        ));
+    });
+
+    // The edit remains available when returning to A. Saving it updates the
+    // original row, while B's independent queued message stays in place.
+    update(cx, &f, |view, window, cx| {
+        view.open_thread(&f.thread, window, cx);
+        assert_eq!(view.composer.read(cx).value().as_ref(), "A's edited draft");
+    });
+    click(cx, &f, "ask-delegate");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let queue = view.queue_state().queue;
+        assert_eq!(queue.len(), 2, "{queue:?}");
+        assert_eq!(queue[0].thread, f.thread);
+        assert_eq!(queue[0].text, "A's edited draft");
+        assert_eq!(queue[1].thread, other);
+        assert_eq!(queue[1].text, "B's independent message");
+    });
+    drop(sender);
+    drop(lease);
+}
