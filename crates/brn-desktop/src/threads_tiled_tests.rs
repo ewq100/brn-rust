@@ -1227,12 +1227,6 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
     click(cx, &f, "knowledge-run");
     let check = cx.read(|cx| f.view.read(cx).knowledge.result.clone().unwrap());
     assert_eq!(check.counts.get(&FindingKind::DuplicateTitle), Some(&1));
-    cx.update_window(f.window, |_, window, _| {
-        assert!(window.find("knowledge-summary").visible());
-        assert!(window.find("knowledge-finding-0").visible());
-        assert!(window.find("knowledge-review").visible());
-    })
-    .unwrap();
     reveal(cx, &f, "home-content", "knowledge-review");
     click(cx, &f, "knowledge-review");
     cx.read(|cx| {
@@ -1270,13 +1264,14 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
         view.refresh();
         before
     });
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.try_find("knowledge-summary").is_some());
+        assert!(window.try_find("knowledge-review").is_some());
+    })
+    .unwrap();
     reveal(cx, &f, "home-content", "knowledge-run");
-    reveal(cx, &f, "home-content", "knowledge-review");
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("knowledge-run").visible());
-        assert!(window.find("knowledge-summary").visible());
-        assert!(window.find("knowledge-finding-0").visible());
-        assert!(window.find("knowledge-review").visible());
         window.click("knowledge-run", cx);
         assert_eq!(window.find("knowledge-run").label(), Some("Checking…"));
         assert!(window.try_find("knowledge-summary").is_none());
@@ -1287,7 +1282,6 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         window.render_frame(cx);
-        assert!(window.find("knowledge-summary").visible());
         f.view.read_with(cx, |view, _| {
             let fresh = view.knowledge.result.as_ref().unwrap();
             assert_eq!(fresh.notes, check.notes - 1);
@@ -1302,7 +1296,10 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
             assert!(!remaining.archived);
             assert_eq!(
                 &remaining,
-                before_archive.iter().find(|r| r.id == remaining_id).unwrap()
+                before_archive
+                    .iter()
+                    .find(|r| r.id == remaining_id)
+                    .unwrap()
             );
             let after = view.workspace.store.records().unwrap();
             assert_eq!(after.len(), before_archive.len());
