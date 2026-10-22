@@ -43,8 +43,9 @@ runs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         }
         protoc --version
+    # Windows checks still run without shared Rust caching; reserve cache storage for supported Linux/macOS lanes.
     - name: Restore Rust dependencies and build cache
-      if: runner.os != 'macOS'
+      if: runner.os == 'Linux'
       uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       with:
         # Include build profiles: the virtual workspace root is otherwise omitted.
