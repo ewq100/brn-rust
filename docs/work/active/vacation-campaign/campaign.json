@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T02:31:54.002559+00:00",
+    "observed_at": "2026-10-22T02:34:46.839166+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3250,6 +3250,29 @@
           }
         ],
         "resource_plan": "Author/final independent review complete. Lead sole integration owner; shared build slot free after final checks. No source writer, native or account actor."
+      },
+      {
+        "id": "state-ownership-milestone-review",
+        "title": "Reconcile the implemented reducers and state owners",
+        "state": "complete",
+        "owner": "Lead source/evidence review",
+        "observed_at": "2026-10-22T02:34:46.839166+00:00",
+        "origin": "observed",
+        "activity": "Reviewed current main204 owner definitions and existing qualification receipts. Notes, review, notices, worker lifecycle and Run activity have typed state owners; captured imports/search/queued edits and Settings forms have narrower cohesive owners. No complete-app migration or acceptance percentage claimed.",
+        "next_action": "Reuse source-bound ownership map; select further migration only for a concrete coordination risk or justified repeated cleanup. Preserve distinct native and owner acceptance gates.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/state-ownership-milestone-20261022.md"
+        ],
+        "gates": {
+          "implementation": "Existing owners inspected; no new product implementation.",
+          "checks": "Reuses linked source-bound reviews and actual prior results; no new tests run by this report.",
+          "integration": "Recorded owner definitions exist in main204; PR204 resulting-main/PR205 remain separate selected tasks.",
+          "native": "No broad native/owner acceptance claim.",
+          "owner_acceptance": "No owner decision selected."
+        },
+        "attempts": []
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

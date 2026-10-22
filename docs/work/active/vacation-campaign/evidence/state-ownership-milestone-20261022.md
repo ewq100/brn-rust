@@ -1,0 +1,27 @@
+# State ownership milestone — 22 October 2026
+
+Source-bound review at integrated main `42906128b1b97dd4eec8d2885a53cd450c27b9d2` (PR204). Current task gates remain in [campaign state](../campaign.json); this is dated supporting evidence, not a new queue. No percentage of the app is claimed: the historical 25-domain inventory is provisional and does not measure acceptance.
+
+The requested reducers/state machines are implemented in the important editing and work lifecycles. These are ordinary Rust state owners; no external state-machine framework or application-wide event bus was introduced. Only RunActivity uses the explicit event-to-transition interface below. Other owners expose cohesive operations and typed states or captured intents. SQLite and checked services still decide canonical writes, versions, authority, replay and Undo.
+
+| Boundary | Concrete owner in this source | What becomes coherent |
+|---|---|---|
+| Note editing and recovery | [NoteLifecycle](../../../../../crates/brn-writing-ui/src/note.rs), Closed/Open and Clean/Editing/BlockedElsewhere | Current record, editing session and reading/writing presentation live together; shared writing host handles checked load/save/recovery. |
+| Candidate review | [ReviewLifecycle](../../../../../crates/brn-writing-ui/src/review.rs), Closed/Open with comparison/read/edit mode | The displayed candidate and editable final text retain one lifecycle, while checked Apply remains in Workspace. |
+| Notices | [NoticeState](../../../../../crates/brn-desktop/src/threads_notice.rs), Hidden/Ordinary/RememberedWork | Text, severity and work provenance stay together; failed composer recovery retains its own Note identity. |
+| Worker events and continuation | [WorkerOperation and drain](../../../../../crates/brn-desktop/src/threads_worker.rs) | Run identity belongs to a Run operation; first terminal admission and Stop-and-send continuation stay with that worker. |
+| Run activity | [RunActivity](../../../../../crates/brn-desktop/src/threads_run_activity.rs), Idle/Live/Ended plus Event transitions | Chat ownership, bounded steps and retained ending status change together; unrelated completion cannot consume another chat's activity. |
+| Import destination | ReferenceImportIntent in [desktop host](../../../../../crates/brn-desktop/src/threads_ui.rs) and import worker | Delayed conversion retains its captured optional reference target or chat destination instead of reading an ambient target at completion. |
+| Scoped reference search | ReferenceSearchRequest in [desktop host](../../../../../crates/brn-desktop/src/threads_ui.rs) | Invalidation owns cancellation and generation; a stale completion cannot clear the replacement's cancellation guard. |
+| Queued-message editing | QueuedEdit plus current-chat resolver in [desktop host](../../../../../crates/brn-desktop/src/threads_ui.rs) | Item and original chat are captured together; sending in another chat does not overwrite the first chat's queued message. |
+| Unsaved Settings | ProviderForm in [desktop state](../../../../../crates/brn-desktop/src/threads_state.rs), coordinated in the host | Editable provider/model/effort choices remain distinct from canonical settings and survive relevant refresh/refused Save. This is a form owner, not a claimed full Settings state machine. |
+
+## Evidence and practical limits
+
+Recent Run activity, continuation and import slices have all required head/main checks recorded in [PR199](pr199-resulting-main.json), [PR200](pr200-resulting-main.json) and [PR201](pr201-resulting-main.json). Settings corrections are recorded in [PR196](pr196-resulting-main.json) and [PR197](pr197-resulting-main.json). [PR204](pr204-integration.json) normally integrated the independently reviewed reference-search/queued-edit batch with whole qualified-tree equality; its resulting-main checks remain a separate gate at this observation. The qualified batch passed347 desktop toolkit tests, strict lint and an ordinary native build. These are source/toolkit/hosted results, not proof that every workflow is native-observed or owner-accepted.
+
+The knowledge-refresh correction is separately qualified at6746 and published as [PR205](pr205-publication.json); it is not included in the main204 source above. It retires a previous snapshot at explicit replacement start without introducing a generation framework or automatic invalidation policy.
+
+A full RunSession/presentation migration remains incomplete by design. [Partial-output assessment](run-partial-ownership-design.md) and [operation-progress assessment](worker-progress-ownership-assessment.md) found that the current host fields have coherent lifetimes; moving them merely to increase converted counts was not justified. [File-picker assessment](file-picker-lifecycle-assessment.md) and [passage-comment assessment](passage-comment-draft-audit.md) similarly selected no change. Revisit on a demonstrated stale owner/result, another independent producer or repeated cleanup growth. Widget internals, IME and OS focus stay in their toolkit/OS owner.
+
+This pass inspected actual owner definitions and reused retained independent reviews/check receipts; it ran no new source tests. Existing tests with distinct safety boundaries remain. No universal reducer conversion, deletion quota, generalized workflow engine, new persistence authority, native interaction or release is selected by this report.

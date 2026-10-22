@@ -312,6 +312,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `file-picker-lifecycle-assessment` — Check delayed file-picker completion ownership
 - `strict-mac-keyword-scale` — Check search responsiveness with 10,000 synthetic notes on this Mac
 - `passage-comment-draft-ownership-audit` — Check passage-comment drafts across navigation and refused posting
+- `state-ownership-milestone-review` — Reconcile the implemented reducers and state owners
 
 ## Dependencies
 
@@ -349,4 +350,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T02:31:54.002559+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T02:34:46.839166+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
