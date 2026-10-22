@@ -7,6 +7,13 @@ The [campaign](plan.md) remains the execution/expiry/merge authority. The19Octob
 
 ## Limits and execution
 
+On 22 October 2026 the owner reaffirmed: "If you need to use codex subscription
+it ok." This confirms permission to use the existing subscription when useful
+for the campaign. The bounds below remain in force. This reaffirmation does not
+reopen an exhausted session, reset the attempt ledger, or establish a successful
+live or native test. A later useful session must be admitted on its own evidence
+and reserved in the ledger before launch.
+
 - Use the existing signed-in Codex account and an already available supported
   model. No new API key, purchase, credit/reset redemption, acquisition, credential
   edit, other provider activation or model fallback. Do not copy/log auth material.
