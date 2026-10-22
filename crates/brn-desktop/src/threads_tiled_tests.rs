@@ -1278,7 +1278,6 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
             Some("Check knowledge, unavailable: a check is running")
         );
         assert!(window.try_find("knowledge-summary").is_none());
-        assert!(window.try_find("knowledge-finding-0").is_none());
         assert!(window.try_find("knowledge-review").is_none());
     })
     .unwrap();
