@@ -411,13 +411,26 @@ fn nullable_offsets_are_required_and_unique_full_note_quote_keeps_full_read_guar
         missing_both,
         missing_start,
         missing_end,
-        null_start,
-        null_end,
         wrong_scalar,
         unknown,
     ] {
         assert!(serde_json::from_value::<EditArgs>(invalid.clone()).is_err());
         assert!(note_edit::validate_arguments(&invalid).is_err());
+    }
+    for invalid_pair in [null_start, null_end] {
+        let parsed = serde_json::from_value::<EditArgs>(invalid_pair.clone()).unwrap();
+        assert!(note_edit::validate_arguments(&invalid_pair).is_err());
+        let (_root, request, note) = tests::fixture();
+        let (scope, _) = begin(&request).unwrap();
+        let before = scope.store.lock().unwrap().record(&scope.run).unwrap();
+        let mut parsed = parsed;
+        parsed.id = note;
+        assert!(prepare_edit(&scope, parsed).is_err());
+        assert_eq!(
+            scope.store.lock().unwrap().record(&scope.run).unwrap(),
+            before
+        );
+        assert!(scope.store.lock().unwrap().candidates().unwrap().is_empty());
     }
     let mut empty_quote = base.clone();
     empty_quote["start"] = json!(null);
@@ -448,7 +461,7 @@ fn nullable_offsets_are_required_and_unique_full_note_quote_keeps_full_read_guar
         quote_args(&note, record.version, "Monday", "Tuesday", "whole-read"),
     )
     .unwrap();
-    assert_eq!(prepared["operation"].is_string(), true);
+    assert!(prepared["operation"].is_string());
 }
 #[tokio::test]
 async fn rig_typed_adapter_rejects_each_missing_nullable_key_before_effects() {
@@ -456,7 +469,7 @@ async fn rig_typed_adapter_rejects_each_missing_nullable_key_before_effects() {
     let (_root, request, note) = tests::fixture();
     let (scope, _) = begin(&request).unwrap();
     let before = current(&scope, &note);
-    let mut run_ops_before = match scope
+    let run_ops_before = match scope
         .store
         .lock()
         .unwrap()
@@ -502,10 +515,7 @@ async fn rig_typed_adapter_rejects_each_missing_nullable_key_before_effects() {
     else {
         panic!("run record missing")
     };
-    run_ops_before.sort();
-    let mut after_ops = run_ops_after.operations;
-    after_ops.sort();
-    assert_eq!(after_ops, run_ops_before);
+    assert_eq!(run_ops_after.operations, run_ops_before);
 }
 #[test]
 fn wrong_text_nonboundary_unicode_invalid_range_and_stale_base_never_mutate_or_relocate() {
@@ -693,77 +703,113 @@ fn local_candidate_cannot_refresh_into_unread_whole_replacement() {
 #[tokio::test]
 async fn actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree() {
     use rig::test_utils::{MockCompletionModel, MockStreamEvent};
-    let (_root, request, note) = tests::fixture();
-    let (scope, input) = begin(&request).unwrap();
-    let model = MockCompletionModel::from_stream_turns([
-        vec![
-            MockStreamEvent::tool_call(
-                "exact",
-                "prepare_note_edit",
-                serde_json::to_value(&args(&note, 1, 0, "Mon", "Tues", "provider-range")).unwrap(),
-            ),
-            MockStreamEvent::final_response_with_total_tokens(1),
-        ],
-        vec![
-            MockStreamEvent::tool_call(
+    for unique in [false, true] {
+        let (_root, request, note) = tests::fixture();
+        let (scope, input) = begin(&request).unwrap();
+        let (call_id, arguments) = if unique {
+            (
                 "unique",
-                "prepare_note_edit",
-                serde_json::to_value(&quote_args(&note, 1, "Monday", "Tuesday", "provider-null"))
-                    .unwrap(),
-            ),
-            MockStreamEvent::final_response_with_total_tokens(1),
-        ],
-        vec![MockStreamEvent::final_response_with_total_tokens(1)],
-    ]);
-    let answer = run_model(
-        model.clone(),
-        scope.clone(),
-        &input,
-        ReasoningEffort::Medium,
-        4,
-        true,
-        CancellationToken::new(),
-        Arc::new(|_| {}),
-    )
-    .await;
-    assert!(matches!(answer.terminal, AiTerminal::Completed));
-    assert_eq!(model.request_count(), 3);
-    let requests = model.requests();
-    assert_eq!(
-        serde_json::to_value(&requests[0].tools).unwrap(),
-        json!(budget_tool_definitions(&scope))
-    );
-    assert_eq!(
-        requests[0]
-            .tools
+                quote_args(&note, 1, "Mon", "Tues", "provider-null"),
+            )
+        } else {
+            ("exact", args(&note, 1, 0, "Mon", "Tues", "provider-range"))
+        };
+        let model = MockCompletionModel::from_stream_turns([
+            vec![
+                MockStreamEvent::tool_call(
+                    call_id,
+                    "prepare_note_edit",
+                    serde_json::to_value(arguments).unwrap(),
+                ),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+            vec![MockStreamEvent::final_response_with_total_tokens(1)],
+        ]);
+        let answer = run_model(
+            model.clone(),
+            scope.clone(),
+            &input,
+            ReasoningEffort::Medium,
+            4,
+            true,
+            CancellationToken::new(),
+            Arc::new(|_| {}),
+        )
+        .await;
+        assert!(matches!(answer.terminal, AiTerminal::Completed));
+        assert_eq!(model.request_count(), 2);
+        let requests = model.requests();
+        assert_eq!(
+            serde_json::to_value(&requests[0].tools).unwrap(),
+            json!(budget_tool_definitions(&scope))
+        );
+        assert_eq!(
+            requests[0]
+                .tools
+                .iter()
+                .find(|t| t.name == "prepare_note_edit")
+                .unwrap()
+                .parameters,
+            schema("prepare_note_edit")
+        );
+        assert_eq!(
+            schema("prepare_note_edit")["required"],
+            json!([
+                "id",
+                "version",
+                "start",
+                "end",
+                "expected_text",
+                "replacement_text",
+                "request_key",
+                "reason"
+            ])
+        );
+        assert_eq!(
+            schema("prepare_note_edit")["properties"]["start"]["type"],
+            json!(["integer", "null"])
+        );
+        let dispatched = serde_json::to_string(&requests[1].chat_history).unwrap();
+        if unique {
+            assert!(dispatched.contains("\"start\":null") && dispatched.contains("\"end\":null"));
+        }
+        assert!(dispatched.contains("\"operation\""));
+        assert!(dispatched.contains("Tuesday"));
+        let unique_result = requests[1]
+            .chat_history
             .iter()
-            .find(|t| t.name == "prepare_note_edit")
-            .unwrap()
-            .parameters,
-        schema("prepare_note_edit")
-    );
-    assert_eq!(
-        schema("prepare_note_edit")["required"],
-        json!([
-            "id",
-            "version",
-            "start",
-            "end",
-            "expected_text",
-            "replacement_text",
-            "request_key",
-            "reason"
-        ])
-    );
-    assert_eq!(
-        schema("prepare_note_edit")["properties"]["start"]["type"],
-        json!(["integer", "null"])
-    );
-    let dispatched = serde_json::to_string(&requests[2].chat_history).unwrap();
-    assert!(dispatched.contains("\"start\":null") && dispatched.contains("\"end\":null"));
-    assert!(dispatched.contains("\"operation\""));
-    assert!(dispatched.contains("Tuesday"));
-    assert_eq!(scope.store.lock().unwrap().candidates().unwrap().len(), 2);
+            .find_map(|message| {
+                let rig::message::Message::User { content } = message else {
+                    return None;
+                };
+                content.iter().find_map(|item| {
+                    let rig::message::UserContent::ToolResult(result) = item else {
+                        return None;
+                    };
+                    if result.call.wire() != call_id {
+                        return None;
+                    }
+                    result.content.iter().find_map(|block| {
+                        if let rig::message::ToolResultContent::Json { value } = block {
+                            Some(value.clone())
+                        } else {
+                            None
+                        }
+                    })
+                })
+            })
+            .expect("the unique-quote call must return a structured result");
+        let unique_operation = unique_result["operation"]
+            .as_str()
+            .unwrap_or_else(|| panic!("{call_id} must prepare an operation: {unique_result}"));
+        let candidates = scope.store.lock().unwrap().candidates().unwrap();
+        assert_eq!(candidates.len(), 1);
+        assert!(
+            candidates
+                .iter()
+                .any(|candidate| candidate.operation.as_str() == unique_operation)
+        );
+    }
     let (_root, request, snapshot) = writing_tests::rewrite_fixture(false, 0);
     let (scope, input) = begin(&request).unwrap();
     assert!(

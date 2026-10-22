@@ -1736,7 +1736,7 @@ async fn misplaced_quotes_are_relocated_only_when_unique_and_visible() {
         note.markdown = "# Gate\n\nThe gate code changes monthly.\n".into();
     });
     // The harbor plan moves on; its first version stays visible here.
-    let moved = "# Harbor plan\n\nPier 3 opens at 07:00. Pier 3 opens at 07:00.\nThe ferry leaves at 07:40 from pier 3.\n";
+    let moved = "# Harbor plan\n\nPier 3 opens at 07:00. Pier 3 opens at 07:00.\nThe ferry leaves at 07:40 from pier 3.\nΩΩΩ\n";
     let current = update_note(&mut store, &plan, moved);
     drop(store);
     let (scope, _) = begin(&request).unwrap();
@@ -1754,6 +1754,7 @@ async fn misplaced_quotes_are_relocated_only_when_unique_and_visible() {
             current.version,
             "Pier 3 opens at 07:00.",
         ),
+        wrong("overlapping", &current.id, current.version, "ΩΩ"),
         wrong("old", &plan.id, plan.version, "Tickets cost 18 EUR."),
         wrong(
             "hidden",
@@ -1774,7 +1775,7 @@ async fn misplaced_quotes_are_relocated_only_when_unique_and_visible() {
     let counts = &trace.helpers[0].citations;
     assert_eq!(counts["relocated"], 1, "{counts}");
     assert_eq!(counts["stale"], 1, "{counts}");
-    assert_eq!(counts["mismatch"], 2, "{counts}");
+    assert_eq!(counts["mismatch"], 3, "{counts}");
     assert_eq!(counts["exact"], 0, "{counts}");
 
     // The same report, verified directly, shows the re-anchored ranges.
@@ -1795,6 +1796,7 @@ async fn misplaced_quotes_are_relocated_only_when_unique_and_visible() {
                     current.version,
                     "Pier 3 opens at 07:00.",
                 ),
+                wrong("overlapping", &current.id, current.version, "ΩΩ"),
                 wrong("old", &plan.id, plan.version, "Tickets cost 18 EUR."),
                 wrong(
                     "hidden",
@@ -1829,6 +1831,10 @@ async fn misplaced_quotes_are_relocated_only_when_unique_and_visible() {
     let ambiguous = by_ref("ambiguous");
     assert_eq!(ambiguous["verified"], "mismatch", "{ambiguous}");
     assert!(ambiguous["quote"].is_null());
+    let overlapping = by_ref("overlapping");
+    assert_eq!(overlapping["verified"], "mismatch", "{overlapping}");
+    assert!(overlapping["quote"].is_null());
+    assert!(overlapping.get("relocated").is_none());
     let old = by_ref("old");
     assert_eq!(old["verified"], "stale", "{old}");
     assert_eq!(old["relocated"], true);
