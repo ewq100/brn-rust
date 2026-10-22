@@ -31,23 +31,23 @@ Gates:
 
 </details>
 
-### Assess the growing completed-work list in the startup overview
+### Keep completed history from crowding the startup summary
 
-Task ID: `overview-growth-preflight`
-Owner: Bounded Luna medium read-only preflight; lead decision · State: **active** · Last observed: 2026-10-22T13:15:32.757996+00:00
-Activity: Current generated overview is423lines and includes the full growing completed-task index. Inspect previous reading-volume decisions and renderer before deciding whether an additional change has concrete value.
-Next: Return justified nochange or one minimal output improvement with full-history route and proportionate script validation; no implementation dispatched.
+Task ID: `bounded-completed-overview`
+Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:18:24.728663+00:00
+Activity: Selected ten latest-observed completed tasks plus total count/full selected-record route. Clean isolated export-durability checkout branch codex/bounded-completed-overview-20261022 frommain5c606c10; PR217 head remains frozen.
+Next: Implement renderer projection and meaningful bounded-history/ordering/old-task-lookup witnesses; independently review actual complete candidate and run proportionate Python/docs checks. No Rust build or runtime change.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** No product/tooling change selected; read-only assessment only.
-- **checks:** Source/count inspection pending; no builds.
-- **integration:** No candidate or PR.
-- **native:** Inapplicable: documentation projection only.
-- **owner acceptance:** No new product behavior decision selected.
+- **implementation:** Selected; pending candidate.
+- **checks:** Pending focused tooling suite and docs/overview check.
+- **integration:** No PR; must reconcile actual main and avoid superseding open217. Normal required checks remain.
+- **native:** Inapplicable: development view only.
+- **owner acceptance:** No new product meaning or shipped behavior.
 
 </details>
 
@@ -360,6 +360,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
 - `note-storage-refusal-preflight` — Check unsaved note preservation when storage refuses a write
 - `note-exit-preservation-assessment` — Check Close and Quit preserve typing after a refused storage write
+- `overview-growth-preflight` — Assess the growing completed-work list in the startup overview
 
 ## Dependencies
 

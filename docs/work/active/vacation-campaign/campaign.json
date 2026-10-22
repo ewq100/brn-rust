@@ -5368,27 +5368,53 @@
       {
         "id": "overview-growth-preflight",
         "title": "Assess the growing completed-work list in the startup overview",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna medium read-only preflight; lead decision",
-        "observed_at": "2026-10-22T13:15:32.757996+00:00",
+        "observed_at": "2026-10-22T13:18:24.728663+00:00",
         "origin": "observed",
-        "activity": "Current generated overview is423lines and includes the full growing completed-task index. Inspect previous reading-volume decisions and renderer before deciding whether an additional change has concrete value.",
-        "next_action": "Return justified nochange or one minimal output improvement with full-history route and proportionate script validation; no implementation dispatched.",
+        "activity": "Read-only preflight found distinct growth: completed index120rows/11.3KiB,36.7%of30.8KiB overview versus27rows/2.4KiB at PR213. Existing removal of raw history remains correct; selected a bounded latest-observation slice without changing task authority.",
+        "next_action": "Execute selected bounded completed-summary task; preserve full IDs/titles/history in selected record and exact --task retrieval.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "scripts/render-work-overview.py",
-          "docs/work/overview.md"
+          "docs/work/overview.md",
+          "docs/work/active/vacation-campaign/evidence/overview-growth-preflight.md"
         ],
         "gates": {
           "implementation": "No product/tooling change selected; read-only assessment only.",
-          "checks": "Source/count inspection pending; no builds.",
+          "checks": "PASS source/size observations; not measured token or reading-time savings.",
           "integration": "No candidate or PR.",
           "native": "Inapplicable: documentation projection only.",
           "owner_acceptance": "No new product behavior decision selected."
         },
         "attempts": [],
         "resource_plan": "Existing Luna medium read-only bounded preflight while independent Sol reviews note-exit and lead owns integration. Two active helpers plus lead within actual four total slots including stale pending actor; no nested helpers/builds/edits/network. Stop if prior decisions already justify the current shape or no concrete reading cost exists."
+      },
+      {
+        "id": "bounded-completed-overview",
+        "title": "Keep completed history from crowding the startup summary",
+        "state": "active",
+        "owner": "Bounded Luna medium author; lead integration; independent Sol review",
+        "observed_at": "2026-10-22T13:18:24.728663+00:00",
+        "origin": "observed",
+        "activity": "Selected ten latest-observed completed tasks plus total count/full selected-record route. Clean isolated export-durability checkout branch codex/bounded-completed-overview-20261022 frommain5c606c10; PR217 head remains frozen.",
+        "next_action": "Implement renderer projection and meaningful bounded-history/ordering/old-task-lookup witnesses; independently review actual complete candidate and run proportionate Python/docs checks. No Rust build or runtime change.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/overview-growth-preflight.md",
+          "scripts/render-work-overview.py"
+        ],
+        "gates": {
+          "implementation": "Selected; pending candidate.",
+          "checks": "Pending focused tooling suite and docs/overview check.",
+          "integration": "No PR; must reconcile actual main and avoid superseding open217. Normal required checks remain.",
+          "native": "Inapplicable: development view only.",
+          "owner_acceptance": "No new product meaning or shipped behavior."
+        },
+        "attempts": [],
+        "resource_plan": "Luna medium owns renderer/test and generated worker overview only. Lead owns current campaign/remote views and integration; one read-only Sol review after freeze. No Rust builds, global config, provider/account/native, nested helpers or source runtime edits. Stop if old IDs/history cease discoverable or projection changes task authority."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
