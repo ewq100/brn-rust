@@ -1,0 +1,23 @@
+{
+  "observed_at": "2026-10-22T14:31:24.178960+00:00",
+  "source": "174e381f29518f3ec903a5c166b13a87ac33fcfa",
+  "job": {
+    "name": "Native UI build and state (ubuntu-24.04)",
+    "head_sha": "174e381f29518f3ec903a5c166b13a87ac33fcfa",
+    "status": "completed",
+    "conclusion": "success",
+    "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39790658023/job/119866277847",
+    "started_at": "2026-10-22T13:53:24Z",
+    "completed_at": "2026-10-22T14:10:39Z",
+    "app_id": 15368
+  },
+  "raw_log_sha256": "9c675120a66aad3ed09ed1353b0cfedf8d407a86917a7d5e67987bd9a26530fa",
+  "raw_log_gzip": "docs/work/active/vacation-campaign/evidence/pr217-ubuntu-final.log.gz",
+  "outcome": "FinalUbuntuPASS44writingunit+12host+70desktopstate+348desktoptoolkit,0failed/1ignored/3existingplatformfilters. Both actualnew/extendedNoteCloseandQuitboundarytests PASS. Original155setupfailure preserved; no test skip to repair it.",
+  "status_reporting_limit": "The saved14:17:04directjob response still reportedinprogress although every step wasdone14:10:36; eventual check records completed_at14:10:39. Observed API status lag, cause unproven; not added product/test runtime and no rerun selected. PublicGitHubstatus API reported no unresolvedincident during bounded inquiry; that does not rule out localized delays.",
+  "public_status_sources": [
+    "https://www.githubstatus.com/api/v2/status.json",
+    "https://www.githubstatus.com/api/v2/incidents/unresolved.json"
+  ],
+  "limits": "Toolkit/in-process evidence, not actualLinux/macOScontrols,IME,orowneracceptance."
+}

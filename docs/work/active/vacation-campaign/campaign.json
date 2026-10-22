@@ -5326,7 +5326,8 @@
           "docs/work/active/vacation-campaign/evidence/pr217-ubuntu-finalization-observation.json",
           "docs/work/active/vacation-campaign/evidence/pr217-windows-final.json",
           "docs/work/active/vacation-campaign/evidence/pr217-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr217-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr217-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr217-ubuntu-final.json"
         ],
         "gates": {
           "implementation": "PASS independent complete final174 review; prior P1 Quit and P2 clean-checkpoint findings valid/fixed; no unresolved source findings.",
