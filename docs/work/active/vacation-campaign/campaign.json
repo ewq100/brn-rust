@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T01:35:05.469056+00:00",
+    "observed_at": "2026-10-22T01:39:59.355819+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3042,6 +3042,33 @@
         },
         "attempts": [],
         "resource_plan": "One bounded Luna read-only helper; no writers/builds/native/account/network/nested agents. Three total actors with lead within four slots. Preserve frozen integration chain."
+      },
+      {
+        "id": "strict-mac-keyword-scale",
+        "title": "Check search responsiveness with 10,000 synthetic notes on this Mac",
+        "state": "active",
+        "owner": "Lead sole local build/check actor",
+        "observed_at": "2026-10-22T01:39:59.355819+00:00",
+        "origin": "observed",
+        "activity": "Selected the existing documented strict release-profile keyword scale witness. Current campaign has no matching strict target-Mac receipt. Fresh synthetic data only; no semantic model installation, account call or native UI. Source is integrated main20288866d40, production-identical lead9d5a43ed.",
+        "next_action": "Run the existing strict 10,000-note witness once with pinned offline locked release build; retain actual timings, assertions, original failures and limits. No optimization selected before evidence.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-threads-app/tests/user_scale.rs",
+          "docs/development/verification.md",
+          "docs/work/active/vacation-campaign/evidence/strict-mac-scale-run.sh",
+          "docs/work/active/vacation-campaign/evidence/strict-mac-scale-supervise.py"
+        ],
+        "gates": {
+          "implementation": "No source change selected. Existing witness reused unchanged.",
+          "checks": "Pending strict release witness; no UI/native latency claim.",
+          "integration": "Inapplicable to test-only qualification.",
+          "native": "Headless service timing on physical Mac; no OS input or rendering.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": [],
+        "resource_plan": "Lead sole sharedtarget build. New release graph requires3GiB; owned runner stops below1GiB or30minute deadline. jobs1/offline/locked pin1.98.1. No helpers/build competition, network/model/dependency acquisition/provider/account/native interaction. Release test binary is qualification only, no publication/deployment."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -3056,9 +3083,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-queue-fix-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T01:35:05.469056+00:00",
-    "runtime_capacity": "Lead only. Both bounded Luna assessors completed with source-only no-change recommendations; prior queued author/reviewer complete.",
-    "build_slot": "No active Rust build; frozenf79 qualified.",
+    "observed_at": "2026-10-22T01:41:51.894749+00:00",
+    "runtime_capacity": "Lead only; assessors complete.",
+    "build_slot": "Lead release-scale qualification exec5539 active, output /tmp/brn-strict-mac-scale-qualification/run.log;30minute/1GiB supervisor. Source checked9d5a43ed production-identical main20288866d40; no other Rust build.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
