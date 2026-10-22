@@ -108,22 +108,22 @@ Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacati
 
 ### Make precise-edit rejections diagnosable without exposing note text
 
-Owner: lead design/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T00:05:38.427488+00:00
-Activity: Actual first local-edit account test returned two Invalid calls with args{} and resultnull in trace. Existing trace has no prepare_note_edit branch, preventing independent range/reason diagnosis. Source-only bounded metadata repair selected.
-Next: Add exact-edit metadata to existing trace collector, deterministic privacy/result tests, then independently review and qualify. Do not change editing authority, behavior, tools, prompts or retry limits.
+Owner: lead design/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T00:09:06.380711+00:00
+Activity: Candidate777e3461 single tracefile committed and fmtchecked. New primitive ID/version/range/UTF8length projections exclude rawcontent; preparedoperation/hostInvalidreason retained. Malformedobject/array projection negative witness added after lead source inspection. Independent Sol review and serialized focused/fullruntime/lint/CLIbuild active.
+Next: Inspect exactcandidate review/gates and freeze diagnosticCLI before considering second reserved bounded account diagnostic; no edit semantics change.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Selected trace collector repair, pending.
+- **implementation:** Candidate777e3461 complete; independent review active.
 - **checks:** Real before-trace args{} resultnull retained; deterministic trace/privacy tests pending.
 - **integration:** Separate bounded candidate with required review/head/main gates pending; prior state candidates preserved.
 - **native:** Inapplicable to trace metadata; actual Mac deferred.
 - **owner acceptance:** Not claimed.
 
-Evidence: [crates/brn-ai/src/threads_trace.rs](../../crates/brn-ai/src/threads_trace.rs), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json)
+Evidence: [crates/brn-ai/src/threads_trace.rs](../../crates/brn-ai/src/threads_trace.rs), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-implementation.md](active/vacation-campaign/evidence/precise-edit-trace-implementation.md)
 
 </details>
 
@@ -343,4 +343,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T00:05:38.427488+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T00:09:06.380711+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

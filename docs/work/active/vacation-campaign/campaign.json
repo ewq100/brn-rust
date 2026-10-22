@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T00:05:38.427488+00:00",
+    "observed_at": "2026-10-22T00:09:06.380711+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2692,19 +2692,20 @@
         "title": "Make precise-edit rejections diagnosable without exposing note text",
         "state": "active",
         "owner": "lead design/integration; bounded Luna author; independent Sol review",
-        "activity": "Actual first local-edit account test returned two Invalid calls with args{} and resultnull in trace. Existing trace has no prepare_note_edit branch, preventing independent range/reason diagnosis. Source-only bounded metadata repair selected.",
-        "observed_at": "2026-10-22T00:05:38.427488+00:00",
+        "activity": "Candidate777e3461 single tracefile committed and fmtchecked. New primitive ID/version/range/UTF8length projections exclude rawcontent; preparedoperation/hostInvalidreason retained. Malformedobject/array projection negative witness added after lead source inspection. Independent Sol review and serialized focused/fullruntime/lint/CLIbuild active.",
+        "observed_at": "2026-10-22T00:09:06.380711+00:00",
         "origin": "observed",
-        "next_action": "Add exact-edit metadata to existing trace collector, deterministic privacy/result tests, then independently review and qualify. Do not change editing authority, behavior, tools, prompts or retry limits.",
+        "next_action": "Inspect exactcandidate review/gates and freeze diagnosticCLI before considering second reserved bounded account diagnostic; no edit semantics change.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-ai/src/threads_trace.rs",
           "crates/brn-ai/src/threads_note_edit.rs",
-          "docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json"
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-trace-implementation.md"
         ],
         "gates": {
-          "implementation": "Selected trace collector repair, pending.",
+          "implementation": "Candidate777e3461 complete; independent review active.",
           "checks": "Real before-trace args{} resultnull retained; deterministic trace/privacy tests pending.",
           "integration": "Separate bounded candidate with required review/head/main gates pending; prior state candidates preserved.",
           "native": "Inapplicable to trace metadata; actual Mac deferred.",
@@ -2723,24 +2724,26 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-21T23:29:48.763Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-next-import-phase-update.json"
+    "last_refresh_at": "2026-10-22T00:06:40Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-three-candidates-ai-diagnosis-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-21T23:40:43.876709+00:00",
-    "runtime_capacity": "Four total slots including lead; both inventories, author and continuation design complete. One fresh independent Sol reviewer active.",
-    "build_slot": "Owned by lead final RunActivity qualification on frozen1af5a124; one sharedtarget jobs1, no other build admitted.",
-    "desktop_account_actor": "Preserved synthetic native app remains under owner extended-screen-unavailability deferral. No further native access attempt, close/kill/relaunch or account test performed.",
+    "observed_at": "2026-10-22T00:09:06.380711+00:00",
+    "runtime_capacity": "Fourtotal slots; lead and fresh independent Sol trace reviewer active, all sourceauthors complete. No nested workers.",
+    "build_slot": "Lead serial777e3461 focused/fullbrn-ai tests, strictlint and CLIbuild atmac-test-roots; prior three qualification builds complete.",
+    "desktop_account_actor": "No active accounttest after first preciseedit failed. Preserved nativeapp63750 unchanged under owner availabilitydeferral; no native interaction.",
     "read_only_ci_watches": [],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Continuous Run coordination/state-owner work selected by renewed owner instruction. Native deferral does not block headless implementation.",
+    "wait_reason": "Source, review and diagnosis work continues while PR199 requiredUbuntuCore gate runs; three requiredMacgatesPASS. This is not a twohourbatchpause.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability clean codex/settings-save-rejection892d3049; PR197 normally merged. Qualified source/artifact preserved.",
-    "fixture_worker_checkout": "mac-test-roots clean codex/run-activity-state-owner, base main7fd7142c; old e501/6fb refs/artifacts preserved.",
-    "documentation_worker_checkout": "architecture-status-route oncodex/export-interruption-witness base9e2a81c0",
-    "required_ci_runs": []
+    "worker_checkout": "export-durability clean codex/run-continuation-owner bd60131d qualified/unpublished, prior frozenrefs preserved.",
+    "fixture_worker_checkout": "mac-test-roots clean codex/precise-edit-trace777e3461 at2ecf634d. PR199 original branch/headf6dd4d66 remains frozen; no competing sourcewriter.",
+    "documentation_worker_checkout": "architecture-status-route clean codex/import-target-owner2ecf634d qualified/unpublished.",
+    "required_ci_runs": [
+      39695577763
+    ]
   },
   "native_availability": {
     "observed_at": "2026-10-21T03:56:18.778419+00:00",
