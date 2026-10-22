@@ -1,0 +1,11 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 1m 17s
+     Running unittests src/lib.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_ai-bcb2bd2be1aa4497)
+
+running 1 test
+BASE_LEGACY_JSON={"id":"legacy-note:0","version":7,"start":3,"end":6,"expected_text":"abc","replacement_text":"XY","request_key":"legacy-key","reason":"Correct the exact local passage"}
+BASE_LEGACY_SHA256=13823d0d216c0e2dad4ca192712be2acf333e123fbcbfdda00048bb6b3f0fc10
+test threads::note_edit_tests::capture_legacy_edit_serialization ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 495 filtered out; finished in 0.00s
+

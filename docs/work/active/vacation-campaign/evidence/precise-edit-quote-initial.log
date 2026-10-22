@@ -1,0 +1,56 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-ai)
+error[E0107]: type alias takes 1 generic argument but 2 generic arguments were supplied
+   --> crates/brn-ai/src/threads_note_edit.rs:20:56
+    |
+ 20 | fn required_nullable_usize<'de, D>(deserializer: D) -> Result<Option<usize>, D::Error>
+    |                                                        ^^^^^^              ---------- help: remove the unnecessary generic argument
+    |                                                        |
+    |                                                        expected 1 generic argument
+    |
+note: type alias defined here, with 1 generic parameter: `T`
+   --> crates/brn-threads-core/src/lib.rs:105:10
+    |
+105 | pub type Result<T> = std::result::Result<T, Error>;
+    |          ^^^^^^ -
+
+error[E0277]: `?` couldn't convert the error to `<__D as _::_serde::Deserializer<'de>>::Error`
+  --> crates/brn-ai/src/threads_note_edit.rs:11:56
+   |
+11 |     #[serde(deserialize_with = "required_nullable_usize")]
+   |                                ------------------------^
+   |                                |                       |
+   |                                |                       the trait `From<brn_threads_core::Error>` is not implemented for `<__D as _::_serde::Deserializer<'de>>::Error`
+   |                                this can't be annotated with `?` because it has type `Result<_, brn_threads_core::Error>`
+   |
+   = note: the question mark operation (`?`) implicitly performs a conversion on the error value using the `From` trait
+
+error[E0277]: `?` couldn't convert the error to `<__D as _::_serde::Deserializer<'de>>::Error`
+  --> crates/brn-ai/src/threads_note_edit.rs:13:56
+   |
+13 |     #[serde(deserialize_with = "required_nullable_usize")]
+   |                                ------------------------^
+   |                                |                       |
+   |                                |                       the trait `From<brn_threads_core::Error>` is not implemented for `<__D as _::_serde::Deserializer<'de>>::Error`
+   |                                this can't be annotated with `?` because it has type `Result<_, brn_threads_core::Error>`
+   |
+   = note: the question mark operation (`?`) implicitly performs a conversion on the error value using the `From` trait
+
+error[E0308]: mismatched types
+  --> crates/brn-ai/src/threads_note_edit.rs:24:5
+   |
+20 | fn required_nullable_usize<'de, D>(deserializer: D) -> Result<Option<usize>, D::Error>
+   |                                                        ------------------------------- expected `std::result::Result<std::option::Option<usize>, brn_threads_core::Error>` because of return type
+...
+24 |     Option::<usize>::deserialize(deserializer)
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Result<Option<usize>, Error>`, found `Result<Option<usize>, ...>`
+   |
+   = note: expected enum `std::result::Result<_, brn_threads_core::Error>`
+              found enum `std::result::Result<_, <D as _::_serde::Deserializer<'_>>::Error>`
+help: consider constraining the associated type `<D as _::_serde::Deserializer<'_>>::Error` to `brn_threads_core::Error`
+   |
+22 |     D: serde::Deserializer<'de, Error = brn_threads_core::Error>,
+   |                               +++++++++++++++++++++++++++++++++
+
+Some errors have detailed explanations: E0107, E0277, E0308.
+For more information about an error, try `rustc --explain E0107`.
+error: could not compile `brn-ai` (lib test) due to 6 previous errors

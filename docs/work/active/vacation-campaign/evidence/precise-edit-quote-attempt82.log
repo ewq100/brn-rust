@@ -1,0 +1,21 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/export-durability/brn-rust/crates/brn-ai)
+error[E0277]: the trait bound `brn_threads_core::OperationId: std::cmp::Ord` is not satisfied
+   --> crates/brn-ai/src/threads_note_edit_tests.rs:505:20
+    |
+505 |     run_ops_before.sort();
+    |                    ^^^^ the trait `std::cmp::Ord` is not implemented for `brn_threads_core::OperationId`
+    |
+note: required by a bound in `std::slice::<impl [T]>::sort`
+   --> /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/alloc/src/slice.rs:131:4
+
+error[E0277]: the trait bound `brn_threads_core::OperationId: std::cmp::Ord` is not satisfied
+   --> crates/brn-ai/src/threads_note_edit_tests.rs:507:15
+    |
+507 |     after_ops.sort();
+    |               ^^^^ the trait `std::cmp::Ord` is not implemented for `brn_threads_core::OperationId`
+    |
+note: required by a bound in `std::slice::<impl [T]>::sort`
+   --> /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/alloc/src/slice.rs:131:4
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `brn-ai` (lib test) due to 2 previous errors

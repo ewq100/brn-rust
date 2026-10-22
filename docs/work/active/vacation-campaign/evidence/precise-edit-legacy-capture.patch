@@ -1,0 +1,19 @@
+diff --git a/crates/brn-ai/src/threads_note_edit_tests.rs b/crates/brn-ai/src/threads_note_edit_tests.rs
+index c5638608..c755ffda 100644
+--- a/crates/brn-ai/src/threads_note_edit_tests.rs
++++ b/crates/brn-ai/src/threads_note_edit_tests.rs
+@@ -692,3 +692,14 @@ async fn malformed_local_edit_skips_valid_sibling_before_bounded_correction() {
+     assert_eq!(current(&scope, &note).version, 1);
+     assert_eq!(scope.store.lock().unwrap().candidates().unwrap().len(), 1);
+ }
++
++#[test]
++fn capture_legacy_edit_serialization() {
++    use sha2::Digest as _;
++    let legacy = args("legacy-note:0", 7, 3, "abc", "XY", "legacy-key");
++    let bytes = serde_json::to_vec(&legacy).unwrap();
++    let expected = r#"{"id":"legacy-note:0","version":7,"start":3,"end":6,"expected_text":"abc","replacement_text":"XY","request_key":"legacy-key","reason":"Correct the exact local passage"}"#;
++    assert_eq!(bytes, expected.as_bytes());
++    println!("BASE_LEGACY_JSON={}", String::from_utf8(bytes.clone()).unwrap());
++    println!("BASE_LEGACY_SHA256={:x}", sha2::Sha256::digest(&bytes));
++}

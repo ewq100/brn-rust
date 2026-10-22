@@ -82,24 +82,29 @@ Attempts:
 
 </details>
 
-### Assess an exact quote selector that avoids AI offset arithmetic
+### Prepare exact edits from one unique quoted passage
 
-Owner: Lead design; bounded Luna contract assessment; independent consequential review before implementation · State: **active** · Last observed: 2026-10-22T00:40:01.119772+00:00
-Activity: Independent designreview conditionallyaccepted; P2 missingguideidentitycoherence addressed in accepted packet with distinctbundle19 and current19/prior17 fixtures. Lead selects one bounded implementation, not further livecalls.
-Next: Implement required-null exactselector with private sharedlocator, legacybinding/replay golden and focused boundaries; complete independent candidate review and deterministic source-bound checks. No accountdispatch.
+Owner: Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review · State: **active** · Last observed: 2026-10-22T00:54:43.355989+00:00
+Activity: Independent complete82dc62f0 review found two test defects (mixed-pair Serde expectation and unread full-note success fixture). Focusedcompile also failed because OperationId does not implement Ord. After two failed compiles lead reassessed actual types/dispatch/read guards, retained failures and corrected only tests; focused checks now running. Missing actual HTTP route and research overlap witnesses remain acceptance obligations.
+Next: Finish corrected focused run; reuse actual provider HTTP fixture for null/null dispatch and research overlap caller witness; independently re-review final actual candidate and run final relevant gates. No account/native actions.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Design independently accepted with documented P2 correction and conditions; implementation selected/pending
-- **checks:** pending deterministic witnesses only; current account session exhausted
+- **implementation:** Production source independently reviewed82; two P2 test findings and missing focused evidence pending corrected final review.
+- **checks:** Initiale4 and82 compileFAIL retained; lead corrected test assumptions and exact ordered operation comparison after reassessment. Focused current dirtycandidate running; no pass claimed.
 - **integration:** pending separate reviewed candidate if selected; no new account authority
 - **native:** actual Mac deferred
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md](active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json](active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json), [docs/work/active/vacation-campaign/evidence/quote-provider-fixture-map.md](active/vacation-campaign/evidence/quote-provider-fixture-map.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md](active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log](active/vacation-campaign/evidence/precise-edit-quote-attempt82.log), [docs/work/active/vacation-campaign/evidence/quote-http-route-plan.md](active/vacation-campaign/evidence/quote-http-route-plan.md)
+
+Attempts:
+
+- Initiale4b9418d focusedcompileFAIL E0107/E0277/E0308 importedcoreResult alias inrequirednullableSerde helper; no tests executed.: Use std::result::Result<...,D::Error>. Same correctionpass restores oldrange refusal text, adds privacy-safe staticquote reason and targeted realtyped/partialcoveragewitnesses; finalreview/checkspending. ([docs/work/active/vacation-campaign/evidence/precise-edit-quote-initial.sh](active/vacation-campaign/evidence/precise-edit-quote-initial.sh), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-initial.log](active/vacation-campaign/evidence/precise-edit-quote-initial.log))
+- Corrective82dc62f0 compileFAIL E0277: OperationId has PartialEq/Eq but not Ord; no tests executed. Independent review additionally found two necessarily failing test expectations.: After second failure lead paused/reassessed actual pinned types and dispatch/full-read boundaries. Compare exact original ordered operation list (no sort), preserve mixed-pair semantic refusal and no allocation, select proper local quote and assert that exact tool call result; extend actual research overlap witness. Actual provider HTTP evidence selected, no scope/authority expansion. ([docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log](active/vacation-campaign/evidence/precise-edit-quote-attempt82.log), [docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md](active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md))
 
 </details>
 

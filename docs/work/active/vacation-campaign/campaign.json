@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T00:31:58.900886+00:00",
-    "remaining_percent": 66,
+    "observed_at": "2026-10-22T00:54:43.355989+00:00",
+    "remaining_percent": 65,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual34%used/66%remaining, ordinaryUsageAllowedtrue, secondaryunavailable; fixedexpiry unchanged, no ownerpause; precise-edit accounttestsession exhausted separately",
+    "ordinary_work": "Admitted: actual35% used /65% remaining, ordinaryUsageAllowed=true; secondary unavailable. No owner pause; fixed expiry unchanged. Account test session exhausted separately.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -2824,13 +2824,13 @@
       },
       {
         "id": "precise-edit-unique-quote-selector",
-        "title": "Assess an exact quote selector that avoids AI offset arithmetic",
+        "title": "Prepare exact edits from one unique quoted passage",
         "state": "active",
-        "owner": "Lead design; bounded Luna contract assessment; independent consequential review before implementation",
-        "activity": "Independent designreview conditionallyaccepted; P2 missingguideidentitycoherence addressed in accepted packet with distinctbundle19 and current19/prior17 fixtures. Lead selects one bounded implementation, not further livecalls.",
-        "observed_at": "2026-10-22T00:40:01.119772+00:00",
+        "owner": "Lead implementation/correction/integration; bounded Luna author and route assessment; independent Sol review",
+        "activity": "Independent complete82dc62f0 review found two test defects (mixed-pair Serde expectation and unread full-note success fixture). Focusedcompile also failed because OperationId does not implement Ord. After two failed compiles lead reassessed actual types/dispatch/read guards, retained failures and corrected only tests; focused checks now running. Missing actual HTTP route and research overlap witnesses remain acceptance obligations.",
+        "observed_at": "2026-10-22T00:54:43.355989+00:00",
         "origin": "observed",
-        "next_action": "Implement required-null exactselector with private sharedlocator, legacybinding/replay golden and focused boundaries; complete independent candidate review and deterministic source-bound checks. No accountdispatch.",
+        "next_action": "Finish corrected focused run; reuse actual provider HTTP fixture for null/null dispatch and research overlap caller witness; independently re-review final actual candidate and run final relevant gates. No account/native actions.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2839,17 +2839,39 @@
           "docs/work/active/agent-first-simplification/targeted-edit.md",
           "crates/brn-ai/src/threads_note_edit.rs",
           "docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design.md",
-          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md"
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-selector-design-review.md",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-legacy-binding-golden.json",
+          "docs/work/active/vacation-campaign/evidence/quote-provider-fixture-map.md",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log",
+          "docs/work/active/vacation-campaign/evidence/quote-http-route-plan.md"
         ],
         "gates": {
-          "implementation": "Design independently accepted with documented P2 correction and conditions; implementation selected/pending",
-          "checks": "pending deterministic witnesses only; current account session exhausted",
+          "implementation": "Production source independently reviewed82; two P2 test findings and missing focused evidence pending corrected final review.",
+          "checks": "Initiale4 and82 compileFAIL retained; lead corrected test assumptions and exact ordered operation comparison after reassessment. Focused current dirtycandidate running; no pass claimed.",
           "integration": "pending separate reviewed candidate if selected; no new account authority",
           "native": "actual Mac deferred",
           "owner_acceptance": "not claimed"
         },
-        "attempts": [],
-        "resource_plan": "One explicit Luna medium author in isolated clean export-durability newbranch codex/precise-edit-unique-quote at frozen c4; lead baselinecapture in distinct mac-test-roots checkout and sole sharedbuildslot; independent Sol full candidate review after complete implementation. Max3of4slots; no nestedagents/account/network/native/credentials/newdependencies/migrations. Stop on real authority/API ambiguity or two failed corrections. Lead owns sharedrecords/integration.",
+        "attempts": [
+          {
+            "outcome": "Initiale4b9418d focusedcompileFAIL E0107/E0277/E0308 importedcoreResult alias inrequirednullableSerde helper; no tests executed.",
+            "change": "Use std::result::Result<...,D::Error>. Same correctionpass restores oldrange refusal text, adds privacy-safe staticquote reason and targeted realtyped/partialcoveragewitnesses; finalreview/checkspending.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/precise-edit-quote-initial.sh",
+              "docs/work/active/vacation-campaign/evidence/precise-edit-quote-initial.log"
+            ]
+          },
+          {
+            "outcome": "Corrective82dc62f0 compileFAIL E0277: OperationId has PartialEq/Eq but not Ord; no tests executed. Independent review additionally found two necessarily failing test expectations.",
+            "change": "After second failure lead paused/reassessed actual pinned types and dispatch/full-read boundaries. Compare exact original ordered operation list (no sort), preserve mixed-pair semantic refusal and no allocation, select proper local quote and assert that exact tool call result; extend actual research overlap witness. Actual provider HTTP evidence selected, no scope/authority expansion.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/precise-edit-quote-attempt82.log",
+              "docs/work/active/vacation-campaign/evidence/precise-edit-quote-review-82dc62f0.md"
+            ]
+          }
+        ],
+        "resource_plan": "Lead owns test corrections/source and sole shared build slot after two compile failures; independent Sol final review remains required. One bounded Luna read-only HTTP seam assessment complete, no live calls or additional harness. Actual runtime4slots; no concurrent source writers. Final full gates after source settles; reassess new failure before retry.",
         "design": "Accepted explicit null/null unique-current-exact-quote extension, unchanged legacy integer path/no fallback, private runtime locator, required-null DTO enforcement, old binding/replay proof and bundle19/current19-prior17 coherence. Full authoritative design and review conditions are linked evidence; no account calls selected."
       }
     ],
@@ -2865,37 +2887,38 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-ai-session-closure-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T00:41:06.377559+00:00",
-    "runtime_capacity": "Lead baseline capture in separate frozen mac-test-roots, one Luna implementation author in export-durability;2of4slots. No account/native actor.",
-    "build_slot": "Lead sole shared-target build: temporary old DTO serialization capture on eac295b1, same DTO bytes as basec4; temp test restored on exit.",
+    "observed_at": "2026-10-22T00:54:43.355989+00:00",
+    "runtime_capacity": "Lead active; independent Sol82 review complete, bounded Luna HTTP route assessment complete. No concurrent source writer.",
+    "build_slot": "Lead corrected focused note-edit build/test active, session72195; no other Rust build.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
-        "kind": "PR200 required checks",
-        "pid": 25600,
-        "session_id": 70200,
-        "output": "/tmp/brn-pr200-required.log",
-        "head": "413003efb5318127e6f63fd5d3c88bf6aa113de9"
+        "kind": "PR201 requiredchecks",
+        "pid": 29853,
+        "session_id": 55448,
+        "output": "/tmp/brn-pr201-required.log",
+        "head": "787ffbec3ca6362b9728810a628e2958f8a35e3f"
       },
       {
-        "kind": "Main199 workflow",
-        "pid": 25601,
-        "session_id": 36323,
-        "output": "/tmp/brn-main199-watch.log",
-        "run": 39698249037,
-        "sha": "b069bf8fef5988c4218af6c1e0ad5f0f04e72584"
+        "kind": "Main200 workflow",
+        "pid": 29852,
+        "session_id": 1122,
+        "output": "/tmp/brn-main200-watch.log",
+        "run": 39700729291,
+        "sha": "fc49e3b004845c941423332b42cfe31ee7a64fc5"
       }
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Actualmain200 and head201 requiredchecks while quote-selector designreview runs.",
+    "wait_reason": "Required CI head201/main200 still running; independent precise-edit deterministic qualification continues.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability codex/precise-edit-unique-quote basec4, sole Luna sourcewriter; old PR200head frozenref preserved.",
-    "fixture_worker_checkout": "mac-test-roots frozen eac295b1 with task-owned temporary golden capture test only; restores original tests on exit; no sourcewriter conflicts.",
+    "worker_checkout": "export-durability codex/precise-edit-unique-quote HEAD82dc62f0 with lead-owned test corrections; final candidate not frozen.",
+    "fixture_worker_checkout": "mac-test-roots clean frozen eac295b1; temporary golden fixture restored and raw capture retained.",
     "documentation_worker_checkout": "architecture-status-route clean frozen PR201head787ffbec, qualified2ec whole-treeequal.",
     "required_ci_runs": [
-      39700729291
+      39700729291,
+      39700813308
     ]
   },
   "native_availability": {

@@ -1,0 +1,15 @@
+{
+  "observed_at": "2026-10-22T00:42:44.208751+00:00",
+  "qualified_legacy_base": "c4f0e2e663cb04654c2bc49f9a540499fdd139b9",
+  "actual_build_source": "eac295b14ddb4a57b1e3b62e6c51f0d40ae699a5",
+  "base_DTO_byte_identical": true,
+  "DTO_sha256": "cafe09637c1e9b31f2e1263f798922f33365ffbf32e3ae70ef504b8cd0d58305",
+  "json_bytes_no_newline": "{\"id\":\"legacy-note:0\",\"version\":7,\"start\":3,\"end\":6,\"expected_text\":\"abc\",\"replacement_text\":\"XY\",\"request_key\":\"legacy-key\",\"reason\":\"Correct the exact local passage\"}",
+  "sha256": "13823d0d216c0e2dad4ca192712be2acf333e123fbcbfdda00048bb6b3f0fc10",
+  "checks": "One actual old integer EditArgs serializer capture passed against independently fixed literal; independent Python SHA256 matches actual Rust SHA256",
+  "temporary_test_patch": "precise-edit-legacy-capture.patch",
+  "script": "precise-edit-legacy-capture.sh",
+  "log": "precise-edit-legacy-capture.log",
+  "source_restored_clean": true,
+  "limits": "Actual build was retained unmerged eac guidance candidate; captured EditArgs derive/field bytes identical to frozen basec4. Not a whole-base build or old prepared-operation execution; candidate must separately prove prebound legacy operation/replay compatibility. No provider/account/native/data call."
+}
