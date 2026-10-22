@@ -35,11 +35,18 @@ fn quote_args(note: &str, version: u64, quote: &str, replacement: &str, key: &st
 }
 fn legacy_binding(args: &EditArgs) -> String {
     use sha2::{Digest, Sha256};
-    let Some(start) = args.start else { panic!("legacy binding needs a range") };
-    let Some(end) = args.end else { panic!("legacy binding needs a range") };
+    let Some(start) = args.start else {
+        panic!("legacy binding needs a range")
+    };
+    let Some(end) = args.end else {
+        panic!("legacy binding needs a range")
+    };
     let bytes = format!(
         "{{\"id\":{},\"version\":{},\"start\":{},\"end\":{},\"expected_text\":{},\"replacement_text\":{},\"request_key\":{},\"reason\":{}}}",
-        serde_json::to_string(&args.id).unwrap(), args.version, start, end,
+        serde_json::to_string(&args.id).unwrap(),
+        args.version,
+        start,
+        end,
         serde_json::to_string(&args.expected_text).unwrap(),
         serde_json::to_string(&args.replacement_text).unwrap(),
         serde_json::to_string(&args.request_key).unwrap(),
@@ -200,10 +207,15 @@ fn large_note_local_edit_preserves_exact_bytes_metadata_and_incomplete_coverage_
         "Tuesday",
         "local",
     );
-    let legacy_op = scope.store.lock().unwrap().allocate_bound_operation(
-        &format!("{}:note-edit:{}", scope.run, edit.request_key),
-        &legacy_binding(&edit),
-    ).unwrap();
+    let legacy_op = scope
+        .store
+        .lock()
+        .unwrap()
+        .allocate_bound_operation(
+            &format!("{}:note-edit:{}", scope.run, edit.request_key),
+            &legacy_binding(&edit),
+        )
+        .unwrap();
     let prepared = prepare_edit(&scope, edit.clone()).unwrap();
     assert_eq!(prepared["operation"], legacy_op.as_str());
     assert!(context_budget::result_fits(&prepared));
@@ -324,6 +336,22 @@ fn unique_quote_uses_exact_current_note_bytes_and_refuses_missing_or_overlapping
         "Invalid",
         "changing a prepared selector requires a fresh key"
     );
+    assert_eq!(
+        prepare_edit(
+            &scope,
+            args(
+                &note,
+                before.version,
+                "Ω lead\r\n".len(),
+                "Monday",
+                "Tuesday",
+                "unique",
+            ),
+        )
+        .unwrap()["outcome"],
+        "Invalid",
+        "changing from quote selection to an integer range requires a fresh key"
+    );
     assert_eq!(apply_op(&scope, &prepared)["outcome"], "Applied");
     assert!(!scope.reads.lock().unwrap().knows(&note, before.version + 1));
     assert_eq!(
@@ -336,47 +364,82 @@ fn unique_quote_uses_exact_current_note_bytes_and_refuses_missing_or_overlapping
         "a prepared null-selector edit replays before reading later canonical text"
     );
     assert!(!scope.reads.lock().unwrap().knows(&note, before.version + 1));
-    assert!(matches!(current(&scope, &note).data, RecordData::Note(n) if n.markdown == "Ω lead\r\nTuesday\r\ntail aaa"));
+    assert_eq!(apply_op(&scope, &prepared)["outcome"], "Applied");
+    assert!(
+        matches!(current(&scope, &note).data, RecordData::Note(n) if n.markdown == "Ω lead\r\nTuesday\r\ntail aaa")
+    );
     let after = current(&scope, &note);
+    assert_eq!(
+        ordinary(&scope, &note, after.version, "quote-still-partial")["outcome"],
+        "Invalid",
+        "quote search and Apply replay do not promote partial read coverage"
+    );
+    let candidate_count = scope.store.lock().unwrap().candidates().unwrap().len();
     for (quote, key) in [("absent", "missing"), ("aa", "overlap")] {
-        let result = prepare_edit(
-            &scope,
-            quote_args(&note, after.version, quote, "X", key),
-        )
-        .unwrap();
+        let result =
+            prepare_edit(&scope, quote_args(&note, after.version, quote, "X", key)).unwrap();
         assert_eq!(result["outcome"], "Invalid");
         assert!(result.get("operation").is_none());
+        assert_eq!(
+            scope.store.lock().unwrap().candidates().unwrap().len(),
+            candidate_count
+        );
     }
     assert_eq!(current(&scope, &note), after);
 }
 #[test]
 fn nullable_offsets_are_required_and_unique_full_note_quote_keeps_full_read_guard() {
     use serde_json::json;
-    let mut raw = serde_json::to_value(args("n", 1, 0, "x", "y", "k")).unwrap();
-    assert!(note_edit::validate_arguments(&raw).is_ok());
-    raw.as_object_mut().unwrap().remove("start");
-    assert!(serde_json::from_value::<EditArgs>(raw.clone()).is_err());
-    assert!(note_edit::validate_arguments(&raw).is_err());
-    let mut no_end = serde_json::to_value(args("n", 1, 0, "x", "y", "k")).unwrap();
-    no_end.as_object_mut().unwrap().remove("end");
-    assert!(serde_json::from_value::<EditArgs>(no_end.clone()).is_err());
-    assert!(note_edit::validate_arguments(&no_end).is_err());
-    raw["start"] = json!(null);
-    raw["end"] = json!(1);
-    assert!(note_edit::validate_arguments(&raw).is_err());
-    raw["end"] = json!(null);
-    raw["expected_text"] = json!("");
-    assert!(note_edit::validate_arguments(&raw).is_err());
+    let base = serde_json::to_value(args("n", 1, 0, "x", "y", "k")).unwrap();
+    assert!(note_edit::validate_arguments(&base).is_ok());
+    let mut missing_both = base.clone();
+    missing_both.as_object_mut().unwrap().remove("start");
+    missing_both.as_object_mut().unwrap().remove("end");
+    let mut missing_start = base.clone();
+    missing_start.as_object_mut().unwrap().remove("start");
+    let mut missing_end = base.clone();
+    missing_end.as_object_mut().unwrap().remove("end");
+    let mut null_start = base.clone();
+    null_start["start"] = json!(null);
+    let mut null_end = base.clone();
+    null_end["end"] = json!(null);
+    let mut wrong_scalar = base.clone();
+    wrong_scalar["start"] = json!("0");
+    let mut unknown = base.clone();
+    unknown["extra"] = json!(true);
+    for invalid in [
+        missing_both,
+        missing_start,
+        missing_end,
+        null_start,
+        null_end,
+        wrong_scalar,
+        unknown,
+    ] {
+        assert!(serde_json::from_value::<EditArgs>(invalid.clone()).is_err());
+        assert!(note_edit::validate_arguments(&invalid).is_err());
+    }
+    let mut empty_quote = base.clone();
+    empty_quote["start"] = json!(null);
+    empty_quote["end"] = json!(null);
+    empty_quote["expected_text"] = json!("");
+    assert!(note_edit::validate_arguments(&empty_quote).is_err());
     let schema = note_edit::schema();
     assert_eq!(schema["required"].as_array().unwrap().len(), 8);
-    assert_eq!(schema["properties"]["start"]["type"], json!(["integer", "null"]));
+    assert_eq!(
+        schema["properties"]["start"]["type"],
+        json!(["integer", "null"])
+    );
 
     let (_root, request, note) = tests::fixture();
     let record = owner_note(&request, &note, Note::working("Decision", "Monday"));
     let (scope, _) = begin(&request).unwrap();
     assert_eq!(
-        prepare_edit(&scope, quote_args(&note, record.version, "Monday", "Tuesday", "whole"))
-            .unwrap()["outcome"],
+        prepare_edit(
+            &scope,
+            quote_args(&note, record.version, "Monday", "Tuesday", "whole")
+        )
+        .unwrap()["outcome"],
         "Invalid"
     );
     complete_read(&scope, &note, record.version);
@@ -386,6 +449,63 @@ fn nullable_offsets_are_required_and_unique_full_note_quote_keeps_full_read_guar
     )
     .unwrap();
     assert_eq!(prepared["operation"].is_string(), true);
+}
+#[tokio::test]
+async fn rig_typed_adapter_rejects_each_missing_nullable_key_before_effects() {
+    use rig::tool::ErasedTool;
+    let (_root, request, note) = tests::fixture();
+    let (scope, _) = begin(&request).unwrap();
+    let before = current(&scope, &note);
+    let mut run_ops_before = match scope
+        .store
+        .lock()
+        .unwrap()
+        .record(&scope.run)
+        .unwrap()
+        .unwrap()
+        .data
+    {
+        RecordData::Run(run) => run.operations,
+        _ => panic!("run record missing"),
+    };
+    let candidate_count = scope.store.lock().unwrap().candidates().unwrap().len();
+    for missing in ["start", "end"] {
+        let mut raw =
+            serde_json::to_value(args(&note, before.version, 0, "Mon", "Tues", "typed")).unwrap();
+        raw.as_object_mut().unwrap().remove(missing);
+        let mut context = ToolContext::new().with_scope(scope.clone());
+        let result =
+            ErasedTool::execute(&note_edit::PrepareNoteEdit, raw.to_string(), &mut context).await;
+        assert!(result.is_error_kind(rig::tool::ToolErrorKind::InvalidArgs));
+    }
+    let mut raw =
+        serde_json::to_value(args(&note, before.version, 0, "Mon", "Tues", "typed")).unwrap();
+    raw.as_object_mut().unwrap().remove("start");
+    raw.as_object_mut().unwrap().remove("end");
+    let mut context = ToolContext::new().with_scope(scope.clone());
+    let result =
+        ErasedTool::execute(&note_edit::PrepareNoteEdit, raw.to_string(), &mut context).await;
+    assert!(result.is_error_kind(rig::tool::ToolErrorKind::InvalidArgs));
+    assert_eq!(current(&scope, &note), before);
+    assert_eq!(
+        scope.store.lock().unwrap().candidates().unwrap().len(),
+        candidate_count
+    );
+    let RecordData::Run(run_ops_after) = scope
+        .store
+        .lock()
+        .unwrap()
+        .record(&scope.run)
+        .unwrap()
+        .unwrap()
+        .data
+    else {
+        panic!("run record missing")
+    };
+    run_ops_before.sort();
+    let mut after_ops = run_ops_after.operations;
+    after_ops.sort();
+    assert_eq!(after_ops, run_ops_before);
 }
 #[test]
 fn wrong_text_nonboundary_unicode_invalid_range_and_stale_base_never_mutate_or_relocate() {
@@ -434,13 +554,21 @@ fn bound_arguments_conflict_even_before_prepare_and_after_success() {
 fn legacy_range_serialization_and_fingerprint_match_independent_base_golden() {
     use sha2::{Digest, Sha256};
     let args = EditArgs {
-        id: "legacy-note:0".into(), version: 7, start: Some(3), end: Some(6),
-        expected_text: "abc".into(), replacement_text: "XY".into(),
-        request_key: "legacy-key".into(), reason: "Correct the exact local passage".into(),
+        id: "legacy-note:0".into(),
+        version: 7,
+        start: Some(3),
+        end: Some(6),
+        expected_text: "abc".into(),
+        replacement_text: "XY".into(),
+        request_key: "legacy-key".into(),
+        reason: "Correct the exact local passage".into(),
     };
     let encoded = serde_json::to_vec(&args).unwrap();
     assert_eq!(encoded, br#"{"id":"legacy-note:0","version":7,"start":3,"end":6,"expected_text":"abc","replacement_text":"XY","request_key":"legacy-key","reason":"Correct the exact local passage"}"#);
-    assert_eq!(format!("{:x}", Sha256::digest(&encoded)), "13823d0d216c0e2dad4ca192712be2acf333e123fbcbfdda00048bb6b3f0fc10");
+    assert_eq!(
+        format!("{:x}", Sha256::digest(&encoded)),
+        "13823d0d216c0e2dad4ca192712be2acf333e123fbcbfdda00048bb6b3f0fc10"
+    );
 }
 #[test]
 fn full_range_requires_whole_read_and_known_base_promotes_after_local_apply() {
@@ -567,13 +695,21 @@ async fn actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree()
     use rig::test_utils::{MockCompletionModel, MockStreamEvent};
     let (_root, request, note) = tests::fixture();
     let (scope, input) = begin(&request).unwrap();
-    let edit = quote_args(&note, 1, "Monday", "Tuesday", "provider");
     let model = MockCompletionModel::from_stream_turns([
         vec![
             MockStreamEvent::tool_call(
                 "exact",
                 "prepare_note_edit",
-                serde_json::to_value(&edit).unwrap(),
+                serde_json::to_value(&args(&note, 1, 0, "Mon", "Tues", "provider-range")).unwrap(),
+            ),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::tool_call(
+                "unique",
+                "prepare_note_edit",
+                serde_json::to_value(&quote_args(&note, 1, "Monday", "Tuesday", "provider-null"))
+                    .unwrap(),
             ),
             MockStreamEvent::final_response_with_total_tokens(1),
         ],
@@ -591,7 +727,7 @@ async fn actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree()
     )
     .await;
     assert!(matches!(answer.terminal, AiTerminal::Completed));
-    assert_eq!(model.request_count(), 2);
+    assert_eq!(model.request_count(), 3);
     let requests = model.requests();
     assert_eq!(
         serde_json::to_value(&requests[0].tools).unwrap(),
@@ -608,14 +744,26 @@ async fn actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree()
     );
     assert_eq!(
         schema("prepare_note_edit")["required"],
-        json!(["id", "version", "start", "end", "expected_text", "replacement_text", "request_key", "reason"])
+        json!([
+            "id",
+            "version",
+            "start",
+            "end",
+            "expected_text",
+            "replacement_text",
+            "request_key",
+            "reason"
+        ])
     );
-    assert_eq!(schema("prepare_note_edit")["properties"]["start"]["type"], json!(["integer", "null"]));
-    assert!(
-        serde_json::to_string(&requests[1].chat_history)
-            .unwrap()
-            .contains("Tuesday")
+    assert_eq!(
+        schema("prepare_note_edit")["properties"]["start"]["type"],
+        json!(["integer", "null"])
     );
+    let dispatched = serde_json::to_string(&requests[2].chat_history).unwrap();
+    assert!(dispatched.contains("\"start\":null") && dispatched.contains("\"end\":null"));
+    assert!(dispatched.contains("\"operation\""));
+    assert!(dispatched.contains("Tuesday"));
+    assert_eq!(scope.store.lock().unwrap().candidates().unwrap().len(), 2);
     let (_root, request, snapshot) = writing_tests::rewrite_fixture(false, 0);
     let (scope, input) = begin(&request).unwrap();
     assert!(
@@ -804,12 +952,17 @@ async fn malformed_local_edit_skips_valid_sibling_before_bounded_correction() {
     let mut malformed = serde_json::to_value(&edit).unwrap();
     malformed["end"] = json!(0);
     assert!(!parse_valid("prepare_note_edit", &malformed));
+    let mut missing_nullable = serde_json::to_value(&edit).unwrap();
+    missing_nullable.as_object_mut().unwrap().remove("start");
+    missing_nullable.as_object_mut().unwrap().remove("end");
+    assert!(!parse_valid("prepare_note_edit", &missing_nullable));
     let mut forged = serde_json::to_value(&edit).unwrap();
     forged["host_exact"] = json!(true);
     assert!(!parse_valid("prepare_note_edit", &forged));
     let model = MockCompletionModel::from_stream_turns([
         vec![
             MockStreamEvent::tool_call("bad", "prepare_note_edit", malformed),
+            MockStreamEvent::tool_call("missing", "prepare_note_edit", missing_nullable),
             MockStreamEvent::tool_call(
                 "sibling",
                 "read_records",
@@ -846,4 +999,20 @@ async fn malformed_local_edit_skips_valid_sibling_before_bounded_correction() {
     );
     assert_eq!(current(&scope, &note).version, 1);
     assert_eq!(scope.store.lock().unwrap().candidates().unwrap().len(), 1);
+    let RecordData::Run(run) = scope
+        .store
+        .lock()
+        .unwrap()
+        .record(&scope.run)
+        .unwrap()
+        .unwrap()
+        .data
+    else {
+        panic!("run record missing")
+    };
+    assert_eq!(
+        run.operations.len(),
+        1,
+        "only the corrected tool call allocated an operation"
+    );
 }

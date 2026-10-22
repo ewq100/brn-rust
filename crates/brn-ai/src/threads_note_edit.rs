@@ -17,7 +17,7 @@ pub(super) struct EditArgs {
     pub request_key: String,
     pub reason: String,
 }
-fn required_nullable_usize<'de, D>(deserializer: D) -> Result<Option<usize>, D::Error>
+fn required_nullable_usize<'de, D>(deserializer: D) -> std::result::Result<Option<usize>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
@@ -40,7 +40,11 @@ pub(super) fn validate_arguments(raw: &Value) -> std::result::Result<(), Argumen
             !args.expected_text.is_empty(),
             "Quote selection requires nonempty expected_text.",
         )?,
-        _ => return Err(ArgumentError::Shape("Set both start and end to byte offsets, or set both to null for one unique exact quote.")),
+        _ => {
+            return Err(ArgumentError::Shape(
+                "Set both start and end to byte offsets, or set both to null for one unique exact quote.",
+            ));
+        }
     }
     argument_shape(
         !args.request_key.is_empty() && args.request_key.len() <= 128,
@@ -80,7 +84,7 @@ impl Tool for PrepareNoteEdit {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-            "Prepare one exact local Note passage replacement or deletion at current version. Supply a UTF-8 byte range or set both offsets null for a nonempty exact quote occurring once in the current Note; duplicates require an explicit range. The host preserves untouched bytes and metadata. No fuzzy matching or write occurs. Full-document ranges require an actual whole read. Use a fresh request_key whenever arguments change. Use apply_changes with its operation; all existing scope, protection, review, dirty-writing, stale and Undo rules remain. Unavailable for Rewrite or research helpers.".into()
+        "Prepare one exact local Note passage replacement or deletion at current version. Supply a UTF-8 byte range or set both offsets null for a nonempty exact quote occurring once in the current Note; duplicates require an explicit range. The host preserves untouched bytes and metadata. No fuzzy matching or write occurs. Full-document ranges require an actual whole read. Use a fresh request_key whenever arguments change. Use apply_changes with its operation; all existing scope, protection, review, dirty-writing, stale and Undo rules remain. Unavailable for Rewrite or research helpers.".into()
     }
     fn parameters(&self) -> Value {
         schema()
@@ -158,15 +162,27 @@ pub(super) fn prepare_edit(scope: &Scope, args: EditArgs) -> AiResult<Value> {
     let range = match (args.start, args.end) {
         (Some(start), Some(end)) => {
             if note.markdown.get(start..end) != Some(args.expected_text.as_str()) {
-                return Ok(invalid("The exact UTF-8 byte range does not match expected_text; quote selection is not a fallback."));
+                return Ok(invalid(
+                    "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted.",
+                ));
             }
             start..end
         }
-        (None, None) => match super::threads_text::unique_range(&note.markdown, &args.expected_text) {
-            Some(range) => range,
-            None => return Ok(invalid("expected_text must occur exactly once as a nonempty exact quote in the current Note; no candidate was prepared.")),
-        },
-        _ => return Ok(invalid("Set both start and end to byte offsets, or set both to null for unique exact-quote selection.")),
+        (None, None) => {
+            match super::threads_text::unique_range(&note.markdown, &args.expected_text) {
+                Some(range) => range,
+                None => {
+                    return Ok(invalid(
+                        "expected_text must occur exactly once as a nonempty exact quote in the current Note; no candidate was prepared.",
+                    ));
+                }
+            }
+        }
+        _ => {
+            return Ok(invalid(
+                "Set both start and end to byte offsets, or set both to null for unique exact-quote selection.",
+            ));
+        }
     };
     if range.start == 0
         && range.end == note.markdown.len()
@@ -180,8 +196,7 @@ pub(super) fn prepare_edit(scope: &Scope, args: EditArgs) -> AiResult<Value> {
             "A full-document range requires a complete read at this version; use prepare_changes after reading the whole Note.",
         ));
     }
-    note.markdown
-        .replace_range(range, &args.replacement_text);
+    note.markdown.replace_range(range, &args.replacement_text);
     let mut request = ChangeRequest {
         reason: args.reason,
         writes: vec![Put {

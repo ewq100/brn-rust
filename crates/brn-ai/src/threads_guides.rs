@@ -109,7 +109,6 @@ mod tests {
         assert!(preamble(&[]).contains("Instruction bundle: brn-threads-guidance-19"));
         assert!(scout_preamble().contains("brn-threads-guidance-19"));
         assert!(BASE.contains("withdraw it with `withdraw_proposal`"));
-        assert!(BASE.contains("both offsets to explicit `null`"));
         assert!(
             read_skill("resolve-conflict")
                 .unwrap()

@@ -25,6 +25,7 @@ mod tests {
         assert_eq!(unique_range("abc quote", "quote"), Some(4..9));
         assert_eq!(unique_range("aaa", "aa"), None);
         assert_eq!(unique_range("Ω Ω", "Ω"), None);
+        assert_eq!(unique_range("ΩΩΩ", "ΩΩ"), None);
         assert_eq!(unique_range("text", ""), None);
         assert_eq!(unique_range("text", "longer"), None);
     }

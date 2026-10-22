@@ -1064,7 +1064,6 @@ fn quote_in(text: &str, start: usize, end: usize, quote: &str) -> bool {
         && text[start..end].contains(quote)
 }
 
-/// Where `quote` occurs in `text`, only when it occurs exactly once (overlaps count).
 /// Anchors a quote in one visible version: inside the cited range, else
 /// re-anchored when it occurs exactly once in that version.
 enum Anchor {
