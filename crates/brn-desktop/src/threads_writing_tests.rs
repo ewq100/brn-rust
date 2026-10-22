@@ -2035,7 +2035,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
         "the exact recovery buffer is durable"
     );
     cx.update_window(f.window, |_, _, cx| {
-        f.view.update(cx, |view, cx| {
+        f.view.update(cx, |view, _| {
             assert_eq!(view.workspace.store.note(&f.a.id).unwrap().unwrap(), f.a);
             assert_eq!(
                 serde_json::to_value(view.workspace.history().unwrap()).unwrap(),
@@ -2075,7 +2075,7 @@ fn an_edit_already_open_elsewhere_offers_compare_and_discard(cx: &mut TestAppCon
         "canonical bytes admit Close even with a stale cached session"
     );
     cx.update_window(f.window, |_, _, cx| {
-        f.view.update(cx, |view, cx| {
+        f.view.update(cx, |view, _| {
             assert_eq!(
                 view.writing.note.as_ref().unwrap().session(),
                 Some(&owned_session)

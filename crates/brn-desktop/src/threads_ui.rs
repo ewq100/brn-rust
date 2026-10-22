@@ -4855,21 +4855,26 @@ fn install_exit_handlers(window: &Window, cx: &mut App, view: gpui_kit::WeakEnti
     });
     let handle = window.window_handle();
     cx.on_action::<Quit>(move |_, cx| {
-        if cx
-            .update_window(handle, |_, window, cx| {
-                let admitted = view
-                    .update(cx, |this, cx| {
-                        this.request_exit(ExitKind::Application, window, cx)
-                    })
-                    .unwrap_or(true);
-                if admitted {
-                    cx.quit();
-                }
-            })
-            .is_err()
-        {
-            cx.quit();
-        }
+        let view = view.clone();
+        // Keyboard action dispatch still owns this window. Wait until it is
+        // returned to the App before entering the same exit admission as Close.
+        cx.defer(move |cx| {
+            if cx
+                .update_window(handle, |_, window, cx| {
+                    let admitted = view
+                        .update(cx, |this, cx| {
+                            this.request_exit(ExitKind::Application, window, cx)
+                        })
+                        .unwrap_or(true);
+                    if admitted {
+                        cx.quit();
+                    }
+                })
+                .is_err()
+            {
+                cx.quit();
+            }
+        });
     });
 }
 
