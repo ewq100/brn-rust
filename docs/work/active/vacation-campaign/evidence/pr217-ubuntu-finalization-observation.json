@@ -1,0 +1,155 @@
+{
+  "observed_at": "2026-10-22T14:17:49.920970+00:00",
+  "endpoint": "repos/ewq100/brn-rust/actions/jobs/119866277847",
+  "response_date": "Thu,22Oct2026 14:17:04GMT",
+  "cache_control_request": "no-cache",
+  "job": {
+    "id": 119866277847,
+    "run_id": 39790658023,
+    "head_sha": "174e381f29518f3ec903a5c166b13a87ac33fcfa",
+    "status": "in_progress",
+    "conclusion": null,
+    "started_at": "2026-10-22T13:53:24Z",
+    "completed_at": null,
+    "steps": [
+      {
+        "name": "Set up job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 1,
+        "started_at": "2026-10-22T13:53:25Z",
+        "completed_at": "2026-10-22T13:53:26Z"
+      },
+      {
+        "name": "Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 2,
+        "started_at": "2026-10-22T13:53:26Z",
+        "completed_at": "2026-10-22T13:53:28Z"
+      },
+      {
+        "name": "Run ./.github/actions/setup-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 3,
+        "started_at": "2026-10-22T13:53:28Z",
+        "completed_at": "2026-10-22T14:01:36Z"
+      },
+      {
+        "name": "Prepare both locked document helper graphs",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 4,
+        "started_at": "2026-10-22T14:01:36Z",
+        "completed_at": "2026-10-22T14:08:12Z"
+      },
+      {
+        "name": "Build reusable writing UI on Unix",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 5,
+        "started_at": "2026-10-22T14:08:12Z",
+        "completed_at": "2026-10-22T14:08:21Z"
+      },
+      {
+        "name": "Lint reusable writing UI on Unix",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-10-22T14:08:21Z",
+        "completed_at": "2026-10-22T14:08:28Z"
+      },
+      {
+        "name": "Test reusable writing UI on Unix",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 7,
+        "started_at": "2026-10-22T14:08:28Z",
+        "completed_at": "2026-10-22T14:09:07Z"
+      },
+      {
+        "name": "Build the desktop with native UI",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-10-22T14:09:07Z",
+        "completed_at": "2026-10-22T14:09:14Z"
+      },
+      {
+        "name": "Lint native UI",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 9,
+        "started_at": "2026-10-22T14:09:14Z",
+        "completed_at": "2026-10-22T14:09:17Z"
+      },
+      {
+        "name": "Test native UI state",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 10,
+        "started_at": "2026-10-22T14:09:17Z",
+        "completed_at": "2026-10-22T14:09:35Z"
+      },
+      {
+        "name": "Lint native Unix widgets",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 11,
+        "started_at": "2026-10-22T14:09:35Z",
+        "completed_at": "2026-10-22T14:09:42Z"
+      },
+      {
+        "name": "Test native Unix widgets",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 12,
+        "started_at": "2026-10-22T14:09:42Z",
+        "completed_at": "2026-10-22T14:10:36Z"
+      },
+      {
+        "name": "Exercise the desktop headless driver on Unix",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 13,
+        "started_at": "2026-10-22T14:10:36Z",
+        "completed_at": "2026-10-22T14:10:36Z"
+      },
+      {
+        "name": "Exercise the desktop headless driver on Windows",
+        "status": "completed",
+        "conclusion": "skipped",
+        "number": 14,
+        "started_at": "2026-10-22T14:10:36Z",
+        "completed_at": "2026-10-22T14:10:36Z"
+      },
+      {
+        "name": "Post Run ./.github/actions/setup-rust",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 27,
+        "started_at": "2026-10-22T14:10:36Z",
+        "completed_at": "2026-10-22T14:10:36Z"
+      },
+      {
+        "name": "Post Run actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 28,
+        "started_at": "2026-10-22T14:10:36Z",
+        "completed_at": "2026-10-22T14:10:36Z"
+      },
+      {
+        "name": "Complete job",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 29,
+        "started_at": "2026-10-22T14:10:36Z",
+        "completed_at": "2026-10-22T14:10:36Z"
+      }
+    ]
+  },
+  "meaning": "All reported steps including Complete job succeeded by14:10:36; job/check conclusion still pending at14:17. Do not infer terminal check PASS or rerun a passing step; await actual finalization. Four required head checks separately PASS.",
+  "limits": "Observation of differing step/job states only; cause of finalization delay not established."
+}

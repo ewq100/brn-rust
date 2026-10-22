@@ -14,9 +14,9 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:53:09.798532+00:00
-Activity: Final reviewed/qualified174e381f normally published to existingPR217. Actual six-file diff, remote ref and PR head agree; body rewritten around complete final behavior. Branch frozen for fresh exact-head hosted checks. All351local desktop tests and selected component/host/lint/build/format/docs passed; native deferred.
-Next: Wait for corrected Ubuntu widget lane and all four required exact174 hosted checks, inspect live protection and preceding main. Merge normally only after all applicable gates settle; inspect resulting-main separately. Then publish the ready bounded-overview candidate against reconciled main.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:17:49.920970+00:00
+Activity: All four required exact174 hosted checks PASS. Corrected UbuntuNativeUI reports every step success includingCompletejob14:10:36, but actualjob/check conclusion remains inprogress at14:17; wait for terminal result before normalmerge. OptionalWindows unchangedUnix-only sourceFAIL retained. Finalcandidate frozen/reviewed/locallyqualified.
+Next: Await actual correctedUbuntuUI terminalPASS, then recheck live protection/exact174/base/allPRs and normalmerge; inspect resultingmain separately. Ready reviewed bounded-overview publication follows.
 
 <details>
 <summary>Gate status</summary>
@@ -24,7 +24,7 @@ Next: Wait for corrected Ubuntu widget lane and all four required exact174 hoste
 Gates:
 
 - **implementation:** PASS independent complete final174 review; prior P1 Quit and P2 clean-checkpoint findings valid/fixed; no unresolved source findings.
-- **checks:** PASS all selected local174 stages,351desktop/0/1ignored. Hosted final174 docs/MacNativeUI/MacRetrieval PASS at14:02; coreMac/coreUbuntu/correctedUbuntuUI pending at14:06. OptionalWindows failure unchanged Unix-only brn-ai source; native separate.
+- **checks:** PASS local351desktop/0/1ignored plus all4required exact174 hosted checks. OptionalcorrectedUbuntuUI terminal pending despite completedsteps; no passing-check inference. OptionalWindowsUnix-onlyFAIL retained; native separate.
 - **integration:** PR217 exact174 published and attached; fresh required checks pending. Normal protected merge authorized after live checks; no merge yet.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
@@ -312,4 +312,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T14:08:35.125495+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T14:17:49.920970+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

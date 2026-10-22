@@ -1,0 +1,10 @@
+{
+  "observed_at": "2026-10-22T14:17:49.920970+00:00",
+  "source": "174e381f29518f3ec903a5c166b13a87ac33fcfa",
+  "run": 39790658023,
+  "job": 119866278340,
+  "outcome": "OptionalWindowsCoreFAIL26errors in existingUnix-onlybrn-ai auth/codex_auth; source byte-identical to precedingmain5c606c10. NoNote-exitcode reached.",
+  "raw_log_sha256": "ae6b0231957f53a796bf39434bc87c21efcc4f53241f1c57ab0510a797a3469b",
+  "raw_log_gzip": "docs/work/active/vacation-campaign/evidence/pr217-windows-final.log.gz",
+  "limits": "Windows support excluded from this Mac-first repair; failure not suppressed or counted passing."
+}
