@@ -1,0 +1,9 @@
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust/crates/brn-desktop)
+error[E0425]: cannot find type `WeakEntity` in this scope
+    --> crates/brn-desktop/src/threads_ui.rs:4847:63
+     |
+4847 | fn install_exit_handlers(window: &Window, cx: &mut App, view: WeakEntity<ThreadsUi>) {
+     |                                                               ^^^^^^^^^^ not found in this scope
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `brn-desktop` (bin "brn-desktop" test) due to 1 previous error

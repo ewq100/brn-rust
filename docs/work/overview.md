@@ -34,16 +34,16 @@ Gates:
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:42:07.562502+00:00
-Activity: Design reconciled; bounded Luna author selected onmain5c606c10 for unchanged production registration extraction and one actual installed-close predicate witness. No tests or admission repair launched yet.
-Next: Author and inspect one witness/foundation; run it once on unchanged exit semantics and retain meaningful failure before selecting repair. Final exit policy/design remains under separate assessment, including durable-byte and explicit-discard escape cases.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T12:49:31.427690+00:00
+Activity: Corrected06bb runtime failed before Close: per-character actual input accepted only first P before existing readonly guard took effect, not the asserted multiline string. No exit-loss runtime proof. Two unsuccessful setup attempts now stopped for independent source/route reassessment.
+Next: Await consequential reassessment of a single Unicode-character actual input witness; preserve guard behavior rather than force hidden/fake multiline text. No third run or product repair until this route/preconditions are reconciled.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Witness foundation only selected on isolated branch frommain5c606c10; no admission repair yet.
+- **implementation:** Before-source witness/foundation ee01e812 only; callback semantics unchanged, no admission repair.
 - **checks:** Before-source runtime pending; no claimed native or I/O-specific fault observation.
 - **integration:** No new PR until complete candidate reviewed/qualified. Preceding-main216 checks still pending.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
@@ -417,4 +417,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T12:42:07.562502+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T12:49:31.427690+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

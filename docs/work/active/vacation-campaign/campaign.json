@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T12:42:07.562502+00:00",
+    "observed_at": "2026-10-22T12:49:31.427690+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5277,26 +5277,54 @@
         "title": "Preserve live-only note typing before normal Close or Quit",
         "state": "active",
         "owner": "Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T12:42:07.562502+00:00",
+        "observed_at": "2026-10-22T12:49:31.427690+00:00",
         "origin": "observed",
-        "activity": "Design reconciled; bounded Luna author selected onmain5c606c10 for unchanged production registration extraction and one actual installed-close predicate witness. No tests or admission repair launched yet.",
-        "next_action": "Author and inspect one witness/foundation; run it once on unchanged exit semantics and retain meaningful failure before selecting repair. Final exit policy/design remains under separate assessment, including durable-byte and explicit-discard escape cases.",
+        "activity": "Corrected06bb runtime failed before Close: per-character actual input accepted only first P before existing readonly guard took effect, not the asserted multiline string. No exit-loss runtime proof. Two unsuccessful setup attempts now stopped for independent source/route reassessment.",
+        "next_action": "Await consequential reassessment of a single Unicode-character actual input witness; preserve guard behavior rather than force hidden/fake multiline text. No third run or product repair until this route/preconditions are reconciled.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/note-exit-witness-route-corrected.md",
           "crates/brn-desktop/src/threads_ui.rs",
           "crates/brn-desktop/src/threads_writing_tests.rs",
-          "docs/work/active/vacation-campaign/evidence/note-exit-preservation-design.md"
+          "docs/work/active/vacation-campaign/evidence/note-exit-preservation-design.md",
+          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-author.md",
+          "docs/work/active/vacation-campaign/evidence/note-exit-run.py",
+          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-compile-failure.json",
+          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-compile-failure.log",
+          "docs/work/active/vacation-campaign/evidence/note-exit-run-corrected.py",
+          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-input-failure.json",
+          "docs/work/active/vacation-campaign/evidence/note-exit-baseline-input-failure.log"
         ],
         "gates": {
-          "implementation": "Witness foundation only selected on isolated branch frommain5c606c10; no admission repair yet.",
+          "implementation": "Before-source witness/foundation ee01e812 only; callback semantics unchanged, no admission repair.",
           "checks": "Before-source runtime pending; no claimed native or I/O-specific fault observation.",
           "integration": "No new PR until complete candidate reviewed/qualified. Preceding-main216 checks still pending.",
           "native": "Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.",
           "owner_acceptance": "Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded."
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "observed_at": "2026-10-22T12:47:02.358523+00:00",
+            "candidate": "ee01e812ecbbbbb6adbb2822f57be68be87dd316",
+            "outcome": "Compile FAIL E0425 missing WeakEntity import,6.03s; no runtime reproduction. Cleanup/groupabsence/sourceidentity PASS.",
+            "change": "Qualified existing type as gpui_kit::WeakEntity in06bbf374; no behavior/API widening or dependency change.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/note-exit-baseline-compile-failure.json",
+              "docs/work/active/vacation-campaign/evidence/note-exit-baseline-compile-failure.log"
+            ]
+          },
+          {
+            "observed_at": "2026-10-22T12:49:31.427690+00:00",
+            "candidate": "06bbf374d2bb2414fd0bf3fca438a642b50d60c8",
+            "outcome": "Runtime FAIL0/1 at live-text setup assertion1825: actual editor text P, expected full multiline attempt. Close assertion not reached; no product exit reproduction.50.21s cleanup/source PASS.",
+            "change": "Stop/reassess after two failed setup approaches. Existing readonly transition explains first-character acceptance; consider one actual Unicode character sufficient for the same exit-preservation contract, not forced paste/hooks.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/note-exit-baseline-input-failure.json",
+              "docs/work/active/vacation-campaign/evidence/note-exit-baseline-input-failure.log"
+            ]
+          }
+        ],
         "resource_plan": "Luna medium owns only unchanged exit-hook extraction plus one existing desktop test journey in clean mac-test-roots branch codex/note-exit-preservation-20261022 from5c606c10; no build/test launch, SQL fault, new dependencies, host permissions/disk, native/account/network or nested agents. Lead owns single build and consequential repair; Sol design/candidate review separately. Stop if supported U4 route cannot establish live-only bytes or baseline needs copied/test-only callback simulation."
       }
     ],
@@ -5312,9 +5340,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-connections-merged.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T12:42:07.562502+00:00",
-    "runtime_capacity": "Lead integration/qualification; Luna witness foundation active; independent Sol design complete. No local build/native/account actor.",
-    "build_slot": "Free; all final local qualification children reaped. No active local build.",
+    "observed_at": "2026-10-22T12:49:31.427690+00:00",
+    "runtime_capacity": "Lead integration; Sol bounded baseline reassessment active; Luna witness author complete. Source frozen06bb, no local build/native/account.",
+    "build_slot": "Free; both baseline children reaped and groups absent; no next build until route reassessment.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
