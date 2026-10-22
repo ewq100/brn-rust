@@ -846,3 +846,11 @@ The first new ZIP-assessment task projection failed validation because its empty
 
 
 [Later SQLite release-note supplement](evidence/sqlite-later-release-research.md) reuses the earlier exact-version research and distinguishes a Windows-only mutex change from the retained Mac fault. It establishes no matching diagnosis or repair, and selects no new cold loops, dependency upgrade or workaround. The earlier deferred boundary remains. [Remote merged/pending refresh](evidence/remote-pr214-merged-pending.json) retains the separate post-main and guide gates and preserves all38 unmanaged Page blocks.
+
+## 22October11:30UTC — TLS completed, guide normally integrated, Mac timing comparison
+
+[PR214 resulting-main](evidence/pr214-resulting-main.json) records all four required contexts PASS on exact e7a218fd; optional Windows failures remain visible. The preview-named workflow only evaluated its manifest gate (no approved preview manifest change); packaging/publication steps skipped. [PR215 premerge](evidence/pr215-premerge.json) and [integration](evidence/pr215-integration.json) retain live strict protection, exact head/prior-main success and normal merge10f2ff80 with whole qualified-tree equality. Its resulting-main checks are separate and pending.
+
+[Mac timing comparison](evidence/mac-core-215-variance.md), [lead validation](evidence/mac-core-215-variance-validation.json) and [raw logs/metadata](evidence/mac-core-215-variance-raw.tar.gz) preserve the same-production-code pair and unchanged test counts. Same fallback cache/key/bytes rules out the prior exact-hit/miss explanation; 437seconds spread across compilation/check/test stages remains causally unproven without runner telemetry. No optimization, rerun or cache change selected. Existing helper advisory, startup and native limits remain.
+
+Record validation initially refused the newly selected scope assessment because its evidence list was empty; last valid overview was preserved and commit/push stopped. Added concrete current-source/milestone pointers, then regenerated and checked before publication. No product source changed.

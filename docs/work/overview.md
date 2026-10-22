@@ -11,33 +11,12 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 
 ## Working on
 
-### Resolve recent certificate-trust dependency advisories
-
-Task ID: `tls-advisory-resolution`
-Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T10:59:26.405781+00:00
-Activity: PR214 normally merged as e7a218fd after all four required candidate and preceding-main checks plus live strict protection passed. The entire merged tree equals the independently reviewed/locally qualified candidate. Resulting-main checks are running separately.
-Next: Verify all four required resulting-main checks on exact e7a218fd. Keep optional platform results and separate helper/maintenance/startup/native limits visible; no release or full-security claim.
-Depends on: dependency-advisory-preflight when Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (reported satisfied: true)
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS reviewed234956cb171beb025acb1dc17b41be98992bddf0; only root Cargo.lock, four compatible package patches,943packagecount unchanged
-- **checks:** PASS all8localstages on234; actualfinalroot audit0vulns/8maintenance notices, versus7baseline. no-yanked/native/exploit qualification.
-- **integration:** MERGED normalPR214e7a218fd, exactqualifiedwhole-treeequality; all4head/precedingmainPASS/liveprotectionstrict. Resultingmain39766894309PENDING.
-- **native:** No native action selected; owner deferral unchanged
-- **owner acceptance:** No changed product meaning; security maintenance in existing scope
-
-</details>
-
 ### Document the existing offline native-library setup
 
 Task ID: `offline-native-retrieval-guide`
-Owner: Bounded Luna medium documentation author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T10:59:26.405781+00:00
-Activity: PR215 publishes the same independently reviewed documentation after reconciling onto normally merged TLSmain. Both reviewed document blobs remain unchanged and the diff from main is only two Markdown files. Hosted required checks and prior-main verification are pending.
-Next: Keep PR215 stable. Inspect exact-head/current-protection and actual preceding-main e7 results before normal merge, then check resulting-main separately.
+Owner: Bounded Luna medium documentation author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T11:29:17.516569+00:00
+Activity: PR215 normally merged as 10f2ff80 after all four exact-head and preceding-main required checks. Entire merged tree equals reviewed docs-only candidate80ea; separate resulting-main checks running.
+Next: Verify required resulting-main checks on exact10f2ff80; retain optional results. No Rust rebuild for the two-document change.
 Depends on: tls-advisory-resolution when Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (reported satisfied: true)
 
 <details>
@@ -47,9 +26,29 @@ Gates:
 
 - **implementation:** PASS independently reviewed9533de6d; toolingcachedORTroute plusverificationlink only
 - **checks:** PASS localdocslinks andwhitespace; sourcebranchordering verified. No Rust rebuild relevant to two docs-only changes.
-- **integration:** PUBLISHED PR215 exact80ea524e, two-doc-only diff frommaine7; checks/protection/preceding-main pending; no merge.
+- **integration:** MERGED normal PR21510f2ff80, whole qualified-tree equality. All4 exact-head/prior-main PASS; resulting-main39770731786 pending.
 - **native:** Inapplicable: setup guide does not establish app/model/native behavior
 - **owner acceptance:** Existing developer maintenance scope; no changed product meaning
+
+</details>
+
+### Check that a displayed note keeps its intended writing scope
+
+Task ID: `displayed-note-scope-ownership-assessment`
+Owner: Bounded Luna source assessment; lead disposition · State: **active** · Last observed: 2026-10-22T11:30:11.962594+00:00
+Activity: Selected the remaining host pairing of note_project and note_writing_scope with the shared NoteLifecycle. Current captured search/import/queue owners and recent recovery privacy guard are reused; inspect only whether ordinary open/reload/project navigation can leave a mismatched writing scope.
+Next: Trace actual writers/consumers and existing source-bound witnesses. Select no refactor/test unless a concrete supported ordering or invariant gap is shown.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Read-only bounded assessment; no source candidate selected.
+- **checks:** Pending source/caller/existing-witness map; no builds or native action.
+- **integration:** Inapplicable unless a separate repair is selected.
+- **native:** Owner-deferred; no interaction.
+- **owner acceptance:** Preserve existing selected scope semantics; consequential choices require separate disposition.
 
 </details>
 
@@ -327,6 +326,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `privacy-native-fixture-preparation` — Prepare fresh privacy test data before the Mac session
 - `native-artifact-preparation` — Prepare a matching Mac app without opening it
 - `dependency-advisory-preflight` — Assess a proportionate dependency advisory check
+- `tls-advisory-resolution` — Resolve recent certificate-trust dependency advisories
 - `current-lock-advisory-scan` — Check maintained dependency locks against current advisories
 - `helper-zip-advisory-assessment` — Assess document-helper ZIP advisories
 
@@ -383,4 +383,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T10:59:26.405781+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T11:30:11.962594+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

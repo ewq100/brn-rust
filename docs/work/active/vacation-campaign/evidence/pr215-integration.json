@@ -1,0 +1,12 @@
+{
+  "observed_at": "2026-10-22T11:27:34.877639+00:00",
+  "pr": 215,
+  "candidate": "80ea524e8fd214649b162f66d7eb12a7e33ec206",
+  "merge": "10f2ff80a39408ce411e10c77200e6d4a89b12d3",
+  "candidate_tree": "34ac58495731760708a5d433c946df614de9f8bd",
+  "merged_tree": "34ac58495731760708a5d433c946df614de9f8bd",
+  "whole_qualified_tree_equal": true,
+  "merge_method": "normal protected merge, no admin or bypass",
+  "resulting_main": "pending separate required checks",
+  "scope": "two development documents only; no runtime/config/source/lock/workflow change; no native/release claim"
+}

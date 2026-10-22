@@ -1,0 +1,81 @@
+{
+  "observed_at": "2026-10-22T11:29:17.516569+00:00",
+  "lead_validation": {
+    "pr215-log.log": {
+      "suites": 115,
+      "counts": [
+        1859,
+        0,
+        7
+      ],
+      "summed_suite_seconds": 125.94,
+      "job_seconds": 1217.0,
+      "Run ./.github/actions/setup-rust": 67.0,
+      "Prepare both locked document helper graphs": 179.0,
+      "Test the default workspace": 455.0
+    },
+    "main214-log.log": {
+      "suites": 115,
+      "counts": [
+        1859,
+        0,
+        7
+      ],
+      "summed_suite_seconds": 92.44,
+      "job_seconds": 780.0,
+      "Run ./.github/actions/setup-rust": 44.0,
+      "Prepare both locked document helper graphs": 94.0,
+      "Test the default workspace": 291.0
+    }
+  },
+  "report_sha256": "d3fa32f9ad527f15cf26ae10262b024daf7f92ad80b677cb6dc69687de521f5b",
+  "raw_archive_sha256": "9b4c6e5f5a2b86c832617a2b01a270ed4a3a408e78542124afe19e5bde5fd383",
+  "raw_files": [
+    {
+      "name": "main214-job.json",
+      "bytes": 4376,
+      "sha256": "91a75d81d5fd123b91e3e7af969f1630e97a53ef3ba38eac6cef9c3a232f755b"
+    },
+    {
+      "name": "main214-log.headers.txt",
+      "bytes": 998,
+      "sha256": "44b28a365b7776d996e54fa1039047e2c701c22047d67e2f327a075bb37e4d06"
+    },
+    {
+      "name": "main214-log.log",
+      "bytes": 341069,
+      "sha256": "2fbaeec887261e546a837920a894216d1586dbd9e63a594db64d74f9994f936e"
+    },
+    {
+      "name": "main214-pr215-compare.json",
+      "bytes": 17321,
+      "sha256": "34b3ff1f49af5763ebd6f2d7e1c00fc24bd91f7ed4975f8e6fef00f3c0f6feaa"
+    },
+    {
+      "name": "main214-run.json",
+      "bytes": 11738,
+      "sha256": "1602c6bc2f7871432bdaf6937570d5fdd83f641184cef5683e1de68f5c7a46ec"
+    },
+    {
+      "name": "pr215-job.json",
+      "bytes": 4417,
+      "sha256": "6ae0eab1ac2475cdfec2eabbd8ee3d4d5cac873ade0e111536ed073fec185188"
+    },
+    {
+      "name": "pr215-log.headers.txt",
+      "bytes": 998,
+      "sha256": "6c6e56462274c47484712045eb01f04ea6eef35605947a771ce378bb80fc632a"
+    },
+    {
+      "name": "pr215-log.log",
+      "bytes": 334333,
+      "sha256": "0f0a310e9c2d88cad8d9469d5c18bc4e1f1e9ca5ece38a026e9943d63c476d52"
+    },
+    {
+      "name": "pr215-run.json",
+      "bytes": 12228,
+      "sha256": "e6c47719b653a8ce77dd8d2cee2e96cae08a3fcb9f667b57f2710ebafb5342bf"
+    }
+  ],
+  "verdict": "Bounded source-identical product comparison verified. No causal runner telemetry; no optimization or extra run selected."
+}
