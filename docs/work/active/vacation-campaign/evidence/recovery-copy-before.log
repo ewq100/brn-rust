@@ -1,0 +1,23 @@
+{"candidate": "2ff42451adf97268884afd3a0b91c3ec97922e3f", "base": "13813f6ff827de776a663036f5d468500e7a5ed1", "purpose": "one before-source private recovery-copy desktop witness; actual failure expected, not native/product acceptance"}
+     Removed 6 files, 74.6MiB total
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/architecture-status-route/brn-rust/crates/brn-desktop)
+    Finished `test` profile [optimized] target(s) in 51.14s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`
+     Running unittests src/main.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_desktop-5976492de41793be)
+
+running 1 test
+
+thread 'threads_ui::polish_tests::stale_private_note_copy_stays_out_of_general_knowledge' (18692178) panicked at crates/brn-desktop/src/threads_polish_tests.rs:708:9:
+private recovery copy entered general Notes
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test threads_ui::polish_tests::stale_private_note_copy_stays_out_of_general_knowledge ... FAILED
+
+failures:
+
+failures:
+    threads_ui::polish_tests::stale_private_note_copy_stays_out_of_general_knowledge
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 348 filtered out; finished in 0.11s
+
+error: test failed, to rerun pass `-p brn-desktop --bin brn-desktop`

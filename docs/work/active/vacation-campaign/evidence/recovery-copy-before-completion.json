@@ -1,0 +1,28 @@
+{
+  "observed_at": "2026-10-22T06:38:29.682484+00:00",
+  "exit_code": 101,
+  "stop_reason": null,
+  "exception_type": null,
+  "elapsed_seconds": 55.19712799997069,
+  "disk_free_bytes": 16856276992,
+  "owned_process_group": {
+    "signals": [],
+    "errors": [],
+    "group_probes": 2,
+    "last_group_status": "absent",
+    "term_group_absent": true,
+    "kill_group_absent": null,
+    "leader_reaped": true,
+    "resolved": true
+  },
+  "checkout_unchanged": true,
+  "candidate": "2ff42451adf97268884afd3a0b91c3ec97922e3f",
+  "log_validation": {
+    "privacy_assertion": true,
+    "one_test_failed": true,
+    "error_type": null
+  },
+  "qualified": false,
+  "baseline_reproduced": true,
+  "scope": "one before-source desktop privacy regression; expected actual test failure retained; no native/product acceptance"
+}

@@ -1,0 +1,22 @@
+{
+  "observed_at": "2026-10-22T06:43:32.642816+00:00",
+  "pr": {
+    "headRefOid": "aa25edf36950a88bfd481bf7d475ce9d4b62809e",
+    "mergeCommit": {
+      "oid": "aded398a0c1960d1feabe48166284ec0824ee4e1"
+    },
+    "mergedAt": "2026-10-22T06:42:09Z",
+    "state": "MERGED",
+    "url": "https://github.com/ewq100/brn-rust/pull/211"
+  },
+  "candidate": "aa25edf36950a88bfd481bf7d475ce9d4b62809e",
+  "main": "aded398a0c1960d1feabe48166284ec0824ee4e1",
+  "qualified_tree": "55e2651f5ad4f93016d158607be65fc4f726e85c",
+  "resulting_tree": "55e2651f5ad4f93016d158607be65fc4f726e85c",
+  "whole_tree_equal": true,
+  "merge": "gh pr merge 211 --merge --match-head-commit aa25edf36950a88bfd481bf7d475ce9d4b62809e",
+  "merge_exit_code": 0,
+  "premerge_receipt": "pr211-premerge.json",
+  "required_resulting_main": "Pending separately; no source/Rust replay, native or release proof.",
+  "limits": "Every Windows check remains enabled; actual future cache availability/speed/reclamation unproven. Existing entries not deleted."
+}
