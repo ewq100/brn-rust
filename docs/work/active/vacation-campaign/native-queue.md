@@ -233,3 +233,41 @@ Follow-up: Review-group Include/Omit is another genuine owner choice with select
 styling but missing boolean metadata in current source. It is a separate candidate-
 selection concern; prepare a source-bound multi-group native scenario before
 qualification. Do not change navigation/one-shot actions as if they were toggles.
+
+## MAC-13: privacy of a stale recovery copy
+
+This is a scenario definition for the changed recovery-copy control (`save-buffer-copy`) in
+[PR212](https://github.com/ewq100/brn-rust/pull/212), merged as
+`e918b2b303f44cfca6cbd49347ea5b4fd4e335f1`. Current readiness and the owner-deferred
+desktop gate remain in campaign state. No fixture or matching immutable app has
+been prepared for this scenario; there has been no actual Mac observation.
+Do not attempt access or disturb the preserved app while availability is unchanged.
+
+After availability returns, use one then-current reviewed and qualified production
+build and fresh explicit synthetic workspaces. Prepare a private working Note and
+an unrelated general sentinel through supported checked services, with exact
+canonical and draft bytes from [the existing fixture manifest](native-fixtures/manifest.json).
+Open the private Note while clean. Before beginning an edit, use a separately
+recorded checked operation to advance its canonical version while the window
+still displays the older saved version. Then type the unsaved draft through
+actual controls, without intervening navigation or refresh. Require the real
+stale-edit banner and confirm the exact recovery bytes and historical basis are
+already durable. This ordering preserves the dirty guard; do not bypass it or
+manufacture state through SQL. If ordinary controls cannot reach this state,
+preserve that result and leave the case unqualified. Activate the actual
+stale-recovery copy control. Compare durable state with a read-only snapshot
+taken after the checked version advance and before the copy attempt.
+Require the private-work explanation,
+the exact draft still recoverable with its original basis, unchanged source and
+sentinel, and no new general Note or recovery-copy receipt. Check general search
+and a supported general export for the private fixture text as separate outcomes;
+preserve any failure before continuing.
+
+In a separate fresh general workspace, repeat the stale-edit setup and activate
+the same control. Require one new general Note containing the exact draft bytes,
+with the original canonical Note and unrelated sentinel unchanged. This positive
+case qualifies the retained public-copy route alongside the private refusal.
+Record source/binary/helper identity, checked fixture operations, actual controls,
+visible outcomes and read-only durable evidence. The existing service/toolkit
+witnesses support preparation; they do not pass either native case. No account
+call, private publication, private-copy feature or owner acceptance is selected.

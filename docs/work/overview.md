@@ -11,33 +11,12 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 
 ## Working on
 
-### Prevent recovery copies from becoming general knowledge accidentally
-
-Task ID: `recovery-copy-privacy-guard`
-Owner: Lead design; bounded Luna witness/author; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T08:07:51.915312+00:00
-Activity: PR212 normally merged e918b2b3 after all four exact-head and preceding-main required checks plus live strict/enforced protection passed. Entire integrated tree equals reviewed candidate ccd05b28. Resulting-main checks now separate/pending; unresolved startup debt remains.
-Next: Observe all four required resulting-main contexts for exact e918b2b3; preserve optional failures and any actual failure. Keep startup fault unresolved with its trigger; no build implies native acceptance.
-Depends on: sqlite-cold-start-crash when Independent causal/scope disposition adopted: selected privacy behavior may proceed to normal required CI with unresolved startup debt retained; no full-app or repaired-flake claim. (reported satisfied: true)
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS independent full049review plus affectedccd correction/contract refresh. BothP2s valid/fixed; productionbytes unchanged sincefullreview; exactfinal5file candidate approved.
-- **checks:** Selected privacy service/control/lint/build checks and all four hosted head checks PASS. Original complete local attempt still FAILED/unqualified at SQLite initialization; independent scope disposition retained.
-- **integration:** Normal merge e918b2b3, exact qualified-tree equality; all required head/preceding-main/protection PASS. Required resulting-main checks pending.
-- **native:** Deferred for owner-reported screenunavailability.
-- **owner acceptance:** No new publication/private-copy policy selected; failclosed originalprivate boundary isexistingcontract.
-
-</details>
-
 ### Keep raw check history out of the startup summary
 
 Task ID: `active-overview-reading-route`
-Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:23:37.414885+00:00
-Activity: Final complete7ccb552e approved independently, bothP2s valid/fixed. Actual final190Python tests PASS with branch--check/links/diff and real custom-record render/query/check; exactdetail lookup preserves27evidence/2attempts withoutinput/outputmutation. Frozen same111task input51,796→26,284bytes. Source adopted locally onlead withseparatelyregenerated authoritativepage; no main merge yet.
-Next: Publish frozen reviewed/qualified7ccb552e candidate from main212; keep head stable, inspect live protection/all required exacthead and precedingmain before normalmerge, then resultingmain separately.
+Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:27:30.083788+00:00
+Activity: Published/attached PR213 exact7ccb552e against main212e918b2b3; stable reviewed/qualified three-file candidate, requiredhead CI39747522014 running. Authoritative leadsource/currentprojection adopted separately; no normalmainmerge yet.
+Next: KeepPR213head stable. Inspect all four exact-head requiredchecks, preceding-main212 and live protection before normal merge; resultingmain separately. No local workload repeat without changedsource/failure.
 
 <details>
 <summary>Gate status</summary>
@@ -46,7 +25,7 @@ Gates:
 
 - **implementation:** PASS final complete7ccb552e independent review, bothP2s corrected; canonical record untouched, coherent raw-history formatter retirement.
 - **checks:** PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796→26,284UTF8bytes; no token/cost/nativeclaim.
-- **integration:** Locally adopted source onlead with own currentprojection; candidate7ccb552e not yetpublished/merged. Required hostedgates remainpending.
+- **integration:** PUBLISHED PR2137ccb552e, required head pending. Base main212 e918b2b3 resulting checks still separate; no merged completion.
 - **native:** Inapplicable to text projection; existing native gates remain deferred
 - **owner acceptance:** Current visibility adoption authorizes a concise startup route; no owner acceptance claimed
 
@@ -291,6 +270,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `ci-supported-platform-cache-scope` — Keep shared build-cache use focused on Mac and Linux
 - `review-draft-failure-preflight` — Check edited proposals survive refused preparation and replacement
 - `recovery-copy-privacy-preflight` — Check recovery copies preserve private-note boundaries
+- `recovery-copy-privacy-guard` — Prevent recovery copies from becoming general knowledge accidentally
 - `launcher-request-close-preflight` — Check quick search request ownership when it closes
 - `comment-draft-ownership-preflight` — Check comment drafts remain attached to their saved passage
 
@@ -336,4 +316,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T08:23:37.414885+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T08:30:18.908420+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

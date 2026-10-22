@@ -1,0 +1,32 @@
+{
+  "baseRefOid": "e918b2b303f44cfca6cbd49347ea5b4fd4e335f1",
+  "files": [
+    {
+      "path": "docs/work/overview.md",
+      "additions": 11,
+      "deletions": 26,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "scripts/render-work-overview.py",
+      "additions": 10,
+      "deletions": 23,
+      "changeType": "MODIFIED"
+    },
+    {
+      "path": "scripts/tests/test_work_overview.py",
+      "additions": 83,
+      "deletions": 5,
+      "changeType": "MODIFIED"
+    }
+  ],
+  "headRefOid": "7ccb552efc152443f1ae57a044673500e7fe91c3",
+  "isDraft": false,
+  "number": 213,
+  "state": "OPEN",
+  "url": "https://github.com/ewq100/brn-rust/pull/213",
+  "observed_at": "2026-10-22T08:27:30.083788+00:00",
+  "attached": true,
+  "required_run": 39747522014,
+  "limits": "Published reviewed/locally qualified candidate only; required head/main/protection gates not yet satisfied by this publication."
+}

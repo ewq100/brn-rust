@@ -1,0 +1,111 @@
+{
+  "observed_at": "2026-10-22T08:30:18.908420+00:00",
+  "sha": "e918b2b303f44cfca6cbd49347ea5b4fd4e335f1",
+  "run": 39745276731,
+  "required": [
+    {
+      "id": 119712056631,
+      "name": "Core and CLI (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e918b2b303f44cfca6cbd49347ea5b4fd4e335f1",
+      "started_at": "2026-10-22T08:06:23Z",
+      "completed_at": "2026-10-22T08:28:23Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056631"
+    },
+    {
+      "id": 119712056681,
+      "name": "Core and CLI (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e918b2b303f44cfca6cbd49347ea5b4fd4e335f1",
+      "started_at": "2026-10-22T08:06:24Z",
+      "completed_at": "2026-10-22T08:25:27Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056681"
+    },
+    {
+      "id": 119712056501,
+      "name": "Native UI build and state (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e918b2b303f44cfca6cbd49347ea5b4fd4e335f1",
+      "started_at": "2026-10-22T08:06:23Z",
+      "completed_at": "2026-10-22T08:11:59Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056501"
+    },
+    {
+      "id": 119712056651,
+      "name": "Native retrieval and combined build (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "e918b2b303f44cfca6cbd49347ea5b4fd4e335f1",
+      "started_at": "2026-10-22T08:06:23Z",
+      "completed_at": "2026-10-22T08:11:25Z",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056651"
+    }
+  ],
+  "all_checks": [
+    {
+      "name": "Native retrieval and combined build (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056761"
+    },
+    {
+      "name": "Core and CLI (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056681"
+    },
+    {
+      "name": "Native retrieval and combined build (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056651"
+    },
+    {
+      "name": "Native UI build and state (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056633"
+    },
+    {
+      "name": "Core and CLI (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056631"
+    },
+    {
+      "name": "Native retrieval and combined build (ubuntu-24.04)",
+      "status": "in_progress",
+      "conclusion": null,
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056630"
+    },
+    {
+      "name": "Core and CLI (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056507"
+    },
+    {
+      "name": "Native UI build and state (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056501"
+    },
+    {
+      "name": "Native UI build and state (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056375"
+    },
+    {
+      "name": "Documentation and tooling",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/ewq100/brn-rust/actions/runs/39745276731/job/119712056266"
+    }
+  ],
+  "verdict": "PASS all four required resulting-main checks",
+  "limits": "Original local SQLite startup failure remains unresolved debt, not repaired by green CI. No new native/account/owner acceptance or release claim."
+}
