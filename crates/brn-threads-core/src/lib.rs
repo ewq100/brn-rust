@@ -2,6 +2,8 @@
 //! never decoded from a model request. All writers use SQLite IMMEDIATE transactions.
 mod backup;
 mod inspect;
+#[cfg(all(test, unix))]
+mod process_test;
 pub use inspect::{CandidateRow, OperationInfo, OperationState, RECORD_KINDS};
 mod converge;
 pub use converge::{Converged, Unchanged};
