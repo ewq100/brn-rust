@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T06:05:11.455865+00:00",
+    "observed_at": "2026-10-22T06:16:40.653661+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4022,10 +4022,10 @@
         "title": "Read saved Settings without decoding every note",
         "state": "active",
         "owner": "Bounded Luna medium author; independent Sol review; lead checks/integration",
-        "observed_at": "2026-10-22T05:44:12.858586+00:00",
+        "observed_at": "2026-10-22T06:16:40.653661+00:00",
         "origin": "observed",
-        "activity": "Exact eae fullselectedlocalchecks PASS219core+77app+344desktop with2intentionalignored/3filtered; strictlint/nativebuild/notlaunch/fmt/diff. Initial0testcomparison correctlyrejected/preserved; scoped package rebuild then actual1test PASS67,079us with same10kNotes/10,002records/23receipts. No causal/statistical/native speedup claim. Source and adapters independentlyreviewed; ready for exactproductpublication excludingdiagnostic. Published product-only PR210 at frozen exacteae, twofiles5+/11-; attached. Required hostedhead/precedingmain209/liveprotection pending; notmerged.",
-        "next_action": "Keep PR210 exacteae frozen. Inspect all four required exacthead and preceding-main209 checks plus actual liveprotection before normal merge; resulting-main separately. No repeated localchecks/measurement.",
+        "activity": "PR210 normally merged13813f6f after all4 exacthead and precedingmain requiredchecks plus liveprotection PASS. Wholequalifiedeae tree equalsactualmain. Resulting-main gates pending separately; native notclaimed.",
+        "next_action": "Inspect all4 resulting-main13813f6f gates and actualpreviewsteps separately; no local replay. Continue reviewedCIpolicy publication on currentmain.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -4053,12 +4053,14 @@
           "docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-final.log",
           "docs/work/active/vacation-campaign/evidence/indexed-settings-refresh-final-completion.json",
           "docs/work/active/vacation-campaign/evidence/indexed-settings-read-combined-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/pr210-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr210-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr210-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr210-integration.json"
         ],
         "gates": {
           "implementation": "PASS complete independent exacteae two-file review; core query/index bytes unchanged, missing/archived and error surface reviewed.",
           "checks": "PASS core219/0,11app77/0/1ignored,desktop344/0/1ignored+3filtered,strictlint,productionnativebuild/notlaunch,fmt/diff. Changed-source diagnostic1/0 at67.079ms after scopedcachecorrection; original0testfail retained. No latency/native acceptance.",
-          "integration": "PR210 PUBLISHED exactreviewed/qualifiedeae onactualmain2095fab; diagnosticfixture excluded. Required hostedhead/precedingmain/liveprotection pending; notmerged.",
+          "integration": "MERGED PR21013813f6f, all4head/precedingmain plus strict/enforcedliveprotection PASS; wholequalifiedtreeequal. Required resulting-main PENDING.",
           "native": "Headless task only; no actual native interaction or owner acceptance claim.",
           "owner_acceptance": "No new consequential product choice selected."
         },
@@ -4127,15 +4129,15 @@
         "title": "Keep shared build-cache use focused on Mac and Linux",
         "state": "active",
         "owner": "Bounded Luna small CI author; independent Sol review; lead integration",
-        "observed_at": "2026-10-22T06:02:18.911812+00:00",
+        "observed_at": "2026-10-22T06:16:40.653661+00:00",
         "origin": "observed",
         "activity": "One-file candidate786ebfd2 independently reviewed with no findings. Windows jobs remain enabled; only Rust-cache use stops on Windows. YAML parse, all10 existing affectedPython checks and diff/cleanHEAD pass. Not pushed/published; parentPR210 lastMacgate pending.",
-        "next_action": "Hold publication for normalPR210 integration; reconcile candidate onto actualmain and confirm identicalone-file delta. Then publish and satisfy all required head/preceding-main/liveprotection gates; no redundant localRustchecks.",
+        "next_action": "Reconcile reviewed786ebfd2 CI-only change onto actualmain21013813f6f, verify identicalone-file diff and publish. Required exacthead and precedingmain210 checks/liveprotection before normalmerge; resultingmain separately.",
         "depends_on": [
           {
             "task": "indexed-settings-read-reuse",
             "condition": "Publication only: PR210 normally integrated, then reconcile CI-only diff onto actualmain. Implementation may use already reviewed/qualifiedeae now.",
-            "satisfied": false
+            "satisfied": true
           }
         ],
         "resource_waits": [],

@@ -1,0 +1,22 @@
+{
+  "observed_at": "2026-10-22T06:16:40.653661+00:00",
+  "pr": {
+    "headRefOid": "eae61dde04cda19c764246993966b13b997014eb",
+    "mergeCommit": {
+      "oid": "13813f6ff827de776a663036f5d468500e7a5ed1"
+    },
+    "mergedAt": "2026-10-22T06:16:08Z",
+    "state": "MERGED",
+    "url": "https://github.com/ewq100/brn-rust/pull/210"
+  },
+  "candidate": "eae61dde04cda19c764246993966b13b997014eb",
+  "main": "13813f6ff827de776a663036f5d468500e7a5ed1",
+  "qualified_tree": "e07b9c7b5570b9a714b148b4db70048c6e28458b",
+  "resulting_tree": "e07b9c7b5570b9a714b148b4db70048c6e28458b",
+  "whole_tree_equal": true,
+  "merge": "gh pr merge 210 --merge --match-head-commit eae61dde04cda19c764246993966b13b997014eb",
+  "merge_exit_code": 0,
+  "premerge_receipt": "pr210-premerge.json",
+  "required_resulting_main": "Pending separately; no native/owner acceptance/release claim",
+  "optional_head_failures": "Windows Core failure preserved in premerge all_checks; optional Ubuntu nativeUI may remain running at this observation."
+}
