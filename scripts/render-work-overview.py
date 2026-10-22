@@ -210,7 +210,7 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
             record_link = f"[selected work record]({quote(record_target, safe='/._-()')})"
             out.extend((
                 "Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.",
-                f"Full task details, gates, evidence, and attempts remain in the {record_link}. Inspect one validated task with `python3 scripts/render-work-overview.py --task TASK_ID`, using an ID listed below.",
+                f"Full task details, gates, evidence, and attempts remain in the {record_link}. Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked record path and TASK_ID with an ID listed below.",
                 "",
             ))
             out.extend(f"- `{task['id']}` — {task['title']}" for task in selected)
