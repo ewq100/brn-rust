@@ -14,16 +14,16 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:11:37.407694+00:00
-Activity: Frozen6da component and independent host checks PASS. Full desktop FAIL349/1/1ignored at Cmd-Q refusal dialog1889; earlier Close refusal, Enter and Cancel PASS. No lint/build launched after failure. Two unused test bindings also need mechanical correction. Lead and independent reviewer diagnosing same-window global action reentry before repair.
-Next: Confirm actual gpui-pre action/window lifetime diagnosis; correct bounded production Quit deferral and unused test bindings if established. Refresh review; rerun affected desktop/lint/build only, reusing unchanged component/host PASS.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:12:48.832582+00:00
+Activity: Confirmed P1 draft Quit bypass from nested same-window update during key dispatch; independent reviewer agreed. Corrected frozen155bb867 defers shared admission until window restored, keeps original regression assertions, removes2unused test bindings. Affected desktop/lint/ordinary build running sequentially; source review refresh active.
+Next: Inspect corrected full-suite result and review disposition. On a second failed final approach, reassess evidence before further retry. If all gates pass, qualify exact binary/helpers and publish one reviewed outcome.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Implemented frozen6da1735b including contracts; full independent candidate review pending. No PR.
+- **implementation:** Implemented frozen155bb867; independent final review refresh pending. P1 Quit finding adopted/fixed in source; checks pending.
 - **checks:** FAIL desktop349/1/1ignored at new Cmd-Q1889; component/host PASS, lint/build not launched. Native owner-deferred.
 - **integration:** No PR until reviewed/qualified. Preceding main5c606c10 all four required resulting-main checks PASS; live protection and exact candidate checks remain required.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.

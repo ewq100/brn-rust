@@ -1,0 +1,9 @@
+# Registered Quit failure and correction
+
+Observed 2026-10-22T13:12:48.832582+00:00. Full final candidate6da1735b passed component/independent-host checks but desktop failed349/1/1ignored at the new real Cmd-Q dialog assertion1889. Normal Close refusal, Enter and Cancel passed first; later scenarios were not reached. Strict lint and ordinary build were not launched.
+
+The lead and independent Sol reviewer traced a real P1 draft defect. In pinned gpui-pre0.3.9, Window::dispatch_action_on_node_inner invokes the global bubble handler while App::update_window_erased holds that window outside cx.windows. The draft's nested same-handle update therefore returns `window not found`, and its fallback invokes App.quit before Note admission or worker cancellation. TestPlatform.quit is a no-op, so the missing dialog is a distinguishing regression result, not native termination observation.
+
+Pinned dependency paths relative to its crate: src/window.rs6575–6590; src/app.rs3146–3200 (lease/restore),2201–2216 (missing result),2326–2332 (supported App.defer contract),1313–1331 (outer effects flush). No web or platform assumption substituted for actual locked source.
+
+Adopted valid/fixed source correction155bb86776eea697135de8d6782bddc4481b3de0: clone the weak view per Quit action and defer its same-window checked admission until the action dispatch returns the window. The existing Close/Note checks and actual Cmd-Q assertions remain unchanged. Exactly two unused test closure bindings were also made anonymous. No runtime prompts, store/schema/lockfile/data authority or cancellation policy changed. Headless tests cannot establish OS termination. Final review and affected desktop/lint/ordinary-build checks remain pending at this observation; unchanged writing component and example host results remain applicable.
