@@ -753,6 +753,13 @@ def prepare_root(runner: Runner, label: str, data: Path, initial_path: Path, ini
         note_id, _ = note_create(runner, data, f"MAC13 {label} note", initial_path, f"mac13-{label}-note")
         chat = None
     sentinel_id, _ = note_create(runner, data, f"MAC13 {label} sentinel", sentinel_path, f"mac13-{label}-sentinel")
+    if private:
+        # This fixture is about privacy/recovery, not converter byte fidelity.
+        # Preserve imported revision1 and its Source, then explicitly establish
+        # the independently fixed editor bytes through ordinary checked Save.
+        setup_state = {"note_id": note_id, "chat_id": chat, "sentinel_id": sentinel_id}
+        checked_fixture_save(runner, label, setup_state, data, initial_path, initial,
+                             sentinel, True, purpose="private-initialization")
     state = verify_fixture_root(runner, label, data, initial, sentinel, private)
     if state["note_id"] != note_id or state["sentinel_id"] != sentinel_id or state["chat_id"] != chat:
         raise PreparationError(f"{label}: created identities differ from verified fixture")
@@ -760,9 +767,9 @@ def prepare_root(runner: Runner, label: str, data: Path, initial_path: Path, ini
     return state
 
 
-def advance_rehearsal(runner: Runner, label: str, initial_state: dict, data: Path,
+def checked_fixture_save(runner: Runner, label: str, initial_state: dict, data: Path,
                       advance_path: Path, advance_bytes: bytes, sentinel: bytes,
-                      private: bool) -> dict:
+                      private: bool, *, purpose: str = "rehearsal") -> dict:
     before_records = read_collection(runner, data, "records")
     before_history = read_collection(runner, data, "history")
     before_recovery = read_collection(runner, data, "recovery")
@@ -837,10 +844,12 @@ def advance_rehearsal(runner: Runner, label: str, initial_state: dict, data: Pat
         raise PreparationError(f"{label}: general projection changed incorrectly")
     result = {
         "workspace": label,
+        "purpose": purpose,
         "data_dir": str(data),
         "note_id": initial_state["note_id"],
         "chat_id": initial_state["chat_id"],
         "base_version": base,
+        "base_markdown_sha256": sha256(record_data(before_note, "Note")["markdown"].encode("utf-8")),
         "saved_version": after_note["version"],
         "saved_markdown_sha256": sha256(advance_bytes),
         "note_metadata_preserved": True,
@@ -854,7 +863,7 @@ def advance_rehearsal(runner: Runner, label: str, initial_state: dict, data: Pat
         "token_path": str(token),
         "token_bytes_retained": False,
     }
-    runner.checkpoint("rehearsal-advance-verified", result)
+    runner.checkpoint(f"{purpose}-save-verified", result)
     return result
 
 
@@ -953,8 +962,8 @@ def main() -> int:
         primary_general = prepare_root(runner, "general-primary", workspaces["general-primary"], initial_path, initial, sentinel_path, sentinel, False)
         rehearsal_private = prepare_root(runner, "private-rehearsal", workspaces["private-rehearsal"], source_path, initial, sentinel_path, sentinel, True)
         rehearsal_general = prepare_root(runner, "general-rehearsal", workspaces["general-rehearsal"], initial_path, initial, sentinel_path, sentinel, False)
-        private_after = advance_rehearsal(runner, "private-rehearsal", rehearsal_private, workspaces["private-rehearsal"], advance_path, advance, sentinel, True)
-        general_after = advance_rehearsal(runner, "general-rehearsal", rehearsal_general, workspaces["general-rehearsal"], advance_path, advance, sentinel, False)
+        private_after = checked_fixture_save(runner, "private-rehearsal", rehearsal_private, workspaces["private-rehearsal"], advance_path, advance, sentinel, True)
+        general_after = checked_fixture_save(runner, "general-rehearsal", rehearsal_general, workspaces["general-rehearsal"], advance_path, advance, sentinel, False)
         # Verify primary roots remain at the exact pre-advance initial state.
         primary_private_final = verify_fixture_root(runner, "private-primary", workspaces["private-primary"], initial, sentinel, True)
         primary_general_final = verify_fixture_root(runner, "general-primary", workspaces["general-primary"], initial, sentinel, False)

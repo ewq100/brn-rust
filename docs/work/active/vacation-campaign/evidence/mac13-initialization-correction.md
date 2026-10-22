@@ -1,0 +1,7 @@
+# One diagnosed fixture initialization correction
+
+Attempt1 failed at the intended exact initial-body check: document import returned a soft-line as a space. No expected fixture changed, and no conversion-fidelity/product repair is claimed. The original attempt/data/source/outputs are retained unchanged.
+
+For one new fresh run only, private fixture setup will deliberately perform an ordinary checked caller Save after chat attachment import and sentinel creation, setting canonical text to the original independent save-initial.txt bytes. Reuse the existing reviewed checked-save method, including actual base version, token file, Updated/Saved outcomes, exact allowed Note delta, all other records/sentinel unchanged, complete history retention and recovery closure. Record this as `private-initialization-save`, distinct from later `rehearsal-save`. Imported Note revision1 and Source fingerprint remain evidence; initial private fixture is now actualversion2, without assuming future versions. Strict verify_fixture_root still requires unchanged expected bytes and scope/protection/attachment. General roots remain ordinary note-create.
+
+No SQL repair, converter/helper/default/policy change, changed expected fixtures, private publication, native action or account/Run. Preserve original failed run untouched and create new exclusive roots. This is the second and final actual preparation attempt under this task; failure stops/reassesses without another automatic run. Existing group/output/disk/token/600s bounds remain.
