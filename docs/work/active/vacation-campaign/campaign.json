@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T00:29:58.132Z",
+    "observed_at": "2026-10-22T00:31:58.900886+00:00",
     "remaining_percent": 66,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual33%used/67%remaining, ordinaryUsageAllowedtrue, secondaryunavailable; fixedexpiry unchanged and no ownerpause",
+    "ordinary_work": "admitted: actual34%used/66%remaining, ordinaryUsageAllowedtrue, secondaryunavailable; fixedexpiry unchanged, no ownerpause; precise-edit accounttestsession exhausted separately",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -2655,14 +2655,16 @@
       {
         "id": "targeted-edit-account-qualification",
         "title": "Check a precise AI edit on fresh synthetic data",
-        "state": "active",
+        "state": "blocked",
         "owner": "lead single account actor; bounded Luna preflight only",
-        "activity": "Final third session attempt reserved before launch on reviewed/qualifiedeac295b1 guidance18 and independently reviewed driverd7857d41. Freshfixture locally sealed533bytes; actual67%remaining. No fourth session attempt permitted.",
-        "observed_at": "2026-10-22T00:29:58.171857+00:00",
+        "activity": "Finalattempt Completed but taskFAIL: exact edit49..61 then47..59 refused, requested43..55. Originaltarget/sentinel unchanged, nocandidates. All3sessionattempts exhausted; finalafterquota66%remaining permits ordinaryheadlesswork only.",
+        "observed_at": "2026-10-22T00:31:58.900886+00:00",
         "origin": "observed",
-        "next_action": "Execute only the reserved final session attempt; inspect actual trace, exact candidate/fullcanonical equality and afterquota. Close this accounttest session after actual outcome; no further same-scenario generation.",
+        "next_action": "No further live launches in this session or renamed retry session. Continue explicit unique-exact-quote design/independent review/deterministic qualification. Future genuine account session requires policy/admission and distinct diagnosed repair; failed qualification remains visible.",
         "depends_on": [],
-        "resource_waits": [],
+        "resource_waits": [
+          "Consolidated accounttest session exhausted3attempts; no automatic retry."
+        ],
         "evidence": [
           "docs/work/active/vacation-campaign/codex-ai-testing.md",
           "docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json",
@@ -2682,11 +2684,13 @@
           "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz",
           "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-driver.py",
           "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-driver-review.md",
-          "docs/work/active/vacation-campaign/evidence/targeted-edit-driver-envelope-check.json"
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-driver-envelope-check.json",
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-raw.tar.gz"
         ],
         "gates": {
           "implementation": "No product change selected; reuse existing exact edit capability and normal runtime.",
-          "checks": "Account/runtime succeeded; taskFAIL no preparedcandidate. Exacttarget/sentinelunchanged, no native acceptance.",
+          "checks": "FAIL all3 bounded account tasks; final Completed terminal not candidate success. Fullcanonicalrecordsunchanged/nocandidates. Session closed.",
           "integration": "No product candidate unless an actual diagnosed repair is needed; existing reviewed gates remain.",
           "native": "No native interaction; owner deferral remains.",
           "owner_acceptance": "Not claimed."
@@ -2748,12 +2752,12 @@
       {
         "id": "precise-edit-coordinate-guidance",
         "title": "Clarify exact passage-edit coordinates for the AI",
-        "state": "active",
+        "state": "complete",
         "owner": "Lead design; bounded Luna text-only implementation; consequential independent Sol review",
-        "activity": "Finaleac295b1 independently reviewed; corrected guidecache1, fullruntime494/0/1existingignored, CLIidentity1, strictalltargetlint, ordinaryCLIbuild/fmtPASS. Fresh executable frozen; no third accountlaunchyet.",
-        "observed_at": "2026-10-22T00:28:12.346403+00:00",
+        "activity": "Guidance-only candidateeac295b1 reviewed and deterministicgatesPASS, but final live taskFAIL with wrongranges49..61/47..59. Source retained as unmerged attempt; not selected for standalone integration because usefulness still unqualified.",
+        "observed_at": "2026-10-22T00:31:58.900886+00:00",
         "origin": "observed",
-        "next_action": "Review exact third-attempt driver including diagnosed nonzero-envelope error handling; then freshquota and one final session reservation before launch. Publish separate guidancecandidate after prior sourcechain integration.",
+        "next_action": "Retain candidate/failure. New exact-quote selector assessment owns the diagnosed usability gap; any future guide wording follows that actual selected contract.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2770,10 +2774,10 @@
           "docs/work/active/vacation-campaign/evidence/precise-edit-guidance-final.sh"
         ],
         "gates": {
-          "implementation": "PASS complete independent source review exacteac295b1; schema shape/handlers/authority unchanged",
-          "checks": "PASS exacteac295b1 guidecache1, runtime494/0/1existingignored, CLIidentity1, strictlint,ordinaryCLIbuild/fmt; frozenbinary",
-          "integration": "pending normal separate reviewed candidate after prior source chain",
-          "native": "inapplicable to guide text; actual Mac deferred",
+          "implementation": "PASS source-only complete independent review, no actionable findings",
+          "checks": "Deterministic PASS494/0/1 plusfocusedguide1/CLIidentity1/lint/build; live usefulnessFAIL finaltest no candidate",
+          "integration": "Not selected for standalone merge; failed usefulness attempt retained on frozen branch",
+          "native": "not observed; owner deferral remains",
           "owner_acceptance": "not claimed"
         },
         "attempts": [
@@ -2814,6 +2818,34 @@
         },
         "attempts": [],
         "resource_plan": "One economical Luna medium read-only assessment of stream field only on clean export-durability reviewed413003ef; owns /tmp/brn-run-partial-ownership-design.md. No source/sharedrecord/Git mutations, network, build/test/account/native/credential actions or nestedagents. Lead+guidancereviewer+assessment3of4slots; lead owns builds/integration. Stop after one source-backed recommendation, including do-not-change if ownership costs exceed benefit."
+      },
+      {
+        "id": "precise-edit-unique-quote-selector",
+        "title": "Assess an exact quote selector that avoids AI offset arithmetic",
+        "state": "active",
+        "owner": "Lead design; bounded Luna contract assessment; independent consequential review before implementation",
+        "activity": "Selected after3failed accounttasks and unsuccessful guidance correction. Assess explicit backward-compatible unique-quote input on existing tool; not fuzzy matching or reinterpretation of a wrong suppliedrange. No implementation/accountlaunch selected yet.",
+        "observed_at": "2026-10-22T00:31:58.900886+00:00",
+        "origin": "observed",
+        "next_action": "Design one explicit unique-current-quote selector alongside unchanged explicit-range mode. Resolve closed schema/provider encoding, overlap-aware uniqueness, version/scope/access, immutablebinding/replay and whole-read coverage before implementation.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md",
+          "docs/work/active/agent-first-simplification/targeted-edit.md",
+          "crates/brn-ai/src/threads_note_edit.rs"
+        ],
+        "gates": {
+          "implementation": "pending bounded design; no candidate",
+          "checks": "pending deterministic witnesses only; current account session exhausted",
+          "integration": "pending separate reviewed candidate if selected; no new account authority",
+          "native": "actual Mac deferred",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One economical Luna medium source-only contract packet, lead consequential decision and independent Sol design review before any writer. Lead owns source/sharedrecord/build/account/integration; max3of4slots, no nestedagents or livecalls. Stop if explicit existing range behavior/replay cannot remain compatible, ambiguity cannot failclosed, or new authority/product meaning is needed.",
+        "design": "Investigate required start/end accepting both null as explicit unique-exact-quote selector while twointegers preserve original behavior; reject one-null,empty/notfound/overlappingduplicate quote,never fall back from wrong suppliedinteger ranges. Host derivesglobalUTF8range at exactcurrentversion. Existingprepare/apply/review/dirty/protection/scope/fullread/readledger/Undo unchanged. Preserve existing integer-mode argumentserialization/hash and immutable operation replay-beforelatertext. Prefer a tiny suitable existing text helper; no research relocation semantics, occurrence picker, fuzzy match,newtool/patchDSL/dependency/schema migration. Final design not yet accepted."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2828,10 +2860,10 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-run-merge-diagnostic-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T00:29:58.171857+00:00",
-    "runtime_capacity": "Lead only; all bounded authors/reviewers complete, no sourcewriter/build.",
+    "observed_at": "2026-10-22T00:31:58.900886+00:00",
+    "runtime_capacity": "Lead plus one requested bounded Luna selector design assessment, later consequential review, within4slots; no sourcewriter/build.",
     "build_slot": "All selected localqualification gates complete; no active build.",
-    "desktop_account_actor": "Third/final session attempt reserved; lead soleaccountactor. Nativeapp63750 preserved and deferred.",
+    "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
         "kind": "PR200 required checks",

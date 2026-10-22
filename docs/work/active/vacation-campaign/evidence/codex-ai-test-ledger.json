@@ -334,7 +334,7 @@
       "session": "2026-10-22-local-edit-01",
       "tallinn_date": "2026-10-22",
       "reserved_at_utc": "2026-10-22T00:29:58.171857+00:00",
-      "status": "reserved",
+      "status": "failed",
       "scenario": "Third and final consolidated-session attempt after reviewed decoded-Markdown UTF8-coordinate guidance correction; fresh exact local passage proposal only, no Apply, no relaxed range or authority checks",
       "provider": "Codex existing signedinaccount only",
       "model": "gpt-6-luna",
@@ -358,7 +358,44 @@
         "secondary": "unavailable"
       },
       "native_observed": false,
-      "upstream_cancellation_confirmed": false
+      "upstream_cancellation_confirmed": false,
+      "started_at_utc": "2026-10-22T00:30:05.184828+00:00",
+      "finished_at_utc": "2026-10-22T00:30:11.276617+00:00",
+      "result_file": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-local-edit-guidance-03/result.json",
+      "account_transport_succeeded": true,
+      "task_passed": false,
+      "original_note_unchanged": true,
+      "sentinel_note_unchanged": true,
+      "no_candidates": true,
+      "run_id": "9ead1574-43d0-4e18-970f-15cb72724132:0",
+      "terminal": "Completed",
+      "actual_cli_exit": 0,
+      "runtime_rounds": 4,
+      "model_turns": 5,
+      "usage": {
+        "input": 32985,
+        "output": 325,
+        "cached_input": 25472
+      },
+      "desktop_allowance_after": {
+        "observed_at": "2026-10-22T00:31:58.900886+00:00",
+        "ordinary_usage_allowed": true,
+        "used_percent": 34,
+        "remaining_percent": 66,
+        "reset_unix": 1793083360,
+        "secondary": "unavailable"
+      },
+      "qualification": "targeted-edit-guidance-account-qualification.json",
+      "diagnosis": "Reviewed guidance18 did not make this bounded scenario useful: model supplied49..61 then47..59, neither requested43..55; host refused exact mismatch both times. Exact raw supplied text not traced, so no narrower arithmetic mechanism claimed. Completed terminal is not task success."
+    }
+  ],
+  "session_closures": [
+    {
+      "session": "2026-10-22-local-edit-01",
+      "closed_at": "2026-10-22T00:31:58.900886+00:00",
+      "attempts": 3,
+      "result": "All3 taskFAIL; dataunchanged, traceevidenceimproved; no further session launch",
+      "next": "Headless exact-selector design only; no session rename to evade bound"
     }
   ]
 }
