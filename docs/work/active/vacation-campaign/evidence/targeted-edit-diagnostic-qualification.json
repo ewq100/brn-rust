@@ -1,0 +1,61 @@
+{
+  "source": "c4f0e2e663cb04654c2bc49f9a540499fdd139b9",
+  "binary_sha256": "2500833900d44531455ffa883116e8324d67a5209901bdedc462f4e94eb1e7d3",
+  "attempt_id": "ccf39112-8322-4c4e-b5d3-ef076bca50d6",
+  "passed": false,
+  "account_transport_succeeded": true,
+  "terminal": "Failed:ToolLimitReached",
+  "actual_cli_exit": 7,
+  "runtime_rounds": 4,
+  "model_turns": 5,
+  "usage": {
+    "input": 31912,
+    "output": 347,
+    "cached_input": 24704
+  },
+  "original_note_unchanged": true,
+  "sentinel_note_unchanged": true,
+  "no_candidates": true,
+  "native_observed": false,
+  "upstream_cancellation_confirmed": false,
+  "host_rejection": {
+    "seq": 3,
+    "round": 3,
+    "tool": "prepare_note_edit",
+    "args": {
+      "id": "5be98dc3-8464-4428-8848-bffd81375d31:0",
+      "version": 1,
+      "start": 48,
+      "end": 60,
+      "expected_bytes": 12,
+      "replacement_bytes": 10
+    },
+    "outcome": "Invalid",
+    "bytes": 128,
+    "ms": 4,
+    "result": {
+      "outcome": "Invalid",
+      "reason": "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+    }
+  },
+  "expected_requested_passage_range": {
+    "start": 43,
+    "end": 55
+  },
+  "selected_actual_bytes": "t boats cros",
+  "qualification_limit": "Trace records expected/replacement byte lengths, not raw strings; exact supplied expected_text/replacement_text unknown. Correct requested passage lies at43..55, supplied48..60 fails byte equality. This confirms wrong requested location but not the model arithmetic mechanism.",
+  "driver_error": {
+    "type": "AttributeError",
+    "message": "'NoneType' object has no attribute 'get'",
+    "diagnosis": "Nonzero CLI envelope carries error:null and a structured result. Driver error handling assumed error dict; raw exit/terminal/trace and independent full durable observations retained, so this did not hide a passing account run or permit another launch."
+  },
+  "desktop_allowance_after": {
+    "observed_at": "2026-10-22T00:21:02.647Z",
+    "ordinary_usage_allowed": true,
+    "used_percent": 33,
+    "remaining_percent": 67,
+    "reset_unix": 1793083360,
+    "secondary": "unavailable"
+  },
+  "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-local-edit-diagnostic-02"
+}

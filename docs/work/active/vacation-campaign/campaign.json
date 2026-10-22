@@ -2657,10 +2657,10 @@
         "title": "Check a precise AI edit on fresh synthetic data",
         "state": "active",
         "owner": "lead single account actor; bounded Luna preflight only",
-        "activity": "Second diagnostic attempt reserved before launch after complete independent driver review, qualified trace source/binary and fresh67%remaining allowance. Same consolidated session:2of3 attempts,2of6today. Firstfailure retained.",
-        "observed_at": "2026-10-22T00:19:19.517500+00:00",
+        "activity": "Second attempt FAIL ToolLimitReached after4rounds. Actual exact-edit range48..60 refused; requested cobalt boats is43..55. Fulltarget/sentinel unchanged, no candidates. CLI failure retained despite secondary driver error:null handling bug. Actual67%remaining.",
+        "observed_at": "2026-10-22T00:21:02.688027+00:00",
         "origin": "observed",
-        "next_action": "Launch the one reserved diagnostic, inspect exact arguments/rejections and unchanged full canonical records; record afterquota and actual failure/success. No additional retry selected.",
+        "next_action": "Reassess after two failed attempts. Select one concise guidance-only correction for global decoded-Markdown UTF8 offsets; no new selector or relaxed guard. At most third session attempt only after independent review/qualification and fresh reservation.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2677,7 +2677,9 @@
           "docs/work/active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz",
           "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py",
           "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md",
-          "docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md"
+          "docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md",
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz"
         ],
         "gates": {
           "implementation": "No product change selected; reuse existing exact edit capability and normal runtime.",
@@ -2686,7 +2688,15 @@
           "native": "No native interaction; owner deferral remains.",
           "owner_acceptance": "Not claimed."
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Diagnostic: host rejected48..60; correct requestedrange43..55, no candidate, ToolLimitReached. error:null in nonzero CLI envelope also exposed driver error-handling assumption.",
+            "change": "Keep original driver/results and rawenvelope. Reconstructactualfailure from retained trace/fullcanonical reads; select guidance-only arithmetic/coordinate clarification, not guessed edit behavior.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json"
+            ]
+          }
+        ],
         "resource_plan": "One requested Luna medium read-only preflight helper for existing supported path and fixture recipe; lead validates and owns any bounded live launch. No helper account/process/build/native/data/Git/source/sharedrecord/credentials access. Own /tmp/brn-targeted-edit-account-preflight.md. Lead+onehelper within4slots; max3attemptsession/6day/180s8KiB4rounds under existing signedinCodexonly, actual allowance before/after and reservebeforelaunch. Stop on unavailable safe existingpath or ambiguous write authority; no newharnessframework or repeatedgeneration to get green. Oneadditional requestedLuna medium read-only reuse investigation may overlap driverreview: locate existing exact literal/quote-to-UTF8 range tools and compare bounded options if actualdiagnostic confirms modeloffsetfailure. Own /tmp/brn-precise-edit-reuse-design.md, no implementation/account/build/native/network/credentials, no presumed diagnosis. Lead+driverreviewer+reusehelper within4slots.",
         "design": "One distinct usefulness scenario: exact local passage change through existing checked host construction/proposal path, preserving untouched bytes/metadata, original and sentinel until explicit existing review/Apply. Reuse account smoke evidence and current available Luna model. No newtool/provider/model/settings/globalrouting or live owner data. This tests usefulness, not native behavior or broad model quality."
       },
@@ -2731,6 +2741,34 @@
         ],
         "resource_plan": "One requested Luna medium author owns only existing threads_trace.rs and its local unit tests on clean isolated mac-test-roots codex/precise-edit-trace base2ecf634d. Lead owns sharedrecord/builds/integration and any accountactor; independent consequential Sol review. No builds/tests/account/network/native/schema/prompts/actualeditbehavior, newlogs/framework/dependencies or nestedagents. Stop after one bounded repair or real privacy/API ambiguity. Prior PR199 head frozen on its original branch; this new local branch does not alter published head.",
         "design": "Extend existing collector only. Args show id/version/start/end and UTF8 expected/replacement byte counts, omitting raw expected/replacement/reason/requestkey. Result shows prepared operation and Invalid outcome plus one of4exact knownstatic hostreasons; unknown/malformed rejection bodies become fixedgeneric; never fullrequest/Markdown/credentials. Both summary/full keep same privacy. Retain existing callseq/budget/levels, no new tool/schema/execution semantics. Test Unicodebytecounts, exactprimitiveprojection and rawpayloadexclusion, successfuloperationbinding and Invalidreason, using existing trace test seam. This repairs diagnosis, not the still-unproven underlying range cause."
+      },
+      {
+        "id": "precise-edit-coordinate-guidance",
+        "title": "Clarify exact passage-edit coordinates for the AI",
+        "state": "active",
+        "owner": "Lead design; bounded Luna text-only implementation; consequential independent Sol review",
+        "activity": "Selected after second failed real-model attempt supplied48..60 instead of requested43..55. Existing strict range check protected unchanged data. No additional live launch selected yet.",
+        "observed_at": "2026-10-22T00:21:02.688027+00:00",
+        "origin": "observed",
+        "next_action": "Clarify decoded Markdown global UTF8 offset calculation and refusal recovery in existing schema/guide, bump shipped guide identity, preserve every handler and authority check; independent review then proportionate runtime checks.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md",
+          "crates/brn-ai/src/threads_note_edit.rs",
+          "agent/BRN.md"
+        ],
+        "gates": {
+          "implementation": "pending bounded text-only candidate",
+          "checks": "pending existing guide/schema/runtime checks; no new string-mirror tests",
+          "integration": "pending normal separate reviewed candidate after prior source chain",
+          "native": "inapplicable to guide text; actual Mac deferred",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One explicit Luna medium text-only author, one independent Sol high reviewer after complete candidate; max3of4slots. Lead owns records/build/account/integration. No nestedagents, tool/schema-shape/handler/access/provider/dependency/native/account changes. Stop on any need for new selector or after one proposal; two failed account outcomes trigger this explicit reassessment rather than blind retry.",
+        "design": "Keep range-only tool contract and exact byte-match refusal. Explain coordinate origin is beginning of decoded Note Markdown, exclusive end, prefix UTF8 bytes+returned read start; JSON escapes/wrappers and character counts are not offsets. Read same current version, never guess, fresh key for corrected arguments. Concise source-only tool descriptions plus existing base guide and guide-identity fixture. No automatic relocation/quote-onlyselector, no increased budget, no extra logging."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2745,10 +2783,10 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-three-candidates-ai-diagnosis-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T00:19:19.517500+00:00",
-    "runtime_capacity": "Lead only; independent review and bounded reuse research complete. Four total slots; no competing writer/build.",
+    "observed_at": "2026-10-22T00:21:02.688027+00:00",
+    "runtime_capacity": "Lead plus requested one bounded Luna guidance author, later independent Sol review within4slots. No active build.",
     "build_slot": "All current localqualification builds complete; no activebuild.",
-    "desktop_account_actor": "One reserved second diagnostic; lead sole account actor. Native app63750 preserved and deferred.",
+    "desktop_account_actor": "No active accounttest. Two attempted runs in same session, bothfailed and retained; no third dispatch without distinct reviewed diagnosed guidance correction. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
       {
         "kind": "PR200 required checks",

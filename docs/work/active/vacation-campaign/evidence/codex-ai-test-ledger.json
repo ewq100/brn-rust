@@ -275,7 +275,7 @@
       "session": "2026-10-22-local-edit-01",
       "tallinn_date": "2026-10-22",
       "reserved_at_utc": "2026-10-22T00:19:19.517500+00:00",
-      "status": "reserved",
+      "status": "failed",
       "scenario": "One diagnosed trace-evidence repair: fresh exact passage proposal, record actual ranges and static rejection reason; no editing/prompt semantic change or Apply",
       "provider": "Codex existing signedinaccount only",
       "model": "gpt-6-luna",
@@ -299,7 +299,35 @@
         "secondary": "unavailable"
       },
       "native_observed": false,
-      "upstream_cancellation_confirmed": false
+      "upstream_cancellation_confirmed": false,
+      "started_at_utc": "2026-10-22T00:19:29.328041+00:00",
+      "finished_at_utc": "2026-10-22T00:19:36.450706+00:00",
+      "result_file": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-local-edit-diagnostic-02/result.json",
+      "account_transport_succeeded": true,
+      "task_passed": false,
+      "original_note_unchanged": true,
+      "sentinel_note_unchanged": true,
+      "no_candidates": true,
+      "run_id": "a96a1bae-d1ac-4e47-b61a-e77dd963a03c:0",
+      "terminal": "Failed:ToolLimitReached",
+      "actual_cli_exit": 7,
+      "runtime_rounds": 4,
+      "model_turns": 5,
+      "usage": {
+        "input": 31912,
+        "output": 347,
+        "cached_input": 24704
+      },
+      "desktop_allowance_after": {
+        "observed_at": "2026-10-22T00:21:02.647Z",
+        "ordinary_usage_allowed": true,
+        "used_percent": 33,
+        "remaining_percent": 67,
+        "reset_unix": 1793083360,
+        "secondary": "unavailable"
+      },
+      "qualification": "targeted-edit-diagnostic-qualification.json",
+      "diagnosis": "Trace records expected/replacement byte lengths, not raw strings; exact supplied expected_text/replacement_text unknown. Correct requested passage lies at43..55, supplied48..60 fails byte equality. This confirms wrong requested location but not the model arithmetic mechanism. Nonzero CLI envelope carries error:null and a structured result. Driver error handling assumed error dict; raw exit/terminal/trace and independent full durable observations retained, so this did not hide a passing account run or permit another launch."
     }
   ]
 }

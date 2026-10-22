@@ -85,9 +85,9 @@ Attempts:
 
 ### Check a precise AI edit on fresh synthetic data
 
-Owner: lead single account actor; bounded Luna preflight only · State: **active** · Last observed: 2026-10-22T00:19:19.517500+00:00
-Activity: Second diagnostic attempt reserved before launch after complete independent driver review, qualified trace source/binary and fresh67%remaining allowance. Same consolidated session:2of3 attempts,2of6today. Firstfailure retained.
-Next: Launch the one reserved diagnostic, inspect exact arguments/rejections and unchanged full canonical records; record afterquota and actual failure/success. No additional retry selected.
+Owner: lead single account actor; bounded Luna preflight only · State: **active** · Last observed: 2026-10-22T00:21:02.688027+00:00
+Activity: Second attempt FAIL ToolLimitReached after4rounds. Actual exact-edit range48..60 refused; requested cobalt boats is43..55. Fulltarget/sentinel unchanged, no candidates. CLI failure retained despite secondary driver error:null handling bug. Actual67%remaining.
+Next: Reassess after two failed attempts. Select one concise guidance-only correction for global decoded-Markdown UTF8 offsets; no new selector or relaxed guard. At most third session attempt only after independent review/qualification and fresh reservation.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -100,7 +100,11 @@ Gates:
 - **native:** No native interaction; owner deferral remains.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-preflight.md](active/vacation-campaign/evidence/targeted-edit-account-preflight.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-review.md](active/vacation-campaign/evidence/targeted-edit-driver-review.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-before-review.py](active/vacation-campaign/evidence/targeted-edit-driver-before-review.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver.py](active/vacation-campaign/evidence/targeted-edit-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py](active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md](active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md)
+Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-preflight.md](active/vacation-campaign/evidence/targeted-edit-account-preflight.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-review.md](active/vacation-campaign/evidence/targeted-edit-driver-review.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-before-review.py](active/vacation-campaign/evidence/targeted-edit-driver-before-review.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver.py](active/vacation-campaign/evidence/targeted-edit-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py](active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md](active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json](active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz)
+
+Attempts:
+
+- Diagnostic: host rejected48..60; correct requestedrange43..55, no candidate, ToolLimitReached. error:null in nonzero CLI envelope also exposed driver error-handling assumption.: Keep original driver/results and rawenvelope. Reconstructactualfailure from retained trace/fullcanonical reads; select guidance-only arithmetic/coordinate clarification, not guessed edit behavior. ([docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json](active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json))
 
 </details>
 
@@ -126,6 +130,27 @@ Evidence: [crates/brn-ai/src/threads_trace.rs](../../crates/brn-ai/src/threads_t
 Attempts:
 
 - Intermediate777e3461 focused/full494/0/1 plus lint/buildPASS, but independentreviewP2 found propagated Invalidreasons mayinclude dynamicIDs; trace didnotmeetstatictext boundary. No second account launch.: Exact4knownstatic reasons retained, unknown/malformed reasons generic. Regressionfixtures cover dynamicprivateID and missing/nonstring bodies. Finalc4qualificationrunning. ([docs/work/active/vacation-campaign/evidence/precise-edit-trace-review.md](active/vacation-campaign/evidence/precise-edit-trace-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log](active/vacation-campaign/evidence/precise-edit-trace-attempt-777e3461.log))
+
+</details>
+
+### Clarify exact passage-edit coordinates for the AI
+
+Owner: Lead design; bounded Luna text-only implementation; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T00:21:02.688027+00:00
+Activity: Selected after second failed real-model attempt supplied48..60 instead of requested43..55. Existing strict range check protected unchanged data. No additional live launch selected yet.
+Next: Clarify decoded Markdown global UTF8 offset calculation and refusal recovery in existing schema/guide, bump shipped guide identity, preserve every handler and authority check; independent review then proportionate runtime checks.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** pending bounded text-only candidate
+- **checks:** pending existing guide/schema/runtime checks; no new string-mirror tests
+- **integration:** pending normal separate reviewed candidate after prior source chain
+- **native:** inapplicable to guide text; actual Mac deferred
+- **owner acceptance:** not claimed
+
+Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json](active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [agent/BRN.md](../../agent/BRN.md)
 
 </details>
 
