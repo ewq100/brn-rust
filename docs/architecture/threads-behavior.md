@@ -142,6 +142,8 @@ Each skill should include one ordinary success example and a few relevant bounda
 
 ### Mechanical knowledge review and repair guidance
 
+Starting a replacement knowledge check retires the prior displayed result and its Review action while the check runs. A failed replacement reports its error without offering the old findings as the new result. A completed check remains an explicit global snapshot, not a promise of automatic refresh after every workspace change.
+
 The selected agent-first M2 candidate keeps structural findings, exact record
 identities/versions, scoped details, counts and omission bounds in the host. Its
 bounded review message directs the agent to maintain-notes and explicitly says
