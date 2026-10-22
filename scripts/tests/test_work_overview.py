@@ -300,35 +300,77 @@ class WorkOverviewTests(unittest.TestCase):
         self.assertIn("not allowed with argument", stderr.getvalue())
         self.assertFalse(self.output.parent.exists())
 
-    def test_completed_tasks_use_compact_index_and_link_selected_record(self):
-        completed = task("done", state="complete", attempts=[{
-            "outcome": "corrected", "change": "Updated the source", "evidence": ["docs/work/active/proof.md"]
-        }])
-        work_view = view(completed)
+    def test_completed_index_is_bounded_chronological_and_older_task_remains_retrievable(self):
+        completed = [
+            task("older-z", title="Older Z", state="complete", observed_at="2026-10-20T10:00:00+00:00"),
+            task("older-a", title="Older A", state="complete", observed_at="2026-10-20T10:00:00+00:00", attempts=[{
+                "outcome": "corrected", "change": "Updated the source", "evidence": ["docs/work/active/proof.md"]
+            }]),
+            task("offset-older", title="Offset older", state="complete", observed_at="2026-10-22T09:00:00+03:00"),
+            task("offset-newer", title="Offset newer", state="complete", observed_at="2026-10-22T08:00:00+00:00"),
+            task("tie-z", title="Tie Z", state="complete", observed_at="2026-10-22T10:00:00+02:00"),
+            task("tie-a", title="Tie A", state="complete", observed_at="2026-10-22T08:00:00+00:00"),
+            *[
+                task(f"newer-{index}", title=f"Newer {index}", state="complete",
+                     observed_at=f"2026-10-22T{9 + index:02}:00:00+00:00")
+                for index in range(6)
+            ],
+        ]
+        work_view = view(*completed)
         self.save(work_view)
         original_record = self.record.read_bytes()
         result, _, error = self.run_main()
         self.assertEqual(result, 0, error)
         output = self.output.read_text(encoding="utf-8")
         section = output.split("## Completed", 1)[1]
+        expected_rows = [
+            f"- `{task_id}` — {title}"
+            for task_id, title in [
+                ("newer-5", "Newer 5"),
+                ("newer-4", "Newer 4"),
+                ("newer-3", "Newer 3"),
+                ("newer-2", "Newer 2"),
+                ("newer-1", "Newer 1"),
+                ("newer-0", "Newer 0"),
+                ("offset-newer", "Offset newer"),
+                ("tie-a", "Tie A"),
+                ("tie-z", "Tie Z"),
+                ("offset-older", "Offset older"),
+            ]
+        ]
+        actual_rows = [line for line in section.splitlines() if line.startswith("- `")]
+        self.assertEqual(actual_rows, expected_rows)
+        self.assertIn("12 completed tasks", section)
+        self.assertIn("most recently observed", section)
+        self.assertIn("not completion time", section)
+        self.assertNotIn("older-z", section)
+        self.assertNotIn("older-a", section)
         self.assertIn("Completion here means the selected task scope is complete", section)
         self.assertIn("does not establish every gate, native observation, or owner acceptance", section)
         self.assertIn("[selected work record](../../campaign.json)", output)
         self.assertIn("--record PATH_TO_SELECTED_RECORD --task TASK_ID", output)
-        self.assertIn("TASK_ID with an ID shown on a task below", output)
-        self.assertIn("- `done` — First task", section)
+        self.assertIn("search the linked record by title or ID", output)
+        self.assertIn("Older IDs, titles and history remain in the selected record", section)
         self.assertNotIn("<details>", section)
         self.assertNotIn("implementation claim", section)
         self.assertNotIn("docs/work/active/example.md", section)
         self.assertNotIn("Updated the source", section)
         self.assertEqual(self.record.read_bytes(), original_record)
-        retained = json.loads(self.record.read_text(encoding="utf-8"))["work_view"]["tasks"][0]
+        retained = json.loads(self.record.read_text(encoding="utf-8"))["work_view"]["tasks"][1]
         self.assertEqual(retained["gates"]["implementation"], "implementation claim")
         self.assertEqual(retained["evidence"], ["docs/work/active/example.md"])
         self.assertEqual(retained["attempts"][0]["change"], "Updated the source")
         self.assertIn("Local page reflects the last saved observations", output)
         self.assertIn("A remote page reflects the last published commit", output)
         self.assertIn("Neither indicates that work is live now", output)
+
+        output_before = self.output.read_bytes()
+        older_task = completed[1]
+        result, stdout, stderr = self.run_main("--task", "older-a")
+        self.assertEqual(result, 0, stderr)
+        self.assertEqual(stdout, json.dumps(older_task, ensure_ascii=False, indent=2) + "\n")
+        self.assertEqual(self.record.read_bytes(), original_record)
+        self.assertEqual(self.output.read_bytes(), output_before)
 
 
 if __name__ == "__main__":
