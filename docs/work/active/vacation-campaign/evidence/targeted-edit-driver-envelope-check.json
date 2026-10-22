@@ -1,0 +1,18 @@
+{
+  "account_calls": 0,
+  "fixture": "exact retained CLI nonzero envelope with error:null",
+  "results": [
+    {
+      "driver": "/tmp/brn-targeted-edit-account/check-diagnostic.py",
+      "error_type": "AttributeError",
+      "message": "'NoneType' object has no attribute 'get'",
+      "raw_failure_retained": true
+    },
+    {
+      "driver": "/tmp/brn-targeted-edit-account/check-guidance.py",
+      "error_type": "RuntimeError",
+      "message": "ask: Failed:ToolLimitReached",
+      "raw_failure_retained": true
+    }
+  ]
+}

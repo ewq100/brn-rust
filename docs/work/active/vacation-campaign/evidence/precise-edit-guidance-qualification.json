@@ -1,0 +1,33 @@
+{
+  "observed_at": "2026-10-22T00:28:12.346403+00:00",
+  "source": "eac295b14ddb4a57b1e3b62e6c51f0d40ae699a5",
+  "base": "c4f0e2e663cb04654c2bc49f9a540499fdd139b9",
+  "branch": "codex/precise-edit-guidance",
+  "review": "precise-edit-guidance-review.md",
+  "guide_identity": "brn-threads-guidance-18",
+  "change": "Only tool/schema descriptions, packaged guide and existing current/prior identity fixtures; no schema/handler/authority changes",
+  "checks": {
+    "fmt": "PASS",
+    "guide_cache_regression": "1passed/0failed",
+    "full_runtime": "494passed/0failed/1existingignored",
+    "CLI_current_and_saved_guide_identity": "1passed/0failed",
+    "strict_all_target_ai_CLI_lint": "PASS",
+    "ordinary_CLI_build": "PASS",
+    "whitespace_clean": "PASS"
+  },
+  "binary": "/Users/evokessler/.codex/artifacts/brn-precise-edit-guidance-eac295b1/brn",
+  "binary_sha256": "8c76e00d29a0881a3af0c5c730a96234710b697e8419899682c288305dbcea57",
+  "script": "precise-edit-guidance-final.sh",
+  "log": "precise-edit-guidance-final.log",
+  "original_failure": {
+    "source": "6b719f6e29812a48f67e16f8fd3770e5e83c0fe5",
+    "log": "precise-edit-guidance-initial.log",
+    "result": "FAIL priorstamp fixture no longerchanged current18; preserved assertions, corrected18->17"
+  },
+  "limits": [
+    "No third account reservation or launch yet",
+    "Real-model arithmetic correctness not established",
+    "No native interaction or owner acceptance",
+    "Separate required head/main checks and normal integration pending"
+  ]
+}

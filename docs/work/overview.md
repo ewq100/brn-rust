@@ -85,9 +85,9 @@ Attempts:
 
 ### Check a precise AI edit on fresh synthetic data
 
-Owner: lead single account actor; bounded Luna preflight only · State: **active** · Last observed: 2026-10-22T00:21:02.688027+00:00
-Activity: Second attempt FAIL ToolLimitReached after4rounds. Actual exact-edit range48..60 refused; requested cobalt boats is43..55. Fulltarget/sentinel unchanged, no candidates. CLI failure retained despite secondary driver error:null handling bug. Actual67%remaining.
-Next: Reassess after two failed attempts. Select one concise guidance-only correction for global decoded-Markdown UTF8 offsets; no new selector or relaxed guard. At most third session attempt only after independent review/qualification and fresh reservation.
+Owner: lead single account actor; bounded Luna preflight only · State: **active** · Last observed: 2026-10-22T00:29:58.171857+00:00
+Activity: Final third session attempt reserved before launch on reviewed/qualifiedeac295b1 guidance18 and independently reviewed driverd7857d41. Freshfixture locally sealed533bytes; actual67%remaining. No fourth session attempt permitted.
+Next: Execute only the reserved final session attempt; inspect actual trace, exact candidate/fullcanonical equality and afterquota. Close this accounttest session after actual outcome; no further same-scenario generation.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -100,7 +100,7 @@ Gates:
 - **native:** No native interaction; owner deferral remains.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-preflight.md](active/vacation-campaign/evidence/targeted-edit-account-preflight.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-review.md](active/vacation-campaign/evidence/targeted-edit-driver-review.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-before-review.py](active/vacation-campaign/evidence/targeted-edit-driver-before-review.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver.py](active/vacation-campaign/evidence/targeted-edit-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py](active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md](active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json](active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz)
+Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-preflight.md](active/vacation-campaign/evidence/targeted-edit-account-preflight.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-review.md](active/vacation-campaign/evidence/targeted-edit-driver-review.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-before-review.py](active/vacation-campaign/evidence/targeted-edit-driver-before-review.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver.py](active/vacation-campaign/evidence/targeted-edit-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py](active/vacation-campaign/evidence/targeted-edit-diagnostic-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md](active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json](active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz), [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-driver.py](active/vacation-campaign/evidence/targeted-edit-guidance-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-driver-review.md](active/vacation-campaign/evidence/targeted-edit-guidance-driver-review.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-envelope-check.json](active/vacation-campaign/evidence/targeted-edit-driver-envelope-check.json)
 
 Attempts:
 
@@ -112,7 +112,7 @@ Attempts:
 
 Owner: lead design/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T00:15:48.709578+00:00
 Activity: Finalreviewedc4f0e2e6 passes focusedtrace3, fullruntime494/0/1existingignored, strictalltargetlint, ordinaryCLIbuild, fmt. DiagnosticCLI frozen25008339; no editing or prompt semantics changed.
-Next: Publish separate tracecandidate only after prior statechain integrated/currentmainreconciled. One diagnostic accountattempt may proceed only after freshdriverreview/quota/reservation.
+Next: Publish separate qualified tracecandidate only after prior statechain integrated/currentmainreconciled. Its completed diagnostic confirmed exactwrongrange refusal; guidancecorrection and any third bounded live test are separate selected tasks.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -135,22 +135,26 @@ Attempts:
 
 ### Clarify exact passage-edit coordinates for the AI
 
-Owner: Lead design; bounded Luna text-only implementation; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T00:21:02.688027+00:00
-Activity: Selected after second failed real-model attempt supplied48..60 instead of requested43..55. Existing strict range check protected unchanged data. No additional live launch selected yet.
-Next: Clarify decoded Markdown global UTF8 offset calculation and refusal recovery in existing schema/guide, bump shipped guide identity, preserve every handler and authority check; independent review then proportionate runtime checks.
+Owner: Lead design; bounded Luna text-only implementation; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T00:28:12.346403+00:00
+Activity: Finaleac295b1 independently reviewed; corrected guidecache1, fullruntime494/0/1existingignored, CLIidentity1, strictalltargetlint, ordinaryCLIbuild/fmtPASS. Fresh executable frozen; no third accountlaunchyet.
+Next: Review exact third-attempt driver including diagnosed nonzero-envelope error handling; then freshquota and one final session reservation before launch. Publish separate guidancecandidate after prior sourcechain integration.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** pending bounded text-only candidate
-- **checks:** pending existing guide/schema/runtime checks; no new string-mirror tests
+- **implementation:** PASS complete independent source review exacteac295b1; schema shape/handlers/authority unchanged
+- **checks:** PASS exacteac295b1 guidecache1, runtime494/0/1existingignored, CLIidentity1, strictlint,ordinaryCLIbuild/fmt; frozenbinary
 - **integration:** pending normal separate reviewed candidate after prior source chain
 - **native:** inapplicable to guide text; actual Mac deferred
 - **owner acceptance:** not claimed
 
-Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json](active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [agent/BRN.md](../../agent/BRN.md)
+Evidence: [docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json](active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md](active/vacation-campaign/evidence/precise-edit-reuse-design.md), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [agent/BRN.md](../../agent/BRN.md), [docs/work/active/vacation-campaign/evidence/precise-edit-guidance-implementation.md](active/vacation-campaign/evidence/precise-edit-guidance-implementation.md), [docs/work/active/vacation-campaign/evidence/precise-edit-guidance-review.md](active/vacation-campaign/evidence/precise-edit-guidance-review.md), [docs/work/active/vacation-campaign/evidence/precise-edit-guidance-initial.sh](active/vacation-campaign/evidence/precise-edit-guidance-initial.sh), [docs/work/active/vacation-campaign/evidence/precise-edit-guidance-initial.log](active/vacation-campaign/evidence/precise-edit-guidance-initial.log), [docs/work/active/vacation-campaign/evidence/precise-edit-guidance-qualification.json](active/vacation-campaign/evidence/precise-edit-guidance-qualification.json), [docs/work/active/vacation-campaign/evidence/precise-edit-guidance-final.log](active/vacation-campaign/evidence/precise-edit-guidance-final.log), [docs/work/active/vacation-campaign/evidence/precise-edit-guidance-final.sh](active/vacation-campaign/evidence/precise-edit-guidance-final.sh)
+
+Attempts:
+
+- Existing guide-bundle recomputation witness FAIL on6b719f6e: left0 expected1 after version fixture no longer changed current18.: Update only prior-version test transformation18->17; preserve expected recomputation assertion and original failure. ([docs/work/active/vacation-campaign/evidence/precise-edit-guidance-initial.log](active/vacation-campaign/evidence/precise-edit-guidance-initial.log))
 
 </details>
 
@@ -323,6 +327,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `settings-rejected-save-retention` — Keep unsaved Settings choices after a refused save
 - `overview-reading-volume` — Keep the startup progress view concise as evidence grows
 - `ordinary-import-completion-preflight` — Check ordinary file imports across failure, cancellation and navigation
+- `run-partial-answer-ownership` — Assess keeping the partial answer with its active Run
 
 ## Dependencies
 

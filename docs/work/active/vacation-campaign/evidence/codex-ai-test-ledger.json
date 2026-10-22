@@ -328,6 +328,37 @@
       },
       "qualification": "targeted-edit-diagnostic-qualification.json",
       "diagnosis": "Trace records expected/replacement byte lengths, not raw strings; exact supplied expected_text/replacement_text unknown. Correct requested passage lies at43..55, supplied48..60 fails byte equality. This confirms wrong requested location but not the model arithmetic mechanism. Nonzero CLI envelope carries error:null and a structured result. Driver error handling assumed error dict; raw exit/terminal/trace and independent full durable observations retained, so this did not hide a passing account run or permit another launch."
+    },
+    {
+      "id": "9750866d-20da-4a01-b7f6-9885f0b81fd8",
+      "session": "2026-10-22-local-edit-01",
+      "tallinn_date": "2026-10-22",
+      "reserved_at_utc": "2026-10-22T00:29:58.171857+00:00",
+      "status": "reserved",
+      "scenario": "Third and final consolidated-session attempt after reviewed decoded-Markdown UTF8-coordinate guidance correction; fresh exact local passage proposal only, no Apply, no relaxed range or authority checks",
+      "provider": "Codex existing signedinaccount only",
+      "model": "gpt-6-luna",
+      "effort": "low",
+      "tool_round_budget": 4,
+      "client_deadline_seconds": 180,
+      "max_initial_input_utf8_bytes": 8192,
+      "initial_input_utf8_bytes": 533,
+      "binary_qualified_source": "eac295b14ddb4a57b1e3b62e6c51f0d40ae699a5",
+      "binary_sha256": "8c76e00d29a0881a3af0c5c730a96234710b697e8419899682c288305dbcea57",
+      "harness_source_sha256": "d7857d41619d718cd69ebf7729bb0607f184ab19c224b49c3f532e8168b8814b",
+      "launch_seal_sha256": "ea31e6c87db370c6655ed7a22eebf2d0c73a7dd5286b688b1dc3c170616b04a9",
+      "data_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-local-edit-guidance-03/workspace",
+      "evidence_directory": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-local-edit-guidance-03",
+      "desktop_allowance_before": {
+        "observed_at": "2026-10-22T00:29:58.132Z",
+        "ordinary_usage_allowed": true,
+        "used_percent": 34,
+        "remaining_percent": 66,
+        "reset_unix": 1793083360,
+        "secondary": "unavailable"
+      },
+      "native_observed": false,
+      "upstream_cancellation_confirmed": false
     }
   ]
 }

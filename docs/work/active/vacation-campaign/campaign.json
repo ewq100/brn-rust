@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T00:19:19.478Z",
-    "remaining_percent": 67,
+    "observed_at": "2026-10-22T00:29:58.132Z",
+    "remaining_percent": 66,
     "reset_unix": 1793083360,
-    "ordinary_work": "admitted: actual33%used/67%remaining; ordinaryUsageAllowedtrue, secondaryunavailable; fixedexpiry unchanged, no ownerpause",
+    "ordinary_work": "admitted: actual33%used/67%remaining, ordinaryUsageAllowedtrue, secondaryunavailable; fixedexpiry unchanged and no ownerpause",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -2657,10 +2657,10 @@
         "title": "Check a precise AI edit on fresh synthetic data",
         "state": "active",
         "owner": "lead single account actor; bounded Luna preflight only",
-        "activity": "Second attempt FAIL ToolLimitReached after4rounds. Actual exact-edit range48..60 refused; requested cobalt boats is43..55. Fulltarget/sentinel unchanged, no candidates. CLI failure retained despite secondary driver error:null handling bug. Actual67%remaining.",
-        "observed_at": "2026-10-22T00:21:02.688027+00:00",
+        "activity": "Final third session attempt reserved before launch on reviewed/qualifiedeac295b1 guidance18 and independently reviewed driverd7857d41. Freshfixture locally sealed533bytes; actual67%remaining. No fourth session attempt permitted.",
+        "observed_at": "2026-10-22T00:29:58.171857+00:00",
         "origin": "observed",
-        "next_action": "Reassess after two failed attempts. Select one concise guidance-only correction for global decoded-Markdown UTF8 offsets; no new selector or relaxed guard. At most third session attempt only after independent review/qualification and fresh reservation.",
+        "next_action": "Execute only the reserved final session attempt; inspect actual trace, exact candidate/fullcanonical equality and afterquota. Close this accounttest session after actual outcome; no further same-scenario generation.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2679,7 +2679,10 @@
           "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-review.md",
           "docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md",
           "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json",
-          "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz"
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-driver.py",
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-driver-review.md",
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-driver-envelope-check.json"
         ],
         "gates": {
           "implementation": "No product change selected; reuse existing exact edit capability and normal runtime.",
@@ -2708,7 +2711,7 @@
         "activity": "Finalreviewedc4f0e2e6 passes focusedtrace3, fullruntime494/0/1existingignored, strictalltargetlint, ordinaryCLIbuild, fmt. DiagnosticCLI frozen25008339; no editing or prompt semantics changed.",
         "observed_at": "2026-10-22T00:15:48.709578+00:00",
         "origin": "observed",
-        "next_action": "Publish separate tracecandidate only after prior statechain integrated/currentmainreconciled. One diagnostic accountattempt may proceed only after freshdriverreview/quota/reservation.",
+        "next_action": "Publish separate qualified tracecandidate only after prior statechain integrated/currentmainreconciled. Its completed diagnostic confirmed exactwrongrange refusal; guidancecorrection and any third bounded live test are separate selected tasks.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -2747,28 +2750,70 @@
         "title": "Clarify exact passage-edit coordinates for the AI",
         "state": "active",
         "owner": "Lead design; bounded Luna text-only implementation; consequential independent Sol review",
-        "activity": "Selected after second failed real-model attempt supplied48..60 instead of requested43..55. Existing strict range check protected unchanged data. No additional live launch selected yet.",
-        "observed_at": "2026-10-22T00:21:02.688027+00:00",
+        "activity": "Finaleac295b1 independently reviewed; corrected guidecache1, fullruntime494/0/1existingignored, CLIidentity1, strictalltargetlint, ordinaryCLIbuild/fmtPASS. Fresh executable frozen; no third accountlaunchyet.",
+        "observed_at": "2026-10-22T00:28:12.346403+00:00",
         "origin": "observed",
-        "next_action": "Clarify decoded Markdown global UTF8 offset calculation and refusal recovery in existing schema/guide, bump shipped guide identity, preserve every handler and authority check; independent review then proportionate runtime checks.",
+        "next_action": "Review exact third-attempt driver including diagnosed nonzero-envelope error handling; then freshquota and one final session reservation before launch. Publish separate guidancecandidate after prior sourcechain integration.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/targeted-edit-diagnostic-qualification.json",
           "docs/work/active/vacation-campaign/evidence/precise-edit-reuse-design.md",
           "crates/brn-ai/src/threads_note_edit.rs",
-          "agent/BRN.md"
+          "agent/BRN.md",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-guidance-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-guidance-review.md",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-guidance-initial.sh",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-guidance-initial.log",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-guidance-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-guidance-final.log",
+          "docs/work/active/vacation-campaign/evidence/precise-edit-guidance-final.sh"
         ],
         "gates": {
-          "implementation": "pending bounded text-only candidate",
-          "checks": "pending existing guide/schema/runtime checks; no new string-mirror tests",
+          "implementation": "PASS complete independent source review exacteac295b1; schema shape/handlers/authority unchanged",
+          "checks": "PASS exacteac295b1 guidecache1, runtime494/0/1existingignored, CLIidentity1, strictlint,ordinaryCLIbuild/fmt; frozenbinary",
           "integration": "pending normal separate reviewed candidate after prior source chain",
           "native": "inapplicable to guide text; actual Mac deferred",
           "owner_acceptance": "not claimed"
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Existing guide-bundle recomputation witness FAIL on6b719f6e: left0 expected1 after version fixture no longer changed current18.",
+            "change": "Update only prior-version test transformation18->17; preserve expected recomputation assertion and original failure.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/precise-edit-guidance-initial.log"
+            ]
+          }
+        ],
         "resource_plan": "One explicit Luna medium text-only author, one independent Sol high reviewer after complete candidate; max3of4slots. Lead owns records/build/account/integration. No nestedagents, tool/schema-shape/handler/access/provider/dependency/native/account changes. Stop on any need for new selector or after one proposal; two failed account outcomes trigger this explicit reassessment rather than blind retry.",
         "design": "Keep range-only tool contract and exact byte-match refusal. Explain coordinate origin is beginning of decoded Note Markdown, exclusive end, prefix UTF8 bytes+returned read start; JSON escapes/wrappers and character counts are not offsets. Read same current version, never guess, fresh key for corrected arguments. Concise source-only tool descriptions plus existing base guide and guide-identity fixture. No automatic relocation/quote-onlyselector, no increased budget, no extra logging."
+      },
+      {
+        "id": "run-partial-answer-ownership",
+        "title": "Assess keeping the partial answer with its active Run",
+        "state": "complete",
+        "owner": "Lead design; bounded Luna source-only assessment",
+        "activity": "Source assessment on reviewed413003ef found existing partial readers bound to active Run identity, with preservation-before-clear and current-chat scoping. No reachable mismatched preview established; lead accepts retaining this boundary for now, with no refactor or new tests.",
+        "observed_at": "2026-10-22T00:27:45.906444+00:00",
+        "origin": "observed",
+        "next_action": "Reuse existing identity-gated preview and Stop/disconnect witnesses. Reassess only for a concrete stale-preview defect, new writer/lifecycle path or materially repeated cleanup.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/run-coordination-map.md",
+          "crates/brn-desktop/src/threads_ui.rs",
+          "crates/brn-desktop/src/threads_worker.rs",
+          "docs/work/active/vacation-campaign/evidence/run-partial-ownership-design.md"
+        ],
+        "gates": {
+          "implementation": "inapplicable: assessment recommends retaining existing boundary; no source candidate",
+          "checks": "source assessment only; no new command/native qualification claimed",
+          "integration": "inapplicable: no product change selected",
+          "native": "existing source-bound native gate deferred",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [],
+        "resource_plan": "One economical Luna medium read-only assessment of stream field only on clean export-durability reviewed413003ef; owns /tmp/brn-run-partial-ownership-design.md. No source/sharedrecord/Git mutations, network, build/test/account/native/credential actions or nestedagents. Lead+guidancereviewer+assessment3of4slots; lead owns builds/integration. Stop after one source-backed recommendation, including do-not-change if ownership costs exceed benefit."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -2779,14 +2824,14 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T00:06:40Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-three-candidates-ai-diagnosis-update.json"
+    "last_refresh_at": "2026-10-22T00:22:38.951Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-run-merge-diagnostic-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T00:21:02.688027+00:00",
-    "runtime_capacity": "Lead plus requested one bounded Luna guidance author, later independent Sol review within4slots. No active build.",
-    "build_slot": "All current localqualification builds complete; no activebuild.",
-    "desktop_account_actor": "No active accounttest. Two attempted runs in same session, bothfailed and retained; no third dispatch without distinct reviewed diagnosed guidance correction. Nativeapp63750 preserved.",
+    "observed_at": "2026-10-22T00:29:58.171857+00:00",
+    "runtime_capacity": "Lead only; all bounded authors/reviewers complete, no sourcewriter/build.",
+    "build_slot": "All selected localqualification gates complete; no active build.",
+    "desktop_account_actor": "Third/final session attempt reserved; lead soleaccountactor. Nativeapp63750 preserved and deferred.",
     "read_only_ci_watches": [
       {
         "kind": "PR200 required checks",
@@ -2806,11 +2851,11 @@
     ],
     "watch_policy": "gh run watch interval60; readonly and ends on workflowcompletion. Watch process/output is not required-gate proof; inspect actualexacthead/protection/results before normalmerge. Reconcile actualprocesses after interruption.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Main199 and head200 checks running while reviewed diagnostictrace qualification continues.",
+    "wait_reason": "Final guidance localCLI gates overlap exacthead200/precedingmain199 required hostedchecks.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability clean codex/run-continuation-owner bd60131d qualified/unpublished, prior frozenrefs preserved.",
-    "fixture_worker_checkout": "mac-test-roots clean codex/precise-edit-trace777e3461 at2ecf634d. PR199 original branch/headf6dd4d66 remains frozen; no competing sourcewriter.",
+    "worker_checkout": "export-durability clean codex/run-continuation-owner413003ef, published PR200 frozen while hostedchecks run.",
+    "fixture_worker_checkout": "mac-test-roots clean codex/precise-edit-guidance eac295b1; finalqualification owns source/buildslot. Prior tracec4 frozenref retained.",
     "documentation_worker_checkout": "architecture-status-route clean codex/import-target-owner2ecf634d qualified/unpublished.",
     "required_ci_runs": [
       39698249037,

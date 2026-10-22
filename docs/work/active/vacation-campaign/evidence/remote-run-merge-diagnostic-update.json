@@ -1,0 +1,69 @@
+{
+  "observed_at": "2026-10-22T00:22:38.951Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "url": "https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68",
+  "source_commit": "3940fb4b",
+  "sequence": 57,
+  "updated_blocks": [
+    "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+    "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+    "a37e5801-b0c8-4330-800f-13d98b10338a"
+  ],
+  "all_36_blocks_same_order_metadata_and_untouched_text_verified": true,
+  "edit_receipt": {
+    "new_sequence": 57,
+    "through_sequence": 57,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "2bdb1c61-8302-4103-a092-27bd5ebae5fa",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+          "relative_position_base64": "AOX+6tEI4QdB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "eac3f97b-6d69-4914-b0d5-d4df0bfe9528",
+            "hash": "6de17f1bf16c45daf4f69f3b71dcc54d0feb795ec395f209de310555f192dd98"
+          }
+        ]
+      },
+      {
+        "operation_index": 1,
+        "preceding_block_id": "ef0796cf-5c02-4944-b3b6-20eba4f85fb4",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+          "relative_position_base64": "AJuY17sC+BBB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "30420f5a-d95d-4521-87e6-d8fc7ee085ea",
+            "hash": "4e898e85aa33270c413ab7cb47390aa0f14b2c9fd57cceff30764eb2e8643bf8"
+          }
+        ]
+      },
+      {
+        "operation_index": 2,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "e3247f0f3369c5f9f7f295c558e2ce202fdbd5aa15f56c6cabfc29e39d0c8341"
+          }
+        ]
+      }
+    ]
+  },
+  "timestamp_correction": {
+    "sequence": 58,
+    "reason": "Corrected minute from03:25future to actual03:22 based on observed_at00:22:38.951Z",
+    "applied": true
+  }
+}

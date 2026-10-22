@@ -1,0 +1,22 @@
+# Independent source review — precise-edit guidance
+
+Reviewed candidate `eac295b14ddb4a57b1e3b62e6c51f0d40ae699a5` on `codex/precise-edit-guidance`, against base `c4f0e2e663cb04654c2bc49f9a540499fdd139b9`, in `/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust`. Read-only Git inspection confirmed the stated HEAD and a clean working tree. Reviewed the complete base-to-candidate diff: all five files, 11 additions and 11 deletions. No other candidate files were present.
+
+## Findings
+
+No actionable P1/P2 findings. No blocking correctness, security, authority, regression or maintenance issue identified in this bounded candidate.
+
+## Source evidence
+
+- `agent/BRN.md:41` and `crates/brn-ai/src/threads_note_edit.rs:41–43,68` coherently explain global UTF-8 byte offsets in decoded saved Note Markdown, the returned slice's `note.start` plus the byte length of its prefix, the exclusive end calculated from `expected_text`, matching current version/text, and a fresh request key after corrected arguments. The guide retains the prohibition against guessing or relocating repeated wording, full-read requirements, same-Run identical replay, fresh Continue semantics, and tool authority limits.
+- Verified the actual read envelope rather than assuming it: `crates/brn-threads-core/src/read.rs:58–83,88–179` serializes `NoteReadOutcome::Read { note: NoteSlice }`, whose `start` indexes stored Markdown bytes and whose `markdown` is that exact slice. `crates/brn-ai/src/threads.rs:1217–1280` keeps `note.start` and computes any encoded-output-limited `end`/continuation from the decoded prefix byte length. The new `note.start`/`note.markdown` wording therefore matches both ordinary and truncated runtime responses.
+- `crates/brn-ai/src/threads_note_edit.rs` changes only descriptions. Argument fields, types, minima, required properties and closed schema remain unchanged, as do validation and the handler. Current access/version/exact-range checks, immutable operation binding/replay, full-range read guard, metadata-preserving construction, checked preparation and Rewrite/helper refusal remain in the existing implementation.
+- Inspected actual registration/schema/dispatch consumers in `crates/brn-ai/src/threads.rs`, including the common schema owner, registered `PrepareNoteEdit`, availability fencing and argument correction path. The candidate introduces no selector, new offered operation, authority path, weakened guard or changed review-first/Apply/Undo behavior. The surrounding packaged authority text remains unchanged.
+- `crates/brn-ai/src/threads_guides.rs:2,109–110` advances the packaged stamp to `brn-threads-guidance-18` and updates both parent/helper renderer expectations. `crates/brn-ai/src/threads_skills.rs:123–133,189–219` incorporates that stamp into the frozen catalogue identity and rendered instructions; new Runs capture it at `crates/brn-ai/src/threads.rs:3684`, and summary context hashes the saved Run identity at `crates/brn-ai/src/threads_summary.rs:279`. The guide edit therefore cannot silently reuse the old guide stamp.
+- `crates/brn-ai/src/threads_summary_tests.rs:1569–1650` retains the prior/current stamp invalidation-and-reuse sequence: prior 17 uncached/cached, current 18 uncached/cached, distinct cache context, one compaction per changed stamp. `crates/brn/tests/agent_runs.rs:573–579` now expects the current shipped prefix while retaining the historical saved-identity assertion later in that test. Remaining guidance-17 references are historical evidence or the intentional prior fixture, not stale current runtime expectations.
+
+## Scope and limitations
+
+Read the checkout's `AGENTS.md`, strategic programming guidance, relevant architecture/invariants and runtime README, verification guidance, exact-local-edit contract, and independent-review/resource skill guidance. This review used source inspection only. No builds, tests, live providers, native interaction, account/network actions, Git mutations or source/shared-record edits were performed. The only written artifact is this report.
+
+Automated final checks belong to the lead. This clean source review does not demonstrate real-model usefulness, native usability, owner acceptance or integration. The supplied failed live observations remain separate evidence; because exact supplied `expected_text` was not logged, this review makes no claim about their arithmetic or reasoning mechanism.
