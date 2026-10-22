@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.
-**Owner attention:** No owner action needed. Reviewed passage-edit guidance PR219 awaits required hosted checks; local checks passed. Live test failure preserved; Mac checks remain deferred.
+**Owner attention:** No owner action needed. PR219 is merged after all four required head checks; separate resulting-main checks are running. Live usefulness remains unverified; Mac checks remain deferred.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 

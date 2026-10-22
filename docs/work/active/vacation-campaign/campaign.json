@@ -5631,7 +5631,8 @@
           "docs/work/active/vacation-campaign/evidence/pr219-windows.json",
           "docs/work/active/vacation-campaign/evidence/pr219-windows.log.gz",
           "docs/work/active/vacation-campaign/evidence/pr219-premerge.json",
-          "docs/work/active/vacation-campaign/evidence/pr219-integration.json"
+          "docs/work/active/vacation-campaign/evidence/pr219-integration.json",
+          "docs/work/active/vacation-campaign/evidence/pr219-head-required-jobs.json"
         ],
         "gates": {
           "implementation": "PASS independent complete actuale5e9613b review; scope4files only, sliceorigin/freshkey/hostguards and19→20cacheidentity verified.",
@@ -5644,7 +5645,7 @@
         "resource_plan": "Single writer export-durability branchcodex/precise-edit-selector-guidance-20261022, allowedparentguide and3existingbundleidentityfiles only; no helperbuild/account/native. Lead sole sharedtarget/integrationowner; Solreviewafteractualcandidate. No newtests/framework/provider/model."
       }
     ],
-    "owner_attention": "No owner action needed. Reviewed passage-edit guidance PR219 awaits required hosted checks; local checks passed. Live test failure preserved; Mac checks remain deferred."
+    "owner_attention": "No owner action needed. PR219 is merged after all four required head checks; separate resulting-main checks are running. Live usefulness remains unverified; Mac checks remain deferred."
   },
   "remote_progress": {
     "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
@@ -5656,7 +5657,7 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr219-open.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T16:12:08.067325+00:00",
+    "observed_at": "2026-10-22T16:12:48.138555+00:00",
     "runtime_capacity": "Luna implementation and independentSol review complete. Lead sole integration/CI/facts owner; no active source writer.",
     "build_slot": "Free; final e5 qualification complete, no cargo/rustc owned job.",
     "desktop_account_actor": "No controlled desktop/account actor. One post-repair live attempt finished and sessionclosed; originalapp63750 preserved, native ownerdeferral unchanged.",
@@ -5672,8 +5673,9 @@
     "required_ci_runs": [
       {
         "pr": 219,
+        "run_id": 39811859007,
         "head": "24a77f4f44072a084423f71bca0356f140dcd968",
-        "state": "Merged; resulting-main run discovery/checks pending."
+        "state": "Resulting-main checks in progress; required head passed, merged whole tree equals qualifiede5."
       }
     ]
   },
