@@ -14,9 +14,9 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:17:49.920970+00:00
-Activity: All four required exact174 hosted checks PASS. Corrected UbuntuNativeUI reports every step success includingCompletejob14:10:36, but actualjob/check conclusion remains inprogress at14:17; wait for terminal result before normalmerge. OptionalWindows unchangedUnix-only sourceFAIL retained. Finalcandidate frozen/reviewed/locallyqualified.
-Next: Await actual correctedUbuntuUI terminalPASS, then recheck live protection/exact174/base/allPRs and normalmerge; inspect resultingmain separately. Ready reviewed bounded-overview publication follows.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:21:00.470102+00:00
+Activity: PR217 normallymerged765f2dda at14:19:16UTC afterfreshstrictprotection, all4required exact174 +precedingmainPASS andcorrectedUbuntuUIterminalPASS. Whole mergedtree equals qualified174be2b. Lead reconciledmain; resulting-main checks pending separately; nativeownerdeferred.
+Next: Inspect allfour required765f2dda resulting-main checks, preserve anyfailure/diagnose beforelatermerge. NativeMAC15 staysdeferreduntilownerchangedaccess. Boundedoverviewmaypublishbutitsmergewaits thismain.
 
 <details>
 <summary>Gate status</summary>
@@ -24,10 +24,31 @@ Next: Await actual correctedUbuntuUI terminalPASS, then recheck live protection/
 Gates:
 
 - **implementation:** PASS independent complete final174 review; prior P1 Quit and P2 clean-checkpoint findings valid/fixed; no unresolved source findings.
-- **checks:** PASS local351desktop/0/1ignored plus all4required exact174 hosted checks. OptionalcorrectedUbuntuUI terminal pending despite completedsteps; no passing-check inference. OptionalWindowsUnix-onlyFAIL retained; native separate.
-- **integration:** PR217 exact174 published and attached; fresh required checks pending. Normal protected merge authorized after live checks; no merge yet.
+- **checks:** PASS local351desktop/0/1ignored +all4required exact174 andcorrectedUbuntuUIterminalPASS. OptionalWindowsUnix-onlyFAIL retained. Resultingmain pending; native separate.
+- **integration:** Normal protectedmerge765f2dda PASSwholequalifiedtreebe2b. All4required resulting-main checks pending separately; no release/native/owneracceptance.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
+
+</details>
+
+### Keep completed history from crowding the startup summary
+
+Task ID: `bounded-completed-overview`
+Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:21:00.470102+00:00
+Activity: Prerequisite217normallymerged. Worker normallyreconciledactualmain765→cleancomposition23f78a80; actual3filetoolingdiff/sourceequivalence preserved. Focused16Python/regen/check/docs625/2813/diffPASS. Boundedindependentcompositionverificationrunning; noPRyet.
+Next: Verify complete reviewed3filecomposition thennormalpublish/freezePR; reuse source-boundreview/qualification, inspect freshrequiredhead+precedingmain765gates and liveprotection beforemerge.
+Depends on: note-exit-preservation when Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: true)
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** PASS complete8a175c40 independent review; latest10 completed index plus unfinished dependency ancestor closure; full record validation/lookup preserved. Byte-identical scripts adopted in lead.
+- **checks:** PASS final16Python/renderercheck/docs890files3116links0fail/diff. Actual lead record bytes unchanged across qualification; meaningful graph baseline raw retained, intermediate fixture correction output-loss limit disclosed.
+- **integration:** Worker23f78a80 composedactualmain765withunchangedreviewed8ascripts/tests andgeneratedpage. NoPRyet; completecompositionverificationnext. Normalmergewaits requiredhead andprecedingmain.
+- **native:** Inapplicable: development view only.
+- **owner acceptance:** No new product meaning or shipped behavior.
 
 </details>
 
@@ -216,31 +237,6 @@ Waiting:
 
 - resource: Owner-reported extended Mac screen unavailability; no access/unlock/close/launch until changed availability.
 
-### Keep completed history from crowding the startup summary
-
-Task ID: `bounded-completed-overview`
-Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **ready** · Last observed: 2026-10-22T14:08:35.125495+00:00
-Activity: Complete8a175c40 independently APPROVED/no findings; lead adopted byte-identical final renderer/tests while preserving actual current record.16PythonPASS/renderer/docs/diffPASS. Additionalgraphprojection24592→21204bytes,345→311lines on same record; no task/history deletion. Unpublished, waiting217normalmerge.
-Next: After PR217 normalmerge, reconcile actualmain in worker without replacing campaign records; regenerate worker derivative, verify unchanged reviewed source/test, publish complete bounded-overview outcome and inspect exact-head/protection/resulting-main normally.
-Depends on: note-exit-preservation when Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: false)
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS complete8a175c40 independent review; latest10 completed index plus unfinished dependency ancestor closure; full record validation/lookup preserved. Byte-identical scripts adopted in lead.
-- **checks:** PASS final16Python/renderercheck/docs890files3116links0fail/diff. Actual lead record bytes unchanged across qualification; meaningful graph baseline raw retained, intermediate fixture correction output-loss limit disclosed.
-- **integration:** No PR yet; source candidate preserved. Publication awaits preceding217normalmerge, not new owner approval.
-- **native:** Inapplicable: development view only.
-- **owner acceptance:** No new product meaning or shipped behavior.
-
-</details>
-
-Waiting:
-
-- prerequisite note-exit-preservation: Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: false; task state: active)
-
 ### Observe note preservation during Mac Close and Quit
 
 Task ID: `note-exit-native-qualification`
@@ -306,10 +302,10 @@ graph TD
   t32 -->|Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (satisfied)| t34
   t113 -->|Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (satisfied)| t115
   t122 -->|Connections repair normally merged and all four required resulting-main checks PASS. (satisfied)| t123
-  t127 -->|Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (not satisfied)| t129
+  t127 -->|Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (satisfied)| t129
   t127 -->|PR217 normally merged with all four required resulting-main checks PASS. (not satisfied)| t130
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T14:17:49.920970+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T14:21:00.470102+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

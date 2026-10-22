@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T14:02:34.261681+00:00",
-    "remaining_percent": 35,
-    "reset_unix": 1793083360,
-    "ordinary_work": "Actual65%used/35%remaining; ordinaryUsageAllowed=true; secondary unavailable. Continue authorized headless work; no native or account dispatch.",
+    "observed_at": "2026-10-22T14:21:00.470102+00:00",
+    "remaining_percent": 34,
+    "reset_unix": 1793083361,
+    "ordinary_work": "Actual66%used/34%remaining; ordinaryUsageAllowed=true, secondary unavailable. Continue ordinary headless integration/review; native/account deferrals unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T14:17:49.920970+00:00",
+    "observed_at": "2026-10-22T14:21:00.470102+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5278,10 +5278,10 @@
         "title": "Preserve live-only note typing before normal Close or Quit",
         "state": "active",
         "owner": "Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review",
-        "observed_at": "2026-10-22T14:17:49.920970+00:00",
+        "observed_at": "2026-10-22T14:21:00.470102+00:00",
         "origin": "observed",
-        "activity": "All four required exact174 hosted checks PASS. Corrected UbuntuNativeUI reports every step success includingCompletejob14:10:36, but actualjob/check conclusion remains inprogress at14:17; wait for terminal result before normalmerge. OptionalWindows unchangedUnix-only sourceFAIL retained. Finalcandidate frozen/reviewed/locallyqualified.",
-        "next_action": "Await actual correctedUbuntuUI terminalPASS, then recheck live protection/exact174/base/allPRs and normalmerge; inspect resultingmain separately. Ready reviewed bounded-overview publication follows.",
+        "activity": "PR217 normallymerged765f2dda at14:19:16UTC afterfreshstrictprotection, all4required exact174 +precedingmainPASS andcorrectedUbuntuUIterminalPASS. Whole mergedtree equals qualified174be2b. Lead reconciledmain; resulting-main checks pending separately; nativeownerdeferred.",
+        "next_action": "Inspect allfour required765f2dda resulting-main checks, preserve anyfailure/diagnose beforelatermerge. NativeMAC15 staysdeferreduntilownerchangedaccess. Boundedoverviewmaypublishbutitsmergewaits thismain.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -5324,12 +5324,14 @@
           "docs/work/active/vacation-campaign/evidence/note-exit-clean-final-review.md",
           "docs/work/active/vacation-campaign/evidence/pr217-final-publication.json",
           "docs/work/active/vacation-campaign/evidence/pr217-ubuntu-finalization-observation.json",
-          "docs/work/active/vacation-campaign/evidence/pr217-windows-final.json"
+          "docs/work/active/vacation-campaign/evidence/pr217-windows-final.json",
+          "docs/work/active/vacation-campaign/evidence/pr217-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr217-integration.json"
         ],
         "gates": {
           "implementation": "PASS independent complete final174 review; prior P1 Quit and P2 clean-checkpoint findings valid/fixed; no unresolved source findings.",
-          "checks": "PASS local351desktop/0/1ignored plus all4required exact174 hosted checks. OptionalcorrectedUbuntuUI terminal pending despite completedsteps; no passing-check inference. OptionalWindowsUnix-onlyFAIL retained; native separate.",
-          "integration": "PR217 exact174 published and attached; fresh required checks pending. Normal protected merge authorized after live checks; no merge yet.",
+          "checks": "PASS local351desktop/0/1ignored +all4required exact174 andcorrectedUbuntuUIterminalPASS. OptionalWindowsUnix-onlyFAIL retained. Resultingmain pending; native separate.",
+          "integration": "Normal protectedmerge765f2dda PASSwholequalifiedtreebe2b. All4required resulting-main checks pending separately; no release/native/owneracceptance.",
           "native": "Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.",
           "owner_acceptance": "Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded."
         },
@@ -5426,17 +5428,17 @@
       {
         "id": "bounded-completed-overview",
         "title": "Keep completed history from crowding the startup summary",
-        "state": "ready",
+        "state": "active",
         "owner": "Bounded Luna medium author; lead integration; independent Sol review",
-        "observed_at": "2026-10-22T14:08:35.125495+00:00",
+        "observed_at": "2026-10-22T14:21:00.470102+00:00",
         "origin": "observed",
-        "activity": "Complete8a175c40 independently APPROVED/no findings; lead adopted byte-identical final renderer/tests while preserving actual current record.16PythonPASS/renderer/docs/diffPASS. Additionalgraphprojection24592→21204bytes,345→311lines on same record; no task/history deletion. Unpublished, waiting217normalmerge.",
-        "next_action": "After PR217 normalmerge, reconcile actualmain in worker without replacing campaign records; regenerate worker derivative, verify unchanged reviewed source/test, publish complete bounded-overview outcome and inspect exact-head/protection/resulting-main normally.",
+        "activity": "Prerequisite217normallymerged. Worker normallyreconciledactualmain765→cleancomposition23f78a80; actual3filetoolingdiff/sourceequivalence preserved. Focused16Python/regen/check/docs625/2813/diffPASS. Boundedindependentcompositionverificationrunning; noPRyet.",
+        "next_action": "Verify complete reviewed3filecomposition thennormalpublish/freezePR; reuse source-boundreview/qualification, inspect freshrequiredhead+precedingmain765gates and liveprotection beforemerge.",
         "depends_on": [
           {
             "task": "note-exit-preservation",
             "condition": "Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate.",
-            "satisfied": false
+            "satisfied": true
           }
         ],
         "resource_waits": [],
@@ -5455,7 +5457,7 @@
         "gates": {
           "implementation": "PASS complete8a175c40 independent review; latest10 completed index plus unfinished dependency ancestor closure; full record validation/lookup preserved. Byte-identical scripts adopted in lead.",
           "checks": "PASS final16Python/renderercheck/docs890files3116links0fail/diff. Actual lead record bytes unchanged across qualification; meaningful graph baseline raw retained, intermediate fixture correction output-loss limit disclosed.",
-          "integration": "No PR yet; source candidate preserved. Publication awaits preceding217normalmerge, not new owner approval.",
+          "integration": "Worker23f78a80 composedactualmain765withunchangedreviewed8ascripts/tests andgeneratedpage. NoPRyet; completecompositionverificationnext. Normalmergewaits requiredhead andprecedingmain.",
           "native": "Inapplicable: development view only.",
           "owner_acceptance": "No new product meaning or shipped behavior."
         },
@@ -5576,17 +5578,17 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-final-note-exit-pr217.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T14:17:49.920970+00:00",
-    "runtime_capacity": "Lead integration/currentfacts; Luna writer frozen8a175c40 and Sol complete-candidate reviewAPPROVED. No active helper source/build/native/account actor.",
+    "observed_at": "2026-10-22T14:21:00.470102+00:00",
+    "runtime_capacity": "Lead currentfacts/integration; Sol bounded read-only composition verification; Luna completed/frozen, no sourcewriter.",
     "build_slot": "Free; no cargo/rustc/test child active. Shared target remains serialized.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "All4required217headPASS; correctedUbuntuUI terminalstatusawaited afterallstepssuccess. No active localbuild/writer/native/account.",
+    "wait_reason": "PR217 normallymerged; requiredresulting765checks pending. Toolingcompositionverificationthenpublication mayoverlap; no builds/native/account.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability clean frozen8a175c40 bounded-overview candidate, reviewed/qualified; no writer. Publication awaits217normalmerge.",
+    "worker_checkout": "export-durability clean23f78a80 compositionfrommain765 +reviewed8a renderer/tests/workerpage; no sourcewriter.",
     "fixture_worker_checkout": "mac-test-roots frozen clean174e381f PR217; no source writer/build/native/account.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
