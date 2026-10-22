@@ -809,21 +809,6 @@ fn stale_recovery_from_private_basis_is_refused_in_general_scope(cx: &mut TestAp
             let private_basis = view.workspace.store.note(&f.note.id).unwrap().unwrap();
             assert!(matches!(&private_basis.data, RecordData::Note(note)
                 if note.chat.as_deref() == Some(chat.id.as_str())));
-            let session = view
-                .workspace
-                .store
-                .begin_edit(&f.note.id, private_basis.version)
-                .unwrap();
-            let recovered = "õun 私密\nRecovered from private basis";
-            let session = match view
-                .workspace
-                .store
-                .update_buffer(&session.id, 1, recovered)
-                .unwrap()
-            {
-                BufferOutcome::Updated(session) => session,
-                BufferOutcome::Ignored(_) => panic!("fresh recovery buffer was ignored"),
-            };
             let RecordData::Note(mut public_data) = private_basis.data.clone() else {
                 unreachable!()
             };
@@ -849,6 +834,21 @@ fn stale_recovery_from_private_basis_is_refused_in_general_scope(cx: &mut TestAp
             let current_public = view.workspace.store.note(&f.note.id).unwrap().unwrap();
             assert!(matches!(&current_public.data, RecordData::Note(note)
                 if note.chat.is_none()));
+            let session = view
+                .workspace
+                .store
+                .begin_edit(&f.note.id, private_basis.version)
+                .unwrap();
+            let recovered = "õun 私密\nRecovered from private basis";
+            let session = match view
+                .workspace
+                .store
+                .update_buffer(&session.id, 1, recovered)
+                .unwrap()
+            {
+                BufferOutcome::Updated(session) => session,
+                BufferOutcome::Ignored(_) => panic!("fresh recovery buffer was ignored"),
+            };
             view.open_note(&f.note.id, None, window, cx);
             let open = view.writing.note.as_ref().unwrap();
             assert_eq!(open.record().version, current_public.version);

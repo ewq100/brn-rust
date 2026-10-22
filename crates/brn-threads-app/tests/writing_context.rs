@@ -316,8 +316,9 @@ fn recovery_copy_refuses_private_basis_current_source_and_captured_scope() {
 
 #[test]
 fn recovery_copy_preserves_public_stale_basis_and_replays_immutable_intent() {
-    let (_root, mut app) = recovery_workspace();
+    let (root, mut app) = recovery_workspace();
     let note = app.new_note("Source", "Saved v1").unwrap();
+    let private_chat = app.new_thread("Private later source scope").unwrap();
     let current = change_note(&mut app, "source-v2", &note.id, |note| {
         note.markdown = "Saved v2".into();
     });
@@ -337,65 +338,129 @@ fn recovery_copy_preserves_public_stale_basis_and_replays_immutable_intent() {
     assert!(matches!(&copy.data, RecordData::Note(created)
         if created.title == "Recovered Source" && created.markdown == text
             && created.chat.is_none() && !created.protected && created.import.is_none()));
-
-    // A completed same-intent retry replays its first identity before looking
-    // at the now-changed source; changing the intent under that key is refused.
-    let source_v2 = app.store.note(&note.id).unwrap().unwrap();
-    let RecordData::Note(mut source_v3_data) = source_v2.data.clone() else {
-        panic!("expected Note")
-    };
-    source_v3_data.markdown = "Saved v3".into();
-    let ApplyOutcome::Applied(source_v3) = app
-        .owner_change(
-            "source-v3",
-            &ChangeRequest {
-                reason: "Advance the public source after recovery copy".into(),
-                writes: vec![Put {
-                    id: note.id.clone(),
-                    expected_version: Some(source_v2.version),
-                    archived: false,
-                    data: RecordData::Note(source_v3_data),
-                }],
-                inputs: vec![],
-            },
-        )
-        .unwrap()
-    else {
-        panic!("source update was not applied")
-    };
-    assert!(source_v3.needs_refresh.contains(&copy.id));
+    let actual = app.store.prepared(&receipt.operation).unwrap();
     assert_eq!(
-        app.save_recovery_copy(
-            "session-7:3",
-            &note.id,
-            note.version,
+        actual.request.inputs,
+        vec![
+            RevisionInput {
+                record: note.id.clone(),
+                version: note.version,
+                expectation: InputExpectation::Historical,
+            },
+            RevisionInput {
+                record: note.id.clone(),
+                version: current.version,
+                expectation: InputExpectation::Current,
+            },
+        ],
+        "the emitted copy request binds its old text basis and observed current source"
+    );
+
+    let same_version = app.new_note("Same-version source", "Saved once").unwrap();
+    let same_copy = app
+        .save_recovery_copy(
+            "same-version-session:1",
+            &same_version.id,
+            same_version.version,
             None,
-            "Recovered Source",
-            text,
+            "Same-version recovery",
+            "Same-version text",
         )
-        .unwrap(),
+        .unwrap();
+    let same_request = app.store.prepared(&same_copy.operation).unwrap();
+    assert_eq!(
+        same_request.request.inputs,
+        vec![
+            RevisionInput {
+                record: same_version.id.clone(),
+                version: same_version.version,
+                expectation: InputExpectation::Historical,
+            },
+            RevisionInput {
+                record: same_version.id.clone(),
+                version: same_version.version,
+                expectation: InputExpectation::Current,
+            },
+        ]
+    );
+
+    // Clone the actual service request under a fresh prepared operation. Its
+    // Current fence must reject a privacy change after preparation.
+    let race_operation = app
+        .store
+        .allocate_operation("recovery-copy-current-race")
+        .unwrap();
+    let mut race_request = actual.request.clone();
+    let race_copy_id = race_operation.creation_id(0);
+    assert_eq!(race_request.writes.len(), 1);
+    race_request.writes[0].id = race_copy_id.clone();
+    let authority = HostAuthority::owner("recovery-copy current-fence test");
+    app.store
+        .prepare_owner(&race_operation, &race_request, &authority)
+        .unwrap();
+
+    let mut independent =
+        Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+    let private_source = change_note(
+        &mut independent,
+        "source-becomes-private",
+        &note.id,
+        |note| {
+            note.chat = Some(private_chat.id.clone());
+        },
+    );
+    assert_eq!(
+        app.store.note(&note.id).unwrap(),
+        Some(private_source.clone())
+    );
+    let records_before_apply = app.records().unwrap();
+    let history_before_apply = app.history().unwrap();
+    assert!(matches!(
+        app.store.apply(&race_operation, &authority).unwrap(),
+        ApplyOutcome::Stale { records } if records.contains(&note.id)
+    ));
+    assert_eq!(app.records().unwrap(), records_before_apply);
+    assert_eq!(app.history().unwrap(), history_before_apply);
+    assert_eq!(app.store.record(&race_copy_id).unwrap(), None);
+    assert_eq!(app.store.receipt(&race_operation).unwrap(), None);
+    assert_eq!(app.store.note(&note.id).unwrap(), Some(private_source));
+    drop(independent);
+    drop(app);
+
+    // Reopening and retrying the original identical intent returns its exact
+    // accepted receipt before the now-private source is revalidated.
+    let mut reopened =
+        Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+    assert_eq!(
+        reopened
+            .save_recovery_copy(
+                "session-7:3",
+                &note.id,
+                note.version,
+                None,
+                "Recovered Source",
+                text,
+            )
+            .unwrap(),
         receipt
     );
-    let records_before_changed_intent = app.records().unwrap();
-    let history_before_changed_intent = app.history().unwrap();
+    assert_eq!(reopened.store.note(&copy.id).unwrap().unwrap(), *copy);
+    let records_before_changed_intent = reopened.records().unwrap();
+    let history_before_changed_intent = reopened.history().unwrap();
     assert!(
-        app.save_recovery_copy(
-            "session-7:3",
-            &note.id,
-            note.version,
-            None,
-            "Recovered Source",
-            "changed intent",
-        )
-        .is_err()
+        reopened
+            .save_recovery_copy(
+                "session-7:3",
+                &note.id,
+                note.version,
+                None,
+                "Recovered Source",
+                "changed intent",
+            )
+            .is_err()
     );
-    assert_eq!(app.records().unwrap(), records_before_changed_intent);
-    assert_eq!(app.history().unwrap(), history_before_changed_intent);
-    assert_eq!(
-        app.store.note(&note.id).unwrap().unwrap().version,
-        current.version + 1
-    );
-    assert_eq!(app.store.note(&copy.id).unwrap().unwrap(), *copy);
+    assert_eq!(reopened.records().unwrap(), records_before_changed_intent);
+    assert_eq!(reopened.history().unwrap(), history_before_changed_intent);
 }
 
 #[test]
