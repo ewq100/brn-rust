@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T00:03:14.292206+00:00",
+    "observed_at": "2026-10-22T00:05:38.427488+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -2655,12 +2655,14 @@
         "title": "Check a precise AI edit on fresh synthetic data",
         "state": "active",
         "owner": "lead single account actor; bounded Luna preflight only",
-        "activity": "NormalCLI freshsetup and read-only seal passed:533initialUTF8bytes, Codex/Luna/low, ReviewFirst/nohelperMCP, source-boundfrozenCLI. Independent driver review found3issues, repaired with final no-blocking addendum; only outerwatchdog receipt label changed afterward. First of maximum3session/6day attempt reserved durably before launch.",
-        "observed_at": "2026-10-22T00:03:14.292206+00:00",
+        "activity": "Attempt9979761a completed through existing Codex/Luna account:4toolrounds, two Invalid precise-edit calls, no candidate. Complete original/sentinel records unchanged. Failure preserved; current trace omits actual ranges/reasons, so exact cause cannot yet be proven.",
+        "observed_at": "2026-10-22T00:05:38.427488+00:00",
         "origin": "observed",
-        "next_action": "Lead launch one reserved bounded ask, inspect actual terminal/exactcandidate/unchangeddata and record actual usage/limits. No repeat generation just for green.",
+        "next_action": "Keep failed attempt and actual usage; no automatic generation retry. Diagnose with bounded trace metadata repair and deterministic qualification before considering a second distinct diagnostic attempt.",
         "depends_on": [],
-        "resource_waits": [],
+        "resource_waits": [
+          "Exact rejection diagnosis needs newly selected trace evidence."
+        ],
         "evidence": [
           "docs/work/active/vacation-campaign/codex-ai-testing.md",
           "docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json",
@@ -2670,11 +2672,13 @@
           "docs/work/active/vacation-campaign/evidence/targeted-edit-account-preflight.md",
           "docs/work/active/vacation-campaign/evidence/targeted-edit-driver-review.md",
           "docs/work/active/vacation-campaign/evidence/targeted-edit-driver-before-review.py",
-          "docs/work/active/vacation-campaign/evidence/targeted-edit-driver.py"
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-driver.py",
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz"
         ],
         "gates": {
           "implementation": "No product change selected; reuse existing exact edit capability and normal runtime.",
-          "checks": "Fresh local setup/seal and driverreview PASS; actual account attempt pending.",
+          "checks": "Account/runtime succeeded; taskFAIL no preparedcandidate. Exacttarget/sentinelunchanged, no native acceptance.",
           "integration": "No product candidate unless an actual diagnosed repair is needed; existing reviewed gates remain.",
           "native": "No native interaction; owner deferral remains.",
           "owner_acceptance": "Not claimed."
@@ -2682,6 +2686,33 @@
         "attempts": [],
         "resource_plan": "One requested Luna medium read-only preflight helper for existing supported path and fixture recipe; lead validates and owns any bounded live launch. No helper account/process/build/native/data/Git/source/sharedrecord/credentials access. Own /tmp/brn-targeted-edit-account-preflight.md. Lead+onehelper within4slots; max3attemptsession/6day/180s8KiB4rounds under existing signedinCodexonly, actual allowance before/after and reservebeforelaunch. Stop on unavailable safe existingpath or ambiguous write authority; no newharnessframework or repeatedgeneration to get green.",
         "design": "One distinct usefulness scenario: exact local passage change through existing checked host construction/proposal path, preserving untouched bytes/metadata, original and sentinel until explicit existing review/Apply. Reuse account smoke evidence and current available Luna model. No newtool/provider/model/settings/globalrouting or live owner data. This tests usefulness, not native behavior or broad model quality."
+      },
+      {
+        "id": "precise-edit-trace-evidence",
+        "title": "Make precise-edit rejections diagnosable without exposing note text",
+        "state": "active",
+        "owner": "lead design/integration; bounded Luna author; independent Sol review",
+        "activity": "Actual first local-edit account test returned two Invalid calls with args{} and resultnull in trace. Existing trace has no prepare_note_edit branch, preventing independent range/reason diagnosis. Source-only bounded metadata repair selected.",
+        "observed_at": "2026-10-22T00:05:38.427488+00:00",
+        "origin": "observed",
+        "next_action": "Add exact-edit metadata to existing trace collector, deterministic privacy/result tests, then independently review and qualify. Do not change editing authority, behavior, tools, prompts or retry limits.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "crates/brn-ai/src/threads_trace.rs",
+          "crates/brn-ai/src/threads_note_edit.rs",
+          "docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json"
+        ],
+        "gates": {
+          "implementation": "Selected trace collector repair, pending.",
+          "checks": "Real before-trace args{} resultnull retained; deterministic trace/privacy tests pending.",
+          "integration": "Separate bounded candidate with required review/head/main gates pending; prior state candidates preserved.",
+          "native": "Inapplicable to trace metadata; actual Mac deferred.",
+          "owner_acceptance": "Not claimed."
+        },
+        "attempts": [],
+        "resource_plan": "One requested Luna medium author owns only existing threads_trace.rs and its local unit tests on clean isolated mac-test-roots codex/precise-edit-trace base2ecf634d. Lead owns sharedrecord/builds/integration and any accountactor; independent consequential Sol review. No builds/tests/account/network/native/schema/prompts/actualeditbehavior, newlogs/framework/dependencies or nestedagents. Stop after one bounded repair or real privacy/API ambiguity. Prior PR199 head frozen on its original branch; this new local branch does not alter published head.",
+        "design": "Extend existing collector only. Args show id/version/start/end and UTF8 expected/replacement byte counts, omitting raw expected/replacement/reason/requestkey. Result shows prepared operation and Invalid outcome plus bounded hoststatic rejectionreason; never fullrequest/Markdown/credentials. Both summary/full keep same privacy. Retain existing callseq/budget/levels, no new tool/schema/execution semantics. Test Unicodebytecounts, exactprimitiveprojection and rawpayloadexclusion, successfuloperationbinding and Invalidreason, using existing trace test seam. This repairs diagnosis, not the still-unproven underlying range cause."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."

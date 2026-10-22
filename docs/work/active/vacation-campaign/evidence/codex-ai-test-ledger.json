@@ -218,7 +218,7 @@
       "session": "2026-10-22-local-edit-01",
       "tallinn_date": "2026-10-22",
       "reserved_at_utc": "2026-10-22T00:03:14.292206+00:00",
-      "status": "reserved",
+      "status": "failed",
       "scenario": "One exact local passage proposal on Unicode/multiline synthetic Note; canonical target/sentinel unchanged, sole exact unapplied candidate via precise edit",
       "provider": "Codex existing signedinaccount only",
       "model": "gpt-6-luna",
@@ -242,7 +242,33 @@
         "secondary": "unavailable"
       },
       "native_observed": false,
-      "upstream_cancellation_confirmed": false
+      "upstream_cancellation_confirmed": false,
+      "started_at_utc": "2026-10-22T00:03:18.057495+00:00",
+      "finished_at_utc": "2026-10-22T00:03:23.826462+00:00",
+      "result_file": "/Users/evokessler/.codex/worktrees/vacation-hardening/codex-targeted-edit-evidence/2026-10-22-local-edit-01/result.json",
+      "account_transport_succeeded": true,
+      "task_passed": false,
+      "original_note_unchanged": true,
+      "sentinel_note_unchanged": true,
+      "no_candidates": true,
+      "run_id": "62582b04-e1d3-4f63-9885-070448218c4c:0",
+      "runtime_rounds": 4,
+      "model_turns": 5,
+      "usage": {
+        "input": 32020,
+        "output": 335,
+        "cached_input": 24704
+      },
+      "desktop_allowance_after": {
+        "observed_at": "2026-10-22T00:05:38.427887+00:00",
+        "ordinary_usage_allowed": true,
+        "used_percent": 32,
+        "remaining_percent": 68,
+        "reset_unix": 1793083360,
+        "secondary": "unavailable"
+      },
+      "qualification": "targeted-edit-account-qualification.json",
+      "diagnosis": "Model final report says both byte ranges mismatched expected passage, compatible with observed Invalid outcomes; actual offset arguments and host Invalid reasons are omitted by current trace, so exact cause is not independently established. New bounded trace metadata repair selected before any further account diagnostic."
     }
   ]
 }

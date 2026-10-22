@@ -86,9 +86,10 @@ Attempts:
 
 ### Check a precise AI edit on fresh synthetic data
 
-Owner: lead single account actor; bounded Luna preflight only · State: **active** · Last observed: 2026-10-22T00:03:14.292206+00:00
-Activity: NormalCLI freshsetup and read-only seal passed:533initialUTF8bytes, Codex/Luna/low, ReviewFirst/nohelperMCP, source-boundfrozenCLI. Independent driver review found3issues, repaired with final no-blocking addendum; only outerwatchdog receipt label changed afterward. First of maximum3session/6day attempt reserved durably before launch.
-Next: Lead launch one reserved bounded ask, inspect actual terminal/exactcandidate/unchangeddata and record actual usage/limits. No repeat generation just for green.
+Owner: lead single account actor; bounded Luna preflight only · State: **active** · Last observed: 2026-10-22T00:05:38.427488+00:00
+Activity: Attempt9979761a completed through existing Codex/Luna account:4toolrounds, two Invalid precise-edit calls, no candidate. Complete original/sentinel records unchanged. Failure preserved; current trace omits actual ranges/reasons, so exact cause cannot yet be proven.
+Next: Keep failed attempt and actual usage; no automatic generation retry. Diagnose with bounded trace metadata repair and deterministic qualification before considering a second distinct diagnostic attempt.
+Resource waits: Exact rejection diagnosis needs newly selected trace evidence.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
@@ -96,12 +97,33 @@ Next: Lead launch one reserved bounded ask, inspect actual terminal/exactcandida
 Gates:
 
 - **implementation:** No product change selected; reuse existing exact edit capability and normal runtime.
-- **checks:** Fresh local setup/seal and driverreview PASS; actual account attempt pending.
+- **checks:** Account/runtime succeeded; taskFAIL no preparedcandidate. Exacttarget/sentinelunchanged, no native acceptance.
 - **integration:** No product candidate unless an actual diagnosed repair is needed; existing reviewed gates remain.
 - **native:** No native interaction; owner deferral remains.
 - **owner acceptance:** Not claimed.
 
-Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-preflight.md](active/vacation-campaign/evidence/targeted-edit-account-preflight.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-review.md](active/vacation-campaign/evidence/targeted-edit-driver-review.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-before-review.py](active/vacation-campaign/evidence/targeted-edit-driver-before-review.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver.py](active/vacation-campaign/evidence/targeted-edit-driver.py)
+Evidence: [docs/work/active/vacation-campaign/codex-ai-testing.md](active/vacation-campaign/codex-ai-testing.md), [docs/work/active/vacation-campaign/evidence/codex-ai-test-ledger.json](active/vacation-campaign/evidence/codex-ai-test-ledger.json), [docs/work/active/agent-first-simplification/targeted-edit.md](active/agent-first-simplification/targeted-edit.md), [docs/work/active/agent-first-simplification/outcome-comparison.md](active/agent-first-simplification/outcome-comparison.md), [docs/work/active/vacation-campaign/evidence/writing-account-qualification.json](active/vacation-campaign/evidence/writing-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-preflight.md](active/vacation-campaign/evidence/targeted-edit-account-preflight.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-review.md](active/vacation-campaign/evidence/targeted-edit-driver-review.md), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver-before-review.py](active/vacation-campaign/evidence/targeted-edit-driver-before-review.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-driver.py](active/vacation-campaign/evidence/targeted-edit-driver.py), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz](active/vacation-campaign/evidence/targeted-edit-account-raw.tar.gz)
+
+</details>
+
+### Make precise-edit rejections diagnosable without exposing note text
+
+Owner: lead design/integration; bounded Luna author; independent Sol review · State: **active** · Last observed: 2026-10-22T00:05:38.427488+00:00
+Activity: Actual first local-edit account test returned two Invalid calls with args{} and resultnull in trace. Existing trace has no prepare_note_edit branch, preventing independent range/reason diagnosis. Source-only bounded metadata repair selected.
+Next: Add exact-edit metadata to existing trace collector, deterministic privacy/result tests, then independently review and qualify. Do not change editing authority, behavior, tools, prompts or retry limits.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Selected trace collector repair, pending.
+- **checks:** Real before-trace args{} resultnull retained; deterministic trace/privacy tests pending.
+- **integration:** Separate bounded candidate with required review/head/main gates pending; prior state candidates preserved.
+- **native:** Inapplicable to trace metadata; actual Mac deferred.
+- **owner acceptance:** Not claimed.
+
+Evidence: [crates/brn-ai/src/threads_trace.rs](../../crates/brn-ai/src/threads_trace.rs), [crates/brn-ai/src/threads_note_edit.rs](../../crates/brn-ai/src/threads_note_edit.rs), [docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json](active/vacation-campaign/evidence/targeted-edit-account-qualification.json)
 
 </details>
 
@@ -214,6 +236,14 @@ Waiting:
 - prerequisite run-coordination-state-ownership: Prior activity owner integrates before publishing this dependent candidate. (reported satisfied: false; task state: active)
 - resource: Prior activity PR199 exacthead/main integration.
 
+### Check a precise AI edit on fresh synthetic data
+
+Owner: lead single account actor; bounded Luna preflight only
+
+Waiting:
+
+- resource: Exact rejection diagnosis needs newly selected trace evidence.
+
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
@@ -313,4 +343,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T00:03:14.292206+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T00:05:38.427488+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
