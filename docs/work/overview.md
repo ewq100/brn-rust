@@ -51,6 +51,26 @@ Gates:
 
 </details>
 
+### Assess the remaining manual CLI-to-desktop intake check
+
+Task ID: `shared-cli-desktop-intake-preflight`
+Owner: Bounded Luna read-only preflight; lead disposition · State: **active** · Last observed: 2026-10-22T13:24:50.828093+00:00
+Activity: Sole ignored desktop fixture is explicitly manual and needs prior CLI useful-intake identities. Inspect current unignored coverage and historical round3 qualification before selecting any repeated run or code change.
+Next: Return justified reuse/nochange or concrete current offline gap and required supported route. No CLI/build/test/account/native launch; current accountsession exhausted.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** No change selected; read-only only.
+- **checks:** Current coverage/authorization route assessment pending.
+- **integration:** No candidate.
+- **native:** No native action selected.
+- **owner acceptance:** No owner action selected.
+
+</details>
+
 ## Next
 
 None recorded.
