@@ -1779,6 +1779,144 @@ fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mu
     .unwrap();
 }
 
+/// A clean editor can show a saved historical revision after another checked
+/// Workspace advances the canonical Note. Its visible bytes are already
+/// durable in that immutable revision, so normal Close must not ask to discard.
+#[gpui_kit::test]
+fn normal_close_accepts_a_clean_historical_checkpoint_without_writing(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        install_exit_handlers(window, cx, f.view.downgrade());
+        f.view
+            .update(cx, |view, cx| view.open_note(&f.a.id, None, window, cx))
+    })
+    .unwrap();
+    cx.run_until_parked();
+
+    let (advanced, closed_session, history_before_close) = {
+        let mut other = Workspace::open(&f.data).unwrap();
+        let session = other.store.begin_edit(&f.a.id, f.a.version).unwrap();
+        let updated = match other
+            .store
+            .update_buffer(
+                &session.id,
+                session.generation + 1,
+                "A checked newer Note body.",
+            )
+            .unwrap()
+        {
+            BufferOutcome::Updated(session) => session,
+            BufferOutcome::Ignored(_) => panic!("fresh checked Note update was ignored"),
+        };
+        assert!(matches!(
+            other.store.save(&updated.id, updated.generation).unwrap(),
+            SaveOutcome::Saved(_)
+        ));
+        let advanced = other.store.note(&f.a.id).unwrap().unwrap();
+        assert!(matches!(
+            &advanced.data,
+            RecordData::Note(note) if note.markdown == "A checked newer Note body."
+        ));
+        let closed_session = other.store.edit_session(&updated.id).unwrap();
+        assert!(closed_session.closed);
+        let history = serde_json::to_value(other.history().unwrap()).unwrap();
+        (advanced, closed_session, history)
+    };
+
+    // Refresh the workspace's current record list. The held editor remains a
+    // clean view of its exact saved vN checkpoint; it has no local edit buffer.
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, cx| {
+            view.refresh();
+            assert_eq!(view.writing.open_note_id(), Some(f.a.id.as_str()));
+            assert_eq!(
+                view.writing.note_editor.read(cx).value().as_ref(),
+                match &f.a.data {
+                    RecordData::Note(note) => note.markdown.as_str(),
+                    _ => panic!("fixture is a Note"),
+                }
+            );
+            assert_eq!(
+                view.records.iter().find(|record| record.id == f.a.id),
+                Some(&advanced)
+            );
+            assert_eq!(view.writing.note.as_ref().unwrap().record(), &f.a);
+            assert!(view.writing.note.as_ref().unwrap().session().is_none());
+            assert_eq!(
+                view.workspace.store.note(&f.a.id).unwrap().unwrap(),
+                advanced
+            );
+            assert_eq!(
+                view.workspace.store.revision(&f.a.id, f.a.version).unwrap(),
+                Some(f.a.clone())
+            );
+            assert!(
+                view.workspace
+                    .store
+                    .recovery_buffers()
+                    .unwrap()
+                    .iter()
+                    .all(|session| session.note != f.a.id || session.closed)
+            );
+            assert_eq!(
+                serde_json::to_value(view.workspace.history().unwrap()).unwrap(),
+                history_before_close
+            );
+        });
+    })
+    .unwrap();
+
+    let mut visual = gpui_kit::VisualTestContext::from_window(f.window, cx);
+    assert!(
+        visual.simulate_close(),
+        "the exact clean historical checkpoint is already durable"
+    );
+    // TestPlatform reports the installed admission predicate; it does not
+    // perform native window teardown.
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, _| {
+            assert_eq!(
+                view.workspace.store.note(&f.a.id).unwrap().unwrap(),
+                advanced
+            );
+            assert_eq!(
+                view.workspace.store.revision(&f.a.id, f.a.version).unwrap(),
+                Some(f.a.clone())
+            );
+            assert_eq!(
+                view.workspace
+                    .store
+                    .edit_session(&closed_session.id)
+                    .unwrap(),
+                closed_session
+            );
+            assert!(
+                view.workspace
+                    .store
+                    .recovery_buffers()
+                    .unwrap()
+                    .iter()
+                    .all(|session| session.note != f.a.id || session.closed)
+            );
+            assert_eq!(
+                serde_json::to_value(view.workspace.history().unwrap()).unwrap(),
+                history_before_close
+            );
+        })
+    })
+    .unwrap();
+    let reopened = Workspace::open(&f.data).unwrap();
+    assert_eq!(reopened.store.note(&f.a.id).unwrap().unwrap(), advanced);
+    assert_eq!(
+        reopened.store.revision(&f.a.id, f.a.version).unwrap(),
+        Some(f.a.clone())
+    );
+    assert_eq!(
+        serde_json::to_value(reopened.history().unwrap()).unwrap(),
+        history_before_close
+    );
+}
+
 /// U4: typing starts an edit, but another edit of the note opened after this
 /// window loaded it (another window or the CLI). The typed
 /// `EditSessionOpen` names its base version; the other edit is kept and the
