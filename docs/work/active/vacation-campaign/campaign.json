@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T10:43:24.586018+00:00",
+    "observed_at": "2026-10-22T10:49:02.502801+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4915,12 +4915,12 @@
       {
         "id": "helper-zip-advisory-assessment",
         "title": "Assess document-helper ZIP advisories",
-        "state": "active",
+        "state": "complete",
         "owner": "Independent Sol source/exposure assessment; lead disposition",
-        "observed_at": "2026-10-22T10:43:24.586018+00:00",
+        "observed_at": "2026-10-22T10:49:02.502801+00:00",
         "origin": "observed",
-        "activity": "Both maintained helper locks report three advisory matches for ZIP8.6.0. A read-only source assessment is checking the actual archive APIs, platform containment and whether a proportionate repair exists. No helper change is selected yet.",
-        "next_action": "Disposition exact helper extraction reachability and minimum compatible repair. Select a separate bounded change only when evidence justifies it; preserve original audit findings and avoid unreviewed major dependency churn.",
+        "activity": "Independent source review found ZIP8.6 only through Calamine in-memory readers; no call to the filesystem extraction APIs named by the advisories. The helpers already use patched ZIP9 for their direct document route. A compatible lock-only fix is unavailable; findings remain tracked without suppression.",
+        "next_action": "Revisit on a compatible published upstream helper update, introduced filesystem extraction/privilege changes, or a practical current-reader exploit. Any modernization requires a separately reviewed source/identity/eight-kind compatibility task; no forced major upgrade or new exploit test selected.",
         "depends_on": [
           {
             "task": "current-lock-advisory-scan",
@@ -4931,17 +4931,50 @@
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/advisory-stock-helper-lock.json",
-          "docs/work/active/vacation-campaign/evidence/advisory-adapted-helper-lock.json"
+          "docs/work/active/vacation-campaign/evidence/advisory-adapted-helper-lock.json",
+          "docs/work/active/vacation-campaign/evidence/helper-zip-advisory-assessment.md"
         ],
         "gates": {
-          "implementation": "Read-only assessment; no product candidate selected",
-          "checks": "Actual helperlockmatches3each; reachability and repair unqualified",
-          "integration": "No publication/merge selected by this assessment",
+          "implementation": "COMPLETE read-only exposure/repair assessment; no helper product change selected",
+          "checks": "Actual3matches each retained; source-bound affectedfilesystemAPIsnotcalled, byteinput/containment inspected. No new exploit/runtimequalification.",
+          "integration": "Inapplicable: no candidate/merge selected; TLS214 remains independent",
           "native": "Not required for source assessment; no interaction",
           "owner_acceptance": "No changed product meaning selected"
         },
         "resource_plan": "One Sol high read-only consequential assessment overlapping hostedPR214checks. Existing source/cache/official records; primary research if needed. No builds/edits/account/native/model actions; stop at concrete disposition.",
         "attempts": []
+      },
+      {
+        "id": "offline-native-retrieval-guide",
+        "title": "Document the existing offline native-library setup",
+        "state": "active",
+        "owner": "Bounded Luna medium documentation author; independent Sol review; lead integration",
+        "observed_at": "2026-10-22T10:49:02.502801+00:00",
+        "origin": "observed",
+        "activity": "The earlier optional build failed because explicit offline flags skipped automatic library discovery. The final local gate passed with the compatible cached library selected explicitly. A concise reusable documentation route is selected so future local checks avoid the same setup failure.",
+        "next_action": "Review a two-document candidate against actual ort-sys branch ordering and the successful gate. Run documentation checks only; publish after reconciling the TLS integration and retain normal required hosted gates.",
+        "depends_on": [
+          {
+            "task": "tls-advisory-resolution",
+            "condition": "Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks",
+            "satisfied": false
+          }
+        ],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/tls-initial-qualification-assessment.json",
+          "docs/work/active/vacation-campaign/evidence/tls-final-local-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/tls-final-qualify.py"
+        ],
+        "gates": {
+          "implementation": "Selected documentation-only route; no code/config/runtimeprompt changes",
+          "checks": "Pending actual docs candidate/checks; no additional Rust rebuild selected",
+          "integration": "Pending independent review and normal publication/required checks",
+          "native": "Inapplicable: setup guide does not establish app/model/native behavior",
+          "owner_acceptance": "Existing developer maintenance scope; no changed product meaning"
+        },
+        "attempts": [],
+        "resource_plan": "Luna medium author in reused clean mac-test-roots branch frommain3827, owns two developmentdocs only; Sol meaningful setup review, lead sharedrecords/integration. No builds/downloads/account/native/newskills/globalconfig. Stop at concise source-backed guide; no framework."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -4956,8 +4989,8 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr214-pending.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T10:43:24.586018+00:00",
-    "runtime_capacity": "Lead integration; Sol bounded ZIP source/exposure assessment; Luna warningtriage complete. Actual remaining audit completed, no localbuild/scanner/native/account actor.",
+    "observed_at": "2026-10-22T10:49:02.502801+00:00",
+    "runtime_capacity": "Lead integration; Luna small two-doc offline-native setup guide; Sol ZIP assessment complete and reviewslot available. HostedPR214checks active; no localbuild/scanner/native/account actor.",
     "build_slot": "Final234 qualifier completed all8stagesPASS717.09s; allgroupsabsent/leadersreaped/noerrors; no active localbuild.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
@@ -4967,7 +5000,7 @@
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frozen234956cb frommain3827. Original003/4cdiagnostics/frozenartifacts retained.",
-    "fixture_worker_checkout": "mac-test-roots frozen clean7ccb552e reviewed/qualified summarycandidate; own branchrecord unchanged. Lead renderer bytes matchcandidate, current authoritativepage generated separately.",
+    "fixture_worker_checkout": "mac-test-roots reused clean oncodex/offline-native-retrieval-guide-20261022 frommain3827; Lunaownsdevelopmenttooling/verificationdocs only; prior213commit/branch retained.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
       39764798850

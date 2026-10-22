@@ -32,24 +32,24 @@ Gates:
 
 </details>
 
-### Assess document-helper ZIP advisories
+### Document the existing offline native-library setup
 
-Task ID: `helper-zip-advisory-assessment`
-Owner: Independent Sol source/exposure assessment; lead disposition · State: **active** · Last observed: 2026-10-22T10:43:24.586018+00:00
-Activity: Both maintained helper locks report three advisory matches for ZIP8.6.0. A read-only source assessment is checking the actual archive APIs, platform containment and whether a proportionate repair exists. No helper change is selected yet.
-Next: Disposition exact helper extraction reachability and minimum compatible repair. Select a separate bounded change only when evidence justifies it; preserve original audit findings and avoid unreviewed major dependency churn.
-Depends on: current-lock-advisory-scan when Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment (reported satisfied: true)
+Task ID: `offline-native-retrieval-guide`
+Owner: Bounded Luna medium documentation author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T10:49:02.502801+00:00
+Activity: The earlier optional build failed because explicit offline flags skipped automatic library discovery. The final local gate passed with the compatible cached library selected explicitly. A concise reusable documentation route is selected so future local checks avoid the same setup failure.
+Next: Review a two-document candidate against actual ort-sys branch ordering and the successful gate. Run documentation checks only; publish after reconciling the TLS integration and retain normal required hosted gates.
+Depends on: tls-advisory-resolution when Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (reported satisfied: false)
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Read-only assessment; no product candidate selected
-- **checks:** Actual helperlockmatches3each; reachability and repair unqualified
-- **integration:** No publication/merge selected by this assessment
-- **native:** Not required for source assessment; no interaction
-- **owner acceptance:** No changed product meaning selected
+- **implementation:** Selected documentation-only route; no code/config/runtimeprompt changes
+- **checks:** Pending actual docs candidate/checks; no additional Rust rebuild selected
+- **integration:** Pending independent review and normal publication/required checks
+- **native:** Inapplicable: setup guide does not establish app/model/native behavior
+- **owner acceptance:** Existing developer maintenance scope; no changed product meaning
 
 </details>
 
@@ -328,6 +328,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `native-artifact-preparation` — Prepare a matching Mac app without opening it
 - `dependency-advisory-preflight` — Assess a proportionate dependency advisory check
 - `current-lock-advisory-scan` — Check maintained dependency locks against current advisories
+- `helper-zip-advisory-assessment` — Assess document-helper ZIP advisories
 
 ## Dependencies
 
@@ -360,6 +361,7 @@ graph TD
   t117["Resolve recent certificate-trust dependency advisories"]
   t118["Check maintained dependency locks against current advisories"]
   t119["Assess document-helper ZIP advisories"]
+  t120["Document the existing offline native-library setup"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
@@ -376,8 +378,9 @@ graph TD
   t113 -->|Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (satisfied)| t115
   t116 -->|Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (satisfied)| t117
   t118 -->|Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment (satisfied)| t119
+  t117 -->|Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (not satisfied)| t120
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T10:43:24.586018+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T10:49:02.502801+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

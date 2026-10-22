@@ -833,3 +833,8 @@ The [reviewed continuation](evidence/advisory-continuation-final-review.md) fixe
 
 
 The first new ZIP-assessment task projection failed validation because its empty attempts field was omitted; eight warning-record links also used temporary absolute paths. A shell sequence mistakenly continued to documentation commitdd3ee925 after those failures. Follow-up886dee3e adds the required field, uses pinned official record URLs, regenerates the page and passes render/check,858-file link check and whitespace. Product candidate/PR214 stayed frozen. [Remote pending-PR refresh](evidence/remote-pr214-pending.json) then verifies all41 blocks and preserves the38 unmanaged blocks.
+
+
+[Independent helper assessment](evidence/helper-zip-advisory-assessment.md) binds both actual reports and verified cached sources: the affected ZIP8.6 edge is Calamine's in-memory spreadsheet reader, with no affected filesystem extraction API call; Xberg directly uses patched ZIP9. Existing restrictions are supporting containment, not new exploit qualification. Current dependency ranges exclude a patched lock-only substitution. Matches stay visible, with explicit upstream/API/privilege/exploit revisit triggers and no silent ignore or forced stock-engine fork.
+
+[Actual optional Windows failure comparison](evidence/pr214-windows-failure-triage.md) and [raw logs](evidence/pr214-windows-comparison-logs.tar.gz) show the same26 Unix-API compile errors as resulting main213. This retains the documented platform limitation and does not establish completion of any required PR214 check.
