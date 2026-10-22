@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T06:59:30.568214+00:00",
-    "remaining_percent": 50,
+    "observed_at": "2026-10-22T07:20:14.717883+00:00",
+    "remaining_percent": 49,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted: actual50% used/50% remaining, ordinaryUsageAllowed=true; secondary unavailable. No pause, fixed expiry and closed account-test session retained.",
+    "ordinary_work": "Admitted actual51% used/49% remaining, ordinaryUsageAllowed=true; secondary unavailable, fixedexpiry/noownerpause. Closedaccountsessionunchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -4231,11 +4231,17 @@
         "title": "Prevent recovery copies from becoming general knowledge accidentally",
         "state": "active",
         "owner": "Lead design; bounded Luna witness/author; consequential independent Sol review",
-        "observed_at": "2026-10-22T07:08:37.279500+00:00",
+        "observed_at": "2026-10-22T07:40:21.528725+00:00",
         "origin": "observed",
-        "activity": "Exactccd finalgate FAILED101 after25.11s: core9 +66app tests PASS including all3newservicecases; existing writing_setup processSIGSEGV11 afterstarting22tests, before individualcompletion/desktop/lints/nativebuild. Sourceclean, ownedgroupprocessabsent/reaped/noerrors; no qualification. One boundedLuna read-only crashtriage dispatched, no blindretry.",
-        "next_action": "Diagnose original writing_setup processcrash using scoped taskownedstack/log/source; select one distinguishing diagnostic or repair. Preserve passingstage/sourceevidence but donotcount unfinishedgate asqualified. Twofailedapproaches require reassessment.",
-        "depends_on": [],
+        "activity": "Adopted independentcausal/gatescopereassessment: selectedprivacybehavior checked/reviewed, mayproceednormalrequiredCI; firstfull-localgate remainsFAILED andstartupfaultunresolved. Newhelperuncalledbyunchangedcrashedsuite/core/dependency/configunchanged; candidatelink/layouttimingcannotbeexcluded. Allpassednarrowevidence retained; no testdisabled or globalserialization.",
+        "next_action": "Publish exactcleanreviewedccd asone5fileprivacyPR with originalfailedgate/unresolvedstartupdebt disclosed. Keepheadstable; requireall4exacthead/liveprotection/precedingmain, normalmergeonly, resultingmainseparate. MatchingrequiredCIstartupfailure blocksintegration.",
+        "depends_on": [
+          {
+            "task": "sqlite-cold-start-crash",
+            "condition": "Independent causal/scope disposition adopted: selected privacy behavior may proceed to normal required CI with unresolved startup debt retained; no full-app or repaired-flake claim.",
+            "satisfied": true
+          }
+        ],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-preflight.md",
@@ -4260,12 +4266,27 @@
           "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-run.sh",
           "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-supervise.py",
           "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.json",
-          "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.log"
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.log",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-crash-triage.md",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-crash-symbols.json",
+          "docs/work/active/vacation-campaign/evidence/remote-privacy-qualification-crash-update.json",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-crash-assessment.md",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-serial-run.sh",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-serial-supervise.py",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-serial.json",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-serial.log",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-remaining-review.md",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-remaining-run.sh",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-remaining-supervise.py",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.log",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.json",
+          "docs/work/active/vacation-campaign/evidence/sqlite-crash-reassessment.md",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-qualification-assessment.md"
         ],
         "gates": {
           "implementation": "PASS independent full049review plus affectedccd correction/contract refresh. BothP2s valid/fixed; productionbytes unchanged sincefullreview; exactfinal5file candidate approved.",
-          "checks": "FAIL actualccd finalattempt1: SIGSEGV in existingwriting_setup, after9core/66app passed. Desktop/lints/nativebuild/fmt stagesnotreached; no qualification. Diagnosis active.",
-          "integration": "Pending completeactualcandidate independentreview/requiredchecks/normalmerge/resultingmain.",
+          "checks": "SCOPED privacy evidence PASS; firstfull-localgate remainsFAILED/unqualified atSQLiteinit. Independent source/scope reassessment permits normalrequiredCI with actionableunresolveddebt, not a repairedflake/fullappqualification. Hostedgates pending.",
+          "integration": "Pending publication/all4exacthead/liveprotection/precedingmain/normalmerge/resultingmain; matchingrequiredCIstartupcrash remainsblocking.",
           "native": "Deferred for owner-reported screenunavailability.",
           "owner_acceptance": "No new publication/private-copy policy selected; failclosed originalprivate boundary isexistingcontract."
         },
@@ -4301,10 +4322,99 @@
               "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.json",
               "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.log"
             ]
+          },
+          {
+            "outcome": "DIAGNOSTIC ONLY: exactsamebinary serialized22PASS0.31s; qualifiedfalse, no repair inferred.",
+            "change": "One independentlyapproved180second samebinary--test-threads=1 discriminator, no rebuild/source/globaltestsettingchange. Supports concurrency/timing hypothesis; not proven cause.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/writing-setup-crash-assessment.md",
+              "docs/work/active/vacation-campaign/evidence/writing-setup-serial.json",
+              "docs/work/active/vacation-campaign/evidence/writing-setup-serial.log"
+            ]
+          },
+          {
+            "outcome": "RemaininggatesPASS, overallqualifiedfalse.346desktop/1ignored/3filtered;strictlints/nativebuild/fmt/diff pass90.22s.",
+            "change": "One separatelyreviewedcontinuationranonlyunreachedstages onunchangedccd, no replayofsuccessfulcore/app orpackageclean; cleanup/sourceidentityallpass.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.json",
+              "docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.log",
+              "docs/work/active/vacation-campaign/evidence/recovery-copy-remaining-review.md"
+            ]
           }
         ],
         "resource_plan": "Luna medium bounded one-test writer in clean reused architecture-status-route newbranch from actualmain210, preserving old eae branch. IndependentSol high design/review andlead within4slots. One sharedbuild slot/finitefreshsyntheticroot/diagnosedpackageidentityguard; no native/account/provider/cacheactions/nestedhelper. Stop after one actual pre-source result; two failed approaches require reassessment. Lead owns allsharedfacts/integration.",
         "design": "General-only sharedWorkspace service, immutableboundhostkey/intentreplay, storedhistoricalvisiblebasis + currentobservedsource/currentinputwriter fence. Currentneed not equaloldbase: publicstale-copy remainsallowed. Refusehistorical/currentprivate, privatecapturedcontext and unavailable/archived/superseded/wrongkind withoutnewNote or originalbufferchange; clearlimitationnotice. UIbasisusesownedEditSession.base_version, notlatestRecordbesiderecoveredoldtext or anotherownershint. No private duplication/publication/assetcloning; originalprovenancepreserved andactualbasisrecorded. No new framework/schema/lifecyclefield."
+      },
+      {
+        "id": "sqlite-cold-start-crash",
+        "title": "Diagnose the database crash during simultaneous startup",
+        "state": "blocked",
+        "owner": "Lead causal decision/checks; bounded Luna test-only witness; independent Sol review",
+        "observed_at": "2026-10-22T07:40:21.528725+00:00",
+        "origin": "observed",
+        "activity": "Boundedinitialinvestigation complete; originalnativeSQLiteinitfault UNRESOLVED. Bothcore20cold andoriginalapp20cold nonreproduced. Independent scope review/lead adoptedprivacyseparation; thisisnotstartupfix, pre-existing-main proof or safetyqualification. Stopcoldloops; retainasdeferredreliabilitydebt.",
+        "next_action": "Reopen causalinvestigation onmatchinginitializercrash/realstartupincidence orSQLite/build/configuration/concurrency change. Captureexactcallback/buildinputs/corruptionprovenance withhigher-valueinstrumentation then; no speculativemutex/dependency/globaltestchange. MatchingrequiredCIrecurrence blocks affectedmerge.",
+        "depends_on": [],
+        "resource_waits": [
+          "Further causal work awaits a concrete recurrence or relevant SQLite/build/configuration/concurrency change after two bounded non-reproductions; no owner action required."
+        ],
+        "evidence": [
+          "docs/work/active/vacation-campaign/evidence/writing-setup-crash-triage.md",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-crash-symbols.json",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-crash-assessment.md",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-serial.json",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-witness.md",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-review.md",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-review-final.md",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-run.sh",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-processes.py",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-supervise.py",
+          "docs/work/active/vacation-campaign/evidence/sqlite-startup-upstream-research.md",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-witness.patch",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline.log",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline.json",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-process-receipt.json",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-compile.jsonl",
+          "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-raw-logs.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-run.sh",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-processes.py",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-supervise.py",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-review.md",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.log",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.json",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-process-receipt.json",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-raw-logs.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/sqlite-crash-reassessment.md",
+          "docs/work/active/vacation-campaign/evidence/writing-setup-original-artifact.json"
+        ],
+        "gates": {
+          "implementation": "No productionfix selected. Test-onlywitness4c preserved asdiagnostic source, not a productcandidate to merge without need.",
+          "checks": "UNRESOLVED originalparallelSIGSEGV;serial22PASS/core20coldPASS/originalapp20cold×22PASS arediagnostics/nonreproduction, no repair oroverallqualification.",
+          "integration": "No startupfixpublished/merged. Independent scope disposition acceptedprivacycandidateadmission only; unresolvedfault/debt retained.",
+          "native": "No nativeinteraction selected; ownerdeferred.",
+          "owner_acceptance": "No new productbehavior or ownerdecision selected; reliability engineering in authorizedscope."
+        },
+        "attempts": [
+          {
+            "outcome": "NONREPRODUCTION only:20coldprocessPASS/320Storeopens; qualifiedfalse.",
+            "change": "One reviewedtest-only4c public-core16-threadBarrier campaign withfreshprocesses and20max, stopfirstinvalid. Doesnotcoveroriginalappfixture/link/layout; originalparallelcrash retained.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline.json",
+              "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-process-receipt.json",
+              "docs/work/active/vacation-campaign/evidence/sqlite-cold-start-baseline-raw-logs.tar.gz"
+            ]
+          },
+          {
+            "outcome": "NONREPRODUCTION only:20originalbinarycoldprocesses×22paralleltests allPASS;440testexecutions; qualifiedfalse.",
+            "change": "One separatelyreviewedno-rebuild exactoriginalbinary/UUID campaign restoredappfixture/link/layout beyondcore-onlywitness. Stopcoldrepetition aftertwodistinctnonreproapproaches; originalnativefault retained andcausalreassessment required.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline.json",
+              "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-process-receipt.json",
+              "docs/work/active/vacation-campaign/evidence/writing-setup-parallel-baseline-raw-logs.tar.gz"
+            ]
+          }
+        ],
+        "resource_plan": "BoundedLuna medium test-onlywriter; independentSol consequentialreview; lead solebuild/check/integrationowner;4totalslots. Preservefrozenprivacyccd/source and oldbackupartifact/CIbranch; no account/provider/native actions."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -4315,21 +4425,21 @@
     "parent_page_id": "page_6ad3d835a5608191868331aa8ad8850f",
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
-    "last_refresh_at": "2026-10-22T05:47:19.232Z",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr210-publication-update.json"
+    "last_refresh_at": "2026-10-22T07:12:28Z",
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-privacy-qualification-crash-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T07:08:37.279500+00:00",
-    "runtime_capacity": "Leadownschecks/integration; boundedLuna read-onlywriting_setup crashtriageactive, Solreviewcompleted/idle. Fourtotalslots.",
-    "build_slot": "Free after finalattempt1 failed/reaped/noownedgroup. No blindretry; selectedcrashdiagnostic awaits evidence.",
+    "observed_at": "2026-10-22T07:40:21.528725+00:00",
+    "runtime_capacity": "Leadownsqualificationadmission/publication/integration; Luna andindependentSol completed/idle. Fourtotalslots.",
+    "build_slot": "Free; bothcoldcampaigns completed/reaped/groupabsent/noerrors. No furthercoldloops or buildneeded for publication.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Unexplained actualwriting_setupSIGSEGV during privacyqualification; no sourcechange or passingrerun assumed.",
+    "wait_reason": "Startupcausalwork explicitlydeferredwithrevisittrigger; selectedprivacyPR readyfornormalrequiredCI.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability frozen aa25edf3 CI-only publishedcandidate; preserve oldbackupbranch/artifact.",
+    "worker_checkout": "export-durability frozen4c786a96 test-onlycoldstartupwitness oncodex/sqlite-cold-start-guard from main211; preserveaa25ed CIbranch/oldbackupbranch/frozenCLIartifact.",
     "fixture_worker_checkout": "mac-test-roots frozen reviewed diagnostic-only88c61 onapprovedproducteae; no build there yet.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [

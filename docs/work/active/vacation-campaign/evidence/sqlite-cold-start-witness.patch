@@ -1,0 +1,52 @@
+diff --git a/crates/brn-threads-core/tests/sqlite_startup.rs b/crates/brn-threads-core/tests/sqlite_startup.rs
+new file mode 100644
+index 00000000..eb7b4dfd
+--- /dev/null
++++ b/crates/brn-threads-core/tests/sqlite_startup.rs
+@@ -0,0 +1,46 @@
++use brn_threads_core::{Store, WorkspacePurpose};
++use std::sync::{Arc, Barrier};
++use tempfile::TempDir;
++
++const OPENERS: usize = 16;
++
++#[test]
++fn simultaneous_cold_store_opens_initialize_independent_workspaces() {
++    let canonical_temp = std::fs::canonicalize(std::env::temp_dir()).unwrap();
++    let root = TempDir::new_in(canonical_temp).unwrap();
++    let barrier = Arc::new(Barrier::new(OPENERS + 1));
++    let workers = (0..OPENERS)
++        .map(|index| {
++            let directory = root.path().join(format!("workspace-{index}"));
++            let barrier = Arc::clone(&barrier);
++            std::thread::spawn(move || -> Result<(), String> {
++                // No SQLite API is called until every independent opener is ready.
++                barrier.wait();
++                let store = Store::open(directory).map_err(|error| error.to_string())?;
++                let records = store.records().map_err(|error| error.to_string())?;
++                if !records.is_empty() {
++                    return Err("new workspace unexpectedly contains records".into());
++                }
++                let purpose = store
++                    .workspace_purpose()
++                    .map_err(|error| error.to_string())?;
++                if purpose != WorkspacePurpose::Owner {
++                    return Err(format!("new workspace has unexpected purpose: {purpose:?}"));
++                }
++                Ok(())
++            })
++        })
++        .collect::<Vec<_>>();
++
++    barrier.wait();
++
++    // Join every worker before reporting any failure, so no opener is detached.
++    let outcomes = workers
++        .into_iter()
++        .map(std::thread::JoinHandle::join)
++        .collect::<Vec<_>>();
++    for (index, outcome) in outcomes.into_iter().enumerate() {
++        let result = outcome.unwrap_or_else(|panic| panic!("opener {index} panicked: {panic:?}"));
++        result.unwrap_or_else(|error| panic!("opener {index} failed: {error}"));
++    }
++}

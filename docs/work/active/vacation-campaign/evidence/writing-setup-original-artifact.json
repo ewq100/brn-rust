@@ -1,0 +1,10 @@
+{
+  "observed_at": "2026-10-22T07:37:14.047302+00:00",
+  "source_candidate": "ccd05b28ea7e1d7bcd92fe266f6e37aa23461d1b",
+  "source_binary": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/writing_setup-0a70c929436e2f9d",
+  "frozen_binary": "/Users/evokessler/.codex/artifacts/brn-sqlite-startup-crash/20261022T070627Z/writing_setup-original",
+  "bytes": 7637088,
+  "sha256": "cd20fe93330b7b00eb3e9a226421f451e46620c53a308c4106eecafb7e7e2ca4",
+  "uuid": "UUID: 79F53E61-A47D-382F-B602-4D3046124A83 (arm64) /Users/evokessler/.codex/artifacts/brn-sqlite-startup-crash/20261022T070627Z/writing_setup-original",
+  "purpose": "Preserve the actual original failing executable before later shared-target rebuilds. Copied bytes verified; no new launch, repair, release or qualification."
+}

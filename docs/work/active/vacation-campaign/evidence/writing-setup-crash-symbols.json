@@ -1,0 +1,456 @@
+{
+  "observed_at": "2026-10-22T07:13:32.438737+00:00",
+  "process": "writing_setup-0a70c929436e2f9d",
+  "pid": 75727,
+  "incident": "8673BD66-413E-4A27-925B-E723AAD47F18",
+  "cpuType": "ARM-64",
+  "exception": {
+    "codes": "0x0000000000000001, 0x0000000000000000",
+    "rawCodes": [
+      1,
+      0
+    ],
+    "type": "EXC_BAD_ACCESS",
+    "signal": "SIGSEGV",
+    "subtype": "KERN_INVALID_ADDRESS at 0x0000000000000000"
+  },
+  "faultingThread": 5,
+  "binary": {
+    "path": "target/debug/deps/writing_setup-0a70c929436e2f9d",
+    "sha256": "cd20fe93330b7b00eb3e9a226421f451e46620c53a308c4106eecafb7e7e2ca4",
+    "uuid": "79f53e61-a47d-382f-b602-4d3046124a83"
+  },
+  "sqlite_threads": [
+    {
+      "index": 1,
+      "triggered": false,
+      "frames": [
+        {
+          "symbol": "__psynch_mutexwait",
+          "symbolLocation": 8,
+          "imageOffset": 14812,
+          "imageIndex": 1
+        },
+        {
+          "symbol": "_pthread_mutex_firstfit_lock_wait",
+          "symbolLocation": 84,
+          "imageOffset": 16252,
+          "imageIndex": 5
+        },
+        {
+          "symbol": "_pthread_mutex_firstfit_lock_slow",
+          "symbolLocation": 216,
+          "imageOffset": 6584,
+          "imageIndex": 5
+        },
+        {
+          "symbol": "sqlite3_initialize",
+          "symbolLocation": 332,
+          "imageOffset": 2134464,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "sqlite3_mutex_alloc",
+          "symbolLocation": 28,
+          "imageOffset": 2136988,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvMs_NtCsdC3zxCEXYHa_8rusqlite16inner_connectionNtB4_15InnerConnection15open_with_flags",
+          "symbolLocation": 72,
+          "imageOffset": 2117092,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvMs1_CsdC3zxCEXYHa_8rusqliteNtB6_10Connection15open_with_flagsRNtNtCs82bWklYMk3w_3std4path7PathBufECsgeFXpRbDTap_16brn_threads_core",
+          "symbolLocation": 156,
+          "imageOffset": 1123744,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvMNtCsgeFXpRbDTap_16brn_threads_core5storeNtB2_5Store9open_with",
+          "symbolLocation": 1696,
+          "imageOffset": 1191668,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvMs_Cs7viG3dfcUV2_15brn_threads_appNtB5_9Workspace4openNtNtCs82bWklYMk3w_3std4path7PathBufECshFI26xaR1iZ_13writing_setup",
+          "symbolLocation": 48,
+          "imageOffset": 186056,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvCshFI26xaR1iZ_13writing_setup7fixture",
+          "symbolLocation": 212,
+          "imageOffset": 22232,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvYNCNvCshFI26xaR1iZ_13writing_setup82archived_project_with_retained_messages_keeps_v1_inspection_and_fences_v2_metadata0INtNtNtCs8Mbv00yxnRz_4core3ops8function6FnOnceuE9call_onceB6_",
+          "symbolLocation": 52,
+          "imageOffset": 170684,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvCs6pj9lYx6hxu_4test28___rust_begin_short_backtraceINtNtCs8Mbv00yxnRz_4core6result6ResultuNtNtCshxvaOLs88l5_5alloc6string6StringEFEBQ_EB2_",
+          "symbolLocation": 24,
+          "imageOffset": 211592,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNCNvCs6pj9lYx6hxu_4test8run_test0B3_",
+          "symbolLocation": 952,
+          "imageOffset": 257468,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvNtNtCs82bWklYMk3w_3std3sys9backtrace28___rust_begin_short_backtraceNCNvCs6pj9lYx6hxu_4test8run_tests_0uEB1b_",
+          "symbolLocation": 132,
+          "imageOffset": 236700,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNSNvYNCINvNtNtCs82bWklYMk3w_3std6thread9lifecycle15spawn_uncheckedNCNvCs6pj9lYx6hxu_4test8run_tests_0uEs_0INtNtNtCs8Mbv00yxnRz_4core3ops8function6FnOnceuE9call_once6vtableB17_",
+          "symbolLocation": 64,
+          "imageOffset": 266884,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvNvMs0_NtNtNtCs82bWklYMk3w_3std3sys6thread4unixNtB7_6Thread3new12thread_start",
+          "symbolLocation": 392,
+          "imageOffset": 4283776,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_pthread_start",
+          "symbolLocation": 136,
+          "imageOffset": 27904,
+          "imageIndex": 5
+        },
+        {
+          "symbol": "thread_start",
+          "symbolLocation": 8,
+          "imageOffset": 7404,
+          "imageIndex": 5
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "triggered": true,
+      "frames": [
+        {
+          "imageOffset": 0,
+          "imageIndex": 4
+        },
+        {
+          "symbol": "sqlite3_initialize",
+          "symbolLocation": 276,
+          "imageOffset": 2134408,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "sqlite3_mutex_alloc",
+          "symbolLocation": 28,
+          "imageOffset": 2136988,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvMs_NtCsdC3zxCEXYHa_8rusqlite16inner_connectionNtB4_15InnerConnection15open_with_flags",
+          "symbolLocation": 72,
+          "imageOffset": 2117092,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvMs1_CsdC3zxCEXYHa_8rusqliteNtB6_10Connection15open_with_flagsRNtNtCs82bWklYMk3w_3std4path7PathBufECsgeFXpRbDTap_16brn_threads_core",
+          "symbolLocation": 156,
+          "imageOffset": 1123744,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvMNtCsgeFXpRbDTap_16brn_threads_core5storeNtB2_5Store9open_with",
+          "symbolLocation": 1696,
+          "imageOffset": 1191668,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvMs_Cs7viG3dfcUV2_15brn_threads_appNtB5_9Workspace4openNtNtCs82bWklYMk3w_3std4path7PathBufECshFI26xaR1iZ_13writing_setup",
+          "symbolLocation": 48,
+          "imageOffset": 186056,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvCshFI26xaR1iZ_13writing_setup7fixture",
+          "symbolLocation": 212,
+          "imageOffset": 22232,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvYNCNvCshFI26xaR1iZ_13writing_setup81first_capture_undo_archives_exact_records_after_conversation_inactivation_or_move0INtNtNtCs8Mbv00yxnRz_4core3ops8function6FnOnceuE9call_onceB6_",
+          "symbolLocation": 376,
+          "imageOffset": 156628,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvCs6pj9lYx6hxu_4test28___rust_begin_short_backtraceINtNtCs8Mbv00yxnRz_4core6result6ResultuNtNtCshxvaOLs88l5_5alloc6string6StringEFEBQ_EB2_",
+          "symbolLocation": 24,
+          "imageOffset": 211592,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNCNvCs6pj9lYx6hxu_4test8run_test0B3_",
+          "symbolLocation": 952,
+          "imageOffset": 257468,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvNtNtCs82bWklYMk3w_3std3sys9backtrace28___rust_begin_short_backtraceNCNvCs6pj9lYx6hxu_4test8run_tests_0uEB1b_",
+          "symbolLocation": 132,
+          "imageOffset": 236700,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNSNvYNCINvNtNtCs82bWklYMk3w_3std6thread9lifecycle15spawn_uncheckedNCNvCs6pj9lYx6hxu_4test8run_tests_0uEs_0INtNtNtCs8Mbv00yxnRz_4core3ops8function6FnOnceuE9call_once6vtableB17_",
+          "symbolLocation": 64,
+          "imageOffset": 266884,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvNvMs0_NtNtNtCs82bWklYMk3w_3std3sys6thread4unixNtB7_6Thread3new12thread_start",
+          "symbolLocation": 392,
+          "imageOffset": 4283776,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_pthread_start",
+          "symbolLocation": 136,
+          "imageOffset": 27904,
+          "imageIndex": 5
+        },
+        {
+          "symbol": "thread_start",
+          "symbolLocation": 8,
+          "imageOffset": 7404,
+          "imageIndex": 5
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "triggered": false,
+      "frames": [
+        {
+          "symbol": "__psynch_mutexwait",
+          "symbolLocation": 8,
+          "imageOffset": 14812,
+          "imageIndex": 1
+        },
+        {
+          "symbol": "_pthread_mutex_firstfit_lock_wait",
+          "symbolLocation": 84,
+          "imageOffset": 16252,
+          "imageIndex": 5
+        },
+        {
+          "symbol": "_pthread_mutex_firstfit_lock_slow",
+          "symbolLocation": 216,
+          "imageOffset": 6584,
+          "imageIndex": 5
+        },
+        {
+          "symbol": "sqlite3_initialize",
+          "symbolLocation": 332,
+          "imageOffset": 2134464,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "sqlite3_mutex_alloc",
+          "symbolLocation": 28,
+          "imageOffset": 2136988,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvMs_NtCsdC3zxCEXYHa_8rusqlite16inner_connectionNtB4_15InnerConnection15open_with_flags",
+          "symbolLocation": 72,
+          "imageOffset": 2117092,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvMs1_CsdC3zxCEXYHa_8rusqliteNtB6_10Connection15open_with_flagsRNtNtCs82bWklYMk3w_3std4path7PathBufECsgeFXpRbDTap_16brn_threads_core",
+          "symbolLocation": 156,
+          "imageOffset": 1123744,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvMNtCsgeFXpRbDTap_16brn_threads_core5storeNtB2_5Store9open_with",
+          "symbolLocation": 1696,
+          "imageOffset": 1191668,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvMs_Cs7viG3dfcUV2_15brn_threads_appNtB5_9Workspace4openNtNtCs82bWklYMk3w_3std4path7PathBufECshFI26xaR1iZ_13writing_setup",
+          "symbolLocation": 48,
+          "imageOffset": 186056,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvCshFI26xaR1iZ_13writing_setup7fixture",
+          "symbolLocation": 212,
+          "imageOffset": 22232,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvYNCNvCshFI26xaR1iZ_13writing_setup72inactive_conversations_keep_v1_v2_setup_inspection_but_refuse_new_writes0INtNtNtCs8Mbv00yxnRz_4core3ops8function6FnOnceuE9call_onceB6_",
+          "symbolLocation": 252,
+          "imageOffset": 97592,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvCs6pj9lYx6hxu_4test28___rust_begin_short_backtraceINtNtCs8Mbv00yxnRz_4core6result6ResultuNtNtCshxvaOLs88l5_5alloc6string6StringEFEBQ_EB2_",
+          "symbolLocation": 24,
+          "imageOffset": 211592,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNCNvCs6pj9lYx6hxu_4test8run_test0B3_",
+          "symbolLocation": 952,
+          "imageOffset": 257468,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvNtNtCs82bWklYMk3w_3std3sys9backtrace28___rust_begin_short_backtraceNCNvCs6pj9lYx6hxu_4test8run_tests_0uEB1b_",
+          "symbolLocation": 132,
+          "imageOffset": 236700,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNSNvYNCINvNtNtCs82bWklYMk3w_3std6thread9lifecycle15spawn_uncheckedNCNvCs6pj9lYx6hxu_4test8run_tests_0uEs_0INtNtNtCs8Mbv00yxnRz_4core3ops8function6FnOnceuE9call_once6vtableB17_",
+          "symbolLocation": 64,
+          "imageOffset": 266884,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvNvMs0_NtNtNtCs82bWklYMk3w_3std3sys6thread4unixNtB7_6Thread3new12thread_start",
+          "symbolLocation": 392,
+          "imageOffset": 4283776,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_pthread_start",
+          "symbolLocation": 136,
+          "imageOffset": 27904,
+          "imageIndex": 5
+        },
+        {
+          "symbol": "thread_start",
+          "symbolLocation": 8,
+          "imageOffset": 7404,
+          "imageIndex": 5
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "triggered": false,
+      "frames": [
+        {
+          "symbol": "sqlite3MemInit",
+          "symbolLocation": 0,
+          "imageOffset": 3099104,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "sqlite3_initialize",
+          "symbolLocation": 512,
+          "imageOffset": 2134644,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "sqlite3_mutex_alloc",
+          "symbolLocation": 28,
+          "imageOffset": 2136988,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvMs_NtCsdC3zxCEXYHa_8rusqlite16inner_connectionNtB4_15InnerConnection15open_with_flags",
+          "symbolLocation": 72,
+          "imageOffset": 2117092,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvMs1_CsdC3zxCEXYHa_8rusqliteNtB6_10Connection15open_with_flagsRNtNtCs82bWklYMk3w_3std4path7PathBufECsgeFXpRbDTap_16brn_threads_core",
+          "symbolLocation": 156,
+          "imageOffset": 1123744,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvMNtCsgeFXpRbDTap_16brn_threads_core5storeNtB2_5Store9open_with",
+          "symbolLocation": 1696,
+          "imageOffset": 1191668,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvMs_Cs7viG3dfcUV2_15brn_threads_appNtB5_9Workspace4openNtNtCs82bWklYMk3w_3std4path7PathBufECshFI26xaR1iZ_13writing_setup",
+          "symbolLocation": 48,
+          "imageOffset": 186056,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvCshFI26xaR1iZ_13writing_setup7fixture",
+          "symbolLocation": 212,
+          "imageOffset": 22232,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvYNCNvCshFI26xaR1iZ_13writing_setup78knowledge_off_keeps_conversation_linked_working_note_but_not_linked_references0INtNtNtCs8Mbv00yxnRz_4core3ops8function6FnOnceuE9call_onceB6_",
+          "symbolLocation": 60,
+          "imageOffset": 128312,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvCs6pj9lYx6hxu_4test28___rust_begin_short_backtraceINtNtCs8Mbv00yxnRz_4core6result6ResultuNtNtCshxvaOLs88l5_5alloc6string6StringEFEBQ_EB2_",
+          "symbolLocation": 24,
+          "imageOffset": 211592,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNCNvCs6pj9lYx6hxu_4test8run_test0B3_",
+          "symbolLocation": 952,
+          "imageOffset": 257468,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RINvNtNtCs82bWklYMk3w_3std3sys9backtrace28___rust_begin_short_backtraceNCNvCs6pj9lYx6hxu_4test8run_tests_0uEB1b_",
+          "symbolLocation": 132,
+          "imageOffset": 236700,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNSNvYNCINvNtNtCs82bWklYMk3w_3std6thread9lifecycle15spawn_uncheckedNCNvCs6pj9lYx6hxu_4test8run_tests_0uEs_0INtNtNtCs8Mbv00yxnRz_4core3ops8function6FnOnceuE9call_once6vtableB17_",
+          "symbolLocation": 64,
+          "imageOffset": 266884,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_RNvNvMs0_NtNtNtCs82bWklYMk3w_3std3sys6thread4unixNtB7_6Thread3new12thread_start",
+          "symbolLocation": 392,
+          "imageOffset": 4283776,
+          "imageIndex": 0
+        },
+        {
+          "symbol": "_pthread_start",
+          "symbolLocation": 136,
+          "imageOffset": 27904,
+          "imageIndex": 5
+        },
+        {
+          "symbol": "thread_start",
+          "symbolLocation": 8,
+          "imageOffset": 7404,
+          "imageIndex": 5
+        }
+      ]
+    }
+  ],
+  "scope": "Selected symbols and image offsets only from task-owned writing_setup crash; excludes machine/account/register/memory payloads and unrelated images"
+}

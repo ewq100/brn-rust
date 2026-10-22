@@ -1,0 +1,27 @@
+{
+  "observed_at": "2026-10-22T07:15:39.278641+00:00",
+  "exit_code": 0,
+  "stop_reason": null,
+  "exception_type": null,
+  "elapsed_seconds": 5.070611290866509,
+  "disk_free_bytes": 17317879808,
+  "owned_process_group": {
+    "signals": [],
+    "errors": [],
+    "group_probes": 2,
+    "last_group_status": "absent",
+    "term_group_absent": true,
+    "kill_group_absent": null,
+    "leader_reaped": true,
+    "resolved": true
+  },
+  "checkout_unchanged": true,
+  "candidate": "ccd05b28ea7e1d7bcd92fe266f6e37aa23461d1b",
+  "log_validation": {
+    "exact_22_test_pass": true,
+    "error_type": null
+  },
+  "qualified": false,
+  "diagnostic_passed": true,
+  "scope": "one same-binary serialized SQLite-initialization discriminator; not a repair or full qualification; original parallel crash retained"
+}

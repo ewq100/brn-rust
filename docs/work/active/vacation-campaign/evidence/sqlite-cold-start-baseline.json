@@ -1,0 +1,27 @@
+{
+  "observed_at": "2026-10-22T07:27:30.412380+00:00",
+  "exit_code": 0,
+  "stop_reason": null,
+  "exception_type": null,
+  "elapsed_seconds": 15.081229750066996,
+  "disk_free_bytes": 17043832832,
+  "owned_process_group": {
+    "signals": [],
+    "errors": [],
+    "group_probes": 2,
+    "last_group_status": "absent",
+    "term_group_absent": true,
+    "kill_group_absent": null,
+    "leader_reaped": true,
+    "resolved": true
+  },
+  "checkout_unchanged": true,
+  "candidate": "4c786a962ed52998648a0ae73232c61a0b41a5e9",
+  "log_validation": {
+    "bounded_campaign_receipt": true,
+    "error_type": null
+  },
+  "qualified": false,
+  "diagnostic_recorded": true,
+  "scope": "one finite test-only cold-open campaign; actual negative exits retained; not a product qualification or repair"
+}

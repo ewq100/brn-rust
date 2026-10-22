@@ -1,0 +1,42 @@
+{
+  "observed_at": "2026-10-22T07:24:13.212617+00:00",
+  "exit_code": 0,
+  "stop_reason": null,
+  "exception_type": null,
+  "elapsed_seconds": 90.21564849978313,
+  "disk_free_bytes": 17047482368,
+  "owned_process_group": {
+    "signals": [],
+    "errors": [],
+    "group_probes": 2,
+    "last_group_status": "absent",
+    "term_group_absent": true,
+    "kill_group_absent": null,
+    "leader_reaped": true,
+    "resolved": true
+  },
+  "checkout_unchanged": true,
+  "candidate": "ccd05b28ea7e1d7bcd92fe266f6e37aa23461d1b",
+  "log_validation": {
+    "stages_passed": [
+      "desktop",
+      "app-clippy",
+      "desktop-clippy",
+      "native-build",
+      "fmt",
+      "diff"
+    ],
+    "test_summaries": [
+      "test result: ok. 346 passed; 0 failed; 1 ignored; 0 measured; 3 filtered out; finished in 5.43s"
+    ],
+    "required_tests": {
+      "stale_private_note_copy_stays_out_of_general_knowledge": true,
+      "stale_recovery_from_private_basis_is_refused_in_general_scope": true
+    },
+    "actual_desktop_compiled": true,
+    "error_type": null
+  },
+  "qualified": false,
+  "remaining_gates_passed": true,
+  "scope": "unreached privacy desktop/lint/native-build gates only; overall qualification remains false while original SQLite parallel-init crash is unresolved"
+}

@@ -1,0 +1,198 @@
+{
+  "observed_at": "2026-10-22T07:32:23.539131+00:00",
+  "candidate": "ccd05b28ea7e1d7bcd92fe266f6e37aa23461d1b",
+  "source_sha256": "241ef3a5e87d8e0e1d02487aba5e43759664428196a0f2546a91937ee036f2b8",
+  "binary": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/writing_setup-0a70c929436e2f9d",
+  "binary_sha256": "cd20fe93330b7b00eb3e9a226421f451e46620c53a308c4106eecafb7e7e2ca4",
+  "binary_verified": true,
+  "test_harness_workers": 22,
+  "expected_test_count": 22,
+  "attempts": [
+    {
+      "attempt": 1,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "300950fec0e7cfea0ff5372cbef39e0f957712634a281db67539e2e0ff53a19e",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 2,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "dc14a9f0f50b0219744f6059233c9ec6622be1d4c86fe04d5267bb5e880e5c61",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 3,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "26e2b6bca3bfd0ba60b200a5f90dc7b63dda6d8c09dadff2f6996bb1d83ecad7",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 4,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "1b62c880a6523b8e72a74f4c167852d380c8201882a7f5b6f7899b1369b741ab",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 5,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "7fde630870f092258829c561eb103b3e25cf814abf7aa488f2b82cb174c86e13",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 6,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "249901588ae193c3d07f377e3bfb19704eacf2bf7ed78d712bba13f03230b006",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 7,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "d57db9210aa0fde7a664c8940b5c934681b20b3452239fea01d3d5e144781c9a",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 8,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "e3bbb5f53ac58dbd5878bba9f5723538b34e40f7d66ca9188762a86fcc4c425b",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 9,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "d2992e5d929e0fc51440b6f79c50709f510cea3f63a5d45f2dbf620af06161cb",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 10,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "d077acd5df04857c5c949227741e4c2df09f562e91f7a6c755e6d373e7c687d8",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 11,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "989a427b60b135485c0e4e6551cd8b8c043c9ead22019de2bfd1c284be4b799f",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 12,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "499b8f46233faf353bf5791c38a66c615127f1ff47dd46efbf42f354e15cedfc",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 13,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "9bb9407c8e8156830b9ef1a80d48abb60e7bd4417b3734dd1f34c0f2b6cff948",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 14,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "e190e1620ebbb6cee72ff3241df25244c1665fca573db62be35532ed4296f1c6",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 15,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "957ce1de48f129030e66b248303c127a1d76cbb538ab0a42815647845e435068",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 16,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "11abc6a1243c22a6bdd65fe66c1f0984c5f73100bb2bba3336472737a538e4d7",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 17,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "32321af9d707e236c34f2296191e4ce745fe9c0c41fc99dd7f49ba7f469ac0f1",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 18,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "854d279253250a86060146f5778f727c05961455572041d7429cf9bd8d8f5a63",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 19,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "b6af3c379da648f79fcd194edd98e71960d800fb90e1d7d76293c1697189c135",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    },
+    {
+      "attempt": 20,
+      "returncode": 0,
+      "expected_suite_pass": true,
+      "log_sha256": "560dd860e0b1d7502b03d8b04067954046860fab684f5a4a87b8475540d2b950",
+      "log_size_bytes": 2011,
+      "accepted_size": true,
+      "log_persisted": true
+    }
+  ],
+  "error": null,
+  "qualified": false,
+  "sigsegv_observed": false,
+  "all_20_cold_passed": true,
+  "elapsed_seconds": 5.173453917028382,
+  "scope": "one finite original-app cold-process diagnosis with22testworkers; no rebuild/fix/qualification, nativefaultrequiresmatchingstack, passesdonotrefutetiming-sensitivebug"
+}
