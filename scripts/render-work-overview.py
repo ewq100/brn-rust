@@ -210,7 +210,7 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
             record_link = f"[selected work record]({quote(record_target, safe='/._-()')})"
             out.extend((
                 "Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.",
-                f"Full task details, gates, evidence, and attempts remain in the {record_link}. Find each task by its listed ID.",
+                f"Full task details, gates, evidence, and attempts remain in the {record_link}. Inspect one validated task with `python3 scripts/render-work-overview.py --task TASK_ID`, using an ID listed below.",
                 "",
             ))
             out.extend(f"- `{task['id']}` — {task['title']}" for task in selected)
@@ -274,10 +274,18 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--record", type=Path, default=DEFAULT_RECORD)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
-    parser.add_argument("--check", action="store_true", help="report stale output without writing")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--check", action="store_true", help="report stale output without writing")
+    mode.add_argument("--task", help="print one validated task object by ID without rendering")
     args = parser.parse_args(argv)
     try:
         view = read_record(args.record)
+        if args.task is not None:
+            selected = next((task for task in view["tasks"] if task["id"] == args.task), None)
+            if selected is None:
+                raise InvalidRecord(f"unknown task ID: {args.task}")
+            print(json.dumps(selected, ensure_ascii=False, indent=2))
+            return 0
         content = render(view, args.output, args.record)
     except InvalidRecord as exc:
         print(f"invalid work overview: {exc}", file=sys.stderr)
