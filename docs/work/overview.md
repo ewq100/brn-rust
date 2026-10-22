@@ -40,27 +40,6 @@ Attempts:
 
 </details>
 
-### Check comment drafts remain attached to their saved passage
-
-Owner: Bounded Luna inspection; lead decision · State: **active** · Last observed: 2026-10-22T07:59:32.679835+00:00
-Activity: Selected one read-only preflight while PR212 hosted gates run: comment draft, passage anchor, operation identity and note navigation. No source change selected.
-Next: Inspect real callers and existing witnesses; report one concrete defect or coherent ownership improvement only if supported. Otherwise no change.
-
-<details>
-<summary>Checks, evidence and corrections</summary>
-
-Gates:
-
-- **implementation:** Not selected
-- **checks:** No build or test authorized by this preflight
-- **integration:** Inapplicable before selected change
-- **native:** Owner-deferred screen availability
-- **owner acceptance:** Inapplicable to read-only preflight
-
-Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs)
-
-</details>
-
 ## Next
 
 None recorded.
@@ -321,6 +300,7 @@ Full task details, gates, evidence, and attempts remain in the [selected work re
 - `review-draft-failure-preflight` — Check edited proposals survive refused preparation and replacement
 - `recovery-copy-privacy-preflight` — Check recovery copies preserve private-note boundaries
 - `launcher-request-close-preflight` — Check quick search request ownership when it closes
+- `comment-draft-ownership-preflight` — Check comment drafts remain attached to their saved passage
 
 ## Dependencies
 
