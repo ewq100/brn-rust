@@ -982,7 +982,11 @@ fn queue_notices_follow_the_queue_state_and_paused_wins_after_stop(cx: &mut Test
         assert!(window.try_find("queue-resume").is_none(), "not paused");
     });
     update(cx, &f, |view, _, _| {
-        view.editing_queue = Some(view.queue_state().queue[0].id.clone());
+        let item = view.queue_state().queue[0].clone();
+        view.editing_queue = Some(QueuedEdit {
+            item: item.id,
+            thread: item.thread,
+        });
     });
     assert_eq!(send(cx, "First queued, edited"), "Queued message updated.");
     // Stop pauses the queue before the worker finishes: Paused wins.

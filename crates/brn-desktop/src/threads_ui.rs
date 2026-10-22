@@ -354,6 +354,11 @@ impl ReferenceSearchRequest {
     }
 }
 
+struct QueuedEdit {
+    item: String,
+    thread: String,
+}
+
 struct ThreadsUi {
     writing: WritingPanel,
     workspace: Workspace,
@@ -400,7 +405,7 @@ struct ThreadsUi {
     projects_trash: bool,
     /// Session-only disclosures: Done and Cancelled tasks, Background changes.
     open_sections: BTreeSet<&'static str>,
-    editing_queue: Option<String>,
+    editing_queue: Option<QueuedEdit>,
     search: Entity<InputState>,
     hits: Vec<brn_threads_app::SearchHit>,
     results: search_view::SearchView,
@@ -1048,6 +1053,13 @@ impl ThreadsUi {
             ChatTarget::Thread(thread) => Some(thread),
             _ => None,
         }
+    }
+    fn queued_edit_for_current_chat(&self) -> Option<&str> {
+        let thread = self.chat_thread()?;
+        self.editing_queue
+            .as_ref()
+            .filter(|edit| edit.thread == thread)
+            .map(|edit| edit.item.as_str())
     }
     fn destination(&self) -> ComposerDestination {
         match &self.chat {
@@ -2108,7 +2120,7 @@ impl ThreadsUi {
         cx.notify();
     }
     fn ask(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if self.editing_queue.is_some()
+        if self.queued_edit_for_current_chat().is_some()
             || self.worker.is_some()
             || self.queue_state().paused
                 && (self.queue_state().pending.is_some() || !self.queue_state().queue.is_empty())
