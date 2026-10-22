@@ -42,22 +42,26 @@ Attempts:
 
 ### Keep raw check history out of the startup summary
 
-Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:07:51.915312+00:00
-Activity: Concrete projection growth: current overview48,851bytes despite completed-task compaction; active/blocked tasks repeat long raw evidence and correction histories already available through the validated task route. Select concise summary correction; no runtime change.
-Next: Implement one compact summary route retaining all current facts, gates, dependencies/waits and canonical detailed task access; inspect complete candidate independently and run proportionate Python/CLI/link checks.
+Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:19:34.652399+00:00
+Activity: Corrected complete candidate7ccb552e (renderer/test plus branch-generated overview) is frozen for final independent Sol review. Author reports15tests/branch--checkPASS, unchanged inputrecord hash and18,880→10,565byte branch projection. No final source approval or lead qualification yet.
+Next: Finish independent full corrected review; only after approval qualify final source and authoritative lead projection using frozen input, publish stable normal candidate and inspect all required exact-head/protection/main gates.
 
 <details>
 <summary>Checks, evidence and corrections</summary>
 
 Gates:
 
-- **implementation:** Pending one bounded author outcome
+- **implementation:** Initial two P2s corrected in complete7ccb552e candidate, final independent review pending; original findings retained.
 - **checks:** Pending selected existing Python/CLI and projection-growth checks; no Rust/native/account workload
 - **integration:** Not published; normal live protection and required checks remain required
 - **native:** Inapplicable to text projection; existing native gates remain deferred
 - **owner acceptance:** Current visibility adoption authorizes a concise startup route; no owner acceptance claimed
 
-Evidence: [scripts/render-work-overview.py](../../scripts/render-work-overview.py), [scripts/tests/test_work_overview.py](../../scripts/tests/test_work_overview.py), [docs/development/workflow.md](../development/workflow.md)
+Evidence: [scripts/render-work-overview.py](../../scripts/render-work-overview.py), [scripts/tests/test_work_overview.py](../../scripts/tests/test_work_overview.py), [docs/development/workflow.md](../development/workflow.md), [docs/work/active/vacation-campaign/evidence/active-overview-original-implementation.md](active/vacation-campaign/evidence/active-overview-original-implementation.md), [docs/work/active/vacation-campaign/evidence/active-overview-initial-review.md](active/vacation-campaign/evidence/active-overview-initial-review.md), [docs/work/active/vacation-campaign/evidence/active-overview-corrected-implementation.md](active/vacation-campaign/evidence/active-overview-corrected-implementation.md)
+
+Attempts:
+
+- CHANGES REQUIRED: P2 route discoverability and stale generated output, before publication. Initial14renderer tests passed but missed discoverability.: Make canonical detail route independent of completed tasks, expose noncompleted IDs, retain growth/detail guarantee. Regenerate only worker branch derivative from unchanged committed record; preserve lead authority separately. ([scripts/render-work-overview.py](../../scripts/render-work-overview.py), [scripts/tests/test_work_overview.py](../../scripts/tests/test_work_overview.py))
 
 </details>
 
@@ -365,4 +369,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T06:43:32.642816+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T08:19:34.652399+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

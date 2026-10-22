@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T06:43:32.642816+00:00",
+    "observed_at": "2026-10-22T08:19:34.652399+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4476,25 +4476,37 @@
         "title": "Keep raw check history out of the startup summary",
         "state": "active",
         "owner": "Bounded Luna author; independent Sol review; lead integration",
-        "observed_at": "2026-10-22T08:07:51.915312+00:00",
+        "observed_at": "2026-10-22T08:19:34.652399+00:00",
         "origin": "observed",
-        "activity": "Concrete projection growth: current overview48,851bytes despite completed-task compaction; active/blocked tasks repeat long raw evidence and correction histories already available through the validated task route. Select concise summary correction; no runtime change.",
-        "next_action": "Implement one compact summary route retaining all current facts, gates, dependencies/waits and canonical detailed task access; inspect complete candidate independently and run proportionate Python/CLI/link checks.",
+        "activity": "Corrected complete candidate7ccb552e (renderer/test plus branch-generated overview) is frozen for final independent Sol review. Author reports15tests/branch--checkPASS, unchanged inputrecord hash and18,880→10,565byte branch projection. No final source approval or lead qualification yet.",
+        "next_action": "Finish independent full corrected review; only after approval qualify final source and authoritative lead projection using frozen input, publish stable normal candidate and inspect all required exact-head/protection/main gates.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "scripts/render-work-overview.py",
           "scripts/tests/test_work_overview.py",
-          "docs/development/workflow.md"
+          "docs/development/workflow.md",
+          "docs/work/active/vacation-campaign/evidence/active-overview-original-implementation.md",
+          "docs/work/active/vacation-campaign/evidence/active-overview-initial-review.md",
+          "docs/work/active/vacation-campaign/evidence/active-overview-corrected-implementation.md"
         ],
         "gates": {
-          "implementation": "Pending one bounded author outcome",
+          "implementation": "Initial two P2s corrected in complete7ccb552e candidate, final independent review pending; original findings retained.",
           "checks": "Pending selected existing Python/CLI and projection-growth checks; no Rust/native/account workload",
           "integration": "Not published; normal live protection and required checks remain required",
           "native": "Inapplicable to text projection; existing native gates remain deferred",
           "owner_acceptance": "Current visibility adoption authorizes a concise startup route; no owner acceptance claimed"
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "CHANGES REQUIRED: P2 route discoverability and stale generated output, before publication. Initial14renderer tests passed but missed discoverability.",
+            "change": "Make canonical detail route independent of completed tasks, expose noncompleted IDs, retain growth/detail guarantee. Regenerate only worker branch derivative from unchanged committed record; preserve lead authority separately.",
+            "evidence": [
+              "scripts/render-work-overview.py",
+              "scripts/tests/test_work_overview.py"
+            ]
+          }
+        ],
         "design": "Preserve validation/atomic output, all current activity/next/state/owner/time/gates/prerequisites/resource waits and graph. Route detailed evidence/attempt history to the existing selected record and --task command; no arbitrary truncation, second tracker, extra output file, default authority path or changed runtime prompts. Earlier PR198 compacted completed tasks only; this addresses concrete active/blocked-history growth.",
         "resource_plan": "Reuse clean mac-test-roots worker, preserve frozen88c diagnostic commit; Luna medium owns renderer/existing tests and necessary route wording only on new branch from actualmain212. Lead owns all shared campaign records and integration. One author plus consequential independent Sol review within four slots; no nested/build/native/account/provider acquisition."
       }
@@ -4511,18 +4523,18 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr212-merged-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T08:07:51.915312+00:00",
-    "runtime_capacity": "Lead owns resulting-main212 CI/integration and shared records; bounded Luna summary author selected; independent Sol available within four slots.",
+    "observed_at": "2026-10-22T08:17:04.774251+00:00",
+    "runtime_capacity": "Lead owns main212 CI and shared facts; one Luna summary correction writer; one consequential Sol reviewer. Within four total slots.",
     "build_slot": "Free;PR212hostedCI separate, no localtargetwriter. Originalcrashbinaryfrozenoutside target.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR212 merged; resulting-main four contexts pending separately. Independent Python-only overview correction selected.",
+    "wait_reason": "Main212 required Mac native UI/retrieval PASS; Core Mac/Ubuntu pending. Overview correction source and generated output review pending.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen4c786a96 test-onlycoldstartupwitness oncodex/sqlite-cold-start-guard from main211; preserveaa25ed CIbranch/oldbackupbranch/frozenCLIartifact.",
-    "fixture_worker_checkout": "mac-test-roots Python-only writer on codex/concise-active-overview from main212e918b2b3; preserve old frozen88c diagnostic branch/artifact. No Rust build or shared target mutation.",
+    "fixture_worker_checkout": "mac-test-roots correcting source route/IDs on codex/concise-active-overview after source findings at a613; explicitly authorized local branch derivative regeneration only from unchanged worker record. Lead campaign remains separate authoritative assignment.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
       39745276731
