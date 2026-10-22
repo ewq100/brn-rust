@@ -128,3 +128,8 @@ No patch DSL, fuzzy relocation, dependency or new execution platform was added.
 Whole-source combination with M4, production binary, hosted exact-head/main, real
 model usefulness and actual Mac/owner acceptance remain separate. Old19efe binary
 cannot qualify this new runtime source.
+
+
+### 2026-10-22 — Selected unique-quote extension
+
+The original M3 range-only implementation and qualification above remain historical and unchanged. A selected follow-up extends the same tool: explicit null/null offsets may identify one nonempty byte-exact quote in the current full Note. Missing, repeated or overlapping occurrences refuse; an incorrect integer range never falls back to quote selection. The existing current-version, full-read, protection, dirty-write, immutable preparation, Apply/replay and Undo contracts remain in force. This is implemented in the isolated candidate; deterministic qualification, independent candidate review, native observation, owner acceptance and integration remain separate gates.

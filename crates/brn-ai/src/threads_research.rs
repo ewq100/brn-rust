@@ -1064,13 +1064,6 @@ fn quote_in(text: &str, start: usize, end: usize, quote: &str) -> bool {
         && text[start..end].contains(quote)
 }
 
-/// Where `quote` occurs in `text`, only when it occurs exactly once (overlaps count).
-fn unique_offset(text: &str, quote: &str) -> Option<usize> {
-    let first = text.find(quote)?;
-    let next = first + text[first..].chars().next().map_or(1, char::len_utf8);
-    (!text[next..].contains(quote)).then_some(first)
-}
-
 /// Anchors a quote in one visible version: inside the cited range, else
 /// re-anchored when it occurs exactly once in that version.
 enum Anchor {
@@ -1083,7 +1076,9 @@ fn anchor(text: &str, citation: &Citation) -> Anchor {
     if quote_in(text, citation.start, citation.end, &citation.quote) {
         Anchor::Cited
     } else {
-        unique_offset(text, &citation.quote).map_or(Anchor::Missing, Anchor::Relocated)
+        super::threads_text::unique_range(text, &citation.quote)
+            .map(|range| Anchor::Relocated(range.start))
+            .unwrap_or(Anchor::Missing)
     }
 }
 

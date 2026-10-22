@@ -73,6 +73,8 @@ mod note_search;
 mod reads;
 #[path = "threads_research.rs"]
 mod research;
+#[path = "threads_text.rs"]
+mod threads_text;
 #[path = "threads_trace.rs"]
 mod trace;
 pub use trace::{HelperTrace, RunTrace, SummaryTrace, TraceCall, TraceLevel, TraceUsage};
