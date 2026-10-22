@@ -1,0 +1,27 @@
+{
+  "observed_at": "2026-10-22T06:06:04.622Z",
+  "page_id": "page_2300ce21dbb88191a290f861b9eb6f68",
+  "correction": "Corrected estimated future09:09 timestamp to verified clock09:05 Europe/Tallinn. No task facts changed; original sequence78 receipt preserved.",
+  "readback_verified": true,
+  "edit": {
+    "new_sequence": 79,
+    "through_sequence": 79,
+    "operation_results": [
+      {
+        "operation_index": 0,
+        "preceding_block_id": "759f74e2-e735-43cb-b86c-10adf022daf9",
+        "created_block_ids": [],
+        "continuation_position": {
+          "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+          "relative_position_base64": "AJuY17sC/QJB"
+        },
+        "affected_blocks": [
+          {
+            "block_id": "a37e5801-b0c8-4330-800f-13d98b10338a",
+            "hash": "1f553edcbac923e7307dab52558d99bf39e77e6f221b76b5c3c4431b5f1990b3"
+          }
+        ]
+      }
+    ]
+  }
+}
