@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T14:22:05.121064+00:00",
+    "observed_at": "2026-10-22T14:40:28.762425+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5568,6 +5568,33 @@
         },
         "attempts": [],
         "resource_plan": "Luna medium owns test-only existing fixture reuse in mac-test-roots after explicit dispatch; Sol read-only design/review; lead owns build/production/docs/integration. Actual4slots including stale pending actor. No concurrent builds or account/native/network/SQL/host fault. Stop if trusted immutable revision proof is unavailable or before-source cannot establish intended state."
+      },
+      {
+        "id": "note-exit-native-fixture-preflight",
+        "title": "Prepare a short route to the future Mac Close and Quit check",
+        "state": "active",
+        "owner": "Bounded Luna medium read-only preflight; lead disposition",
+        "observed_at": "2026-10-22T14:40:28.762425+00:00",
+        "origin": "observed",
+        "activity": "Select source-bound feasibility assessment for MAC15 fresh synthetic data/checked live-only refusal setup, to minimize future owner screen time. PR217 reviewed source is integrated; no app/data/desktop actor selected. Existing native deferral stays.",
+        "next_action": "Identify supported checked CLI/service fixture routes and readiness assertions for normal recovery and other-session-write refusal, preserving old app/workspaces. Return one concrete bounded plan or no-change/blocker; do not implement or run yet.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/native-queue.md",
+          "docs/work/active/vacation-campaign/evidence/pr217-integration.json",
+          "crates/brn-writing-ui/src/note.rs",
+          "crates/brn-desktop/src/threads_writing_tests.rs"
+        ],
+        "gates": {
+          "implementation": "Read-only preparation assessment only; no new source fixture driver or native case dispatched.",
+          "checks": "Source/caller feasibility only; no execution/native/fixture qualification claimed.",
+          "integration": "No product change or PR selected by this preflight.",
+          "native": "Owner-deferred; no access/close/launch/unlock attempt.",
+          "owner_acceptance": "No new product behavior/acceptance selected."
+        },
+        "attempts": [],
+        "resource_plan": "One existing Luna medium helper, read-only main765/lead code and public synthetic fixture routes only; lead owns records/integration. No source/data writes beyond sole /tmp report, build/test/CLI execution, desktop/native/account/provider/network/private data or nested agent. Stop after one bounded supported plan or missing capability; do not broaden to all draft types or weaken guards."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -5582,14 +5609,14 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr217-merged-pr218-open.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T14:22:05.121064+00:00",
-    "runtime_capacity": "Lead integration/currentfacts; Luna andSolcompleted/frozen, no helperwriter/build/native/account.",
+    "observed_at": "2026-10-22T14:40:28.762425+00:00",
+    "runtime_capacity": "Lead integration/currentfacts; Luna bounded read-only MAC15 fixture feasibility; Sol completed/available. No sourcewriter/build/native/account.",
     "build_slot": "Free; no cargo/rustc/test child active. Shared target remains serialized.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR218exact23f hostedchecks andPR217resulting765requiredchecks pending. No localbuild/native/account; no competingwriter.",
+    "wait_reason": "PR217 resultingmain765 andPR218 head23f requiredchecks pending; independent read-only native fixture preparation assessment active.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability cleanfrozen23f78a80 PR218; complete/source-equivalentcompositionapproved.",
