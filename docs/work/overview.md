@@ -31,26 +31,6 @@ Gates:
 
 </details>
 
-### Check scoped reference results after Project access changes
-
-Task ID: `reference-grant-freshness-assessment`
-Owner: Bounded Luna read-only source assessment; lead disposition · State: **active** · Last observed: 2026-10-22T12:17:49.395063+00:00
-Activity: Selected one adjacent source question from the reproduced Connections revocation gap. Reuse PR204 request/draft ownership; inspect SetupDraft displayed/token guards and already displayed matches before proposing any change.
-Next: Inspect bounded source report; close with no change if existing guards suffice. Admit a separate repair only for a concrete supported stale-result or checked-operation gap.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Read-only question selected; no new product change.
-- **checks:** Source assessment only; no build/test selected.
-- **integration:** None selected.
-- **native:** No interaction; owner deferral unchanged.
-- **owner acceptance:** No new product meaning selected.
-
-</details>
-
 ## Next
 
 None recorded.
@@ -357,6 +337,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `helper-zip-advisory-assessment` — Assess document-helper ZIP advisories
 - `offline-native-retrieval-guide` — Document the existing offline native-library setup
 - `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
+- `reference-grant-freshness-assessment` — Check scoped reference results after Project access changes
 
 ## Dependencies
 
@@ -414,4 +395,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T12:17:49.395063+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T12:19:42.026861+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

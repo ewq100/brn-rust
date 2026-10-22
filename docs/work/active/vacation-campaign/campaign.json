@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T12:17:49.395063+00:00",
+    "observed_at": "2026-10-22T12:19:42.026861+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -5177,23 +5177,24 @@
       {
         "id": "reference-grant-freshness-assessment",
         "title": "Check scoped reference results after Project access changes",
-        "state": "active",
+        "state": "complete",
         "owner": "Bounded Luna read-only source assessment; lead disposition",
-        "observed_at": "2026-10-22T12:17:49.395063+00:00",
+        "observed_at": "2026-10-22T12:19:42.026861+00:00",
         "origin": "observed",
-        "activity": "Selected one adjacent source question from the reproduced Connections revocation gap. Reuse PR204 request/draft ownership; inspect SetupDraft displayed/token guards and already displayed matches before proposing any change.",
-        "next_action": "Inspect bounded source report; close with no change if existing guards suffice. Admit a separate repair only for a concrete supported stale-result or checked-operation gap.",
+        "activity": "Read-only assessment and lead source check found existing canonical change-token guards retire/hide stale delayed and displayed reference matches after Project writes and Undo; checked attach/save remain fenced. No distinct gap or new test selected.",
+        "next_action": "Reuse existing PR204 delayed reply and setup revocation witnesses. Revisit only if token/display/attach guards change or an actual failing journey appears; specific search-hit Unlink scenario was inferred from guards, not run.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "crates/brn-writing-ui/src/setup.rs",
           "crates/brn-desktop/src/threads_ui.rs",
-          "docs/work/active/vacation-campaign/evidence/displayed-note-scope-assessment.md"
+          "docs/work/active/vacation-campaign/evidence/displayed-note-scope-assessment.md",
+          "docs/work/active/vacation-campaign/evidence/reference-grant-freshness-assessment.md"
         ],
         "gates": {
-          "implementation": "Read-only question selected; no new product change.",
-          "checks": "Source assessment only; no build/test selected.",
-          "integration": "None selected.",
+          "implementation": "No change warranted; existing shared SetupDraft/display/token and checked service owners suffice.",
+          "checks": "PASS source/caller/evidence assessment only; no fresh test/build/native observation claimed.",
+          "integration": "Inapplicable: no product change.",
           "native": "No interaction; owner deferral unchanged.",
           "owner_acceptance": "No new product meaning selected."
         },
@@ -5210,11 +5211,12 @@
     "source": "work_view in this campaign record",
     "refresh": "Existing lead refreshes this same concise remote projection at meaningful campaign transitions, after updating the local source and checking current gates. Read Page guidance/fresh blocks, apply guarded edits, preserve human additions and show refreshed time. No live filesystem sync or new schedule. Scope ends at original campaign expiry.",
     "last_refresh_at": "2026-10-22T12:02:29+00:00",
-    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-connections-review-pending.json"
+    "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-connections-review-pending.json",
+    "last_refresh_evidence": "docs/work/active/vacation-campaign/evidence/remote-connections-pr216.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T12:17:19.900377+00:00",
-    "runtime_capacity": "Four slots including lead; Luna read-only reference freshness assessment active, independent reviewer complete, stale run_activity_author pending_init remains cancelled/unassigned.",
+    "observed_at": "2026-10-22T12:19:42.026861+00:00",
+    "runtime_capacity": "Lead integration; Luna assessment and independent reviewer complete; stale pending_init author remains cancelled/unassigned.",
     "build_slot": "Free; all final local qualification children reaped. No active local build.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
