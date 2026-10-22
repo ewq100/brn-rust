@@ -1,0 +1,100 @@
+--- /private/tmp/brn-advisory-audit-20261022/run-audit.py	2026-10-22 13:14:04
++++ /private/tmp/brn-advisory-audit-20261022/run-audit-attempt2.py	2026-10-22 13:16:23
+@@ -11,6 +11,7 @@
+ import subprocess
+ import sys
+ import tarfile
++import tomllib
+ import threading
+ import time
+ import uuid
+@@ -20,9 +21,9 @@
+ EXPECTED_HELPER_SHA = 'cd272ff3734a2a46c2a83ff944a9d2f15d768e6bef45de03df49378009854813'
+ HELPER = Path('/tmp/brn-mac13-preparation/prepare.py')
+ ARCHIVE = ROOT / 'archive/cargo-audit.tgz'
+-BINARY = ROOT / 'bin/cargo-audit'
+-DB = ROOT / 'db/advisory-db'
+-PKT = ROOT / 'packet'
++BINARY = ROOT / 'bin-attempt2/cargo-audit'
++DB = ROOT / 'db/advisory-db-attempt2'
++PKT = ROOT / 'packet-attempt2'
+ LOCKS = [
+     ('main213-root-lock', Path('/tmp/brn-tls-resolution/Cargo.lock.before')),
+     ('worker-export-lock', Path('/Users/evokessler/.codex/worktrees/export-durability/brn-rust/Cargo.lock')),
+@@ -159,9 +160,12 @@
+     expected_prefix='cargo-audit-aarch64-apple-darwin-v0.22.2/'
+     with tarfile.open(ARCHIVE,'r:gz') as tf:
+         members=tf.getmembers()
+-        expected_names={expected_prefix,expected_prefix+'LICENSE-APACHE',expected_prefix+'CHANGELOG.md',expected_prefix+'README.md',expected_prefix+'cargo-audit',expected_prefix+'LICENSE-MIT'}
++        expected_names={expected_prefix.rstrip('/'),expected_prefix+'LICENSE-APACHE',expected_prefix+'CHANGELOG.md',expected_prefix+'README.md',expected_prefix+'cargo-audit',expected_prefix+'LICENSE-MIT'}
+         if {m.name for m in members} != expected_names: raise RuntimeError('unexpected archive member set; stopped')
+         if any(not (m.isdir() or m.isfile()) or m.issym() or m.islnk() for m in members): raise RuntimeError('archive link/special member rejected')
++        root_member=next((m for m in members if m.name==expected_prefix.rstrip('/')),None)
++        if root_member is None or not root_member.isdir(): raise RuntimeError('archive root entry is not a directory')
++        if sum(1 for m in members if m.isfile()) != 5: raise RuntimeError('archive regular-file count mismatch')
+         binary_member=next(m for m in members if m.name==expected_prefix+'cargo-audit')
+         if not binary_member.isfile() or binary_member.size>100*1024*1024: raise RuntimeError('unexpected binary member')
+         with tf.extractfile(binary_member) as src, BINARY.open('xb') as dst:
+@@ -170,11 +174,15 @@
+     manifest['binary']={'path':str(BINARY),'sha256':sha_file(BINARY)[0],'bytes':sha_file(BINARY)[1]}; persist()
+ 
+     env={'PATH':'/usr/bin:/bin:/usr/sbin:/sbin','LANG':'C','LC_ALL':'C','TMPDIR':str(ROOT/'tmp')}
+-    # Keep audit's Cargo state under this task root; HOME and CODEX_HOME remain inherited/unchanged.
++    # Keep HOME/CODEX_HOME exactly as inherited, when present; only Cargo state is redirected.
++    for name in ('HOME','CODEX_HOME'):
++        if name in os.environ: env[name]=os.environ[name]
+     env['CARGO_HOME']=str(ROOT/'cargo-home')
+     (ROOT/'tmp').mkdir(mode=0o700,exist_ok=True)
+     vrc,vout,verr=run('tool-version',[str(BINARY),'--version'],ROOT,15,env)
+     manifest['tool_version']={'exit':vrc,'stdout':vout.decode('utf-8','strict').strip(),'stderr':verr.decode('utf-8','strict').strip()}; persist()
++    if vrc != 0 or '0.22.2' not in manifest['tool_version']['stdout']:
++        raise RuntimeError('official audit binary version mismatch; stopped')
+     hrc,hout,herr=run('audit-help',[str(BINARY),'audit','--help'],ROOT,15,env)
+     helptext=hout.decode('utf-8','strict')
+     required=['--file','--db','--no-fetch','--no-yanked','--format']
+@@ -211,15 +219,37 @@
+         argv=[str(BINARY),'audit','--file',entry['snapshot'],'--db',str(DB),'--no-fetch','--no-yanked','--format','json']
+         # Exit 1 is an advisory finding; retain it and continue the remaining independent lock scans.
+         rc,out,err=run(scan_name,argv,ROOT,60,env,acceptable=(0,1))
+-        try:
+-            parsed=json.loads(out.decode('utf-8','strict'))
+-            (PKT/'commands'/f'{scan_name}.parsed.json').write_text(json.dumps(parsed,ensure_ascii=False,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+-            finding_count=len(parsed.get('vulnerabilities',{}).get('list',[])) if isinstance(parsed,dict) else None
+-            warnings=parsed.get('warnings',{}) if isinstance(parsed,dict) else None
+-        except (UnicodeDecodeError,json.JSONDecodeError,AttributeError,TypeError):
+-            parsed=None;finding_count=None;warnings=None
++        parsed=json.loads(out.decode('utf-8','strict'))
++        if not isinstance(parsed,dict): raise RuntimeError(f'{scan_name}: report root is not an object')
++        for key in ('database','lockfile','settings','vulnerabilities','warnings'):
++            if key not in parsed: raise RuntimeError(f'{scan_name}: required report field missing: {key}')
++        dbinfo=parsed['database']; lockinfo=parsed['lockfile']; settings=parsed['settings']
++        vulns=parsed['vulnerabilities']; warnings=parsed['warnings']
++        if not all(isinstance(x,dict) for x in (dbinfo,lockinfo,settings,vulns,warnings)):
++            raise RuntimeError(f'{scan_name}: report section has unexpected type')
++        if dbinfo.get('last-commit') != manifest['database'].get('db-head'):
++            raise RuntimeError(f'{scan_name}: report database commit differs from frozen clone')
++        with open(entry['snapshot'],'rb') as lock_stream: lock_data=tomllib.load(lock_stream)
++        if not isinstance(lock_data.get('package'),list): raise RuntimeError(f'{scan_name}: input lock has no package array')
++        if lockinfo.get('dependency-count') != len(lock_data['package']):
++            raise RuntimeError(f'{scan_name}: report dependency count differs from input lock')
++        if settings.get('ignore') != [] or settings.get('target_arch') != [] or settings.get('target_os') != [] or settings.get('severity') is not None:
++            raise RuntimeError(f'{scan_name}: unexpected report filtering/threshold settings')
++        vlist=vulns.get('list')
++        if not isinstance(vlist,list) or not isinstance(vulns.get('count'),int) or not isinstance(vulns.get('found'),bool):
++            raise RuntimeError(f'{scan_name}: malformed vulnerabilities report')
++        if vulns['count'] != len(vlist) or vulns['found'] != bool(vlist):
++            raise RuntimeError(f'{scan_name}: vulnerability count/found/list disagree')
++        if (vulns['found'] and rc != 1) or (not vulns['found'] and rc != 0):
++            raise RuntimeError(f'{scan_name}: process exit does not agree with vulnerability report')
++        parsed_path=PKT/'commands'/f'{scan_name}.parsed.json'
++        parsed_path.write_text(json.dumps(parsed,ensure_ascii=False,indent=2,sort_keys=True)+'\n',encoding='utf-8')
++        finding_count=vulns['count']
+         manifest['commands'][-1].update({'input_label':entry['label'],'input_sha256':entry['sha256'],
+-           'json_parsed':parsed is not None,'vulnerability_count':finding_count,'warnings_summary':warnings,
++           'json_parsed':True,'parsed_json_path':str(parsed_path),'vulnerability_count':finding_count,
++           'vulnerabilities_found':vulns['found'],'warnings':warnings,
++           'settings':settings,'reported_dependency_count':lockinfo['dependency-count'],
++           'database_last_commit':dbinfo['last-commit'],
+            'exit_interpretation':'advisory findings' if rc==1 else 'no vulnerability exit status'})
+         persist()
+ 

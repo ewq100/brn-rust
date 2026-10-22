@@ -1,0 +1,46 @@
+{
+  "archive": {
+    "bytes": 5954803,
+    "path": "/private/tmp/brn-advisory-audit-20261022/archive/cargo-audit.tgz",
+    "sha256": "ec7ca4263769593df4d909be85b94a6b79efa2897be5d2bb8ebd516e823175af",
+    "verified": true
+  },
+  "commands": [],
+  "database": {},
+  "elapsed_seconds": 0.019,
+  "failure": "RuntimeError: unexpected archive member set; stopped",
+  "finished_at": "2026-10-22T10:14:04.245571+00:00",
+  "free_bytes": 14382997504,
+  "host_arch": "arm64",
+  "inputs": [],
+  "limits": {
+    "audit_flags": [
+      "--no-fetch",
+      "--no-yanked",
+      "--format",
+      "json"
+    ],
+    "cleanup_reserve_seconds": 30.0,
+    "live_free_bytes_min": 1073741824,
+    "max_output_bytes_per_command": 1048576,
+    "no_fix_or_suppression": true,
+    "no_ignores": true,
+    "no_target_filter": true,
+    "overall_seconds": 300.0,
+    "start_free_bytes_min": 2147483648
+  },
+  "notes": [
+    "No source/build/global install/provider/account/native action.",
+    "Advisory matches are lockfile name/version reports, not reachability/exposure proof.",
+    "Yanked status was not checked because --no-yanked avoids registry access."
+  ],
+  "official_tool": {
+    "asset": "cargo-audit-aarch64-apple-darwin-v0.22.2.tgz",
+    "asset_sha256_expected": "ec7ca4263769593df4d909be85b94a6b79efa2897be5d2bb8ebd516e823175af",
+    "release": "rustsec/rustsec cargo-audit/v0.22.2"
+  },
+  "schema": "brn.full-advisory-scan.v1",
+  "started_at": "2026-10-22T10:14:04.226542+00:00",
+  "status": "failed",
+  "task_root": "/private/tmp/brn-advisory-audit-20261022"
+}

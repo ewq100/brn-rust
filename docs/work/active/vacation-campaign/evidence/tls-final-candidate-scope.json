@@ -1,0 +1,37 @@
+{
+  "base": "3827d6a13953533c7322fd7157d975a32dee5cb2",
+  "observed_at": "2026-10-22T10:25:49.994436+00:00",
+  "only_four_expected_package_updates": true,
+  "packages": [
+    [
+      "rustls-webpki",
+      "0.103.15",
+      "0.103.16"
+    ],
+    [
+      "webpki-roots",
+      "1.0.9",
+      "1.0.10"
+    ],
+    [
+      "webpki-root-certs",
+      "1.0.9",
+      "1.0.10"
+    ],
+    [
+      "rustls",
+      "0.23.45",
+      "0.23.46"
+    ]
+  ],
+  "registry_checksums": {
+    "rustls-webpki": "4443b1b6d39d7c663139942cc4558262562d2c84123bb6282ef177009ca8b281",
+    "webpki-roots": "1c1c8e20c8a38fc7d65abfe74eb7280e4aa667e8eec8bc84996d2874810748d9",
+    "webpki-root-certs": "58ec80e73fd8baf57bf0d9615554c75348bda990d6d5bbeab964dd068319fecb",
+    "rustls": "48e13bd8c0e9365c43cfa5c9e8f9ad49d3c8444926c9aac819e0e4dc503c8fdf"
+  },
+  "package_count": 943,
+  "lock_sha256": "f6d7419899f81f4e28eaae198475e69067ac34d174c5293a0f9d13e012fbc01a",
+  "unrelated_edge": "Restored tempfile3.27 originalgetrandom0.4.3 as permitted >=0.3,<0.5; originalresolver output preserved",
+  "review_and_checks": "Pending final candidate; previous003results source-bound only"
+}

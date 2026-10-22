@@ -1,0 +1,25 @@
+{
+  "candidate": "003edd71518300f545fbde2d71bf850470f7ff0e",
+  "scope": "First five stages passed; optionalnative stage failed linking; subsequent combinedbuild neverrun",
+  "test_reports": {
+    "workspace": {
+      "passed": 1331,
+      "failed": 0,
+      "ignored": 6
+    },
+    "capability": {
+      "passed": 503,
+      "failed": 0,
+      "ignored": 1
+    }
+  },
+  "native_failure": "Offline ORT_SKIP_DOWNLOAD/ORT_OFFLINE/CARGO_NET_OFFLINE caused ort-sys skip branch before existingcache selection. Explicit ORT_LIB_LOCATION selects existing cachedstaticlib before skipbranch. No model/toolchain/runtime download selected.",
+  "cached_ort": {
+    "directory": "/Users/evokessler/Library/Caches/ort.pyke.io/dfbin/aarch64-apple-darwin/6934874e2e953576d9c1db47ff1af39c62c4f4220dbe6f988e131f72879674c7",
+    "file": "libonnxruntime.a",
+    "bytes": 80425592,
+    "sha256": "d68759bf6c644dd5c6cb4e735699fba89e431b49ca588f73c11ee1c48ba838b3",
+    "cached_distribution_mapping": "ort-sys2.0.0-rc.13 build/download/dist.tsv aarch64-apple-darwin coreml,ORT1.28.0 archivehash6934874...",
+    "limit": "Computed currentlibraryhash/sourcepath mapping only; no new extraction/reproducible-library-build/modelinference qualification."
+  }
+}

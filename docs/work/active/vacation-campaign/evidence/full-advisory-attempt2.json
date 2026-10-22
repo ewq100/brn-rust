@@ -1,0 +1,312 @@
+{
+  "archive": {
+    "bytes": 5954803,
+    "path": "/private/tmp/brn-advisory-audit-20261022/archive/cargo-audit.tgz",
+    "sha256": "ec7ca4263769593df4d909be85b94a6b79efa2897be5d2bb8ebd516e823175af",
+    "verified": true
+  },
+  "binary": {
+    "bytes": 12598016,
+    "path": "/private/tmp/brn-advisory-audit-20261022/bin-attempt2/cargo-audit",
+    "sha256": "33fbe81adca1b794f4ffe98574d59b0ebe6fcfdb310976fafed98a094c795111"
+  },
+  "commands": [
+    {
+      "argv": [
+        "/private/tmp/brn-advisory-audit-20261022/bin-attempt2/cargo-audit",
+        "--version"
+      ],
+      "cleanup_errors": [],
+      "cwd": "/private/tmp/brn-advisory-audit-20261022",
+      "finished_at": "2026-10-22T10:18:02.013138+00:00",
+      "group_absent": true,
+      "leader_reaped": true,
+      "max_combined_output_bytes": 1048576,
+      "name": "tool-version",
+      "output_bytes": 19,
+      "output_overflow": false,
+      "reader_errors": [],
+      "return_code": 0,
+      "signals_sent": [],
+      "started_at": "2026-10-22T10:18:01.711171+00:00",
+      "stderr_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/01-tool-version.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/01-tool-version.stdout",
+      "stdout_sha256": "8748580845bee726903e69bc4543958fb01e2594317e6c68bf80114bff13d541",
+      "stop_reason": null,
+      "timeout_seconds": 15
+    },
+    {
+      "argv": [
+        "/private/tmp/brn-advisory-audit-20261022/bin-attempt2/cargo-audit",
+        "audit",
+        "--help"
+      ],
+      "cleanup_errors": [],
+      "cwd": "/private/tmp/brn-advisory-audit-20261022",
+      "finished_at": "2026-10-22T10:18:02.075516+00:00",
+      "group_absent": true,
+      "leader_reaped": true,
+      "max_combined_output_bytes": 1048576,
+      "name": "audit-help",
+      "output_bytes": 1718,
+      "output_overflow": false,
+      "reader_errors": [],
+      "return_code": 0,
+      "signals_sent": [],
+      "started_at": "2026-10-22T10:18:02.013923+00:00",
+      "stderr_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/02-audit-help.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/02-audit-help.stdout",
+      "stdout_sha256": "6dad1dc32bf1a72f26dc8cfe3dad280d55934f77db9d08f3ff554a112581bee9",
+      "stop_reason": null,
+      "timeout_seconds": 15
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "-c",
+        "protocol.file.allow=never",
+        "clone",
+        "--depth",
+        "1",
+        "--branch",
+        "main",
+        "https://github.com/RustSec/advisory-db.git",
+        "/private/tmp/brn-advisory-audit-20261022/db/advisory-db-attempt2"
+      ],
+      "cleanup_errors": [],
+      "cwd": "/private/tmp/brn-advisory-audit-20261022",
+      "finished_at": "2026-10-22T10:18:03.498559+00:00",
+      "group_absent": true,
+      "leader_reaped": true,
+      "max_combined_output_bytes": 1048576,
+      "name": "clone-official-advisory-db",
+      "output_bytes": 83,
+      "output_overflow": false,
+      "reader_errors": [],
+      "return_code": 0,
+      "signals_sent": [],
+      "started_at": "2026-10-22T10:18:02.080915+00:00",
+      "stderr_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/03-clone-official-advisory-db.stderr",
+      "stderr_sha256": "e0a7e25612344769ed716da1b5ecda6d24b9810875c920c13f69ba19f0a12be5",
+      "stdout_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/03-clone-official-advisory-db.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stop_reason": null,
+      "timeout_seconds": 120
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "--no-pager",
+        "--no-optional-locks",
+        "-C",
+        "/private/tmp/brn-advisory-audit-20261022/db/advisory-db-attempt2",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cleanup_errors": [],
+      "cwd": "/private/tmp/brn-advisory-audit-20261022",
+      "finished_at": "2026-10-22T10:18:03.552890+00:00",
+      "group_absent": true,
+      "leader_reaped": true,
+      "max_combined_output_bytes": 1048576,
+      "name": "db-head",
+      "output_bytes": 41,
+      "output_overflow": false,
+      "reader_errors": [],
+      "return_code": 0,
+      "signals_sent": [],
+      "started_at": "2026-10-22T10:18:03.499523+00:00",
+      "stderr_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/04-db-head.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/04-db-head.stdout",
+      "stdout_sha256": "93a605fe27c8254047ace729494429afb10bb955702282385bcaa1289eca168d",
+      "stop_reason": null,
+      "timeout_seconds": 10
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "--no-pager",
+        "--no-optional-locks",
+        "-C",
+        "/private/tmp/brn-advisory-audit-20261022/db/advisory-db-attempt2",
+        "show",
+        "-s",
+        "--format=%cI",
+        "HEAD"
+      ],
+      "cleanup_errors": [],
+      "cwd": "/private/tmp/brn-advisory-audit-20261022",
+      "finished_at": "2026-10-22T10:18:03.606006+00:00",
+      "group_absent": true,
+      "leader_reaped": true,
+      "max_combined_output_bytes": 1048576,
+      "name": "db-commit-date",
+      "output_bytes": 26,
+      "output_overflow": false,
+      "reader_errors": [],
+      "return_code": 0,
+      "signals_sent": [],
+      "started_at": "2026-10-22T10:18:03.553969+00:00",
+      "stderr_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/05-db-commit-date.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/05-db-commit-date.stdout",
+      "stdout_sha256": "074e2ca039fabe67a5d20a82a0c227434d1a54c3a9a42dcdaff7090f68b2963c",
+      "stop_reason": null,
+      "timeout_seconds": 10
+    },
+    {
+      "argv": [
+        "/usr/bin/git",
+        "--no-pager",
+        "--no-optional-locks",
+        "-C",
+        "/private/tmp/brn-advisory-audit-20261022/db/advisory-db-attempt2",
+        "status",
+        "--porcelain"
+      ],
+      "cleanup_errors": [],
+      "cwd": "/private/tmp/brn-advisory-audit-20261022",
+      "finished_at": "2026-10-22T10:18:03.658975+00:00",
+      "group_absent": true,
+      "leader_reaped": true,
+      "max_combined_output_bytes": 1048576,
+      "name": "db-status",
+      "output_bytes": 0,
+      "output_overflow": false,
+      "reader_errors": [],
+      "return_code": 0,
+      "signals_sent": [],
+      "started_at": "2026-10-22T10:18:03.607039+00:00",
+      "stderr_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/06-db-status.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/06-db-status.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stop_reason": null,
+      "timeout_seconds": 10
+    },
+    {
+      "argv": [
+        "/private/tmp/brn-advisory-audit-20261022/bin-attempt2/cargo-audit",
+        "audit",
+        "--file",
+        "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/locks/main213-root-lock.Cargo.lock",
+        "--db",
+        "/private/tmp/brn-advisory-audit-20261022/db/advisory-db-attempt2",
+        "--no-fetch",
+        "--no-yanked",
+        "--format",
+        "json"
+      ],
+      "cleanup_errors": [],
+      "cwd": "/private/tmp/brn-advisory-audit-20261022",
+      "finished_at": "2026-10-22T10:18:03.712319+00:00",
+      "group_absent": true,
+      "leader_reaped": true,
+      "max_combined_output_bytes": 1048576,
+      "name": "audit-main213-root-lock",
+      "output_bytes": 28230,
+      "output_overflow": false,
+      "reader_errors": [],
+      "return_code": 1,
+      "signals_sent": [],
+      "started_at": "2026-10-22T10:18:03.660428+00:00",
+      "stderr_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/07-audit-main213-root-lock.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_path": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/commands/07-audit-main213-root-lock.stdout",
+      "stdout_sha256": "e1853a8d957aa7906fa7005ce09f5d3ade54279565eb44f6a1ee0ff458dd349e",
+      "stop_reason": null,
+      "timeout_seconds": 60
+    }
+  ],
+  "database": {
+    "branch": "main",
+    "clone_depth": 1,
+    "clone_stderr_sha256": "e0a7e25612344769ed716da1b5ecda6d24b9810875c920c13f69ba19f0a12be5",
+    "clone_stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "db-commit-date": "2026-10-22T09:21:52+02:00",
+    "db-head": "59ef7abf8ce56ea80fe7eba97ba3835449009fa4",
+    "db-status": "",
+    "no_fetch_during_audit": true,
+    "url": "https://github.com/RustSec/advisory-db.git"
+  },
+  "elapsed_seconds": 2.053,
+  "failure": "RuntimeError: audit-main213-root-lock: report database commit differs from frozen clone",
+  "finished_at": "2026-10-22T10:18:03.713106+00:00",
+  "free_bytes": 13771034624,
+  "host_arch": "arm64",
+  "inputs": [
+    {
+      "bytes": 249732,
+      "label": "main213-root-lock",
+      "sha256": "fc1ca2cf08b51f357dccd277b2fdb5491454c7bb87bf96e1026322d6b5f85d89",
+      "snapshot": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/locks/main213-root-lock.Cargo.lock",
+      "source": "/tmp/brn-tls-resolution/Cargo.lock.before"
+    },
+    {
+      "bytes": 249738,
+      "label": "worker-export-lock",
+      "sha256": "2dcc9ad99f05129f077ebc063b0f65fe69bda993ef2bd4824da4d9a6be2b189f",
+      "snapshot": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/locks/worker-export-lock.Cargo.lock",
+      "source": "/Users/evokessler/.codex/worktrees/export-durability/brn-rust/Cargo.lock"
+    },
+    {
+      "bytes": 97318,
+      "label": "stock-helper-lock",
+      "sha256": "4d375d6c65cc56a573203fa838f0d42d49e9d6764487bf56adb5b05006e32f36",
+      "snapshot": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/locks/stock-helper-lock.Cargo.lock",
+      "source": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/tools/xberg-intake-helper/Cargo.lock"
+    },
+    {
+      "bytes": 97175,
+      "label": "adapted-helper-lock",
+      "sha256": "9e3fa02dfa4533233ffdba0338829d01a1ebe767ccdb47d01da4d581a040f508",
+      "snapshot": "/private/tmp/brn-advisory-audit-20261022/packet-attempt2/locks/adapted-helper-lock.Cargo.lock",
+      "source": "/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/tools/xberg-intake-helper/adapted.Cargo.lock"
+    }
+  ],
+  "limits": {
+    "audit_flags": [
+      "--no-fetch",
+      "--no-yanked",
+      "--format",
+      "json"
+    ],
+    "cleanup_reserve_seconds": 30.0,
+    "live_free_bytes_min": 1073741824,
+    "max_output_bytes_per_command": 1048576,
+    "no_fix_or_suppression": true,
+    "no_ignores": true,
+    "no_target_filter": true,
+    "overall_seconds": 300.0,
+    "start_free_bytes_min": 2147483648
+  },
+  "notes": [
+    "No source/build/global install/provider/account/native action.",
+    "Advisory matches are lockfile name/version reports, not reachability/exposure proof.",
+    "Yanked status was not checked because --no-yanked avoids registry access."
+  ],
+  "official_tool": {
+    "asset": "cargo-audit-aarch64-apple-darwin-v0.22.2.tgz",
+    "asset_sha256_expected": "ec7ca4263769593df4d909be85b94a6b79efa2897be5d2bb8ebd516e823175af",
+    "release": "rustsec/rustsec cargo-audit/v0.22.2"
+  },
+  "schema": "brn.full-advisory-scan.v1",
+  "started_at": "2026-10-22T10:18:01.659820+00:00",
+  "status": "failed",
+  "task_root": "/private/tmp/brn-advisory-audit-20261022",
+  "tool_help": {
+    "exit": 0,
+    "missing_options": [],
+    "required_options_present": true,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "6dad1dc32bf1a72f26dc8cfe3dad280d55934f77db9d08f3ff554a112581bee9"
+  },
+  "tool_version": {
+    "exit": 0,
+    "stderr": "",
+    "stdout": "cargo-audit 0.22.2"
+  }
+}

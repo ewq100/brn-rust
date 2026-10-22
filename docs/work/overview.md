@@ -14,9 +14,9 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Resolve recent certificate-trust dependency advisories
 
 Task ID: `tls-advisory-resolution`
-Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T10:08:10.310907+00:00
-Activity: Frozen003edd71 changes only root Cargo.lock: three patched version/checksum records and necessary qualifiedroot references,943packages retained. Independent complete candidate review APPROVED. Exact three publicarchives total455278bytes checksumverified. Selected existing offline workspace/provider/native tests and CLI/ordinary/combined app builds running serially; not yet passed.
-Next: Finish one bounded serial local qualification; retain first failure/ignored cases and source identities. Publish exact reviewed candidate only after applicable checks; actual required head/protection/preceding-main/resulting-main gates remain.
+Owner: Lead dependency/integration owner; independent Sol exposure/repair assessment · State: **active** · Last observed: 2026-10-22T10:28:11.977147+00:00
+Activity: Independent review approved the final four-package dependency update. All other packages and settings remain unchanged. Final offline tests and app builds are running with the existing cached native library linked explicitly; earlier results and the linking failure remain preserved.
+Next: Finish final checks, then confirm the final dependency file against current advisories. Publish the reviewed change only after local checks pass; required PR and merged-main checks remain separate.
 Depends on: dependency-advisory-preflight when Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (reported satisfied: true)
 
 <details>
@@ -24,9 +24,9 @@ Depends on: dependency-advisory-preflight when Official version matches and main
 
 Gates:
 
-- **implementation:** PASS minimal lock-only003edd71518300f545fbde2d71bf850470f7ff0e; full independent candidate review approved
-- **checks:** RUNNING serial offline gate; original reference-checker error and resolver unrelatedtempfile edge correction retained; no Cargo update retries
-- **integration:** No PR/push/merge yet; local and actual hosted gates pending
+- **implementation:** PASS reviewed234956cb171beb025acb1dc17b41be98992bddf0; only root Cargo.lock, four compatible package patches,943packagecount unchanged
+- **checks:** RUNNING final frozen-candidate offline gate with explicit cachedORTlinking; prior003 tests remain historical source-bound evidence
+- **integration:** No publication/merge yet; required exact-head/protection/preceding-main/resulting-main checks remain pending
 - **native:** No native action selected; owner deferral unchanged
 - **owner acceptance:** No changed product meaning; security maintenance in existing scope
 
@@ -35,9 +35,9 @@ Gates:
 ### Check maintained dependency locks against current advisories
 
 Task ID: `current-lock-advisory-scan`
-Owner: Bounded Luna task-local official tool/scan actor; lead findings disposition · State: **active** · Last observed: 2026-10-22T10:12:33.543338+00:00
-Activity: Official RustSec macOS arm64 cargo-audit0.22.2 asset and published SHA256 verified as a proportionate tool route. Selected task-local checksum-verified binary/current isolated DB scans of immutable main213 root, candidate003 root and two maintained helper locks. No tool build/global installation or product source writer.
-Next: Capture version/executable hash/DB revision/four lock hashes and raw JSON/exit results. No ignored advisories or platform filters; disable online yanked queries explicitly and disclose that limit. Triage actual matches without broad automatic fixes.
+Owner: Bounded Luna task-local official tool/scan actor; lead findings disposition · State: **active** · Last observed: 2026-10-22T10:28:11.977147+00:00
+Activity: The original dependency file reports seven vulnerability matches and eight maintenance warnings. Independent review confirmed that missing commit metadata is normal for this offline audit mode. A reviewed continuation is being prepared for only the remaining files; the completed baseline will not be rerun.
+Next: Review the continuation with external database and input hashes, then check the final dependency file and both helper files. Keep warnings and all original failures visible.
 
 <details>
 <summary>Gate status</summary>
@@ -375,4 +375,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T10:12:33.543338+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T10:28:11.977147+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

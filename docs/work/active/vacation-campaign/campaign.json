@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T09:56:14.143962+00:00",
-    "remaining_percent": 44,
+    "observed_at": "2026-10-22T10:24:57.471484+00:00",
+    "remaining_percent": 43,
     "reset_unix": 1793083360,
-    "ordinary_work": "Actual56% used/44% remaining, ordinaryUsageAllowed=true; secondary unavailable. Ordinary headless work admitted; no pause, fixed expiry and closed account session unchanged.",
+    "ordinary_work": "Actual57%used/43%remaining, ordinaryUsageAllowed=true; secondary unavailable. Ordinaryheadless maintenance admitted; native deferral/accountclosure/expiry unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T10:12:33.543338+00:00",
+    "observed_at": "2026-10-22T10:28:11.977147+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4763,10 +4763,10 @@
         "title": "Resolve recent certificate-trust dependency advisories",
         "state": "active",
         "owner": "Lead dependency/integration owner; independent Sol exposure/repair assessment",
-        "observed_at": "2026-10-22T10:08:10.310907+00:00",
+        "observed_at": "2026-10-22T10:28:11.977147+00:00",
         "origin": "observed",
-        "activity": "Frozen003edd71 changes only root Cargo.lock: three patched version/checksum records and necessary qualifiedroot references,943packages retained. Independent complete candidate review APPROVED. Exact three publicarchives total455278bytes checksumverified. Selected existing offline workspace/provider/native tests and CLI/ordinary/combined app builds running serially; not yet passed.",
-        "next_action": "Finish one bounded serial local qualification; retain first failure/ignored cases and source identities. Publish exact reviewed candidate only after applicable checks; actual required head/protection/preceding-main/resulting-main gates remain.",
+        "activity": "Independent review approved the final four-package dependency update. All other packages and settings remain unchanged. Final offline tests and app builds are running with the existing cached native library linked explicitly; earlier results and the linking failure remain preserved.",
+        "next_action": "Finish final checks, then confirm the final dependency file against current advisories. Publish the reviewed change only after local checks pass; required PR and merged-main checks remain separate.",
         "depends_on": [
           {
             "task": "dependency-advisory-preflight",
@@ -4785,16 +4785,36 @@
           "docs/work/active/vacation-campaign/evidence/tls-candidate-scope.json",
           "docs/work/active/vacation-campaign/evidence/tls-update-commands.json",
           "docs/work/active/vacation-campaign/evidence/tls-package-fetch.json",
-          "docs/work/active/vacation-campaign/evidence/tls-qualify.py"
+          "docs/work/active/vacation-campaign/evidence/tls-qualify.py",
+          "docs/work/active/vacation-campaign/evidence/tls-local-initial-qualification.json",
+          "docs/work/active/vacation-campaign/evidence/advisory-main213-root.json",
+          "docs/work/active/vacation-campaign/evidence/tls-expanded-assessment.md",
+          "docs/work/active/vacation-campaign/evidence/tls-rustls-release-metadata.json",
+          "docs/work/active/vacation-campaign/evidence/tls-initial-qualification-assessment.json",
+          "docs/work/active/vacation-campaign/evidence/tls-local-initial-logs.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/tls-final-candidate-review.md",
+          "docs/work/active/vacation-campaign/evidence/tls-final-candidate-scope.json",
+          "docs/work/active/vacation-campaign/evidence/tls-update-rustls.json",
+          "docs/work/active/vacation-campaign/evidence/tls-rustls-package-fetch.json",
+          "docs/work/active/vacation-campaign/evidence/tls-final-qualify.py"
         ],
         "gates": {
-          "implementation": "PASS minimal lock-only003edd71518300f545fbde2d71bf850470f7ff0e; full independent candidate review approved",
-          "checks": "RUNNING serial offline gate; original reference-checker error and resolver unrelatedtempfile edge correction retained; no Cargo update retries",
-          "integration": "No PR/push/merge yet; local and actual hosted gates pending",
+          "implementation": "PASS reviewed234956cb171beb025acb1dc17b41be98992bddf0; only root Cargo.lock, four compatible package patches,943packagecount unchanged",
+          "checks": "RUNNING final frozen-candidate offline gate with explicit cachedORTlinking; prior003 tests remain historical source-bound evidence",
+          "integration": "No publication/merge yet; required exact-head/protection/preceding-main/resulting-main checks remain pending",
           "native": "No native action selected; owner deferral unchanged",
           "owner_acceptance": "No changed product meaning; security maintenance in existing scope"
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "Initial inline reference checker raised UnboundLocalError after three successful precise Cargo updates; not a Cargo retry or qualification pass",
+            "change": "Independent full structural comparison verifies minimal candidate after restoring original permitted unrelated tempfile edge; original resolver lock retained",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/tls-candidate-scope.json",
+              "docs/work/active/vacation-campaign/evidence/tls-candidate-review.md"
+            ]
+          }
+        ],
         "resource_plan": "Lead selected minimal dependency maintenance within hardening authority; one worker writer and one shared build slot. Allow bounded registry metadata/exact patch package fetch required for this repair (ordinary gates then locked/offline/jobs1). No broad updates/toolchain/global config/model/provider/account acquisition. Independent Sol review; Luna route inspection complete."
       },
       {
@@ -4802,14 +4822,21 @@
         "title": "Check maintained dependency locks against current advisories",
         "state": "active",
         "owner": "Bounded Luna task-local official tool/scan actor; lead findings disposition",
-        "observed_at": "2026-10-22T10:12:33.543338+00:00",
+        "observed_at": "2026-10-22T10:28:11.977147+00:00",
         "origin": "observed",
-        "activity": "Official RustSec macOS arm64 cargo-audit0.22.2 asset and published SHA256 verified as a proportionate tool route. Selected task-local checksum-verified binary/current isolated DB scans of immutable main213 root, candidate003 root and two maintained helper locks. No tool build/global installation or product source writer.",
-        "next_action": "Capture version/executable hash/DB revision/four lock hashes and raw JSON/exit results. No ignored advisories or platform filters; disable online yanked queries explicitly and disclose that limit. Triage actual matches without broad automatic fixes.",
+        "activity": "The original dependency file reports seven vulnerability matches and eight maintenance warnings. Independent review confirmed that missing commit metadata is normal for this offline audit mode. A reviewed continuation is being prepared for only the remaining files; the completed baseline will not be rerun.",
+        "next_action": "Review the continuation with external database and input hashes, then check the final dependency file and both helper files. Keep warnings and all original failures visible.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/vacation-campaign/evidence/full-advisory-tool-feasibility.md"
+          "docs/work/active/vacation-campaign/evidence/full-advisory-tool-feasibility.md",
+          "docs/work/active/vacation-campaign/evidence/full-advisory-attempt1-stop.md",
+          "docs/work/active/vacation-campaign/evidence/full-advisory-attempt1.json",
+          "docs/work/active/vacation-campaign/evidence/full-advisory-attempt1.py.gz",
+          "docs/work/active/vacation-campaign/evidence/full-advisory-attempt2-stop.md",
+          "docs/work/active/vacation-campaign/evidence/full-advisory-attempt2.json",
+          "docs/work/active/vacation-campaign/evidence/advisory-main213-root.json",
+          "docs/work/active/vacation-campaign/evidence/tls-expanded-assessment.md"
         ],
         "gates": {
           "implementation": "No product change; isolated official read-only audit tool selected",
@@ -4818,7 +4845,25 @@
           "native": "Not required; no access",
           "owner_acceptance": "No changed product meaning"
         },
-        "attempts": [],
+        "attempts": [
+          {
+            "outcome": "FAIL attempt1 before extraction/audit: exact root-directory member spelling rejected; no vulnerability result",
+            "change": "Lead inspected official checksum and all six archive members; one corrected allowlist/type check and stricter result-schema/environment evidence selected, pending inspection",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/full-advisory-attempt1-stop.md",
+              "docs/work/active/vacation-campaign/evidence/full-advisory-attempt1.json"
+            ]
+          },
+          {
+            "outcome": "FAIL packet2 metadata check after first actual rootaudit exit1 with7matches; threeotherlocks unscanned",
+            "change": "Reassess source-defined null reportmetadata under --no-fetch and external DB Git/hash provenance after two harnessfailures; no automatic retry",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/full-advisory-attempt2-stop.md",
+              "docs/work/active/vacation-campaign/evidence/full-advisory-attempt2.json",
+              "docs/work/active/vacation-campaign/evidence/advisory-main213-root.json"
+            ]
+          }
+        ],
         "resource_plan": "One Luna medium tool/download/scan helper, independent of active build: ~5.68MB official artifact + shallow public DB, task-local CARGO_HOME only; no sharedtarget/caches/config writes, no package updates/account/provider/model/native actions. Runtime <=300s, disk>=2GiBstart/1GiBstop, bounded output/ownedchildcleanup. Stop on digest/schema/uncertain process failure, no blind rerun."
       }
     ],
@@ -4834,9 +4879,9 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-mac13-artifacts.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T10:13:30.416057+00:00",
-    "runtime_capacity": "Lead sole TLScandidate writer/build owner; independent Sol complete candidate reviewapproved; one Luna isolated officialadvisoryscan actor. Four total slots, no nested dispatch.",
-    "build_slot": "Active lead qualifier /tmp/brn-tls-resolution/qualify.py, PTY59751; candidate003edd71 frozen. Current stage/actual completion read qualification.json and raw logs; no competing builds.",
+    "observed_at": "2026-10-22T10:28:11.977147+00:00",
+    "runtime_capacity": "Lead build/integration; independent Sol finalcandidate reviewAPPROVED; Luna bounded remaining-audit adapter preparation, no actualcontinuationlaunchyet.",
+    "build_slot": "Activefinalqualifier /tmp/brn-tls-final-qualification/qualify.py PTY68312 onfrozencandidate234956cb. ExistingcachedORTstaticlib selected, no model/runtime acquisition; singlebuildowner.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
@@ -4844,7 +4889,7 @@
     "wait_reason": "No headless capacity wait. Native actual interaction awaits changed owner availability; account session closed.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
-    "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frommain3827d6a1 reservedforleadlock-onlycandidate. Prior4c786a96startupdiagnosticbranchandfrozenbinarypreserved.",
+    "worker_checkout": "export-durability cleancodex/tls-certificate-trust-20261022 frozen234956cb frommain3827. Original003/4cdiagnostics/frozenartifacts retained.",
     "fixture_worker_checkout": "mac-test-roots frozen clean7ccb552e reviewed/qualified summarycandidate; own branchrecord unchanged. Lead renderer bytes matchcandidate, current authoritativepage generated separately.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
