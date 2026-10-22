@@ -1,0 +1,32 @@
+{
+  "source": "3827d6a13953533c7322fd7157d975a32dee5cb2",
+  "head": "b7cdd4fde5c39962bd0b62b2ba0958ceb17ec0cf",
+  "source_paths": [
+    "crates",
+    "agent",
+    "Cargo.toml",
+    "Cargo.lock",
+    "rust-toolchain.toml",
+    "scripts/make-macos-app.sh",
+    "tools/xberg-intake-helper",
+    "scripts/prepare-xberg-adapted.py",
+    "scripts/build-document-helpers.sh"
+  ],
+  "preexisting_target": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/preexisting-target-unqualified",
+    "sha256": "32bac1f4769b3e8298b74331b429cf4f097f1d5fbcf74ab8741565a195ff47fc",
+    "bytes": 165987488,
+    "source": "unknown; diagnostic preservation only, not adopted"
+  },
+  "native_observed": false,
+  "owner_accepted": false,
+  "app_launched": false,
+  "signing_or_release": false,
+  "exit_code": 0,
+  "seconds": 18.08476150012575,
+  "stop_reason": null,
+  "signals": [],
+  "cleanup_errors": [],
+  "group_absent": true,
+  "leader_reaped": true
+}

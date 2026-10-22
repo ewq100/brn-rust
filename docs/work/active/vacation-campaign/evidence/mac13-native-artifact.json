@@ -1,0 +1,121 @@
+{
+  "source": "3827d6a13953533c7322fd7157d975a32dee5cb2",
+  "head": "b7cdd4fde5c39962bd0b62b2ba0958ceb17ec0cf",
+  "source_paths": [
+    "crates",
+    "agent",
+    "Cargo.toml",
+    "Cargo.lock",
+    "rust-toolchain.toml",
+    "scripts/make-macos-app.sh",
+    "tools/xberg-intake-helper",
+    "scripts/prepare-xberg-adapted.py",
+    "scripts/build-document-helpers.sh"
+  ],
+  "preexisting_target": {
+    "path": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/preexisting-target-unqualified",
+    "sha256": "32bac1f4769b3e8298b74331b429cf4f097f1d5fbcf74ab8741565a195ff47fc",
+    "bytes": 165987488,
+    "source": "unknown; diagnostic preservation only, not adopted"
+  },
+  "native_observed": false,
+  "owner_accepted": false,
+  "app_launched": false,
+  "signing_or_release": false,
+  "exit_code": 0,
+  "seconds": 18.08476150012575,
+  "stop_reason": null,
+  "signals": [],
+  "cleanup_errors": [],
+  "group_absent": true,
+  "leader_reaped": true,
+  "observed_at": "2026-10-22T09:48:50.380493+00:00",
+  "artifacts": {
+    "brn-desktop": {
+      "path": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-desktop",
+      "sha256": "32bac1f4769b3e8298b74331b429cf4f097f1d5fbcf74ab8741565a195ff47fc",
+      "bytes": 165987488
+    },
+    "brn-xberg-helper": {
+      "path": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+      "bytes": 131732512
+    },
+    "brn-xberg-helper-brn": {
+      "path": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+      "bytes": 131924176
+    }
+  },
+  "bundles": [
+    {
+      "scope": "private-chat",
+      "app": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 Private.app",
+      "data_dir": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/private-primary/data",
+      "command": [
+        "bash",
+        "scripts/make-macos-app.sh",
+        "--output",
+        "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 Private.app",
+        "--binary",
+        "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-desktop",
+        "--xberg-helper",
+        "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper",
+        "--xberg-helper-brn",
+        "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper-brn",
+        "--data-dir",
+        "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/private-primary/data"
+      ],
+      "stdout": "Created /Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 Private.app\n",
+      "launcher_sha256": "9a01137d8dd13ff08d7fa345572d8903d93ff28c23b16558661906209d48b00b",
+      "plist_sha256": "b25167db852e08489452b22a1fe52155461efcd8ca00d2c6c18c43fcd933fdb8",
+      "binary_and_helper_hashes": {
+        "brn-desktop": "32bac1f4769b3e8298b74331b429cf4f097f1d5fbcf74ab8741565a195ff47fc",
+        "brn-xberg-helper": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+        "brn-xberg-helper-brn": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+      }
+    },
+    {
+      "scope": "general",
+      "app": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 General.app",
+      "data_dir": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/general-primary/data",
+      "command": [
+        "bash",
+        "scripts/make-macos-app.sh",
+        "--output",
+        "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 General.app",
+        "--binary",
+        "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-desktop",
+        "--xberg-helper",
+        "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper",
+        "--xberg-helper-brn",
+        "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper-brn",
+        "--data-dir",
+        "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/general-primary/data"
+      ],
+      "stdout": "Created /Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 General.app\n",
+      "launcher_sha256": "bbb83f4f18736eadad9bf7dd6c89fc48e9de1240c99fad497aa8a8b601dc8232",
+      "plist_sha256": "b25167db852e08489452b22a1fe52155461efcd8ca00d2c6c18c43fcd933fdb8",
+      "binary_and_helper_hashes": {
+        "brn-desktop": "32bac1f4769b3e8298b74331b429cf4f097f1d5fbcf74ab8741565a195ff47fc",
+        "brn-xberg-helper": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+        "brn-xberg-helper-brn": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+      }
+    }
+  ],
+  "fixture_files_before": {
+    "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/private-primary/data/.brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+    "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/private-primary/data/threads.sqlite3": "ab93d1a8d2f1d3f08935ea2d85af24962ed3dc751a7b05e7447249ee1786ea16",
+    "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/general-primary/data/.brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+    "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/general-primary/data/threads.sqlite3": "2cbe9b590c3c2aa3fa204bad19b989975b9f7399542c2151bf10f7575936ef25"
+  },
+  "fixture_files_after": {
+    "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/private-primary/data/.brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+    "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/private-primary/data/threads.sqlite3": "ab93d1a8d2f1d3f08935ea2d85af24962ed3dc751a7b05e7447249ee1786ea16",
+    "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/general-primary/data/.brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+    "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/general-primary/data/threads.sqlite3": "2cbe9b590c3c2aa3fa204bad19b989975b9f7399542c2151bf10f7575936ef25"
+  },
+  "fixture_files_unchanged": true,
+  "qualified_artifact_build": true,
+  "limits": "Current ordinary native-ui artifact and unsigned explicit-data assembly only; no app launch/native/control/account/release/owner acceptance. Then-current source/availability must be reconciled before future use."
+}

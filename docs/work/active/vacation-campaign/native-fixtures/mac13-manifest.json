@@ -143,5 +143,87 @@
   ],
   "native_observed": false,
   "owner_accepted": false,
-  "independent_result_review": "../evidence/mac13-preparation-result-review.md"
+  "independent_result_review": "../evidence/mac13-preparation-result-review.md",
+  "native_artifact_preparation": {
+    "receipt": "../evidence/mac13-native-artifact.json",
+    "independent_inventory": "../evidence/mac13-native-artifact-inventory.md",
+    "source": "3827d6a13953533c7322fd7157d975a32dee5cb2",
+    "artifacts": {
+      "brn-desktop": {
+        "path": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-desktop",
+        "sha256": "32bac1f4769b3e8298b74331b429cf4f097f1d5fbcf74ab8741565a195ff47fc",
+        "bytes": 165987488
+      },
+      "brn-xberg-helper": {
+        "path": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper",
+        "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+        "bytes": 131732512
+      },
+      "brn-xberg-helper-brn": {
+        "path": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper-brn",
+        "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc",
+        "bytes": 131924176
+      }
+    },
+    "bundles": [
+      {
+        "scope": "private-chat",
+        "app": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 Private.app",
+        "data_dir": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/private-primary/data",
+        "command": [
+          "bash",
+          "scripts/make-macos-app.sh",
+          "--output",
+          "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 Private.app",
+          "--binary",
+          "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-desktop",
+          "--xberg-helper",
+          "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper",
+          "--xberg-helper-brn",
+          "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper-brn",
+          "--data-dir",
+          "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/private-primary/data"
+        ],
+        "stdout": "Created /Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 Private.app\n",
+        "launcher_sha256": "9a01137d8dd13ff08d7fa345572d8903d93ff28c23b16558661906209d48b00b",
+        "plist_sha256": "b25167db852e08489452b22a1fe52155461efcd8ca00d2c6c18c43fcd933fdb8",
+        "binary_and_helper_hashes": {
+          "brn-desktop": "32bac1f4769b3e8298b74331b429cf4f097f1d5fbcf74ab8741565a195ff47fc",
+          "brn-xberg-helper": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+          "brn-xberg-helper-brn": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+        }
+      },
+      {
+        "scope": "general",
+        "app": "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 General.app",
+        "data_dir": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/general-primary/data",
+        "command": [
+          "bash",
+          "scripts/make-macos-app.sh",
+          "--output",
+          "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 General.app",
+          "--binary",
+          "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-desktop",
+          "--xberg-helper",
+          "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper",
+          "--xberg-helper-brn",
+          "/Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/brn-xberg-helper-brn",
+          "--data-dir",
+          "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/general-primary/data"
+        ],
+        "stdout": "Created /Users/evokessler/.codex/artifacts/brn-mac13-native-3827d6a1/BRN MAC13 General.app\n",
+        "launcher_sha256": "bbb83f4f18736eadad9bf7dd6c89fc48e9de1240c99fad497aa8a8b601dc8232",
+        "plist_sha256": "b25167db852e08489452b22a1fe52155461efcd8ca00d2c6c18c43fcd933fdb8",
+        "binary_and_helper_hashes": {
+          "brn-desktop": "32bac1f4769b3e8298b74331b429cf4f097f1d5fbcf74ab8741565a195ff47fc",
+          "brn-xberg-helper": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b",
+          "brn-xberg-helper-brn": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+        }
+      }
+    ],
+    "app_launched": false,
+    "native_observed": false,
+    "owner_accepted": false,
+    "entry_conditions": "Owner-reported changed availability plus actual current source/helper/data reconciliation. Invoke only exact selected wrapper path, task-owned BRN_LAUNCH_LOG_DIR and cleared BRN_XBERG_HELPER/BRN_XBERG_HELPER_BRN overrides. Shared dev.brn.threads bundle ID is not independent application identity."
+  }
 }

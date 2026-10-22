@@ -1,0 +1,9 @@
+     Removed 26 files, 391.4MiB total
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/crates/brn-threads-app)
+   Compiling brn-writing-ui v0.1.0 (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/crates/brn-writing-ui)
+   Compiling brn-desktop v0.1.0 (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/crates/brn-desktop)
+    Finished `dev` profile [unoptimized] target(s) in 15.81s
+warning: the following packages contain code that will be rejected by a future version of Rust: block v0.1.6
+note: to see what the problems were, use the option `--future-incompat-report`, or run `cargo report future-incompatibilities --id 1`

@@ -247,6 +247,11 @@ initial text was deliberately established by ordinary checked Save after import
 normalized a soft-line; the original failed import-byte comparison and revision1
 remain preserved. This does not qualify import fidelity. Reconcile current
 ordinary app/helper identity and the actual initial Note versions before use.
+[Matching ordinary app preparation](evidence/mac13-native-artifact.json) and its
+[independent artifact inventory](evidence/mac13-native-artifact-inventory.md) retain
+exact unsigned fixed-data wrappers for both primary roots. Both remain unlaunched;
+use the exact selected launcher and task-owned log path after the entry checks.
+The wrappers share a bundle ID, so do not rely on implicit Finder resolution.
 There has been no actual Mac observation of MAC13. Do not attempt access or
 disturb the preserved app while availability is unchanged.
 

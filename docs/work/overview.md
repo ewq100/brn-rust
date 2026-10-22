@@ -11,23 +11,23 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 
 ## Working on
 
-### Prepare a matching Mac app without opening it
+### Assess a proportionate dependency advisory check
 
-Task ID: `native-artifact-preparation`
-Owner: Bounded Luna read-only artifact-route inspection; lead build/artifact owner · State: **active** · Last observed: 2026-10-22T09:45:08.700280+00:00
-Activity: Read-only preflight selects existing unsigned local make-macos-app wrapper and one pinned offline ordinary native-ui build. CLI/helper/source identities and approved freshMAC13 roots are ready; no newpackager/launch/security/release action.
-Next: Preserve existing targetdesktop, build source-bound ordinary binary once under900s/diskguard, freeze/hash binary/helpers and create fresh explicit-data private/general wrappers without opening them. Verify original app/data untouched.
+Task ID: `dependency-advisory-preflight`
+Owner: Bounded Luna read-only preflight; lead exposure/scope disposition · State: **active** · Last observed: 2026-10-22T09:56:14.143962+00:00
+Activity: Reconciled main213, all open PRs and idle build slot; selected read-only existing-tool/configuration and official advisory feasibility inspection for maintained root/document-helper dependencies. No tool install or dependency change.
+Next: Inspect helper evidence, choose one justified existing-tool or official-data check; distinguish version matches from actual reachability/exposure. Avoid homemade full-audit claims or blind upgrades.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Source-only feasibility; no product change
-- **checks:** Existing requiredmain213PASS; newartifact identity preparation notyetselected
-- **integration:** No product candidate/release selected
-- **native:** Owner-deferred; no desktopaccess/launch/close/securitychange
-- **owner acceptance:** Notclaimed
+- **implementation:** Read-only preflight selected; no product change
+- **checks:** Pending evidence/source/tooling assessment
+- **integration:** No candidate selected
+- **native:** Not needed; owner deferral unchanged
+- **owner acceptance:** Not claimed
 
 </details>
 
@@ -167,8 +167,8 @@ Waiting:
 ### Observe private and public recovery-copy controls on the Mac
 
 Task ID: `privacy-native-qualification`
-Owner: Single native actor in future consolidated owner-available session · State: **blocked** · Last observed: 2026-10-22T09:45:08.700280+00:00
-Activity: MAC13 fresh explicit CLI fixtures and separate checkedSave rehearsals are independently qualified. Actual app opening, attachment Inspect/stale banner/typing/SaveCopy/private refusal/publiccopy/search/export remain unobserved; owner deferred extended screen access.
+Owner: Single native actor in future consolidated owner-available session · State: **blocked** · Last observed: 2026-10-22T09:56:14.143962+00:00
+Activity: MAC13 fresh primary data and separate checked Save rehearsals independently qualified; matching ordinary native-ui binary and two unsigned explicit-data wrappers now frozen and independently inventoried. Apps remain unlaunched. Actual controls/outcomes await changed owner availability.
 Next: Wait for changed owner availability without access/unlock attempts. Reconcile then-current reviewed app/helper/data identity and actualinitial versions; perform MAC13 realcontrols with afteradvance/beforecopy readonlybaseline. Preserve original app/workspaces.
 Depends on: privacy-native-fixture-preparation when Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (reported satisfied: true)
 Resource waits: Owner-reported extended Mac screen unavailability; no desktop access/close/launch until changed availability.
@@ -303,6 +303,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `recovery-copy-route-audit` — Check every recovery-copy entry point uses the privacy guard
 - `privacy-native-fixture-preflight` — Prepare a short path to the future Mac privacy check
 - `privacy-native-fixture-preparation` — Prepare fresh privacy test data before the Mac session
+- `native-artifact-preparation` — Prepare a matching Mac app without opening it
 
 ## Dependencies
 
@@ -349,4 +350,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T09:45:08.700280+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T09:56:14.143962+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
