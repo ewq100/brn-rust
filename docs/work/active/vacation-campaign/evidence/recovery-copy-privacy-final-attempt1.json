@@ -1,0 +1,47 @@
+{
+  "observed_at": "2026-10-22T07:06:27.894306+00:00",
+  "exit_code": 101,
+  "stop_reason": null,
+  "exception_type": null,
+  "elapsed_seconds": 25.11068637482822,
+  "disk_free_bytes": 17191907328,
+  "owned_process_group": {
+    "signals": [],
+    "errors": [],
+    "group_probes": 2,
+    "last_group_status": "absent",
+    "term_group_absent": true,
+    "kill_group_absent": null,
+    "leader_reaped": true,
+    "resolved": true
+  },
+  "checkout_unchanged": true,
+  "candidate": "ccd05b28ea7e1d7bcd92fe266f6e37aa23461d1b",
+  "log_validation": {
+    "stages_passed": [
+      "rebuild-identity",
+      "current-inputs"
+    ],
+    "test_summaries": [
+      "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s",
+      "test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s",
+      "test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s",
+      "test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s",
+      "test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.19s",
+      "test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s",
+      "test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s",
+      "test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s"
+    ],
+    "required_tests": {
+      "recovery_copy_refuses_private_basis_current_source_and_captured_scope": true,
+      "recovery_copy_preserves_public_stale_basis_and_replays_immutable_intent": true,
+      "recovery_copy_fails_closed_for_missing_wrong_kind_archived_and_superseded_basis": true,
+      "stale_private_note_copy_stays_out_of_general_knowledge": false,
+      "stale_recovery_from_private_basis_is_refused_in_general_scope": false
+    },
+    "actual_app_desktop_compiled": false,
+    "error_type": null
+  },
+  "qualified": false,
+  "scope": "final recovery-copy privacy service and headless UI qualification; no native observation/account/provider/release/owner acceptance"
+}
