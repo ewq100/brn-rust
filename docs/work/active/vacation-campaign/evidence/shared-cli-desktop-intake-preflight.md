@@ -1,0 +1,20 @@
+# Shared CLI-to-desktop intake preflight
+
+**Result: a narrow current integration gap remains, but no product defect is evidenced.** The unignored tests cover the same reuse semantics at adjacent layers; they do not currently prove that a public CLI process’s persisted useful-intake result is reopened and reused by the desktop test harness. The ignored desktop case is the only located witness of that exact process/store boundary. The historical run makes this a feasible offline qualification, not a reason to require an account or live provider call.
+
+## Source and evidence
+
+- Frozen checkout: `/Users/evokessler/.codex/worktrees/mac-test-roots/brn-rust`, branch `codex/note-exit-preservation-20261022`, clean at `155bb86776eea697135de8d6782bddc4481b3de0` before and after inspection.
+- `crates/brn-desktop/src/threads_intake_tests.rs:309-328` has unignored `a_cli_useful_intake_then_a_desktop_supply_post_one_instruction`, but its `cli_useful_intake` helper at `:244-292` calls `Workspace::source_intake_chat` and `brn_ai::threads::run` in-process; the desktop is then opened over that same `Workspace`. It checks instruction reuse and two failed runs, not public CLI argument/serialization or a separately reopened store.
+- `crates/brn-threads-app/tests/source_intake_chat.rs:786-813` tests the same app-service sequence and instruction reuse with a scripted model. It does not spawn the CLI or desktop.
+- `crates/brn/tests/source_locator.rs:30-94` does spawn the compiled `brn` binary and tests useful intake/path canonicalization, but has no desktop consumer.
+- The only exact combined case is `crates/brn-desktop/src/threads_intake_tests.rs:1052-1085`, ignored pending `BRN_DWR_SHARED_DATA`, `BRN_DWR_SHARED_SOURCE`, and `BRN_DWR_SHARED_CHAT`. It opens the CLI-produced workspace with `Workspace::open`, then checks desktop reuse, no new chat, one additional Run and retained instruction identity.
+- Historical `docs/work/active/daily-workflow-reliability/round3-verification.md:74-84` records the public CLI → ignored desktop case → public CLI again on shared synthetic data: same chat, three failed Runs, one Source, no live Run; the desktop step passed. It explicitly says no provider calls and that both processes used a configured *missing* auth file. That is supporting historical evidence, not a run against this frozen HEAD.
+
+## Supported offline route and limits
+
+The public route is `brn --data-dir ABS init --purpose test`, configure a provider/model with `--auth-file` set to a fresh nonexistent path, then `intake --source ABSOLUTE_LOCAL_MARKDOWN --intent useful`. `crates/brn/src/main.rs:1460-1500,1538-1541,1643-1681` reads the absolute local source, discovers the configured conversion helpers, creates/reuses the useful-intake chat and submits the Run. `crates/brn/src/contract.rs:750-763` only rejects an absent credential *configuration* in machine mode; the historical missing-file setup passes that check, then records `ReconnectNeeded` before network access. The test does not need valid account credentials or a live provider call. It does require a locally built CLI and its normal conversion-helper discovery route; this is an offline local process workload, not a native GUI observation.
+
+For the ignored case, the CLI-produced fresh data path, exact source argument string and returned `thread` ID become `BRN_DWR_SHARED_DATA`, `BRN_DWR_SHARED_SOURCE`, and `BRN_DWR_SHARED_CHAT` for the desktop test. Exact locator spelling matters: the test passes the CLI argument unchanged to the desktop, and round 3 notes this does not qualify macOS picker path spelling. No command or workload was run for this assessment.
+
+**Disposition:** preserve the ignored case and its explicit fixture precondition. If a current cross-process qualification is wanted, the already documented missing-auth synthetic route is sufficient; it requires no account session, live model call, or network. Existing unignored tests provide good semantic coverage, so this is only a narrow integration-qualification gap, not a demonstrated regression or a basis for changing product code.

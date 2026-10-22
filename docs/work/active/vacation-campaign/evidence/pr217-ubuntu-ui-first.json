@@ -1,0 +1,13 @@
+{
+  "observed_at": "2026-10-22T13:29:19.031011+00:00",
+  "candidate": "155bb86776eea697135de8d6782bddc4481b3de0",
+  "run": 39785413553,
+  "job": 119847178585,
+  "outcome": "FAIL346/1/1ignored/3filtered; actual live-text setup \u00f5tere tere \u00f5un vs expected\u00f5 at1827; Close andlaternewassertions not reached.",
+  "source": "Actual GitHub job raw log",
+  "raw_sha256": "46d49feb5f1e3209e45987540415aa595aa7d260524e55ba2a2c8063b137442c",
+  "raw_receipt": "docs/work/active/vacation-campaign/evidence/pr217-ubuntu-ui-first.log.gz",
+  "triage": "Mac-specific cmd-a setup did not select all in Linux test toolkit. Independent diagnosis/reassessment pending; no platform skip or assertion relaxation.",
+  "log_fetch": "Firstghapi rejected terminal escapes; corrected supported --allow-escape-sequences saved raw directly, control-stripped display only.",
+  "qualification_limit": "Optional lane failure is relevant new witness and will be repaired before merge; no SQLiteinitfault indicated."
+}

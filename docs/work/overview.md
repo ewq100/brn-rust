@@ -14,9 +14,9 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:17:19.154236+00:00
-Activity: Reviewed/locally qualified exact155bb published as PR217 and attached. Actual six-file PR diff/base5c606c10 verified, no duplicate open candidate. Required hosted checks running; branch frozen. Preceding-main all four requiredPASS; optional Windows failures retained, Mac/Ubuntu main lanes now completePASS.
-Next: Continue independent headless work while PR217 runs; inspect actual exact-head required checks/live protection before normal merge, then required resulting-main separately. Keep PR head stable; no native/account actor.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:29:19.031011+00:00
+Activity: PR217 exact155bb required MacNativeUI+MacRetrievalPASS; UbuntuNativeUI FAIL346/1/1ignored/3filtered at initialtext1827 beforeClose. Mac-specific cmd-a setup leftoriginaltext. Rawfailure retained, independent crossplatformselection reassessmentactive. No merge despite optionalfailure; do not skip newwitness.
+Next: Confirm supportedneutral editorselection repair, freeze test-only delta, rerun affected desktop/lint and independentreview. Reuseunchangedproduction/component/build; update217normally onlyafterlocalgates andpreserveoriginalCI.
 
 <details>
 <summary>Gate status</summary>
@@ -24,30 +24,10 @@ Next: Continue independent headless work while PR217 runs; inspect actual exact-
 Gates:
 
 - **implementation:** PASS independent complete six-file review155bb, no unresolved findings. Note-owner preservation and captured local-discard; no Store/schema/runtime prompt change.
-- **checks:** PASS local350desktop/0/1ignored; writing44unit+12host and independenthost12; strict combinedlint, ordinarybuild, format/docs. Original failure retained; hosted gates pending.
+- **checks:** Local155bb PASS and requiredMacwidget/retrievalPASS; new Ubuntu fixture setupFAIL1827 beforeClose; relevant correction required beforemerge. Corehosted lanespending.
 - **integration:** Published PR217 exact155bb; four required hosted checks pending. No merge; normal protected integration remains authorized after actual checks.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
-
-</details>
-
-### Assess the remaining manual CLI-to-desktop intake check
-
-Task ID: `shared-cli-desktop-intake-preflight`
-Owner: Bounded Luna read-only preflight; lead disposition · State: **active** · Last observed: 2026-10-22T13:24:50.828093+00:00
-Activity: Sole ignored desktop fixture is explicitly manual and needs prior CLI useful-intake identities. Inspect current unignored coverage and historical round3 qualification before selecting any repeated run or code change.
-Next: Return justified reuse/nochange or concrete current offline gap and required supported route. No CLI/build/test/account/native launch; current accountsession exhausted.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** No change selected; read-only only.
-- **checks:** Current coverage/authorization route assessment pending.
-- **integration:** No candidate.
-- **native:** No native action selected.
-- **owner acceptance:** No owner action selected.
 
 </details>
 
@@ -292,8 +272,9 @@ Waiting:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-121 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+122 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `shared-cli-desktop-intake-preflight` — Assess the remaining manual CLI-to-desktop intake check
 - `overview-growth-preflight` — Assess the growing completed-work list in the startup overview
 - `connections-project-freshness` — Clear outdated Connections after project membership changes
 - `note-exit-preservation-assessment` — Check Close and Quit preserve typing after a refused storage write
@@ -303,7 +284,6 @@ Completion here means the selected task scope is complete; it does not establish
 - `displayed-note-scope-ownership-assessment` — Check that a displayed note keeps its intended writing scope
 - `mac-core-ci-variance-20261022` — Explain the latest longer Mac check using completed job evidence
 - `tls-advisory-resolution` — Resolve recent certificate-trust dependency advisories
-- `helper-zip-advisory-assessment` — Assess document-helper ZIP advisories
 
 ## Dependencies
 
