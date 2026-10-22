@@ -11,8 +11,8 @@ Ready eligibility is a conservative state/admission display derived from reporte
 
 ### Prevent recovery copies from becoming general knowledge accidentally
 
-Owner: Lead design; bounded Luna witness/author; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T07:49:08.056056+00:00
-Activity: Published/attached PR212 exactccd05b28 against main211aded398a, stable5file reviewedcandidate. All4requiredhead jobs running; liveprotection strict/enforcedapp15368 unchanged. PRbodydiscloses originalfailedlocalgate/unresolvedstartupdebt and narrowerpassingproof. No merge yet.
+Owner: Lead design; bounded Luna witness/author; consequential independent Sol review · State: **active** · Last observed: 2026-10-22T08:01:02.040270+00:00
+Activity: PR212 exact ccd05b28: all three required Mac head checks passed; Ubuntu Core/CLI still running normal document-helper checks. Candidate remains frozen; no merge yet.
 Next: KeepPR212headstable; inspect actualall4requiredexacthead andprecedingmain/liveprotection before normalmerge; resultingmainseparate. MatchingrequiredCIstartupfault remainsblocking. Continue independent useful headlesspreflight whileCIruns.
 Depends on: sqlite-cold-start-crash when Independent causal/scope disposition adopted: selected privacy behavior may proceed to normal required CI with unresolved startup debt retained; no full-app or repaired-flake claim. (reported satisfied: true)
 
@@ -23,7 +23,7 @@ Gates:
 
 - **implementation:** PASS independent full049review plus affectedccd correction/contract refresh. BothP2s valid/fixed; productionbytes unchanged sincefullreview; exactfinal5file candidate approved.
 - **checks:** SCOPED privacy evidence PASS; firstfull-localgate remainsFAILED/unqualified atSQLiteinit. Independent source/scope reassessment permits normalrequiredCI with actionableunresolveddebt, not a repairedflake/fullappqualification. Hostedgates pending.
-- **integration:** PUBLISHED PR212ccd05b28; all4requiredhead checks pending. Liveprotection strict/enforced. No merge/resultingmain proof yet.
+- **integration:** PUBLISHED PR212 ccd05b28; three Mac required head checks PASS, Ubuntu pending. No merge or resulting-main proof.
 - **native:** Deferred for owner-reported screenunavailability.
 - **owner acceptance:** No new publication/private-copy policy selected; failclosed originalprivate boundary isexistingcontract.
 
@@ -37,6 +37,27 @@ Attempts:
 - FAILED101/SIGSEGV11, qualificationfalse;9core/66app passed, no desktop/lint/nativebuild result.: First finalsource run, scopedapp+desktop packageclean addressedsharedtargetidentity. Newservicecasesactualpass; neighboringwriting_setup crashedbeforeindividualcompletion. Preserveoriginalfailure; read-onlycrashtriage before anyretry. ([docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.json](active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.json), [docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.log](active/vacation-campaign/evidence/recovery-copy-privacy-final-attempt1.log))
 - DIAGNOSTIC ONLY: exactsamebinary serialized22PASS0.31s; qualifiedfalse, no repair inferred.: One independentlyapproved180second samebinary--test-threads=1 discriminator, no rebuild/source/globaltestsettingchange. Supports concurrency/timing hypothesis; not proven cause. ([docs/work/active/vacation-campaign/evidence/writing-setup-crash-assessment.md](active/vacation-campaign/evidence/writing-setup-crash-assessment.md), [docs/work/active/vacation-campaign/evidence/writing-setup-serial.json](active/vacation-campaign/evidence/writing-setup-serial.json), [docs/work/active/vacation-campaign/evidence/writing-setup-serial.log](active/vacation-campaign/evidence/writing-setup-serial.log))
 - RemaininggatesPASS, overallqualifiedfalse.346desktop/1ignored/3filtered;strictlints/nativebuild/fmt/diff pass90.22s.: One separatelyreviewedcontinuationranonlyunreachedstages onunchangedccd, no replayofsuccessfulcore/app orpackageclean; cleanup/sourceidentityallpass. ([docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.json](active/vacation-campaign/evidence/recovery-copy-remaining.json), [docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.log](active/vacation-campaign/evidence/recovery-copy-remaining.log), [docs/work/active/vacation-campaign/evidence/recovery-copy-remaining-review.md](active/vacation-campaign/evidence/recovery-copy-remaining-review.md))
+
+</details>
+
+### Check comment drafts remain attached to their saved passage
+
+Owner: Bounded Luna inspection; lead decision · State: **active** · Last observed: 2026-10-22T07:59:32.679835+00:00
+Activity: Selected one read-only preflight while PR212 hosted gates run: comment draft, passage anchor, operation identity and note navigation. No source change selected.
+Next: Inspect real callers and existing witnesses; report one concrete defect or coherent ownership improvement only if supported. Otherwise no change.
+
+<details>
+<summary>Checks, evidence and corrections</summary>
+
+Gates:
+
+- **implementation:** Not selected
+- **checks:** No build or test authorized by this preflight
+- **integration:** Inapplicable before selected change
+- **native:** Owner-deferred screen availability
+- **owner acceptance:** Inapplicable to read-only preflight
+
+Evidence: [crates/brn-desktop/src/threads_ui.rs](../../crates/brn-desktop/src/threads_ui.rs)
 
 </details>
 
