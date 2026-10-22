@@ -593,6 +593,161 @@ fn the_four_note_banners_stay_visible_in_write_at_900x600(cx: &mut TestAppContex
 }
 
 #[gpui_kit::test]
+fn stale_private_note_copy_stays_out_of_general_knowledge(cx: &mut TestAppContext) {
+    // A recovery copy of a chat-scoped Note must not silently enter general
+    // Notes, search, or export. Keep this independent of whether the owner
+    // service safely creates a private copy or refuses the copy and retains it.
+    let f = fixture(cx, 900., 600., "Private source baseline.");
+    let private_chat = update(cx, &f, |view, window, cx| {
+        let chat = view
+            .workspace
+            .new_thread("Private recovery scope")
+            .unwrap()
+            .id;
+        let current = view.workspace.store.note(&f.note.id).unwrap().unwrap();
+        let RecordData::Note(mut note) = current.data.clone() else {
+            unreachable!()
+        };
+        note.chat = Some(chat.clone());
+        assert!(matches!(
+            view.workspace
+                .owner_change(
+                    "private-recovery-scope",
+                    &ChangeRequest {
+                        reason: "Keep this synthetic Note in its chat scope".into(),
+                        writes: vec![Put {
+                            id: current.id.clone(),
+                            expected_version: Some(current.version),
+                            archived: false,
+                            data: RecordData::Note(note),
+                        }],
+                        inputs: vec![],
+                    },
+                )
+                .unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        view.open_note_in_context(&f.note.id, None, Some(&chat), window, cx);
+        assert!(
+            view.workspace
+                .store
+                .record_visible_in_chat(&f.note.id, Some(&chat))
+                .unwrap()
+        );
+        assert!(
+            !view
+                .workspace
+                .store
+                .record_visible_in_chat(&f.note.id, None)
+                .unwrap()
+        );
+        chat
+    });
+    change_saved(cx, &f, |note| {
+        note.markdown = "Newer canonical private version.".into()
+    });
+    let source_before = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .workspace
+            .store
+            .note(&f.note.id)
+            .unwrap()
+            .unwrap()
+    });
+    update(cx, &f, |view, window, cx| {
+        let end = view.writing.note_editor.read(cx).value().len();
+        view.writing.note_editor.update(cx, |editor, cx| {
+            editor.set_selected_range(end..end, cx);
+            editor.focus(window, cx);
+        });
+    });
+    on_window(cx, &f, |window, cx| {
+        window.input("\n\nõun 私密 privatezrecoverywitnessmarker", cx)
+    });
+    let (draft, session_before) = cx.read(|cx| {
+        let view = f.view.read(cx);
+        let draft = view.writing.note_editor.read(cx).value().to_string();
+        let session = view
+            .writing
+            .note
+            .as_ref()
+            .unwrap()
+            .session()
+            .unwrap()
+            .clone();
+        (draft, session)
+    });
+    assert_eq!(session_before.note, f.note.id);
+    assert_eq!(session_before.markdown, draft);
+    assert_eq!(row(cx, &f), Some(workbench::WritingRow::DirtyStale));
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("save-buffer-copy").visible());
+    });
+    on_window(cx, &f, |window, cx| window.click("save-buffer-copy", cx));
+    update(cx, &f, |view, _, _| {
+        assert_eq!(
+            view.workspace.store.note(&f.note.id).unwrap().as_ref(),
+            Some(&source_before),
+            "saving a copy leaves the newer canonical private Note unchanged"
+        );
+        assert!(
+            view.workspace
+                .store
+                .record_visible_in_chat(&f.note.id, Some(&private_chat))
+                .unwrap()
+        );
+        assert_eq!(
+            view.workspace
+                .store
+                .edit_session(&session_before.id)
+                .unwrap(),
+            session_before,
+            "the exact original private recovery buffer remains available"
+        );
+        assert!(
+            view.workspace.notes().unwrap().iter().all(|record| {
+                !matches!(&record.data, RecordData::Note(note) if note.markdown == draft)
+            }),
+            "private recovery copy entered general Notes"
+        );
+        assert!(
+            view.workspace
+                .store
+                .records_for_chat(None)
+                .unwrap()
+                .iter()
+                .all(|record| {
+                    !matches!(&record.data, RecordData::Note(note) if note.markdown == draft)
+                })
+        );
+        assert!(
+            view.workspace
+                .search("privatezrecoverywitnessmarker")
+                .unwrap()
+                .is_empty()
+        );
+        let export = view
+            .workspace
+            .export_now(&f._root.path().join("general-private-copy-export"))
+            .unwrap();
+        assert!(
+            export.files.iter().all(|file| file.record != f.note.id),
+            "a private source must not appear in the general export"
+        );
+        assert!(export.files.iter().all(|file| {
+            view.workspace
+                .store
+                .record(&file.record)
+                .unwrap()
+                .is_none_or(|record| {
+                    !matches!(&record.data, RecordData::Note(note) if note.markdown == draft)
+                })
+        }));
+    });
+}
+
+#[gpui_kit::test]
 fn a_dirty_protected_note_keeps_protection_and_shows_unsaved_in_the_bar(cx: &mut TestAppContext) {
     let f = widest(cx, 1250., 860.);
     type_edit(cx, &f, " edited");
