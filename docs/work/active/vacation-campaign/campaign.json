@@ -4231,10 +4231,10 @@
         "title": "Prevent recovery copies from becoming general knowledge accidentally",
         "state": "active",
         "owner": "Lead design; bounded Luna witness/author; consequential independent Sol review",
-        "observed_at": "2026-10-22T08:01:02.040270+00:00",
+        "observed_at": "2026-10-22T08:07:51.915312+00:00",
         "origin": "observed",
-        "activity": "PR212 exact ccd05b28: all three required Mac head checks passed; Ubuntu Core/CLI still running normal document-helper checks. Candidate remains frozen; no merge yet.",
-        "next_action": "KeepPR212headstable; inspect actualall4requiredexacthead andprecedingmain/liveprotection before normalmerge; resultingmainseparate. MatchingrequiredCIstartupfault remainsblocking. Continue independent useful headlesspreflight whileCIruns.",
+        "activity": "PR212 normally merged e918b2b3 after all four exact-head and preceding-main required checks plus live strict/enforced protection passed. Entire integrated tree equals reviewed candidate ccd05b28. Resulting-main checks now separate/pending; unresolved startup debt remains.",
+        "next_action": "Observe all four required resulting-main contexts for exact e918b2b3; preserve optional failures and any actual failure. Keep startup fault unresolved with its trigger; no build implies native acceptance.",
         "depends_on": [
           {
             "task": "sqlite-cold-start-crash",
@@ -4282,12 +4282,14 @@
           "docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.json",
           "docs/work/active/vacation-campaign/evidence/sqlite-crash-reassessment.md",
           "docs/work/active/vacation-campaign/evidence/recovery-copy-privacy-qualification-assessment.md",
-          "docs/work/active/vacation-campaign/evidence/pr212-publication.json"
+          "docs/work/active/vacation-campaign/evidence/pr212-publication.json",
+          "docs/work/active/vacation-campaign/evidence/pr212-premerge.json",
+          "docs/work/active/vacation-campaign/evidence/pr212-integration.json"
         ],
         "gates": {
           "implementation": "PASS independent full049review plus affectedccd correction/contract refresh. BothP2s valid/fixed; productionbytes unchanged sincefullreview; exactfinal5file candidate approved.",
-          "checks": "SCOPED privacy evidence PASS; firstfull-localgate remainsFAILED/unqualified atSQLiteinit. Independent source/scope reassessment permits normalrequiredCI with actionableunresolveddebt, not a repairedflake/fullappqualification. Hostedgates pending.",
-          "integration": "PUBLISHED PR212 ccd05b28; three Mac required head checks PASS, Ubuntu pending. No merge or resulting-main proof.",
+          "checks": "Selected privacy service/control/lint/build checks and all four hosted head checks PASS. Original complete local attempt still FAILED/unqualified at SQLite initialization; independent scope disposition retained.",
+          "integration": "Normal merge e918b2b3, exact qualified-tree equality; all required head/preceding-main/protection PASS. Required resulting-main checks pending.",
           "native": "Deferred for owner-reported screenunavailability.",
           "owner_acceptance": "No new publication/private-copy policy selected; failclosed originalprivate boundary isexistingcontract."
         },
@@ -4468,6 +4470,33 @@
         },
         "resource_plan": "Reuse idle Luna medium helper for bounded read-only comment lifecycle audit; lead owns facts/integration. Maximum one helper while head CI runs, no nested agents/builds/account/native/writes; stop after code/caller/test evidence and a concise report.",
         "attempts": []
+      },
+      {
+        "id": "active-overview-reading-route",
+        "title": "Keep raw check history out of the startup summary",
+        "state": "active",
+        "owner": "Bounded Luna author; independent Sol review; lead integration",
+        "observed_at": "2026-10-22T08:07:51.915312+00:00",
+        "origin": "observed",
+        "activity": "Concrete projection growth: current overview48,851bytes despite completed-task compaction; active/blocked tasks repeat long raw evidence and correction histories already available through the validated task route. Select concise summary correction; no runtime change.",
+        "next_action": "Implement one compact summary route retaining all current facts, gates, dependencies/waits and canonical detailed task access; inspect complete candidate independently and run proportionate Python/CLI/link checks.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "scripts/render-work-overview.py",
+          "scripts/tests/test_work_overview.py",
+          "docs/development/workflow.md"
+        ],
+        "gates": {
+          "implementation": "Pending one bounded author outcome",
+          "checks": "Pending selected existing Python/CLI and projection-growth checks; no Rust/native/account workload",
+          "integration": "Not published; normal live protection and required checks remain required",
+          "native": "Inapplicable to text projection; existing native gates remain deferred",
+          "owner_acceptance": "Current visibility adoption authorizes a concise startup route; no owner acceptance claimed"
+        },
+        "attempts": [],
+        "design": "Preserve validation/atomic output, all current activity/next/state/owner/time/gates/prerequisites/resource waits and graph. Route detailed evidence/attempt history to the existing selected record and --task command; no arbitrary truncation, second tracker, extra output file, default authority path or changed runtime prompts. Earlier PR198 compacted completed tasks only; this addresses concrete active/blocked-history growth.",
+        "resource_plan": "Reuse clean mac-test-roots worker, preserve frozen88c diagnostic commit; Luna medium owns renderer/existing tests and necessary route wording only on new branch from actualmain212. Lead owns all shared campaign records and integration. One author plus consequential independent Sol review within four slots; no nested/build/native/account/provider acquisition."
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
@@ -4482,26 +4511,18 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr212-pending-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T08:03:07.283071+00:00",
-    "runtime_capacity": "Lead owns hosted CI/integration; bounded Luna comment audit complete/no change; independent Sol idle. Four total slots.",
+    "observed_at": "2026-10-22T08:07:51.915312+00:00",
+    "runtime_capacity": "Lead owns resulting-main212 CI/integration and shared records; bounded Luna summary author selected; independent Sol available within four slots.",
     "build_slot": "Free;PR212hostedCI separate, no localtargetwriter. Originalcrashbinaryfrozenoutside target.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [
-      {
-        "pty_session_id": 59945,
-        "pr": 212,
-        "head": "ccd05b28ea7e1d7bcd92fe266f6e37aa23461d1b",
-        "purpose": "Read-only required head check watch every60seconds; no rerun/mutation",
-        "observed_at": "2026-10-22T08:01:02.040270+00:00"
-      }
-    ],
+    "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "Only required Ubuntu head CI remains pending for PR212. Both selected independent preflights found no justified source change; no local build.",
+    "wait_reason": "PR212 merged; resulting-main four contexts pending separately. Independent Python-only overview correction selected.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen4c786a96 test-onlycoldstartupwitness oncodex/sqlite-cold-start-guard from main211; preserveaa25ed CIbranch/oldbackupbranch/frozenCLIartifact.",
-    "fixture_worker_checkout": "mac-test-roots frozen reviewed diagnostic-only88c61 onapprovedproducteae; no build there yet.",
+    "fixture_worker_checkout": "mac-test-roots clean at frozen88c diagnostic; assigned Python-only active overview correction, preserving old branch/commit and all helper artifacts.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
     "required_ci_runs": [
       39742208600
