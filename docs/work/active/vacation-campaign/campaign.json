@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T16:43:46.429Z",
-    "remaining_percent": 31,
-    "reset_unix": 1793083360,
-    "ordinary_work": "Actual 69% used / 31% remaining; ordinaryUsageAllowed=true. No capacity pause. Current selected headless outcomes are complete; resume from new eligible evidence or recorded revisit conditions. Native availability and closed account sessions remain constraints.",
+    "observed_at": "2026-10-22T17:27:50.552Z",
+    "remaining_percent": 100,
+    "reset_unix": 1793294744,
+    "ordinary_work": "Native allowance reset confirmed: 0% used / 100% remaining in the available primary window; ordinaryUsageAllowed=true, secondary unavailable. Capacity is available, but no eligible active/ready headless task or new revisit trigger was found. Closed account sessions and native deferral remain in force.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -5669,20 +5669,21 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr219-verified.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T16:45:05.410707+00:00",
-    "runtime_capacity": "Lead final facts/progress update only. Luna implementation/timing audit and Sol review complete. Old pending-init helper has no observed job; no source writer.",
-    "build_slot": "Free; no active local cargo/rustc/build/test. Final local e5 checks passed once; resulting-main required checks passed without reruns.",
+    "observed_at": "2026-10-22T17:28:32.454323+00:00",
+    "runtime_capacity": "Lead read-only heartbeat reconciliation only; Luna/Sol completed and no active source writer. Old pending-init helper has no observed job.",
+    "build_slot": "Free; no local cargo/rustc/provider/build/test observed.",
     "desktop_account_actor": "No controlled desktop/account actor. Original app63750/wrapper63737 remains untouched. Both account sessions closed, four attempts today retained; native owner-deferral unchanged.",
     "read_only_ci_watches": [],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
-    "integration": "Current main24a77f4f passes all four required checks. Optional main Windows core/UI/combined failures remain retained; optional Ubuntu UI passed. Exact task receipts own detailed identities.",
+    "integration": "Main24a77f4f remains unchanged with all four required checks PASS; same six unrelated open PRs preserved. Automatic preview workflow guard succeeded, but all build/package/publish steps were skipped; no publication is inferred.",
     "wait_reason": "No active/ready headless task after PR219 normal merge and required pre/post checks. Eight remaining tasks are Mac owner-deferred, closed live qualification or startup-crash debt with specific revisit triggers. This is an eligibility handoff, not a quota stop or arbitrary batch wait.",
     "resumption": "AGENTS → overview → selected task. Recheck actual allowance/Git/all PRs/actors. Resume on new useful headless evidence, changed native availability or a recorded revisit trigger. Do not repeat passing checks, reopen closed account sessions or infer current execution from saved observations.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability clean frozen e5e9613b, branch codex/precise-edit-selector-guidance-20261022, PR219 merged24a77f4f; preserve branch/artifacts.",
     "fixture_worker_checkout": "mac-test-roots frozen clean174e381f PR217; no source writer/build/native/account.",
     "documentation_worker_checkout": "architecture-status-route owns privacycandidatecodex/recovery-copy-privacy, frozenccd05b28; no sourcewrites duringreview/gates. Lead owns campaignfacts.",
-    "required_ci_runs": []
+    "required_ci_runs": [],
+    "latest_reconciliation": "docs/work/active/vacation-campaign/evidence/reconciliation-20261022T1725.json"
   },
   "native_availability": {
     "observed_at": "2026-10-21T03:56:18.778419+00:00",
