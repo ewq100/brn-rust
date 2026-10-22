@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T01:59:19.067792+00:00",
+    "observed_at": "2026-10-22T02:01:16.523547+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3098,10 +3098,10 @@
         "title": "Keep previous knowledge findings out of a replacement check",
         "state": "active",
         "owner": "Lead diagnosis/selection; bounded Luna test-only author first",
-        "observed_at": "2026-10-22T01:59:19.067792+00:00",
+        "observed_at": "2026-10-22T02:01:16.523547+00:00",
         "origin": "observed",
-        "activity": "First test-only041e9a33 compiled/executed1FAIL before intended assertion: knowledge-finding-0 has no test registration. This is a harness lookup failure, not a reproduced app defect. Author correcting only observation seam; old source and raw failure preserved.",
-        "next_action": "Remove unregistered finding queries without hooks/source changes; use existing summary/review controls and deterministic immediate Checking frame. Freeze and run second old-source attempt; reassess if it fails for another harness cause.",
+        "activity": "Second b048 actual test-only1FAIL reached pending control but compared AX accessible label to visible Checking text; no selected stale-summary assertion reached. Lead paused after two harness failures and inspected exact pinned TestWindow/ElementSnapshot and button implementation.",
+        "next_action": "One final old-source baseline after replacing unsupported visual-label assumption with registered control disabled=true. Summary/review absence assertions remain unchanged. If another harness failure occurs, defer this seam instead of repeating; no production fix selected.",
         "depends_on": [
           {
             "task": "queued-edit-destination-ownership",
@@ -3116,7 +3116,9 @@
           "docs/work/active/vacation-campaign/connections-pending.md",
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.log",
           "docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh",
-          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md"
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.log",
+          "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.sh"
         ],
         "gates": {
           "implementation": "Hypothesis only; no production change selected before red observation.",
@@ -3133,6 +3135,14 @@
               "docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.log",
               "docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh",
               "docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md"
+            ]
+          },
+          {
+            "outcome": "b0480c3b actual1FAIL at label comparison: tool returns Check knowledge, unavailable: a check is running, rather than visual Checking text. Two harness failures triggered explicit lead reassessment; source hypothesis still unconfirmed.",
+            "change": "Inspected pinned gpui-kit0.7.3 TestWindowExt and gpui-base0.7.3 ElementSnapshot plus actual disabled-button accessibility override. Lead chooses existing disabled() observation as deterministic pending precondition, retaining actual click and unchanged summary/review absence gates. One last baseline attempt; no new hook/framework/product assumption.",
+            "evidence": [
+              "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.log",
+              "docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.sh"
             ]
           }
         ],

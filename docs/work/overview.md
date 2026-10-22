@@ -86,9 +86,9 @@ Attempts:
 
 ### Keep previous knowledge findings out of a replacement check
 
-Owner: Lead diagnosis/selection; bounded Luna test-only author first · State: **active** · Last observed: 2026-10-22T01:59:19.067792+00:00
-Activity: First test-only041e9a33 compiled/executed1FAIL before intended assertion: knowledge-finding-0 has no test registration. This is a harness lookup failure, not a reproduced app defect. Author correcting only observation seam; old source and raw failure preserved.
-Next: Remove unregistered finding queries without hooks/source changes; use existing summary/review controls and deterministic immediate Checking frame. Freeze and run second old-source attempt; reassess if it fails for another harness cause.
+Owner: Lead diagnosis/selection; bounded Luna test-only author first · State: **active** · Last observed: 2026-10-22T02:01:16.523547+00:00
+Activity: Second b048 actual test-only1FAIL reached pending control but compared AX accessible label to visible Checking text; no selected stale-summary assertion reached. Lead paused after two harness failures and inspected exact pinned TestWindow/ElementSnapshot and button implementation.
+Next: One final old-source baseline after replacing unsupported visual-label assumption with registered control disabled=true. Summary/review absence assertions remain unchanged. If another harness failure occurs, defer this seam instead of repeating; no production fix selected.
 Depends on: queued-edit-destination-ownership when Publication only: desktop batchPR204 normally integrated and actual main reconciled; test-only reproduction may use fully qualifiedf79 now. (reported satisfied: false)
 
 <details>
@@ -102,11 +102,12 @@ Gates:
 - **native:** Actual Mac unavailable; toolkit only.
 - **owner acceptance:** No owner decision selected for bounded misleading replacement presentation.
 
-Evidence: [crates/brn-desktop/src/threads_connections.rs](../../crates/brn-desktop/src/threads_connections.rs), [crates/brn-desktop/src/threads_tiled_tests.rs](../../crates/brn-desktop/src/threads_tiled_tests.rs), [docs/work/active/vacation-campaign/connections-pending.md](active/vacation-campaign/connections-pending.md), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.log](active/vacation-campaign/evidence/knowledge-refresh-initial-red.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh](active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md](active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md)
+Evidence: [crates/brn-desktop/src/threads_connections.rs](../../crates/brn-desktop/src/threads_connections.rs), [crates/brn-desktop/src/threads_tiled_tests.rs](../../crates/brn-desktop/src/threads_tiled_tests.rs), [docs/work/active/vacation-campaign/connections-pending.md](active/vacation-campaign/connections-pending.md), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.log](active/vacation-campaign/evidence/knowledge-refresh-initial-red.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh](active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md](active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.log](active/vacation-campaign/evidence/knowledge-refresh-second-red.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.sh](active/vacation-campaign/evidence/knowledge-refresh-second-red.sh)
 
 Attempts:
 
 - 041e9a33 actual test-only1FAIL at missing ElementId knowledge-finding-0 (plain div has no test_support); source hypothesis not reached. Author also lacked PATH rustfmt; lead pinned fmt check identified one wrapping difference, not a compile failure.: Remove only unregistered queries and unnecessary initial clipping preconditions; original review assertions and pending summary/review absence remain. Use pinned rustfmt. No production/test hook or broader policy change; second actual attempt after frozen test-only correction. ([docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.log](active/vacation-campaign/evidence/knowledge-refresh-initial-red.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh](active/vacation-campaign/evidence/knowledge-refresh-initial-red.sh), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md](active/vacation-campaign/evidence/knowledge-refresh-regression-initial.md))
+- b0480c3b actual1FAIL at label comparison: tool returns Check knowledge, unavailable: a check is running, rather than visual Checking text. Two harness failures triggered explicit lead reassessment; source hypothesis still unconfirmed.: Inspected pinned gpui-kit0.7.3 TestWindowExt and gpui-base0.7.3 ElementSnapshot plus actual disabled-button accessibility override. Lead chooses existing disabled() observation as deterministic pending precondition, retaining actual click and unchanged summary/review absence gates. One last baseline attempt; no new hook/framework/product assumption. ([docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.log](active/vacation-campaign/evidence/knowledge-refresh-second-red.log), [docs/work/active/vacation-campaign/evidence/knowledge-refresh-second-red.sh](active/vacation-campaign/evidence/knowledge-refresh-second-red.sh))
 
 </details>
 
@@ -346,4 +347,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T01:59:19.067792+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T02:01:16.523547+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
