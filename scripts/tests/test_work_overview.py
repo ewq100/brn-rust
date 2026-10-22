@@ -213,6 +213,81 @@ class WorkOverviewTests(unittest.TestCase):
         attention_active = output.split("## Needs attention", 1)[1].split("## Completed", 1)[0]
         self.assertNotIn("### Isolated work", attention_active)
 
+    def test_dependencies_show_unfinished_ancestor_closure_and_validate_full_history(self):
+        oldest = task(
+            "older-base",
+            title="Older completed prerequisite",
+            state="complete",
+        )
+        middle = task(
+            "completed-middle",
+            title="Completed prerequisite",
+            state="complete",
+            depends_on=[{
+                "task": "older-base",
+                "condition": "base review completed",
+                "satisfied": True,
+            }],
+        )
+        active = task(
+            "unfinished",
+            title="Unfinished task",
+            depends_on=[{
+                "task": "completed-middle",
+                "condition": "middle verification completed",
+                "satisfied": True,
+            }],
+        )
+        closed_leaf = task(
+            "closed-leaf",
+            title="Unrelated completed task",
+            state="complete",
+            depends_on=[{
+                "task": "closed-base",
+                "condition": "closed base completed",
+                "satisfied": True,
+            }],
+        )
+        closed_base = task(
+            "closed-base",
+            title="Unrelated closed prerequisite",
+            state="complete",
+        )
+
+        output = renderer.render(
+            view(active, middle, oldest, closed_leaf, closed_base), self.output
+        )
+        graph = output.split("```mermaid", 1)[1].split("```", 1)[0]
+        self.assertIn('t0["Unfinished task"]', graph)
+        self.assertIn('t1["Completed prerequisite"]', graph)
+        self.assertIn('t2["Older completed prerequisite"]', graph)
+        self.assertIn(
+            "t2 -->|base review completed (satisfied)| t1", graph
+        )
+        self.assertIn(
+            "t1 -->|middle verification completed (satisfied)| t0", graph
+        )
+        self.assertNotIn("Unrelated completed task", graph)
+        self.assertNotIn("Unrelated closed prerequisite", graph)
+
+        all_completed = renderer.render(
+            view(middle, oldest), self.output
+        )
+        self.assertNotIn("## Dependencies", all_completed)
+
+        hidden_cycle_a = task(
+            "hidden-a",
+            state="complete",
+            depends_on=[{"task": "hidden-b", "condition": "b", "satisfied": True}],
+        )
+        hidden_cycle_b = task(
+            "hidden-b",
+            state="complete",
+            depends_on=[{"task": "hidden-a", "condition": "a", "satisfied": True}],
+        )
+        with self.assertRaisesRegex(renderer.InvalidRecord, "cycle"):
+            renderer.render(view(hidden_cycle_a, hidden_cycle_b), self.output)
+
     def test_reported_condition_satisfaction_not_prerequisite_state_controls_next(self):
         complete_task = task("done", state="complete")
         waiting = task("waiting", title="Waiting", state="ready", depends_on=[{"task": "done", "condition": "owner acceptance complete", "satisfied": False}])

@@ -140,18 +140,13 @@ Completion here means the selected task scope is complete; it does not establish
 
 ```mermaid
 graph TD
-  t1["Mac feedback choices expose their selected state"]
-  t2["Confirm checks after the Mac correction merged"]
   t6["Prepare grouped-review test workspace"]
   t7["Expose grouped Include/Omit selection to accessibility tools"]
   t8["Check grouped review controls on the Mac"]
-  t13["Integrate remote progress routing and verification records"]
   t28["Preserve unsent drafts when a note creates its writing conversation"]
   t30["Show unavailable skill choices correctly in inactive Projects"]
-  t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
-  t7 -->|PR179 normally merged so documentation can build on the integrated source. (satisfied)| t13
   t28 -->|PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (satisfied)| t30
 ```
 

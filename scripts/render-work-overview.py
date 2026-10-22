@@ -226,7 +226,19 @@ def render(view, output_path, record_path=DEFAULT_RECORD):
                         out.extend((_task_block(task), ""))
                 else:
                     out.extend((_task_block(task), ""))
-    edges = [(task, dep) for task in tasks for dep in task["depends_on"]]
+    needed = {task["id"] for task in tasks if task["state"] != "complete"}
+    pending = list(needed)
+    while pending:
+        for dependency in by_id[pending.pop()]["depends_on"]:
+            if dependency["task"] not in needed:
+                needed.add(dependency["task"])
+                pending.append(dependency["task"])
+    edges = [
+        (task, dependency)
+        for task in tasks
+        if task["id"] in needed
+        for dependency in task["depends_on"]
+    ]
     if edges:
         ids = {task["id"]: f"t{index}" for index, task in enumerate(tasks)}
         connected = {task["id"] for task, _ in edges} | {dep["task"] for _, dep in edges}
