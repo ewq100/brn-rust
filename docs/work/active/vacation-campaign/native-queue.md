@@ -323,8 +323,8 @@ rendering, IME, VoiceOver or owner acceptance.
 
 This follows the changed exit boundary in [PR217](https://github.com/ewq100/brn-rust/pull/217),
 not an unchanged replay of MAC-01/04. Current readiness lives in
-`note-exit-native-qualification` in campaign state. [Local qualification](evidence/note-exit-final-local.json)
-binds source155bb867; the [independent review](evidence/note-exit-candidate-review.md)
+`note-exit-native-qualification` in campaign state. [Local qualification](evidence/clean-checkpoint-final-local.json)
+binds source174e381f; the [independent review](evidence/note-exit-clean-final-review.md)
 and retained failed Quit check distinguish toolkit callbacks from native termination.
 No fixture or app is prepared or launched while owner-reported screen unavailability remains.
 
