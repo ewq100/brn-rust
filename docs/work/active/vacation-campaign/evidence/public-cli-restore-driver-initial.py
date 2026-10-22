@@ -8,7 +8,6 @@ from pathlib import Path
 import shutil
 import signal
 import sqlite3
-import stat
 import subprocess
 import sys
 import threading
@@ -18,13 +17,6 @@ import uuid
 FROZEN_BIN = Path('/Users/evokessler/.codex/artifacts/brn-precise-edit-quote-28fd581e/brn')
 FROZEN_SHA256 = '242b141ce518f0ff87d58f7e36b3250269c344211d1552a3d96206cfc62e5f7d'
 FROZEN_SOURCE = '28fd581ea8451ecd95d899248132b62c8f890d03'
-MAIN205 = '0016b21057b44fa9a64cef2d77d4ae09e317f540'
-RUNTIME_PATHS = [
-    'Cargo.toml', 'Cargo.lock', 'rust-toolchain.toml',
-    'crates/brn', 'crates/brn-ai', 'crates/brn-threads-core',
-    'crates/brn-threads-app', 'crates/brn-threads-intake',
-    'crates/brn-intake', 'crates/brn-retrieval',
-]
 MAX_BODY = 8 * 1024 * 1024
 MAX_BACKUP = 128 * 1024 * 1024
 MAX_ROOT = 512 * 1024 * 1024
@@ -94,25 +86,6 @@ def tree_bytes(root):
     return sum(p.stat().st_size for p in root.rglob('*') if p.is_file())
 
 
-def tree_snapshot(root):
-    entries = []
-    for path in sorted(root.rglob('*')):
-        rel = str(path.relative_to(root))
-        meta = path.lstat()
-        if stat.S_ISLNK(meta.st_mode):
-            raise Stop('unexpected symlink in completed restore tree')
-        if stat.S_ISDIR(meta.st_mode):
-            entries.append({'path': rel, 'kind': 'directory',
-                            'mode': stat.S_IMODE(meta.st_mode)})
-        elif stat.S_ISREG(meta.st_mode):
-            entries.append({'path': rel, 'kind': 'file',
-                            'mode': stat.S_IMODE(meta.st_mode), 'bytes': meta.st_size,
-                            'sha256': sha256_file(path)})
-        else:
-            raise Stop('unexpected nonregular object in completed restore tree')
-    return entries
-
-
 def normalized_expected(source):
     expected = json.loads(json.dumps(source))
     profile = expected['tables'].get('workspace_profile')
@@ -149,89 +122,34 @@ def safe_env(root):
                        'MISTRAL_', 'HF_')
     env = {k: v for k, v in os.environ.items()
            if not k.startswith(secret_prefixes) and k not in {'GITHUB_TOKEN', 'GH_TOKEN'}}
-    tmp = root / 'tmp'
+    home, tmp = root / 'home', root / 'tmp'
+    home.mkdir(mode=0o700, exist_ok=True)
     tmp.mkdir(mode=0o700, exist_ok=True)
-    env.update(TMPDIR=str(tmp), TMP=str(tmp), TEMP=str(tmp))
+    env.update(HOME=str(home), TMPDIR=str(tmp), TMP=str(tmp), TEMP=str(tmp))
     return env
 
 
-def start_drains(proc, prefix):
-    stats = {'stdout': {'complete': False}, 'stderr': {'complete': False}}
-    paths = {'stdout': prefix.with_name(prefix.name + '.stdout.prefix'),
-             'stderr': prefix.with_name(prefix.name + '.stderr.prefix')}
-    threads = []
-    for name, stream in [('stdout', proc.stdout), ('stderr', proc.stderr)]:
-        thread = threading.Thread(target=bounded_drain,
-                                  args=(stream, paths[name], stats[name]), daemon=True)
-        threads.append(thread)
-        thread.start()
-    return stats, paths, threads
-
-
-def finish_drains(stats, threads, timeout=10):
-    for thread in threads:
-        thread.join(timeout=timeout)
-    for name, thread in zip(('stdout', 'stderr'), threads):
-        stats[name]['thread_alive'] = thread.is_alive()
-        stats[name]['complete'] = bool(stats[name].get('complete')) and not thread.is_alive()
-    return all(s['complete'] and not s.get('error') for s in stats.values())
-
-
-def run_cli(binary, root, data_dir, args, label, attempts, timeout=CLI_TIMEOUT):
+def run_cli(binary, root, data_dir, args, label, timeout=CLI_TIMEOUT):
     argv = [str(binary), '--json', '--data-dir', str(data_dir), *args]
-    attempt = {'label': label, 'argv': argv[1:], 'timeout_seconds': timeout,
-               'status': 'starting'}
-    attempts.append(attempt)
     started = time.monotonic()
-    proc = None
-    state = {'signal_attempted': False, 'reaped': False}
-    stats = None
-    threads = []
-    paths = {}
-    limit_at = started + timeout
     try:
-        proc = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, env=safe_env(root))
-        stats, paths, threads = start_drains(proc, root / f'{label}.capture')
-        try:
-            exit_code = proc.wait(timeout=timeout)
-            state['reaped'] = True
-        except subprocess.TimeoutExpired:
-            attempt['status'] = 'timeout'
-            signal_owned_child_once(proc, state)
-            wait_owned_child(proc, state, 10)
-            exit_code = proc.returncode
-        attempt['exit'] = exit_code
-        attempt['seconds'] = round(time.monotonic() - started, 3)
-        attempt['timed_out'] = time.monotonic() >= limit_at and attempt.get('status') == 'timeout'
-    except BaseException as error:
-        attempt['status'] = 'launch_or_wait_error'
-        attempt['error_type'] = type(error).__name__
-        attempt['error'] = str(error)[:300]
-        raise
-    finally:
-        if proc is not None and not state['reaped']:
-            try:
-                if proc.poll() is None:
-                    signal_owned_child_once(proc, state)
-                wait_owned_child(proc, state, 10)
-            except BaseException as cleanup_error:
-                attempt['cleanup_error'] = type(cleanup_error).__name__
-                attempt['cleanup_error_text'] = str(cleanup_error)[:200]
-        if threads:
-            ok = finish_drains(stats, threads)
-            attempt['output'] = stats
-            attempt['output_prefix_paths'] = {k: str(v) for k, v in paths.items()}
-            attempt['output_complete'] = ok
-            if not ok:
-                attempt['status'] = 'output_capture_failed'
-        attempt.setdefault('exit', proc.returncode if proc is not None else None)
-        attempt.setdefault('seconds', round(time.monotonic() - started, 3))
-    if attempt.get('status') == 'starting':
-        attempt['status'] = 'ok' if attempt.get('exit') == 0 else 'nonzero_exit'
-    if attempt.get('status') != 'ok':
-        raise Stop(f'{label} did not complete with successful bounded output capture')
-    return attempt
+        result = subprocess.run(argv, stdin=subprocess.DEVNULL,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                env=safe_env(root), timeout=timeout, check=False)
+    except subprocess.TimeoutExpired as e:
+        raise Stop(f'{label} exceeded {timeout}s') from e
+    elapsed = time.monotonic() - started
+    receipt = {
+        'label': label, 'argv': argv[1:], 'exit': result.returncode,
+        'seconds': round(elapsed, 3), 'stdout_bytes': len(result.stdout),
+        'stderr_bytes': len(result.stderr),
+        'stdout_sha256': hashlib.sha256(result.stdout).hexdigest(),
+        'stderr_sha256': hashlib.sha256(result.stderr).hexdigest(),
+    }
+    if result.returncode != 0:
+        raise Stop(f'{label} failed with exit {result.returncode}; '
+                   f'stdout/stderr hashes are in the receipt')
+    return receipt
 
 
 def stage_sizes(parent):
@@ -257,37 +175,26 @@ def bounded_drain(stream, destination, result):
     digest = hashlib.sha256()
     total = 0
     saved = 0
-    try:
-        with destination.open('wb') as output:
-            while True:
-                block = stream.read(64 * 1024)
-                if not block:
-                    break
-                digest.update(block)
-                total += len(block)
-                if saved < 64 * 1024:
-                    keep = block[:64 * 1024 - saved]
-                    output.write(keep)
-                    saved += len(keep)
-        result.update(bytes=total, saved_bytes=saved, sha256=digest.hexdigest(), complete=True)
-    except BaseException as error:
-        result.update(bytes=total, saved_bytes=saved, sha256=digest.hexdigest(),
-                      complete=False, error=type(error).__name__)
+    with destination.open('wb') as output:
+        while True:
+            block = stream.read(64 * 1024)
+            if not block:
+                break
+            digest.update(block)
+            total += len(block)
+            if saved < 64 * 1024:
+                keep = block[:64 * 1024 - saved]
+                output.write(keep)
+                saved += len(keep)
+    result.update(bytes=total, saved_bytes=saved, sha256=digest.hexdigest())
 
 
-def signal_owned_child_once(proc, state):
-    if proc.poll() is not None or state['signal_attempted']:
+def stop_child_once(proc, state):
+    if proc.poll() is not None or state['kill_attempted']:
         return
-    state['signal_attempted'] = True
+    state['kill_attempted'] = True
     proc.kill()
-
-
-def wait_owned_child(proc, state, timeout=10):
-    if state['reaped']:
-        return proc.returncode
-    result = proc.wait(timeout=timeout)
-    state['reaped'] = True
-    return result
+    proc.wait(timeout=10)
 
 
 def source_preflight(repo, binary):
@@ -307,41 +214,41 @@ def source_preflight(repo, binary):
         provenance_ok = False
     if not provenance_ok:
         raise Stop('frozen binary/source qualification receipt does not prove this artifact')
-    for ref in (FROZEN_SOURCE, MAIN205):
+    for ref in (FROZEN_SOURCE, 'main205'):
         r = subprocess.run(['git', '-C', str(repo), 'rev-parse', '--verify', ref],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
         if r.returncode != 0:
             raise Stop(f'required source ref is unavailable: {ref}')
+    scoped = ['Cargo.toml', 'Cargo.lock', 'crates']
     dirty = subprocess.run(['git', '-C', str(repo), 'status', '--porcelain',
-                            '--untracked-files=all', '--', *RUNTIME_PATHS],
+                            '--untracked-files=all', '--', *scoped],
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     if dirty.returncode != 0 or dirty.stdout.strip():
-        raise Stop('runtime/Cargo/toolchain paths have staged/working/untracked changes')
+        raise Stop('runtime crates or Cargo graph have staged/working/untracked changes')
     head_diff = subprocess.run(['git', '-C', str(repo), 'diff', '--quiet',
-                                MAIN205, 'HEAD', '--', *RUNTIME_PATHS], check=False)
+                                'main205', 'HEAD', '--', *scoped], check=False)
     if head_diff.returncode == 1:
-        raise Stop('actual worktree HEAD runtime/Cargo/toolchain differs from pinned main205')
+        raise Stop('actual worktree HEAD runtime crates/Cargo graph differs from main205')
     if head_diff.returncode != 0:
         raise Stop('could not compare actual worktree HEAD to main205')
     diff = subprocess.run(
-        ['git', '-C', str(repo), 'diff', '--quiet', FROZEN_SOURCE, MAIN205,
-         '--', *RUNTIME_PATHS], check=False)
+        ['git', '-C', str(repo), 'diff', '--quiet', FROZEN_SOURCE, 'main205',
+         '--', *scoped], check=False)
     if diff.returncode == 1:
-        raise Stop('runtime/Cargo/toolchain differs between frozen source and pinned main205')
+        raise Stop('runtime crate/Cargo graph differs between frozen source and main205')
     if diff.returncode != 0:
         raise Stop('could not verify frozen source against main205')
-    head = subprocess.check_output(['git', '-C', str(repo), 'rev-parse', 'HEAD'], text=True).strip()
     return {'binary': str(binary), 'binary_sha256': actual,
-            'frozen_source': FROZEN_SOURCE, 'main205_sha': MAIN205,
-            'actual_head': head, 'compared_paths': RUNTIME_PATHS,
-            'source_to_main205_diff': 'empty', 'main205_to_actual_head_diff': 'empty',
-            'selected_paths_working_or_untracked_diff': 'empty'}
+            'frozen_source': FROZEN_SOURCE,
+            'main205': subprocess.check_output(
+                ['git', '-C', str(repo), 'rev-parse', 'main205'], text=True).strip(),
+            'runtime_crates_and_cargo_graph_diff': 'empty'}
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--repo', required=True, type=Path,
-                    help='the reviewed worktree containing pinned source commits')
+                    help='the reviewed worktree containing main205 and frozen source')
     ap.add_argument('--root', required=True, type=Path,
                     help='absolute, nonexistent task-owned data/evidence root')
     ap.add_argument('--run-qualification', action='store_true',
@@ -365,23 +272,14 @@ def main():
                'source_proof': proof, 'commands': [], 'outcome': 'running'}
     receipt_path = root / 'receipt.json'
     child = None
-    child_state = {'signal_attempted': False, 'reaped': False}
-    restore_attempt = None
-    restore_stats = None
-    restore_paths = None
-    restore_threads = []
-    restore_output_finished = False
+    child_state = {'kill_attempted': False}
     body_path = root / 'synthetic-note.md'
-    interrupted = False
-    evidence_error = None
-
     try:
         env_root = root
         source = root / 'source'
         destination_parent = root / 'destination-parent'
         source.mkdir(mode=0o700)
         destination_parent.mkdir(mode=0o700)
-        complete_dest = destination_parent / 'complete-restored'
         dest = destination_parent / 'restored'
         backup = root / 'source-backup.sqlite3'
         sentinel = destination_parent / 'sibling-sentinel.txt'
@@ -395,18 +293,17 @@ def main():
         receipt['fixture'] = {'note_title': NOTE_TITLE, 'note_bytes': len(body),
                               'note_sha256': hashlib.sha256(body).hexdigest(),
                               'sibling_sentinel_sha256': hashlib.sha256(sentinel_bytes).hexdigest()}
-
-        run_cli(FROZEN_BIN, env_root, source, ['init', '--purpose', 'test'],
-                'init-test', receipt['commands'])
+        receipt['commands'].append(run_cli(FROZEN_BIN, env_root, source,
+                                          ['init', '--purpose', 'test'], 'init-test'))
         if tree_bytes(root) > MAX_ROOT:
             raise Stop('task root exceeded 512 MiB after init')
-        run_cli(FROZEN_BIN, env_root, source,
-                ['note-create', '--title', NOTE_TITLE, '--text-file', str(body_path)],
-                'note-create', receipt['commands'])
+        receipt['commands'].append(run_cli(FROZEN_BIN, env_root, source,
+                                          ['note-create', '--title', NOTE_TITLE,
+                                           '--text-file', str(body_path)], 'note-create'))
         if tree_bytes(root) > MAX_ROOT:
             raise Stop('task root exceeded 512 MiB after Note creation')
-        run_cli(FROZEN_BIN, env_root, source, ['backup', '--destination', str(backup)],
-                'backup', receipt['commands'])
+        receipt['commands'].append(run_cli(FROZEN_BIN, env_root, source,
+                                          ['backup', '--destination', str(backup)], 'backup'))
         if not backup.is_file() or backup.stat().st_size > MAX_BACKUP:
             raise Stop('source backup is absent or exceeds 128 MiB')
         if tree_bytes(root) > MAX_ROOT:
@@ -423,111 +320,84 @@ def main():
         source_note = note_bytes(source_snapshot)
         if source_note != body:
             raise Stop('public CLI source Note bytes differ from supplied UTF-8 bytes')
-        if source_snapshot['tables']['edit_session_bindings']:
+        source_bindings = source_snapshot['tables']['edit_session_bindings']
+        if source_bindings:
             raise Stop('fixture unexpectedly has edit-session bindings')
-        if complete_dest.exists() or dest.exists() or stage_sizes(destination_parent):
+        if dest.exists() or dest.is_symlink() or stage_sizes(destination_parent):
             raise Stop('fresh restore destination parent is not empty of restore stages')
         receipt['source_snapshot_sha256'] = snapshot_digest(source_snapshot)
         receipt['source_note_sha256'] = hashlib.sha256(source_note).hexdigest()
 
-        # Preserve a prior complete public restore and prove its complete file tree
-        # stays byte-for-byte and path-for-path unchanged through the later retry.
-        run_cli(FROZEN_BIN, env_root, complete_dest,
-                ['restore', '--source', str(backup)], 'restore-complete', receipt['commands'])
-        complete_snapshot = readonly_snapshot(complete_dest / DB_NAME)
-        if complete_snapshot != expected:
-            raise Stop('initial complete public restore differs from expected data')
-        complete_tree = tree_snapshot(complete_dest)
-        receipt['initial_complete_restore'] = {
-            'path': str(complete_dest), 'tree': complete_tree,
-            'tree_sha256': hashlib.sha256(canonical(complete_tree)).hexdigest(),
-        }
-        if tree_bytes(root) > MAX_ROOT:
-            raise Stop('task root exceeded 512 MiB after complete restore')
-        if dest.exists() or dest.is_symlink() or stage_sizes(destination_parent):
-            raise Stop('destination parent changed after complete restore')
-
-        # The only interruption launch. Record before process creation so every
-        # launch, wait, signal and capture outcome remains in the receipt.
+        # Keep only this process handle. No process-name or process-group kills.
+        out_path, err_path = root / 'restore.stdout.prefix', root / 'restore.stderr.prefix'
         argv = [str(FROZEN_BIN), '--json', '--data-dir', str(dest),
                 'restore', '--source', str(backup)]
-        restore_attempt = {'label': 'restore-interrupt-once', 'argv': argv[1:],
-                           'observation_seconds': OBSERVE_SECONDS, 'status': 'starting'}
-        receipt['commands'].append(restore_attempt)
         child_started = time.monotonic()
-        try:
-            child = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
-                                     stderr=subprocess.PIPE, env=safe_env(env_root))
-            restore_stats, restore_paths, restore_threads = start_drains(
-                child, root / 'restore-interrupt.capture')
-        except BaseException as launch_error:
-            restore_attempt['status'] = 'launch_or_capture_start_error'
-            restore_attempt['error_type'] = type(launch_error).__name__
-            restore_attempt['error'] = str(launch_error)[:300]
-            raise
-
+        child = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                 stderr=subprocess.PIPE, env=safe_env(env_root))
+        stream_stats = {'stdout': {}, 'stderr': {}}
+        drains = [threading.Thread(target=bounded_drain,
+                                   args=(child.stdout, out_path, stream_stats['stdout']), daemon=True),
+                  threading.Thread(target=bounded_drain,
+                                   args=(child.stderr, err_path, stream_stats['stderr']), daemon=True)]
+        for thread in drains:
+            thread.start()
         observed = None
         deadline = child_started + OBSERVE_SECONDS
-        while time.monotonic() < deadline:
-            child_status = child.poll()
-            if child_status is not None:
-                restore_attempt['status'] = 'finished_before_partial_observation'
-                restore_attempt['exit'] = child_status
-                break
-            stages = stage_sizes(destination_parent)
-            qualifying = [s for s in stages
-                          if 1024 * 1024 < s['workspace_bytes'] < backup.stat().st_size
-                          and sum(x['bytes'] for x in s['db_files']) > 1024 * 1024]
-            if qualifying:
-                observed = qualifying[0]
-                break
-            time.sleep(0.01)
+        try:
+            while time.monotonic() < deadline:
+                status = child.poll()
+                if status is not None:
+                    receipt['restore_natural_exit'] = status
+                    break
+                stages = stage_sizes(destination_parent)
+                qualifying = [s for s in stages if 1024 * 1024 < s['workspace_bytes'] < backup.stat().st_size
+                              and sum(x['bytes'] for x in s['db_files']) > 1024 * 1024]
+                if qualifying:
+                    observed = qualifying[0]
+                    break
+                time.sleep(0.01)
+            if observed is None and child.poll() is None:
+                receipt['outcome'] = 'inconclusive_observation_window_elapsed'
+                receipt['stage_sizes_at_window_end'] = stage_sizes(destination_parent)
+                stop_child_once(child, child_state)
+                receipt['restore_child_exit'] = child.returncode
+                raise Stop('no qualifying partial stage observed within ten seconds')
+            if observed is None:
+                receipt['outcome'] = 'inconclusive_child_finished_before_observation'
+                raise Stop('restore child finished before a partial stage was observed')
+            receipt['observed_stage'] = observed
+            stop_child_once(child, child_state)
+            receipt['restore_child_exit'] = child.returncode
+            post = stage_sizes(destination_parent)
+            receipt['post_kill_stages'] = post
+            receipt['restore_kill_signal'] = signal.SIGKILL
+            if child.returncode != -signal.SIGKILL:
+                receipt['outcome'] = 'inconclusive_child_not_signal_terminated'
+                raise Stop('owned restore child did not report SIGKILL termination')
+            if dest.exists() or dest.is_symlink():
+                receipt['outcome'] = 'inconclusive_final_path_exists_after_kill'
+                raise Stop('final destination exists after killed restore')
+            kept = [s for s in post if Path(s['path']).exists()]
+            partial = [s for s in kept if 0 < s['workspace_bytes'] < backup.stat().st_size]
+            if not partial:
+                receipt['outcome'] = 'inconclusive_post_kill_stage_not_proven_partial'
+                raise Stop('post-kill stage bytes do not prove a retained partial copy')
+            receipt['qualified_partial_stage'] = partial[0]
+        finally:
+            if child.poll() is None:
+                try:
+                    stop_child_once(child, child_state)
+                except Exception as cleanup_error:
+                    receipt['restore_cleanup_error'] = type(cleanup_error).__name__
+            for thread in drains:
+                thread.join(timeout=10)
+            receipt['restore_output'] = stream_stats
 
-        if observed is None and child.poll() is None:
-            restore_attempt['status'] = 'observation_window_elapsed_cleanup_kill'
-            receipt['stage_sizes_at_window_end'] = stage_sizes(destination_parent)
-            raise Stop('no qualifying partial stage observed within ten seconds')
-        if observed is None:
-            receipt['outcome'] = 'inconclusive_child_finished_before_observation'
-            raise Stop('restore child finished before a partial stage was observed')
-
-        restore_attempt['observed_stage'] = observed
-        signal_owned_child_once(child, child_state)
-        restore_attempt['signal_attempted'] = child_state['signal_attempted']
-        restore_attempt['signal'] = signal.SIGKILL
-        wait_owned_child(child, child_state, 10)
-        restore_attempt['exit'] = child.returncode
-        restore_attempt['reaped'] = child_state['reaped']
-        restore_attempt['seconds'] = round(time.monotonic() - child_started, 3)
-        post = stage_sizes(destination_parent)
-        receipt['post_kill_stages'] = post
-        exact_stage = next((s for s in post if s['path'] == observed['path']), None)
-        receipt['post_kill_observed_stage'] = exact_stage
-        if child.returncode != -signal.SIGKILL:
-            restore_attempt['status'] = 'child_not_signal_terminated'
-            raise Stop('owned restore child did not report SIGKILL termination')
-        if dest.exists() or dest.is_symlink():
-            restore_attempt['status'] = 'final_path_exists_after_kill'
-            raise Stop('final destination exists after killed restore')
-        if exact_stage is None or not (0 < exact_stage['workspace_bytes'] < backup.stat().st_size):
-            restore_attempt['status'] = 'post_kill_partial_not_proven'
-            raise Stop('same observed stage is not retained as a proven partial copy')
-        receipt['qualified_partial_stage'] = exact_stage
-
-        output_ok = finish_drains(restore_stats, restore_threads)
-        restore_output_finished = True
-        restore_attempt['output'] = restore_stats
-        restore_attempt['output_prefix_paths'] = {k: str(v) for k, v in restore_paths.items()}
-        restore_attempt['output_complete'] = output_ok
-        if not output_ok:
-            restore_attempt['status'] = 'output_capture_failed'
-            raise Stop('interrupted restore stdout/stderr capture did not complete')
-        restore_attempt['status'] = 'killed_partial_stage_qualified'
-
-        # Exactly one retry, reachable only after retained same-stage partial proof.
-        run_cli(FROZEN_BIN, env_root, dest, ['restore', '--source', str(backup)],
-                'restore-retry', receipt['commands'])
-        if not dest.is_dir():
+        receipt['commands'].append(run_cli(FROZEN_BIN, env_root, dest,
+                                          ['restore', '--source', str(backup)],
+                                          'restore-retry'))
+        if dest.exists() is False or not dest.is_dir():
             raise Stop('retry did not publish the restored destination')
         remaining = stage_sizes(destination_parent)
         receipt['remaining_restore_stages'] = remaining
@@ -549,73 +419,30 @@ def main():
             raise Stop('restored Note UTF-8 bytes differ from source')
         receipt['restored_snapshot_sha256'] = snapshot_digest(restored)
         receipt['restored_note_sha256'] = hashlib.sha256(restored_note).hexdigest()
-        final_complete_tree = tree_snapshot(complete_dest)
-        if final_complete_tree != receipt['initial_complete_restore']['tree']:
-            raise Stop('the earlier complete restore output tree changed')
-        receipt['earlier_complete_restore_unchanged'] = True
         if tree_bytes(root) > MAX_ROOT:
             raise Stop('task root exceeded 512 MiB')
         receipt['outcome'] = 'qualified_partial_copy_retry_and_exact_data_checks_passed'
-
-    except BaseException as error:
-        interrupted = isinstance(error, KeyboardInterrupt)
+    except Exception as e:
+        if child is not None and child.poll() is None:
+            try:
+                stop_child_once(child, child_state)
+            except Exception as cleanup_error:
+                receipt['cleanup_error'] = type(cleanup_error).__name__
         if receipt.get('outcome') == 'running':
-            receipt['outcome'] = 'interrupted_nonqualified' if interrupted else 'failed_or_inconclusive'
-        receipt['reason'] = str(error)[:400] or type(error).__name__
+            receipt['outcome'] = 'failed_or_inconclusive'
+        receipt['reason'] = str(e)[:400]
     finally:
-        # Signal at most once, but always make a bounded wait/reap attempt even
-        # when the signal call or an earlier wait failed.
-        if child is not None:
-            if child.poll() is None:
-                try:
-                    signal_owned_child_once(child, child_state)
-                    if restore_attempt is not None:
-                        restore_attempt['signal_attempted'] = child_state['signal_attempted']
-                        restore_attempt['signal'] = signal.SIGKILL
-                        if restore_attempt.get('status') == 'starting':
-                            restore_attempt['status'] = 'cleanup_killed_owned_child'
-                except BaseException as cleanup_error:
-                    receipt['cleanup_signal_error'] = type(cleanup_error).__name__
-                    receipt['cleanup_signal_error_text'] = str(cleanup_error)[:200]
-            try:
-                wait_owned_child(child, child_state, 10)
-            except BaseException as cleanup_error:
-                receipt['cleanup_reap_error'] = type(cleanup_error).__name__
-                receipt['cleanup_reap_error_text'] = str(cleanup_error)[:200]
-            if restore_attempt is not None:
-                restore_attempt['exit'] = child.returncode
-                restore_attempt['reaped'] = child_state['reaped']
-                if not child_state['reaped']:
-                    receipt['outcome'] = 'failed_owned_child_not_reaped'
-        if restore_threads and not restore_output_finished:
-            try:
-                output_ok = finish_drains(restore_stats, restore_threads)
-                restore_attempt['output'] = restore_stats
-                restore_attempt['output_prefix_paths'] = {k: str(v) for k, v in restore_paths.items()}
-                restore_attempt['output_complete'] = output_ok
-                if not output_ok:
-                    receipt['outcome'] = 'failed_output_capture'
-            except BaseException as drain_error:
-                restore_attempt['output_capture_error'] = type(drain_error).__name__
-                receipt['outcome'] = 'failed_output_capture'
         try:
             if body_path.exists():
                 body_path.unlink()
             receipt['task_root_bytes'] = tree_bytes(root)
             receipt_path.write_text(json.dumps(receipt, indent=2, ensure_ascii=False) + '\n',
                                     encoding='utf-8')
-        except BaseException as write_error:
-            evidence_error = f'{type(write_error).__name__}: {str(write_error)[:200]}'
-            print(f'receipt_persistence_failed={evidence_error}', file=sys.stderr)
-
+        except Exception as e:
+            print(f'receipt_write_error={type(e).__name__}', file=sys.stderr)
     print(json.dumps({'receipt': str(receipt_path), 'outcome': receipt['outcome'],
                       'source_backup_sha256': receipt.get('source_backup', {}).get('sha256'),
-                      'task_root_bytes': receipt.get('task_root_bytes'),
-                      'receipt_written': evidence_error is None}, ensure_ascii=False))
-    if evidence_error is not None:
-        return 2
-    if interrupted:
-        return 130
+                      'task_root_bytes': receipt.get('task_root_bytes')}, ensure_ascii=False))
     return 0 if receipt['outcome'] == 'qualified_partial_copy_retry_and_exact_data_checks_passed' else 2
 
 
