@@ -1,0 +1,15 @@
+test_dependencies_show_unfinished_ancestor_closure_and_validate_full_history (test_work_overview.WorkOverviewTests.test_dependencies_show_unfinished_ancestor_closure_and_validate_full_history) ... FAIL
+
+======================================================================
+FAIL: test_dependencies_show_unfinished_ancestor_closure_and_validate_full_history (test_work_overview.WorkOverviewTests.test_dependencies_show_unfinished_ancestor_closure_and_validate_full_history)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/evokessler/.codex/worktrees/export-durability/brn-rust/scripts/tests/test_work_overview.py", line 270, in test_dependencies_show_unfinished_ancestor_closure_and_validate_full_history
+    self.assertNotIn("Unrelated completed task", graph)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Unrelated completed task' unexpectedly found in '\ngraph TD\n  t0["Unfinished task"]\n  t1["Completed prerequisite"]\n  t2["Older completed prerequisite"]\n  t3["Unrelated completed task"]\n  t4["Unrelated closed prerequisite"]\n  t1 -->|middle verification completed (satisfied)| t0\n  t2 -->|base review completed (satisfied)| t1\n  t4 -->|closed base completed (satisfied)| t3\n'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.001s
+
+FAILED (failures=1)

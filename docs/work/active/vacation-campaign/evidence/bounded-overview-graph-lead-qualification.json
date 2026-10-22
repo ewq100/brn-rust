@@ -1,0 +1,77 @@
+{
+  "observed_at": "2026-10-22T14:06:02.008711+00:00",
+  "candidate": "8a175c4099e2ec89b892fccf169c9b417d0ddbf6",
+  "lead_before": "b3b02635da24deb095cb7d92763ad903a71669db",
+  "source_sha256": {
+    "scripts/render-work-overview.py": "11534fe2574dac7d6cef45166383ead4d3afba39157ede749352d9cf00f22794",
+    "scripts/tests/test_work_overview.py": "4573f284dcbbd79e433d030a6faefa976e6e8ca2a2db453386b599bebc9c2911"
+  },
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "-m",
+        "unittest",
+        "scripts.tests.test_work_overview",
+        "-v"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": "test_active_and_blocked_history_stays_in_record_not_summary (scripts.tests.test_work_overview.WorkOverviewTests.test_active_and_blocked_history_stays_in_record_not_summary) ... ok\ntest_active_only_custom_projection_links_record_and_all_task_ids (scripts.tests.test_work_overview.WorkOverviewTests.test_active_only_custom_projection_links_record_and_all_task_ids) ... ok\ntest_completed_index_is_bounded_chronological_and_older_task_remains_retrievable (scripts.tests.test_work_overview.WorkOverviewTests.test_completed_index_is_bounded_chronological_and_older_task_remains_retrievable) ... ok\ntest_current_check_does_not_rewrite (scripts.tests.test_work_overview.WorkOverviewTests.test_current_check_does_not_rewrite) ... ok\ntest_dependencies_show_unfinished_ancestor_closure_and_validate_full_history (scripts.tests.test_work_overview.WorkOverviewTests.test_dependencies_show_unfinished_ancestor_closure_and_validate_full_history) ... ok\ntest_malformed_update_preserves_old_file_and_check_detects_staleness_without_write (scripts.tests.test_work_overview.WorkOverviewTests.test_malformed_update_preserves_old_file_and_check_detects_staleness_without_write) ... ok\ntest_next_requires_complete_prerequisite_and_no_resource_wait (scripts.tests.test_work_overview.WorkOverviewTests.test_next_requires_complete_prerequisite_and_no_resource_wait) ... ok\ntest_rejects_duplicate_ids_unknown_dependencies_and_bad_evidence (scripts.tests.test_work_overview.WorkOverviewTests.test_rejects_duplicate_ids_unknown_dependencies_and_bad_evidence) ... ok\ntest_rejects_missing_id_cycle_and_naive_timestamp (scripts.tests.test_work_overview.WorkOverviewTests.test_rejects_missing_id_cycle_and_naive_timestamp) ... ok\ntest_render_keeps_observation_static_gates_distinct_and_resources_out_of_graph (scripts.tests.test_work_overview.WorkOverviewTests.test_render_keeps_observation_static_gates_distinct_and_resources_out_of_graph) ... ok\ntest_reported_condition_satisfaction_not_prerequisite_state_controls_next (scripts.tests.test_work_overview.WorkOverviewTests.test_reported_condition_satisfaction_not_prerequisite_state_controls_next) ... ok\ntest_task_lookup_and_check_are_mutually_exclusive (scripts.tests.test_work_overview.WorkOverviewTests.test_task_lookup_and_check_are_mutually_exclusive) ... ok\ntest_task_lookup_does_not_create_missing_output_parent (scripts.tests.test_work_overview.WorkOverviewTests.test_task_lookup_does_not_create_missing_output_parent) ... ok\ntest_task_lookup_prints_exact_selected_object_and_preserves_record_and_output (scripts.tests.test_work_overview.WorkOverviewTests.test_task_lookup_prints_exact_selected_object_and_preserves_record_and_output) ... ok\ntest_task_lookup_unknown_id_returns_two_without_output (scripts.tests.test_work_overview.WorkOverviewTests.test_task_lookup_unknown_id_returns_two_without_output) ... ok\ntest_task_lookup_validates_other_tasks_before_printing_selection (scripts.tests.test_work_overview.WorkOverviewTests.test_task_lookup_validates_other_tasks_before_printing_selection) ... ok\n\n----------------------------------------------------------------------\nRan 16 tests in 0.015s\n\nOK\n"
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/render-work-overview.py"
+      ],
+      "exit_code": 0,
+      "stdout": "updated work overview: /Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/docs/work/overview.md\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/render-work-overview.py",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "work overview is current: /Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/docs/work/overview.md\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "python3",
+        "scripts/check-markdown-links.py"
+      ],
+      "exit_code": 0,
+      "stdout": "Markdown links: 890 files, 3116 local links, 0 failures; historical outgoing policy=docs/archive/ only\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "authoritative_record_bytes_unchanged": true,
+  "record_sha256": "2a35b4f4ca845a98fff0a98e6b8d0265daa6088c304654207677cc2e688e8adb",
+  "before": {
+    "bytes": 24592,
+    "lines": 345
+  },
+  "after": {
+    "bytes": 21204,
+    "lines": 311
+  },
+  "limits": [
+    "Saved output size only, no measured token/time saving.",
+    "No runtime/Rust/native/account change.",
+    "Worker record not imported; actual lead record preserved; tooling unpublished.",
+    "Intermediate author fixture failure report preserved; raw output overwritten by author, not independently reconstructed."
+  ]
+}

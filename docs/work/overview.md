@@ -24,31 +24,10 @@ Next: Wait for corrected Ubuntu widget lane and all four required exact174 hoste
 Gates:
 
 - **implementation:** PASS independent complete final174 review; prior P1 Quit and P2 clean-checkpoint findings valid/fixed; no unresolved source findings.
-- **checks:** PASS all selected local174 stages,351desktop/0/1ignored. Hosted final174 checks not yet started; no native/owner acceptance claim.
+- **checks:** PASS all selected local174 stages,351desktop/0/1ignored. Hosted final174 docs/MacNativeUI/MacRetrieval PASS at14:02; coreMac/coreUbuntu/correctedUbuntuUI pending at14:06. OptionalWindows failure unchanged Unix-only brn-ai source; native separate.
 - **integration:** PR217 exact174 published and attached; fresh required checks pending. Normal protected merge authorized after live checks; no merge yet.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
-
-</details>
-
-### Keep completed history from crowding the startup summary
-
-Task ID: `bounded-completed-overview`
-Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **active** · Last observed: 2026-10-22T14:02:34.261681+00:00
-Activity: Ready unpublished ddf candidate retained. Additional measured startup noise: current dependency graph20edges/33nodes includes13closed-onlyedges;7edges/12nodes are ancestors needed by unfinished work. Select bounded projection-only extension before publication; retain all task validation, conditions and historical lookup.
-Next: Luna extends existing graph regression and renderer to show unfinished work dependency closure, including completed prerequisites; preserve complete record/acyclic validation and exact task lookup. Freeze for complete independent review and focused qualification, then publish after217normalmerge.
-Depends on: note-exit-preservation when Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: false)
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Reviewed ddf completed index retained; graph projection extension selected/in progress, not yet reviewed or qualified.
-- **checks:** Prior15Python and current-record checks apply only to ddf. New graph boundary needs meaningful before-source witness and final focused qualification; no Rust/native change.
-- **integration:** No PR yet; source candidate preserved. Publication awaits preceding217normalmerge, not new owner approval.
-- **native:** Inapplicable: development view only.
-- **owner acceptance:** No new product meaning or shipped behavior.
 
 </details>
 
@@ -237,6 +216,31 @@ Waiting:
 
 - resource: Owner-reported extended Mac screen unavailability; no access/unlock/close/launch until changed availability.
 
+### Keep completed history from crowding the startup summary
+
+Task ID: `bounded-completed-overview`
+Owner: Bounded Luna medium author; lead integration; independent Sol review · State: **ready** · Last observed: 2026-10-22T14:08:35.125495+00:00
+Activity: Complete8a175c40 independently APPROVED/no findings; lead adopted byte-identical final renderer/tests while preserving actual current record.16PythonPASS/renderer/docs/diffPASS. Additionalgraphprojection24592→21204bytes,345→311lines on same record; no task/history deletion. Unpublished, waiting217normalmerge.
+Next: After PR217 normalmerge, reconcile actualmain in worker without replacing campaign records; regenerate worker derivative, verify unchanged reviewed source/test, publish complete bounded-overview outcome and inspect exact-head/protection/resulting-main normally.
+Depends on: note-exit-preservation when Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: false)
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** PASS complete8a175c40 independent review; latest10 completed index plus unfinished dependency ancestor closure; full record validation/lookup preserved. Byte-identical scripts adopted in lead.
+- **checks:** PASS final16Python/renderercheck/docs890files3116links0fail/diff. Actual lead record bytes unchanged across qualification; meaningful graph baseline raw retained, intermediate fixture correction output-loss limit disclosed.
+- **integration:** No PR yet; source candidate preserved. Publication awaits preceding217normalmerge, not new owner approval.
+- **native:** Inapplicable: development view only.
+- **owner acceptance:** No new product meaning or shipped behavior.
+
+</details>
+
+Waiting:
+
+- prerequisite note-exit-preservation: Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (reported satisfied: false; task state: active)
+
 ### Observe note preservation during Mac Close and Quit
 
 Task ID: `note-exit-native-qualification`
@@ -285,56 +289,22 @@ Completion here means the selected task scope is complete; it does not establish
 
 ```mermaid
 graph TD
-  t1["Mac feedback choices expose their selected state"]
-  t2["Confirm checks after the Mac correction merged"]
   t6["Prepare grouped-review test workspace"]
   t7["Expose grouped Include/Omit selection to accessibility tools"]
   t8["Check grouped review controls on the Mac"]
-  t13["Integrate remote progress routing and verification records"]
-  t28["Preserve unsent drafts when a note creates its writing conversation"]
-  t30["Show unavailable skill choices correctly in inactive Projects"]
   t32["Make visible note rows discoverable to Mac accessibility"]
   t34["Expose readable Needs you menu choices to Mac accessibility"]
-  t67["Assess explicit destination ownership for file imports"]
-  t68["Give Run coordination a coherent state and transition owner"]
-  t69["Keep Stop and send continuation attached to its Run"]
-  t74["Prepare exact edits from one unique quoted passage"]
-  t75["Assess one owner for reference-search cancellation and freshness"]
-  t76["Keep a queued-message edit attached to its original chat"]
-  t80["Keep previous knowledge findings out of a replacement check"]
-  t101["Read saved Settings without decoding every note"]
-  t103["Keep shared build-cache use focused on Mac and Linux"]
-  t106["Prevent recovery copies from becoming general knowledge accidentally"]
-  t107["Diagnose the database crash during simultaneous startup"]
   t113["Prepare fresh privacy test data before the Mac session"]
   t115["Observe private and public recovery-copy controls on the Mac"]
-  t116["Assess a proportionate dependency advisory check"]
-  t117["Resolve recent certificate-trust dependency advisories"]
-  t118["Check maintained dependency locks against current advisories"]
-  t119["Assess document-helper ZIP advisories"]
-  t120["Document the existing offline native-library setup"]
   t122["Clear outdated Connections after project membership changes"]
   t123["Observe Connections after Project Unlink and Undo on the Mac"]
   t127["Preserve live-only note typing before normal Close or Quit"]
   t129["Keep completed history from crowding the startup summary"]
   t130["Observe note preservation during Mac Close and Quit"]
-  t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
-  t7 -->|PR179 normally merged so documentation can build on the integrated source. (satisfied)| t13
-  t28 -->|PR184 is normally merged so the separate skill candidate can publish against its integrated parent; resulting-main gates remain separate before final integration. (satisfied)| t30
   t32 -->|Integration/publication only: PR186 normally merged before this dependent branch publishes against main; implementation can use reviewed9b0b13e1 now. (satisfied)| t34
-  t69 -->|Prior state candidates integrate before publication of this dependent candidate. (satisfied)| t67
-  t68 -->|Prior activity candidate normally merged and whole-tree equal before publishing; its resultingmain remains separately required before this merge. (satisfied)| t69
-  t74 -->|Quote and trace source chain normally integrated; main203e4bb65e3 reconciled. Shared desktop publication may proceed after full combined review; merge still requires actual preceding-main checks. (satisfied)| t75
-  t75 -->|Reference implementation dee is independently reviewed/qualified and included unchanged in combinedf79; no intermediate merge required. (satisfied)| t76
-  t76 -->|Desktop batch204 normally integrated42906128 and current main reconciled; publication tree equality verified. (satisfied)| t80
-  t101 -->|Publication only: PR210 normally integrated, then reconcile CI-only diff onto actualmain. Implementation may use already reviewed/qualifiedeae now. (satisfied)| t103
-  t107 -->|Independent causal/scope disposition adopted: selected privacy behavior may proceed to normal required CI with unresolved startup debt retained; no full-app or repaired-flake claim. (satisfied)| t106
   t113 -->|Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (satisfied)| t115
-  t116 -->|Official version matches and maintained build graph establish a concrete follow-up instead of an unbounded audit (satisfied)| t117
-  t118 -->|Actual maintained-helper scans establish concrete ZIP advisories for exposure/repair assessment (satisfied)| t119
-  t117 -->|Publication only: reconcile the normally integrated TLS repair before publishing a documentation-only follow-up; implementation/review may overlap hosted checks (satisfied)| t120
   t122 -->|Connections repair normally merged and all four required resulting-main checks PASS. (satisfied)| t123
   t127 -->|Publication only: PR217 normally merged; reconcile actual main before publishing separate tooling candidate. (not satisfied)| t129
   t127 -->|PR217 normally merged with all four required resulting-main checks PASS. (not satisfied)| t130
@@ -342,4 +312,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T14:02:34.261681+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T14:08:35.125495+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
