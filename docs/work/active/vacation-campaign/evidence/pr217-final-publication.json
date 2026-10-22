@@ -1,0 +1,55 @@
+{
+  "observed_at": "2026-10-22T13:53:09.798532+00:00",
+  "pr": {
+    "baseRefOid": "5c606c102d5d121105896c48dc7b39e78d26bdb3",
+    "files": [
+      {
+        "path": "crates/brn-desktop/src/threads_ui.rs",
+        "additions": 123,
+        "deletions": 30,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-desktop/src/threads_writing_tests.rs",
+        "additions": 469,
+        "deletions": 6,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-writing-ui/README.md",
+        "additions": 2,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-writing-ui/src/native.rs",
+        "additions": 1,
+        "deletions": 1,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "crates/brn-writing-ui/src/note.rs",
+        "additions": 81,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      },
+      {
+        "path": "docs/architecture/threads-behavior.md",
+        "additions": 2,
+        "deletions": 0,
+        "changeType": "MODIFIED"
+      }
+    ],
+    "headRefOid": "174e381f29518f3ec903a5c166b13a87ac33fcfa",
+    "state": "OPEN",
+    "statusCheckRollup": [],
+    "url": "https://github.com/ewq100/brn-rust/pull/217"
+  },
+  "remote_ref": "174e381f29518f3ec903a5c166b13a87ac33fcfa",
+  "qualified_tree": "be2b8858f672e4dcb96fab2a16c380d39d58cd7f",
+  "local": "clean-checkpoint-final-local.json",
+  "review": "note-exit-clean-final-review.md",
+  "normal_push": true,
+  "artifact_attachment": "Existing217 attached; no duplicate PR",
+  "qualification": "Fresh exact174 hosted checks pending; no merge, native observation or owner acceptance."
+}

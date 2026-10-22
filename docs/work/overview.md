@@ -14,9 +14,9 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:51:44.987607+00:00
-Activity: Complete final six-file174e381f independently approved with no remaining findings. Reviewer verified all final local receipts:351desktop/0/1ignored, component/host, strict combined lint and ordinary build. Clean saved-checkpoint false refusal fixed narrowly without writes/reload; live-only refusal/confirmation guards unchanged.
-Next: Normally push final174 to existing217, then keep it frozen for corrected Ubuntu widget and all four required exact-head checks. Inspect live protection/preceding-main before normal merge; resulting-main separately.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:53:09.798532+00:00
+Activity: Final reviewed/qualified174e381f normally published to existingPR217. Actual six-file diff, remote ref and PR head agree; body rewritten around complete final behavior. Branch frozen for fresh exact-head hosted checks. All351local desktop tests and selected component/host/lint/build/format/docs passed; native deferred.
+Next: Wait for corrected Ubuntu widget lane and all four required exact174 hosted checks, inspect live protection and preceding main. Merge normally only after all applicable gates settle; inspect resulting-main separately. Then publish the ready bounded-overview candidate against reconciled main.
 
 <details>
 <summary>Gate status</summary>
@@ -25,7 +25,7 @@ Gates:
 
 - **implementation:** PASS independent complete final174 review; prior P1 Quit and P2 clean-checkpoint findings valid/fixed; no unresolved source findings.
 - **checks:** PASS all selected local174 stages,351desktop/0/1ignored. Hosted final174 checks not yet started; no native/owner acceptance claim.
-- **integration:** Final174 approved locally, existing217 still at660a at this observation; normal update and fresh exact-head hosted checks pending.
+- **integration:** PR217 exact174 published and attached; fresh required checks pending. Normal protected merge authorized after live checks; no merge yet.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
 
