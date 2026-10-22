@@ -199,12 +199,49 @@ mod tests {
     #[cfg(unix)]
     use crate::stage::tree;
     use crate::stage::{STAGE_MARKER, stages};
+    #[cfg(unix)]
+    use std::{
+        process::{Child, ExitStatus, Stdio},
+        thread,
+        time::Instant,
+    };
 
     /// The staged workspace and its stage wrapper are both gone.
     fn assert_stage_gone(staging: &Path) {
         assert!(!staging.exists());
         let wrapper = staging.parent().unwrap();
         assert!(!wrapper.exists(), "{} must be removed", wrapper.display());
+    }
+
+    #[cfg(unix)]
+    struct OwnedChild(Option<Child>);
+
+    #[cfg(unix)]
+    impl OwnedChild {
+        fn kill_and_reap(&mut self) -> ExitStatus {
+            let child = self.0.as_mut().expect("owned child is present");
+            let status = match child.try_wait().unwrap() {
+                Some(status) => status,
+                None => {
+                    child.kill().unwrap();
+                    child.wait().unwrap()
+                }
+            };
+            self.0.take();
+            status
+        }
+    }
+
+    #[cfg(unix)]
+    impl Drop for OwnedChild {
+        fn drop(&mut self) {
+            if let Some(mut child) = self.0.take() {
+                if child.try_wait().ok().flatten().is_none() {
+                    let _ = child.kill();
+                }
+                let _ = child.wait();
+            }
+        }
     }
 
     #[test]
@@ -337,12 +374,89 @@ mod tests {
     #[cfg(unix)]
     #[test]
     fn a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent() {
+        const CHILD_ROOT: &str = "BRN_TEST_RESTORE_PROCESS_STAGE_ROOT";
+        if let Some(root) = std::env::var_os(CHILD_ROOT) {
+            let root = PathBuf::from(root);
+            let backup = root.join("backup.sqlite3");
+            let destination = root.join("child-process-destination");
+            let stage = StagedRestore::create(&backup, &destination).unwrap();
+            let ready = root.join("restore-process-stage-ready");
+            fs::write(&ready, stage._stage.path().as_os_str().as_encoded_bytes()).unwrap();
+            let started = Instant::now();
+            while started.elapsed() < Duration::from_secs(30) {
+                assert!(stage.directory.is_dir());
+                thread::sleep(Duration::from_millis(20));
+            }
+            panic!("restore stage child exceeded its 30-second fail-safe");
+        }
+
         let (root, backup) = fixture();
         let backup_bytes = fs::read(&backup).unwrap();
         let earlier = root.path().join("earlier");
         drop(Store::restore(&backup, &earlier).unwrap());
         let earlier_before = tree(&earlier);
-        // Killed after the full copy was staged, before publication.
+
+        let ready = root.path().join("restore-process-stage-ready");
+        let mut child = OwnedChild(Some(
+            std::process::Command::new(std::env::current_exe().unwrap())
+                .arg("--exact")
+                .arg("restore::tests::a_killed_restores_stage_is_removed_by_the_next_restore_into_that_parent")
+                .env(CHILD_ROOT, root.path())
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+                .unwrap(),
+        ));
+        let ready_deadline = Instant::now() + Duration::from_secs(10);
+        while !ready.exists() && Instant::now() < ready_deadline {
+            if let Some(status) = child.0.as_mut().unwrap().try_wait().unwrap() {
+                panic!("restore stage child exited before readiness: {status}");
+            }
+            thread::sleep(Duration::from_millis(10));
+        }
+        assert!(ready.is_file(), "restore stage child did not become ready");
+        let reported = PathBuf::from(
+            String::from_utf8(fs::read(&ready).unwrap())
+                .expect("stage path is UTF-8 under the canonical temporary root"),
+        );
+        let canonical_root = root.path().canonicalize().unwrap();
+        assert_eq!(reported.parent(), Some(canonical_root.as_path()));
+        assert!(
+            reported
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .starts_with(StageKind::Restore.prefix())
+        );
+        assert!(stages(&canonical_root, StageKind::Restore).contains(&reported));
+        let child_tree = tree(&reported);
+        assert!(reported.join("workspace").join(DATABASE_FILENAME).is_file());
+
+        let live_probe = canonical_root.join("live-process-probe");
+        drop(Store::restore(&backup, &live_probe).unwrap());
+        assert!(reported.is_dir(), "a live process stage must remain");
+        assert_eq!(
+            tree(&reported),
+            child_tree,
+            "a live process stage is untouched"
+        );
+        assert!(!live_probe.join(STAGE_MARKER).exists());
+
+        let status = child.kill_and_reap();
+        use std::os::unix::process::ExitStatusExt;
+        assert_eq!(
+            status.signal(),
+            Some(9),
+            "the owned child must end by SIGKILL"
+        );
+        assert_eq!(
+            tree(&reported),
+            child_tree,
+            "SIGKILL leaves the staged copy"
+        );
+        assert!(!root.path().join("child-process-destination").exists());
+
+        // Preserve the direct wrapper-abandon and same-process full-copy witnesses.
         let StagedRestore {
             _stage: full,
             directory,
@@ -360,6 +474,7 @@ mod tests {
         let destination = root.path().join("restored");
         let store = Store::restore(&backup, &destination).unwrap();
         assert!(store.records().unwrap().is_empty());
+        assert!(!reported.exists(), "the killed process stage must be swept");
         assert!(!full.exists(), "the full leftover copy must be removed");
         assert!(!wrapper.exists(), "the leftover wrapper must be removed");
         assert_eq!(
