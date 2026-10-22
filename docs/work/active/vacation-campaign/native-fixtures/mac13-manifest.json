@@ -1,0 +1,147 @@
+{
+  "scenario": "MAC-13",
+  "purpose": "Fresh CLI-prepared synthetic privacy/control fixtures for later actual native qualification; this is a preparation record, not native observation or authority to access the desktop.",
+  "product_source": "3827d6a13953533c7322fd7157d975a32dee5cb2",
+  "runner_source": "f28a164f393348cb8b6e3878af90816aba8c928e",
+  "runner_sha256": "cd272ff3734a2a46c2a83ff944a9d2f15d768e6bef45de03df49378009854813",
+  "prepared_at": "2026-10-22T09:40:13.402882+00:00",
+  "preparation_receipt": "../evidence/mac13-preparation-attempt2.json",
+  "original_failure": "../evidence/mac13-preparation-attempt1.json",
+  "creation_route": "Checked CLI init / thread-start / chat intake / note-create; private fixture initial text explicitly established through token-held owner Save. No SQL repair.",
+  "original_scenario_manifest_unchanged_sha256": "ae1bef0ad38920e2dfb85eecbe8970fba0152d9a6fad82781aa8779bf0fae128",
+  "fixtures": {
+    "save-final.txt": {
+      "bytes": 126,
+      "sha256": "210db7014db2a357be04eb2ad4072a77d1a0f717028768cd99fbcea3f156f48e"
+    },
+    "save-initial.txt": {
+      "bytes": 78,
+      "sha256": "15c388ac54fea9240dedabf612bc6e6c7a4aca0c5fa5d3a785a32d7079f36c25"
+    },
+    "unsaved-recovery.txt": {
+      "bytes": 152,
+      "sha256": "81e6224b4042ad42b4f68549095ec221cb8df312eb5cd39715b30f127a723529"
+    }
+  },
+  "input_paths": {
+    "general_markdown": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/fixture-inputs/general-initial.md",
+    "private_markdown": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/fixture-inputs/private-initial.md",
+    "save_final": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/fixture-inputs/save-final.txt",
+    "unsaved_recovery": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/fixture-inputs/unsaved-recovery.txt"
+  },
+  "primary_roots": [
+    {
+      "chat_id": "a1111e60-1412-4b1a-8db0-81bec9ef6e27:0",
+      "data_dir": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/private-primary/data",
+      "general_note_ids": [
+        "0d6ae2dd-c7d4-4cd7-b391-6920bcef09a5:0"
+      ],
+      "history_count": 6,
+      "note_id": "f342a2f6-c25f-4652-aa6c-bfdb53699e4c:1",
+      "note_import_full": true,
+      "note_markdown_sha256": "15c388ac54fea9240dedabf612bc6e6c7a4aca0c5fa5d3a785a32d7079f36c25",
+      "note_protected": true,
+      "note_version": 2,
+      "record_count": 8,
+      "records_sha256": "2522066a7bb8be66b292483eb5032a3b13ef57d77ac64b2d821299c8ce5ca766",
+      "recovery_count": 0,
+      "scope": "private-chat",
+      "sentinel_id": "0d6ae2dd-c7d4-4cd7-b391-6920bcef09a5:0",
+      "sentinel_markdown_sha256": "f0080d5927c676704b16a90857d0de12bae3d3d366c196a6c514a94291d03ceb",
+      "sentinel_version": 1
+    },
+    {
+      "chat_id": null,
+      "data_dir": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/general-primary/data",
+      "general_note_ids": [
+        "e0b850f8-6a1b-4994-8c31-6d0055706d08:0",
+        "f62e4518-edc4-45e8-8c69-a049f3d0775f:0"
+      ],
+      "history_count": 4,
+      "note_id": "e0b850f8-6a1b-4994-8c31-6d0055706d08:0",
+      "note_import_full": false,
+      "note_markdown_sha256": "15c388ac54fea9240dedabf612bc6e6c7a4aca0c5fa5d3a785a32d7079f36c25",
+      "note_protected": false,
+      "note_version": 1,
+      "record_count": 4,
+      "records_sha256": "fafbf39bc2be6a4b0b827488a2ff5cd7fea02a390d370f4f1ed34df004b82450",
+      "recovery_count": 0,
+      "scope": "general",
+      "sentinel_id": "f62e4518-edc4-45e8-8c69-a049f3d0775f:0",
+      "sentinel_markdown_sha256": "f0080d5927c676704b16a90857d0de12bae3d3d366c196a6c514a94291d03ceb",
+      "sentinel_version": 1
+    }
+  ],
+  "separate_rehearsals": [
+    {
+      "base_markdown_sha256": "15c388ac54fea9240dedabf612bc6e6c7a4aca0c5fa5d3a785a32d7079f36c25",
+      "base_version": 2,
+      "chat_id": "74d4f0b2-f4cb-4e8b-a590-efdc6c6d4834:0",
+      "data_dir": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/private-rehearsal/data",
+      "history_count_after": 7,
+      "history_count_before": 6,
+      "note_id": "21d8f755-c0df-4af5-9bf0-9fd4097a42d1:1",
+      "note_metadata_preserved": true,
+      "other_records_unchanged": true,
+      "purpose": "rehearsal",
+      "recovery_count_after": 0,
+      "saved_markdown_sha256": "210db7014db2a357be04eb2ad4072a77d1a0f717028768cd99fbcea3f156f48e",
+      "saved_version": 3,
+      "sentinel_id": "b4309ac5-5a48-4afa-a076-21c50dfffb75:0",
+      "sentinel_unchanged": true,
+      "session_id": "31669716-75d4-48d8-8631-7884fc51c927",
+      "token_bytes_retained": false,
+      "token_path": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/secrets/private-rehearsal.token",
+      "workspace": "private-rehearsal"
+    },
+    {
+      "base_markdown_sha256": "15c388ac54fea9240dedabf612bc6e6c7a4aca0c5fa5d3a785a32d7079f36c25",
+      "base_version": 1,
+      "chat_id": null,
+      "data_dir": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/workspaces/general-rehearsal/data",
+      "history_count_after": 5,
+      "history_count_before": 4,
+      "note_id": "c7096032-623a-4003-887c-eed8a6fe5713:0",
+      "note_metadata_preserved": true,
+      "other_records_unchanged": true,
+      "purpose": "rehearsal",
+      "recovery_count_after": 0,
+      "saved_markdown_sha256": "210db7014db2a357be04eb2ad4072a77d1a0f717028768cd99fbcea3f156f48e",
+      "saved_version": 2,
+      "sentinel_id": "f34bf032-8982-4e3d-a55e-19544ae47c5e:0",
+      "sentinel_unchanged": true,
+      "session_id": "78c16f7b-4ade-40d2-8736-e20c97952475",
+      "token_bytes_retained": false,
+      "token_path": "/private/tmp/mac13-preparation-20261022T094000Z-54e0da7785/secrets/general-rehearsal.token",
+      "workspace": "general-rehearsal"
+    }
+  ],
+  "artifacts": {
+    "brn": {
+      "bytes": 71481552,
+      "path": "/Users/evokessler/.codex/artifacts/brn-mac13-3827d6a1/brn",
+      "sha256": "186a6cae4da53d42b3b0c3dd16544c748f580f35c0fafe8dd5596582bfe6c3d2"
+    },
+    "brn-xberg-helper": {
+      "bytes": 131732512,
+      "path": "/Users/evokessler/.codex/artifacts/brn-mac13-3827d6a1/brn-xberg-helper",
+      "sha256": "4f46c81f3e649b4f86bd4a66c109fc86889e3fefac83b8777d9956662e74a36b"
+    },
+    "brn-xberg-helper-brn": {
+      "bytes": 131924176,
+      "path": "/Users/evokessler/.codex/artifacts/brn-mac13-3827d6a1/brn-xberg-helper-brn",
+      "sha256": "24662cd03614003e42687d7ec070c3e219a0ccbf65d38c2bf1160457fbce9ccc"
+    }
+  },
+  "limits": [
+    "Private import normalizes one soft-line; first attempt failed exact bytes and remains preserved. Setup Save changes canonical revision1→2 using unchanged independent expected bytes; import fidelity is not qualified.",
+    "Primary private basis2 and general basis1 remain at initial fixture text. Later stale-edit advance must wait until the actual app has opened the Note clean; read actual versions again.",
+    "CLI artifacts do not qualify an immutable native app. Then-current reviewed source, ordinary app and helpers must be reconciled before native use.",
+    "Actual app opening/attachment Inspect/stale banner/typing/SaveCopy/private refusal/public success/general search/export and owner acceptance remain pending.",
+    "Preserve failed and successful roots; do not mutate rehearsal roots as substitutes for primary native cases. Original MAC-01/03/04 app-created-root rule remains unchanged.",
+    "Current task/admission/native availability live in campaign.json; this dated manifest never authorizes an action."
+  ],
+  "native_observed": false,
+  "owner_accepted": false,
+  "independent_result_review": "../evidence/mac13-preparation-result-review.md"
+}

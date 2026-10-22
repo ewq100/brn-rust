@@ -239,9 +239,16 @@ qualification. Do not change navigation/one-shot actions as if they were toggles
 This is a scenario definition for the changed recovery-copy control (`save-buffer-copy`) in
 [PR212](https://github.com/ewq100/brn-rust/pull/212), merged as
 `e918b2b303f44cfca6cbd49347ea5b4fd4e335f1`. Current readiness and the owner-deferred
-desktop gate remain in campaign state. No fixture or matching immutable app has
-been prepared for this scenario; there has been no actual Mac observation.
-Do not attempt access or disturb the preserved app while availability is unchanged.
+desktop gate remain in campaign state. The separate [MAC13 preparation manifest](native-fixtures/mac13-manifest.json)
+records fresh CLI-created primary roots and independent checked-Save rehearsals;
+[actual-result review](evidence/mac13-preparation-result-review.md) qualifies preparation only.
+The original app-created-root rule for MAC01/03/04 is unchanged. A private fixture's
+initial text was deliberately established by ordinary checked Save after import
+normalized a soft-line; the original failed import-byte comparison and revision1
+remain preserved. This does not qualify import fidelity. Reconcile current
+ordinary app/helper identity and the actual initial Note versions before use.
+There has been no actual Mac observation of MAC13. Do not attempt access or
+disturb the preserved app while availability is unchanged.
 
 After availability returns, use one then-current reviewed and qualified production
 build and fresh explicit synthetic workspaces. Prepare a private working Note and

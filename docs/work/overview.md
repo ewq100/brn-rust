@@ -11,23 +11,23 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 
 ## Working on
 
-### Prepare fresh privacy test data before the Mac session
+### Prepare a matching Mac app without opening it
 
-Task ID: `privacy-native-fixture-preparation`
-Owner: Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review · State: **active** · Last observed: 2026-10-22T09:40:00.410385+00:00
-Activity: Independent reassessment and exactcd272ff3 correction review PASS. Private fixture setup now explicitly owner-saves unchanged expectedinitial bytes using the existing checkedSave helper, preserving convertedrevision1/provenance/failure. Second and final actual preparation selected.
-Next: Execute cd272ff3 once on new fresh roots; preserve actual outcome and independently review. Anysecond failure stops/reassesses without a thirdrun. Native/account remain deferred/closed.
+Task ID: `native-artifact-preparation`
+Owner: Bounded Luna read-only artifact-route inspection; lead build/artifact owner · State: **active** · Last observed: 2026-10-22T09:45:08.700280+00:00
+Activity: Read-only preflight selects existing unsigned local make-macos-app wrapper and one pinned offline ordinary native-ui build. CLI/helper/source identities and approved freshMAC13 roots are ready; no newpackager/launch/security/release action.
+Next: Preserve existing targetdesktop, build source-bound ordinary binary once under900s/diskguard, freeze/hash binary/helpers and create fresh explicit-data private/general wrappers without opening them. Verify original app/data untouched.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** PASS independently reviewed diagnosed fixtureinitialization correctioncd272ff3; no product/converter/expectedfixturechange.
-- **checks:** FAIL first actual fixture preparation; source-boundCLI/helper PASS and correctfail-closedguard retained. No readyfixture/nativeclaim.
-- **integration:** Evidence-only, normal product integration alreadymain213
-- **native:** Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending
-- **owner acceptance:** No new product policy; preparation is not native acceptance
+- **implementation:** Source-only feasibility; no product change
+- **checks:** Existing requiredmain213PASS; newartifact identity preparation notyetselected
+- **integration:** No product candidate/release selected
+- **native:** Owner-deferred; no desktopaccess/launch/close/securitychange
+- **owner acceptance:** Notclaimed
 
 </details>
 
@@ -164,6 +164,32 @@ Waiting:
 
 - resource: Further causal work awaits a concrete recurrence or relevant SQLite/build/configuration/concurrency change after two bounded non-reproductions; no owner action required.
 
+### Observe private and public recovery-copy controls on the Mac
+
+Task ID: `privacy-native-qualification`
+Owner: Single native actor in future consolidated owner-available session · State: **blocked** · Last observed: 2026-10-22T09:45:08.700280+00:00
+Activity: MAC13 fresh explicit CLI fixtures and separate checkedSave rehearsals are independently qualified. Actual app opening, attachment Inspect/stale banner/typing/SaveCopy/private refusal/publiccopy/search/export remain unobserved; owner deferred extended screen access.
+Next: Wait for changed owner availability without access/unlock attempts. Reconcile then-current reviewed app/helper/data identity and actualinitial versions; perform MAC13 realcontrols with afteradvance/beforecopy readonlybaseline. Preserve original app/workspaces.
+Depends on: privacy-native-fixture-preparation when Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (reported satisfied: true)
+Resource waits: Owner-reported extended Mac screen unavailability; no desktop access/close/launch until changed availability.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Privacyrepair212 merged; MAC13 scenario/fixtures prepared separately
+- **checks:** Headless preparation PASS; actual app/source/helper/data reconciliation needed atnativeentry
+- **integration:** Repair merged withall4required head/main PASS; no release
+- **native:** Pending owner-available actualcontrols; headless/CI isnotnativeevidence
+- **owner acceptance:** Notclaimed
+
+</details>
+
+Waiting:
+
+- resource: Owner-reported extended Mac screen unavailability; no desktop access/close/launch until changed availability.
+
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
@@ -276,6 +302,7 @@ Completion here means the selected task scope is complete; it does not establish
 - `active-overview-reading-route` — Keep raw check history out of the startup summary
 - `recovery-copy-route-audit` — Check every recovery-copy entry point uses the privacy guard
 - `privacy-native-fixture-preflight` — Prepare a short path to the future Mac privacy check
+- `privacy-native-fixture-preparation` — Prepare fresh privacy test data before the Mac session
 
 ## Dependencies
 
@@ -302,6 +329,8 @@ graph TD
   t103["Keep shared build-cache use focused on Mac and Linux"]
   t106["Prevent recovery copies from becoming general knowledge accidentally"]
   t107["Diagnose the database crash during simultaneous startup"]
+  t113["Prepare fresh privacy test data before the Mac session"]
+  t115["Observe private and public recovery-copy controls on the Mac"]
   t1 -->|Correction is normally merged so resulting-main checks exist. (satisfied)| t2
   t6 -->|Fresh offline two-group fixture passed public reopen/discovery/unchanged-state checks. (satisfied)| t8
   t7 -->|Corrected UI source reviewed and ordinary production binary qualified. (satisfied)| t8
@@ -315,8 +344,9 @@ graph TD
   t76 -->|Desktop batch204 normally integrated42906128 and current main reconciled; publication tree equality verified. (satisfied)| t80
   t101 -->|Publication only: PR210 normally integrated, then reconcile CI-only diff onto actualmain. Implementation may use already reviewed/qualifiedeae now. (satisfied)| t103
   t107 -->|Independent causal/scope disposition adopted: selected privacy behavior may proceed to normal required CI with unresolved startup debt retained; no full-app or repaired-flake claim. (satisfied)| t106
+  t113 -->|Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification. (satisfied)| t115
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T09:40:00.410385+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T09:45:08.700280+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

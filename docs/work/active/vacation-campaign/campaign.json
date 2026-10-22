@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T09:40:00.410385+00:00",
+    "observed_at": "2026-10-22T09:45:08.700280+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4588,12 +4588,12 @@
       {
         "id": "privacy-native-fixture-preparation",
         "title": "Prepare fresh privacy test data before the Mac session",
-        "state": "active",
+        "state": "complete",
         "owner": "Lead single build/fixture actor; bounded Luna command preflight; independent Sol plan/result review",
-        "observed_at": "2026-10-22T09:40:00.410385+00:00",
+        "observed_at": "2026-10-22T09:45:08.700280+00:00",
         "origin": "observed",
-        "activity": "Independent reassessment and exactcd272ff3 correction review PASS. Private fixture setup now explicitly owner-saves unchanged expectedinitial bytes using the existing checkedSave helper, preserving convertedrevision1/provenance/failure. Second and final actual preparation selected.",
-        "next_action": "Execute cd272ff3 once on new fresh roots; preserve actual outcome and independently review. Anysecond failure stops/reassesses without a thirdrun. Native/account remain deferred/closed.",
+        "activity": "Independent actual-result review PASS:109bounded commands, exact initial privatev2/generalv1, unchanged primary roots, distinct checked private2→3/general1→2 rehearsals, metadata/source/sentinel/history preserved, tokens absent andallgroupsresolved. Original first failure/importrevision1 retained; noimportfidelity/nativeclaim.",
+        "next_action": "Use separate MAC13 manifest during later actual authorized Mac session; recheck current app/helpers/versions and read-only state. No further preparation runs. Nativecontrol task remains separately blocked on availability.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -4617,13 +4617,17 @@
           "docs/work/active/vacation-campaign/evidence/mac13-prepare-attempt1.py.gz",
           "docs/work/active/vacation-campaign/evidence/mac13-normalization-reassessment.md",
           "docs/work/active/vacation-campaign/evidence/mac13-initialization-correction.md",
-          "docs/work/active/vacation-campaign/evidence/mac13-initialization-correction-review.md"
+          "docs/work/active/vacation-campaign/evidence/mac13-initialization-correction-review.md",
+          "docs/work/active/vacation-campaign/evidence/mac13-preparation-attempt2.json",
+          "docs/work/active/vacation-campaign/evidence/mac13-preparation-attempt2-raw.tar.gz",
+          "docs/work/active/vacation-campaign/evidence/mac13-preparation-result-review.md",
+          "docs/work/active/vacation-campaign/native-fixtures/mac13-manifest.json"
         ],
         "gates": {
           "implementation": "PASS independently reviewed diagnosed fixtureinitialization correctioncd272ff3; no product/converter/expectedfixturechange.",
-          "checks": "FAIL first actual fixture preparation; source-boundCLI/helper PASS and correctfail-closedguard retained. No readyfixture/nativeclaim.",
+          "checks": "PASS independently reviewed actual preparation/rehearsals,12.805seconds/109commands; firstactualfailure preserved.",
           "integration": "Evidence-only, normal product integration alreadymain213",
-          "native": "Owner-deferred; no desktopaction; actualappopening and stalecontrolflow pending",
+          "native": "Deferred to separate MAC13 native qualification; no appopened/stalebanner/SaveCopy/search/export observation.",
           "owner_acceptance": "No new product policy; preparation is not native acceptance"
         },
         "attempts": [
@@ -4653,16 +4657,73 @@
             ]
           },
           {
-            "outcome": "Second and final actual preparation selected; pending result.",
-            "change": "Fresh roots; private initial checkedSave establishes originalexpectedbytes; originalfailedrun untouched. Strict verification/bounds unchanged.",
+            "outcome": "Actual attempt2 PASS prepared,12.805s/109commands/allgroupsresolved; independent saved-result reviewPASS. No more runs selected.",
+            "change": "No further runs. Keep primaryprivatev2/generalv1 at exactinitialbytes and distinctrehearsalsadvanced; preservefirstfailure/importrevision1.",
             "evidence": [
-              "docs/work/active/vacation-campaign/evidence/mac13-normalization-reassessment.md",
-              "docs/work/active/vacation-campaign/evidence/mac13-initialization-correction-review.md",
-              "docs/work/active/vacation-campaign/evidence/mac13-prepare.py"
+              "docs/work/active/vacation-campaign/evidence/mac13-preparation-attempt2.json",
+              "docs/work/active/vacation-campaign/evidence/mac13-preparation-attempt2-raw.tar.gz"
             ]
           }
         ],
         "resource_plan": "Existing selected lead owns shared build/fixture slot; Luna medium command/artifact preflight and Sol high independentreview, within4slots. No nesting/native/account/acquisition. At most2diagnosed attempts,60sprocess/10minfixturebound; cachedbuilddiskstart2GiB/stop1GiB."
+      },
+      {
+        "id": "native-artifact-preparation",
+        "title": "Prepare a matching Mac app without opening it",
+        "state": "active",
+        "owner": "Bounded Luna read-only artifact-route inspection; lead build/artifact owner",
+        "observed_at": "2026-10-22T09:45:08.700280+00:00",
+        "origin": "observed",
+        "activity": "Read-only preflight selects existing unsigned local make-macos-app wrapper and one pinned offline ordinary native-ui build. CLI/helper/source identities and approved freshMAC13 roots are ready; no newpackager/launch/security/release action.",
+        "next_action": "Preserve existing targetdesktop, build source-bound ordinary binary once under900s/diskguard, freeze/hash binary/helpers and create fresh explicit-data private/general wrappers without opening them. Verify original app/data untouched.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/vacation-campaign/native-queue.md",
+          "docs/work/active/vacation-campaign/evidence/recovery-copy-remaining.json",
+          "docs/work/active/vacation-campaign/evidence/native-artifact-preflight.md"
+        ],
+        "gates": {
+          "implementation": "Source-only feasibility; no product change",
+          "checks": "Existing requiredmain213PASS; newartifact identity preparation notyetselected",
+          "integration": "No product candidate/release selected",
+          "native": "Owner-deferred; no desktopaccess/launch/close/securitychange",
+          "owner_acceptance": "Notclaimed"
+        },
+        "attempts": [],
+        "resource_plan": "Lead single sharedbuildslot; existing Luna medium sourcepreflight complete. Pinned1.98.1/offline/locked/jobs1; cachedstart2GiB/stop1GiB/900s sharedprocessgroup cleanup. No desktop/account/provider/security/release action; unchanged source tests reused, artifactassembly only."
+      },
+      {
+        "id": "privacy-native-qualification",
+        "title": "Observe private and public recovery-copy controls on the Mac",
+        "state": "blocked",
+        "owner": "Single native actor in future consolidated owner-available session",
+        "observed_at": "2026-10-22T09:45:08.700280+00:00",
+        "origin": "observed",
+        "activity": "MAC13 fresh explicit CLI fixtures and separate checkedSave rehearsals are independently qualified. Actual app opening, attachment Inspect/stale banner/typing/SaveCopy/private refusal/publiccopy/search/export remain unobserved; owner deferred extended screen access.",
+        "next_action": "Wait for changed owner availability without access/unlock attempts. Reconcile then-current reviewed app/helper/data identity and actualinitial versions; perform MAC13 realcontrols with afteradvance/beforecopy readonlybaseline. Preserve original app/workspaces.",
+        "depends_on": [
+          {
+            "task": "privacy-native-fixture-preparation",
+            "condition": "Separate fresh private/general primary roots and unchanged expected-byte manifest passed independent headless qualification.",
+            "satisfied": true
+          }
+        ],
+        "resource_waits": [
+          "Owner-reported extended Mac screen unavailability; no desktop access/close/launch until changed availability."
+        ],
+        "evidence": [
+          "docs/work/active/vacation-campaign/native-fixtures/mac13-manifest.json",
+          "docs/work/active/vacation-campaign/native-queue.md"
+        ],
+        "gates": {
+          "implementation": "Privacyrepair212 merged; MAC13 scenario/fixtures prepared separately",
+          "checks": "Headless preparation PASS; actual app/source/helper/data reconciliation needed atnativeentry",
+          "integration": "Repair merged withall4required head/main PASS; no release",
+          "native": "Pending owner-available actualcontrols; headless/CI isnotnativeevidence",
+          "owner_acceptance": "Notclaimed"
+        },
+        "attempts": []
       }
     ],
     "owner_attention": "No owner action needed now. Actual Mac checks deferred for extended owner unavailability; headless reliability work continues. Original unsaved workspace, prepared fixtures and verified-undone app preserved."
