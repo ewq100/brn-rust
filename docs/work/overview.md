@@ -14,17 +14,17 @@ Task details and full history: [selected work record](active/vacation-campaign/c
 ### Preserve live-only note typing before normal Close or Quit
 
 Task ID: `note-exit-preservation`
-Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:43:58.224030+00:00
-Activity: Clean-checkpoint P2 reproduced at actual installed Close in7a1a530f, with all setup invariants passed. Adopted independent design: unchanged Clean state may prove exact held immutable Record through indexed existing revision read; no mutation or dirty-session policy expansion.
-Next: Implement narrow Note-owner read-only checkpoint case and matching contracts; strengthen focused no-reload/no-dialog state checks. Freeze complete candidate, independent review, final component/host/desktop/lint/ordinary build, then normal217update.
+Owner: Bounded Luna witness foundation; lead diagnosis/repair/checks/integration; independent Sol review · State: **active** · Last observed: 2026-10-22T13:46:29.513408+00:00
+Activity: Implemented clean-only checkpoint proof in frozen174e381f: exact unchanged held Record must match indexed immutable revision; no write, reload, guard, session adoption or dirty-policy expansion. Focused reused-fixture witness strengthened with no-dialog/no-reload checks. Complete source review and final component/host/desktop/lint/ordinary-build checks active sequentially.
+Next: Inspect exact174 review and all selected final checks, retaining any failure. On success record new binary/helper hashes and normally update existing217; inspect fresh final-head hosted checks before normal merge. Tooling candidate remains separately ready after217integration.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Complete660a review previously passed; subsequent clean historical-checkpoint false refusal under independent assessment, integration held.
-- **checks:** PASS660a full Mac desktop350/0/1ignored, strict combined lint/format; unchanged component/ordinary build reused. Corrected Ubuntu and required hosted exact660a checks pending.
+- **implementation:** Implemented174e381f bounded clean checkpoint correction and contracts; full actual candidate review refresh pending.
+- **checks:** Meaningful7a clean baseline FAIL retained. New final174 component/host/desktop/lint/ordinary-build qualification running; earlier exact-source passes remain historical.
 - **integration:** PR217 head660a frozen; no merge until clean-note edge resolved and final exact-head required gates pass.
 - **native:** Owner-deferred. Toolkit Close predicate is not OS close or actual app termination.
 - **owner acceptance:** Preserve exact Note work and existing cancellation; broader draft types and forced shutdown excluded.
