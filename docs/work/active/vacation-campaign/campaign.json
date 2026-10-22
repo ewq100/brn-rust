@@ -96,10 +96,10 @@
     "implementation_pr": 178
   },
   "admission": {
-    "observed_at": "2026-10-22T08:08:24Z",
-    "remaining_percent": 48,
+    "observed_at": "2026-10-22T08:35:29.516897+00:00",
+    "remaining_percent": 47,
     "reset_unix": 1793083360,
-    "ordinary_work": "Admitted actual52% used/48% remaining, ordinaryUsageAllowed=true; secondary unavailable. Fixedexpiry/noownerpause/closedaccountsession unchanged.",
+    "ordinary_work": "Admitted actual53% used/47% remaining, ordinaryUsageAllowed=true; secondary unavailable. Fixed expiry/no owner pause/closed account session unchanged.",
     "exception": {
       "scope": "visibility/instruction adoption only",
       "authority": "Owner20October: Do the work. I approved them use of the reserve.",
@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T08:30:18.908420+00:00",
+    "observed_at": "2026-10-22T08:36:32.898531+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -4478,9 +4478,9 @@
         "title": "Keep raw check history out of the startup summary",
         "state": "active",
         "owner": "Bounded Luna author; independent Sol review; lead integration",
-        "observed_at": "2026-10-22T08:27:30.083788+00:00",
+        "observed_at": "2026-10-22T08:36:32.898531+00:00",
         "origin": "observed",
-        "activity": "Published/attached PR213 exact7ccb552e against main212e918b2b3; stable reviewed/qualified three-file candidate, requiredhead CI39747522014 running. Authoritative leadsource/currentprojection adopted separately; no normalmainmerge yet.",
+        "activity": "PR213 frozen7ccb552e: Documentation/tooling and required Mac Native UI/retrieval head checks PASS. Mac/Ubuntu Core/CLI continue normal default-workspace tests; preceding main212 all required contexts PASS. No source changes or local rerun.",
         "next_action": "KeepPR213head stable. Inspect all four exact-head requiredchecks, preceding-main212 and live protection before normal merge; resultingmain separately. No local workload repeat without changedsource/failure.",
         "depends_on": [],
         "resource_waits": [],
@@ -4502,7 +4502,7 @@
         "gates": {
           "implementation": "PASS final complete7ccb552e independent review, bothP2s corrected; canonical record untouched, coherent raw-history formatter retirement.",
           "checks": "PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796→26,284UTF8bytes; no token/cost/nativeclaim.",
-          "integration": "PUBLISHED PR2137ccb552e, required head pending. Base main212 e918b2b3 resulting checks still separate; no merged completion.",
+          "integration": "PUBLISHED PR2137ccb552e, two required nativeMac head contexts PASS and CoreMac/Ubuntu pending; documentationPASS. Precedingmain212 all four requiredPASS. No normalmerge yet.",
           "native": "Inapplicable to text projection; existing native gates remain deferred",
           "owner_acceptance": "Current visibility adoption authorizes a concise startup route; no owner acceptance claimed"
         },
@@ -4540,11 +4540,19 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-pr212-verified-pr213-pending.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T08:27:30.083788+00:00",
+    "observed_at": "2026-10-22T08:35:29.516897+00:00",
     "runtime_capacity": "Lead owns CI/integration; Lunaauthor and consequentialSolreview complete/idle. Fourtotal slots, no sourcewriters or localbuild.",
     "build_slot": "Free;PR212hostedCI separate, no localtargetwriter. Originalcrashbinaryfrozenoutside target.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
-    "read_only_ci_watches": [],
+    "read_only_ci_watches": [
+      {
+        "pty_session_id": 33179,
+        "pr": 213,
+        "head": "7ccb552efc152443f1ae57a044673500e7fe91c3",
+        "purpose": "Read-only required head check watch every60seconds; no rerun/mutation",
+        "observed_at": "2026-10-22T08:35:29.516897+00:00"
+      }
+    ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
     "wait_reason": "Main212 all four required checks PASS. PR213 requiredhead CI pending; no local builds/writers.",

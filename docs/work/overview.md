@@ -14,8 +14,8 @@ Task details: [selected work record](active/vacation-campaign/campaign.json). In
 ### Keep raw check history out of the startup summary
 
 Task ID: `active-overview-reading-route`
-Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:27:30.083788+00:00
-Activity: Published/attached PR213 exact7ccb552e against main212e918b2b3; stable reviewed/qualified three-file candidate, requiredhead CI39747522014 running. Authoritative leadsource/currentprojection adopted separately; no normalmainmerge yet.
+Owner: Bounded Luna author; independent Sol review; lead integration · State: **active** · Last observed: 2026-10-22T08:36:32.898531+00:00
+Activity: PR213 frozen7ccb552e: Documentation/tooling and required Mac Native UI/retrieval head checks PASS. Mac/Ubuntu Core/CLI continue normal default-workspace tests; preceding main212 all required contexts PASS. No source changes or local rerun.
 Next: KeepPR213head stable. Inspect all four exact-head requiredchecks, preceding-main212 and live protection before normal merge; resultingmain separately. No local workload repeat without changedsource/failure.
 
 <details>
@@ -25,7 +25,7 @@ Gates:
 
 - **implementation:** PASS final complete7ccb552e independent review, bothP2s corrected; canonical record untouched, coherent raw-history formatter retirement.
 - **checks:** PASS190Python, actual selected-task/customrender/check, branchgeneratedcheck, links/diff, source/inputclean. Exact111task frozeninput51,796→26,284UTF8bytes; no token/cost/nativeclaim.
-- **integration:** PUBLISHED PR2137ccb552e, required head pending. Base main212 e918b2b3 resulting checks still separate; no merged completion.
+- **integration:** PUBLISHED PR2137ccb552e, two required nativeMac head contexts PASS and CoreMac/Ubuntu pending; documentationPASS. Precedingmain212 all four requiredPASS. No normalmerge yet.
 - **native:** Inapplicable to text projection; existing native gates remain deferred
 - **owner acceptance:** Current visibility adoption authorizes a concise startup route; no owner acceptance claimed
 
@@ -316,4 +316,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-22T08:30:18.908420+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-22T08:36:32.898531+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
