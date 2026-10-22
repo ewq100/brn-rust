@@ -108,7 +108,7 @@
     "unknown_allowance": "defer substantial dispatch; recheck using supported recovery schedule"
   },
   "work_view": {
-    "observed_at": "2026-10-22T05:00:21.925626+00:00",
+    "observed_at": "2026-10-22T05:02:17.834163+00:00",
     "goal": "Make BRN more dependable and easier to improve; make progress and remaining decisions easy to see.",
     "tasks": [
       {
@@ -3857,13 +3857,13 @@
       },
       {
         "id": "derived-index-integrity-recovery",
-        "title": "Recover an owned search index whose term tables disagree with its content",
-        "state": "active",
+        "title": "Assess automatic detection of an inconsistent derived search index",
+        "state": "complete",
         "owner": "Bounded Luna test-only author; lead diagnosis/checks; independent Sol review before production integration",
-        "observed_at": "2026-10-22T05:00:21.925626+00:00",
+        "observed_at": "2026-10-22T05:02:17.834163+00:00",
         "origin": "observed",
-        "activity": "Focused actualbundledSQLitebaseline atfinaltesta499:0PASS/1FAIL exit101 intended firstlane: currentopen reportsExisting, expectedRebuilt; priorquickcheckok, DatabaseCorruptexternalcontentmismatch, othershealthy, ordinaryschema/meta/rowsunchanged. Fourlanesindividuallyisolated in finalwitness. Independentdesignassessment says admission+inplacerebuild onlyif costqualified. Leadselects ONE temporaryhealthy-index admission-costexperiment before productfix. Complete independent cost-experiment review PASS finalsupervisora6ccf7; bothinertsupervisorP2 findingsfixedbeforelaunch. Reserve sole strictrelease10kexperiment withcost-onlyoverlay61cf, unchangedexistinguser_scale witness. No productionrepair candidate. One strictcostrun0PASS/1FAIL exit101: reopen52.103125ms vs602.944875mscold, existing50mslimitfailed. Laterone-note/p95stepsnotreached. Exactsource94ef restored, workerHEADa499clean, ownedgroupabsent/reaped, noerrors/signals. No ordinaryBRNwriterpathcreatingmismatch found; independentresultassessment pending.",
-        "next_action": "Dispositionfailedcostwithindependentreview; no productionadoption/rerun/waived50ms. Keep craftedderivedmutationlimit and ordinaryatomicwriterbasis clear. Do notpublishfailingtest-onlybranch asproductcandidate.",
+        "activity": "Assessment complete, productionrepair notadopted. CraftedexternalFTSmutation atcurrentwatermark isactuallyadmitted asExisting (focused0/1 baseline). Soleautomaticfullscan costrunfailed50msat52.103125ms; sourceexactlyrestored. Independentresultreviewqualifiedthenegativeexperiment anddeferdecision. No normalBRNproducerfound; confirmedriskremainsunfixed/deferred, not a shippedcorrection.",
+        "next_action": "Revisit deferredindexadmissionrisk only on a concrete ordinaryuser/searchincident or identifiedBRNproducer, or explicitly selected affordable diagnostic/recoverypolicy meeting ownership/concurrency/error/latencycontracts. Do notreruntillgreen, waive50ms, mergefailingtestbranch, or claimfull4corruptlane/nativequalification.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -3885,12 +3885,13 @@
           "docs/work/active/vacation-campaign/evidence/derived-index-integrity-witness.patch",
           "docs/work/active/vacation-campaign/evidence/derived-index-integrity-origin.md",
           "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-run.log",
-          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-completion.json"
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-completion.json",
+          "docs/work/active/vacation-campaign/evidence/derived-index-integrity-cost-result-review.md"
         ],
         "gates": {
-          "implementation": "Test-only characterization selected; productionfixpending evidence.",
-          "checks": "Actualbaseline0/1 intendedadmissionfailure; onecost-onlystrict10kMac0/1 exit101:52.103125msreopen>50ms,602.944875mscold; latergatesnotreached, noMessage-heavycost. Sourceexactlyrestored, groupabsent. Independentresultassessmentpending.",
-          "integration": "No PR selected; preserve frozenPR209.",
+          "implementation": "Test-onlycharacterization a499 andtemporarycostoverlay61cf, restored94ef. No productionrepair implemented/adopted; no framework/schema/providerchange.",
+          "checks": "Validnegativebaseline0/1 intendedopenExisting!=Rebuilt onfirstfts_exact case; validnegativestrictMac10k0/1 exit101 reopen52.103125ms>50ms, cold602.944875ms. Laterone-note/p95unreached, Message-heavycostunknown. IndependentresultreviewPASS andexactcleanrestorationverified.",
+          "integration": "Notadopted/no productPR. Assessment/evidenceretained; craftedexternalderivedcorruptionadmissionrisk remains deferred/unfixed with concrete revisittriggers. Failingtest-onlybranch is not main.",
           "native": "Inapplicable to index-onlysyntheticwitness; nativeacceptance notclaimed.",
           "owner_acceptance": "No new productdecision selected."
         },
@@ -3921,7 +3922,14 @@
             ]
           }
         ],
-        "resource_plan": "One bounded Luna medium test-onlywriter in clean isolatedreusedcheckout, lead serializes sharedtarget build, Sol consequence/designreview. No nestedhelper/schema/native/account/private-data/network/dependency/toolchain change. Stop/reassess after two failed hypotheses; meaningfulbaselinebeforeproductfix. Costs/performance of extraopenchecks require explicitassessment, not blind integrityscan perquery."
+        "resource_plan": "One bounded Luna medium test-onlywriter in clean isolatedreusedcheckout, lead serializes sharedtarget build, Sol consequence/designreview. No nestedhelper/schema/native/account/private-data/network/dependency/toolchain change. Stop/reassess after two failed hypotheses; meaningfulbaselinebeforeproductfix. Costs/performance of extraopenchecks require explicitassessment, not blind integrityscan perquery.",
+        "deferred_debt": {
+          "boundary": "Current-watermark SQLite-readable external-content FTS mismatch can remainadmitted.",
+          "impact": "Derived keywordfalsematches/misses possibleafterindependentFTSalteration; no ordinaryBRNproducerfound. CanonicalSQLite unaffected.",
+          "responsible_lane": "Retrieval/indexadmission; existingdevelopmentlead chooses futureselectedoutcome.",
+          "state": "deferred_not_fixed",
+          "revisit_trigger": "Concreteordinaryuserincident/BRNproducer or explicitly selected affordable recovery/diagnostic policy; preserve fastreuse/visibility/ownership contracts."
+        }
       },
       {
         "id": "desktop-refresh-scale-preflight",
@@ -3961,8 +3969,8 @@
     "last_refresh_receipt": "docs/work/active/vacation-campaign/evidence/remote-backup-qualified-update.json"
   },
   "resource_observation": {
-    "observed_at": "2026-10-22T05:00:21.925626+00:00",
-    "runtime_capacity": "Lead; independentSolcostresultreview; selected boundedLuna desktoprefreshpreflight. No nestedhelper.",
+    "observed_at": "2026-10-22T05:02:17.834163+00:00",
+    "runtime_capacity": "Lead andboundedLuna desktoprefreshpreflight; independentSolcostresultreviewcomplete. No nestedhelper.",
     "build_slot": "Free: sole cost2162 finished101 atstrict50msgate; exactsource94ef restored, workerHEADa499clean. No activebuild.",
     "desktop_account_actor": "No activeaccounttest;3attemptsession closed and allfailuresretained. No fourth/renamedretry; ordinaryheadlesswork continues. Nativeapp63750 preserved.",
     "read_only_ci_watches": [
@@ -3975,7 +3983,7 @@
     ],
     "watch_policy": "No long-lived watch is inferred. Inspect actual exact-head check APIs and live protection before integration; saved observations are not live execution.",
     "integration": "Current integration state and exact source identities belong to the selected work_view tasks and linked receipts; inspect those records and live GitHub before acting.",
-    "wait_reason": "PR209 finalMacCore headpending; main208all4PASS. Failedcostactualresultreview and boundedrefreshpreflight selected.",
+    "wait_reason": "PR209 finalMacCore headpending. Indexassessmentcompletewithnegativegate/deferredunfixedrisk; desktoprefreshpreflight active.",
     "resumption": "Follow the selected work_view task and its qualification/publication receipts for the exact candidate, base and next gate. This resource snapshot records actors/jobs only; it does not override task authority or admit a merge.",
     "native_access_receipt": "docs/work/active/vacation-campaign/evidence/native-access-recheck-20261020T1825.json",
     "worker_checkout": "export-durability frozen7dde; ordinaryCLI built and artifact frozen, no writer.",
