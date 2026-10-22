@@ -21,6 +21,11 @@ cargo fetch --locked
 
 Keep compiler/dependency changes separately scoped and qualified. Native GPUI targets macOS Apple Silicon first and requires an unlocked graphical session for interaction checks. Linux headless checks do not establish native readiness.
 
+For actual native Linux interaction in the saved cloud environment, follow the
+[Linux display, build and acceptance workflow](linux-cloud-ui.md). It uses the
+existing GPUI backend with Xvfb/Openbox and software Vulkan; Mac qualification
+remains separate.
+
 ## Isolate build and application data
 
 Use a task-owned Cargo target directory or a known compatible shared cache, plus a fresh explicit absolute BRN `--data-dir` outside Git. Use synthetic material. The core checks directory marker, application ID and supported schema before opening; incompatible old BRN data refuses without migration.

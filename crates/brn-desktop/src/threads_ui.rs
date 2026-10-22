@@ -4826,6 +4826,10 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                     ..top_bar_window_options()
                 },
                 move |window, cx| {
+                    // Give Linux window managers and external UI automation a
+                    // stable identity without exposing the workspace path.
+                    #[cfg(target_os = "linux")]
+                    window.set_window_title("BRN");
                     let view = cx.new(|cx| {
                         let mut view = ThreadsUi::new(workspace, data_dir, window, cx);
                         if let Some(notice) = model_notice {
