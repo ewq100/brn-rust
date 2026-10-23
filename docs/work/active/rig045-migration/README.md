@@ -1,79 +1,112 @@
 # Rig 0.45 migration
 
-Active local branch `codex/rig045-migration-20261023`, stacked on maintenance
-`8f7143f34191ad53e4c7e74f7c061e8dce5e6e35`, with UI branch `125f8ef0` preserved.
-Main fetched unchanged at `7b416591`. No publication, merge or release authority.
-No live accounts, credential transfer, new persistent access or native-picker retry.
+Qualified local candidate on `codex/rig045-migration-20261023`. Implementation:
+`870bb93640c80a8e81ab4b3d96b7a9cc85767746`; subsequent evidence changes do not alter
+product source. Stacked on maintenance `8f7143f34191ad53e4c7e74f7c061e8dce5e6e35`,
+with UI `125f8ef053895e9dac1a54ecc3e8243188ccbc6c` preserved. Main was fetched
+unchanged at `7b416591`. No push, PR, merge or release has occurred for this stack.
+Publication remains unauthorized. No live accounts, credential transfer, new
+persistent access, Mac access or native-picker retry occurred.
 
-## Compatibility checklist before implementation
-
-- Adapt AgentBuilder, contextual tools/handlers and Arc-owned messages/requests.
-- Preserve accepted-final ownership, exact history, bounded argument correction,
-  cancellation/approval fences and tool-call/result pairing under new projections.
-- Use supported Rig conversation/summary/budget facilities in place of removed
-  memory helpers. Retain BRN-owned persisted records/cache DTOs and exact bytes.
-- Align coupled MCP to Rig's released `rig-rmcp` requirement (3.5); no independent
-  latest-dependency chase or parser/helper graph changes.
-- Compare old credential cache shapes, explicit login and refresh/finalizer policy
-  with released authenticators. Prefer Rig TokenStore adapters; do not duplicate
-  OAuth. No irreversible rewrite or new persistence without separate approval.
-- Qualify synthetic old stored state, provider wire/schema/history/cancellation,
-  workspace/native behavior and independent source/evidence review.
-
-Read-only persistence audit found no Rig types in canonical core/intake/app stored
-records; summary caches serialize BRN Entry/Semantic DTOs, not Rig Message. No DB
-migration is indicated. Authentication uses a private Rig TokenStore adapter that reads/writes the existing
-ChatGPT five-field JSON and separate Copilot bootstrap/session files. It combines
-Copilot records only in memory. Selected Codex access tokens remain read-only in
-a Rig MemoryTokenStore. Existing provider mutexes, checked paths and finalizers
-remain in charge; no new lockfile, credential location or DB migration is needed.
-No real credential action has been taken.
+## Compatibility and implementation
 
 Official release: https://github.com/0xPlaygrounds/rig/releases/tag/v0.45.0
 (released 2026-10-19). Its tagged MIGRATING.md stops at 0.44. The current official
-guide covers 0.44→0.45; every used API is cross-checked against released crates:
+guide covers 0.44→0.45; every used API was cross-checked against released crates:
 https://github.com/0xPlaygrounds/rig/blob/main/MIGRATING.md
-The released rig-rmcp 0.45.0 manifest requires rmcp3.5.
 
-Raw inspection/build evidence: `/workspace/brn-environment/logs/rig045-migration`.
-## Implementation checkpoint
+- Rig family 0.44.0 → 0.45.0; its required rmcp/macros 3.5.0 replace 2.2.0.
+  Darling 0.24.1 and existing Syn 3 are required by those macros. No unrelated
+  version chase: Tokio 1.53.3, Schemars 1.2.3 and both helper graphs are unchanged.
+  [Exact lock delta](evidence/lock-delta.json).
+- Updated AgentBuilder, Arc-owned messages, RegisteredTool, StreamRecord,
+  middleware Exchange and provider construction through official APIs.
+  Accepted-final ownership, tool validation, cancellation, correction bounds,
+  approval/replay fences and ordered schema behavior remain covered by tests.
+- A private Rig TokenStore adapter preserves existing ChatGPT JSON and separate
+  Copilot bootstrap/session files. Copilot records combine only in memory.
+  Selected Codex tokens use read-only MemoryTokenStore. Existing provider locks,
+  checked paths and finalizers remain; auth resolves before constructing clients,
+  with no later request-time refresh outside those fences. No new lockfile,
+  credential location, canonical DB migration or irreversible data rewrite.
+- Recent history uses Rig TokenBudget/view. The removed Compactor trait wrapper
+  is retired; BRN retains its existing bounded Rig model call and Semantic/Entry
+  DTOs. The new generic Summarizer trims conversational text, which would change
+  BRN's exact coverage/source-ID/JSON provenance contract. No alternate model
+  runtime or replacement OAuth implementation was introduced.
+- MCP uses McpConnection and DynamicTool::run_with. Sessionless/replayed GET,
+  continuation fields and task RPCs remain refused. New protocol capabilities
+  cannot broaden a frozen approved invocation. Disconnect retires before SDK
+  shutdown. New regressions cover those boundaries and credential compatibility,
+  partial login, read-only Codex tokens and unsafe-destination zero-write behavior.
 
-Workspace all-target compilation passed after adapting shared Message ownership,
-RegisteredTool execution, middleware Exchange, provider construction and MCP fixture
-responses. Rig's released rmcp requirement is 3.5.0, including macros 3.5.0;
-Tokio 1.53.3 and Schemars 1.2.3 remain unchanged. Helper graphs are unchanged.
+## Qualification
 
-The removed Compactor trait wrapper is retired. BRN keeps its existing bounded
-Rig model call and structured Semantic/Entry DTOs: the new generic Summarizer
-serializes/trims conversational text, which cannot preserve BRN's exact coverage,
-source IDs and JSON provenance contract. Recent history uses Rig's supported
-TokenBudget/view facility. No alternate model runtime was introduced.
+Rust 1.98.1, Debian 13.6 x86_64; existing Xvfb :98/Openbox, software Vulkan and
+AT-SPI. Serial shared-target builds. [Commands and fixture setup](reproduce.md).
+[Source binding](evidence/source.json), [log hashes/counts](evidence/log-receipts.json),
+[independent review](evidence/review.json) and [persistence comparison](evidence/persistence-comparison.json).
 
-MCP uses Rig McpConnection and DynamicTool::run_with. Sessionless/replayed GET,
-MRTR continuation fields and task RPCs remain refused; approved invocation scope
-cannot expand through the new protocol. New synthetic regressions cover those
-boundaries and old credential formats/partial writes/unsafe destinations.
+| Check | Result | Source / limit |
+|---|---|---|
+| Workspace all-target check, workspace build | PASS | Final build on 870bb936 |
+| Workspace tests | 1,313 passed, 0 failed, 5 ignored | 1fc6e45f, before boxed-client layout correction |
+| Provider/capability suite | 505 passed, 0 failed, 1 ignored | Repeated on final 870bb936; synthetic only |
+| Strict workspace, capability, scripted-document and native Clippy | PASS | Final corrected source, no warning suppression |
+| Native state tests | 352 passed, 0 failed, 1 ignored | 870bb936; separate from actual window |
+| Production native build | PASS | Binary SHA-256 c9d23831f7df978c24e0a9b32e8da2bab52d0032acf5998dd3a449c69b482306 |
+| End-to-end fixture journeys | PASS | 108 steps, 1,266 checks; final binary |
+| Python tooling | 191 run, 1 skipped, no failures | Final source |
+| Formatting, links, overview consistency, diff | PASS | Final evidence gate |
+| Independent source/evidence review | No blocking findings | Exact 1fc6e45f plus boxed-client correction; logs, counts, snapshots and limits checked |
+| Real native window | PASS | Old-store comparison, Unicode save v3, menus, quit/reopen/close |
+| CI, live accounts, Mac-specific acceptance | NOT RUN | Unpublished branch; outside this local qualification |
+| Scripted document journey module | NOT RUN on Linux | macOS-only; feature Clippy passed, not a journey pass |
 
-Independent source review found no blocker in auth/Codex/history/summary adapters;
-provider behavior qualification passed; aggregate/native qualification is pending. Earlier compile failures are retained in raw
-logs. First offline provider run: 499 passed, 3 failed, 1 ignored. Two failures retain
-the old Rig user-agent version; one MCP byte-cap refusal now returns Transport
-instead of Timeout. The user-agent assertions are corrected. Released rmcp 3.5 now emits
-transport_closed for an unfinished response stream (streamable_http_client.rs
-1767–1790), whereas 2.2 only warned and left the RPC pending. The MCP assertion
-now expects Transport and strengthens prompt refusal timing while preserving
-raw-byte-cap, exactly-one-call and zero-redirect checks; no production fix was
-needed. The corrected full provider suite passed: 505 passed, 0 failed, 1 ignored
-(502 library tests plus 3 capability-example tests). Auth/history/summary/cancellation and approval tests passed in that run.
-Native and old-store checks, strict lint, aggregate tests and final review remain.
+The full workspace test result is not relabeled as an exact-final-head rerun.
+The only later product change boxes the unified Copilot client like ChatGPT;
+independent review found it layout-only. Final provider regression, native state,
+real-window, rebuilt CLI end-to-end and all strict lint gates cover that correction.
 
+## Actual native and persistence evidence
 
-## Aggregate checkpoint
+A preserved Rig 0.44 maintenance CLI opened the synthetic baseline and recorded
+[records/history/recovery/candidates](evidence/rig044-snapshot.json). The Rig 0.45
+CLI reopened a disposable copy with an exactly equal full snapshot before edits.
+The native app edited exact Unicode text, saved version 3, activated a menu through
+AT-SPI, exercised repeated Return/Space/Escape and pointer paths, quit, reopened,
+matched exact clipboard bytes and the full saved snapshot, then closed normally.
+The unrelated sentinel remained byte-for-byte unchanged.
 
-Implementation commit `1fc6e45fedb25d1d2ee9cd7783b54c0897c5e4e4` passed
-workspace build and tests: 1,313 passed, 0 failed, 5 ignored. Independent review
-approved that exact source. Strict Clippy then identified the larger unified
-Copilot client variant. A focused correction boxes that variant, matching ChatGPT;
-strict workspace all-target Clippy passes after the correction. Provider regression
-is rerunning on the corrected layout, followed by final binary/native/end-to-end
-checks. The broader workspace test result remains explicitly tied to 1fc6e45f.
+[Saved window](evidence/native-saved.png), [reopened window](evidence/native-reopened.png),
+[observed result](evidence/native-result.json), [persisted saved state](evidence/native-saved.json),
+[reopened state](evidence/native-reopened.json), [AT-SPI actions](evidence/native-ax-actions.jsonl).
+The [exact local harness](evidence/native-smoke.py) and existing cloud driver are
+reproducible in this saved environment; use a new fixture root for another run.
+
+Disabled Rewrite exposes no action while dirty, but Linux still incorrectly reports
+`enabled`/`sensitive`: [actual AT-SPI observation](evidence/native-disabled-observation.json).
+This known baseline caveat remains unpassed. Native picker access was previously
+denied and was not retried; GUI Restore remains absent. Mac close/menu/accessibility
+acceptance remains separate. No live-model quality, release readiness or full
+platform acceptance is claimed.
+
+## Failures and corrections retained
+
+Initial compiler failures identified removed APIs/shared ownership and were fixed
+without weakening behavior assertions. First provider run: 499 passed, 3 failed,
+1 ignored. Two assertions expected the old user-agent version. The third expected
+Timeout after a raw-stream byte refusal; released rmcp 3.5 now emits
+`transport_closed` for the originating unfinished RPC (streamable_http_client.rs
+1767–1790), whereas 2.2 only warned. The corrected test expects Transport and
+strengthens prompt refusal timing, retaining raw-byte-cap, one-call and zero-redirect
+assertions. No production workaround was needed. Both corrected provider runs pass.
+
+Initial formatting found an app test assertion needing rustfmt; corrected check
+passes. Initial strict Clippy found the larger unified client variant; boxing
+Copilot fixed the issue without suppressing the check. Original failed logs remain
+under `/workspace/brn-environment/logs/rig045-migration`, with receipt hashes here.
+
+Next: publication approval for the preserved stack, followed by ordinary draft PR
+review/CI. Keep live-provider qualification and remaining platform UI gaps separate.
+[Prepared draft PR description](draft-pr.md).

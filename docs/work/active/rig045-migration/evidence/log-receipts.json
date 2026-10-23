@@ -1,0 +1,348 @@
+{
+  "generated_at": "2026-10-23T04:22:33.228333+00:00",
+  "raw_directory": "/workspace/brn-environment/logs/rig045-migration",
+  "logs": {
+    "build-workspace-before-box.log": {
+      "sha256": "33492f66236818d7f8ebe7af4c2eb3275caf05759ed9311512843c2032efdbbd",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "build-workspace.log": {
+      "sha256": "584e2fc22d7d26d9b086a47c3d10cfceea03dd48d37f050409b43da63fdef48c",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "check-adapt1.log": {
+      "sha256": "e18ab0e4fb25678f7355fffe3bdac1754dd7a99b3659745b974441c0e38ed7d7",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "check-adapt2.log": {
+      "sha256": "5367c37c87ece3973da264f6597e68608f7e3eb0803cbc11bafa07e40f841261",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "check-adapt3.log": {
+      "sha256": "375ef1a7860fd97bf2b3b3f54e62a41a90edaff7f499619f523c0271ea728b04",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "check-initial.log": {
+      "sha256": "7f178be953ce2de0a194cfbf20ee5a3179ae7ba2e4ba48b3667b4683e8214fc3",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "check-workspace1.log": {
+      "sha256": "be38dfdf8e4b5449dd4457beea5d093fc0f1f173f87ed6f21ea57f8748131553",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "check-workspace2.log": {
+      "sha256": "3d3d5a9984e703a0dee7d28fe8840bb54ceba1cf75a67d135e7606a4fea417b5",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "check-workspace3.log": {
+      "sha256": "63fefb3772a62750a84c88cb683d59d64914eae1c1d571af483b0eca9f0377c4",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "check-workspace4.log": {
+      "sha256": "ca6e0316ec8f0d21a9c27890fc0dc64ba5aef38d8724ec5bf86b8379748e91ed",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "docs.log": {
+      "sha256": "a1269e3147ba20e90a357554e6433923cee3fb035f6d77f75a8cbbc9158bad91",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "end-to-end.log": {
+      "sha256": "98c4208a9d043f8d4f92ff80455d354e07bd54011b1b577a3710933fb2ac129a",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "fetch-family.log": {
+      "sha256": "10f5c4ccac3122ad1d130d3c35b50d09fcd66b0e4859e75a7bfd274f2c87275a",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "fetch.log": {
+      "sha256": "630b381937b8b43fcbb50da95f7fe89d5d9cb2a9dd25a9a628430c0f2704d665",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "fmt-corrected.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "fmt.log": {
+      "sha256": "5c325016afda1922984ce9aa6d51d6a0f1188bcb659fc240112d73b15c4dd052",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "gate-runner-final.log": {
+      "sha256": "6d7d3e2ebdfb0a71d666a6adb1faab914104e1e6085bd1ba741e21fcf4bf6781",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "gate-runner.log": {
+      "sha256": "09891e5834e590dc632ad6ef6e97cd63889646a7a197b1df07b4157e66d3f71b",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "native-build.log": {
+      "sha256": "9b24eda98339519638e940b8ea44c461ff07317691dad1f1611e2d01d877edd0",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "native-clippy.log": {
+      "sha256": "eacb86ae64aa77f0f19548d9cb165fe922e98258b327ef43a670c08702662ab8",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "native-smoke.log": {
+      "sha256": "3fe0769087fd491fa543a03829ef5fafbb22dca2f8c17a9517d290e340207cb4",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "native-tests.log": {
+      "sha256": "fc06c216733e3eb4e8171f6a85aaff2a096cdd9cc9649a321d5267833fd4c66b",
+      "rust_reports": 1,
+      "rust_totals": {
+        "passed": 352,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    "provider-clippy.log": {
+      "sha256": "783e8d22b743f7038fb67f4ee301fafcb75c08aa12d23e229ff57a101b21afe3",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "provider-tests1.log": {
+      "sha256": "c292dcfba9b1e0bd8bd45ad999879e1c0986177e45b41d43fe3ccc52a70aaa9a",
+      "rust_reports": 1,
+      "rust_totals": {
+        "passed": 499,
+        "failed": 3,
+        "ignored": 1
+      }
+    },
+    "provider-tests2.log": {
+      "sha256": "444b6962cb23468893578d67cab374ddbf7fb6211fe082e674f3e3ba0dd8f197",
+      "rust_reports": 2,
+      "rust_totals": {
+        "passed": 505,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    "provider-tests3.log": {
+      "sha256": "b78e3c957b9175dad8d86d5d4596b52a36d789711a7d60caaf1372ee7dfba607",
+      "rust_reports": 2,
+      "rust_totals": {
+        "passed": 505,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    "python-tests.log": {
+      "sha256": "cf33d5634f912dd9aff609c961a5d808c56f9c282c2b5a6a5afdce139522c29f",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "scripted-document-clippy.log": {
+      "sha256": "5cf1f7f0a200f1468dad67a907d7e97a476bfde10e18bfa50fffd3a5196d4476",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "update-aligned.log": {
+      "sha256": "5c4039bb060fa02e051cd2af85b6250dc622f9d638696e9e29ec2e3f3044aebd",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "update-family.log": {
+      "sha256": "0bd1a802a359e7d67bd3a1653ba934f01f765a42aa0c0a55e248f5814b657cab",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "update-mcp-macros.log": {
+      "sha256": "888542c596abf9c9b2e0c3561e27bedf262041aad44f2a77217afa189d9d455d",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "update.log": {
+      "sha256": "92af6d7d03ff4e7a4c4c621fa97da021184e6f3f3ac22ceff77c8bf35b83b5d0",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "workspace-clippy.log": {
+      "sha256": "5fd75c6668fc2f86aeff10ecce640694c5c318d8b27bcc7a2df85bb73ed1f5a5",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "workspace-clippy2.log": {
+      "sha256": "2b5edd8ebf499222d53f303d4a25505362e3e1b479be1d197572df2c8b383aab",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "workspace-tests.log": {
+      "sha256": "664f9c02bb470020e8eacc89a4d94a12c13222f50455224b43648309ba4a5a8f",
+      "rust_reports": 106,
+      "rust_totals": {
+        "passed": 1313,
+        "failed": 0,
+        "ignored": 5
+      }
+    },
+    "final-diff.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "final-fmt.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "final-docs.log": {
+      "sha256": "c895c8357de3d016a95f76face821a58c1441385d3272b9b2424af13da6066bc",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    }
+  }
+}
