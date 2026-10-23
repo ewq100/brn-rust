@@ -4242,6 +4242,10 @@
         },
         {
           "type": "protected_preserved"
+        },
+        {
+          "type": "new_case_notes",
+          "max": 0
         }
       ]
     },
@@ -4337,6 +4341,10 @@
         },
         {
           "type": "protected_preserved"
+        },
+        {
+          "type": "new_case_notes",
+          "max": 0
         }
       ]
     },
@@ -4416,6 +4424,10 @@
         },
         {
           "type": "protected_preserved"
+        },
+        {
+          "type": "new_case_notes",
+          "max": 0
         }
       ]
     },
