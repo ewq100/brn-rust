@@ -71,6 +71,26 @@ Gates:
 
 </details>
 
+### Reconcile documentation and one owner decision backlog
+
+Task ID: `documentation-backlog`
+Owner: documentation lane with parent chat-history research · State: **active** · Last observed: 2026-10-23T23:44:59.961001+00:00
+Activity: New user-authorized documentation audit; repository evidence inventory underway. Chat proposals remain candidates, not implementation authority.
+Next: Audit current normative guidance against shipped code, preserve historical records, and reconcile parent chat findings into one stable-ID backlog.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** pending: audit/backlog documents
+- **checks:** pending: independent source review and navigation checks
+- **integration:** pending: draft PR226; no merge authority
+- **native:** inapplicable: documentation audit
+- **owner acceptance:** pending: blank Keep/Later/Drop choices
+
+</details>
+
 ## Next
 
 None recorded.
@@ -110,4 +130,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `artifact-design` — Specify constrained calculator and chart output
 
-Local page reflects the last saved observations in this record (2026-10-23T23:43:38.911437+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-23T23:44:59.961001+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
