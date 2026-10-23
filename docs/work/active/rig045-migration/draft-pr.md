@@ -16,8 +16,8 @@ This branch is stacked on the separate Tokio/Schemars maintenance commit
 `8f7143f34191ad53e4c7e74f7c061e8dce5e6e35`, which is stacked on UI commit
 `125f8ef053895e9dac1a54ecc3e8243188ccbc6c`. Publication is not authorized yet.
 
-Validation: provider/capability 505 passed; native state 352 passed; pre-layout-fix
-workspace 1,313 passed; final strict lint/build and 108-step/1,266-check CLI journey
+Validation: provider/capability 505 passed; native state 352 passed; final-source
+workspace 1,313 passed (exact tested head c16b986a); final strict lint/build and 108-step/1,266-check CLI journey
 passed. The final real native app reopened the 0.44 synthetic store unchanged,
 saved Unicode version 3, quit/reopened with exact bytes and exercised menus.
 Independent source review has no blocking findings. See the task record for source

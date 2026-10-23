@@ -50,7 +50,7 @@ AT-SPI. Serial shared-target builds. [Commands and fixture setup](reproduce.md).
 | Check | Result | Source / limit |
 |---|---|---|
 | Workspace all-target check, workspace build | PASS | Final build on 870bb936 |
-| Workspace tests | 1,313 passed, 0 failed, 5 ignored | 1fc6e45f, before boxed-client layout correction |
+| Workspace tests | 1,313 passed, 0 failed, 5 ignored | Final full aggregate on c16b986a (product source 870bb936) |
 | Provider/capability suite | 505 passed, 0 failed, 1 ignored | Repeated on final 870bb936; synthetic only |
 | Strict workspace, capability, scripted-document and native Clippy | PASS | Final corrected source, no warning suppression |
 | Native state tests | 352 passed, 0 failed, 1 ignored | 870bb936; separate from actual window |
@@ -63,10 +63,13 @@ AT-SPI. Serial shared-target builds. [Commands and fixture setup](reproduce.md).
 | CI, live accounts, Mac-specific acceptance | NOT RUN | Unpublished branch; outside this local qualification |
 | Scripted document journey module | NOT RUN on Linux | macOS-only; feature Clippy passed, not a journey pass |
 
-The full workspace test result is not relabeled as an exact-final-head rerun.
-The only later product change boxes the unified Copilot client like ChatGPT;
-independent review found it layout-only. Final provider regression, native state,
-real-window, rebuilt CLI end-to-end and all strict lint gates cover that correction.
+The required full workspace aggregate was rerun on final tested head
+`c16b986a84110104ed1c9dd227c5f41447bccfe7`, whose product source is exactly
+`870bb93640c80a8e81ab4b3d96b7a9cc85767746`. It passed without source or assertion
+changes: [exact-revision receipt](evidence/workspace-final.json). The earlier
+1fc6e45f run remains preserved separately. Final provider regression, native state,
+real-window, rebuilt CLI end-to-end and strict lint also cover the final product
+source. Later report-only commits do not change that source.
 
 ## Actual native and persistence evidence
 

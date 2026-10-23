@@ -1,8 +1,9 @@
 {
   "base": "8f7143f34191ad53e4c7e74f7c061e8dce5e6e35",
-  "workspace_tests_source": "1fc6e45fedb25d1d2ee9cd7783b54c0897c5e4e4",
+  "workspace_tests_source": "c16b986a84110104ed1c9dd227c5f41447bccfe7",
   "final_implementation": "870bb93640c80a8e81ab4b3d96b7a9cc85767746",
-  "later_change": "Box Copilot client, matching ChatGPT; source independently reviewed; final provider/native/end-to-end and all lint on corrected source",
+  "later_change": "Evidence-only updates follow final full workspace pass; product source remains870bb936.",
   "native_binary_sha256": "c9d23831f7df978c24e0a9b32e8da2bab52d0032acf5998dd3a449c69b482306",
-  "publication": "not authorized; no push/PR/merge"
+  "publication": "not authorized; no push/PR/merge",
+  "previous_workspace_tests_source": "1fc6e45fedb25d1d2ee9cd7783b54c0897c5e4e4"
 }

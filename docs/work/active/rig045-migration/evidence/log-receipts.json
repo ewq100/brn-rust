@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-23T04:22:33.228333+00:00",
+  "generated_at": "2026-10-23T04:33:57.542283+00:00",
   "raw_directory": "/workspace/brn-environment/logs/rig045-migration",
   "logs": {
     "build-workspace-before-box.log": {
@@ -342,6 +342,15 @@
         "passed": 0,
         "failed": 0,
         "ignored": 0
+      }
+    },
+    "workspace-tests-final.log": {
+      "sha256": "5cb2d08564b55a574ab0f509b91943dc865f2196b6dfa07a689eac4bb33e4dd7",
+      "rust_reports": 106,
+      "rust_totals": {
+        "passed": 1313,
+        "failed": 0,
+        "ignored": 5
       }
     }
   }
