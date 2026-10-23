@@ -35,7 +35,7 @@ fi
 cargo build --workspace --locked --offline
 cargo clippy --workspace --all-targets --locked --offline -- -D warnings
 cargo test --workspace --no-fail-fast --locked --offline
-if [[ "$(uname -s)" == Darwin ]]; then
+if [[ "$(uname -s)" == Darwin || ( "$(uname -s)" == Linux && "$(uname -m)" == x86_64 ) ]]; then
   cargo test -p brn --features scripted-document-tests --bin brn document_route_tests --locked --offline --jobs 1
   cargo clippy -p brn --features scripted-document-tests --all-targets --locked --offline --jobs 1 -- -D warnings
 fi
