@@ -715,6 +715,11 @@ class FixtureTests(unittest.TestCase):
                 context = ctx_for(CASE, BASE, after)
                 self.assertFalse(run(check, context)['passed'], case['id'])
 
+    def test_empty_topics_rejected_before_seeder_execution(self):
+        fixture = self.small()
+        fixture['cases'][0]['seeds']['topics'] = {'pages': []}
+        self.assertTrue(any('topics.pages must not be empty' in p for p in v2.validate_fixture(fixture)))
+
     def test_valid_small_fixture(self):
         fixture = self.small()
         fixture['cases'][0]['steps'][0]['prompt'] = 'Which vehicle gearbox work was done?'

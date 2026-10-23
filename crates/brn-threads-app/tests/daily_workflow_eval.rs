@@ -445,3 +445,366 @@ async fn daily_workflow_with_contradiction_reply_restart_and_resupply() {
     assert_eq!(after[0].id, before[0].id);
     assert_eq!(after[0].version, before[0].version + 1);
 }
+
+// These journeys compose the real tool adapter with durable app review/recovery.
+// The replacement text is scripted: assertions qualify host behavior, not a
+// model's interpretation, grounding quality, or native review controls.
+const REPEATED: &str =
+    "# Survey draft\n\nÕun stays.\n\nDepth pending.\n\nÕun stays.\n\nDepth pending.\n";
+const REVISED: &str =
+    "# Survey draft\n\nÕun stays.\n\nDepth pending.\n\nÕun stays.\n\nDepth confirmed at 1.4 m.\n";
+
+async fn precise_candidate(w: &mut World, replacement: &str) -> String {
+    precise_attempt(w, replacement)
+        .await
+        .expect("new candidate")
+}
+
+async fn precise_attempt(w: &mut World, replacement: &str) -> Option<String> {
+    let before: Vec<_> = w
+        .workspace
+        .candidates()
+        .unwrap()
+        .into_iter()
+        .map(|c| c.operation)
+        .collect();
+    let record = w.workspace.store.record(&w.survey).unwrap().unwrap();
+    let RecordData::Note(note) = record.data else {
+        panic!("note")
+    };
+    let start = note.markdown.rfind("Depth pending.").unwrap();
+    let prepared = prepare_run(request(
+        w,
+        &w.chat,
+        "Propose changing only the final depth passage.",
+        vec![],
+    ))
+    .unwrap();
+    let model = MockCompletionModel::from_stream_turns([
+        call(
+            "edit",
+            "prepare_note_edit",
+            json!({
+                "id":w.survey,"version":record.version,"start":start,"end":start+"Depth pending.".len(),
+                "expected_text":"Depth pending.","replacement_text":replacement,
+                "request_key":"final-depth","reason":"Propose the final measured depth without touching other text"
+            }),
+        ),
+        finish("The tool attempt finished; inspect the persisted candidate before review."),
+    ]);
+    let result = run_prepared_scripted(prepared, model.clone())
+        .await
+        .unwrap();
+    assert!(matches!(
+        result.answer.terminal,
+        brn_ai::AiTerminal::Completed
+    ));
+    assert_eq!(
+        model.requests().len(),
+        2,
+        "bounded scripted tool/answer turns"
+    );
+    let candidates = w.workspace.candidates().unwrap();
+    let candidate = candidates.iter().find(|c| !before.contains(&c.operation))?;
+    assert!(
+        candidate
+            .request
+            .writes
+            .iter()
+            .any(|put| put.id == w.survey)
+    );
+    Some(candidate.operation.as_str().to_owned())
+}
+
+fn draft_world() -> World {
+    let mut w = world();
+    let mut record = w.workspace.store.record(&w.survey).unwrap().unwrap();
+    let RecordData::Note(note) = &mut record.data else {
+        panic!("note")
+    };
+    note.markdown = REPEATED.into();
+    applied(
+        w.workspace
+            .owner_change(
+                "seed-repeated-draft",
+                &ChangeRequest {
+                    reason: "Synthetic repeated-passage draft".into(),
+                    writes: vec![Put {
+                        id: record.id,
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: record.data,
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap(),
+    );
+    w
+}
+
+fn reopen(w: &mut World) {
+    // Reopen the public service from persisted state, never copy an in-memory candidate.
+    w.workspace = Workspace::open_without_default_credentials(&w.data).unwrap();
+}
+
+fn preview(w: &World, operation: &str) -> String {
+    let op = w.workspace.store.operation(operation).unwrap();
+    let candidate = w.workspace.store.prepared(&op).unwrap();
+    candidate
+        .request
+        .writes
+        .iter()
+        .find_map(|put| match &put.data {
+            RecordData::Note(note) if put.id == w.survey => Some(note.markdown.clone()),
+            _ => None,
+        })
+        .unwrap()
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn precise_preview_reopens_applies_and_undo_restores_repeated_utf8_passages() {
+    let mut w = draft_world();
+    let op = precise_candidate(&mut w, "Depth confirmed at 1.4 m.").await;
+    assert_eq!(note_text(&w.workspace, &w.survey), REPEATED);
+    assert_eq!(preview(&w, &op), REVISED);
+    reopen(&mut w);
+    assert_eq!(preview(&w, &op), REVISED);
+    applied(w.workspace.review_apply(&op).unwrap().outcome);
+    reopen(&mut w);
+    assert_eq!(note_text(&w.workspace, &w.survey), REVISED);
+    applied(w.workspace.undo(&op).unwrap());
+    reopen(&mut w);
+    assert_eq!(note_text(&w.workspace, &w.survey), REPEATED);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn pending_precise_review_survives_dirty_reopen_then_explicit_discard_allows_apply() {
+    let mut w = draft_world();
+    let op = precise_candidate(&mut w, "Depth confirmed at 1.4 m.").await;
+    let version = w
+        .workspace
+        .store
+        .record(&w.survey)
+        .unwrap()
+        .unwrap()
+        .version;
+    let edit = w.workspace.store.begin_edit(&w.survey, version).unwrap();
+    w.workspace
+        .store
+        .update_buffer(&edit.id, 1, "Owner unsaved depth questions")
+        .unwrap();
+    reopen(&mut w);
+    assert!(matches!(
+        w.workspace.review_apply(&op).unwrap().outcome,
+        ApplyOutcome::Deferred { .. }
+    ));
+    assert_eq!(note_text(&w.workspace, &w.survey), REPEATED);
+    assert_eq!(preview(&w, &op), REVISED);
+    w.workspace.store.discard(&edit.id, 1).unwrap();
+    applied(w.workspace.review_apply(&op).unwrap().outcome);
+    assert_eq!(note_text(&w.workspace, &w.survey), REVISED);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn pending_precise_review_cannot_overwrite_owner_save_after_reopen() {
+    let mut w = draft_world();
+    let op = precise_candidate(&mut w, "Depth confirmed at 1.4 m.").await;
+    let version = w
+        .workspace
+        .store
+        .record(&w.survey)
+        .unwrap()
+        .unwrap()
+        .version;
+    let edit = w.workspace.store.begin_edit(&w.survey, version).unwrap();
+    let owner = "# Owner correction\n\nThe latest survey is not approved. Õun stays.\n";
+    w.workspace.store.update_buffer(&edit.id, 1, owner).unwrap();
+    assert!(matches!(
+        w.workspace.store.save(&edit.id, 1).unwrap(),
+        SaveOutcome::Saved(_)
+    ));
+    reopen(&mut w);
+    assert!(matches!(
+        w.workspace.review_apply(&op).unwrap().outcome,
+        ApplyOutcome::Stale { .. }
+    ));
+    assert_eq!(note_text(&w.workspace, &w.survey), owner);
+    assert_eq!(
+        preview(&w, &op),
+        REVISED,
+        "stale proposal remains an immutable review artifact"
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn precise_apply_lost_response_replays_after_reopen_without_duplicate_revision() {
+    let mut w = draft_world();
+    let op = precise_candidate(&mut w, "Depth confirmed at 1.4 m.").await;
+    let first = applied(w.workspace.review_apply(&op).unwrap().outcome);
+    let version = w
+        .workspace
+        .store
+        .record(&w.survey)
+        .unwrap()
+        .unwrap()
+        .version;
+    reopen(&mut w);
+    let replay = applied(w.workspace.review_apply(&op).unwrap().outcome);
+    assert_eq!(replay, first);
+    assert_eq!(
+        w.workspace
+            .store
+            .record(&w.survey)
+            .unwrap()
+            .unwrap()
+            .version,
+        version
+    );
+    assert_eq!(note_text(&w.workspace, &w.survey), REVISED);
+    let (undo, first) = w.workspace.undo_with_key("recover-undo", &op).unwrap();
+    applied(first.clone());
+    reopen(&mut w);
+    let (again, replay) = w.workspace.undo_with_key("recover-undo", &op).unwrap();
+    assert_eq!((again, replay), (undo, first));
+    assert_eq!(note_text(&w.workspace, &w.survey), REPEATED);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn dismissed_precise_candidate_stays_dismissed_after_reopen() {
+    let mut w = draft_world();
+    let op = precise_candidate(&mut w, "Depth confirmed at 1.4 m.").await;
+    w.workspace.review_dismiss(&op).unwrap();
+    reopen(&mut w);
+    w.workspace.review_dismiss(&op).unwrap();
+    assert!(
+        w.workspace
+            .review_apply(&op)
+            .unwrap_err()
+            .to_string()
+            .contains("candidate retired")
+    );
+    assert!(
+        w.workspace
+            .candidates()
+            .unwrap()
+            .iter()
+            .all(|c| c.operation.as_str() != op)
+    );
+    assert_eq!(note_text(&w.workspace, &w.survey), REPEATED);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn owner_replaced_precise_candidate_uses_only_reviewed_bytes_after_reopen() {
+    let mut w = draft_world();
+    let op = precise_candidate(&mut w, "Depth confirmed at 1.4 m.").await;
+    let reviewed = REVISED.replace("confirmed", "reported, not approved,");
+    let replacement = w
+        .workspace
+        .review_replace(&op, &w.survey, &reviewed)
+        .unwrap();
+    reopen(&mut w);
+    assert!(
+        w.workspace
+            .review_apply(&op)
+            .unwrap_err()
+            .to_string()
+            .contains("candidate retired")
+    );
+    assert_eq!(preview(&w, replacement.operation.as_str()), reviewed);
+    applied(
+        w.workspace
+            .review_apply(replacement.operation.as_str())
+            .unwrap()
+            .outcome,
+    );
+    assert_eq!(note_text(&w.workspace, &w.survey), reviewed);
+    applied(w.workspace.undo(replacement.operation.as_str()).unwrap());
+    assert_eq!(note_text(&w.workspace, &w.survey), REPEATED);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn competing_precise_runs_keep_one_candidate_until_owner_dismisses_it() {
+    let mut w = draft_world();
+    let first = precise_candidate(&mut w, "Depth confirmed at 1.4 m.").await;
+    assert!(
+        precise_attempt(&mut w, "Depth reported at 1.3 m.")
+            .await
+            .is_none()
+    );
+    reopen(&mut w);
+    assert_eq!(w.workspace.candidates().unwrap().len(), 1);
+    assert_eq!(preview(&w, &first), REVISED);
+    assert_eq!(note_text(&w.workspace, &w.survey), REPEATED);
+    w.workspace.review_dismiss(&first).unwrap();
+    let second = precise_candidate(&mut w, "Depth reported at 1.3 m.").await;
+    assert_ne!(first, second);
+    applied(w.workspace.review_apply(&second).unwrap().outcome);
+    assert_eq!(
+        note_text(&w.workspace, &w.survey),
+        REVISED.replace("confirmed at 1.4", "reported at 1.3")
+    );
+    applied(w.workspace.undo(&second).unwrap());
+    assert_eq!(note_text(&w.workspace, &w.survey), REPEATED);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn corrected_source_resupply_reopens_one_source_without_rewriting_adopted_decision() {
+    let mut w = world();
+    let decision = w.workspace.store.record(&w.decision).unwrap().unwrap();
+    let prepared = prepare_run(request(
+        &w,
+        &w.chat,
+        "Read the supplied email only.",
+        vec![email()],
+    ))
+    .unwrap();
+    run_prepared_scripted(
+        prepared,
+        MockCompletionModel::from_stream_turns([finish("Read only.")]),
+    )
+    .await
+    .unwrap();
+    let original = sources(&w.workspace);
+    assert_eq!(original.len(), 1);
+    reopen(&mut w);
+    let mut correction = email();
+    correction.text = "Correction from Mari: berth depth was 1.3 m, not 1.4 m. Delivery approval is still pending.".into();
+    correction.fingerprint = Some("mari-crane-email-v2".into());
+    let prepared = prepare_run(request(
+        &w,
+        &w.chat,
+        "Read the correction; do not alter my decision.",
+        vec![correction],
+    ))
+    .unwrap();
+    let model = MockCompletionModel::from_stream_turns([
+        call(
+            "source",
+            "read_source",
+            json!({"reference":"synthetic://mari-crane-email"}),
+        ),
+        finish("The correction reports 1.3 m; your decision is unchanged."),
+    ]);
+    run_prepared_scripted(prepared, model.clone())
+        .await
+        .unwrap();
+    assert!(seen(&model)[1].contains("1.3 m"));
+    reopen(&mut w);
+    let current = sources(&w.workspace);
+    assert_eq!(current.len(), 1);
+    assert_eq!(current[0].id, original[0].id);
+    assert_eq!(current[0].version, original[0].version + 1);
+    let RecordData::Source(source) = &current[0].data else {
+        panic!("source")
+    };
+    assert_eq!(
+        source.external_version.as_deref(),
+        Some("mari-crane-email-v2")
+    );
+    assert_eq!(
+        w.workspace.store.record(&w.decision).unwrap().unwrap(),
+        decision
+    );
+    assert!(w.workspace.candidates().unwrap().is_empty());
+}

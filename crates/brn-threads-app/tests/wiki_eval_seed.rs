@@ -278,3 +278,46 @@ fn seeding_refuses_a_data_dir_that_is_not_fresh() {
     let error = seed::seed_fixture(&data, &fixture(), "X1", 0, 1).unwrap_err();
     assert!(error.to_string().contains("must be fresh"));
 }
+
+#[test]
+fn daily_use_cases_seed_real_protected_sources_and_existing_topics() {
+    let fixture = include_str!("../../../scripts/fixtures/wiki-eval-cases-v2.json");
+    let parsed: serde_json::Value = serde_json::from_str(fixture).unwrap();
+    let cases: Vec<_> = parsed["cases"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter(|case| case["id"].as_str().unwrap().starts_with("DW"))
+        .collect();
+    assert_eq!(cases.len(), 12);
+    for case in cases {
+        let (_root, data) = dir();
+        let report =
+            seed::seed_fixture(&data, fixture, case["id"].as_str().unwrap(), 0, 1).unwrap();
+        let workspace = Workspace::open_without_default_credentials(&data).unwrap();
+        for expected in case["seeds"]["notes"].as_array().unwrap() {
+            let id = &report.notes[expected["key"].as_str().unwrap()];
+            let (_, actual) = note(&workspace, id);
+            assert_eq!(
+                actual.markdown,
+                format!(
+                    "# {}\n\n{}\n",
+                    expected["title"].as_str().unwrap(),
+                    expected["text"].as_str().unwrap()
+                )
+            );
+            assert_eq!(actual.protected, expected.get("import").is_some());
+            if let Some(coverage) = actual.import {
+                assert!(matches!(
+                    workspace
+                        .store
+                        .record(&coverage.source)
+                        .unwrap()
+                        .unwrap()
+                        .data,
+                    RecordData::Source(_)
+                ));
+            }
+        }
+    }
+}

@@ -279,6 +279,8 @@ def validate_case(case):
         for end in ('from', 'to'):
             if link[end] not in known:
                 bad(f'link references unknown key {link[end]!r}')
+    if seeds.get('topics') is not None and not seeds['topics'].get('pages'):
+        bad('topics.pages must not be empty')
     for key in (seeds.get('topics') or {}).get('pages', []):
         if key not in known:
             bad(f'topics page {key!r} is unknown')
