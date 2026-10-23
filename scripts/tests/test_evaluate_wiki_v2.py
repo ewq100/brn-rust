@@ -1126,8 +1126,6 @@ class PipelineWithStubBinary(unittest.TestCase):
         self.assertIn('Codex needs an absolute --auth-file', str(raised.exception))
         args.auth_file = Path('/abs/auth.json')
         self.assertEqual(v2.prepare_arms(args, Parser())[0]['provider'], 'Codex')
-if __name__ == '__main__':
-    unittest.main()
 
 
 class UndoVerification(unittest.TestCase):
@@ -1184,3 +1182,7 @@ class DimensionTests(unittest.TestCase):
         self.assertEqual(counts, dict(passed=0, failed=0, unverified=1, total=1))
         self.assertEqual(report['matrix']['A']['dimensions']['grounding'], counts)
         self.assertIn('grounding: 0/1 checks passed, 0 failed, 1 unverified', v2.format_report(report))
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -243,8 +243,6 @@ class EvidenceTests(unittest.TestCase):
             evidence.record_gate('verify-end-to-end.sh', [], 'relative', self.root)
 
 
-if __name__ == '__main__':
-    unittest.main()
 
 
 class HeadlessDocumentGateTests(unittest.TestCase):
@@ -258,7 +256,11 @@ class HeadlessDocumentGateTests(unittest.TestCase):
                 scripts = root / 'scripts'
                 scripts.mkdir()
                 gate = scripts / 'verify-end-to-end.sh'
-                gate.write_text((SCRIPTS / gate.name).read_text())
+                # Keep platform branches intact while preventing a Mac's real
+                # Homebrew Cargo from taking precedence over the inert fixture.
+                source = (SCRIPTS / gate.name).read_text()
+                source = source.replace('export PATH="/opt/homebrew/opt/rustup/bin:$PATH"\n', '')
+                gate.write_text(source)
                 for name in ['check-provider-retirement.py', 'check-intake-retirement.py',
                              'verify-end-to-end-fixtures.py', 'cli_journey.py']:
                     (scripts / name).write_text('pass\n')
@@ -295,3 +297,7 @@ printf adapted > "$target/artifacts/brn-xberg-helper-brn"
                     self.assertEqual(sibling.exists(), supported)
                     if supported:
                         self.assertEqual(sibling.read_text(), payload)
+
+
+if __name__ == '__main__':
+    unittest.main()
