@@ -1,0 +1,23 @@
+{
+  "tested_head": "c16b986a84110104ed1c9dd227c5f41447bccfe7",
+  "product_source": "870bb93640c80a8e81ab4b3d96b7a9cc85767746",
+  "command": [
+    "cargo",
+    "test",
+    "--workspace",
+    "--no-fail-fast",
+    "--locked",
+    "--offline",
+    "--jobs",
+    "1"
+  ],
+  "exit": 0,
+  "passed": 1313,
+  "failed": 0,
+  "ignored": 5,
+  "test_reports": 106,
+  "completed_at": "2026-10-23T04:33:57.542283+00:00",
+  "log": "/workspace/brn-environment/logs/rig045-migration/workspace-tests-final.log",
+  "log_sha256": "5cb2d08564b55a574ab0f509b91943dc865f2196b6dfa07a689eac4bb33e4dd7",
+  "source_or_assertion_changes": false
+}

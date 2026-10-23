@@ -144,7 +144,7 @@ mod tests {
         Request::builder()
             .method("POST")
             .uri("https://example.invalid/responses")
-            .header("session_id", "brn-synthetic")
+            .header("session-id", "brn-synthetic")
             .body(Bytes::from_static(b"{\"input\":\"synthetic\"}"))
             .unwrap()
     }

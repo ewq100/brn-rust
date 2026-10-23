@@ -150,7 +150,7 @@ fn session_ids(requests: &[rig::test_utils::CapturedHttpRequest]) -> Vec<String>
         .iter()
         .map(|r| {
             r.headers
-                .get("session_id")
+                .get("session-id")
                 .unwrap()
                 .to_str()
                 .unwrap()

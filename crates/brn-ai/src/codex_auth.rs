@@ -28,7 +28,7 @@ pub async fn codex_client(
     .await
 }
 
-/// `codex_client` over `http`, with every request's `session_id` fixed to
+/// `codex_client` over `http`, with every request's `session-id` fixed to
 /// `session` when given.
 pub(crate) async fn codex_client_pinned(
     auth_file: &Path,
@@ -95,7 +95,7 @@ pub(crate) async fn codex_client_pinned(
             access_token,
             account_id,
         },
-        None,
+        chatgpt::auth::MemoryTokenStore::default(),
         chatgpt::auth::DeviceCodeHandler::new(|_| {}),
         false,
     );
@@ -103,14 +103,17 @@ pub(crate) async fn codex_client_pinned(
         Some(session) => pinned_session_http(http, session)?,
         None => http,
     };
-    let operation = openai::OpenAIConfig::with_key(&chatgpt::DIALECT, "")
-        .connect(http)
-        .authenticate(&auth);
-    let inner = tokio::select! {
+    let context = tokio::select! {
         biased;
         _ = cancel.cancelled() => return Err(AiError::new(AiErrorKind::Other)),
-        client = operation => client.map_err(map_auth)?,
+        context = auth.auth_context(&http) => context.map_err(map_auth)?,
     };
+    let mut config = openai::OpenAIConfig::with_key(&chatgpt::DIALECT, context.api_key);
+    config.account_id = context.account_id;
+    if let Some(base) = context.api_base {
+        config = config.with_base_url(base);
+    }
+    let inner = config.connect(http);
     Ok(ProviderClient {
         inner: OwnedClient::Chatgpt(Box::new(inner)),
         selection: selection.clone(),
@@ -184,5 +187,33 @@ mod tests {
                 .kind,
             AiErrorKind::ToolRejected
         );
+    }
+    #[tokio::test]
+    async fn selected_access_token_stays_read_only_and_uses_no_transport() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let file = root.path().join("auth.json");
+        let bytes = br#"{"auth_mode":"chatgpt","tokens":{"access_token":"SYNTHETIC_ACCESS","account_id":"SYNTHETIC_ACCOUNT"}}"#;
+        std::fs::write(&file, bytes).unwrap();
+        std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
+        let http = rig::test_utils::SequencedHttpClient::new([]);
+        let client = codex_client_pinned(
+            &file,
+            &selection(),
+            Some("synthetic-session"),
+            DynHttpClient::new(http.clone()),
+            CancellationToken::new(),
+        )
+        .await
+        .unwrap();
+        let OwnedClient::Chatgpt(client) = client.inner else {
+            panic!("wrong provider")
+        };
+        assert_eq!(
+            client.config().account_id.as_deref(),
+            Some("SYNTHETIC_ACCOUNT")
+        );
+        assert_eq!(std::fs::read(&file).unwrap(), bytes);
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 1);
+        assert!(http.requests().is_empty());
     }
 }

@@ -1,0 +1,52 @@
+[
+  {
+    "name": "build-workspace",
+    "command": [
+      "cargo",
+      "build",
+      "--workspace",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1"
+    ],
+    "started": "2026-10-23T03:54:22.345349+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T03:55:49.986883+00:00"
+  },
+  {
+    "name": "workspace-tests",
+    "command": [
+      "cargo",
+      "test",
+      "--workspace",
+      "--no-fail-fast",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1"
+    ],
+    "started": "2026-10-23T03:55:49.987272+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T04:05:21.695563+00:00"
+  },
+  {
+    "name": "workspace-clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "--workspace",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "started": "2026-10-23T04:05:21.697406+00:00",
+    "exit": 101,
+    "finished": "2026-10-23T04:05:28.032048+00:00"
+  }
+]

@@ -120,8 +120,8 @@ async fn model_backed_summary_precedes_chat_without_chat_cache_authority() {
         http.requests()[1].headers.get("chatgpt-account-id")
     );
     assert_ne!(
-        http.requests()[0].headers.get("session_id"),
-        http.requests()[1].headers.get("session_id")
+        http.requests()[0].headers.get("session-id"),
+        http.requests()[1].headers.get("session-id")
     );
     assert!(chat.to_string().contains("UNTRUSTED DERIVED CONTEXT"));
     assert!(chat.to_string().contains("Preserve Monday requirement"));
@@ -257,8 +257,7 @@ struct Gate {
 impl rig::http_client::HttpMiddleware for Gate {
     fn after_response<'a>(
         &'a self,
-        _: &'a rig::http_client::Method,
-        _: &'a rig::http_client::Uri,
+        _: rig::http_client::Exchange<'a>,
         _: rig::http_client::StatusCode,
         _: &'a rig::http_client::HeaderMap,
     ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, rig::http_client::Result<()>> {

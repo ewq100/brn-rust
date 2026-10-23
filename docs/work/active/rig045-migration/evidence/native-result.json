@@ -1,0 +1,12 @@
+{
+  "result": "pass",
+  "rig": "0.45.0",
+  "old_rig": "0.44.0",
+  "journeys": [
+    "old 0.44 store exact snapshot, native Unicode edit/save v3/quit/reopen/OS close",
+    "AT-SPI menu item activation",
+    "repeated menu Return/Space/Escape/pointer",
+    "disabled Rewrite has no action; Unix enabled/sensitive caveat retained"
+  ],
+  "binary_sha256": "c9d23831f7df978c24e0a9b32e8da2bab52d0032acf5998dd3a449c69b482306"
+}

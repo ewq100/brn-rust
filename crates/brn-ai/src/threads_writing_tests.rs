@@ -987,9 +987,12 @@ async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
             ));
             let http = SequencedHttpClient::new(responses);
             let model = if copilot {
-                let client = rig::providers::copilot::CopilotConfig::new("synthetic-session-token")
-                    .with_base_url("https://copilot.example.invalid")
-                    .connect(DynHttpClient::new(http.clone()));
+                let client = rig::providers::openai::OpenAIConfig::with_key(
+                    &rig::providers::copilot::DIALECT,
+                    "synthetic-session-token",
+                )
+                .with_base_url("https://copilot.example.invalid")
+                .connect(DynHttpClient::new(http.clone()));
                 crate::auth::copilot_completion(&client, request.selection.model.clone(), true)
                     .into()
             } else {

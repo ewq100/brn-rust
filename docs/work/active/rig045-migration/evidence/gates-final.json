@@ -1,0 +1,167 @@
+[
+  {
+    "name": "provider-tests3",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-ai",
+      "--features",
+      "capability-spike",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1"
+    ],
+    "started": "2026-10-23T04:06:46.519878+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T04:10:36.538073+00:00"
+  },
+  {
+    "name": "build-workspace",
+    "command": [
+      "cargo",
+      "build",
+      "--workspace",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1"
+    ],
+    "started": "2026-10-23T04:10:36.538850+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T04:10:53.527188+00:00"
+  },
+  {
+    "name": "provider-clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "-p",
+      "brn-ai",
+      "--features",
+      "capability-spike",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "started": "2026-10-23T04:10:53.527497+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T04:11:08.428774+00:00"
+  },
+  {
+    "name": "scripted-document-clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "-p",
+      "brn",
+      "--features",
+      "scripted-document-tests",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "started": "2026-10-23T04:11:08.429209+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T04:11:15.228313+00:00"
+  },
+  {
+    "name": "native-tests",
+    "command": [
+      "cargo",
+      "test",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-test-support",
+      "--bin",
+      "brn-desktop",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1"
+    ],
+    "started": "2026-10-23T04:11:15.228637+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T04:17:13.936173+00:00"
+  },
+  {
+    "name": "native-build",
+    "command": [
+      "cargo",
+      "build",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui",
+      "--bin",
+      "brn-desktop",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1"
+    ],
+    "started": "2026-10-23T04:17:13.937263+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T04:18:19.458452+00:00"
+  },
+  {
+    "name": "native-clippy",
+    "command": [
+      "cargo",
+      "clippy",
+      "-p",
+      "brn-desktop",
+      "--features",
+      "native-ui",
+      "--all-targets",
+      "--locked",
+      "--offline",
+      "--jobs",
+      "1",
+      "--",
+      "-D",
+      "warnings"
+    ],
+    "started": "2026-10-23T04:18:19.458827+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T04:18:53.558573+00:00"
+  },
+  {
+    "name": "end-to-end",
+    "command": [
+      "bash",
+      "scripts/verify-end-to-end.sh",
+      "--fixtures-only"
+    ],
+    "started": "2026-10-23T04:18:53.559001+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T04:18:54.855894+00:00"
+  },
+  {
+    "name": "python-tests",
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "scripts/tests"
+    ],
+    "started": "2026-10-23T04:18:54.856212+00:00",
+    "exit": 0,
+    "finished": "2026-10-23T04:19:06.176247+00:00"
+  }
+]

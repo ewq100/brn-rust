@@ -309,7 +309,11 @@ impl DispatchGate for Invocation {
                         .map(Value::Object)
                         .unwrap_or_else(|| json!({}));
                     if call.params.name != self.tool.name
-                        || call.params.task.is_some()
+                        // rmcp 3.5 removed per-call task options. Task RPCs
+                        // still hit the deny arm below; MRTR continuations are
+                        // also outside this single exact reviewed invocation.
+                        || call.params.input_responses.is_some()
+                        || call.params.request_state.is_some()
                         || canonical_mcp_input(self.tool.contract, &input)
                             .map_err(|_| mcp::Refusal::Arguments)?
                             != self.canonical

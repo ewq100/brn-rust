@@ -1149,10 +1149,13 @@ fn configure_copilot_selection(request: &ThreadRunRequest) {
         .unwrap();
 }
 
-fn copilot_http(http: SequencedHttpClient) -> rig::providers::copilot::Copilot {
-    rig::providers::copilot::CopilotConfig::new("synthetic-session-token")
-        .with_base_url("https://copilot.example.invalid")
-        .connect(DynHttpClient::new(http))
+fn copilot_http(http: SequencedHttpClient) -> rig::providers::openai::OpenAI {
+    rig::providers::openai::OpenAIConfig::with_key(
+        &rig::providers::copilot::DIALECT,
+        "synthetic-session-token",
+    )
+    .with_base_url("https://copilot.example.invalid")
+    .connect(DynHttpClient::new(http))
 }
 fn assert_no_output_cap(body: &Value) {
     for field in ["max_output_tokens", "max_tokens", "max_completion_tokens"] {
@@ -1363,7 +1366,7 @@ async fn copilot_parent_provider_overflow_is_context_failure_without_route_fallb
 
 fn delivered_result(model: &MockCompletionModel) -> Value {
     for message in &model.requests()[1].chat_history {
-        if let rig::message::Message::User { content } = message {
+        if let rig::message::Message::User { content } = &**message {
             for item in content {
                 if let rig::message::UserContent::ToolResult(result) = item {
                     for block in &result.content {

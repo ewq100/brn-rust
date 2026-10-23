@@ -346,7 +346,7 @@ fn sent_input(model: &MockCompletionModel) -> String {
         .chat_history
         .iter()
         .filter_map(|message| {
-            if let rig::completion::Message::User { content } = message {
+            if let rig::completion::Message::User { content } = message.as_ref() {
                 Some(
                     content
                         .iter()
@@ -500,7 +500,7 @@ async fn structured_limits_and_unowned_real_operation_refs_reject_before_progres
                 .chat_history
                 .iter()
                 .filter_map(|m| {
-                    if let rig::message::Message::User { content } = m {
+                    if let rig::message::Message::User { content } = m.as_ref() {
                         Some(
                             content
                                 .iter()
@@ -530,7 +530,7 @@ async fn structured_limits_and_unowned_real_operation_refs_reject_before_progres
                 .chat_history
                 .iter()
                 .filter_map(|message| {
-                    if let rig::message::Message::User { content } = message {
+                    if let rig::message::Message::User { content } = message.as_ref() {
                         Some(
                             content
                                 .iter()
@@ -717,7 +717,7 @@ async fn retained_claims_and_operation_reference_never_inherit_a_protected_edit_
         .chat_history
         .iter()
         .find_map(|message| {
-            if let rig::message::Message::User { content } = message {
+            if let rig::message::Message::User { content } = message.as_ref() {
                 content.iter().find_map(|item| {
                     if let rig::message::UserContent::ToolResult(result) = item {
                         let value = serde_json::to_value(result).unwrap();

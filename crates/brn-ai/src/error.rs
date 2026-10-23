@@ -256,6 +256,7 @@ fn transport_variant(error: &http_client::Error) -> &'static str {
         http_client::Error::StreamEnded => "stream_ended",
         http_client::Error::InvalidContentType(_) => "invalid_content_type",
         http_client::Error::Instance(_) => "instance",
+        _ => "other",
     }
 }
 
@@ -272,6 +273,10 @@ pub(crate) fn map_auth(error: AuthError) -> AiError {
     match error {
         AuthError::Http(error) => map_transport(error),
         AuthError::Io(_) => AiError::new(AiErrorKind::Storage),
+        AuthError::Store(error) => match error.downcast::<AiError>() {
+            Ok(error) => *error,
+            Err(_) => AiError::new(AiErrorKind::Storage),
+        },
         AuthError::Json(_) => AiError::new(AiErrorKind::ReconnectNeeded),
         AuthError::Message(message) => {
             // Rig 0.43 loses typed status on ChatGPT refresh/device failures.

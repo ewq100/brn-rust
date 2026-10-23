@@ -597,8 +597,7 @@ struct SkillGate {
 impl rig::http_client::HttpMiddleware for SkillGate {
     fn after_response<'a>(
         &'a self,
-        _: &'a rig::http_client::Method,
-        _: &'a rig::http_client::Uri,
+        _: rig::http_client::Exchange<'a>,
         _: rig::http_client::StatusCode,
         _: &'a rig::http_client::HeaderMap,
     ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, rig::http_client::Result<()>> {
@@ -898,7 +897,7 @@ async fn escaped_bounded_skill_reference_pages_exact_utf8_with_actual_next_start
     }
     let mut pages = Vec::new();
     for message in &requests[2].chat_history {
-        if let rig::message::Message::User { content } = message {
+        if let rig::message::Message::User { content } = &**message {
             for item in content {
                 if let rig::message::UserContent::ToolResult(result) = item {
                     for block in &result.content {
