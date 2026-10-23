@@ -27,8 +27,8 @@ struct State {
 #[derive(Clone)]
 struct Handler(Arc<State>);
 impl ServerHandler for Handler {
-    fn get_info(&self) -> ServerInfo {
-        let mut info = ServerInfo::new(ServerCapabilities::builder().enable_tools().build());
+    fn get_info(&self) -> ServerConfig {
+        let mut info = ServerConfig::new(ServerCapabilities::builder().enable_tools().build());
         info.server_info.version = "synthetic-cli-1".into();
         info
     }
@@ -54,7 +54,7 @@ impl ServerHandler for Handler {
         &self,
         params: CallToolRequestParams,
         _: RequestContext<RoleServer>,
-    ) -> Result<CallToolResult, ErrorData> {
+    ) -> Result<CallToolResponse, ErrorData> {
         self.0.calls.fetch_add(1, Ordering::SeqCst);
         let input = params.arguments.map(Value::Object).unwrap_or(Value::Null);
         self.0.inputs.lock().unwrap().push(input);
@@ -63,7 +63,8 @@ impl ServerHandler for Handler {
         }
         Ok(CallToolResult::success(vec![ContentBlock::text(
             "PUBLIC_RAW_MCP_RESPONSE_CANARY https://example.invalid/mcp-process: source value 23.",
-        )]))
+        )])
+        .into())
     }
 }
 pub struct Server {

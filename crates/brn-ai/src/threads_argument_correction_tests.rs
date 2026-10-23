@@ -484,8 +484,11 @@ async fn responses_and_chat_second_requests_pair_each_rejected_call_with_no_effe
             ),
             MockHttpResponse::success_typed(wire_done(responses), "text/event-stream"),
         ]);
-        let client = rig::providers::copilot::CopilotConfig::new("synthetic-not-a-credential")
-            .connect(http.clone());
+        let client = rig::providers::openai::OpenAIConfig::with_key(
+            &rig::providers::copilot::DIALECT,
+            "synthetic-not-a-credential",
+        )
+        .connect(http.clone());
         let answer = run_model(
             crate::auth::copilot_completion(&client, "synthetic-model".into(), responses),
             scope.clone(),

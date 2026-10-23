@@ -21,7 +21,7 @@ required-features = ["native-ui"]
 [dev-dependencies]
 brn-ai = { path = "../brn-ai", features = ["scripted-runs"] }
 brn-threads-intake = { path = "../brn-threads-intake" }
-rig = { version = "=0.44.0", default-features = false, features = ["test-utils"] }
+rig = { version = "=0.45.0", default-features = false, features = ["test-utils"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 tempfile = "3"
 serde_json = "1"

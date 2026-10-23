@@ -211,8 +211,7 @@ struct AfterResponse {
 impl rig::http_client::HttpMiddleware for AfterResponse {
     fn after_response<'a>(
         &'a self,
-        _: &'a rig::http_client::Method,
-        _: &'a rig::http_client::Uri,
+        _: rig::http_client::Exchange<'a>,
         _: rig::http_client::StatusCode,
         _: &'a rig::http_client::HeaderMap,
     ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, rig::http_client::Result<()>> {
@@ -927,12 +926,9 @@ async fn offline_prepare_signature_and_existing_activity_do_not_identify_histori
             // The maintained native adapter retains a typed source but deliberately
             // gives the model only generic feedback. This is not a second driver.
             let mut cx = ToolContext::new().with_scope(scope.clone());
-            let native = rig::tool::ErasedTool::execute(
-                &PrepareChanges::for_scope(&scope),
-                args.to_string(),
-                &mut cx,
-            )
-            .await;
+            let native = rig::tool::RegisteredTool::from_tool(PrepareChanges::for_scope(&scope))
+                .execute(args.to_string(), &mut cx)
+                .await;
             assert_eq!(native.output().as_text(), Some("the tool failed"));
             let error = native.error().unwrap();
             assert_eq!(error.kind(), rig::tool::ToolErrorKind::Other);

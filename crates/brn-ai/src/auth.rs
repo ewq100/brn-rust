@@ -35,7 +35,7 @@ pub struct ProviderClient {
 
 pub(crate) enum OwnedClient {
     Chatgpt(Box<openai::OpenAI>),
-    Copilot(copilot::Copilot),
+    Copilot(openai::OpenAI),
 }
 
 impl ProviderClient {
@@ -59,7 +59,7 @@ impl Provider {
     }
 }
 
-/// Rig draws a fresh `session_id` header for every Codex request, so the
+/// Rig draws a fresh `session-id` header for every Codex request, so the
 /// subscription backend sees each model turn of a run as a new conversation and
 /// routes it away from the cache that holds the previous turn. Codex itself
 /// keeps one id per conversation.
@@ -68,18 +68,17 @@ struct PinnedSession(rig::http_client::HeaderValue);
 impl HttpMiddleware for PinnedSession {
     fn before_request_headers<'a>(
         &'a self,
-        _method: &'a rig::http_client::Method,
-        _uri: &'a rig::http_client::Uri,
+        _exchange: rig::http_client::middleware::Exchange<'a>,
         headers: &'a mut rig::http_client::HeaderMap,
     ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, rig::http_client::Result<()>> {
-        if headers.contains_key("session_id") {
-            headers.insert("session_id", self.0.clone());
+        if headers.contains_key("session-id") {
+            headers.insert("session-id", self.0.clone());
         }
         Box::pin(async { Ok(()) })
     }
 }
 
-/// `http` with every request's `session_id` header fixed to `session`.
+/// `http` with every request's `session-id` header fixed to `session`.
 pub(crate) fn pinned_session_http(http: DynHttpClient, session: &str) -> AiResult<DynHttpClient> {
     let value = session
         .parse()
@@ -88,13 +87,13 @@ pub(crate) fn pinned_session_http(http: DynHttpClient, session: &str) -> AiResul
 }
 
 /// The Copilot completion model, forced onto the Responses route when asked.
-/// Rig 0.44 selects that route only for Codex IDs, yet Copilot serves some
+/// Rig 0.45 selects that route only for Codex IDs, yet Copilot serves some
 /// other models there exclusively.
 pub(crate) fn copilot_completion(
-    client: &copilot::Copilot,
+    client: &openai::OpenAI,
     model: String,
     responses: bool,
-) -> rig_core::driver::Model<copilot::wire::CopilotWire> {
+) -> rig_core::driver::Model<openai::wire::OpenAiWire> {
     let mut completion = client.completion(model.clone());
     if responses {
         let config = client.config();
@@ -102,7 +101,7 @@ pub(crate) fn copilot_completion(
             openai::OpenAIConfig::with_key(&copilot::wire::DIALECT, config.api_key.clone())
                 .with_base_url(config.base_url.clone())
                 .with_route(openai::wire::Route::Responses);
-        completion.wire.wire = openai::wire::OpenAiWire::new(provider, model);
+        completion.wire = openai::wire::OpenAiWire::new(provider, model);
     }
     completion
 }
@@ -154,68 +153,15 @@ impl Auth {
     }
 
     fn validate_dir(&self) -> AiResult<()> {
-        validate_ancestors(&self.dir)?;
-        let meta = std::fs::symlink_metadata(&self.dir).map_err(storage)?;
-        validate_metadata(
-            meta.is_file(),
-            meta.is_dir(),
-            meta.nlink(),
-            meta.uid(),
-            meta.mode(),
-            true,
-        )
+        validate_dir_in(&self.dir)
     }
 
     fn checked_file(&self, name: &str, tighten: bool) -> AiResult<Option<File>> {
-        let path = self.dir.join(name);
-        let meta = match std::fs::symlink_metadata(&path) {
-            Ok(meta) => meta,
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
-            Err(e) => return Err(storage(e)),
-        };
-        validate_file(&meta, tighten)?;
-        let file = OpenOptions::new()
-            .read(true)
-            .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
-            .open(&path)
-            .map_err(|_| unsafe_credentials())?;
-        let opened = file.metadata().map_err(storage)?;
-        validate_file(&opened, tighten)?;
-        if opened.ino() != meta.ino() || opened.dev() != meta.dev() {
-            return Err(unsafe_credentials());
-        }
-        if tighten {
-            file.set_permissions(std::fs::Permissions::from_mode(0o600))
-                .map_err(|_| unsafe_credentials())?;
-            validate_file(&file.metadata().map_err(|_| unsafe_credentials())?, false)?;
-        }
-        Ok(Some(file))
-    }
-
-    fn read(&self, name: &str) -> AiResult<Option<Vec<u8>>> {
-        let Some(file) = self.checked_file(name, false)? else {
-            return Ok(None);
-        };
-        let mut bytes = Vec::new();
-        file.take(1024 * 1024 + 1)
-            .read_to_end(&mut bytes)
-            .map_err(storage)?;
-        if bytes.len() > 1024 * 1024 {
-            return Err(record_error(name));
-        }
-        Ok(Some(bytes))
+        checked_file_in(&self.dir, name, tighten)
     }
 
     fn json(&self, name: &str) -> AiResult<Option<serde_json::Value>> {
-        self.read(name)?
-            .map(|bytes| {
-                let value = serde_json::from_slice(&bytes).map_err(|_| record_error(name))?;
-                if matches!(name, "chatgpt.json" | "copilot.json") {
-                    validate_record(&value, name)?;
-                }
-                Ok(value)
-            })
-            .transpose()
+        json_in(&self.dir, name)
     }
 
     fn tighten(&self, provider: Provider) -> AiResult<()> {
@@ -307,7 +253,9 @@ impl Auth {
                 Provider::Chatgpt => {
                     let authenticator = chatgpt::auth::Authenticator::new(
                         chatgpt::auth::AuthSource::OAuth,
-                        Some(self.dir.join("chatgpt.json")),
+                        LegacyTokenStore {
+                            dir: self.dir.clone(),
+                        },
                         handler,
                         allow_device_flow,
                     );
@@ -315,27 +263,35 @@ impl Auth {
                         Some(session) => pinned_session_http(self.http.clone(), session)?,
                         None => self.http.clone(),
                     };
-                    openai::OpenAIConfig::with_key(&chatgpt::DIALECT, "")
-                        .connect(http)
-                        .authenticate(&authenticator)
-                        .await
-                        .map(|client| OwnedClient::Chatgpt(Box::new(client)))
-                        .map_err(map_auth)
+                    let context = authenticator.auth_context(&http).await.map_err(map_auth)?;
+                    let mut config =
+                        openai::OpenAIConfig::with_key(&chatgpt::DIALECT, context.api_key);
+                    config.account_id = context.account_id;
+                    if let Some(base) = context.api_base {
+                        config = config.with_base_url(base);
+                    }
+                    Ok(OwnedClient::Chatgpt(Box::new(config.connect(http))))
                 }
                 Provider::Copilot => {
                     let authenticator = copilot::auth::Authenticator::new(
                         copilot::auth::AuthSource::OAuth,
-                        Some(self.dir.join("github-token")),
-                        Some(self.dir.join("copilot.json")),
+                        LegacyTokenStore {
+                            dir: self.dir.clone(),
+                        },
                         handler,
                         allow_device_flow,
                     );
-                    copilot::CopilotConfig::new("")
-                        .connect(self.http.clone())
-                        .authenticate(&authenticator)
+                    let context = authenticator
+                        .auth_context(&self.http)
                         .await
-                        .map(OwnedClient::Copilot)
-                        .map_err(map_auth)
+                        .map_err(map_auth)?;
+                    let mut config =
+                        openai::OpenAIConfig::with_key(&copilot::DIALECT, context.api_key);
+                    config.account_id = context.account_id;
+                    if let Some(base) = context.api_base {
+                        config = config.with_base_url(base);
+                    }
+                    Ok(OwnedClient::Copilot(config.connect(self.http.clone())))
                 }
             }
         };
@@ -391,7 +347,7 @@ impl Auth {
     }
 
     /// A client whose ChatGPT requests all carry `session` as their
-    /// `session_id`, built on this `Auth`'s own transport. Copilot ignores it.
+    /// `session-id`, built on this `Auth`'s own transport. Copilot ignores it.
     pub(crate) async fn client_pinned(
         &self,
         selection: &Selection,
@@ -554,16 +510,7 @@ impl Auth {
     }
 
     fn github_token(&self) -> AiResult<Option<String>> {
-        let Some(bytes) = self.read("github-token")? else {
-            return Ok(None);
-        };
-        let token = std::str::from_utf8(&bytes)
-            .map_err(|_| AiError::new(AiErrorKind::ReconnectNeeded))?
-            .trim();
-        if token.chars().any(char::is_control) {
-            return Err(AiError::new(AiErrorKind::ReconnectNeeded));
-        }
-        Ok((!token.is_empty()).then(|| token.to_owned()))
+        github_token_in(&self.dir)
     }
 
     /// Stable summary-cache identity from the same checked bootstrap file.
@@ -620,6 +567,246 @@ impl Auth {
             .map_err(storage)?;
         file.write_all(&bytes).map_err(storage)
     }
+}
+
+/// Rig's record interface over BRN's existing checked files. Created only inside
+/// authenticate, while the owning Auth's provider lock and finalizer are held.
+/// No Rig FileTokenStore, lockfiles, or per-request authenticator escapes here.
+struct LegacyTokenStore {
+    dir: PathBuf,
+}
+
+impl LegacyTokenStore {
+    fn load_record(&self, key: &str) -> AiResult<Option<String>> {
+        validate_dir_in(&self.dir)?;
+        let record = match key {
+            "chatgpt" => json_in(&self.dir, "chatgpt.json")?,
+            "copilot" => {
+                let session = json_in(&self.dir, "copilot.json")?;
+                let github = github_token_in(&self.dir)?;
+                if session.is_none() && github.is_none() {
+                    return Ok(None);
+                }
+                let mut record = session.unwrap_or_else(|| {
+                    serde_json::json!({
+                        "token": null, "expires_at": null, "endpoints": null,
+                        "bootstrap_token_fingerprint": null
+                    })
+                });
+                // The legacy bootstrap file is authoritative; never discover a
+                // different account from a combined record left by another app.
+                record["github_token"] = github.into();
+                Some(record)
+            }
+            _ => return Err(unsafe_credentials()),
+        };
+        record
+            .map(|value| {
+                serde_json::to_string(&value).map_err(|_| AiError::new(AiErrorKind::Storage))
+            })
+            .transpose()
+    }
+
+    fn save_record(&self, key: &str, record: &str) -> AiResult<()> {
+        validate_dir_in(&self.dir)?;
+        if record.len() > 1024 * 1024 {
+            return Err(AiError::new(AiErrorKind::ReconnectNeeded));
+        }
+        let mut value: serde_json::Value =
+            serde_json::from_str(record).map_err(|_| AiError::new(AiErrorKind::ReconnectNeeded))?;
+        match key {
+            "chatgpt" => {
+                validate_record(&value, "chatgpt.json")?;
+                write_record_in(&self.dir, "chatgpt.json", record.as_bytes())
+            }
+            "copilot" => {
+                validate_record(&value, "copilot.json")?;
+                let github = value.as_object_mut().unwrap().remove("github_token");
+                let github = match github {
+                    None | Some(serde_json::Value::Null) => None,
+                    Some(serde_json::Value::String(token))
+                        if !token.trim().is_empty() && !token.chars().any(char::is_control) =>
+                    {
+                        Some(token)
+                    }
+                    _ => return Err(AiError::new(AiErrorKind::ReconnectNeeded)),
+                };
+                // Validate both destinations before any write, including the
+                // partial GitHub-token save that precedes session exchange.
+                checked_file_in(&self.dir, "github-token", false)?;
+                let had_session = checked_file_in(&self.dir, "copilot.json", false)?.is_some();
+                match github {
+                    Some(token) => write_record_in(&self.dir, "github-token", token.as_bytes())?,
+                    None => delete_record_in(&self.dir, "github-token")?,
+                }
+                if nonempty(value.get("token")).is_some() || had_session {
+                    write_record_in(
+                        &self.dir,
+                        "copilot.json",
+                        &serde_json::to_vec(&value)
+                            .map_err(|_| AiError::new(AiErrorKind::Storage))?,
+                    )?;
+                }
+                Ok(())
+            }
+            _ => Err(unsafe_credentials()),
+        }
+    }
+}
+
+impl chatgpt::auth::TokenStore for LegacyTokenStore {
+    fn load<'a>(
+        &'a self,
+        key: &'a str,
+    ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, Result<Option<String>, rig_core::error::BoxError>>
+    {
+        Box::pin(async move { self.load_record(key).map_err(|e| Box::new(e) as _) })
+    }
+    fn save<'a>(
+        &'a self,
+        key: &'a str,
+        record: &'a str,
+    ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, Result<(), rig_core::error::BoxError>> {
+        Box::pin(async move { self.save_record(key, record).map_err(|e| Box::new(e) as _) })
+    }
+    fn delete<'a>(
+        &'a self,
+        key: &'a str,
+    ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, Result<(), rig_core::error::BoxError>> {
+        Box::pin(async move {
+            let files: &[&str] = match key {
+                "chatgpt" => &["chatgpt.json"],
+                "copilot" => &["github-token", "copilot.json"],
+                _ => return Err(Box::new(unsafe_credentials()) as rig_core::error::BoxError),
+            };
+            validate_dir_in(&self.dir)?;
+            for name in files {
+                checked_file_in(&self.dir, name, false)?;
+            }
+            for name in files {
+                delete_record_in(&self.dir, name)?;
+            }
+            Ok(())
+        })
+    }
+    // The default no-op StoreLock is intentional: BRN's provider mutex already
+    // covers this short-lived adapter and the complete refresh/login operation.
+}
+
+fn write_record_in(dir: &Path, name: &str, bytes: &[u8]) -> AiResult<()> {
+    validate_dir_in(dir)?;
+    let previous = checked_file_in(dir, name, false)?;
+    let mut options = OpenOptions::new();
+    options
+        .write(true)
+        .mode(0o600)
+        .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK);
+    if previous.is_none() {
+        options.create_new(true);
+    }
+    // Do not truncate until the opened descriptor has passed the same identity,
+    // owner, permissions, regular-file and hard-link checks as credential reads.
+    let mut file = options
+        .open(dir.join(name))
+        .map_err(|_| unsafe_credentials())?;
+    let opened = file.metadata().map_err(storage)?;
+    validate_file(&opened, false)?;
+    if let Some(previous) = previous {
+        let previous = previous.metadata().map_err(storage)?;
+        if previous.ino() != opened.ino() || previous.dev() != opened.dev() {
+            return Err(unsafe_credentials());
+        }
+    }
+    file.set_len(0).map_err(storage)?;
+    file.write_all(bytes).map_err(storage)
+}
+
+fn delete_record_in(dir: &Path, name: &str) -> AiResult<()> {
+    validate_dir_in(dir)?;
+    checked_file_in(dir, name, false)?;
+    match std::fs::remove_file(dir.join(name)) {
+        Ok(()) => Ok(()),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(e) => Err(storage(e)),
+    }
+}
+
+fn validate_dir_in(dir: &Path) -> AiResult<()> {
+    validate_ancestors(dir)?;
+    let meta = std::fs::symlink_metadata(dir).map_err(storage)?;
+    validate_metadata(
+        meta.is_file(),
+        meta.is_dir(),
+        meta.nlink(),
+        meta.uid(),
+        meta.mode(),
+        true,
+    )
+}
+
+fn checked_file_in(dir: &Path, name: &str, tighten: bool) -> AiResult<Option<File>> {
+    let path = dir.join(name);
+    let meta = match std::fs::symlink_metadata(&path) {
+        Ok(meta) => meta,
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(e) => return Err(storage(e)),
+    };
+    validate_file(&meta, tighten)?;
+    let file = OpenOptions::new()
+        .read(true)
+        .custom_flags(libc::O_NOFOLLOW | libc::O_NONBLOCK)
+        .open(&path)
+        .map_err(|_| unsafe_credentials())?;
+    let opened = file.metadata().map_err(storage)?;
+    validate_file(&opened, tighten)?;
+    if opened.ino() != meta.ino() || opened.dev() != meta.dev() {
+        return Err(unsafe_credentials());
+    }
+    if tighten {
+        file.set_permissions(std::fs::Permissions::from_mode(0o600))
+            .map_err(|_| unsafe_credentials())?;
+        validate_file(&file.metadata().map_err(|_| unsafe_credentials())?, false)?;
+    }
+    Ok(Some(file))
+}
+
+fn read_in(dir: &Path, name: &str) -> AiResult<Option<Vec<u8>>> {
+    let Some(file) = checked_file_in(dir, name, false)? else {
+        return Ok(None);
+    };
+    let mut bytes = Vec::new();
+    file.take(1024 * 1024 + 1)
+        .read_to_end(&mut bytes)
+        .map_err(storage)?;
+    if bytes.len() > 1024 * 1024 {
+        return Err(record_error(name));
+    }
+    Ok(Some(bytes))
+}
+
+fn json_in(dir: &Path, name: &str) -> AiResult<Option<serde_json::Value>> {
+    read_in(dir, name)?
+        .map(|bytes| {
+            let value = serde_json::from_slice(&bytes).map_err(|_| record_error(name))?;
+            if matches!(name, "chatgpt.json" | "copilot.json") {
+                validate_record(&value, name)?;
+            }
+            Ok(value)
+        })
+        .transpose()
+}
+
+fn github_token_in(dir: &Path) -> AiResult<Option<String>> {
+    let Some(bytes) = read_in(dir, "github-token")? else {
+        return Ok(None);
+    };
+    let token = std::str::from_utf8(&bytes)
+        .map_err(|_| AiError::new(AiErrorKind::ReconnectNeeded))?
+        .trim();
+    if token.chars().any(char::is_control) {
+        return Err(AiError::new(AiErrorKind::ReconnectNeeded));
+    }
+    Ok((!token.is_empty()).then(|| token.to_owned()))
 }
 
 // Strict required projection of the Codex models envelope; unused metadata is
@@ -853,12 +1040,11 @@ mod tests {
 
     #[test]
     fn copilot_completion_uses_rig_route_unless_responses_is_forced() {
-        let client = copilot::Copilot::new("synthetic-session-token");
+        let client = openai::OpenAIConfig::with_key(&copilot::DIALECT, "synthetic-session-token")
+            .connect(DynHttpClient::new(rig::rig_reqwest::shared()));
         let route = |model: &str, responses| {
             matches!(
-                copilot_completion(&client, model.into(), responses)
-                    .wire
-                    .wire,
+                copilot_completion(&client, model.into(), responses).wire,
                 openai::wire::OpenAiWire::Responses(_)
             )
         };
@@ -1308,12 +1494,11 @@ mod tests {
     impl rig::http_client::HttpMiddleware for Gate {
         fn before_request_headers<'a>(
             &'a self,
-            _: &'a rig::http_client::Method,
-            uri: &'a rig::http_client::Uri,
+            exchange: rig::http_client::middleware::Exchange<'a>,
             _: &'a mut rig::http_client::HeaderMap,
         ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, rig::http_client::Result<()>> {
             Box::pin(async move {
-                if uri.path().ends_with(self.suffix) {
+                if exchange.uri.path().ends_with(self.suffix) {
                     self.entered.notify_one();
                     self.release.cancelled().await;
                 }
@@ -1429,8 +1614,7 @@ mod tests {
     impl rig::http_client::HttpMiddleware for CatalogNetworkFailure {
         fn before_request_headers<'a>(
             &'a self,
-            _: &'a rig::http_client::Method,
-            _: &'a rig::http_client::Uri,
+            _: rig::http_client::middleware::Exchange<'a>,
             _: &'a mut rig::http_client::HeaderMap,
         ) -> rig_core::wasm_compat::WasmBoxedFuture<'a, rig::http_client::Result<()>> {
             Box::pin(async {
@@ -1853,5 +2037,122 @@ mod tests {
         write(&auth, "github-token", &[0xff, 0xfe]);
         let error = auth.status(Provider::Copilot).await.unwrap_err();
         assert_eq!(error.kind, AiErrorKind::ReconnectNeeded);
+    }
+    #[tokio::test]
+    async fn token_store_roundtrip_preserves_legacy_files_without_combined_records() {
+        use chatgpt::auth::TokenStore;
+        let (_root, auth) = fixture();
+        let chat = serde_json::json!({
+            "access_token": "SYNTHETIC_ACCESS", "refresh_token": "SYNTHETIC_REFRESH",
+            "id_token": "SYNTHETIC_ID", "account_id": "SYNTHETIC_ACCOUNT", "expires_at": 4102444800_i64
+        });
+        let session = serde_json::json!({
+            "token": "SYNTHETIC_SESSION", "expires_at": 4102444800_i64,
+            "endpoints": {"api": "https://api.githubcopilot.com"},
+            "bootstrap_token_fingerprint": "SYNTHETIC_FINGERPRINT"
+        });
+        write(&auth, "chatgpt.json", &serde_json::to_vec(&chat).unwrap());
+        write(
+            &auth,
+            "copilot.json",
+            &serde_json::to_vec(&session).unwrap(),
+        );
+        write(&auth, "github-token", b"SYNTHETIC_GITHUB");
+        let store = LegacyTokenStore {
+            dir: auth.dir.clone(),
+        };
+        for key in ["chatgpt", "copilot"] {
+            let record = store.load(key).await.unwrap().unwrap();
+            store.save(key, &record).await.unwrap();
+        }
+        assert_eq!(auth.json("chatgpt.json").unwrap().unwrap(), chat);
+        assert_eq!(auth.json("copilot.json").unwrap().unwrap(), session);
+        assert_eq!(
+            std::fs::read(auth.dir.join("github-token")).unwrap(),
+            b"SYNTHETIC_GITHUB"
+        );
+        let mut names: Vec<_> = std::fs::read_dir(&auth.dir)
+            .unwrap()
+            .map(|e| e.unwrap().file_name())
+            .collect();
+        names.sort();
+        assert_eq!(
+            names,
+            ["chatgpt.json", "copilot.json", "github-token"].map(std::ffi::OsString::from)
+        );
+    }
+
+    #[tokio::test]
+    async fn token_store_saves_partial_github_before_session_and_deletes_invalidated_bootstrap() {
+        use chatgpt::auth::TokenStore;
+        let (_root, auth) = fixture();
+        let store = LegacyTokenStore {
+            dir: auth.dir.clone(),
+        };
+        store.save("copilot", r#"{"github_token":"SYNTHETIC_GITHUB","token":null,"expires_at":null,"endpoints":null,"bootstrap_token_fingerprint":null}"#).await.unwrap();
+        assert_eq!(
+            auth.github_token().unwrap().as_deref(),
+            Some("SYNTHETIC_GITHUB")
+        );
+        assert!(!auth.dir.join("copilot.json").exists());
+        let combined: serde_json::Value =
+            serde_json::from_str(&store.load("copilot").await.unwrap().unwrap()).unwrap();
+        assert_eq!(combined["github_token"], "SYNTHETIC_GITHUB");
+        store.save("copilot", r#"{"token":null,"expires_at":null,"endpoints":null,"bootstrap_token_fingerprint":null}"#).await.unwrap();
+        assert!(store.load("copilot").await.unwrap().is_none());
+        assert!(store.save("../escape", "{}").await.is_err());
+        assert!(std::fs::read_dir(&auth.dir).unwrap().next().is_none());
+    }
+    #[tokio::test]
+    async fn unsafe_copilot_destination_prevents_all_bootstrap_writes() {
+        use chatgpt::auth::TokenStore;
+        for bootstrap_exists in [false, true] {
+            for symlinked_session in [false, true] {
+                let (root, auth) = fixture();
+                if bootstrap_exists {
+                    write(&auth, "github-token", b"SYNTHETIC_OLD_GITHUB");
+                }
+                let session = auth.dir.join("copilot.json");
+                let target = root.path().join("synthetic-session-target");
+                if symlinked_session {
+                    std::fs::write(&target, b"SYNTHETIC_UNTOUCHED_TARGET").unwrap();
+                    std::fs::set_permissions(&target, std::fs::Permissions::from_mode(0o600))
+                        .unwrap();
+                    symlink(&target, &session).unwrap();
+                } else {
+                    write(&auth, "copilot.json", b"SYNTHETIC_UNTOUCHED_SESSION");
+                    std::fs::set_permissions(&session, std::fs::Permissions::from_mode(0o644))
+                        .unwrap();
+                }
+                let session_before = std::fs::read(&session).unwrap();
+                let metadata_before = std::fs::symlink_metadata(&session).unwrap();
+                let store = LegacyTokenStore {
+                    dir: auth.dir.clone(),
+                };
+                let error = store.save("copilot", r#"{"github_token":"SYNTHETIC_NEW_GITHUB","token":"SYNTHETIC_NEW_SESSION","expires_at":4102444800,"endpoints":null,"bootstrap_token_fingerprint":null}"#).await.unwrap_err();
+                assert_eq!(
+                    error.downcast_ref::<AiError>().unwrap().kind,
+                    AiErrorKind::UnsafeCredentials
+                );
+                let bootstrap = auth.dir.join("github-token");
+                if bootstrap_exists {
+                    assert_eq!(std::fs::read(bootstrap).unwrap(), b"SYNTHETIC_OLD_GITHUB");
+                } else {
+                    assert!(!bootstrap.exists());
+                }
+                assert_eq!(std::fs::read(&session).unwrap(), session_before);
+                let metadata_after = std::fs::symlink_metadata(&session).unwrap();
+                assert_eq!(
+                    (metadata_after.ino(), metadata_after.mode()),
+                    (metadata_before.ino(), metadata_before.mode())
+                );
+                if symlinked_session {
+                    assert_eq!(
+                        std::fs::read(&target).unwrap(),
+                        b"SYNTHETIC_UNTOUCHED_TARGET"
+                    );
+                }
+            }
+        }
     }
 }

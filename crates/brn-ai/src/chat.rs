@@ -92,7 +92,9 @@ fn map_stream_error(error: PromptError) -> AiError {
         PromptError::MaxTurns { .. } => {
             AiError::new(AiErrorKind::ToolLimitReached).with_detail(origin("max_turns"))
         }
-        PromptError::Memory(_) => AiError::new(AiErrorKind::Other).with_detail(origin("memory")),
+        PromptError::Memory { .. } => {
+            AiError::new(AiErrorKind::Other).with_detail(origin("memory"))
+        }
         PromptError::Cancelled { .. } => {
             AiError::new(AiErrorKind::Other).with_detail(origin("cancelled"))
         }
@@ -257,7 +259,7 @@ fn public_reasoning_summary(reasoning: &rig::message::Reasoning) -> Option<Strin
 mod tests {
     use super::*;
     use rig::agent::PromptResponse;
-    use rig::streaming::Transcript;
+    use rig::streaming::StreamRecord;
 
     #[test]
     fn activity_uses_only_explicit_public_summaries_and_keeps_raw_reasoning_private() {
@@ -286,7 +288,7 @@ mod tests {
     }
 
     fn text_item(text: &str) -> MultiTurnStreamItem {
-        let transcript = Transcript::parse(serde_json::json!([
+        let transcript = StreamRecord::parse(serde_json::json!([
             {"item":"event","value":{"event":"start","part":0,"kind":"text"}},
             {"item":"event","value":{"event":"text","part":0,"text":text}},
             {"item":"event","value":{"event":"end","part":0,

@@ -465,7 +465,7 @@ fn nullable_offsets_are_required_and_unique_full_note_quote_keeps_full_read_guar
 }
 #[tokio::test]
 async fn rig_typed_adapter_rejects_each_missing_nullable_key_before_effects() {
-    use rig::tool::ErasedTool;
+    use rig::tool::RegisteredTool;
     let (_root, request, note) = tests::fixture();
     let (scope, _) = begin(&request).unwrap();
     let before = current(&scope, &note);
@@ -487,8 +487,9 @@ async fn rig_typed_adapter_rejects_each_missing_nullable_key_before_effects() {
             serde_json::to_value(args(&note, before.version, 0, "Mon", "Tues", "typed")).unwrap();
         raw.as_object_mut().unwrap().remove(missing);
         let mut context = ToolContext::new().with_scope(scope.clone());
-        let result =
-            ErasedTool::execute(&note_edit::PrepareNoteEdit, raw.to_string(), &mut context).await;
+        let result = RegisteredTool::from_tool(note_edit::PrepareNoteEdit)
+            .execute(raw.to_string(), &mut context)
+            .await;
         assert!(result.is_error_kind(rig::tool::ToolErrorKind::InvalidArgs));
     }
     let mut raw =
@@ -496,8 +497,9 @@ async fn rig_typed_adapter_rejects_each_missing_nullable_key_before_effects() {
     raw.as_object_mut().unwrap().remove("start");
     raw.as_object_mut().unwrap().remove("end");
     let mut context = ToolContext::new().with_scope(scope.clone());
-    let result =
-        ErasedTool::execute(&note_edit::PrepareNoteEdit, raw.to_string(), &mut context).await;
+    let result = RegisteredTool::from_tool(note_edit::PrepareNoteEdit)
+        .execute(raw.to_string(), &mut context)
+        .await;
     assert!(result.is_error_kind(rig::tool::ToolErrorKind::InvalidArgs));
     assert_eq!(current(&scope, &note), before);
     assert_eq!(
@@ -779,7 +781,7 @@ async fn actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree()
             .chat_history
             .iter()
             .find_map(|message| {
-                let rig::message::Message::User { content } = message else {
+                let rig::message::Message::User { content } = &**message else {
                     return None;
                 };
                 content.iter().find_map(|item| {

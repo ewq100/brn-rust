@@ -1,6 +1,6 @@
 # BRN AI runtime
 
-The production Threads runtime uses published Rig 0.44.0. No vendored Rig patch is required. Provider routing retains Codex/ChatGPT subscription Responses, OpenAI Responses, and Copilot Chat completions.
+The production Threads runtime uses published Rig 0.45.0. No vendored Rig patch is required. Provider routing retains Codex/ChatGPT subscription Responses, OpenAI Responses, and Copilot Chat completions.
 
 `chat.rs` owns the shared collector. Text deltas are bounded provisional UI. A successful Rig final response supplies the authoritative answer through its structured output API; it replaces the preview and is persisted once by the Threads host. EOF, malformed responses, unknown termination and interruption never invent successful completion. Partial preview remains available as interrupted progress. Both preview and final answer are limited to 128 KiB; strict full-document extraction has its separate bounded contract.
 
@@ -8,7 +8,7 @@ The production Threads runtime uses published Rig 0.44.0. No vendored Rig patch 
 
 The registered parent tools provide current-record reading, version-aware note passages, transient source reading, packaged skills, prepared/application changes, retained progress, bounded accepted revisions, service-owned immutable candidate refresh, exact local Note passage edits and withdrawal of the run's own obsolete proposal in its chat. Exact local edits preserve untouched UTF-8 bytes and metadata, retain the whole-read guard for full replacements/refreshes, and are unavailable in frozen Rewrite and helpers. The same registration generates safe activity labels. Operating guidance lives in `agent/BRN.md` and packaged `agent/skills/*/SKILL.md`.
 
-Responses routes use Rig's typed reasoning options. Copilot Chat retains its supported raw `reasoning_effort` field because Rig 0.44 does not expose verified typed generation options for that dialect.
+Responses routes use Rig's typed reasoning options. Copilot Chat retains its supported raw `reasoning_effort` field because Rig 0.45 does not expose verified typed generation options for that dialect.
 
 Verification:
 

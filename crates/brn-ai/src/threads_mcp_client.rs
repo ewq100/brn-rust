@@ -3,7 +3,7 @@ use rig::tool::{DynamicTool, ToolContext, ToolErrorKind};
 use rmcp::{
     ClientHandler, RoleClient, ServiceExt,
     model::*,
-    service::{NotificationContext, PeerRequestOptions, RunningService, ServerSink},
+    service::{NotificationContext, PeerRequestOptions, ServerSink},
     transport::{
         common::client_side_sse::NeverRetry,
         streamable_http_client::{
@@ -34,8 +34,8 @@ impl ClientHandler for Handler {
         #[cfg(test)]
         self.retired.notify_one();
     }
-    fn get_info(&self) -> ClientInfo {
-        let mut info = ClientInfo::default();
+    fn get_info(&self) -> ClientConfig {
+        let mut info = ClientConfig::default();
         info.client_info = Implementation::new("brn", env!("CARGO_PKG_VERSION"));
         info
     }
@@ -90,7 +90,7 @@ pub struct Connection {
     channel: Arc<CheckedChannel>,
     changed: Arc<AtomicBool>,
     peer: ServerSink,
-    service: tokio::sync::Mutex<Option<RunningService<RoleClient, Handler>>>,
+    sdk: rig::tool::rmcp::McpConnection,
     discovery: Discovery,
     advertised: Vec<McpToolDefinition>,
     serial: Arc<tokio::sync::Semaphore>,
@@ -218,7 +218,7 @@ impl Connection {
             channel,
             changed,
             peer,
-            service: tokio::sync::Mutex::new(Some(service)),
+            sdk: rig::tool::rmcp::McpConnection::new(service),
             discovery,
             advertised,
             serial: Arc::new(tokio::sync::Semaphore::new(1)),
@@ -295,16 +295,14 @@ impl Connection {
             let remaining = DEADLINE
                 .checked_sub(started.elapsed())
                 .ok_or(Refusal::Timeout)?;
-            let adapter: DynamicTool = rig::tool::rmcp::McpTool::from_mcp_server(
-                tool.definition.clone(),
-                connection.peer.clone(),
-            )
-            .with_timeout(remaining)
-            .try_into()
-            .map_err(|_| Refusal::Catalogue)?;
+            let adapter: DynamicTool =
+                rig::tool::rmcp::McpTool::new(tool.definition.clone(), &connection.sdk)
+                    .with_timeout(remaining)
+                    .try_into()
+                    .map_err(|_| Refusal::Catalogue)?;
             let mut context = ToolContext::new();
             let output = {
-                let call = adapter.execute_with(&mut context, args);
+                let call = adapter.run_with(&mut context, args);
                 tokio::pin!(call);
                 tokio::select! {
                     result = call.as_mut() => result,
@@ -394,9 +392,7 @@ impl Connection {
     }
     pub async fn disconnect(&self) {
         self.changed.store(true, Ordering::SeqCst);
-        if let Some(service) = self.service.lock().await.take() {
-            let _ = tokio::time::timeout(Duration::from_secs(1), service.cancel()).await;
-        }
+        let _ = tokio::time::timeout(Duration::from_secs(1), self.sdk.close()).await;
     }
 }
 

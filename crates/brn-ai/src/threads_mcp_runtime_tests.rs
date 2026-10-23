@@ -76,6 +76,27 @@ async fn exact_reviewed_call_uses_real_sdk_and_keeps_prefix_and_raw_data_out_of_
         .with_external_input_at_snapshot("public_read", &args, &expected)
         .unwrap();
     let scope = prepared.scope.clone();
+    // New SDK continuation fields do not expand the exact reviewed call or
+    // consume its grant. The ordinary call below must still succeed once.
+    for extra in [
+        json!({"requestState":"untrusted-continuation"}),
+        json!({"inputResponses":{}}),
+    ] {
+        let mut params = json!({"name":"public_read", "arguments":args});
+        params
+            .as_object_mut()
+            .unwrap()
+            .extend(extra.as_object().unwrap().clone());
+        let message = serde_json::from_value(json!({
+            "jsonrpc":"2.0", "id":91, "method":"tools/call", "params":params
+        }))
+        .unwrap();
+        let invocation = mcp_runtime::invocation(&scope).unwrap();
+        assert!(matches!(
+            crate::mcp::http::DispatchGate::message(invocation.as_ref(), &message),
+            Err(crate::mcp::Refusal::Arguments)
+        ));
+    }
     let weak_invocation = Arc::downgrade(&mcp_runtime::invocation(&scope).unwrap());
     let model = MockCompletionModel::from_stream_turns([
         vec![

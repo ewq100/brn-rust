@@ -41,8 +41,8 @@ fn tool() -> Tool {
     .with_annotations(ToolAnnotations::new().read_only(true).destructive(false))
 }
 impl ServerHandler for Server {
-    fn get_info(&self) -> ServerInfo {
-        let mut info = ServerInfo::new(ServerCapabilities::builder().enable_tools().build());
+    fn get_info(&self) -> ServerConfig {
+        let mut info = ServerConfig::new(ServerCapabilities::builder().enable_tools().build());
         info.server_info.version =
             format!("fixture-{}", self.state.metadata.load(Ordering::SeqCst));
         info
@@ -72,7 +72,7 @@ impl ServerHandler for Server {
         &self,
         p: CallToolRequestParams,
         context: RequestContext<RoleServer>,
-    ) -> Result<CallToolResult, ErrorData> {
+    ) -> Result<CallToolResponse, ErrorData> {
         self.state.calls.fetch_add(1, Ordering::SeqCst);
         let query = p
             .arguments
@@ -97,10 +97,14 @@ impl ServerHandler for Server {
             }
             self.state.completed.fetch_add(1, Ordering::SeqCst);
         }
+        if query == "input_required" {
+            // New rmcp MRTR outcome is not an approved additional round trip.
+            return Ok(InputRequiredResult::from_request_state("untrusted-resume-state").into());
+        }
         if query == "structured" {
-            return Ok(CallToolResult::structured(
-                json!({"unsupported":"structured result"}),
-            ));
+            return Ok(
+                CallToolResult::structured(json!({"unsupported":"structured result"})).into(),
+            );
         }
         Ok(CallToolResult::success(match query {
             "empty" => vec![],
@@ -112,7 +116,7 @@ impl ServerHandler for Server {
             _ => vec![ContentBlock::text(
                 "Synthetic public source https://example.invalid/evidence: confirmed fixture value 17.",
             )],
-        }))
+        }).into())
     }
 }
 pub(crate) struct TestServer {
@@ -270,6 +274,53 @@ impl http::DispatchGate for Gate {
         Ok(())
     }
 }
+/// The SDK's optional GET session must not admit stateless resume or bypass
+/// the existing current-grant boundary. All cases stop before HTTP execute.
+#[tokio::test]
+async fn sdk_get_requires_a_session_and_rechecks_channel_without_replay() {
+    use rmcp::transport::streamable_http_client::{StreamableHttpClient, StreamableHttpError};
+
+    #[derive(Default)]
+    struct RefusedChannel(AtomicUsize);
+    impl http::DispatchGate for RefusedChannel {
+        fn message(&self, _: &ClientJsonRpcMessage) -> Result<(), Refusal> {
+            panic!("GET must use the channel gate")
+        }
+        fn channel(&self) -> Result<(), Refusal> {
+            self.0.fetch_add(1, Ordering::SeqCst);
+            Err(Refusal::Unavailable)
+        }
+    }
+    let endpoint = Endpoint::parse("http://127.0.0.1:1/mcp").unwrap();
+    let gate = Arc::new(RefusedChannel::default());
+    let client = http::PolicyHttpClient::new(endpoint.clone(), gate.clone()).unwrap();
+    for (session, last_id, expected_checks) in [
+        (None, None, 0),
+        (None, Some("untrusted-event".to_owned()), 0),
+        (
+            Some(Arc::<str>::from("legacy-session")),
+            Some("untrusted-event".to_owned()),
+            0,
+        ),
+        (Some(Arc::<str>::from("legacy-session")), None, 1),
+    ] {
+        let result = client
+            .get_stream(
+                endpoint.uri().into(),
+                session,
+                last_id,
+                None,
+                Default::default(),
+            )
+            .await;
+        assert!(matches!(
+            result,
+            Err(StreamableHttpError::Client(Refusal::Unavailable))
+        ));
+        assert_eq!(gate.0.load(Ordering::SeqCst), expected_checks);
+    }
+}
+
 async fn approved(connection: &Connection) -> FrozenTool {
     let t = tool();
     freeze_tools(
@@ -330,7 +381,13 @@ async fn actual_sdk_http_discovery_rig_adaptation_and_dispatch_revocation() {
 }
 #[tokio::test]
 async fn actual_sdk_http_empty_and_predecode_oversize_never_become_empty_success() {
-    for query in ["empty", "large", "text_large", "structured"] {
+    for query in [
+        "empty",
+        "large",
+        "text_large",
+        "structured",
+        "input_required",
+    ] {
         let server = TestServer::start().await;
         let connection = Connection::connect(
             server.endpoint.clone(),
@@ -465,9 +522,10 @@ async fn sdk_http_streamed_comments_redirect_encoding_and_invalid_json_fail_clos
             );
             assert!(connection.raw_overflow().is_none());
         } else if mode == 1 {
-            // rmcp warns on the SSE error but retains its pending RPC until
-            // the bounded SDK deadline. Observe the actual raw guard separately.
-            assert_eq!(result.unwrap_err(), Refusal::Timeout);
+            // rmcp 3.5 fails the originating RPC when its response stream
+            // ends before a final response (2.2 left it pending to timeout).
+            // BRN still observes the actual predecode raw guard separately.
+            assert_eq!(result.unwrap_err(), Refusal::Transport);
             let overflow = connection.raw_overflow().expect("actual streamed byte cap");
             assert!(overflow.at.duration_since(started) < super::client::DEADLINE / 2);
             assert!(overflow.admitted_bytes <= MAX_WIRE_BYTES);
@@ -480,12 +538,10 @@ async fn sdk_http_streamed_comments_redirect_encoding_and_invalid_json_fail_clos
             assert_eq!(result.unwrap_err(), Refusal::Transport, "HTTP fault {mode}");
             assert!(connection.raw_overflow().is_none());
         }
-        if mode != 1 {
-            assert!(
-                elapsed < super::client::DEADLINE / 2,
-                "HTTP mode {mode} completed in {elapsed:?}, not promptly before the SDK deadline"
-            );
-        }
+        assert!(
+            elapsed < super::client::DEADLINE / 2,
+            "HTTP mode {mode} completed in {elapsed:?}, not promptly before the SDK deadline"
+        );
         assert_eq!(server.state.calls.load(Ordering::SeqCst), 1, "no retry");
         assert_eq!(
             recipient.state.requests.load(Ordering::SeqCst),

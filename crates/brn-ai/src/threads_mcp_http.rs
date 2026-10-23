@@ -314,7 +314,7 @@ impl StreamableHttpClient for PolicyHttpClient {
     async fn get_stream(
         &self,
         uri: Arc<str>,
-        session: Arc<str>,
+        session: Option<Arc<str>>,
         last_id: Option<String>,
         auth: Option<String>,
         headers: HashMap<HeaderName, HeaderValue>,
@@ -324,6 +324,9 @@ impl StreamableHttpClient for PolicyHttpClient {
         if last_id.is_some() {
             return Err(StreamableHttpError::Client(Refusal::Unavailable));
         }
+        // rmcp 3.5 also accepts sessionless GET for stateless resumption.
+        // BRN does not authorize that new channel or event replay.
+        let session = session.ok_or(StreamableHttpError::Client(Refusal::Unavailable))?;
         let request = self
             .request(Method::GET, &uri, Some(&session), auth.as_deref(), headers)?
             .build()

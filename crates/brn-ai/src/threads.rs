@@ -896,7 +896,7 @@ macro_rules! runtime_catalog {
     (@instance $prepare:ident, $tool:ident) => { $tool };
     (@instance $prepare:ident, $tool:ident, $constructor:expr) => { ($constructor)($prepare.clone()) };
     ($(($tool:ident, $activity:literal $(, $constructor:expr)?)),+ $(,)?) => {
-        fn register_tools(builder: rig::AgentBuilder<rig::agent::NoToolConfig>, prepare: PrepareChanges) -> rig::AgentBuilder<rig::agent::WithBuilderTools> {
+        fn register_tools(builder: rig::AgentBuilder, prepare: PrepareChanges) -> rig::AgentBuilder {
             let builder = builder$(.tool(runtime_catalog!(@instance prepare, $tool $(, $constructor)?)))+;
             if prepare.local_edits { builder.tool(note_edit::PrepareNoteEdit) } else { builder }
         }
@@ -2889,7 +2889,7 @@ pub async fn run_prepared(
 }
 
 /// The provider client for a run. A Codex run's cache key pins its
-/// `session_id` on top of `transport` (the shared HTTP client when `None`).
+/// `session-id` on top of `transport` (the shared HTTP client when `None`).
 async fn provider_client(
     selection: &Selection,
     auth_file: Option<&std::path::Path>,
@@ -3082,7 +3082,7 @@ async fn run_prepared_over(
                     match http {
                         Ok(http) => {
                             run_model(
-                                client.with_http(http).completion(model),
+                                client.config().clone().connect(http).completion(model),
                                 scope.clone(),
                                 &context.input,
                                 request.effort,
@@ -4166,7 +4166,7 @@ fn finish(scope: &Scope, answer: &AiAnswer) -> AiResult<bool> {
 }
 #[allow(clippy::too_many_arguments)]
 async fn run_copilot(
-    client: &rig::providers::copilot::Copilot,
+    client: &rig::providers::openai::OpenAI,
     model: String,
     scope: Arc<Scope>,
     input: &str,
@@ -4191,7 +4191,7 @@ async fn run_copilot(
 }
 #[allow(clippy::too_many_arguments)]
 async fn run_copilot_budgeted(
-    client: &rig::providers::copilot::Copilot,
+    client: &rig::providers::openai::OpenAI,
     model: String,
     scope: Arc<Scope>,
     input: &str,
@@ -5724,8 +5724,11 @@ mod tests {
                 "text/event-stream",
             ),
         ]);
-        let client = rig::providers::copilot::CopilotConfig::new("synthetic-not-a-credential")
-            .connect(http.clone());
+        let client = rig::providers::openai::OpenAIConfig::with_key(
+            &rig::providers::copilot::DIALECT,
+            "synthetic-not-a-credential",
+        )
+        .connect(http.clone());
         let answer = run_copilot(
             &client,
             "synthetic-model".into(),

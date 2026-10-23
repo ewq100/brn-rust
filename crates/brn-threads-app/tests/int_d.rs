@@ -39,11 +39,21 @@ fn tools(calls: Vec<MockStreamEvent>) -> Vec<MockStreamEvent> {
     out
 }
 fn selected_chat_input(request: &rig::completion::CompletionRequest, body: &str) {
-    assert!(request.chat_history.iter().any(|message| matches!(message,
+    assert!(
+        request
+            .chat_history
+            .iter()
+            .any(|message| matches!(message.as_ref(),
         rig::message::Message::User {content} if content.iter().any(|item|
-            matches!(item, rig::message::UserContent::Text(text) if text.text.contains(body))))));
-    assert!(request.chat_history.iter().all(|message| !matches!(message,
-        rig::message::Message::System {content} if content.contains("INT_D_SELECTED_BODY"))));
+            matches!(item, rig::message::UserContent::Text(text) if text.text.contains(body)))))
+    );
+    assert!(
+        request
+            .chat_history
+            .iter()
+            .all(|message| !matches!(message.as_ref(),
+        rig::message::Message::System {content} if content.contains("INT_D_SELECTED_BODY")))
+    );
 }
 #[tokio::test]
 async fn abandoned_selected_skill_candidate_survives_restore_without_package_and_exact_owner_review_undo()

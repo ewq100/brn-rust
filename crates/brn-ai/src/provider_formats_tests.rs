@@ -1251,9 +1251,11 @@ mod rewrite_tests {
         };
         client.inner = match client.inner {
             OwnedClient::Chatgpt(inner) => {
-                OwnedClient::Chatgpt(Box::new((*inner).with_http(transport)))
+                OwnedClient::Chatgpt(Box::new(inner.config().clone().connect(transport)))
             }
-            OwnedClient::Copilot(inner) => OwnedClient::Copilot(inner.with_http(transport)),
+            OwnedClient::Copilot(inner) => {
+                OwnedClient::Copilot(inner.config().clone().connect(transport))
+            }
         };
         client
     }
@@ -3854,9 +3856,11 @@ mod capability_probe_formats {
             };
             client.inner = match client.inner {
                 OwnedClient::Chatgpt(inner) => {
-                    OwnedClient::Chatgpt(Box::new((*inner).with_http(transport)))
+                    OwnedClient::Chatgpt(Box::new(inner.config().clone().connect(transport)))
                 }
-                OwnedClient::Copilot(inner) => OwnedClient::Copilot(inner.with_http(transport)),
+                OwnedClient::Copilot(inner) => {
+                    OwnedClient::Copilot(inner.config().clone().connect(transport))
+                }
             };
             let report = run_probe(client, ProbeKind::Image, cancel).await;
             assert_eq!(report.terminal, ProbeTerminal::Interrupted, "{report:?}");
@@ -3941,7 +3945,7 @@ mod subscription_catalog_tests {
             requests[0].headers["user-agent"]
                 .to_str()
                 .unwrap()
-                .starts_with("rig/0.44.0 ")
+                .starts_with("rig/0.45.0 ")
         );
         http.assert_consumed();
     }
@@ -3982,7 +3986,7 @@ mod subscription_catalog_tests {
             assert_eq!(
                 request.headers["user-agent"],
                 format!(
-                    "rig/0.44.0 ({} {}; rig)",
+                    "rig/0.45.0 ({} {}; rig)",
                     std::env::consts::OS,
                     std::env::consts::ARCH
                 )

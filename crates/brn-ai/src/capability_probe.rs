@@ -187,10 +187,10 @@ async fn run_model(
         };
         let result = call.result(vec![ToolResultContent::text(NOTE_CODE)]);
         report.read_tool_calls += 1;
-        request.chat_history.push(assistant);
+        request.chat_history.push(assistant.into());
         request
             .chat_history
-            .push(Message::tool_results(vec![result]));
+            .push(Message::tool_results(vec![result]).into());
     }
     report.terminal = failed(AiErrorKind::ToolLimitReached);
 }
@@ -235,6 +235,7 @@ fn probe_request(kind: ProbeKind, copilot_chat_effort: bool) -> CompletionReques
             request.reasoning(effort)
         };
         request = request.tool(ToolDefinition {
+            annotations: Default::default(),
             name: rig::message::ToolName::new("read_note").expect("static tool name"),
             description: "Read the synthetic note probe.md.".into(),
             parameters: json!({

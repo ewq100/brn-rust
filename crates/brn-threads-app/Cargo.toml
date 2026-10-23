@@ -22,5 +22,5 @@ libc = "0.2"
 
 [dev-dependencies]
 brn-ai = { path = "../brn-ai", features = ["scripted-runs"] }
-rig = { version = "=0.44.0", default-features = false, features = ["test-utils"] }
+rig = { version = "=0.45.0", default-features = false, features = ["test-utils"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }

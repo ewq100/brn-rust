@@ -2,8 +2,6 @@
 //! One bounded Rig compactor call before chat; no automatic memory writes.
 use super::*;
 use futures::StreamExt;
-use rig::memory::{Compactor, MemoryError};
-use rig::wasm_compat::WasmBoxedFuture;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
@@ -473,7 +471,7 @@ impl ModelCompactor {
         }
     }
     pub(super) fn copilot(
-        client: &rig::providers::copilot::Copilot,
+        client: &rig::providers::openai::OpenAI,
         model: String,
         scope: Arc<Scope>,
         effort: ReasoningEffort,
@@ -550,37 +548,30 @@ impl ModelCompactor {
         (answer, emitted.load(Ordering::SeqCst))
     }
 }
-impl Compactor for ModelCompactor {
-    type Artifact = Semantic;
-    fn compact<'a>(
+impl ModelCompactor {
+    async fn compact<'a>(
         &'a self,
-        _: &'a rig::id::ConversationId,
         evicted: &'a [rig::completion::Message],
         carry: Option<&'a Semantic>,
-    ) -> WasmBoxedFuture<'a, std::result::Result<Semantic, MemoryError>> {
-        Box::pin(async move {
-            let input = serde_json::to_string(
-                &json!({"untrusted_prior_summary":carry,"untrusted_canonical_entries":evicted}),
-            )
-            .map_err(MemoryError::backend)?;
-            let budget =
-                context_budget::Budget::for_scope(&self.scope).map_err(MemoryError::backend)?;
-            let (mut answer, emitted) = self
-                .one_turn(self.model.clone(), self.responses, &input, budget)
-                .await;
-            if let Some(model) = &self.responses_fallback
-                && !emitted
-                && copilot_responses_retry(self.responses, &answer, &self.cancel)
-            {
-                answer = self.one_turn(model.clone(), true, &input, budget).await.0;
-            }
-            if self.cancel.is_cancelled() || !matches!(answer.terminal, AiTerminal::Completed) {
-                return Err(MemoryError::Internal(
-                    "summary call did not complete".into(),
-                ));
-            }
-            serde_json::from_str(&answer.text).map_err(MemoryError::backend)
-        })
+    ) -> AiResult<Semantic> {
+        let input = serde_json::to_string(
+            &json!({"untrusted_prior_summary":carry,"untrusted_canonical_entries":evicted}),
+        )
+        .map_err(storage)?;
+        let budget = context_budget::Budget::for_scope(&self.scope).map_err(storage)?;
+        let (mut answer, emitted) = self
+            .one_turn(self.model.clone(), self.responses, &input, budget)
+            .await;
+        if let Some(model) = &self.responses_fallback
+            && !emitted
+            && copilot_responses_retry(self.responses, &answer, &self.cancel)
+        {
+            answer = self.one_turn(model.clone(), true, &input, budget).await.0;
+        }
+        if self.cancel.is_cancelled() || !matches!(answer.terminal, AiTerminal::Completed) {
+            return Err(AiError::new(AiErrorKind::Other));
+        }
+        serde_json::from_str(&answer.text).map_err(storage)
     }
 }
 
@@ -647,11 +638,7 @@ pub(super) async fn prepare_for(
             .collect::<Vec<_>>();
         let artifact = tokio::time::timeout(
             timeout,
-            compactor.compact(
-                &rig::id::ConversationId::from(scope.chat.clone()),
-                &messages,
-                entry.as_ref().map(|e| &e.semantic),
-            ),
+            compactor.compact(&messages, entry.as_ref().map(|e| &e.semantic)),
         )
         .await
         .map_err(storage)?
