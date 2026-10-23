@@ -4221,7 +4221,7 @@
         },
         {
           "type": "no_new_note_titled",
-          "pattern": "[Cc]ompressor maintenance"
+          "pattern": "compressor maintenance"
         },
         {
           "type": "read",
@@ -4315,7 +4315,7 @@
         },
         {
           "type": "no_new_note_titled",
-          "pattern": "[Gg]enerator comparison"
+          "pattern": "generator comparison"
         },
         {
           "type": "read",
@@ -4402,7 +4402,7 @@
         },
         {
           "type": "no_new_note_titled",
-          "pattern": "[Cc]old room service"
+          "pattern": "cold room service"
         },
         {
           "type": "input_lineage",
@@ -4479,7 +4479,7 @@
         },
         {
           "type": "no_new_note_titled",
-          "pattern": "[Ww]orkshop access"
+          "pattern": "workshop access"
         },
         {
           "type": "new_case_notes",

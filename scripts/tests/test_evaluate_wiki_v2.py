@@ -702,6 +702,19 @@ class FixtureTests(unittest.TestCase):
             'steps': [{'kind': 'ask', 'thread': 'case', 'prompt': 'What happened to the car last spring?'}],
             'checks': [{'type': 'read', 'step': 1, 'keys': ['a']}]}]}
 
+    def test_daily_duplicate_oracles_reject_a_second_topic(self):
+        fixture = json.loads((ROOT / 'scripts/fixtures/wiki-eval-cases-v2.json').read_text())
+        for case in fixture['cases']:
+            if not case['id'].startswith('DW'):
+                continue
+            for check in case['checks']:
+                if check['type'] != 'no_new_note_titled':
+                    continue
+                existing = next(n for n in case['seeds']['notes'] if not n.get('import'))
+                after = BASE + [note('duplicate', 'new text', title=existing['title'])]
+                context = ctx_for(CASE, BASE, after)
+                self.assertFalse(run(check, context)['passed'], case['id'])
+
     def test_valid_small_fixture(self):
         fixture = self.small()
         fixture['cases'][0]['steps'][0]['prompt'] = 'Which vehicle gearbox work was done?'
