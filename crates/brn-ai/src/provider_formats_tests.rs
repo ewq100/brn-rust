@@ -1254,7 +1254,7 @@ mod rewrite_tests {
                 OwnedClient::Chatgpt(Box::new(inner.config().clone().connect(transport)))
             }
             OwnedClient::Copilot(inner) => {
-                OwnedClient::Copilot(inner.config().clone().connect(transport))
+                OwnedClient::Copilot(Box::new(inner.config().clone().connect(transport)))
             }
         };
         client
@@ -3859,7 +3859,7 @@ mod capability_probe_formats {
                     OwnedClient::Chatgpt(Box::new(inner.config().clone().connect(transport)))
                 }
                 OwnedClient::Copilot(inner) => {
-                    OwnedClient::Copilot(inner.config().clone().connect(transport))
+                    OwnedClient::Copilot(Box::new(inner.config().clone().connect(transport)))
                 }
             };
             let report = run_probe(client, ProbeKind::Image, cancel).await;

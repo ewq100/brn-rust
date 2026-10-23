@@ -67,3 +67,13 @@ needed. The corrected full provider suite passed: 505 passed, 0 failed, 1 ignore
 (502 library tests plus 3 capability-example tests). Auth/history/summary/cancellation and approval tests passed in that run.
 Native and old-store checks, strict lint, aggregate tests and final review remain.
 
+
+## Aggregate checkpoint
+
+Implementation commit `1fc6e45fedb25d1d2ee9cd7783b54c0897c5e4e4` passed
+workspace build and tests: 1,313 passed, 0 failed, 5 ignored. Independent review
+approved that exact source. Strict Clippy then identified the larger unified
+Copilot client variant. A focused correction boxes that variant, matching ChatGPT;
+strict workspace all-target Clippy passes after the correction. Provider regression
+is rerunning on the corrected layout, followed by final binary/native/end-to-end
+checks. The broader workspace test result remains explicitly tied to 1fc6e45f.

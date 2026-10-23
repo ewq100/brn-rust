@@ -35,7 +35,7 @@ pub struct ProviderClient {
 
 pub(crate) enum OwnedClient {
     Chatgpt(Box<openai::OpenAI>),
-    Copilot(openai::OpenAI),
+    Copilot(Box<openai::OpenAI>),
 }
 
 impl ProviderClient {
@@ -291,7 +291,9 @@ impl Auth {
                     if let Some(base) = context.api_base {
                         config = config.with_base_url(base);
                     }
-                    Ok(OwnedClient::Copilot(config.connect(self.http.clone())))
+                    Ok(OwnedClient::Copilot(Box::new(
+                        config.connect(self.http.clone()),
+                    )))
                 }
             }
         };
