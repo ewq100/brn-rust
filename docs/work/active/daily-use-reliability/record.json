@@ -1,7 +1,7 @@
 {
   "baseline": "f30f37e0dc50fdcf91e97a77bc7cda9acb678d78",
   "work_view": {
-    "observed_at": "2026-10-23T23:41:08.286316+00:00",
+    "observed_at": "2026-10-23T23:43:38.911437+00:00",
     "goal": "Improve daily document intake, grounded workflows and recovery; prepare a gated useful-output design.",
     "owner_attention": "No merge or capability activation authorized. Calculator/chart proposal will require a separate focused decision. Actual Mac acceptance remains later.",
     "tasks": [
@@ -55,22 +55,23 @@
         "id": "artifact-design",
         "title": "Specify constrained calculator and chart output",
         "owner": "design lane",
-        "state": "active",
-        "activity": "Fixed-schema PNG worker recommendation prepared; production activation remains deferred.",
-        "observed_at": "2026-10-23T23:41:08.286316+00:00",
+        "state": "complete",
+        "activity": "Source-grounded design committed 97d1ea28 and independently reviewed; no capability implemented or activated.",
+        "observed_at": "2026-10-23T23:43:38.911437+00:00",
         "origin": "observed",
-        "next_action": "Commit source-grounded proposal and obtain independent design review.",
+        "next_action": "Parent obtains separate focused implementation/activation decision; platform qualification remains required.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/daily-use-reliability/baseline.md"
+          "docs/work/active/daily-use-reliability/baseline.md",
+          "docs/work/active/daily-use-reliability/artifact-proposal.md"
         ],
         "gates": {
-          "implementation": "pending",
-          "checks": "pending",
-          "integration": "pending: draft PR only; no merge authority",
-          "native": "pending: not observed in this batch",
-          "owner_acceptance": "pending: not claimed"
+          "implementation": "complete: design only, commit 97d1ea28",
+          "checks": "passed: independent source review, diff whitespace and Markdown links",
+          "integration": "pending: draft PR publication; no merge authority",
+          "native": "deferred: future separately authorized worker qualification",
+          "owner_acceptance": "pending: separate capability decision"
         },
         "attempts": []
       },

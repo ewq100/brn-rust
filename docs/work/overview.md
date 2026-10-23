@@ -51,26 +51,6 @@ Gates:
 
 </details>
 
-### Specify constrained calculator and chart output
-
-Task ID: `artifact-design`
-Owner: design lane · State: **active** · Last observed: 2026-10-23T23:41:08.286316+00:00
-Activity: Fixed-schema PNG worker recommendation prepared; production activation remains deferred.
-Next: Commit source-grounded proposal and obtain independent design review.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** pending
-- **checks:** pending
-- **integration:** pending: draft PR only; no merge authority
-- **native:** pending: not observed in this batch
-- **owner acceptance:** pending: not claimed
-
-</details>
-
 ### Review and qualify the integrated batch
 
 Task ID: `integration`
@@ -124,6 +104,10 @@ Waiting:
 
 ## Completed
 
-None recorded.
+Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-Local page reflects the last saved observations in this record (2026-10-23T23:41:08.286316+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+
+- `artifact-design` — Specify constrained calculator and chart output
+
+Local page reflects the last saved observations in this record (2026-10-23T23:43:38.911437+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
