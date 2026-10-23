@@ -1,0 +1,11 @@
+{
+  "result": "pass",
+  "gpui_kit": "0.8.0",
+  "journeys": [
+    "native exact Unicode edit/save v2/quit/reopen/OS close",
+    "AT-SPI menu item activation",
+    "repeated menu Return/Space/Escape/pointer",
+    "disabled Rewrite has no action; Unix enabled/sensitive caveat retained"
+  ],
+  "binary_sha256": "918c6b154219dce119264b257f850abc9c2bcb572c640673e6eb53358813d004"
+}

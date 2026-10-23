@@ -1,0 +1,45 @@
+2026-10-23T02:41:12Z START fmt
+2026-10-23T02:41:16Z EXIT 0 fmt
+2026-10-23T02:41:16Z START helper-stock-tests
+2026-10-23T02:42:12Z EXIT 0 helper-stock-tests
+2026-10-23T02:42:12Z START helper-stock-clippy
+2026-10-23T02:42:33Z EXIT 0 helper-stock-clippy
+2026-10-23T02:42:33Z START helper-adapted-tests
+2026-10-23T02:43:29Z EXIT 0 helper-adapted-tests
+2026-10-23T02:43:29Z START helper-adapted-clippy
+2026-10-23T02:43:50Z EXIT 0 helper-adapted-clippy
+2026-10-23T02:43:50Z START workspace-build
+2026-10-23T02:44:53Z EXIT 0 workspace-build
+2026-10-23T02:44:53Z START workspace-clippy
+2026-10-23T02:46:08Z EXIT 0 workspace-clippy
+2026-10-23T02:46:08Z START workspace-tests
+2026-10-23T03:00:00Z INTERRUPTED workspace-tests: prior fixture parent contains .git; preserve and use fresh sibling
+2026-10-23T03:00:05Z START workspace-tests
+2026-10-23T03:00:16Z EXIT 101 workspace-tests
+2026-10-23T03:00:16Z START provider-fixtures
+2026-10-23T03:01:23Z START workspace-tests
+2026-10-23T03:02:33Z EXIT 0 workspace-tests
+2026-10-23T03:02:33Z START provider-fixtures
+2026-10-23T03:06:24Z EXIT 0 provider-fixtures
+2026-10-23T03:06:24Z START provider-clippy
+2026-10-23T03:06:38Z EXIT 0 provider-clippy
+2026-10-23T03:06:38Z START document-routes
+2026-10-23T03:06:45Z EXIT 0 document-routes
+2026-10-23T03:06:45Z START document-clippy
+2026-10-23T03:06:52Z EXIT 0 document-clippy
+2026-10-23T03:06:52Z START native-tests
+2026-10-23T03:17:59Z EXIT 0 native-tests
+2026-10-23T03:17:59Z START tooling
+2026-10-23T03:18:10Z EXIT 0 tooling
+2026-10-23T03:18:10Z START retirement
+2026-10-23T03:18:10Z EXIT 0 retirement
+2026-10-23T03:18:10Z START markdown
+2026-10-23T03:18:11Z EXIT 0 markdown
+2026-10-23T03:18:11Z START end-to-end
+2026-10-23T03:18:12Z EXIT 0 end-to-end
+2026-10-23T03:18:12Z START diff-check
+2026-10-23T03:18:12Z EXIT 0 diff-check
+2026-10-23T03:18:12Z START native-build
+2026-10-23T03:20:34Z EXIT 0 native-build
+2026-10-23T03:20:34Z START native-clippy
+2026-10-23T03:21:36Z EXIT 0 native-clippy

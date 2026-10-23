@@ -1,0 +1,239 @@
+{
+  "generated_at": "2026-10-23T03:21:52.463263+00:00",
+  "logs": {
+    "diff-check.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "document-clippy.log": {
+      "sha256": "4ba0baacf68cf4f4318b646b1aa20b3159d8289c033dcc258d0c879f62bac78a",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "document-routes.log": {
+      "sha256": "67dceffdf6e3c758eeae27c46f1e81f672ec7ff8475a41514a5dcf7155421084",
+      "rust_reports": 1,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "end-to-end.log": {
+      "sha256": "98c4208a9d043f8d4f92ff80455d354e07bd54011b1b577a3710933fb2ac129a",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "fetch.log": {
+      "sha256": "4514801d5a6d8bcc24d7717e4fc86714b804ad51c465261b8f14cb1402eec8f6",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "fmt.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "headless-startup.log": {
+      "sha256": "c6ea359851ab59364570488d318dd0accd65b2bac10efd453cffd32d7d2f8732",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "helper-adapted-clippy.log": {
+      "sha256": "6d78d60e93f34b6cff1264a5334346c17283919685b1f1e6b8514d5edf290c8c",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "helper-adapted-tests.log": {
+      "sha256": "2c2551589a10210530c50855b3544107be5aeafef1c2da98b2a4c744a8c7a023",
+      "rust_reports": 3,
+      "rust_totals": {
+        "passed": 13,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    "helper-stock-clippy.log": {
+      "sha256": "1a56262ce49a8bc277c076de7f8bae0079b50874239757846060efc9c648cc0e",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "helper-stock-tests.log": {
+      "sha256": "071f6cb76a2a90091413df79183a2917f287183e3a2f3df967add935424e13c9",
+      "rust_reports": 3,
+      "rust_totals": {
+        "passed": 13,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    "helpers-build.log": {
+      "sha256": "16ca8166a566038531223d0dbf151b6d4ff30f20db52c8eb1209d76972894f3b",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "markdown.log": {
+      "sha256": "9d868bc87c56ce59a3f0de3140cdbf544df1a9ec8bd4a472fe8918ca488a0378",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "native-build.log": {
+      "sha256": "3ca2b2f317c2221db6ebe114b9693e62171ff27abf6d551dbd2b007fb080183f",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "native-clippy.log": {
+      "sha256": "538160cf537fed96d172250b4e54eb86b7a0a79367eb7d46f5cbf2f0f8b65b6c",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "native-tests.log": {
+      "sha256": "2bec89e8ac1906c4e65128c63435086f918f5f0f3924874040517303950624b6",
+      "rust_reports": 1,
+      "rust_totals": {
+        "passed": 352,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    "provider-clippy.log": {
+      "sha256": "00fe1d72deda47812d693a55bad191d275b3df767712abf50799559a65df88aa",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "provider-fixtures.log": {
+      "sha256": "0306760b74af19afd502d2d47eb56239c01493befeab6e57b7fac2a878dcded1",
+      "rust_reports": 2,
+      "rust_totals": {
+        "passed": 500,
+        "failed": 0,
+        "ignored": 1
+      }
+    },
+    "retirement.log": {
+      "sha256": "d57ce632f8092d9e4bc5c65287b30dc64ba7b3d6bb5818f696dc3be956c0e0cd",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "status.log": {
+      "sha256": "b103a27860ba45f99d388a210699e9a0eb1b42a77d79e4ac252598b8f5726fe4",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "tooling.log": {
+      "sha256": "975c85e059e0b61b4b3e18f62d83f7fa4ce01a6d877e37afb8a7fd40bd3374b1",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "update-root.log": {
+      "sha256": "baa0fe0665e81325b776b793d282deeee096d5c133159ddf4bcb8ca2c431eebf",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "workspace-build.log": {
+      "sha256": "d87f31d5a30a4a547f3ff8ef5a560629a68615eb8a8e27eeae4b6e8f108bee96",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "workspace-clippy.log": {
+      "sha256": "3e224de554a779612873a2a76bb7a37af10a020b4774826fc97effa355896ab9",
+      "rust_reports": 0,
+      "rust_totals": {
+        "passed": 0,
+        "failed": 0,
+        "ignored": 0
+      }
+    },
+    "workspace-tests-contaminated-parent-interrupted.log": {
+      "sha256": "6a7bac91358191b1db5aac61e0867d20a7d16aad80db0627fa7aed5bf7693383",
+      "rust_reports": 24,
+      "rust_totals": {
+        "passed": 160,
+        "failed": 17,
+        "ignored": 2
+      }
+    },
+    "workspace-tests.log": {
+      "sha256": "01cf4fb1b1927776d0ad87e93e135c919bdaea75ae7bb96f47302311dbd0b5ef",
+      "rust_reports": 106,
+      "rust_totals": {
+        "passed": 1308,
+        "failed": 0,
+        "ignored": 5
+      }
+    }
+  }
+}
