@@ -1,0 +1,16 @@
+{
+  "observed_at": "2026-10-22T22:17:42.167128+00:00",
+  "baseline": "24a77f4f44072a084423f71bca0356f140dcd968",
+  "source_file_sha256": "a265c7129ac519447fed1566ba3a31c028ef5812647a6ed5daadbc1e2dd09ecd",
+  "native_result": "PASS: XTEST create/edit/Save, native close exit 0, relaunch and open saved note; exact body at v2; recovery empty",
+  "provider_calls": 0,
+  "artifacts": {
+    "binaries.sha256": "d5e7e8f6fd60488f8530726bfee4448e76614088b4e7f6ac2093de3d25a4ec34",
+    "edited.png": "0513f50b11d3233c63072b0d3e20115fb22f20e3b17d0ff0d4c312e3a4640b8a",
+    "reopened-notes.json": "9fe39f8b5d80e1d8fbc50824421e15d3be4b0a30156c0055452dbf06bc8e3bfc",
+    "reopened-recovery.json": "af42ad81bc989c92795491a31e3d7eb9e31dfa79d4d92129c56b9c7505736984",
+    "reopened.png": "f81129fd1fe81ad86cf08cbfe23880cc37e615e21385053511df1fd0623e15a6",
+    "saved-notes.json": "9fe39f8b5d80e1d8fbc50824421e15d3be4b0a30156c0055452dbf06bc8e3bfc",
+    "saved.png": "bd24dc548ac9ea5f6a3e8313f4498b0d25c36e6d7d7a33f41500426e6d8c7944"
+  }
+}
