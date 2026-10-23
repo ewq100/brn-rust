@@ -1,34 +1,74 @@
 use brn_intake::document::{DocumentExtraction, DocumentRequest};
 use brn_intake::{ImageAsset, asset_file_name, digest, hex};
 
-/// Checked destination-only relocation. No prose, URLs or arbitrary fields are normalized.
+/// Relocate image occurrences, not shared definitions or ordinary links. References
+/// without titles become the inline shape consumed by existing host adoption.
 pub fn relocate(markdown: &str, from: &str, to: &str) -> Result<String, String> {
-    fn visit(node: &markdown::mdast::Node, from: &str, ranges: &mut Vec<(usize, usize)>) {
-        if let markdown::mdast::Node::Image(image) = node
-            && image.url == from
-            && let Some(p) = &image.position
-        {
-            ranges.push((p.start.offset, p.end.offset));
+    use markdown::mdast::Node;
+    fn definitions(node: &Node, out: &mut std::collections::BTreeMap<String, (String, bool)>) {
+        if let Node::Definition(d) = node {
+            out.entry(d.identifier.clone())
+                .or_insert((d.url.clone(), d.title.is_some()));
         }
         if let Some(children) = node.children() {
             for child in children {
-                visit(child, from, ranges);
+                definitions(child, out);
+            }
+        }
+    }
+    fn visit(
+        node: &Node,
+        text: &str,
+        from: &str,
+        to: &str,
+        defs: &std::collections::BTreeMap<String, (String, bool)>,
+        edits: &mut Vec<(usize, usize, String)>,
+    ) {
+        match node {
+            Node::Image(i) if i.url == from && i.title.is_none() => {
+                if let Some(p) = &i.position {
+                    let raw = &text[p.start.offset..p.end.offset];
+                    let needle = format!("]({from})");
+                    if let Some(offset) = raw.rfind(&needle) {
+                        edits.push((
+                            p.start.offset + offset + 2,
+                            p.start.offset + offset + 2 + from.len(),
+                            to.into(),
+                        ));
+                    }
+                }
+            }
+            Node::ImageReference(i)
+                if defs
+                    .get(&i.identifier)
+                    .is_some_and(|(url, title)| url == from && !title) =>
+            {
+                if let Some(p) = &i.position {
+                    let alt = i
+                        .alt
+                        .replace('\\', "\\\\")
+                        .replace('[', "\\[")
+                        .replace(']', "\\]");
+                    edits.push((p.start.offset, p.end.offset, format!("![{alt}]({to})")));
+                }
+            }
+            _ => {}
+        }
+        if let Some(children) = node.children() {
+            for child in children {
+                visit(child, text, from, to, defs, edits);
             }
         }
     }
     let ast = markdown::to_mdast(markdown, &markdown::ParseOptions::default())
         .map_err(|e| e.to_string())?;
-    let mut ranges = Vec::new();
-    visit(&ast, from, &mut ranges);
+    let mut defs = std::collections::BTreeMap::new();
+    definitions(&ast, &mut defs);
+    let mut edits = Vec::new();
+    visit(&ast, markdown, from, to, &defs, &mut edits);
     let mut result = markdown.to_owned();
-    for (start, end) in ranges.into_iter().rev() {
-        let original = &markdown[start..end];
-        // Require the exact inline destination; reference-style images stay explicit gaps.
-        let needle = format!("]({from})");
-        let Some(offset) = original.rfind(&needle) else {
-            return Err("unsupported returned asset link syntax".into());
-        };
-        result.replace_range(start + offset + 2..start + offset + 2 + from.len(), to);
+    for (start, end, replacement) in edits.into_iter().rev() {
+        result.replace_range(start..end, &replacement);
     }
     Ok(result)
 }
@@ -36,6 +76,7 @@ pub fn project(
     request: &DocumentRequest,
     doc: xberg::ExtractedDocument,
 ) -> Result<DocumentExtraction, String> {
+    request.validate()?;
     if doc.content.len() > brn_intake::MAX_TEXT_BYTES
         || doc.processing_warnings.len() > brn_intake::MAX_OCCURRENCES
         || doc
@@ -52,7 +93,8 @@ pub fn project(
         .map(|w| format!("{}: {}", w.source, w.message))
         .collect();
     let mut assets: Vec<ImageAsset> = Vec::new();
-    for image in doc.images.unwrap_or_default() {
+    let mut returned_bytes = 0usize;
+    for (position, image) in doc.images.unwrap_or_default().into_iter().enumerate() {
         if image.data.is_empty() {
             gaps.push(format!(
                 "image {}: SDK returned no retained image bytes",
@@ -60,27 +102,40 @@ pub fn project(
             ));
             continue;
         }
-        // Common transient asset contract accepts checked PNG only. Other returned formats
-        // remain honest gaps; do not fetch or reconstruct missing source data.
-        if image.format.as_ref() != "png" {
-            gaps.push(format!(
-                "image {}: retained format {} is not PNG",
-                image.image_index, image.format
-            ));
-            continue;
+        returned_bytes = returned_bytes
+            .checked_add(image.data.len())
+            .ok_or("returned image byte overflow")?;
+        if returned_bytes > request.limits.max_decoded_bytes
+            || returned_bytes > brn_intake::MAX_IMAGE_BYTES
+        {
+            return Err("returned image byte budget".into());
         }
+        let media_type = match image.format.as_ref() {
+            "png" => "image/png",
+            "jpeg" | "jpg" => "image/jpeg",
+            _ => {
+                gaps.push(format!(
+                    "image {}: retained format {} is unsupported (PNG/JPEG only)",
+                    image.image_index, image.format
+                ));
+                continue;
+            }
+        };
+        // Office SDK width/height may be layout extents rather than raster dimensions.
+        let (width, height) =
+            brn_intake::validate_document_image(&image.data, media_type, &request.limits)?;
         let hash = digest(&image.data);
         let asset = ImageAsset {
             id: format!("asset-{}", hex(&hash)),
             sha256: hash,
-            width: image.width.ok_or("returned PNG lacks width")?,
-            height: image.height.ok_or("returned PNG lacks height")?,
-            media_type: "image/png".into(),
+            width,
+            height,
+            media_type: media_type.into(),
             bytes: image.data.to_vec(),
         };
-        let old = image
-            .source_path
-            .unwrap_or_else(|| format!("image_{}.png", image.image_index));
+        // Xberg's maintained Markdown renderer uses the image's vector position
+        // when bytes are present, not its package source_path or page-local index.
+        let old = format!("image_{position}.{}", image.format);
         let name = asset_file_name(&asset)?;
         markdown = relocate(&markdown, &old, &name)?;
         if !assets.iter().any(|a| a.id == asset.id) {
@@ -107,7 +162,7 @@ pub fn project(
     let ast = markdown::to_mdast(&markdown, &markdown::ParseOptions::default())
         .map_err(|e| e.to_string())?;
     if unretained_image(&ast, &names) {
-        gaps.push("SDK Markdown contains image references without retained bytes; external content was not fetched".into());
+        gaps.push("SDK Markdown contains image references that could not be linked to retained assets (missing bytes or unsupported link syntax); external content was not fetched".into());
     }
     if request.backend == "xberg_brn" && matches!(request.kind.as_str(), "text" | "markdown") {
         markdown = String::from_utf8(request.bytes.clone()).map_err(|_| "text is not UTF-8")?;

@@ -495,3 +495,184 @@ fn prepared_unapplied_and_source_only_requests_check_variant_before_dispatch() {
         .is_none()
     );
 }
+
+#[test]
+fn figures_profile_reimport_preserves_old_note_and_deduplicates_current_variant() {
+    let root = root();
+    let data = root.path().join("profile-upgrade");
+    let mut app = Workspace::open(&data).unwrap();
+    let settings = DocumentConversionSettings::default();
+    let mut result = converted(&settings);
+    let ApplyOutcome::Applied(old_receipt) = app
+        .import_full_scoped_with_conversion("old", "Source", &result, None, &settings)
+        .unwrap()
+    else {
+        panic!()
+    };
+    let old_note = old_receipt
+        .writes
+        .iter()
+        .find(|w| matches!(w.after.data, RecordData::Note(_)))
+        .unwrap()
+        .after
+        .clone();
+    // Seed persisted historical provenance through the checked owner service.
+    // No migration or relabeling happens during reopen/current-profile intake.
+    let mut old_data = old_note.data.clone();
+    let RecordData::Note(note) = &mut old_data else {
+        panic!()
+    };
+    let provenance = note
+        .import
+        .as_mut()
+        .unwrap()
+        .report
+        .as_mut()
+        .unwrap()
+        .conversion
+        .as_mut()
+        .unwrap();
+    provenance.engine_identity = provenance
+        .engine_identity
+        .strip_suffix("/figures-v1")
+        .unwrap()
+        .into();
+    let old_source = old_receipt
+        .writes
+        .iter()
+        .find(|w| matches!(w.after.data, RecordData::Source(_)))
+        .unwrap()
+        .after
+        .clone();
+    let mut source_data = old_source.data.clone();
+    let RecordData::Source(source) = &mut source_data else {
+        panic!()
+    };
+    let source_provenance = source.report.as_mut().unwrap().conversion.as_mut().unwrap();
+    source_provenance.engine_identity = source_provenance
+        .engine_identity
+        .strip_suffix("/figures-v1")
+        .unwrap()
+        .into();
+    let owner = HostAuthority::owner("synthetic historical import fixture");
+    let op = app
+        .store
+        .allocate_operation("seed-historical-profile")
+        .unwrap();
+    app.store
+        .prepare_owner(
+            &op,
+            &ChangeRequest {
+                reason: "Historical fixture".into(),
+                writes: vec![
+                    Put {
+                        id: old_note.id.clone(),
+                        expected_version: Some(old_note.version),
+                        archived: false,
+                        data: old_data,
+                    },
+                    Put {
+                        id: old_source.id.clone(),
+                        expected_version: Some(old_source.version),
+                        archived: false,
+                        data: source_data,
+                    },
+                ],
+                inputs: vec![],
+            },
+            &owner,
+        )
+        .unwrap();
+    app.store.apply(&op, &owner).unwrap();
+    let historic = app.store.record(&old_note.id).unwrap().unwrap();
+    let historic_source = app.store.record(&old_source.id).unwrap().unwrap();
+    drop(app);
+    let mut app = Workspace::open(&data).unwrap();
+    assert_eq!(app.store.record(&old_note.id).unwrap().unwrap(), historic);
+    let bytes = include_bytes!("../../brn-intake/tests/fixtures/quay-map.jpg").to_vec();
+    let hash: [u8; 32] = Sha256::digest(&bytes).into();
+    let name = format!(
+        "{}.jpg",
+        hash.iter().map(|b| format!("{b:02x}")).collect::<String>()
+    );
+    result.markdown.push_str(&format!("\n\n![Figure]({name})"));
+    result.assets.push(brn_threads_intake::RetainedAsset {
+        name,
+        media_type: "image/jpeg".into(),
+        sha256: hash,
+        width: 480,
+        height: 240,
+        bytes: bytes.clone(),
+    });
+    assert!(
+        app.import_full_scoped_with_conversion("old", "Source", &result, None, &settings)
+            .is_err(),
+        "an old operation key must not relabel or replay changed output"
+    );
+    let ApplyOutcome::Applied(new_receipt) = app
+        .import_full_scoped_with_conversion("new", "Source", &result, None, &settings)
+        .unwrap()
+    else {
+        panic!()
+    };
+    assert_eq!(app.store.record(&old_note.id).unwrap().unwrap(), historic);
+    assert_eq!(
+        app.store
+            .revision(&historic_source.id, historic_source.version)
+            .unwrap()
+            .unwrap(),
+        historic_source
+    );
+    let rows = app.records().unwrap();
+    assert_eq!(
+        rows.iter()
+            .filter(|r| matches!(r.data, RecordData::Source(_)))
+            .count(),
+        1
+    );
+    assert_eq!(
+        rows.iter()
+            .filter(|r| matches!(r.data, RecordData::Note(_)))
+            .count(),
+        2
+    );
+    let asset = rows
+        .iter()
+        .find_map(|r| {
+            if let RecordData::Asset(a) = &r.data {
+                Some(a)
+            } else {
+                None
+            }
+        })
+        .unwrap();
+    assert_eq!(asset.bytes, bytes);
+    assert_eq!(asset.media_type, "image/jpeg");
+    assert_ne!(asset.note, old_note.id);
+    assert_eq!(
+        app.import_full_scoped_with_conversion("new", "Source", &result, None, &settings)
+            .unwrap(),
+        ApplyOutcome::Applied(new_receipt)
+    );
+    app.import_full_scoped_with_conversion("again", "Source", &result, None, &settings)
+        .unwrap();
+    assert_eq!(
+        app.records()
+            .unwrap()
+            .iter()
+            .filter(|r| matches!(r.data, RecordData::Note(_)))
+            .count(),
+        2
+    );
+    let backup = root.path().join("profile-backup");
+    app.backup(&backup).unwrap();
+    let restored = Store::restore(&backup, root.path().join("restored")).unwrap();
+    assert_eq!(restored.record(&old_note.id).unwrap().unwrap(), historic);
+    assert_eq!(
+        restored
+            .revision(&historic_source.id, historic_source.version)
+            .unwrap()
+            .unwrap(),
+        historic_source
+    );
+}

@@ -28,14 +28,14 @@ pub const ACCEPTED_PATCHES: [(&str, &str); 4] = [
 
 pub fn expected_engine_identity(backend: &str) -> Result<String, String> {
     match backend {
-        "xberg" => Ok(format!("xberg/1.3.10/stock/{ARCHIVE_SHA256}")),
+        "xberg" => Ok(format!("xberg/1.3.10/stock/{ARCHIVE_SHA256}/figures-v1")),
         "xberg_brn" => {
             let mut input = format!("{ARCHIVE_SHA256}\nutf8-identity-v1\n");
             for (name, hash) in ACCEPTED_PATCHES {
                 input.push_str(&format!("{name} {hash}\n"));
             }
             Ok(format!(
-                "xberg/1.3.10/brn/{}",
+                "xberg/1.3.10/brn/{}/figures-v1",
                 hex(&digest(input.as_bytes()))
             ))
         }
@@ -128,19 +128,15 @@ impl DocumentExtraction {
                 .ok_or("asset size overflow")?;
             if total_bytes > MAX_IMAGE_BYTES
                 || total_bytes > request.limits.max_decoded_bytes
-                || asset.media_type != "image/png"
+                || !matches!(asset.media_type.as_str(), "image/png" | "image/jpeg")
                 || asset.sha256 != digest(&asset.bytes)
                 || asset.id != format!("asset-{}", hex(&asset.sha256))
                 || !ids.insert(&asset.id)
             {
                 return Err("invalid document asset identity or budget".into());
             }
-            let (w, h) = crate::decode_png(
-                &asset.bytes,
-                MAX_IMAGE_BYTES,
-                u32::MAX,
-                request.limits.max_image_pixels,
-            )?;
+            let (w, h) =
+                crate::validate_document_image(&asset.bytes, &asset.media_type, &request.limits)?;
             total_pixels = total_pixels
                 .checked_add(u64::from(w) * u64::from(h))
                 .ok_or("pixel overflow")?;

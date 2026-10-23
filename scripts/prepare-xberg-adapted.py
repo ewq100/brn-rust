@@ -25,7 +25,7 @@ def sha(data):
 
 def identity():
     material = ARCHIVE + "\nutf8-identity-v1\n" + "".join(f"{p} {h}\n" for p, h, _, _ in PATCHES)
-    return "xberg/1.3.10/brn/" + sha(material.encode())
+    return "xberg/1.3.10/brn/" + sha(material.encode()) + "/figures-v1"
 
 
 def read_archive(archive):

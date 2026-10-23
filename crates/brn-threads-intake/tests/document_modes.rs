@@ -61,6 +61,36 @@ fn both_helpers_all_eight_use_checked_identity_and_leave_no_scratch() {
             );
             assert_eq!(result.coverage.status, CoverageStatus::Unchecked);
             assert!(!result.markdown.is_empty());
+            if matches!(kind, DocumentKind::Docx | DocumentKind::Pptx) {
+                let expected: &[(&str, &[u8])] = if kind == DocumentKind::Docx {
+                    &[(
+                        "image/png",
+                        include_bytes!("../../brn-intake/tests/fixtures/water-use.png"),
+                    )]
+                } else {
+                    &[
+                        (
+                            "image/png",
+                            include_bytes!("../../brn-intake/tests/fixtures/quay-map.png"),
+                        ),
+                        (
+                            "image/jpeg",
+                            include_bytes!("../../brn-intake/tests/fixtures/quay-map.jpg"),
+                        ),
+                    ]
+                };
+                assert_eq!(result.assets.len(), expected.len());
+                for (mime, bytes) in expected {
+                    let asset = result
+                        .assets
+                        .iter()
+                        .find(|a| a.bytes == *bytes)
+                        .expect("exact retained source figure bytes");
+                    assert_eq!(asset.media_type, *mime);
+                    assert_eq!(asset.sha256, brn_intake::digest(bytes));
+                    assert!(result.markdown.contains(&format!("]({})", asset.name)));
+                }
+            }
             assert_eq!(std::fs::read_dir(&converter.temp_root).unwrap().count(), 0);
         }
     }
