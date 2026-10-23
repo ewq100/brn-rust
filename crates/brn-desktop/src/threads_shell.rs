@@ -1,9 +1,10 @@
 //! Workspace shell: top bar, tile row, status bar, launcher and menus.
+use super::components::AccessibleDropdownMenu;
 use super::*;
 use components::tokens;
 use gpui_kit::component::button::ButtonVariants;
 use gpui_kit::component::kbd::Kbd;
-use gpui_kit::component::menu::{ContextMenuExt, DropdownMenu, PopupMenu, PopupMenuItem};
+use gpui_kit::component::menu::{ContextMenuExt, PopupMenu, PopupMenuItem};
 use gpui_kit::component::scroll::{Scrollbar, ScrollbarMode};
 use gpui_kit::component::tooltip::Tooltip;
 use gpui_kit::component::{Icon, Sizable, Size};
@@ -409,7 +410,7 @@ impl ThreadsUi {
                 format!("{} panel actions", kind.label()),
             )
         }
-        .dropdown_menu(move |menu, window, cx| {
+        .accessible_dropdown_menu(move |menu, window, cx| {
             let menu = match &object {
                 Some(section) => section(menu),
                 None => menu,
@@ -901,7 +902,7 @@ impl ThreadsUi {
                     pill("open-beside", "Open beside").icon(IconName::PanelRightOpen)
                 }
                 .tooltip("Add an extra split · normal navigation reuses your working areas")
-                .dropdown_menu(move |mut menu, _, _| {
+                .accessible_dropdown_menu(move |mut menu, _, _| {
                     menu = menu.label("Open beside · existing panels are focused");
                     for kind in TileKind::ALL
                         .into_iter()
@@ -1084,7 +1085,7 @@ impl ThreadsUi {
                     .accessibility_label(announced)
                     .compact()
                     .primary()
-                    .dropdown_menu(move |mut menu, _, _| {
+                    .accessible_dropdown_menu(move |mut menu, _, _| {
                         menu = menu.max_w(px(420.)).label("Needs you");
                         for (id, text) in &needs {
                             let (open, text) = (id.clone(), SharedString::from(text.clone()));
@@ -1285,7 +1286,7 @@ impl ThreadsUi {
                     .h(tokens::ICON_CONTROL)
                     .icon(IconName::LayoutDashboard)
                     .tooltip("Layouts, panels and the last work status")
-                    .dropdown_menu(move |mut menu, _, _| {
+                    .accessible_dropdown_menu(move |mut menu, _, _| {
                         menu = menu.label("Layouts");
                         for (preset, action) in Preset::ALL.into_iter().zip([
                             Box::new(LayoutWrite) as Box<dyn Action>,

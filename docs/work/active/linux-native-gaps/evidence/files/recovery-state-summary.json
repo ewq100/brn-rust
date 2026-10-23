@@ -1,0 +1,116 @@
+{
+  "recovery-prebackup.json": {
+    "source_sha256": "55496b8203360a80133fe2be0b29bdc9966fc8441b6d5419fe2078ac72a78251",
+    "recovery": [
+      {
+        "id": "fd191d21-ed1b-4fcf-9b3c-357c1c388848",
+        "note": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+        "base_version": 1,
+        "generation": 1,
+        "markdown": "Unsaved restore recovery — café λ.",
+        "closed": false,
+        "holder": "caller"
+      }
+    ],
+    "sentinel": [
+      {
+        "id": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Backup sentinel",
+            "markdown": "Synthetic sentinel — preserve exactly.",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      }
+    ]
+  },
+  "recovery-restored.json": {
+    "source_sha256": "4aa8ee242aeb65ffac865aea60f50d911e39330cd9201a2d91588e8369253342",
+    "recovery": [
+      {
+        "id": "fd191d21-ed1b-4fcf-9b3c-357c1c388848",
+        "note": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+        "base_version": 1,
+        "generation": 1,
+        "markdown": "Unsaved restore recovery — café λ.",
+        "closed": false,
+        "holder": "desktop"
+      }
+    ],
+    "sentinel": [
+      {
+        "id": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Backup sentinel",
+            "markdown": "Synthetic sentinel — preserve exactly.",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      }
+    ]
+  },
+  "restored-recovery-saved.json": {
+    "source_sha256": "d0d5e32f70ddaa83884234c01dce62954660d7b240e96af80f0959cfaeb304c0",
+    "recovery": [],
+    "sentinel": [
+      {
+        "id": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+        "version": 2,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Backup sentinel",
+            "markdown": "Unsaved restore recovery — café λ.",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      }
+    ]
+  },
+  "original-after-restored-save.json": {
+    "source_sha256": "55496b8203360a80133fe2be0b29bdc9966fc8441b6d5419fe2078ac72a78251",
+    "recovery": [
+      {
+        "id": "fd191d21-ed1b-4fcf-9b3c-357c1c388848",
+        "note": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+        "base_version": 1,
+        "generation": 1,
+        "markdown": "Unsaved restore recovery — café λ.",
+        "closed": false,
+        "holder": "caller"
+      }
+    ],
+    "sentinel": [
+      {
+        "id": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Backup sentinel",
+            "markdown": "Synthetic sentinel — preserve exactly.",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "evidence/checks/desktop-tests-final.log": {
+    "raw_sha256": "ab4d3c4f998c4e1cbe9eb2be64b04785840ba57f5e5037c222c97eea731274e7",
+    "tracked_sha256": "6c4ce8805c96b61f48e4723df44cac352de01f749d791e6ccb230aaecb6aca46",
+    "change": "Trim trailing whitespace/blank EOF only; raw log retained in task environment."
+  },
+  "evidence/connections/connections-recording.log": {
+    "raw_sha256": "5244b06234f3a2567f50ad41d3e45f3ffee93bcfdf1e38bb838e30f65bc1de6b",
+    "tracked_sha256": "659032cbcb5a229e6dc9526f6232038001e3b309edfe51d61cfbc723c3a2e994",
+    "change": "Trim trailing whitespace/blank EOF only; raw log retained in task environment."
+  },
+  "evidence/connections/connections-repeat-recording.log": {
+    "raw_sha256": "22b7f9f22b6fdfccb6043a490924702fdf58f4a3ec4153c0d9d47390c86cf737",
+    "tracked_sha256": "493145bc6e8531730fcd40e62e75046d79b21efdfb7de1d5e4b3547f3af9eb7f",
+    "change": "Trim trailing whitespace/blank EOF only; raw log retained in task environment."
+  }
+}

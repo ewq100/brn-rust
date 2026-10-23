@@ -1,10 +1,11 @@
 //! Navigation and workspace panels: Chats, Notes, Home, Tasks, Changes and
 //! Settings. Every control calls the existing checked services.
+use super::components::AccessibleDropdownMenu;
 use super::shell::{item, pill};
 use super::*;
 use gpui_kit::component::button::ButtonVariants;
 use gpui_kit::component::input::Input;
-use gpui_kit::component::menu::{ContextMenuExt, DropdownMenu, PopupMenu};
+use gpui_kit::component::menu::{ContextMenuExt, PopupMenu};
 use gpui_kit::component::radio::Radio;
 use gpui_kit::component::switch::Switch;
 use gpui_kit::component::tooltip::Tooltip;
@@ -207,7 +208,7 @@ impl ThreadsUi {
                     IconName::Plus,
                     "New chat, note or information",
                 )
-                .dropdown_menu(move |menu, _, _| new_menu(menu, &this, busy))
+                .accessible_dropdown_menu(move |menu, _, _| new_menu(menu, &this, busy))
                 .into_any_element(),
             ],
             TileKind::Chat => self.chat_controls(cx),
@@ -997,8 +998,8 @@ impl ThreadsUi {
                 .map(|step| (step, record.clone(), next(step)))
                 .collect();
             controls = controls.child(
-                components::overflow_menu(format!("task-menu-{id}"), "Task actions").dropdown_menu(
-                    move |mut menu, _, _| {
+                components::overflow_menu(format!("task-menu-{id}"), "Task actions")
+                    .accessible_dropdown_menu(move |mut menu, _, _| {
                         for (step, record, data) in items.clone() {
                             if step == lists::TaskStep::Cancel {
                                 menu = menu.separator();
@@ -1015,8 +1016,7 @@ impl ThreadsUi {
                             ));
                         }
                         menu
-                    },
-                ),
+                    }),
             );
         }
         div()

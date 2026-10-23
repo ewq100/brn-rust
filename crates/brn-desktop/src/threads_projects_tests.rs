@@ -508,3 +508,42 @@ fn project_settings_dialog_adds_a_line_on_enter_and_saves_on_cmd_enter(cx: &mut 
         );
     });
 }
+
+/// Project selection has an actionable accessible name without changing the
+/// semantics of shared display/navigation rows such as Home's recent notes.
+#[gpui_kit::test]
+fn project_selection_rows_expose_names_and_selection(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let title = "A full project title that may truncate visually";
+    let first = create(cx, &f, title);
+    let second = create(cx, &f, "Another project");
+    cx.update_window(f.window, |_, window, _| {
+        let row = window.find(format!("project-row-{first}"));
+        assert_eq!(row.role(), Some(gpui_kit::Role::Button));
+        assert_eq!(row.label(), Some(title));
+        assert_eq!(row.selected(), Some(false));
+        assert_eq!(
+            window.find(format!("project-row-{second}")).selected(),
+            Some(true)
+        );
+    })
+    .unwrap();
+    click(cx, &f, format!("project-row-{first}"));
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find(format!("project-row-{first}")).selected(),
+            Some(true)
+        );
+        assert_eq!(
+            window.find(format!("project-row-{second}")).selected(),
+            Some(false)
+        );
+    })
+    .unwrap();
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).selected_project.as_deref(),
+            Some(first.as_str())
+        )
+    });
+}

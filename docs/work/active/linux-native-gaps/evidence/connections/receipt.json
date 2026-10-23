@@ -1,0 +1,49 @@
+{
+  "source": "7b416591275f2552823cb18fe357f5a20617168a",
+  "complete_note_records_compared": 3,
+  "complete_note_records_equal": {
+    "connections-after-unlink.json": true,
+    "connections-after-undo.json": true,
+    "connections-repeat-after.json": true,
+    "connections-final-project.json": true
+  },
+  "sha256": {
+    "frames/0066.png": "0775446d3a895a52794d97a5e1107ad2fd3ff993cfc9c878750a2a3613e47cc2",
+    "frames/0089.png": "af33765d03d8ec6c672e951a69d8eb83aa06bc71524dc16b52d4dadef6ff653e",
+    "repeat-frames/0051.png": "06ef268118f5bd8abf6597c5109068d54f9ea7010c72c54731f9192322083334",
+    "repeat-frames/0133.png": "e8ee86ecd93b64b6199994071e40cac9a35052a59d07835c0c5f4c46d163e7c7",
+    "connections-ready.png": "33309411736c8e79268557495e793dd119b81895ddf2fa252e99a18e051c7885",
+    "connections-undo.png": "b82181a71aa42fb8b9355492bb7ef96f2ad0e8c2e139113242a44056debb3ca9",
+    "connections-repeat-undo.png": "13408a4baa31390f4390b891544decab2d8f9c0dc6ac8322917dea046b196a8f",
+    "connections-repeat-unlinked.png": "a682d2e9b51caaed6f8b454ed24e71340e5d22de82fd5247ef899a50fb6b68bf",
+    "connections-before.json": "be6ca166d953bf5878f959390b8b9938cb1858413128057e396c6b29d34a6679",
+    "connections-after-unlink.json": "3f77cba821a8bb3e7916dac91f462835dd3c31ad2add9995b01b91db339f508f",
+    "connections-after-undo.json": "4a09c861a3f24c8ef7c1e8ee8c01637fcb1758e315edd9bc3b26dbfe76244525",
+    "connections-repeat-after.json": "c7318aa8da2eead58ca73eb05cf25376e8d2111850ce38c45caa528829dd0d20",
+    "connections-unlink-timing.json": "e1b0042d0d87213b3979b183800767888d05cd5614180bcd6259e7e473d1b638",
+    "connections-repeat-timing.json": "ba2157756759195b8199a0ce3d82e2bf43947b4e4a6d0012a9d8f845232aa2a4",
+    "connections-recording.log": "5244b06234f3a2567f50ad41d3e45f3ffee93bcfdf1e38bb838e30f65bc1de6b",
+    "connections-repeat-recording.log": "22b7f9f22b6fdfccb6043a490924702fdf58f4a3ec4153c0d9d47390c86cf737",
+    "connections-unlink.mkv": "d36add7897eb35c98e3c9a79fd8972003f764ed0997ac854b0c19be5d5f80c70",
+    "connections-repeat.mkv": "0de045a47a282e0a94c92c158cf31527108c87c7fa7a8ee27b8d99dcfd0347fb",
+    "connections-repeat-project-restored.png": "95abaaa70f490993f976eff8fa8edeedd89038dd298d832ac4459459a9b20a91",
+    "connections-final-project.json": "c7318aa8da2eead58ca73eb05cf25376e8d2111850ce38c45caa528829dd0d20"
+  },
+  "video_frames": {
+    "connections-unlink.mkv": {
+      "66": "1.083",
+      "89": "1.467"
+    },
+    "connections-repeat.mkv": {
+      "51": "0.833",
+      "133": "2.200"
+    }
+  },
+  "time_units": "seconds, decoded best_effort_timestamp_time; frame numbering starts at 1",
+  "repeated_undo_after_relaunch": {
+    "project_b_version": 7,
+    "membership_restored": true,
+    "settled_neighbor_observed": true,
+    "scope": "center opened through Project B document by native actor"
+  }
+}

@@ -1,0 +1,33 @@
+ffmpeg version 7.1.5-0+deb13u1 Copyright (c) 2000-2026 the FFmpeg developers
+  built with gcc 14 (Debian 14.2.0-19)
+  configuration: --prefix=/usr --extra-version=0+deb13u1 --toolchain=hardened --libdir=/usr/lib/x86_64-linux-gnu --incdir=/usr/include/x86_64-linux-gnu --arch=amd64 --enable-gpl --disable-stripping --disable-libmfx --disable-omx --enable-gnutls --enable-libaom --enable-libass --enable-libbs2b --enable-libcdio --enable-libcodec2 --enable-libdav1d --enable-libflite --enable-libfontconfig --enable-libfreetype --enable-libfribidi --enable-libglslang --enable-libgme --enable-libgsm --enable-libharfbuzz --enable-libmp3lame --enable-libmysofa --enable-libopenjpeg --enable-libopenmpt --enable-libopus --enable-librubberband --enable-libshine --enable-libsnappy --enable-libsoxr --enable-libspeex --enable-libtheora --enable-libtwolame --enable-libvidstab --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libx265 --enable-libxml2 --enable-libxvid --enable-libzimg --enable-openal --enable-opencl --enable-opengl --disable-sndio --enable-libvpl --enable-libdc1394 --enable-libdrm --enable-libiec61883 --enable-chromaprint --enable-frei0r --enable-ladspa --enable-libbluray --enable-libcaca --enable-libdvdnav --enable-libdvdread --enable-libjack --enable-libpulse --enable-librabbitmq --enable-librist --enable-libsrt --enable-libssh --enable-libsvtav1 --enable-libx264 --enable-libzmq --enable-libzvbi --enable-lv2 --enable-sdl2 --enable-libplacebo --enable-librav1e --enable-pocketsphinx --enable-librsvg --enable-libjxl --enable-shared
+  libavutil      59. 39.100 / 59. 39.100
+  libavcodec     61. 19.101 / 61. 19.101
+  libavformat    61.  7.103 / 61.  7.103
+  libavdevice    61.  3.100 / 61.  3.100
+  libavfilter    10.  5.100 / 10.  5.100
+  libswscale      8.  3.100 /  8.  3.100
+  libswresample   5.  3.100 /  5.  3.100
+  libpostproc    58.  3.100 / 58.  3.100
+[x11grab @ 0x560bf4d52380] Cannot get the image data event_error: response_type:0 error_code:128 sequence:9 resource_id:10485760 minor_code:4 major_code:130.
+[x11grab @ 0x560bf4d52380] Continuing without shared memory.
+[x11grab @ 0x560bf4d52380] Stream #0: not enough frames to estimate rate; consider increasing probesize
+Input #0, x11grab, from ':98':
+  Duration: N/A, start: 1792720657.852013, bitrate: 2211840 kb/s
+  Stream #0:0: Video: rawvideo (BGR[0] / 0x524742), bgr0, 1280x900, 2211840 kb/s, 60 fps, 1000k tbr, 1000k tbn
+Stream mapping:
+  Stream #0:0 -> #0:0 (rawvideo (native) -> ffv1 (native))
+Press [q] to stop, [?] for help
+Output #0, matroska, to '/workspace/brn-environment/logs/linux-native-gaps/connections-repeat.mkv':
+  Metadata:
+    encoder         : Lavf61.7.103
+  Stream #0:0: Video: ffv1 (FFV1 / 0x31564646), bgr0(pc, gbr/unknown/unknown, progressive), 1280x900, q=2-31, 200 kb/s, 60 fps, 1k tbn
+      Metadata:
+        encoder         : Lavc61.19.101 ffv1
+frame=   31 fps=0.0 q=-0.0 size=    5888KiB time=00:00:00.51 bitrate=93357.0kbits/s speed=1.03x
+frame=   61 fps= 61 q=-0.0 size=   11776KiB time=00:00:01.01 bitrate=94887.5kbits/s speed=1.02x
+frame=   91 fps= 61 q=-0.0 size=   20736KiB time=00:00:01.51 bitrate=112001.7kbits/s speed=1.01x
+frame=  121 fps= 60 q=-0.0 size=   26624KiB time=00:00:02.01 bitrate=108150.6kbits/s speed=1.01x
+frame=  151 fps= 60 q=-0.0 size=   35072KiB time=00:00:02.51 bitrate=114162.8kbits/s speed=1.01x
+[out#0/matroska @ 0x560bf4d5a380] video:43085KiB audio:0KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.005979%
+frame=  180 fps= 60 q=-0.0 Lsize=   43087KiB time=00:00:03.00 bitrate=117657.4kbits/s speed=   1x

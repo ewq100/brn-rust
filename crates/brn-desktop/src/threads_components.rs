@@ -24,7 +24,40 @@ pub(super) fn icon_button_with_action(
     icon_button(id, icon, label.clone()).tooltip_with_action(label, action, None)
 }
 
-/// The ⋯ trigger; callers chain `.dropdown_menu(..)`.
+/// Bridge the pinned Kit popover's mouse-down activation to its trigger's
+/// accessible Click action. Kit owns opening, dismissal and keyboard routing;
+/// GPUI's built-in accessible Click dispatches the same mouse-down/up sequence.
+/// Remove this bridge when Kit advertises activation on popover triggers itself.
+pub(super) trait AccessibleDropdownMenu {
+    fn accessible_dropdown_menu(
+        self,
+        build: impl Fn(
+            gpui_kit::component::menu::PopupMenu,
+            &mut gpui_kit::Window,
+            &mut gpui_kit::Context<gpui_kit::component::menu::PopupMenu>,
+        ) -> gpui_kit::component::menu::PopupMenu
+        + 'static,
+    ) -> gpui_kit::AnyElement;
+}
+
+impl AccessibleDropdownMenu for Button {
+    fn accessible_dropdown_menu(
+        self,
+        build: impl Fn(
+            gpui_kit::component::menu::PopupMenu,
+            &mut gpui_kit::Window,
+            &mut gpui_kit::Context<gpui_kit::component::menu::PopupMenu>,
+        ) -> gpui_kit::component::menu::PopupMenu
+        + 'static,
+    ) -> gpui_kit::AnyElement {
+        // An inert handler advertises Click without implementing a second menu
+        // toggle. Disabled buttons still suppress this handler in Kit's base.
+        gpui_kit::component::menu::DropdownMenu::dropdown_menu(self.on_click(|_, _, _| {}), build)
+            .into_any_element()
+    }
+}
+
+/// The ⋯ trigger; callers chain `.accessible_dropdown_menu(..)`.
 pub(super) fn overflow_menu(id: impl Into<ElementId>, label: impl Into<SharedString>) -> Button {
     icon_button(id, IconName::Ellipsis, label)
 }

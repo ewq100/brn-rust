@@ -308,6 +308,7 @@ impl ThreadsUi {
                     "",
                     self.selected_project.as_ref() == Some(&id),
                 )
+                .role(gpui_kit::Role::Button)
                 .on_click(cx.listener(move |this, _, _, cx| {
                     this.selected_project = Some(id.clone());
                     cx.notify();

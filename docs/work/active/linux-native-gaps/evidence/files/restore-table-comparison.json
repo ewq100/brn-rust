@@ -1,0 +1,101 @@
+{
+  "candidate_targets": {
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": true
+  },
+  "chat_drafts": {
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": true
+  },
+  "derivation_inputs": {
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": true
+  },
+  "edit_session_bindings": {
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": true
+  },
+  "edit_sessions": {
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": true
+  },
+  "operations": {
+    "counts": [
+      14,
+      14,
+      14
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": true
+  },
+  "receipt_actors": {
+    "counts": [
+      0,
+      0,
+      0
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": true
+  },
+  "receipts": {
+    "counts": [
+      14,
+      14,
+      14
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": true
+  },
+  "records": {
+    "counts": [
+      27,
+      27,
+      27
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": true
+  },
+  "revisions": {
+    "counts": [
+      30,
+      30,
+      30
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": true
+  },
+  "workspace_profile": {
+    "counts": [
+      1,
+      1,
+      1
+    ],
+    "source_backup_equal": true,
+    "backup_restore_equal": false
+  }
+}

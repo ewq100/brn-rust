@@ -1,0 +1,79 @@
+{
+  "candidate_targets": {
+    "counts": [
+      0,
+      0
+    ],
+    "equal": true
+  },
+  "chat_drafts": {
+    "counts": [
+      0,
+      0
+    ],
+    "equal": true
+  },
+  "derivation_inputs": {
+    "counts": [
+      0,
+      0
+    ],
+    "equal": true
+  },
+  "edit_session_bindings": {
+    "counts": [
+      1,
+      0
+    ],
+    "equal": false
+  },
+  "edit_sessions": {
+    "counts": [
+      1,
+      1
+    ],
+    "equal": true
+  },
+  "operations": {
+    "counts": [
+      14,
+      14
+    ],
+    "equal": true
+  },
+  "receipt_actors": {
+    "counts": [
+      0,
+      0
+    ],
+    "equal": true
+  },
+  "receipts": {
+    "counts": [
+      14,
+      14
+    ],
+    "equal": true
+  },
+  "records": {
+    "counts": [
+      27,
+      27
+    ],
+    "equal": true
+  },
+  "revisions": {
+    "counts": [
+      30,
+      30
+    ],
+    "equal": true
+  },
+  "workspace_profile": {
+    "counts": [
+      1,
+      1
+    ],
+    "equal": false
+  }
+}

@@ -124,3 +124,26 @@ dropped Unicode/newlines here. Wait for copy/paste and rendering before reading
 clipboard or taking evidence. This proves clipboard recovery, not IME input.
 See the [full deferred inventory](../work/active/linux-cloud-native/deferred/README.md)
 for portable results and original Mac-only gaps.
+
+## File workflows and portal admission
+
+Native file selection uses `org.freedesktop.portal.FileChooser` on the app's
+session bus. A display alone does not supply a chooser. The saved task-local
+setup under `/workspace/brn-environment/portal` contains signed Debian
+`xdg-desktop-portal` and its GTK backend, extracted without a host install.
+Its README documents activation and task-owned processes. Check actual caller
+admission and a real dialog before claiming native import or backup-folder tests.
+
+This environment's separate sandbox process boundaries currently produce
+`AccessDenied: Portal operation not allowed: Unable to open /proc/<pid>/root`.
+Do not spoof portal identity or disable validation. Obtain authority for a
+legitimate setup correction before retrying denied access. CLI imports/restores
+and opening restored content are useful separate checks, not picker acceptance.
+
+For ordinary synthetic document conversion in a sandbox where the saved
+activation's `/var/tmp` fixture parent is unavailable, set `TMPDIR=/tmp` for the
+app/CLI process. This uses an already writable temporary directory; it does not
+change credential-path tests, validation or host permissions. Keep conversion
+AI off and choose full-note import for offline verification. The
+[next batch evidence](../work/active/linux-native-gaps/README.md) records exact
+results, source revisions, upstream accessibility gaps and remaining blockers.
