@@ -27,7 +27,7 @@ the integration lead and will reconcile into the same [decision backlog](decisio
 | DOC-04: native UI implementation understated | Target says Topics/Connections native implementation outstanding. threads_connections.rs, topics service/tests and Linux native Connections receipts exist. | Distinguish implemented navigation/list and observed bounded Linux interactions from complete graph/native/owner acceptance. BRN-D004/D010. |
 | DOC-05: format support conflated | M5 summary treated PNG/JPEG/WebP as one global asset contract. Core generic storage, export, transient runtime and helper validation have different boundaries. | Corrected in artifact proposal commit 97d1ea28. Do not generalize intake JPEG work until qualified. BRN-D007/D015. |
 | DOC-06: stacked historical “current” checkpoints | build-sequence, modular-foundation, agent-capabilities and final-integration retain contradictory old proposed/implemented/not-merged snapshots. Date/source headers mitigate but do not make lower tables current. | Preserve evidence; use current source and this backlog to prevent duplicate implementation. No historical pruning authorized by this audit. |
-| DOC-07: stale historical routing | agent-first reconciliation labels itself historical but its introductory current-task pointer still names campaign state. | Follow status instead; integration lead may repair navigation separately without changing dated body. |
+| DOC-07: stale historical routing | agent-first reconciliation labels itself historical but its introductory current-task pointer still names campaign state. | Current-navigation introduction now points through status to the selected task; dated body remains unchanged. |
 | DOC-08: precise-edit success boundaries easy to conflate | Older native qualification README says live unpassed; linked mac-live.md records later one-request real-model success. It is headless Apply/reopen/Undo, not actual Mac UI acceptance. | Record both observations and remaining native gate in backlog; don't repeat the narrow successful test merely to repair text. BRN-D009/D011. |
 | DOC-09: old helper decisions coexist with superseded proposals | subagents plan/design include same-provider/usage-UI proposals below accepted amendments allowing configured providers and traces-only usage. Runtime/settings implement research, not general delegated writers. | Keep amendment precedence explicit; separate shipped scout from later role proposals. BRN-D005/D020. |
 | DOC-10: no single feature disposition list | Future-output, helper roles, language, editor experiments, sync/connectors and release gates are spread across target and task packs. | Add one canonical decision backlog; execution status stays in record.json. No Keep/Later/Drop inferred. |
@@ -64,3 +64,9 @@ actual checks and review in the batch receipt. Backlog rows marked unknown need
 specific evidence before implementation classification. Chat-derived candidates
 are still pending the lead's research; merge them by outcome, not by duplicating
 old task names. No owner decision has been filled in by the audit.
+
+Follow-up repository verification: all 29 backlog IDs are unique, all owner choices
+remain blank, all shorthand D-number references resolve, and D022/D025–D027
+separate connectors, delivery, sync and automation. A blank line that interrupted
+the final five rendered table rows was removed. Chat source coverage remains
+pending the integration lead; this verification makes no chat-completeness claim.
