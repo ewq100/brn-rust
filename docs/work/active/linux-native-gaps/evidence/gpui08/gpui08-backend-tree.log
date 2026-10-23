@@ -1,0 +1,19 @@
+gpui-pre v0.3.9
+├── gpui-base v0.8.0
+│   ├── gpui-component v0.8.0
+│   │   └── gpui-kit v0.8.0
+│   │       ├── brn-desktop v0.1.0 (/workspace/brn-rust/crates/brn-desktop)
+│   │       └── brn-writing-ui v0.1.0 (/workspace/brn-rust/crates/brn-writing-ui)
+│   │           └── brn-desktop v0.1.0 (/workspace/brn-rust/crates/brn-desktop)
+│   └── gpui-kit v0.8.0 (*)
+├── gpui-component v0.8.0 (*)
+├── gpui-kit v0.8.0 (*)
+├── gpui-kit-assets v0.8.0
+│   ├── gpui-component v0.8.0 (*)
+│   └── gpui-kit v0.8.0 (*)
+├── gpui-pre-linux v0.3.9
+│   └── gpui-pre-platform v0.3.9
+│       └── gpui-kit v0.8.0 (*)
+├── gpui-pre-platform v0.3.9 (*)
+└── gpui-pre-wgpu v0.3.9
+    └── gpui-pre-linux v0.3.9 (*)

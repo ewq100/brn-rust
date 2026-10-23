@@ -1,0 +1,358 @@
+{
+  "records": {
+    "contract": 3,
+    "command": "records",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [
+      {
+        "id": "5db28182-a3b2-404e-92e9-f15a8a253b3a:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "ChatControl": {
+            "queue": [],
+            "pending": null,
+            "paused": false,
+            "quiet": false
+          }
+        }
+      },
+      {
+        "id": "775a8e0a-d433-4b0f-8416-72d20e3ba083:0",
+        "version": 2,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "GPUI 0.8 smoke",
+            "markdown": "GPUI 0.8 native \u2014 caf\u00e9, \u65e5\u672c\u8a9e, \u03bb.\nSaved and reopened exactly.\n",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      },
+      {
+        "id": "9c64beaf-096f-449d-9a30-7e61bd539884:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Upgrade sentinel",
+            "markdown": "Preserve exactly.",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      },
+      {
+        "id": "f608a486-77bf-4d73-84f5-0da699b466ad:0",
+        "version": 2,
+        "archived": false,
+        "data": {
+          "Settings": {
+            "provider": "Codex",
+            "model": "gpt-6.1-sol",
+            "effort": "medium",
+            "auth_file": null,
+            "credentials_dir": null,
+            "maintenance": false,
+            "review_first": false
+          }
+        }
+      }
+    ],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "recovery": {
+    "contract": 3,
+    "command": "recovery",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "history": {
+    "contract": 3,
+    "command": "history",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [
+      {
+        "operation": "f608a486-77bf-4d73-84f5-0da699b466ad",
+        "request_hash": "737f74f51af6985432a76ecd8de26110b95e495bff4491eabacf4fa6f230f66c",
+        "reason": "Initial workspace configuration",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "f608a486-77bf-4d73-84f5-0da699b466ad:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:workspace bootstrap",
+        "committed_at": "2026-10-23T02:24:11.552Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "5db28182-a3b2-404e-92e9-f15a8a253b3a",
+        "request_hash": "fb4eedbfb9057b8d2e47223dee268633910da1be158ad3b18767366d4893e0bc",
+        "reason": "Chat control: initialize",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "5db28182-a3b2-404e-92e9-f15a8a253b3a:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "ChatControl": {
+                  "queue": [],
+                  "pending": null,
+                  "paused": false,
+                  "quiet": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner chat action",
+        "committed_at": "2026-10-23T02:24:11.553Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "8f2138b0-f0b7-4c82-bb9d-a3509309b728",
+        "request_hash": "9fa19f62c0f8b807bd9feeea324ad69b02539857d26cefe7fda25c5a999b65c5",
+        "reason": "Owner configured workspace and stopped prior invocations",
+        "writes": [
+          {
+            "before": {
+              "id": "f608a486-77bf-4d73-84f5-0da699b466ad:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            },
+            "after": {
+              "id": "f608a486-77bf-4d73-84f5-0da699b466ad:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner maintenance pause",
+        "committed_at": "2026-10-23T02:24:11.560Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "775a8e0a-d433-4b0f-8416-72d20e3ba083",
+        "request_hash": "f28c9831a80c866daa539fbb23bf23b31a2ff639f165289884ffaec1b2a3bfbb",
+        "reason": "Owner created a note",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "775a8e0a-d433-4b0f-8416-72d20e3ba083:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "GPUI 0.8 smoke",
+                  "markdown": "Initial synthetic text.",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner",
+        "committed_at": "2026-10-23T02:24:11.566Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "9c64beaf-096f-449d-9a30-7e61bd539884",
+        "request_hash": "829615808002ece2dff068fc8ff44419a9da4c6ff6405c058724b656220cbd48",
+        "reason": "Owner created a note",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "9c64beaf-096f-449d-9a30-7e61bd539884:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Upgrade sentinel",
+                  "markdown": "Preserve exactly.",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner",
+        "committed_at": "2026-10-23T02:24:11.573Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "40961a3c-74f5-4b46-8298-3c087f78bf1d",
+        "request_hash": "2ad4d4d10239f400c6b52ee31902aa8dbb33aead9fdfc686f7b106dfda9db849",
+        "reason": "Owner Save",
+        "writes": [
+          {
+            "before": {
+              "id": "775a8e0a-d433-4b0f-8416-72d20e3ba083:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "GPUI 0.8 smoke",
+                  "markdown": "Initial synthetic text.",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            },
+            "after": {
+              "id": "775a8e0a-d433-4b0f-8416-72d20e3ba083:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "GPUI 0.8 smoke",
+                  "markdown": "GPUI 0.8 native \u2014 caf\u00e9, \u65e5\u672c\u8a9e, \u03bb.\nSaved and reopened exactly.\n",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:editor",
+        "committed_at": "2026-10-23T02:24:23.199Z",
+        "undo_of": null,
+        "needs_refresh": []
+      }
+    ],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "candidates": {
+    "contract": 3,
+    "command": "candidates",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  }
+}

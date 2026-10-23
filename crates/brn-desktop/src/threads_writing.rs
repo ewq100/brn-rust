@@ -1,5 +1,6 @@
 //! Writing and conversation tiles: chat, note, in-place review, compare and
 //! linked work. Every action calls the same checked services as before.
+use super::components::AccessibleDropdownMenu;
 use super::shell::{item, pill};
 use super::state::ReviewSummary;
 use super::tiles::scroll;
@@ -8,7 +9,6 @@ use brn_writing_ui::writing::READING_MEASURE;
 use gpui_kit::SharedString;
 use gpui_kit::StyledText;
 use gpui_kit::component::button::ButtonVariants;
-use gpui_kit::component::menu::DropdownMenu;
 use gpui_kit::component::{Icon, Sizable, Size};
 
 impl ThreadsUi {
@@ -70,7 +70,7 @@ impl ThreadsUi {
         let selected = self.chat_thread().map(str::to_owned);
         controls.push(
             components::icon_button("thread-menu", IconName::ChevronDown, "Chats for this note")
-                .dropdown_menu(move |mut menu, _, _| {
+                .accessible_dropdown_menu(move |mut menu, _, _| {
                     if let Some((note_id, note_title)) = &note {
                         menu = menu.label(format!("Chats for {}", short(note_title)));
                         for (thread, label) in &threads {
@@ -752,7 +752,7 @@ impl ThreadsUi {
                                 .child(format!("\u{a0}· {effort}")),
                         ),
                 )
-                .dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
+                .accessible_dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
                     Some(view) => {
                         let view = view.read(cx);
                         view.effort_section(
@@ -769,7 +769,7 @@ impl ThreadsUi {
             )
             .dropdown_caret(true)
             .tooltip("Provider and model · changes Settings · no fallback")
-            .dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
+            .accessible_dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
                 Some(view) => view.read(cx).model_menu(menu, &model_this),
                 None => menu,
             })
@@ -873,7 +873,7 @@ impl ThreadsUi {
                     .gap_1()
                     .child(
                         components::icon_button("composer-add", IconName::Plus, "Add information")
-                            .dropdown_menu(move |menu, _, _| {
+                            .accessible_dropdown_menu(move |menu, _, _| {
                                 menu.item(item(
                                     &add_this,
                                     "Attach file to chat…",
@@ -916,7 +916,7 @@ impl ThreadsUi {
                             pill("effort-pill", self.settings.effort.clone())
                                 .dropdown_caret(true)
                                 .tooltip("Reasoning effort")
-                                .dropdown_menu(move |menu, _, cx| match effort_this.upgrade() {
+                                .accessible_dropdown_menu(move |menu, _, cx| match effort_this.upgrade() {
                                     Some(view) => view.read(cx).effort_menu(menu, &effort_this),
                                     None => menu,
                                 }),

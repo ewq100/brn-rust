@@ -1,0 +1,26 @@
+{
+  "contract": 3,
+  "command": "restore",
+  "ok": true,
+  "status": "ok",
+  "exit": 0,
+  "outcome": null,
+  "operation": null,
+  "key": null,
+  "retry": "refuse",
+  "changed": [],
+  "conflict": null,
+  "result": {
+    "restored": "/tmp/brn-linux-files-20261023/restored",
+    "workspace_purpose": "owner"
+  },
+  "error": null,
+  "page": null,
+  "stop": null,
+  "authority": {
+    "workspace_purpose": null,
+    "cli_authority": null,
+    "enforced": false,
+    "actor": null
+  }
+}

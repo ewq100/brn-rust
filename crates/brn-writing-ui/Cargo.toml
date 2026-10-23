@@ -11,7 +11,7 @@ native-test-support = ["native-ui", "gpui-kit/test-support"]
 
 [dependencies]
 brn-threads-app = { path = "../brn-threads-app" }
-gpui-kit = { version = "=0.7.3", optional = true }
+gpui-kit = { version = "=0.8.0", optional = true }
 
 [[example]]
 name = "writing_host"

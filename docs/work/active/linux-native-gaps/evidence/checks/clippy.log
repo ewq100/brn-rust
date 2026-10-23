@@ -1,0 +1,9 @@
+    Checking brn-intake v0.1.0 (/workspace/brn-rust/crates/brn-intake)
+    Checking brn-threads-intake v0.1.0 (/workspace/brn-rust/crates/brn-threads-intake)
+    Checking brn-threads-core v0.1.0 (/workspace/brn-rust/crates/brn-threads-core)
+    Checking brn-ai v0.1.0 (/workspace/brn-rust/crates/brn-ai)
+    Checking brn-retrieval v0.1.0 (/workspace/brn-rust/crates/brn-retrieval)
+    Checking brn-threads-app v0.1.0 (/workspace/brn-rust/crates/brn-threads-app)
+    Checking brn-writing-ui v0.1.0 (/workspace/brn-rust/crates/brn-writing-ui)
+    Checking brn-desktop v0.1.0 (/workspace/brn-rust/crates/brn-desktop)
+    Finished `dev` profile [unoptimized] target(s) in 18.83s

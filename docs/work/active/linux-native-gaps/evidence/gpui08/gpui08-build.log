@@ -1,0 +1,7 @@
+   Compiling gpui-kit-assets v0.8.0
+   Compiling gpui-component v0.8.0
+   Compiling gpui-base v0.8.0
+   Compiling gpui-kit v0.8.0
+   Compiling brn-writing-ui v0.1.0 (/workspace/brn-rust/crates/brn-writing-ui)
+   Compiling brn-desktop v0.1.0 (/workspace/brn-rust/crates/brn-desktop)
+    Finished `dev` profile [unoptimized] target(s) in 53.89s

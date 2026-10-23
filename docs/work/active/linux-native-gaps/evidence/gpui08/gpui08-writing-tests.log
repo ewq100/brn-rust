@@ -1,0 +1,75 @@
+   Compiling brn-writing-ui v0.1.0 (/workspace/brn-rust/crates/brn-writing-ui)
+    Finished `test` profile [optimized] target(s) in 21.74s
+     Running unittests src/lib.rs (/workspace/brn-environment/target/debug/deps/brn_writing_ui-7cf5464d9a9fe06e)
+
+running 44 tests
+test diff::tests::identical_and_unicode_text_have_no_marks_and_valid_boundaries ... ok
+test diff::tests::heavy_rewrite_uses_whole_paragraph_blocks ... ok
+test diff::tests::light_edit_marks_words_and_reconstructs_both_texts ... ok
+test formatting::tests::active_line_and_empty_final_line_map_the_caret ... ok
+test formatting::tests::block_prefixes_preserve_link_and_code_contents ... ok
+test formatting::tests::block_toggle_preserves_unicode_indent_blank_lines_and_crlf ... ok
+test formatting::tests::block_touches_whole_lines_but_excludes_the_next_line ... ok
+test formatting::tests::complete_markers_unwrap_at_line_start_and_on_later_lines ... ok
+test formatting::tests::deeply_indented_container_content_is_untouched ... ok
+test formatting::tests::emphasis_syntax_elsewhere_on_the_line_is_refused ... ok
+test formatting::tests::fence_behind_a_container_nested_at_three_spaces_encloses ... ok
+test formatting::tests::fence_with_info_string_encloses_following_lines ... ok
+test formatting::tests::fenced_and_indented_code_are_untouched ... ok
+test formatting::tests::indented_pseudo_fences_do_not_fence_the_plain_line_between ... ok
+test formatting::tests::four_space_content_inside_a_quote_is_not_a_fence_opener ... ok
+test formatting::tests::inline_edge_whitespace_stays_outside_valid_markers ... ok
+test formatting::tests::inline_toggle_accepts_content_or_complete_markers ... ok
+test formatting::tests::inline_refuses_empty_multiline_and_whitespace ... ok
+test diff::tests::oversized_inputs_fall_back_to_blocks_and_preview_is_bounded ... ok
+test formatting::tests::mid_line_selection_on_a_non_final_line_formats_in_place ... ok
+test formatting::tests::invalid_ranges_never_slice_or_panic ... ok
+test formatting::tests::mixed_block_prefixes_do_not_double_format_existing_lines ... ok
+test formatting::tests::multi_line_prefixes_map_selections_across_every_newline ... ok
+test formatting::tests::one_sided_or_exact_markers_are_refused_not_mangled ... ok
+test formatting::tests::repeated_quoted_passages_keep_the_unselected_occurrence ... ok
+test formatting::tests::ordered_and_nested_container_fences_are_untouched ... ok
+test formatting::tests::reversed_selection_at_valid_boundaries_is_refused ... ok
+test formatting::tests::selection_ending_inside_an_existing_prefix_anchors_at_its_start ... ok
+test formatting::tests::short_fully_marked_italic_word_still_unwraps ... ok
+test formatting::tests::tab_indented_short_line_after_short_lines_is_still_code ... ok
+test formatting::tests::three_space_indented_container_fence_still_encloses ... ok
+test formatting::tests::unicode_and_repeated_text_keep_the_selected_occurrence ... ok
+test formatting::tests::unsafe_inline_syntax_is_a_noop ... ok
+test formatting::tests::whitespace_only_multiline_selection_is_a_noop ... ok
+test layout::tests::note_toolbar_folds_in_order_as_the_note_narrows ... ok
+test layout::tests::review_bar_folds_in_order_as_the_note_narrows ... ok
+test markdown::tests::external_links_allow_only_absolute_lowercase_http_s ... ok
+test markdown::tests::images_resolve_only_from_the_caller_s_own_stored_assets ... ok
+test theme::tests::every_theme_keeps_readable_text_controls_and_tints ... ok
+test theme::tests::keys_round_trip_and_unknown_values_use_the_default ... ok
+test workbench::tests::a_recorded_notice_leads_and_progress_is_secondary ... ok
+test theme::tests::every_theme_keeps_tones_tints_and_the_danger_fill_readable ... ok
+test workbench::tests::the_first_matching_writing_row_owns_the_primary ... ok
+test workbench::tests::run_outcomes_keep_the_recorded_reason_and_their_tone ... ok
+
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests examples/writing_host.rs (/workspace/brn-environment/target/debug/examples/writing_host-2354d3b207324bf7)
+
+running 12 tests
+test journey::disposable_fixture_reopens_real_workspace_and_removes_only_its_own_root ... ok
+test journey::editor_menu_actions_bubble_to_comment_and_explicit_unavailable_ask ... ok
+test journey::host_wires_first_dirty_guard_save_and_fresh_access_loss_before_render ... ok
+test journey::edited_review_survives_reopen_then_prepares_a_new_exact_candidate ... ok
+test journey::note_explicit_recovery_replaces_a_blocked_attempt_only_after_validating_the_hint ... ok
+test journey::note_refresh_does_not_adopt_another_edit_and_confirmed_discard_keeps_owner_typing ... ok
+test journey::note_newer_buffer_generation_refuses_save_and_discard_until_explicit_recovery ... ok
+test journey::note_stale_save_refresh_recovery_and_discard_preserve_the_typed_base ... ok
+test journey::refused_review_apply_keeps_candidate_until_dirty_guard_is_resolved ... ok
+test journey::refused_preparation_retains_real_review_input_and_original_candidate ... ok
+test journey::editor_shortcuts_open_saved_passage_comment_save_and_rewrite ... ok
+test journey::same_panel_comments_shared_scripted_start_exact_review_apply_and_undo ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.74s
+
+   Doc-tests brn_writing_ui
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

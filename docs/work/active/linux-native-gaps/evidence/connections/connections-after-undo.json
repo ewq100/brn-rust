@@ -1,0 +1,715 @@
+{
+  "records": {
+    "contract": 3,
+    "command": "records",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [
+      {
+        "id": "00bd25de-2cfe-41bb-9b40-96b3da5abb4c:0",
+        "version": 2,
+        "archived": false,
+        "data": {
+          "Settings": {
+            "provider": "offline-fixture",
+            "model": "gpt-6.1-sol",
+            "effort": "medium",
+            "auth_file": null,
+            "credentials_dir": null,
+            "maintenance": false,
+            "review_first": false
+          }
+        }
+      },
+      {
+        "id": "0678f8f0-afa6-4bd4-902b-8644e269f231:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "ChatControl": {
+            "queue": [],
+            "pending": null,
+            "paused": false,
+            "quiet": false
+          }
+        }
+      },
+      {
+        "id": "2b55a541-414c-48fa-9a5f-b92962c0d8e0:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Link": {
+            "from": "bade9f51-f675-4df6-b93b-5033de2b4fd6:0",
+            "to": "7820e6b7-d211-455f-8a09-617d6efc28fa:0",
+            "relation": "related"
+          }
+        }
+      },
+      {
+        "id": "6adc12e0-9221-4fcb-97b5-43b90534a67f:0",
+        "version": 5,
+        "archived": false,
+        "data": {
+          "Project": {
+            "title": "Project B \u2014 shared connections",
+            "instructions": "",
+            "use_brn_knowledge": true,
+            "chats": [],
+            "documents": [
+              "bade9f51-f675-4df6-b93b-5033de2b4fd6:0",
+              "7820e6b7-d211-455f-8a09-617d6efc28fa:0"
+            ],
+            "trash": null
+          }
+        }
+      },
+      {
+        "id": "7820e6b7-d211-455f-8a09-617d6efc28fa:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "chat": "c0779899-b2be-4622-8173-2b8aaeb4abfe:0",
+            "title": "Private neighbor copper-orchid-731",
+            "markdown": "Private synthetic connection \u2014 copper-orchid-731.\nRetain in Project A.\n",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      },
+      {
+        "id": "bade9f51-f675-4df6-b93b-5033de2b4fd6:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "General center for Connections",
+            "markdown": "General synthetic center for Project B.\n",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      },
+      {
+        "id": "bafb2131-c5c0-43e1-81f0-6f0145b09323:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Unrelated sentinel",
+            "markdown": "Unrelated synthetic sentinel \u2014 leave unchanged.\n",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      },
+      {
+        "id": "c0779899-b2be-4622-8173-2b8aaeb4abfe:0",
+        "version": 2,
+        "archived": false,
+        "data": {
+          "Project": {
+            "title": "Project A \u2014 retained private source",
+            "instructions": "",
+            "use_brn_knowledge": true,
+            "chats": [],
+            "documents": [
+              "7820e6b7-d211-455f-8a09-617d6efc28fa:0"
+            ],
+            "trash": null
+          }
+        }
+      }
+    ],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "owner",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "recovery": {
+    "contract": 3,
+    "command": "recovery",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "owner",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "history": {
+    "contract": 3,
+    "command": "history",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [
+      {
+        "operation": "00bd25de-2cfe-41bb-9b40-96b3da5abb4c",
+        "request_hash": "80c2c88d2990e42476c05a5d61b41a6e8937714a16e0fefa75eab2346f1bdd0e",
+        "reason": "Initial workspace configuration",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "00bd25de-2cfe-41bb-9b40-96b3da5abb4c:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:workspace bootstrap",
+        "committed_at": "2026-10-23T01:52:25.231Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "0678f8f0-afa6-4bd4-902b-8644e269f231",
+        "request_hash": "38ec78d78bd1880c799d7ed6727caafefc6b242bdb9455ade0df68dac31ff176",
+        "reason": "Chat control: initialize",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "0678f8f0-afa6-4bd4-902b-8644e269f231:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "ChatControl": {
+                  "queue": [],
+                  "pending": null,
+                  "paused": false,
+                  "quiet": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner chat action",
+        "committed_at": "2026-10-23T01:52:25.231Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "c16d7d53-85b4-4131-8903-a87369917b05",
+        "request_hash": "89e2b4d584ddfbbf531aed6df18f618cd54b44bdc681b29804de9942a5004cd2",
+        "reason": "Owner configured workspace and stopped prior invocations",
+        "writes": [
+          {
+            "before": {
+              "id": "00bd25de-2cfe-41bb-9b40-96b3da5abb4c:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            },
+            "after": {
+              "id": "00bd25de-2cfe-41bb-9b40-96b3da5abb4c:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "offline-fixture",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner configuration",
+        "committed_at": "2026-10-23T01:52:25.232Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "c0779899-b2be-4622-8173-2b8aaeb4abfe",
+        "request_hash": "c773d12262589144046d12ac6368204ed9aba8660878deb8e7b1fdc0c4220e45",
+        "reason": "Owner project operation",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "c0779899-b2be-4622-8173-2b8aaeb4abfe:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project A \u2014 retained private source",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [],
+                  "trash": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner project action",
+        "committed_at": "2026-10-23T01:52:25.232Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "6adc12e0-9221-4fcb-97b5-43b90534a67f",
+        "request_hash": "781b40baa3a9a5b9be557b140245b95fec8c7a009b874b836c0caad4f77845ae",
+        "reason": "Owner project operation",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "6adc12e0-9221-4fcb-97b5-43b90534a67f:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project B \u2014 shared connections",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [],
+                  "trash": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner project action",
+        "committed_at": "2026-10-23T01:52:25.233Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "7820e6b7-d211-455f-8a09-617d6efc28fa",
+        "request_hash": "6a3ff260f38a6d83094007ed3dc4eb1a5f4cde516250386b3e43178d0885228d",
+        "reason": "Owner project operation",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "7820e6b7-d211-455f-8a09-617d6efc28fa:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "chat": "c0779899-b2be-4622-8173-2b8aaeb4abfe:0",
+                  "title": "Private neighbor copper-orchid-731",
+                  "markdown": "Private synthetic connection \u2014 copper-orchid-731.\nRetain in Project A.\n",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          },
+          {
+            "before": {
+              "id": "c0779899-b2be-4622-8173-2b8aaeb4abfe:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project A \u2014 retained private source",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [],
+                  "trash": null
+                }
+              }
+            },
+            "after": {
+              "id": "c0779899-b2be-4622-8173-2b8aaeb4abfe:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project A \u2014 retained private source",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [
+                    "7820e6b7-d211-455f-8a09-617d6efc28fa:0"
+                  ],
+                  "trash": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner project action",
+        "committed_at": "2026-10-23T01:52:25.233Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "bade9f51-f675-4df6-b93b-5033de2b4fd6",
+        "request_hash": "3757142863b6d7a162076c7ee34137ee15448338c3b581523ea4765cc299733c",
+        "reason": "Owner created a note",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "bade9f51-f675-4df6-b93b-5033de2b4fd6:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "General center for Connections",
+                  "markdown": "General synthetic center for Project B.\n",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner",
+        "committed_at": "2026-10-23T01:52:25.233Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "bafb2131-c5c0-43e1-81f0-6f0145b09323",
+        "request_hash": "149796a62dddb00240384bc4792130dfe3267c7e79731c2f5f62e83cadbcd46f",
+        "reason": "Owner created a note",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "bafb2131-c5c0-43e1-81f0-6f0145b09323:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Unrelated sentinel",
+                  "markdown": "Unrelated synthetic sentinel \u2014 leave unchanged.\n",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner",
+        "committed_at": "2026-10-23T01:52:25.234Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "dc6a155d-1367-49be-ba6d-0c084d8e0926",
+        "request_hash": "2079e1d1517398098d5dd0ccfbb002c57d5bbefec352fc594668772c4ffabcb5",
+        "reason": "Owner project operation",
+        "writes": [
+          {
+            "before": {
+              "id": "6adc12e0-9221-4fcb-97b5-43b90534a67f:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project B \u2014 shared connections",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [],
+                  "trash": null
+                }
+              }
+            },
+            "after": {
+              "id": "6adc12e0-9221-4fcb-97b5-43b90534a67f:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project B \u2014 shared connections",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [
+                    "bade9f51-f675-4df6-b93b-5033de2b4fd6:0"
+                  ],
+                  "trash": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner project action",
+        "committed_at": "2026-10-23T01:52:25.234Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "3e252988-d578-4ef3-b0c3-d02f7e97d5fd",
+        "request_hash": "88ae6d5b9e6a2943e721900b34cc9ef7e9a6447406f4c1ffe9d5c053d99a082b",
+        "reason": "Owner project operation",
+        "writes": [
+          {
+            "before": {
+              "id": "6adc12e0-9221-4fcb-97b5-43b90534a67f:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project B \u2014 shared connections",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [
+                    "bade9f51-f675-4df6-b93b-5033de2b4fd6:0"
+                  ],
+                  "trash": null
+                }
+              }
+            },
+            "after": {
+              "id": "6adc12e0-9221-4fcb-97b5-43b90534a67f:0",
+              "version": 3,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project B \u2014 shared connections",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [
+                    "bade9f51-f675-4df6-b93b-5033de2b4fd6:0",
+                    "7820e6b7-d211-455f-8a09-617d6efc28fa:0"
+                  ],
+                  "trash": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner project action",
+        "committed_at": "2026-10-23T01:52:25.235Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "2b55a541-414c-48fa-9a5f-b92962c0d8e0",
+        "request_hash": "253a5019bc4a5d9bec0482d77d869e1f71350b61b43f0e07e6c118795e9ba4a2",
+        "reason": "Synthetic MAC14 general-center/private-neighbor relation",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "2b55a541-414c-48fa-9a5f-b92962c0d8e0:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "bade9f51-f675-4df6-b93b-5033de2b4fd6:0",
+                  "to": "7820e6b7-d211-455f-8a09-617d6efc28fa:0",
+                  "relation": "related"
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner interaction",
+        "committed_at": "2026-10-23T01:52:25.235Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "112a4556-8672-483a-b1f5-c1aad7c6c556",
+        "request_hash": "1985d321db6ec437de5539f038dd9e9b01510f9cf99046102a1627fe2aa31552",
+        "reason": "Owner project operation",
+        "writes": [
+          {
+            "before": {
+              "id": "6adc12e0-9221-4fcb-97b5-43b90534a67f:0",
+              "version": 3,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project B \u2014 shared connections",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [
+                    "bade9f51-f675-4df6-b93b-5033de2b4fd6:0",
+                    "7820e6b7-d211-455f-8a09-617d6efc28fa:0"
+                  ],
+                  "trash": null
+                }
+              }
+            },
+            "after": {
+              "id": "6adc12e0-9221-4fcb-97b5-43b90534a67f:0",
+              "version": 4,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project B \u2014 shared connections",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [
+                    "bade9f51-f675-4df6-b93b-5033de2b4fd6:0"
+                  ],
+                  "trash": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner project action",
+        "committed_at": "2026-10-23T01:55:32.651Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "781769a6-2a2b-4b8a-8bdd-04d7e11a5d62",
+        "request_hash": "69eb27caef4ed5919b906b16cd72796255910573edf461457a0e4d0a5ee03da4",
+        "reason": "Undo: Owner project operation",
+        "writes": [
+          {
+            "before": {
+              "id": "6adc12e0-9221-4fcb-97b5-43b90534a67f:0",
+              "version": 4,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project B \u2014 shared connections",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [
+                    "bade9f51-f675-4df6-b93b-5033de2b4fd6:0"
+                  ],
+                  "trash": null
+                }
+              }
+            },
+            "after": {
+              "id": "6adc12e0-9221-4fcb-97b5-43b90534a67f:0",
+              "version": 5,
+              "archived": false,
+              "data": {
+                "Project": {
+                  "title": "Project B \u2014 shared connections",
+                  "instructions": "",
+                  "use_brn_knowledge": true,
+                  "chats": [],
+                  "documents": [
+                    "bade9f51-f675-4df6-b93b-5033de2b4fd6:0",
+                    "7820e6b7-d211-455f-8a09-617d6efc28fa:0"
+                  ],
+                  "trash": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner Undo",
+        "committed_at": "2026-10-23T01:56:34.600Z",
+        "undo_of": "112a4556-8672-483a-b1f5-c1aad7c6c556",
+        "needs_refresh": []
+      }
+    ],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "owner",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "candidates": {
+    "contract": 3,
+    "command": "candidates",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "owner",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  }
+}
