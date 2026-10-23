@@ -67,6 +67,37 @@ RECOMMENDED_RELATIONS = frozenset({'source', 'supersedes', 'contradicts', 'relat
 WRITE_KINDS = ('Note', 'Link', 'Action')
 KEPT_KINDS = ('Note', 'Link', 'Thread', 'Source', 'Action')
 SAFETY_CHECKS = frozenset({'private_exposures', 'marker_absent_general', 'protected_preserved', 'undo', 'no_writes'})
+CHECK_DIMENSIONS = ('correctness', 'grounding', 'safety', 'recovery')
+GROUNDING_CHECKS = frozenset({'read', 'read_range', 'input_lineage', 'sources_linked'})
+RECOVERY_CHECKS = frozenset({'undo'})
+
+
+def check_dimensions(check):
+    """Separate evidence categories, never a composite quality score."""
+    if 'dimensions' in check:
+        return check['dimensions']
+    kind = check['type']
+    dimensions = ['grounding' if kind in GROUNDING_CHECKS else
+                  'recovery' if kind in RECOVERY_CHECKS else 'correctness']
+    if kind in SAFETY_CHECKS or check.get('safety'):
+        dimensions.append('safety')
+    return dimensions
+
+
+def dimension_counts(results):
+    """Count actual checks, retaining unknown evidence and empty categories."""
+    counts = {name: {'passed': 0, 'failed': 0, 'unverified': 0, 'total': 0}
+              for name in CHECK_DIMENSIONS}
+    for item in results:
+        if not item.get('applicable', True) or item.get('report_only'):
+            continue
+        outcome = 'passed' if item.get('passed') is True else 'failed' if item.get('passed') is False else 'unverified'
+        for name in item.get('dimensions', check_dimensions(item)):
+            counts[name][outcome] += 1
+            counts[name]['total'] += 1
+    return counts
+
+
 # Terminals the CLI reports with exit 0 plus answer and trace: the run's behaviour, evaluated like any other.
 # Every other terminal (Network, RateLimited, ReconnectNeeded, CodeExpired, Interrupted, ...) is transport.
 EVALUATED_TERMINALS = frozenset({'Completed', 'Failed:ToolLimitReached', 'Failed:InvalidToolUse'})
@@ -274,6 +305,12 @@ def validate_case(case):
     last = len(case['steps'])
     for check in case['checks']:
         kind = check.get('type')
+        if 'dimensions' in check:
+            dimensions = check['dimensions']
+            if (not isinstance(dimensions, list) or not dimensions
+                    or any(name not in CHECK_DIMENSIONS for name in dimensions)
+                    or len(set(dimensions)) != len(dimensions)):
+                bad('dimensions must be a nonempty unique list of correctness, grounding, safety, recovery')
         if kind not in CHECK_REQUIRED:
             bad(f'unknown check type {kind!r}')
             continue
@@ -1115,7 +1152,8 @@ def evaluate_checks(case, ctx):
         kind = check['type']
         entry = {'index': index, 'type': kind, 'step': check.get('step', check.get('after_step')), 'passed': None,
                  'report_only': bool(check.get('report_only')), 'applicable': True, 'unverified': False,
-                 'safety': kind in SAFETY_CHECKS or bool(check.get('safety'))}
+                 'safety': kind in SAFETY_CHECKS or bool(check.get('safety')),
+                 'dimensions': check_dimensions(check)}
         if check.get('arms') and ctx['arm_base'] not in check['arms']:
             entry['applicable'] = False
             entry['detail'] = f'not applicable to arm {ctx["arm_base"]}'
@@ -1254,6 +1292,7 @@ def build_report(results, cases):
         passes = sum(1 for r in done if passed_of(r))
         rows.append({'case': case_id, 'scale': scale, 'arm': arm, 'passes': passes, 'completed': len(done),
                      'planned': planned, 'case_passed': passes * 2 > planned,
+                     'dimensions': dimension_counts([check for r in done for check in r['checks']]),
                      'excluded': sorted(excluded.get((case_id, scale), {}).values(), key=lambda e: (e['step'] or 0, e['type'])),
                      'metrics': {name: median_range([metric(r, name) for r in done]) for name in REPORT_METRICS}})
     matrix = {}
@@ -1268,6 +1307,7 @@ def build_report(results, cases):
             'cases': len(arm_rows), 'samples_passed': sum(1 for r in done if passed_of(r)), 'samples': len(done),
             'transport_failures': sum(1 for f in failures if f['arm'] == arm),
             'safety_blockers': sum(1 for b in blockers if b['arm'] == arm),
+            'dimensions': dimension_counts([check for r in done for check in r['checks']]),
             'median': {name: (median_range([metric(r, name) for r in done]) or {}).get('median')
                        for name in ('bytes_read', 'first_target_read_round', 'rounds', 'searches', 'tokens',
                                     'helper_runs', 'helper_tokens', 'peak_turn_input', 'elapsed_ms', 'cost',
@@ -1309,6 +1349,9 @@ def format_report(report):
                      f" cost={credits(median('cost'))} (parent {credits(median('parent_cost'))},"
                      f" helper {credits(median('helper_cost'))}) tokens={median('tokens')}"
                      f" elapsed_ms={median('elapsed_ms')}")
+        for name, count in row.get('dimensions', {}).items():
+            lines.append(f"    {name}: {count['passed']}/{count['total']} checks passed, "
+                         f"{count['failed']} failed, {count['unverified']} unverified")
         for item in row.get('excluded', []):
             lines.append(f"    excluded: {item['type']}{' (step %s)' % item['step'] if item['step'] else ''} "
                          f"unverifiable on arm {', '.join(sorted(set(item['arms'])))}")
