@@ -2,11 +2,9 @@
 
 Open the [development overview](work/overview.md) for current work, next actions, attention items and a compact completed-task index. It is generated from the selected task record; detailed gates, evidence and attempts remain in that record and its linked receipts. A remote page shows the last published checkpoint, not live agent activity.
 
-Remote owner view: [BRN Development Progress in ChatGPT Space](https://chatgpt.com/space/page_2300ce21dbb88191a290f861b9eb6f68). This concise campaign projection is refreshed at meaningful transitions and shows its observation time. The repository task record remains authoritative.
+Current assignment: the [daily-use reliability batch](work/active/daily-use-reliability/record.json), projected into the overview. The [baseline and execution sequence](work/active/daily-use-reliability/baseline.md) records reconciled main, lane ownership, authority and the later consolidated native checklist. The renderer defaults to this selected record.
 
-Current assignment: the [vacation campaign task record](work/active/vacation-campaign/campaign.json), projected into the overview. When this campaign ends, update this route and the overview source to the next selected assignment's ordinary record; future work does not depend on a vacation file.
-
-The [documentation index](README.md) routes product and architecture questions. The [campaign plan](work/active/vacation-campaign/plan.md) owns campaign scope/limits; the [checkpoint](work/active/vacation-campaign/checkpoint.md) holds machine-specific resumption pointers. [Evidence](work/active/vacation-campaign/evidence.md) and Git history retain source-bound results and unsuccessful attempts.
+The earlier [vacation campaign](work/active/vacation-campaign/campaign.json) and its remote owner Page are historical projections, not live execution or this batch's tracker. Their source-bound receipts remain evidence. The [documentation index](README.md) routes product and architecture questions.
 
 Useful result routes:
 

@@ -10,7 +10,7 @@
 | Development cycle, fact ownership and integration | This workflow | Skills supply task-specific procedures. |
 | Design rationale, reuse, responsibility and test judgment | [Strategic programming](strategic-programming.md) | Read for meaningful design, not every wake. |
 | Campaign scope, expiry and permission limits | [Campaign plan](../work/active/vacation-campaign/plan.md), latest owner instructions | Campaign state points to this authority. |
-| Current assignment, activity, next action, dependencies, waits and gates | Selected assignment's current task record: currently `work_view` in [campaign.json](../work/active/vacation-campaign/campaign.json) | [Overview](../work/overview.md) is generated; do not hand-edit it. |
+| Current assignment, activity, next action, dependencies, waits and gates | Selected assignment's current task record: currently `work_view` in [the daily-use record](../work/active/daily-use-reliability/record.json) | [Overview](../work/overview.md) is generated; do not hand-edit it. |
 | Current allowance/admission observation | `admission` in campaign.json | Recheck the actual account before substantial dispatch. |
 | Machine-specific resumption pointers | [Checkpoint](../work/active/vacation-campaign/checkpoint.md) | No duplicate task status or current PR list. |
 | Exact source, checks, failures and qualification limits | Task receipts in [evidence](../work/active/vacation-campaign/evidence.md) | Dated evidence supports claims; it never controls the next action. |
@@ -18,7 +18,7 @@
 
 `docs/status.md` locates the selected assignment and its authoritative task record; the documentation index is navigation. When the campaign ends, route to the next assignment's ordinary record and update the overview source (`--record`); don't require future tasks to use a vacation file or introduce a second tracker. An observation repeated inside an immutable receipt remains evidence for that time/source, not another editable current record. Git history preserves superseded plans/status; don't erase failed attempts to make a present view look green.
 
-Before opening a large selected record, find the task ID with a targeted search and inspect its validated object using `python3 scripts/render-work-overview.py --task TASK_ID`. This prints only that task; pass `--record PATH` when the selected record is not the default campaign file.
+Before opening a large selected record, find the task ID with a targeted search and inspect its validated object using `python3 scripts/render-work-overview.py --task TASK_ID`. This prints only that task; pass `--record PATH` when the selected record is not the default selected record.
 
 ## Select, implement, check, correct
 
