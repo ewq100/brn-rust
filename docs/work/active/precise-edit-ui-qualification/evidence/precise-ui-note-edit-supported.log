@@ -1,0 +1,23 @@
+    Finished `test` profile [optimized] target(s) in 0.31s
+     Running unittests src/lib.rs (/workspace/brn-environment/target/debug/deps/brn_ai-29643eda6999ea12)
+
+running 17 tests
+test threads::note_edit_tests::bound_arguments_conflict_even_before_prepare_and_after_success ... ok
+test threads::note_edit_tests::dirty_writing_defers_then_saved_owner_text_stales_local_candidate ... ok
+test threads::note_edit_tests::full_range_requires_whole_read_and_known_base_promotes_after_local_apply ... ok
+test threads::note_edit_tests::legacy_range_serialization_and_fingerprint_match_independent_base_golden ... ok
+test threads::note_edit_tests::local_candidate_cannot_refresh_into_unread_whole_replacement ... ok
+test threads::note_edit_tests::actual_http_provider_routes_dispatch_unique_quote_with_required_nullable_offsets ... ok
+test threads::note_edit_tests::actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree ... ok
+test threads::note_edit_tests::malformed_local_edit_skips_valid_sibling_before_bounded_correction ... ok
+test threads::note_edit_tests::outside_private_scope_refuses_and_in_scope_local_edit_preserves_private_visibility ... ok
+test threads::note_edit_tests::nullable_offsets_are_required_and_unique_full_note_quote_keeps_full_read_guard ... ok
+test threads::note_edit_tests::repeated_unicode_passage_changes_only_exact_occurrence_and_allows_deletion ... ok
+test threads::note_edit_tests::protected_local_edit_needs_exact_review_or_scoped_owner_instruction_and_undo_is_checked ... ok
+test threads::note_edit_tests::rig_typed_adapter_rejects_each_missing_nullable_key_before_effects ... ok
+test threads::note_edit_tests::review_first_local_edit_remains_pending_and_conflicting_undo_preserves_later_work ... ok
+test threads::note_edit_tests::wrong_text_nonboundary_unicode_invalid_range_and_stale_base_never_mutate_or_relocate ... ok
+test threads::note_edit_tests::unique_quote_uses_exact_current_note_bytes_and_refuses_missing_or_overlapping_matches ... ok
+test threads::note_edit_tests::large_note_local_edit_preserves_exact_bytes_metadata_and_incomplete_coverage_on_replay_continue ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 486 filtered out; finished in 0.37s

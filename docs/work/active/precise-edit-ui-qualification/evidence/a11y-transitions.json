@@ -1,0 +1,124 @@
+[
+  {
+    "label": "a11y-enabled",
+    "node": {
+      "path": "1/0/40",
+      "name": "Rewrite with AI \u2318\u21e7R",
+      "role": "button",
+      "states": [
+        "enabled",
+        "focusable",
+        "sensitive",
+        "showing",
+        "visible"
+      ],
+      "actions": [
+        {
+          "index": 0,
+          "name": "click",
+          "description": ""
+        }
+      ],
+      "bounds": [
+        708,
+        793,
+        154,
+        28
+      ]
+    }
+  },
+  {
+    "label": "a11y-disabled-1",
+    "node": {
+      "path": "1/0/40",
+      "name": "Rewrite with AI, unavailable: Save your edit first",
+      "role": "button",
+      "states": [
+        "showing",
+        "visible"
+      ],
+      "actions": [],
+      "bounds": [
+        195,
+        756,
+        154,
+        28
+      ]
+    }
+  },
+  {
+    "label": "a11y-reenabled-1",
+    "node": {
+      "path": "1/0/38",
+      "name": "Rewrite with AI \u2318\u21e7R",
+      "role": "button",
+      "states": [
+        "enabled",
+        "focusable",
+        "sensitive",
+        "showing",
+        "visible"
+      ],
+      "actions": [
+        {
+          "index": 0,
+          "name": "click",
+          "description": ""
+        }
+      ],
+      "bounds": [
+        708,
+        756,
+        154,
+        28
+      ]
+    }
+  },
+  {
+    "label": "a11y-disabled-2",
+    "node": {
+      "path": "1/0/40",
+      "name": "Rewrite with AI, unavailable: Save your edit first",
+      "role": "button",
+      "states": [
+        "showing",
+        "visible"
+      ],
+      "actions": [],
+      "bounds": [
+        195,
+        756,
+        154,
+        28
+      ]
+    }
+  },
+  {
+    "label": "a11y-reenabled-2",
+    "node": {
+      "path": "1/0/38",
+      "name": "Rewrite with AI \u2318\u21e7R",
+      "role": "button",
+      "states": [
+        "enabled",
+        "focusable",
+        "sensitive",
+        "showing",
+        "visible"
+      ],
+      "actions": [
+        {
+          "index": 0,
+          "name": "click",
+          "description": ""
+        }
+      ],
+      "bounds": [
+        708,
+        756,
+        154,
+        28
+      ]
+    }
+  }
+]

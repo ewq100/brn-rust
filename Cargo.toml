@@ -1,7 +1,12 @@
 [workspace]
 members = ["crates/brn", "crates/brn-retrieval", "crates/brn-desktop", "crates/brn-ai", "crates/brn-intake", "crates/brn-threads-core", "crates/brn-threads-intake", "crates/brn-threads-app", "crates/brn-writing-ui"]
 default-members = ["crates/brn"]
+exclude = ["vendor/accesskit_atspi_common"]
 resolver = "2"
+
+# Compatible Linux state translation backport; see vendor's BRN-PATCH.md.
+[patch.crates-io]
+accesskit_atspi_common = { path = "vendor/accesskit_atspi_common" }
 
 # Native retrieval/UI graphs are large; keep trial debug artifacts bounded.
 [profile.dev]

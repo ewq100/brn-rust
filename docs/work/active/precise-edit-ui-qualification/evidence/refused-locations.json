@@ -1,0 +1,132 @@
+{
+  "format": 1,
+  "level": "full",
+  "guide": "brn-threads-guidance-20:e74cde3eaca156373e818de653dc185de97de1ad91fc601293ba14af3ead4e61",
+  "search": true,
+  "rounds": 2,
+  "max_rounds": 4,
+  "model_turns": 3,
+  "stopped": null,
+  "usage": null,
+  "turn_usage": [
+    {
+      "input": 0,
+      "output": 0,
+      "cached_input": 0
+    },
+    {
+      "input": 0,
+      "output": 0,
+      "cached_input": 0
+    },
+    {
+      "input": 0,
+      "output": 0,
+      "cached_input": 0
+    }
+  ],
+  "elapsed_ms": 74,
+  "calls": [
+    {
+      "seq": 1,
+      "round": 2,
+      "tool": "prepare_note_edit",
+      "args": {
+        "id": "acde6194-9de4-495a-8a8d-c8b0e084c4a5:0",
+        "version": 1,
+        "start": 48,
+        "end": 60,
+        "expected_bytes": 12,
+        "replacement_bytes": 10
+      },
+      "outcome": "Invalid",
+      "bytes": 128,
+      "ms": 2,
+      "result": {
+        "outcome": "Invalid",
+        "reason": "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+      }
+    },
+    {
+      "seq": 2,
+      "round": 2,
+      "tool": "prepare_note_edit",
+      "args": {
+        "id": "acde6194-9de4-495a-8a8d-c8b0e084c4a5:0",
+        "version": 1,
+        "start": 49,
+        "end": 61,
+        "expected_bytes": 12,
+        "replacement_bytes": 10
+      },
+      "outcome": "Invalid",
+      "bytes": 128,
+      "ms": 2,
+      "result": {
+        "outcome": "Invalid",
+        "reason": "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+      }
+    },
+    {
+      "seq": 3,
+      "round": 2,
+      "tool": "prepare_note_edit",
+      "args": {
+        "id": "acde6194-9de4-495a-8a8d-c8b0e084c4a5:0",
+        "version": 1,
+        "start": 47,
+        "end": 59,
+        "expected_bytes": 12,
+        "replacement_bytes": 10
+      },
+      "outcome": "Invalid",
+      "bytes": 128,
+      "ms": 2,
+      "result": {
+        "outcome": "Invalid",
+        "reason": "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+      }
+    },
+    {
+      "seq": 4,
+      "round": 2,
+      "tool": "prepare_note_edit",
+      "args": {
+        "id": "acde6194-9de4-495a-8a8d-c8b0e084c4a5:0",
+        "version": 1,
+        "start": 44,
+        "end": 56,
+        "expected_bytes": 12,
+        "replacement_bytes": 10
+      },
+      "outcome": "Invalid",
+      "bytes": 128,
+      "ms": 2,
+      "result": {
+        "outcome": "Invalid",
+        "reason": "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+      }
+    },
+    {
+      "seq": 5,
+      "round": 2,
+      "tool": "prepare_note_edit",
+      "args": {
+        "id": "acde6194-9de4-495a-8a8d-c8b0e084c4a5:0",
+        "version": 1,
+        "start": 39,
+        "end": 51,
+        "expected_bytes": 12,
+        "replacement_bytes": 10
+      },
+      "outcome": "Invalid",
+      "bytes": 128,
+      "ms": 2,
+      "result": {
+        "outcome": "Invalid",
+        "reason": "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+      }
+    }
+  ],
+  "dropped_calls": 0
+}

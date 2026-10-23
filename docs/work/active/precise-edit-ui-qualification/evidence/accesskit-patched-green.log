@@ -1,0 +1,16 @@
+   Compiling accesskit_atspi_common v0.19.1 (/workspace/brn-rust/vendor/accesskit_atspi_common)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.81s
+     Running unittests src/lib.rs (/workspace/brn-environment/target/debug/deps/accesskit_atspi_common-c613576b80bbde23)
+
+running 9 tests
+test adapter::tests::no_cache_events_on_construction ... ok
+test adapter::tests::filter_transition_out_of_tree_emits_removed ... ok
+test adapter::tests::add_node_emits_one_added ... ok
+test adapter::tests::filter_transition_into_tree_emits_added ... ok
+test adapter::tests::subtree_add_emits_added_per_node ... ok
+test adapter::tests::remove_node_emits_removed_for_same_id ... ok
+test node::disabled_states_tests::disabled_enabled_disabled_updates_preserve_translation ... ok
+test node::disabled_states_tests::disabled_controls_never_report_enabled_or_sensitive ... ok
+test adapter::tests::subtree_remove_emits_removed_per_node ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

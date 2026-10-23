@@ -1,0 +1,64 @@
+   Compiling accesskit_atspi_common v0.19.1 (/workspace/brn-rust/vendor/accesskit_atspi_common)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.82s
+     Running unittests src/lib.rs (/workspace/brn-environment/target/debug/deps/accesskit_atspi_common-c613576b80bbde23)
+
+running 2 tests
+test node::disabled_states_tests::disabled_enabled_disabled_updates_preserve_translation ... FAILED
+test node::disabled_states_tests::disabled_controls_never_report_enabled_or_sensitive ... FAILED
+
+failures:
+
+---- node::disabled_states_tests::disabled_enabled_disabled_updates_preserve_translation stdout ----
+
+thread 'node::disabled_states_tests::disabled_enabled_disabled_updates_preserve_translation' (120155) panicked at /workspace/brn-rust/vendor/accesskit_atspi_common/src/disabled_states_tests.rs:60:5:
+assertion failed: !states(&tree).contains(State::Enabled | State::Sensitive)
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+   1: core::panicking::panic_fmt
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+   2: core::panicking::panic
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:150:5
+   3: accesskit_atspi_common::node::disabled_states_tests::disabled_enabled_disabled_updates_preserve_translation
+             at ./src/disabled_states_tests.rs:60:5
+   4: accesskit_atspi_common::node::disabled_states_tests::disabled_enabled_disabled_updates_preserve_translation::{closure#0}
+             at ./src/disabled_states_tests.rs:57:60
+   5: <accesskit_atspi_common::node::disabled_states_tests::disabled_enabled_disabled_updates_preserve_translation::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+   6: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+---- node::disabled_states_tests::disabled_controls_never_report_enabled_or_sensitive stdout ----
+
+thread 'node::disabled_states_tests::disabled_controls_never_report_enabled_or_sensitive' (120154) panicked at /workspace/brn-rust/vendor/accesskit_atspi_common/src/disabled_states_tests.rs:40:17:
+assertion `left == right` failed: Button, disabled=true, read_only=false
+  left: true
+ right: false
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/std/src/panicking.rs:679:5
+   1: core::panicking::panic_fmt
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:80:14
+   2: core::panicking::assert_failed_inner
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:434:23
+   3: core::panicking::assert_failed::<bool, bool>
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/panicking.rs:394:5
+   4: accesskit_atspi_common::node::disabled_states_tests::disabled_controls_never_report_enabled_or_sensitive
+             at ./src/disabled_states_tests.rs:40:17
+   5: accesskit_atspi_common::node::disabled_states_tests::disabled_controls_never_report_enabled_or_sensitive::{closure#0}
+             at ./src/disabled_states_tests.rs:32:57
+   6: <accesskit_atspi_common::node::disabled_states_tests::disabled_controls_never_report_enabled_or_sensitive::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+   7: <fn() -> core::result::Result<(), alloc::string::String> as core::ops::function::FnOnce<()>>::call_once
+             at /rustc/48a229ceaefd4985c50990b14116b6d856af0985/library/core/src/ops/function.rs:250:5
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    node::disabled_states_tests::disabled_controls_never_report_enabled_or_sensitive
+    node::disabled_states_tests::disabled_enabled_disabled_updates_preserve_translation
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p accesskit_atspi_common --lib`

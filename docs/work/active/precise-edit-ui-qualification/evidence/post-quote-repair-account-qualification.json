@@ -1,0 +1,70 @@
+{
+  "observed_at": "2026-10-22T15:40:32.523856+00:00",
+  "attempt_id": "0375a424-c8b0-444a-b914-b6327c9b1645",
+  "session": "2026-10-22-post-quote-repair-01",
+  "session_closed": true,
+  "attempts_in_session": 1,
+  "attempts_on_tallinn_day": 4,
+  "source": "4515b18c7ff58ccdc5d9642df0c91f0f14b90b38",
+  "reviewed_main_product_equivalent": "6e9fbad772dd40d2f038b85d0615c2a1fa667ea0",
+  "binary_sha256": "fdebb3ecc0331da24460542de51f32feb8dcbd6abeb5d05b4c08284412810593",
+  "driver_sha256": "3ad494381e24c9071b4e8f16bf8789973821328c2a96d5fdd51e60b5d93d4da3",
+  "review": "post-quote-repair-review.md",
+  "artifact": "post-quote-repair-artifact.json",
+  "configured_model": "gpt-6-luna",
+  "effort": "low",
+  "upstream_resolved_model": "not separately exposed",
+  "initial_utf8_bytes": 533,
+  "client_deadline_seconds": 180,
+  "rounds": 3,
+  "max_rounds": 4,
+  "model_turns": 4,
+  "elapsed_ms": 8468,
+  "usage": {
+    "input": 32098,
+    "output": 313,
+    "cached_input": 22784
+  },
+  "account_transport_succeeded": true,
+  "terminal": "Completed",
+  "task_passed": false,
+  "failure": "expected one unapplied candidate; actual candidates zero",
+  "target_unchanged": true,
+  "sentinel_unchanged": true,
+  "quote_mode_observed": false,
+  "integer_ranges_rejected": [
+    [
+      44,
+      56
+    ],
+    [
+      39,
+      51
+    ]
+  ],
+  "correct_original_byte_range": [
+    43,
+    55
+  ],
+  "dropped_trace_calls": 0,
+  "native_observed": false,
+  "owner_acceptance": false,
+  "upstream_cancellation_confirmed": false,
+  "allowance_after": {
+    "observed_at": "2026-10-22T15:38:17.844Z",
+    "used_percent": 68,
+    "remaining_percent": 32,
+    "reset_unix": 1793083361,
+    "ordinary_usage_allowed": true
+  },
+  "raw_archive": "post-quote-repair-account-raw.tar.gz",
+  "raw_archive_sha256": "6970d8700a0329154380dd5d097307de7dc022a21396732b254734a36cced22d",
+  "limits": [
+    "A Completed transport is not useful task success.",
+    "No null/null call observed, so this does not establish quote-mode usefulness or selector malfunction.",
+    "No Apply, native interaction, new provider/model, credentials change, or repeat attempt.",
+    "One-run session closed regardless of failure; earlier3failures preserved and count today.",
+    "Initial cargo/PATH and assumed cargo-path failures started no build. Fixture prepare/seal passed; summary-only helper-key KeyError corrected with optional-field read without rerunning prepare."
+  ],
+  "source_receipt": "https://github.com/ewq100/brn-rust/blob/f0c1c0ba4d68c9c0d92a7922cc6ebd7a27c65f7c/docs/work/active/vacation-campaign/evidence/post-quote-repair-account-qualification.json"
+}

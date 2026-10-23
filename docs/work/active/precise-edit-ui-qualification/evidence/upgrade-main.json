@@ -1,0 +1,78 @@
+{
+  "main": "9df81ae66f7c5955427f4d3ecb81f65d41d439f7",
+  "run": "https://github.com/ewq100/brn-rust/actions/runs/39917438079",
+  "jobs": [
+    {
+      "name": "Documentation and tooling",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native retrieval and combined build (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native UI build and state (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Native retrieval and combined build (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "name": "Core and CLI (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Core and CLI (macos-15)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native retrieval and combined build (macos-15)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native UI build and state (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native UI build and state (macos-15)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Core and CLI (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure"
+    }
+  ],
+  "native": {
+    "result": "pass",
+    "rig": "0.45.0",
+    "old_rig": "0.44.0",
+    "journeys": [
+      "old 0.44 store exact snapshot, native Unicode edit/save v3/quit/reopen/OS close",
+      "AT-SPI menu item activation",
+      "repeated menu Return/Space/Escape/pointer",
+      "disabled Rewrite has no action; Unix enabled/sensitive caveat retained"
+    ],
+    "binary_sha256": "c9d23831f7df978c24e0a9b32e8da2bab52d0032acf5998dd3a449c69b482306",
+    "source_revision": "9df81ae66f7c5955427f4d3ecb81f65d41d439f7",
+    "source_tree": "fc58430c817b7192fe314e409e61bacc2bd6a9bc",
+    "observed_at": "2026-10-23T07:26:23.242691+00:00",
+    "command": "source /workspace/brn-environment/activate.sh; source /workspace/brn-environment/a11y/activate.sh; python3 /workspace/brn-environment/upgrade-main-native-smoke.py",
+    "limits": [
+      "no live accounts",
+      "Mac-specific native acceptance remains separate",
+      "native file picker not retried",
+      "disabled Unix enabled/sensitive states remain incorrect"
+    ]
+  }
+}

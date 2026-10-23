@@ -1,0 +1,93 @@
+{
+  "fixture": "native-precise-edit-v1",
+  "synthetic_model": true,
+  "live_account": false,
+  "note": {
+    "id": "acde6194-9de4-495a-8a8d-c8b0e084c4a5:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Precise edit — synthetic harbor",
+        "markdown": "# Harbors\n\nÕun stays beside the pier.\nThe cobalt boats cross the bay at dawn.\n\n尾灯 remain unchanged.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  "sentinel": {
+    "id": "81ca17bc-b1ff-41a5-947a-637b821bc536:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Precise edit sentinel",
+        "markdown": "Unrelated synthetic record: amber lantern remains unchanged.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  "candidate": {
+    "operation": "484542a1-ea64-48fd-ab34-07b12511d727",
+    "request_hash": "59f0f56310e3cc4a31d50e1290f6e0d48844ecf41c08d42431e3f33ba989b49a",
+    "request": {
+      "reason": "Replace only the requested synthetic passage",
+      "writes": [
+        {
+          "id": "acde6194-9de4-495a-8a8d-c8b0e084c4a5:0",
+          "expected_version": 1,
+          "archived": false,
+          "data": {
+            "Note": {
+              "title": "Precise edit — synthetic harbor",
+              "markdown": "# Harbors\n\nÕun stays beside the pier.\nThe teal boats cross the bay at dawn.\n\n尾灯 remain unchanged.\n",
+              "protected": false,
+              "confirmed": false,
+              "superseded_by": null,
+              "import": null
+            }
+          }
+        }
+      ],
+      "inputs": [
+        {
+          "record": "1223ebb6-d843-48c2-9ab7-d12a1399bea8:0",
+          "version": 1,
+          "expectation": "ChatContext"
+        }
+      ]
+    }
+  },
+  "thread": "1223ebb6-d843-48c2-9ab7-d12a1399bea8:0",
+  "original": "# Harbors\n\nÕun stays beside the pier.\nThe cobalt boats cross the bay at dawn.\n\n尾灯 remain unchanged.\n",
+  "expected": "# Harbors\n\nÕun stays beside the pier.\nThe teal boats cross the bay at dawn.\n\n尾灯 remain unchanged.\n",
+  "run": "85310b72-f501-4257-a16e-30416ab4d041:0",
+  "historical_offsets_replayed": [
+    [
+      48,
+      60
+    ],
+    [
+      49,
+      61
+    ],
+    [
+      47,
+      59
+    ],
+    [
+      44,
+      56
+    ],
+    [
+      39,
+      51
+    ]
+  ],
+  "historical_raw_expected_text_unknown": true
+}

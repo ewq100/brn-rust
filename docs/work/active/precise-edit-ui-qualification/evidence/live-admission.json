@@ -1,0 +1,28 @@
+{
+  "observed_at": "2026-10-23T08:43:40.622884+00:00",
+  "authorization": "2026-10-23 08:37 UTC: user authorized bounded live-model qualification with existing account; no credential transfer/new persistent access",
+  "state": "blocked before model dispatch",
+  "model_planned": "gpt-6-luna",
+  "effort_planned": "low",
+  "max_attempts_selected": 1,
+  "model_attempts": 0,
+  "tool_round_budget": 4,
+  "client_deadline_seconds": 180,
+  "initial_input_utf8_limit": 8192,
+  "allowance_floor_percent": 5,
+  "current_allowance": "unverified",
+  "observed_model_cost": null,
+  "model_cost_reason": "no model dispatch; no billed usage returned",
+  "existing_login": "codex login status confirms ChatGPT; auth schema tokens present, no API key; secret values not logged",
+  "blocker": {
+    "action": "read account/rateLimits/read and model/list through local Codex app server",
+    "target": "/run/codex-environment/codex-home/installation_id",
+    "reason": "startup attempts O_RDWR|O_CREAT; managed home is read-only (EROFS)",
+    "status": "runtime filesystem restriction; queries not executed",
+    "attempted_supported_alternative": "documented sqlite_home redirected only resumable state into task workspace; installation_id still required",
+    "next": "supported read-only admission interface or approval/platform support for required local state access; do not copy auth or change managed permissions"
+  },
+  "prior_sessions": "2026-10-22-local-edit-01 closed3/3; post-quote-repair-01 closed1/1; neither reopened",
+  "monetary_cap": "no numeric currency cap evidenced; current quota floor must be checked before dispatch",
+  "preflight": "prior traces analyzed; exact quote mock/native Apply/Undo/restart complete; no claim of live quality"
+}
