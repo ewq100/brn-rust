@@ -1,0 +1,80 @@
+{
+  "observed_at": "2026-10-22T00:31:58.900886+00:00",
+  "source": "eac295b14ddb4a57b1e3b62e6c51f0d40ae699a5",
+  "binary_sha256": "8c76e00d29a0881a3af0c5c730a96234710b697e8419899682c288305dbcea57",
+  "attempt_id": "9750866d-20da-4a01-b7f6-9885f0b81fd8",
+  "passed": false,
+  "account_transport_succeeded": true,
+  "terminal": "Completed",
+  "actual_cli_exit": 0,
+  "guide": "brn-threads-guidance-18:c65345326d3e91d8944653efa7a7e1954822c4baa340081166073b38948bfb56",
+  "runtime_rounds": 4,
+  "model_turns": 5,
+  "usage": {
+    "input": 32985,
+    "output": 325,
+    "cached_input": 25472
+  },
+  "original_note_unchanged": true,
+  "sentinel_note_unchanged": true,
+  "no_candidates": true,
+  "precise_calls": [
+    {
+      "seq": 2,
+      "round": 2,
+      "tool": "prepare_note_edit",
+      "args": {
+        "id": "61235950-01fb-4828-9d7f-c10b8cefaa96:0",
+        "version": 1,
+        "start": 49,
+        "end": 61,
+        "expected_bytes": 12,
+        "replacement_bytes": 10
+      },
+      "outcome": "Invalid",
+      "bytes": 128,
+      "ms": 2,
+      "result": {
+        "outcome": "Invalid",
+        "reason": "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+      }
+    },
+    {
+      "seq": 4,
+      "round": 4,
+      "tool": "prepare_note_edit",
+      "args": {
+        "id": "61235950-01fb-4828-9d7f-c10b8cefaa96:0",
+        "version": 1,
+        "start": 47,
+        "end": 59,
+        "expected_bytes": 12,
+        "replacement_bytes": 10
+      },
+      "outcome": "Invalid",
+      "bytes": 128,
+      "ms": 3,
+      "result": {
+        "outcome": "Invalid",
+        "reason": "The exact UTF-8 byte range does not match expected_text; no search or relocation was attempted."
+      }
+    }
+  ],
+  "requested_exact_passage_range": {
+    "start": 43,
+    "end": 55
+  },
+  "diagnosis": "Reviewed guidance18 did not make this bounded scenario useful: model supplied49..61 then47..59, neither requested43..55; host refused exact mismatch both times. Exact raw supplied text not traced, so no narrower arithmetic mechanism claimed. Completed terminal is not task success.",
+  "session_closed": "3attempts exhausted in2026-10-22-local-edit-01; no fourth attempt or session renaming for retry. Continue deterministic design/qualification only.",
+  "native_observed": false,
+  "upstream_cancellation_confirmed": false,
+  "desktop_allowance_after": {
+    "observed_at": "2026-10-22T00:31:58.900886+00:00",
+    "ordinary_usage_allowed": true,
+    "used_percent": 34,
+    "remaining_percent": 66,
+    "reset_unix": 1793083360,
+    "secondary": "unavailable"
+  },
+  "source_receipt": "https://github.com/ewq100/brn-rust/blob/f0c1c0ba4d68c9c0d92a7922cc6ebd7a27c65f7c/docs/work/active/vacation-campaign/evidence/targeted-edit-guidance-account-qualification.json"
+}

@@ -1,0 +1,8 @@
+   Compiling accesskit_atspi_common v0.19.1 (/workspace/brn-rust/vendor/accesskit_atspi_common)
+   Compiling accesskit_unix v0.22.1
+   Compiling gpui-pre-linux v0.3.9
+   Compiling gpui-pre-platform v0.3.9
+   Compiling gpui-kit v0.8.0
+   Compiling brn-writing-ui v0.1.0 (/workspace/brn-rust/crates/brn-writing-ui)
+   Compiling brn-desktop v0.1.0 (/workspace/brn-rust/crates/brn-desktop)
+    Finished `dev` profile [unoptimized] target(s) in 23.26s

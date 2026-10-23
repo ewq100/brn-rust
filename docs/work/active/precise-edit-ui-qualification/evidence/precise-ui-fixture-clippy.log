@@ -1,0 +1,51 @@
+    Checking zerofrom v0.1.8
+    Checking yoke v0.8.3
+    Checking futures-util v0.3.34
+    Checking zerovec v0.11.8
+    Checking tokio v1.53.3
+    Checking tinystr v0.8.4
+    Checking icu_locale_core v2.3.0
+    Checking zerotrie v0.2.5
+    Checking potential_utf v0.1.6
+    Checking icu_collections v2.3.0
+    Checking icu_provider v2.3.1
+    Checking serde v1.0.229
+    Checking icu_properties v2.3.0
+    Checking icu_normalizer v2.3.0
+    Checking serde_json v1.0.154
+    Checking idna_adapter v1.2.2
+    Checking tokio-util v0.7.19
+    Checking h2 v0.4.19
+    Checking idna v1.1.0
+    Checking thiserror v2.0.21
+    Checking url v2.5.8
+    Checking hyper v1.11.1
+    Checking futures-executor v0.3.34
+    Checking tower v0.5.3
+    Checking hyper-util v0.1.21
+    Checking futures v0.3.34
+    Checking tokio-rustls v0.26.5
+    Checking hyper-rustls v0.27.10
+    Checking tower-http v0.6.11
+    Checking ref-cast v1.0.27
+    Checking reqwest v0.13.5
+    Checking chrono v0.4.45
+    Checking rig-http v0.45.0
+    Checking schemars v1.2.3
+    Checking rig-reqwest v0.45.0
+    Checking rig-core v0.45.0
+    Checking sse-stream v0.2.6
+    Checking tokio-stream v0.1.19
+    Checking rmcp v3.5.0
+    Checking tracing-futures v0.2.5
+    Checking rig-memory v0.45.0
+    Checking rig-agent v0.45.0
+    Checking brn-intake v0.1.0 (/workspace/brn-rust/crates/brn-intake)
+    Checking rig-rmcp v0.45.0
+    Checking rig v0.45.0
+    Checking brn-threads-intake v0.1.0 (/workspace/brn-rust/crates/brn-threads-intake)
+    Checking brn-threads-core v0.1.0 (/workspace/brn-rust/crates/brn-threads-core)
+    Checking brn-retrieval v0.1.0 (/workspace/brn-rust/crates/brn-retrieval)
+    Checking brn-ai v0.1.0 (/workspace/brn-rust/crates/brn-ai)
+    Checking brn-threads-app v0.1.0 (/workspace/brn-rust/crates/brn-threads-app)
+    Finished `dev` profile [unoptimized] target(s) in 44.54s

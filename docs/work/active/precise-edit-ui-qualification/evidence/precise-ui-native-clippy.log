@@ -1,0 +1,19 @@
+    Checking gpui-pre v0.3.9
+    Checking accesskit_atspi_common v0.19.1 (/workspace/brn-rust/vendor/accesskit_atspi_common)
+    Checking gpui-pre-wgpu v0.3.9
+    Checking accesskit_unix v0.22.1
+    Checking brn-intake v0.1.0 (/workspace/brn-rust/crates/brn-intake)
+    Checking gpui-base v0.8.0
+    Checking gpui-pre-linux v0.3.9
+    Checking brn-threads-intake v0.1.0 (/workspace/brn-rust/crates/brn-threads-intake)
+    Checking gpui-kit-assets v0.8.0
+    Checking brn-threads-core v0.1.0 (/workspace/brn-rust/crates/brn-threads-core)
+    Checking gpui-component v0.8.0
+    Checking brn-ai v0.1.0 (/workspace/brn-rust/crates/brn-ai)
+    Checking gpui-pre-platform v0.3.9
+    Checking brn-retrieval v0.1.0 (/workspace/brn-rust/crates/brn-retrieval)
+    Checking brn-threads-app v0.1.0 (/workspace/brn-rust/crates/brn-threads-app)
+    Checking gpui-kit v0.8.0
+    Checking brn-writing-ui v0.1.0 (/workspace/brn-rust/crates/brn-writing-ui)
+    Checking brn-desktop v0.1.0 (/workspace/brn-rust/crates/brn-desktop)
+    Finished `dev` profile [unoptimized] target(s) in 48.24s

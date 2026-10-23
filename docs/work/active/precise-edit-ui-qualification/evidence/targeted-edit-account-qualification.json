@@ -1,0 +1,85 @@
+{
+  "observed_at": "2026-10-22T00:05:38.427488+00:00",
+  "attempt_id": "9979761a-9a29-43b4-8208-f2126d0b3396",
+  "source": "2ecf634d7de93fbf7381317168109b6d199531e4",
+  "binary_sha256": "61366a4eff077c9ab6fba0d37182e6d4f76f1335c986aee9685485dd603fe0c5",
+  "driver_sha256": "dfb1128d6a1de90463e43f537d3a1cd6d36cf05c085e5b541ac632defc92a040",
+  "verdict": "FAIL no prepared candidate; account/runtime succeeded and both exact edit calls returned Invalid. No automatic retry.",
+  "run": "62582b04-e1d3-4f63-9885-070448218c4c:0",
+  "terminal": "Completed",
+  "model_requested": "gpt-6-luna",
+  "effort": "low",
+  "rounds": 4,
+  "model_turns": 5,
+  "max_rounds": 4,
+  "usage": {
+    "input": 32020,
+    "output": 335,
+    "cached_input": 24704
+  },
+  "calls": [
+    {
+      "tool": "read_records",
+      "outcome": "success",
+      "args": {
+        "id_count": 1,
+        "ids": [
+          "e50e9907-214a-4368-9861-0c9e9fbdb389:0"
+        ],
+        "catalog": false
+      },
+      "result": {
+        "rows": 1,
+        "ids": [
+          "e50e9907-214a-4368-9861-0c9e9fbdb389:0"
+        ],
+        "truncated": false
+      }
+    },
+    {
+      "tool": "prepare_note_edit",
+      "outcome": "Invalid",
+      "args": {},
+      "result": null
+    },
+    {
+      "tool": "read_note",
+      "outcome": "success",
+      "args": {
+        "id": "e50e9907-214a-4368-9861-0c9e9fbdb389:0",
+        "version": 1,
+        "start": 0,
+        "section": false,
+        "max_bytes": 105
+      },
+      "result": {
+        "outcome": "Read",
+        "returned_bytes": 105,
+        "next_start": false
+      }
+    },
+    {
+      "tool": "prepare_note_edit",
+      "outcome": "Invalid",
+      "args": {},
+      "result": null
+    }
+  ],
+  "target_complete_record_unchanged": true,
+  "sentinel_complete_record_unchanged": true,
+  "unapplied_candidates": [],
+  "diagnosis": "Model final report says both byte ranges mismatched expected passage, compatible with observed Invalid outcomes; actual offset arguments and host Invalid reasons are omitted by current trace, so exact cause is not independently established. New bounded trace metadata repair selected before any further account diagnostic.",
+  "allowance_after": {
+    "observed_at": "2026-10-22T00:05:38.427887+00:00",
+    "ordinary_usage_allowed": true,
+    "used_percent": 32,
+    "remaining_percent": 68,
+    "reset_unix": 1793083360,
+    "secondary": "unavailable"
+  },
+  "session_attempts": 1,
+  "day_attempts": 1,
+  "native_observed": false,
+  "upstream_cancellation_confirmed": false,
+  "source_receipt": "https://github.com/ewq100/brn-rust/blob/f0c1c0ba4d68c9c0d92a7922cc6ebd7a27c65f7c/docs/work/active/vacation-campaign/evidence/targeted-edit-account-qualification.json"
+}

@@ -1,0 +1,76 @@
+{
+  "base": "9df81ae66f7c5955427f4d3ecb81f65d41d439f7",
+  "branch": "codex/precise-edit-ui-qualification-20261023",
+  "product_delta": "upstream AccessKit 6ee0558b disabled-state conditional; same dependency family",
+  "binary_sha256": "f253353dfbe3a1a243c4f1b2a00bdd0d4e22a99f6dca47beb90e329afdcae0c1",
+  "native_pass": [
+    "review exact diff and Result preview",
+    "Apply exact candidate as note version2",
+    "Undo exact original as version3; sentinel unchanged",
+    "repeat original Undo refused without record changes",
+    "Quit/reopen original note and full records retained",
+    "two enabled/disabled/reenabled AT-SPI cycles; actions suppressed while disabled",
+    "menu and Projects; normal close",
+    "second fresh fixture: close review / quit / reopen retains exact immutable candidate and snapshots"
+  ],
+  "live_provider": false,
+  "failures_retained": [
+    "fixture compile Result alias corrected",
+    "initial TMPDIR read-only; used writable /tmp",
+    "vendor package-selection commands unsupported; standalone harness selected",
+    "test trait import corrected before red baseline witness",
+    "combined clipboard selection/copy raced; separate keys and UTF8_STRING succeeded",
+    "initial focused test filter matched zero; not counted",
+    "synthetic HTTP fixture UnsafeCredentials under sandbox, including narrow write permission; injected .git ancestors confirmed; approved supported escalation passed all17"
+  ],
+  "blocked": [
+    "Live authorized 2026-10-23; account exists but current quota/model admission cannot initialize under managed read-only home",
+    "portal FileChooser.OpenFile denied previously; not retried",
+    "Mac unavailable and not authorized"
+  ],
+  "raw_evidence": "/workspace/brn-environment/logs/precise-edit-ui-native",
+  "source_sha256": {
+    "Cargo.toml": "4bc34bf700b6641a60f82b939c5a0cfa0de8c6fda08fc9ce104dfcac7eec7d24",
+    "Cargo.lock": "d451d09f638a13bcf9f5f6ac80d033de7bf01fba27df447c27b8dca9dbf44f9a",
+    "vendor/accesskit_atspi_common/src/node.rs": "b66f73953d21a83563ddc1dabba4b43943c667134347b6cb4d9273a147dae481",
+    "crates/brn-threads-app/examples/native_precise_edit_fixture.rs": "9496ea381f94cb7ac886a5d8f64f7e49e2829edbd3f5cfd8a3755c2414696dbf"
+  },
+  "independent_review": {
+    "accesskit": "official archive, all licenses, exact upstream delta, unchanged versions, red/green regression reviewed; no blocking findings",
+    "fixture": "mock-only transport, no credential sources, new-root isolation, exact candidate and historical evidence reviewed; no blocking findings"
+  },
+  "product_commit": "471fe0b02cc493d69c999aaca998f835abd5a0c1",
+  "checks": {
+    "adapter_unit": {
+      "passed": 9,
+      "failed": 0,
+      "original_regression_failed": 2
+    },
+    "offline_fixture": {
+      "passed": 1,
+      "failed": 0
+    },
+    "precise_edit_contracts": {
+      "passed": 17,
+      "failed": 0,
+      "transport": "mock only"
+    },
+    "native_desktop": {
+      "passed": 352,
+      "ignored": 1,
+      "ignore_reason": "shared CLI useful-intake fixture not selected"
+    },
+    "writing_component": {
+      "passed": 44
+    },
+    "writing_integration": {
+      "passed": 12
+    },
+    "native_clippy": "pass -D warnings all targets with native-test-support",
+    "fixture_clippy": "pass -D warnings",
+    "format": "pass",
+    "markdown": "pass",
+    "full_workspace": "not rerun; no application core change, native aggregate and affected contracts selected",
+    "new_branch_CI": "not run; unpublished"
+  }
+}

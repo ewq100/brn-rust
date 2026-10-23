@@ -1,0 +1,75 @@
+{
+  "format": 1,
+  "level": "full",
+  "guide": "brn-threads-guidance-20:e74cde3eaca156373e818de653dc185de97de1ad91fc601293ba14af3ead4e61",
+  "search": true,
+  "rounds": 3,
+  "max_rounds": 4,
+  "model_turns": 4,
+  "stopped": null,
+  "usage": null,
+  "turn_usage": [
+    {
+      "input": 0,
+      "output": 0,
+      "cached_input": 0
+    },
+    {
+      "input": 0,
+      "output": 0,
+      "cached_input": 0
+    },
+    {
+      "input": 0,
+      "output": 0,
+      "cached_input": 0
+    },
+    {
+      "input": 0,
+      "output": 0,
+      "cached_input": 0
+    }
+  ],
+  "elapsed_ms": 26,
+  "calls": [
+    {
+      "seq": 1,
+      "round": 2,
+      "tool": "prepare_note_edit",
+      "args": {
+        "id": "acde6194-9de4-495a-8a8d-c8b0e084c4a5:0",
+        "version": 1,
+        "start": null,
+        "end": null,
+        "expected_bytes": 12,
+        "replacement_bytes": 10
+      },
+      "outcome": "success",
+      "bytes": 658,
+      "ms": 3,
+      "result": {
+        "operation": "484542a1-ea64-48fd-ab34-07b12511d727"
+      }
+    },
+    {
+      "seq": 2,
+      "round": 3,
+      "tool": "prepare_note_edit",
+      "args": {
+        "id": "acde6194-9de4-495a-8a8d-c8b0e084c4a5:0",
+        "version": 1,
+        "start": null,
+        "end": null,
+        "expected_bytes": 12,
+        "replacement_bytes": 10
+      },
+      "outcome": "success",
+      "bytes": 658,
+      "ms": 2,
+      "result": {
+        "operation": "484542a1-ea64-48fd-ab34-07b12511d727"
+      }
+    }
+  ],
+  "dropped_calls": 0
+}
