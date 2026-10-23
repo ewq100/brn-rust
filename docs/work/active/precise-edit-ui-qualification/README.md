@@ -1,5 +1,10 @@
 # Precise editing and remaining Linux UI qualification
 
+The separately authorized [Mac headless real-model qualification](mac-live.md)
+records the later production-model generation, CLI Apply/Undo and persistence
+checks. The cloud admission limitation and controlled native observations below
+remain dated evidence, not the current live-test result.
+
 Active local work on `codex/precise-edit-ui-qualification-20261023`, based on
 integrated main `9df81ae66f7c5955427f4d3ecb81f65d41d439f7`. Owner authorized this
 scope after completing the upgrade integrations. New publication and merge are

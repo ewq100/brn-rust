@@ -1,0 +1,34 @@
+    Checking tokio v1.53.3
+    Checking indexmap v2.14.2
+    Checking tokio-util v0.7.19
+    Checking h2 v0.4.19
+    Checking serde_json v1.0.154
+    Checking hyper v1.11.1
+    Checking hyper-util v0.1.21
+    Checking tower v0.5.3
+    Checking tokio-rustls v0.26.5
+    Checking hyper-rustls v0.27.10
+    Checking tower-http v0.6.11
+    Checking reqwest v0.13.5
+    Checking rig-http v0.45.0
+    Checking schemars v1.2.3
+    Checking webpki-root-certs v1.0.10
+    Checking rig-reqwest v0.45.0
+    Checking serde_path_to_error v0.1.20
+    Checking rig-core v0.45.0
+   Compiling rmcp v3.5.0
+    Checking tokio-stream v0.1.19
+    Checking rig-memory v0.45.0
+    Checking rig-agent v0.45.0
+    Checking brn-intake v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-intake)
+    Checking rig-rmcp v0.45.0
+    Checking rig-harness-protocol v0.45.0
+    Checking rig v0.45.0
+    Checking brn-threads-intake v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-threads-intake)
+    Checking brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-threads-core)
+    Checking brn-retrieval v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-retrieval)
+    Checking brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-ai)
+    Checking axum v0.8.9
+    Checking brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-threads-app)
+    Checking brn v0.0.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn)
+    Finished `dev` profile [unoptimized] target(s) in 25.73s

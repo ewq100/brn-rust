@@ -1,0 +1,105 @@
+{
+  "source": "GitHub commits/check-runs read-only API",
+  "head": "6c86583d709e13e7fc3c5070008d49c824856d07",
+  "checks": [
+    {
+      "name": "Package and publish approved Apple Silicon preview",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T13:20:05Z",
+      "completed_at": "2026-10-23T13:20:14Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39960314188/job/120436376181"
+    },
+    {
+      "name": "Native retrieval and combined build (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T12:37:12Z",
+      "completed_at": "2026-10-23T13:09:19Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39954683065/job/120417446860"
+    },
+    {
+      "name": "Core and CLI (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T12:37:12Z",
+      "completed_at": "2026-10-23T13:02:09Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39954683065/job/120417446822"
+    },
+    {
+      "name": "Core and CLI (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T12:37:11Z",
+      "completed_at": "2026-10-23T13:01:11Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39954683065/job/120417446806"
+    },
+    {
+      "name": "Native retrieval and combined build (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T12:37:11Z",
+      "completed_at": "2026-10-23T12:40:42Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39954683065/job/120417446720"
+    },
+    {
+      "name": "Core and CLI (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T12:37:12Z",
+      "completed_at": "2026-10-23T12:40:59Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39954683065/job/120417446690"
+    },
+    {
+      "name": "Native UI build and state (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T12:37:12Z",
+      "completed_at": "2026-10-23T13:00:13Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39954683065/job/120417446652"
+    },
+    {
+      "name": "Native UI build and state (windows-2025)",
+      "status": "completed",
+      "conclusion": "failure",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T12:37:12Z",
+      "completed_at": "2026-10-23T12:38:03Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39954683065/job/120417446640"
+    },
+    {
+      "name": "Native UI build and state (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T12:37:12Z",
+      "completed_at": "2026-10-23T13:19:57Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39954683065/job/120417446626"
+    },
+    {
+      "name": "Native retrieval and combined build (macos-15)",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T12:37:12Z",
+      "completed_at": "2026-10-23T13:09:27Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39954683065/job/120417446621"
+    },
+    {
+      "name": "Documentation and tooling",
+      "status": "completed",
+      "conclusion": "success",
+      "head_sha": "6c86583d709e13e7fc3c5070008d49c824856d07",
+      "started_at": "2026-10-23T12:37:11Z",
+      "completed_at": "2026-10-23T12:37:40Z",
+      "details_url": "https://github.com/ewq100/brn-rust/actions/runs/39954683065/job/120417446341"
+    }
+  ]
+}

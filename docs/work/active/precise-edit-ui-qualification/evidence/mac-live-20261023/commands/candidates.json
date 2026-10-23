@@ -1,0 +1,62 @@
+{
+  "command": [
+    "candidates"
+  ],
+  "exit": 0,
+  "result": {
+    "contract": 3,
+    "command": "candidates",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [
+      {
+        "operation": "fd8b7b0e-0e4f-4068-9900-c44329d2b89c",
+        "request_hash": "05c22b0fe3204eb05de63dba24b832d5b4465219a72f8d3a340e2239a240ea99",
+        "request": {
+          "reason": "Prepare for owner review only the unique exact phrase replacement, preserving all other bytes and metadata.",
+          "writes": [
+            {
+              "id": "53c58c0e-081e-4a83-b276-8f3d153c3c6a:0",
+              "expected_version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Synthetic harbor",
+                  "markdown": "# Synthetic harbor — Õhtu 🌊\n\nUnrelated opening: café, Tallinn and 東京 stay exactly as written.\n\nThe unique harbor marker is teal boats beside pier 73.\n\nUnrelated closing: naïve sailors keep the green ledger.\n",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          ],
+          "inputs": [
+            {
+              "record": "f2344a48-9330-4cf8-876f-983537b83a85:0",
+              "version": 1,
+              "expectation": "ChatContext"
+            }
+          ]
+        }
+      }
+    ],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "elapsed_seconds": 0.008
+}

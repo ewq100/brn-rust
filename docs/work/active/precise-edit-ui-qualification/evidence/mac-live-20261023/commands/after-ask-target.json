@@ -1,0 +1,46 @@
+{
+  "command": [
+    "read",
+    "--id",
+    "53c58c0e-081e-4a83-b276-8f3d153c3c6a:0"
+  ],
+  "exit": 0,
+  "result": {
+    "contract": 3,
+    "command": "read",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "id": "53c58c0e-081e-4a83-b276-8f3d153c3c6a:0",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "Synthetic harbor",
+          "markdown": "# Synthetic harbor — Õhtu 🌊\n\nUnrelated opening: café, Tallinn and 東京 stay exactly as written.\n\nThe unique harbor marker is cobalt boats beside pier 73.\n\nUnrelated closing: naïve sailors keep the green ledger.\n",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "elapsed_seconds": 0.014
+}

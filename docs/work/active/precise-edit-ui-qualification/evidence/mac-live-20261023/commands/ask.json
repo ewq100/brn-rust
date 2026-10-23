@@ -1,0 +1,123 @@
+{
+  "command": [
+    "--timeout",
+    "180",
+    "ask",
+    "--thread",
+    "f2344a48-9330-4cf8-876f-983537b83a85:0",
+    "--prompt",
+    "In saved Note 53c58c0e-081e-4a83-b276-8f3d153c3c6a:0, replace only the unique exact phrase 'cobalt boats' with 'teal boats'. Read the current Note, locate that exact passage and prepare a precise edit candidate for review. Preserve all other bytes, Unicode, paragraphs and metadata. Do not apply it or change any other record. Report the prepared candidate.",
+    "--budget",
+    "4",
+    "--trace",
+    "full"
+  ],
+  "exit": 0,
+  "result": {
+    "contract": 3,
+    "command": "ask",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": "Completed",
+    "operation": null,
+    "key": null,
+    "retry": "duplicate",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "run": "e1d91a69-f940-4a44-99cc-8e93a0b14670:0",
+      "terminal": "Completed",
+      "answer": "Prepared a review candidate for **Synthetic harbor** (version 1), replacing only the unique exact phrase:\n\n```diff\n-cobalt boats\n+teal boats\n```\n\nAll other bytes, Unicode, paragraphs, and metadata are preserved. **Not applied; no records were changed.**\n\nCandidate: `fd8b7b0e-0e4f-4068-9900-c44329d2b89c`",
+      "search": "available",
+      "notices": [],
+      "trace": {
+        "format": 1,
+        "level": "full",
+        "guide": "brn-threads-guidance-20:e74cde3eaca156373e818de653dc185de97de1ad91fc601293ba14af3ead4e61",
+        "search": true,
+        "rounds": 2,
+        "max_rounds": 4,
+        "model_turns": 3,
+        "stopped": null,
+        "usage": {
+          "input": 19499,
+          "output": 246,
+          "cached_input": 12544
+        },
+        "turn_usage": [
+          {
+            "input": 6214,
+            "output": 50,
+            "cached_input": 0
+          },
+          {
+            "input": 6451,
+            "output": 104,
+            "cached_input": 6144
+          },
+          {
+            "input": 6834,
+            "output": 92,
+            "cached_input": 6400
+          }
+        ],
+        "elapsed_ms": 10652,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "read_records",
+            "args": {
+              "id_count": 1,
+              "ids": [
+                "53c58c0e-081e-4a83-b276-8f3d153c3c6a:0"
+              ],
+              "catalog": false
+            },
+            "outcome": "success",
+            "bytes": 604,
+            "ms": 1,
+            "result": {
+              "rows": 1,
+              "ids": [
+                "53c58c0e-081e-4a83-b276-8f3d153c3c6a:0"
+              ],
+              "truncated": false
+            }
+          },
+          {
+            "seq": 2,
+            "round": 2,
+            "tool": "prepare_note_edit",
+            "args": {
+              "id": "53c58c0e-081e-4a83-b276-8f3d153c3c6a:0",
+              "version": 1,
+              "start": null,
+              "end": null,
+              "expected_bytes": 12,
+              "replacement_bytes": 10
+            },
+            "outcome": "success",
+            "bytes": 821,
+            "ms": 6,
+            "result": {
+              "operation": "fd8b7b0e-0e4f-4068-9900-c44329d2b89c"
+            }
+          }
+        ],
+        "dropped_calls": 0
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "elapsed_seconds": 10.667
+}

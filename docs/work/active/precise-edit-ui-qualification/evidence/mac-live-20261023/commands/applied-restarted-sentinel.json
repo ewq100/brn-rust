@@ -1,0 +1,46 @@
+{
+  "command": [
+    "read",
+    "--id",
+    "e1253c73-f329-468b-ad39-272ab1a2a5f1:0"
+  ],
+  "exit": 0,
+  "result": {
+    "contract": 3,
+    "command": "read",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "id": "e1253c73-f329-468b-ad39-272ab1a2a5f1:0",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "Sentinel",
+          "markdown": "# Separate sentinel 🧭\n\nNever alter this: hõbe, 雪, 314159.\n",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "elapsed_seconds": 0.006
+}
