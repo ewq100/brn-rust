@@ -1,0 +1,17 @@
+{
+  "command": [
+    "configure",
+    "--provider",
+    "Codex",
+    "--model",
+    "gpt-6.1-sol",
+    "--effort",
+    "medium",
+    "--helper",
+    "off",
+    "--auth-file",
+    "EXISTING_AUTH_FILE"
+  ],
+  "exit": 0,
+  "ok": true
+}

@@ -1,0 +1,71 @@
+{
+  "source_commit": "6c86583d709e13e7fc3c5070008d49c824856d07",
+  "source_changes": "documentation/evidence only; product, guide, manifests and lock unchanged",
+  "toolchain": "1.98.1-aarch64-apple-darwin",
+  "shared_build_slot": "one actor; no concurrent builds observed",
+  "environment": {
+    "CARGO_BUILD_JOBS": "1",
+    "CARGO_PROFILE_DEV_DEBUG": "0",
+    "CARGO_PROFILE_TEST_DEBUG": "0",
+    "CARGO_INCREMENTAL": "0"
+  },
+  "commands": [
+    {
+      "command": "cargo build -p brn --locked --offline --jobs 1",
+      "exit": 0,
+      "log": "build.log"
+    },
+    {
+      "command": "cargo test -p brn-ai --lib threads::note_edit_tests --locked --offline --jobs 1",
+      "exit": 0,
+      "passed": 17,
+      "failed": 0,
+      "ignored": 0,
+      "filtered": 489,
+      "log": "note-edit-tests.log"
+    },
+    {
+      "command": "cargo clippy -p brn -p brn-ai --all-targets --locked --offline --jobs 1 -- -D warnings",
+      "exit": 0,
+      "log": "clippy.log"
+    },
+    {
+      "command": "cargo fmt --all -- --check",
+      "exit": 0,
+      "log": "format.log"
+    },
+    {
+      "command": "python3 scripts/check-markdown-links.py",
+      "exit": 0,
+      "log": "markdown.log"
+    },
+    {
+      "command": "python3 scripts/render-work-overview.py --check",
+      "exit": 0,
+      "log": "overview.log"
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "Python py_compile of scenario.py into task-owned external path",
+      "exit": 0
+    }
+  ],
+  "initial_build_failure": {
+    "exit": 101,
+    "cause": "offline cache lacked rig-harness-protocol required by locked Rig0.45",
+    "original_log": "initial build.log was overwritten by the subsequent successful build; original failure text remains in tool transcript; this is a disclosed evidence-retention limitation",
+    "correction": "cargo fetch --locked; no lock/source modification"
+  },
+  "file_hashes": {
+    "format.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "clippy.log": "03858f1027f152b27db17afa554782cfb7d11f04fb1f1b45bc334229c8ebb1dd",
+    "fetch.log": "6e453f6ab8e907fb52514b87759a73aaca5d21f4c7da3b04be2a8db8f86e5ab9",
+    "note-edit-tests.log": "1b870681642da3505e35061edec25a73a15c8646d534944b82c0db97219e652a",
+    "overview.log": "60fd2e653564bddb46b82363ae68f36a94ca69a93681f982d070780bc681fe79",
+    "markdown.log": "7f5b209bdcd10407f17e6856e6046df2029449d14789b638948b8fc6b700c3a4",
+    "build.log": "d15e78c7af2a80e481e3c2792a7b2dcd10018c38ecf7f375a983f3d2796bfa71"
+  }
+}

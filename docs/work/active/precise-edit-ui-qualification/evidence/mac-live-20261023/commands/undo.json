@@ -1,0 +1,87 @@
+{
+  "command": [
+    "undo",
+    "--operation",
+    "fd8b7b0e-0e4f-4068-9900-c44329d2b89c",
+    "--key",
+    "precise-undo-01"
+  ],
+  "exit": 0,
+  "result": {
+    "contract": 3,
+    "command": "undo",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": "Applied",
+    "operation": "d409cb10-96d2-494b-add8-90b71596eea7",
+    "key": "precise-undo-01",
+    "retry": "replay",
+    "changed": [
+      {
+        "id": "53c58c0e-081e-4a83-b276-8f3d153c3c6a:0",
+        "kind": "Note",
+        "version": 3,
+        "archived": false,
+        "created": false
+      }
+    ],
+    "conflict": null,
+    "result": {
+      "outcome": "Applied",
+      "receipt": {
+        "operation": "d409cb10-96d2-494b-add8-90b71596eea7",
+        "request_hash": "f44472dd1514c01e42cf203899dca916c65864639c96d55e8b264115fc1e559b",
+        "reason": "Undo: Prepare for owner review only the unique exact phrase replacement, preserving all other bytes and metadata.",
+        "writes": [
+          {
+            "before": {
+              "id": "53c58c0e-081e-4a83-b276-8f3d153c3c6a:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Synthetic harbor",
+                  "markdown": "# Synthetic harbor — Õhtu 🌊\n\nUnrelated opening: café, Tallinn and 東京 stay exactly as written.\n\nThe unique harbor marker is teal boats beside pier 73.\n\nUnrelated closing: naïve sailors keep the green ledger.\n",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            },
+            "after": {
+              "id": "53c58c0e-081e-4a83-b276-8f3d153c3c6a:0",
+              "version": 3,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Synthetic harbor",
+                  "markdown": "# Synthetic harbor — Õhtu 🌊\n\nUnrelated opening: café, Tallinn and 東京 stay exactly as written.\n\nThe unique harbor marker is cobalt boats beside pier 73.\n\nUnrelated closing: naïve sailors keep the green ledger.\n",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner Undo",
+        "committed_at": "2026-10-23T13:33:00.178Z",
+        "undo_of": "fd8b7b0e-0e4f-4068-9900-c44329d2b89c",
+        "needs_refresh": []
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "elapsed_seconds": 0.008
+}

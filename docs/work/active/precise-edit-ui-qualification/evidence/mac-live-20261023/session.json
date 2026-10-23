@@ -1,0 +1,81 @@
+{
+  "baseline": "6c86583d709e13e7fc3c5070008d49c824856d07",
+  "session": "mac-precise-20261023-01",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "attempts": [
+    {
+      "number": 1,
+      "reserved_at": "2026-10-23T13:31:51.553700+00:00",
+      "status": "returned",
+      "finished_at": "2026-10-23T13:32:02.221860+00:00",
+      "cli_exit": 0,
+      "outcome": "Completed"
+    }
+  ],
+  "maximum_attempts": 2,
+  "timeout_seconds": 180,
+  "tool_rounds": 4,
+  "binary_sha256": "d01f2498f3135ca15cd103a3f61bd5b63c3180b3a4e8f279b322e8e8688114e9",
+  "fixtures": {
+    "original": "# Synthetic harbor — Õhtu 🌊\n\nUnrelated opening: café, Tallinn and 東京 stay exactly as written.\n\nThe unique harbor marker is cobalt boats beside pier 73.\n\nUnrelated closing: naïve sailors keep the green ledger.\n",
+    "expected": "# Synthetic harbor — Õhtu 🌊\n\nUnrelated opening: café, Tallinn and 東京 stay exactly as written.\n\nThe unique harbor marker is teal boats beside pier 73.\n\nUnrelated closing: naïve sailors keep the green ledger.\n",
+    "sentinel": "# Separate sentinel 🧭\n\nNever alter this: hõbe, 雪, 314159.\n"
+  },
+  "hashes": {
+    "original": "4b4e108c7b8ff47b3fb77ff657ad3e76d193865c324cce629bd64af8dd5a5cc3",
+    "expected": "01d162b02bcf7e9a144cf8b15312a751eb39925e515f704c985017c5d8ef0c4c",
+    "sentinel": "cd3d723982810020b572aa364d7004f935155f45c3a3aef02de07cffbfbfed91"
+  },
+  "gates": {
+    "preparation": "PASS",
+    "live_transport": "Completed",
+    "candidate": "PASS",
+    "apply": "PASS",
+    "restart_read": "PASS",
+    "undo_restart": "PASS",
+    "keyed_undo_replay": "PASS",
+    "sentinel": "PASS"
+  },
+  "target": "53c58c0e-081e-4a83-b276-8f3d153c3c6a:0",
+  "sentinel": "e1253c73-f329-468b-ad39-272ab1a2a5f1:0",
+  "thread": "f2344a48-9330-4cf8-876f-983537b83a85:0",
+  "prompt": "In saved Note 53c58c0e-081e-4a83-b276-8f3d153c3c6a:0, replace only the unique exact phrase 'cobalt boats' with 'teal boats'. Read the current Note, locate that exact passage and prepare a precise edit candidate for review. Preserve all other bytes, Unicode, paragraphs and metadata. Do not apply it or change any other record. Report the prepared candidate.",
+  "allowance_before": {
+    "ordinaryUsageAllowed": true,
+    "primary_used_percent": 92,
+    "remaining_percent": 8,
+    "reset_unix": 1793294744,
+    "secondary": "unavailable"
+  },
+  "admission": {
+    "observed_at": "2026-10-23T13:31:51.488920+00:00",
+    "approved_model_catalogue": "gpt-6.1-sol supports medium",
+    "login": "Logged in using ChatGPT",
+    "initial_live_requests_allowed": 1,
+    "retry": "Only after a concrete cause and correction; not automatic",
+    "floor_remaining_percent": 5,
+    "native_control_used": false
+  },
+  "harness_pre_correction_sha256": "781746d596fc1ba12848598e5b36f3667f1e4370ae4f363f773724fd0ad758d6",
+  "harness_correction": {
+    "original_failure": "TypeError at candidates result: list indices must be integers or slices, not str",
+    "cause": "Unpaged candidates returns list; paged candidates returns object",
+    "impact": "Live ask completed, both after-ask Note reads passed; no Apply executed",
+    "recovery": "Resume read-only inspection; do not repeat ask"
+  },
+  "allowance_after": {
+    "ordinaryUsageAllowed": true,
+    "primary_used_percent": 92,
+    "remaining_percent": 8,
+    "reset_unix": 1793294744,
+    "secondary": "unavailable"
+  },
+  "candidate_operations": [
+    "fd8b7b0e-0e4f-4068-9900-c44329d2b89c"
+  ],
+  "candidate_review": "PASS",
+  "evidence_redaction": "Independent review located configured auth path in delegation Settings receipt. Recursive path redaction applied before publication; no token/auth values were recorded. Original local synthetic receipt stays outside Git.",
+  "status": "closed_after_one_successful_attempt",
+  "additional_model_requests_authorized_by_record": false
+}

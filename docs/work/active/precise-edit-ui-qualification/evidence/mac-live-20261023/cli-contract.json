@@ -1,0 +1,366 @@
+{
+  "contract": 3,
+  "full_contract_sha256": "a7e7a576ce58efe42f7d946906e322777da13922e8a848b4cc54d029c4f919a0",
+  "commands": [
+    {
+      "name": "candidates",
+      "alias_of": null,
+      "options": [
+        "limit",
+        "cursor"
+      ],
+      "required": [],
+      "required_when": [],
+      "key": false,
+      "owner_decision": false,
+      "owner_decision_options": [],
+      "retry": {
+        "default": "read",
+        "keyed": null,
+        "variants": []
+      },
+      "outcomes": [],
+      "page": {
+        "limit": {
+          "min": 1,
+          "max": 100,
+          "default": 20
+        },
+        "cursor": "rowid"
+      },
+      "bounded": false,
+      "bounded_form": "candidates --limit N [--cursor C]",
+      "values": [
+        {
+          "option": "limit",
+          "grammar": "integer",
+          "min": 1,
+          "max": 100
+        },
+        {
+          "option": "cursor",
+          "grammar": "cursor",
+          "form": "rowid"
+        }
+      ],
+      "key_requires": null,
+      "summary": "List unapplied candidates (or one page with --limit).",
+      "example": "brn --json --data-dir DIR candidates --limit 5",
+      "note": null,
+      "owner_decision_when": [],
+      "needs": []
+    },
+    {
+      "name": "read",
+      "alias_of": null,
+      "options": [
+        "id",
+        "limit",
+        "cursor"
+      ],
+      "required": [
+        "id"
+      ],
+      "required_when": [],
+      "key": false,
+      "owner_decision": false,
+      "owner_decision_options": [],
+      "retry": {
+        "default": "read",
+        "keyed": null,
+        "variants": []
+      },
+      "outcomes": [
+        "Read",
+        "Stale"
+      ],
+      "page": {
+        "limit": {
+          "min": 1,
+          "max": 131072,
+          "default": null
+        },
+        "cursor": "version.start"
+      },
+      "bounded": false,
+      "bounded_form": "read --id ID --limit BYTES [--cursor VERSION.START]",
+      "values": [
+        {
+          "option": "limit",
+          "grammar": "integer",
+          "min": 1,
+          "max": 131072
+        },
+        {
+          "option": "cursor",
+          "grammar": "cursor",
+          "form": "version.start"
+        }
+      ],
+      "key_requires": null,
+      "summary": "Print one record, or a bounded slice of a note with --limit.",
+      "example": "brn --json --data-dir DIR read --id N --limit 65536",
+      "note": null,
+      "owner_decision_when": [],
+      "needs": [
+        {
+          "option": "cursor",
+          "needs": "limit"
+        }
+      ]
+    },
+    {
+      "name": "apply",
+      "alias_of": null,
+      "options": [
+        "operation"
+      ],
+      "required": [
+        "operation"
+      ],
+      "required_when": [],
+      "key": false,
+      "owner_decision": true,
+      "owner_decision_options": [],
+      "retry": {
+        "default": "replay",
+        "keyed": null,
+        "variants": []
+      },
+      "outcomes": [
+        "Applied",
+        "Stale",
+        "Deferred",
+        "NeedsReview",
+        "Superseded"
+      ],
+      "page": null,
+      "bounded": null,
+      "bounded_form": null,
+      "values": [],
+      "key_requires": null,
+      "summary": "Apply one exact reviewed candidate.",
+      "example": "brn --json --data-dir DIR apply --operation OP",
+      "note": null,
+      "owner_decision_when": [],
+      "needs": []
+    },
+    {
+      "name": "undo",
+      "alias_of": null,
+      "options": [
+        "operation",
+        "key"
+      ],
+      "required": [
+        "operation"
+      ],
+      "required_when": [],
+      "key": true,
+      "owner_decision": true,
+      "owner_decision_options": [],
+      "retry": {
+        "default": "duplicate",
+        "keyed": "replay",
+        "variants": []
+      },
+      "outcomes": [
+        "Applied",
+        "Stale",
+        "Deferred",
+        "NeedsReview",
+        "Superseded"
+      ],
+      "page": null,
+      "bounded": null,
+      "bounded_form": null,
+      "values": [],
+      "key_requires": null,
+      "summary": "Undo an applied operation with a compensating change.",
+      "example": "brn --json --data-dir DIR undo --operation OP --key undo-1",
+      "note": null,
+      "owner_decision_when": [],
+      "needs": []
+    },
+    {
+      "name": "ask",
+      "alias_of": null,
+      "options": [
+        "thread",
+        "prompt",
+        "budget",
+        "edit-note",
+        "base",
+        "record-decision",
+        "trace",
+        "prompt-file",
+        "mcp-tool",
+        "mcp-input"
+      ],
+      "required": [
+        "thread",
+        "prompt"
+      ],
+      "required_when": [],
+      "key": false,
+      "owner_decision": false,
+      "owner_decision_options": [
+        "edit-note",
+        "record-decision",
+        "mcp-tool"
+      ],
+      "retry": {
+        "default": "duplicate",
+        "keyed": null,
+        "variants": []
+      },
+      "outcomes": [
+        "Completed",
+        "Interrupted",
+        "Failed"
+      ],
+      "page": null,
+      "bounded": null,
+      "bounded_form": null,
+      "values": [
+        {
+          "option": "base",
+          "grammar": "integer",
+          "min": 0,
+          "max": 18446744073709551615
+        },
+        {
+          "option": "budget",
+          "grammar": "integer",
+          "min": 1,
+          "max": 32
+        }
+      ],
+      "key_requires": null,
+      "summary": "Run one model turn in a chat. Optional --mcp-tool and --mcp-input explicitly authorize one exact transient input after the one durable prepare; they are never inherited on Continue.",
+      "example": "brn --json --data-dir DIR --timeout 600 ask --thread CHAT --prompt-file /abs/prompt.md",
+      "note": null,
+      "owner_decision_when": [],
+      "needs": []
+    },
+    {
+      "name": "configure",
+      "alias_of": null,
+      "options": [
+        "provider",
+        "model",
+        "effort",
+        "auth-file",
+        "credentials-dir",
+        "helper",
+        "helper-provider",
+        "helper-model",
+        "helper-effort",
+        "helper-auth-file",
+        "helper-credentials-dir"
+      ],
+      "required": [
+        "provider",
+        "model",
+        "effort"
+      ],
+      "required_when": [],
+      "key": false,
+      "owner_decision": true,
+      "owner_decision_options": [],
+      "retry": {
+        "default": "converge",
+        "keyed": null,
+        "variants": []
+      },
+      "outcomes": [
+        "Applied",
+        "Stale",
+        "Deferred",
+        "NeedsReview",
+        "Superseded"
+      ],
+      "page": null,
+      "bounded": null,
+      "bounded_form": null,
+      "values": [
+        {
+          "option": "provider",
+          "grammar": "enum",
+          "values": [
+            "codex",
+            "chatgpt",
+            "copilot"
+          ],
+          "ignore_case": true
+        },
+        {
+          "option": "helper-provider",
+          "grammar": "enum",
+          "values": [
+            "codex",
+            "chatgpt",
+            "copilot"
+          ],
+          "ignore_case": true
+        },
+        {
+          "option": "effort",
+          "grammar": "enum",
+          "values": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "ignore_case": false
+        },
+        {
+          "option": "helper-effort",
+          "grammar": "enum",
+          "values": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "ignore_case": false
+        }
+      ],
+      "key_requires": null,
+      "summary": "Choose the provider, model, effort and credentials.",
+      "example": "brn --json --data-dir DIR configure --provider Codex --model ID --effort medium --auth-file /abs/auth.json",
+      "note": null,
+      "owner_decision_when": [],
+      "needs": []
+    }
+  ],
+  "global_options": [
+    {
+      "option": "data-dir",
+      "value": "ABSOLUTE_DIRECTORY",
+      "required": true,
+      "position": "anywhere in an option-name position"
+    },
+    {
+      "option": "timeout",
+      "value": "SECONDS",
+      "grammar": {
+        "grammar": "integer",
+        "min": 1,
+        "max": 86400
+      },
+      "required": false,
+      "position": "anywhere in an option-name position"
+    },
+    {
+      "option": "actor",
+      "value": "NAME",
+      "env": "BRN_ACTOR",
+      "grammar": {
+        "grammar": "pattern",
+        "pattern": "^[A-Za-z0-9._:-]{1,64}$"
+      },
+      "required": false,
+      "position": "anywhere in an option-name position"
+    }
+  ]
+}

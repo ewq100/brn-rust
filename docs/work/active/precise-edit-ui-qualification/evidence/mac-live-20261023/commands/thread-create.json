@@ -1,0 +1,51 @@
+{
+  "command": [
+    "thread-start",
+    "--title",
+    "One precise synthetic edit"
+  ],
+  "exit": 0,
+  "result": {
+    "contract": 3,
+    "command": "thread-start",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": "Applied",
+    "operation": "f2344a48-9330-4cf8-876f-983537b83a85",
+    "key": null,
+    "retry": "duplicate",
+    "changed": [
+      {
+        "id": "f2344a48-9330-4cf8-876f-983537b83a85:0",
+        "kind": "Thread",
+        "version": 1,
+        "archived": false,
+        "created": true
+      }
+    ],
+    "conflict": null,
+    "result": {
+      "id": "f2344a48-9330-4cf8-876f-983537b83a85:0",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Thread": {
+          "title": "One precise synthetic edit",
+          "state": "Open",
+          "attention": []
+        }
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "elapsed_seconds": 0.006
+}

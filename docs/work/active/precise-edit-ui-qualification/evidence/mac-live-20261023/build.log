@@ -1,0 +1,75 @@
+   Compiling syn v3.0.6
+   Compiling synstructure v0.14.0
+   Compiling zerofrom-derive v0.1.8
+   Compiling zerofrom v0.1.8
+   Compiling yoke-derive v0.8.3
+   Compiling yoke v0.8.3
+   Compiling zerovec-derive v0.11.6
+   Compiling futures-macro v0.3.34
+   Compiling futures-util v0.3.34
+   Compiling zerovec v0.11.8
+   Compiling displaydoc v0.2.7
+   Compiling tokio-macros v2.7.2
+   Compiling tokio v1.53.3
+   Compiling tinystr v0.8.4
+   Compiling indexmap v2.14.2
+   Compiling icu_locale_core v2.3.0
+   Compiling zerotrie v0.2.5
+   Compiling potential_utf v0.1.6
+   Compiling icu_collections v2.3.0
+   Compiling icu_provider v2.3.1
+   Compiling serde_derive v1.0.229
+   Compiling serde v1.0.229
+   Compiling icu_normalizer v2.3.0
+   Compiling icu_properties v2.3.0
+   Compiling idna_adapter v1.2.2
+   Compiling serde_json v1.0.154
+   Compiling tokio-util v0.7.19
+   Compiling h2 v0.4.19
+   Compiling idna v1.1.0
+   Compiling thiserror-impl v2.0.21
+   Compiling thiserror v2.0.21
+   Compiling url v2.5.8
+   Compiling hyper v1.11.1
+   Compiling futures-executor v0.3.34
+   Compiling tower v0.5.3
+   Compiling hyper-util v0.1.21
+   Compiling futures v0.3.34
+   Compiling tokio-rustls v0.26.5
+   Compiling hyper-rustls v0.27.10
+   Compiling tower-http v0.6.11
+   Compiling ref-cast-impl v1.0.27
+   Compiling serde_derive_internals v0.30.0
+   Compiling schemars_derive v1.2.3
+   Compiling ref-cast v1.0.27
+   Compiling reqwest v0.13.5
+   Compiling chrono v0.4.45
+   Compiling darling_core v0.24.1
+   Compiling rig-http v0.45.0
+   Compiling schemars v1.2.3
+   Compiling webpki-root-certs v1.0.10
+   Compiling rig-reqwest v0.45.0
+   Compiling rig-derive v0.45.0
+   Compiling darling_macro v0.24.1
+   Compiling serde_path_to_error v0.1.20
+   Compiling httpdate v1.0.3
+   Compiling rig-core v0.45.0
+   Compiling darling v0.24.1
+   Compiling rmcp v3.5.0
+   Compiling rmcp-macros v3.5.0
+   Compiling sse-stream v0.2.6
+   Compiling tokio-stream v0.1.19
+   Compiling tracing-futures v0.2.5
+   Compiling rig-memory v0.45.0
+   Compiling rig-agent v0.45.0
+   Compiling brn-intake v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-intake)
+   Compiling rig-rmcp v0.45.0
+   Compiling rig-harness-protocol v0.45.0
+   Compiling rig v0.45.0
+   Compiling brn-threads-intake v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-threads-intake)
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-threads-core)
+   Compiling brn-retrieval v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-retrieval)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-threads-app)
+   Compiling brn v0.0.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn)
+    Finished `dev` profile [unoptimized] target(s) in 50.67s

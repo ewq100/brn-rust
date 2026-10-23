@@ -1,0 +1,88 @@
+{
+  "command": [
+    "delegation",
+    "--choice",
+    "review-first"
+  ],
+  "exit": 0,
+  "result": {
+    "contract": 3,
+    "command": "delegation",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": "Applied",
+    "operation": "ce0bd33e-25fa-4446-9f8d-3e402a2ba909",
+    "key": null,
+    "retry": "converge",
+    "changed": [
+      {
+        "id": "8fd7bfbb-c0eb-4dc7-8e54-a5f7db2ef6c8:0",
+        "kind": "Settings",
+        "version": 3,
+        "archived": false,
+        "created": false
+      }
+    ],
+    "conflict": null,
+    "result": {
+      "outcome": "Applied",
+      "receipt": {
+        "operation": "ce0bd33e-25fa-4446-9f8d-3e402a2ba909",
+        "request_hash": "d0cb7d80153504161bda3a2c51de327d2944dab5f137dec87ee671932e876dfc",
+        "reason": "Owner configured workspace and stopped prior invocations",
+        "writes": [
+          {
+            "before": {
+              "id": "8fd7bfbb-c0eb-4dc7-8e54-a5f7db2ef6c8:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": "EXISTING_AUTH_LOCATION",
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            },
+            "after": {
+              "id": "8fd7bfbb-c0eb-4dc7-8e54-a5f7db2ef6c8:0",
+              "version": 3,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": "EXISTING_AUTH_LOCATION",
+                  "credentials_dir": null,
+                  "maintenance": true,
+                  "review_first": true,
+                  "delegation_chosen": true
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner delegation choice",
+        "committed_at": "2026-10-23T13:31:22.873Z",
+        "undo_of": null,
+        "needs_refresh": []
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "elapsed_seconds": 0.006
+}

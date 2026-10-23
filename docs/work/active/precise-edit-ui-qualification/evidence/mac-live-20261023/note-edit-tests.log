@@ -1,0 +1,59 @@
+   Compiling tokio v1.53.3
+   Compiling indexmap v2.14.2
+   Compiling tokio-util v0.7.19
+   Compiling h2 v0.4.19
+   Compiling serde_json v1.0.154
+   Compiling hyper v1.11.1
+   Compiling hyper-util v0.1.21
+   Compiling tower v0.5.3
+   Compiling tokio-rustls v0.26.5
+   Compiling hyper-rustls v0.27.10
+   Compiling tower-http v0.6.11
+   Compiling schemars_derive v1.2.3
+   Compiling reqwest v0.13.5
+   Compiling schemars v1.2.3
+   Compiling darling_core v0.24.1
+   Compiling rig-http v0.45.0
+   Compiling webpki-root-certs v1.0.10
+   Compiling rig-reqwest v0.45.0
+   Compiling darling_macro v0.24.1
+   Compiling serde_path_to_error v0.1.20
+   Compiling rig-core v0.45.0
+   Compiling darling v0.24.1
+   Compiling rmcp v3.5.0
+   Compiling rmcp-macros v3.5.0
+   Compiling tokio-stream v0.1.19
+   Compiling rig-memory v0.45.0
+   Compiling rig-agent v0.45.0
+   Compiling brn-intake v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-intake)
+   Compiling rig-rmcp v0.45.0
+   Compiling rig-harness-protocol v0.45.0
+   Compiling axum v0.8.9
+   Compiling rig v0.45.0
+   Compiling brn-threads-intake v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-threads-intake)
+   Compiling brn-threads-core v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/Users/evokessler/.codex/worktrees/precise-edit-live-mac/brn-rust/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 3m 20s
+     Running unittests src/lib.rs (/Users/evokessler/.codex/worktrees/vacation-hardening/brn-rust/target/debug/deps/brn_ai-f970c0a76e8ed480)
+
+running 17 tests
+test threads::note_edit_tests::legacy_range_serialization_and_fingerprint_match_independent_base_golden ... ok
+test threads::note_edit_tests::bound_arguments_conflict_even_before_prepare_and_after_success ... ok
+test threads::note_edit_tests::local_candidate_cannot_refresh_into_unread_whole_replacement ... ok
+test threads::note_edit_tests::full_range_requires_whole_read_and_known_base_promotes_after_local_apply ... ok
+test threads::note_edit_tests::dirty_writing_defers_then_saved_owner_text_stales_local_candidate ... ok
+test threads::note_edit_tests::malformed_local_edit_skips_valid_sibling_before_bounded_correction ... ok
+test threads::note_edit_tests::outside_private_scope_refuses_and_in_scope_local_edit_preserves_private_visibility ... ok
+test threads::note_edit_tests::rig_typed_adapter_rejects_each_missing_nullable_key_before_effects ... ok
+test threads::note_edit_tests::repeated_unicode_passage_changes_only_exact_occurrence_and_allows_deletion ... ok
+test threads::note_edit_tests::review_first_local_edit_remains_pending_and_conflicting_undo_preserves_later_work ... ok
+test threads::note_edit_tests::nullable_offsets_are_required_and_unique_full_note_quote_keeps_full_read_guard ... ok
+test threads::note_edit_tests::unique_quote_uses_exact_current_note_bytes_and_refuses_missing_or_overlapping_matches ... ok
+test threads::note_edit_tests::wrong_text_nonboundary_unicode_invalid_range_and_stale_base_never_mutate_or_relocate ... ok
+test threads::note_edit_tests::protected_local_edit_needs_exact_review_or_scoped_owner_instruction_and_undo_is_checked ... ok
+test threads::note_edit_tests::actual_provider_history_schema_tool_dispatch_and_frozen_rewrite_agree ... ok
+test threads::note_edit_tests::actual_http_provider_routes_dispatch_unique_quote_with_required_nullable_offsets ... ok
+test threads::note_edit_tests::large_note_local_edit_preserves_exact_bytes_metadata_and_incomplete_coverage_on_replay_continue ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 489 filtered out; finished in 0.23s
+
