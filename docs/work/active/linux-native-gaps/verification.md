@@ -19,7 +19,7 @@ python3 scripts/check-provider-retirement.py
 python3 scripts/check-intake-retirement.py
 ```
 
-Final logs: [desktop tests](evidence/checks/desktop-tests-final.log),
+Initial 0.7.3 logs: [desktop tests](evidence/checks/desktop-tests-final.log),
 [native build](evidence/checks/native-build.log),
 [strict Clippy](evidence/checks/clippy.log). The ignored test remains ignored;
 this batch does not change its status. No Windows or macOS execution, full
@@ -55,3 +55,8 @@ menu/Project journeys. File chooser actions remain denied as described in
 [file workflows](file-workflows.md); do not retry that denial without new authority.
 
 Tracked logs trim terminal trailing whitespace only; [normalization hashes](evidence/log-normalization.json) distinguish raw from tracked bytes. The Connections receipt retains original recording-log hashes.
+
+For the current 0.8.0 results, see [upgrade qualification and logs](gpui08.md).
+Also run `cargo test -p brn-writing-ui --features native-test-support --locked --offline --jobs 1`;
+the current strict Clippy run selected both `-p brn-desktop -p brn-writing-ui`.
+Toolkit tests are separate from the actual native observations in that record.

@@ -1,5 +1,9 @@
 # Linux accessibility: source diagnosis and verification
 
+This records the initial 0.7.3 batch. The subsequent authorized
+[0.8.0 qualification](gpui08.md) supersedes the dependency-decision status below,
+fixes toolkit disabled-node metadata and retains the Unix translation caveat.
+
 Observation date: 2026-10-23. Base: merged main
 `7b416591275f2552823cb18fe357f5a20617168a`; local work branch:
 `codex/linux-native-gaps-20261023`. These findings distinguish toolkit metadata,

@@ -147,3 +147,9 @@ change credential-path tests, validation or host permissions. Keep conversion
 AI off and choose full-note import for offline verification. The
 [next batch evidence](../work/active/linux-native-gaps/README.md) records exact
 results, source revisions, upstream accessibility gaps and remaining blockers.
+
+The current branch qualifies released GPUI Kit 0.8.0 on the unchanged pre 0.3.9
+backend. See [the upgrade evidence](../work/active/linux-native-gaps/gpui08.md):
+upstream disabled-node metadata is fixed, while Linux AT-SPI enabled/sensitive
+translation still needs a compatible correction. Do not infer full accessibility
+acceptance or unreleased focus fixes from the version number.

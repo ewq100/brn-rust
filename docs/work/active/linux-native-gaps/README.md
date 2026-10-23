@@ -11,8 +11,9 @@ Windows expansion, credentials, persistent remote access or release occurred.
 - [Accessibility](accessibility.md): implemented named actionable Project rows
   and one shared bridge exposing existing dropdown activation to AT-SPI. Actual
   Project selection and menu Click/pointer/Enter/Space/Escape passed. Disabled
-  metadata remains unpassed: two upstream layers need correction. Dependency
-  changes are paused for the parent's package audit; Cargo manifests/lock unchanged.
+  state translation remains unpassed. The subsequently authorized
+  [GPUI Kit 0.8.0 qualification](gpui08.md) fixes toolkit disabled-node metadata
+  through upstream code; the existing Unix translator still reports enabled/sensitive.
 - [Connections](connections.md): ordinary native recordings show immediate private
   neighbor retirement while the replacement view is pending, followed by settled
   Unlink and exact Undo. Repeated retirement and restored membership verified;
@@ -28,8 +29,9 @@ See [exact commands and retained logs](verification.md).
 
 ## Validation and review
 
-Final source checks: desktop native-test-support suite **352 passed, 0 failed,
-1 ignored**; production native-ui build passed; all-target strict Clippy passed;
+Final source checks after GPUI Kit 0.8.0: desktop native-test-support suite
+**352 passed, 0 failed, 1 ignored**; writing UI **44 unit + 12 toolkit host tests passed**;
+production native-ui build passed; all-target strict Clippy passed;
 formatting, diff whitespace, Markdown links, generated overview, provider and
 intake retirement checks passed. Earlier helper compilation and blanket row-role
 failures were corrected and the complete desktop suite rerun. Relevant menu,
@@ -43,9 +45,9 @@ was triggered because this branch has not been published.
 
 ## Remaining actions, in order
 
-1. Resolve the two disabled-state dependency layers: assess GPUI Kit0.8.0 adoption
-   and compatible AccessKit state-translation correction with the parent. Do not
-   treat the Kit upgrade alone as Linux disabled-state acceptance.
+1. Assess a compatible upstream AccessKit state-translation correction with the
+   parent. GPUI Kit 0.8.0 adoption is qualified locally; it does not alone establish
+   Linux disabled-state acceptance. Keep maintenance and Rig migrations isolated.
 2. Resolve legitimate portal caller-inspection access before native file-picker
    tests. Exact denied action: `org.freedesktop.portal.FileChooser.OpenFile` for
    this task's BRN; reason: unable to open `/proc/19341/root`. No file selection

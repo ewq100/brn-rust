@@ -371,6 +371,13 @@ fn native_inactive_project_skill_rows_are_unavailable_without_rejected_enable_ch
                 .find("skill-enable-installed:inactive-inventory-review")
                 .visible()
         );
+        assert_eq!(
+            window
+                .find("skill-enable-installed:inactive-inventory-review")
+                .disabled(),
+            Some(true),
+            "unavailable skill actions must expose disabled control metadata"
+        );
         window.click("skill-enable-installed:inactive-inventory-review", cx);
     })
     .unwrap();

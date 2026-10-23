@@ -1,0 +1,1752 @@
+{
+  "records": {
+    "contract": 3,
+    "command": "records",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [
+      {
+        "id": "0068d158-22d8-4ac5-9974-61a646de90cf:0",
+        "version": 3,
+        "archived": false,
+        "data": {
+          "Settings": {
+            "provider": "Codex",
+            "model": "gpt-6.1-sol",
+            "effort": "medium",
+            "auth_file": null,
+            "credentials_dir": null,
+            "maintenance": false,
+            "review_first": false
+          }
+        }
+      },
+      {
+        "id": "16cfc3a5-b960-4839-b147-d8b2d8d24186:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Source": {
+            "locator": "/tmp/brn-linux-files-20261023/synthetic.txt",
+            "label": "Synthetic txt",
+            "observed_at": "Unix seconds 1792720979",
+            "external_version": "ef578b8ba51e55d3dd498ecd6c6457941b7afc06e71c40ad6077ec2c526f8e03",
+            "outcome": "Unchecked",
+            "gaps": [],
+            "report": {
+              "conversion": {
+                "settings": {
+                  "converter": "xberg",
+                  "ai": false
+                },
+                "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+              },
+              "status": "Unchecked",
+              "issues": []
+            }
+          }
+        }
+      },
+      {
+        "id": "16cfc3a5-b960-4839-b147-d8b2d8d24186:1",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Synthetic txt",
+            "markdown": "Synthetic plain text \u2014 caf\u00e9.\n",
+            "protected": true,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": {
+              "source": "16cfc3a5-b960-4839-b147-d8b2d8d24186:0",
+              "full_note": true,
+              "gaps": [],
+              "report": {
+                "conversion": {
+                  "settings": {
+                    "converter": "xberg",
+                    "ai": false
+                  },
+                  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                },
+                "status": "Unchecked",
+                "issues": []
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "16cfc3a5-b960-4839-b147-d8b2d8d24186:2",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Link": {
+            "from": "16cfc3a5-b960-4839-b147-d8b2d8d24186:1",
+            "to": "16cfc3a5-b960-4839-b147-d8b2d8d24186:0",
+            "relation": "full-import:ef578b8ba51e55d3dd498ecd6c6457941b7afc06e71c40ad6077ec2c526f8e03"
+          }
+        }
+      },
+      {
+        "id": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+        "version": 2,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Backup sentinel",
+            "markdown": "Unsaved restore recovery \u2014 caf\u00e9 \u03bb.",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      },
+      {
+        "id": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Source": {
+            "locator": "/workspace/brn-rust/crates/brn-intake/tests/fixtures/textual.html",
+            "label": "Synthetic html",
+            "observed_at": "Unix seconds 1792720979",
+            "external_version": "04973e04d349c4415c5d89a97d754650f94a3128de0a35fd4044eaf5a2c7c1f5",
+            "outcome": "Unchecked",
+            "gaps": [],
+            "report": {
+              "conversion": {
+                "settings": {
+                  "converter": "xberg",
+                  "ai": false
+                },
+                "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+              },
+              "status": "Unchecked",
+              "issues": []
+            }
+          }
+        }
+      },
+      {
+        "id": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:1",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Synthetic html",
+            "markdown": "# Tide observations\n\nSynthetic public fixture about *Gezeitenstr\u00f6me* and **\u6f6e**, see [station notes](https://example.test/notes#tides).\n\n## Readings\n\n- morning high\n- evening low\n\n> Readings are provisional.\n\n```\nlevel = 3.2\n```\n\nLast line.\n",
+            "protected": true,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": {
+              "source": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:0",
+              "full_note": true,
+              "gaps": [],
+              "report": {
+                "conversion": {
+                  "settings": {
+                    "converter": "xberg",
+                    "ai": false
+                  },
+                  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                },
+                "status": "Unchecked",
+                "issues": []
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:2",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Link": {
+            "from": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:1",
+            "to": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:0",
+            "relation": "full-import:04973e04d349c4415c5d89a97d754650f94a3128de0a35fd4044eaf5a2c7c1f5"
+          }
+        }
+      },
+      {
+        "id": "69155793-b4cb-4768-bfe0-9c02a0765a20:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Source": {
+            "locator": "/workspace/brn-rust/crates/brn-intake/tests/fixtures/harbor.docx",
+            "label": "Synthetic docx",
+            "observed_at": "Unix seconds 1792720947",
+            "external_version": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85",
+            "outcome": "Unchecked",
+            "gaps": [
+              "document: image 0: SDK returned no retained image bytes",
+              "document: image 1: SDK returned no retained image bytes",
+              "document: SDK Markdown contains image references without retained bytes; external content was not fetched"
+            ],
+            "report": {
+              "conversion": {
+                "settings": {
+                  "converter": "xberg",
+                  "ai": false
+                },
+                "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+              },
+              "status": "Unchecked",
+              "issues": [
+                {
+                  "kind": "Limitation",
+                  "locator": "document",
+                  "detail": "image 0: SDK returned no retained image bytes"
+                },
+                {
+                  "kind": "Limitation",
+                  "locator": "document",
+                  "detail": "image 1: SDK returned no retained image bytes"
+                },
+                {
+                  "kind": "Limitation",
+                  "locator": "document",
+                  "detail": "SDK Markdown contains image references without retained bytes; external content was not fetched"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": "69155793-b4cb-4768-bfe0-9c02a0765a20:1",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Synthetic docx",
+            "markdown": "# Harbor water-saving pilot\n\nDecision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration.\n\n| Site | Before | After |\n| --- | --- | --- |\n| Pier A | 120 L/day | 72 L/day |\n| Pier B | Pending | Pending |\n\nWater use before and after\n\n![120 to 72 litres/day, a 40% reduction](media/image1.png)\n\nSame chart for operations handoff\n\n![120 to 72 litres/day, a 40% reduction](media/image1.png)\n",
+            "protected": true,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": {
+              "source": "69155793-b4cb-4768-bfe0-9c02a0765a20:0",
+              "full_note": true,
+              "gaps": [
+                "document: image 0: SDK returned no retained image bytes",
+                "document: image 1: SDK returned no retained image bytes",
+                "document: SDK Markdown contains image references without retained bytes; external content was not fetched"
+              ],
+              "report": {
+                "conversion": {
+                  "settings": {
+                    "converter": "xberg",
+                    "ai": false
+                  },
+                  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                },
+                "status": "Unchecked",
+                "issues": [
+                  {
+                    "kind": "Limitation",
+                    "locator": "document",
+                    "detail": "image 0: SDK returned no retained image bytes"
+                  },
+                  {
+                    "kind": "Limitation",
+                    "locator": "document",
+                    "detail": "image 1: SDK returned no retained image bytes"
+                  },
+                  {
+                    "kind": "Limitation",
+                    "locator": "document",
+                    "detail": "SDK Markdown contains image references without retained bytes; external content was not fetched"
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "69155793-b4cb-4768-bfe0-9c02a0765a20:2",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Link": {
+            "from": "69155793-b4cb-4768-bfe0-9c02a0765a20:1",
+            "to": "69155793-b4cb-4768-bfe0-9c02a0765a20:0",
+            "relation": "full-import:46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+          }
+        }
+      },
+      {
+        "id": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Source": {
+            "locator": "/workspace/brn-rust/crates/brn-threads-intake/tests/fixtures/harbor-study.pdf",
+            "label": "Synthetic pdf",
+            "observed_at": "Unix seconds 1792720947",
+            "external_version": "f5739675823b6900a212bdd10e27423f7fc29038c03fb7d103fa78430abd3fe0",
+            "outcome": "Unchecked",
+            "gaps": [],
+            "report": {
+              "conversion": {
+                "settings": {
+                  "converter": "xberg",
+                  "ai": false
+                },
+                "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+              },
+              "status": "Unchecked",
+              "issues": []
+            }
+          }
+        }
+      },
+      {
+        "id": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:1",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Synthetic pdf",
+            "markdown": "# Harbor handoff study\n\n## 1\\. Purpose\n\nThis synthetic study compares two inspection routes over six weekday trials. The observations describe this sample only; weather and staffing were held constant.\n\n## 2\\. Findings\n\nTable 1 records median elapsed time and the number of missed handoffs. Route Median (min) Missed handoffs Check first 12 1 Test first 19 3 The check-first route was faster by 7 minutes, but this is not a causal estimate.\n\nFigure 1. Gate order:\n\n- check, test, then release;\n- each gate must pass before the next.\n\n## 3\\. Limits\n\nThe trial excluded overnight operations and must not be generalized to storms.\n\n## 4\\. References\n\n- [1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3.\n- [2] Harbor Lab. Trial log, synthetic edition, 2026, entries 1-6.\n\n## Appendix A. Observation rule\n\nA missed handoff means a parcel waited more than 5 minutes after its release signal. Observers recorded one timestamp per gate and did not change the route mid-trial.\n",
+            "protected": true,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": {
+              "source": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:0",
+              "full_note": true,
+              "gaps": [],
+              "report": {
+                "conversion": {
+                  "settings": {
+                    "converter": "xberg",
+                    "ai": false
+                  },
+                  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                },
+                "status": "Unchecked",
+                "issues": []
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:2",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Link": {
+            "from": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:1",
+            "to": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:0",
+            "relation": "full-import:f5739675823b6900a212bdd10e27423f7fc29038c03fb7d103fa78430abd3fe0"
+          }
+        }
+      },
+      {
+        "id": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:0",
+        "version": 2,
+        "archived": false,
+        "data": {
+          "Source": {
+            "locator": "/tmp/brn-linux-files-20261023/synthetic.md",
+            "label": "Synthetic repeat",
+            "observed_at": "Unix seconds 1792720947",
+            "external_version": "ff0e870fbb8b86712575fc365f715e1a13211dbce3a6daf4cf1222eceb0f7ef2",
+            "outcome": "Unchecked",
+            "gaps": [],
+            "report": {
+              "conversion": {
+                "settings": {
+                  "converter": "xberg",
+                  "ai": false
+                },
+                "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+              },
+              "status": "Unchecked",
+              "issues": []
+            }
+          }
+        }
+      },
+      {
+        "id": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:1",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Imported note",
+            "markdown": "# Cloud import\n\nSynthetic caf\u00e9 \u2014 \u03bb.\n",
+            "protected": true,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": {
+              "source": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:0",
+              "full_note": true,
+              "gaps": [],
+              "report": {
+                "conversion": {
+                  "settings": {
+                    "converter": "xberg",
+                    "ai": false
+                  },
+                  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                },
+                "status": "Unchecked",
+                "issues": []
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:2",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Link": {
+            "from": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:1",
+            "to": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:0",
+            "relation": "full-import:ff0e870fbb8b86712575fc365f715e1a13211dbce3a6daf4cf1222eceb0f7ef2"
+          }
+        }
+      },
+      {
+        "id": "ad2e0c72-e5e9-4c50-a875-3076864e51d2:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "ChatControl": {
+            "queue": [],
+            "pending": null,
+            "paused": false,
+            "quiet": false
+          }
+        }
+      },
+      {
+        "id": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Source": {
+            "locator": "/workspace/brn-rust/crates/brn-intake/tests/fixtures/quay.pptx",
+            "label": "Synthetic pptx",
+            "observed_at": "Unix seconds 1792720947",
+            "external_version": "64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46",
+            "outcome": "Unchecked",
+            "gaps": [],
+            "report": {
+              "conversion": {
+                "settings": {
+                  "converter": "xberg",
+                  "ai": false
+                },
+                "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+              },
+              "status": "Unchecked",
+              "issues": []
+            }
+          }
+        }
+      },
+      {
+        "id": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:1",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Synthetic pptx",
+            "markdown": "## Dock review is pending.\n\n\\![Authored pier capacity illustration](../media/image1.png)\n\n\\![image.jpg](../media/image2.jpg)\n\n## Dock review is pending.\n\n| Pier | Owner | State |\n| --- | --- | --- |\n| A | Leena | Pending |\n\nInspect pier A\n\nbefore cargo arrival.\n\nDisplay date: 14 October\n\n\\![Authored pier capacity illustration](../media/image1.png)\n",
+            "protected": true,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": {
+              "source": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:0",
+              "full_note": true,
+              "gaps": [],
+              "report": {
+                "conversion": {
+                  "settings": {
+                    "converter": "xberg",
+                    "ai": false
+                  },
+                  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                },
+                "status": "Unchecked",
+                "issues": []
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:2",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Link": {
+            "from": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:1",
+            "to": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:0",
+            "relation": "full-import:64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46"
+          }
+        }
+      },
+      {
+        "id": "dc154ab9-1682-4aec-8fff-abf7f8989eee:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Source": {
+            "locator": "/workspace/brn-rust/crates/brn-intake/tests/fixtures/single.eml",
+            "label": "Synthetic eml-corrected",
+            "observed_at": "Unix seconds 1792720979",
+            "external_version": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82",
+            "outcome": "Unchecked",
+            "gaps": [],
+            "report": {
+              "conversion": {
+                "settings": {
+                  "converter": "xberg",
+                  "ai": false
+                },
+                "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+              },
+              "status": "Unchecked",
+              "issues": []
+            }
+          }
+        }
+      },
+      {
+        "id": "dc154ab9-1682-4aec-8fff-abf7f8989eee:1",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Synthetic eml-corrected",
+            "markdown": "**Subject**: Harbor pilot \u2013 review\n\n**From**: Mira \\<mira@example.test\\>\n\n**To**: ops@example.test\n\n**Date**: Tue, 06 Oct 2026 16:20:00 +0300\n\n**Message-ID**: harbor-single@example.test\n\nWater use fell 40%.\n\n[Image]\n\nSee attached decision.\n\nAttachments:\n\n inline-water.png (19936B)\n\n harbor.docx (55345B)\n",
+            "protected": true,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": {
+              "source": "dc154ab9-1682-4aec-8fff-abf7f8989eee:0",
+              "full_note": true,
+              "gaps": [],
+              "report": {
+                "conversion": {
+                  "settings": {
+                    "converter": "xberg",
+                    "ai": false
+                  },
+                  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                },
+                "status": "Unchecked",
+                "issues": []
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "dc154ab9-1682-4aec-8fff-abf7f8989eee:2",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Link": {
+            "from": "dc154ab9-1682-4aec-8fff-abf7f8989eee:1",
+            "to": "dc154ab9-1682-4aec-8fff-abf7f8989eee:0",
+            "relation": "full-import:47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82"
+          }
+        }
+      },
+      {
+        "id": "f623f948-a857-4467-91c2-c13e33d7cc4e:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Source": {
+            "locator": "/workspace/brn-rust/crates/brn-intake/tests/fixtures/forecast.xlsx",
+            "label": "Synthetic xlsx",
+            "observed_at": "Unix seconds 1792720947",
+            "external_version": "916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704",
+            "outcome": "Unchecked",
+            "gaps": [],
+            "report": {
+              "conversion": {
+                "settings": {
+                  "converter": "xberg",
+                  "ai": false
+                },
+                "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+              },
+              "status": "Unchecked",
+              "issues": []
+            }
+          }
+        }
+      },
+      {
+        "id": "f623f948-a857-4467-91c2-c13e33d7cc4e:1",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Synthetic xlsx",
+            "markdown": "## Sheet\n\n| Out of scope forecast | EUR |\n| --- | --- |\n| Harbor budget | 4000 |\n",
+            "protected": true,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": {
+              "source": "f623f948-a857-4467-91c2-c13e33d7cc4e:0",
+              "full_note": true,
+              "gaps": [],
+              "report": {
+                "conversion": {
+                  "settings": {
+                    "converter": "xberg",
+                    "ai": false
+                  },
+                  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                },
+                "status": "Unchecked",
+                "issues": []
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": "f623f948-a857-4467-91c2-c13e33d7cc4e:2",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Link": {
+            "from": "f623f948-a857-4467-91c2-c13e33d7cc4e:1",
+            "to": "f623f948-a857-4467-91c2-c13e33d7cc4e:0",
+            "relation": "full-import:916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704"
+          }
+        }
+      }
+    ],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "owner",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "recovery": {
+    "contract": 3,
+    "command": "recovery",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "owner",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "history": {
+    "contract": 3,
+    "command": "history",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [
+      {
+        "operation": "0068d158-22d8-4ac5-9974-61a646de90cf",
+        "request_hash": "0c9bb8fe1742d93725dfd1ea1e6baadbca8711cb34d44db398d9bdca3a080969",
+        "reason": "Initial workspace configuration",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "0068d158-22d8-4ac5-9974-61a646de90cf:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:workspace bootstrap",
+        "committed_at": "2026-10-23T01:58:49.471Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "ad2e0c72-e5e9-4c50-a875-3076864e51d2",
+        "request_hash": "eb036a2893eb94187f3275d2161e1df4a2966e0e161799907d27d4cdab81f8e0",
+        "reason": "Chat control: initialize",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "ad2e0c72-e5e9-4c50-a875-3076864e51d2:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "ChatControl": {
+                  "queue": [],
+                  "pending": null,
+                  "paused": false,
+                  "quiet": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner chat action",
+        "committed_at": "2026-10-23T01:58:49.472Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "b599bc70-971d-436d-8ede-79978f1e5858",
+        "request_hash": "bbfcc48211e332c168c3b1f8cb93ec732b467fdf813873483543d19494902f66",
+        "reason": "Owner configured workspace and stopped prior invocations",
+        "writes": [
+          {
+            "before": {
+              "id": "0068d158-22d8-4ac5-9974-61a646de90cf:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            },
+            "after": {
+              "id": "0068d158-22d8-4ac5-9974-61a646de90cf:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner maintenance pause",
+        "committed_at": "2026-10-23T01:58:49.479Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "3ae9139f-246e-4e54-8755-72d992615809",
+        "request_hash": "e7c80b1e9442dc14508b3595597a0c0165a0f889b495c58b7c24e2537779268a",
+        "reason": "Owner chose document conversion preferences",
+        "writes": [
+          {
+            "before": {
+              "id": "0068d158-22d8-4ac5-9974-61a646de90cf:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            },
+            "after": {
+              "id": "0068d158-22d8-4ac5-9974-61a646de90cf:0",
+              "version": 3,
+              "archived": false,
+              "data": {
+                "Settings": {
+                  "provider": "Codex",
+                  "model": "gpt-6.1-sol",
+                  "effort": "medium",
+                  "auth_file": null,
+                  "credentials_dir": null,
+                  "maintenance": false,
+                  "review_first": false
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner document conversion choice",
+        "committed_at": "2026-10-23T01:58:49.485Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c",
+        "request_hash": "b18bf8da1230bde52d04075c64643eb7c7334db101f83f31d7ea0000642bc819",
+        "reason": "Owner created a note",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Backup sentinel",
+                  "markdown": "Synthetic sentinel \u2014 preserve exactly.",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:owner",
+        "committed_at": "2026-10-23T01:58:49.491Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "9f90d65e-274a-4b4e-af55-38b38b5c86b2",
+        "request_hash": "ea760adcc7404ef295e5575734ffd6dbeeebf2d3934d820cd7c673c23e3fa950",
+        "reason": "Full-note import: Imported note (Unchecked)",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Source": {
+                  "locator": "/tmp/brn-linux-files-20261023/synthetic.md",
+                  "label": "Imported note",
+                  "observed_at": "Unix seconds 1792720930",
+                  "external_version": "ff0e870fbb8b86712575fc365f715e1a13211dbce3a6daf4cf1222eceb0f7ef2",
+                  "outcome": "Unchecked",
+                  "gaps": [],
+                  "report": {
+                    "conversion": {
+                      "settings": {
+                        "converter": "xberg",
+                        "ai": false
+                      },
+                      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                    },
+                    "status": "Unchecked",
+                    "issues": []
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:1",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Imported note",
+                  "markdown": "# Cloud import\n\nSynthetic caf\u00e9 \u2014 \u03bb.\n",
+                  "protected": true,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": {
+                    "source": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:0",
+                    "full_note": true,
+                    "gaps": [],
+                    "report": {
+                      "conversion": {
+                        "settings": {
+                          "converter": "xberg",
+                          "ai": false
+                        },
+                        "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                      },
+                      "status": "Unchecked",
+                      "issues": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:2",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:1",
+                  "to": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:0",
+                  "relation": "full-import:ff0e870fbb8b86712575fc365f715e1a13211dbce3a6daf4cf1222eceb0f7ef2"
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:full-note import request",
+        "committed_at": "2026-10-23T02:02:10.275Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "0a93dd24-d73d-4e32-85be-8a3333903c14",
+        "request_hash": "80c8677f6653da638bee9e217e2cb949ac810a32ddc5eb1dc90018eaa8a09283",
+        "reason": "Observed previously imported full note: Synthetic repeat",
+        "writes": [
+          {
+            "before": {
+              "id": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Source": {
+                  "locator": "/tmp/brn-linux-files-20261023/synthetic.md",
+                  "label": "Imported note",
+                  "observed_at": "Unix seconds 1792720930",
+                  "external_version": "ff0e870fbb8b86712575fc365f715e1a13211dbce3a6daf4cf1222eceb0f7ef2",
+                  "outcome": "Unchecked",
+                  "gaps": [],
+                  "report": {
+                    "conversion": {
+                      "settings": {
+                        "converter": "xberg",
+                        "ai": false
+                      },
+                      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                    },
+                    "status": "Unchecked",
+                    "issues": []
+                  }
+                }
+              }
+            },
+            "after": {
+              "id": "9f90d65e-274a-4b4e-af55-38b38b5c86b2:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Source": {
+                  "locator": "/tmp/brn-linux-files-20261023/synthetic.md",
+                  "label": "Synthetic repeat",
+                  "observed_at": "Unix seconds 1792720947",
+                  "external_version": "ff0e870fbb8b86712575fc365f715e1a13211dbce3a6daf4cf1222eceb0f7ef2",
+                  "outcome": "Unchecked",
+                  "gaps": [],
+                  "report": {
+                    "conversion": {
+                      "settings": {
+                        "converter": "xberg",
+                        "ai": false
+                      },
+                      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                    },
+                    "status": "Unchecked",
+                    "issues": []
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:full-note import request",
+        "committed_at": "2026-10-23T02:02:27.065Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d",
+        "request_hash": "c50c372effb14ef382a163292d2c8f8000ac2df8a3becf7397e483e0b559de7c",
+        "reason": "Full-note import: Synthetic pdf (Unchecked)",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Source": {
+                  "locator": "/workspace/brn-rust/crates/brn-threads-intake/tests/fixtures/harbor-study.pdf",
+                  "label": "Synthetic pdf",
+                  "observed_at": "Unix seconds 1792720947",
+                  "external_version": "f5739675823b6900a212bdd10e27423f7fc29038c03fb7d103fa78430abd3fe0",
+                  "outcome": "Unchecked",
+                  "gaps": [],
+                  "report": {
+                    "conversion": {
+                      "settings": {
+                        "converter": "xberg",
+                        "ai": false
+                      },
+                      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                    },
+                    "status": "Unchecked",
+                    "issues": []
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:1",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Synthetic pdf",
+                  "markdown": "# Harbor handoff study\n\n## 1\\. Purpose\n\nThis synthetic study compares two inspection routes over six weekday trials. The observations describe this sample only; weather and staffing were held constant.\n\n## 2\\. Findings\n\nTable 1 records median elapsed time and the number of missed handoffs. Route Median (min) Missed handoffs Check first 12 1 Test first 19 3 The check-first route was faster by 7 minutes, but this is not a causal estimate.\n\nFigure 1. Gate order:\n\n- check, test, then release;\n- each gate must pass before the next.\n\n## 3\\. Limits\n\nThe trial excluded overnight operations and must not be generalized to storms.\n\n## 4\\. References\n\n- [1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3.\n- [2] Harbor Lab. Trial log, synthetic edition, 2026, entries 1-6.\n\n## Appendix A. Observation rule\n\nA missed handoff means a parcel waited more than 5 minutes after its release signal. Observers recorded one timestamp per gate and did not change the route mid-trial.\n",
+                  "protected": true,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": {
+                    "source": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:0",
+                    "full_note": true,
+                    "gaps": [],
+                    "report": {
+                      "conversion": {
+                        "settings": {
+                          "converter": "xberg",
+                          "ai": false
+                        },
+                        "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                      },
+                      "status": "Unchecked",
+                      "issues": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:2",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:1",
+                  "to": "983c957b-e7b9-4fcd-8e1e-13aa0f81b85d:0",
+                  "relation": "full-import:f5739675823b6900a212bdd10e27423f7fc29038c03fb7d103fa78430abd3fe0"
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:full-note import request",
+        "committed_at": "2026-10-23T02:02:27.170Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "69155793-b4cb-4768-bfe0-9c02a0765a20",
+        "request_hash": "1f837a65ea89791fdbad3e9b130736b9787ddcff495ce0759609a184999cb714",
+        "reason": "Full-note import: Synthetic docx (Unchecked)",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "69155793-b4cb-4768-bfe0-9c02a0765a20:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Source": {
+                  "locator": "/workspace/brn-rust/crates/brn-intake/tests/fixtures/harbor.docx",
+                  "label": "Synthetic docx",
+                  "observed_at": "Unix seconds 1792720947",
+                  "external_version": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85",
+                  "outcome": "Unchecked",
+                  "gaps": [
+                    "document: image 0: SDK returned no retained image bytes",
+                    "document: image 1: SDK returned no retained image bytes",
+                    "document: SDK Markdown contains image references without retained bytes; external content was not fetched"
+                  ],
+                  "report": {
+                    "conversion": {
+                      "settings": {
+                        "converter": "xberg",
+                        "ai": false
+                      },
+                      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                    },
+                    "status": "Unchecked",
+                    "issues": [
+                      {
+                        "kind": "Limitation",
+                        "locator": "document",
+                        "detail": "image 0: SDK returned no retained image bytes"
+                      },
+                      {
+                        "kind": "Limitation",
+                        "locator": "document",
+                        "detail": "image 1: SDK returned no retained image bytes"
+                      },
+                      {
+                        "kind": "Limitation",
+                        "locator": "document",
+                        "detail": "SDK Markdown contains image references without retained bytes; external content was not fetched"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "69155793-b4cb-4768-bfe0-9c02a0765a20:1",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Synthetic docx",
+                  "markdown": "# Harbor water-saving pilot\n\nDecision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration.\n\n| Site | Before | After |\n| --- | --- | --- |\n| Pier A | 120 L/day | 72 L/day |\n| Pier B | Pending | Pending |\n\nWater use before and after\n\n![120 to 72 litres/day, a 40% reduction](media/image1.png)\n\nSame chart for operations handoff\n\n![120 to 72 litres/day, a 40% reduction](media/image1.png)\n",
+                  "protected": true,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": {
+                    "source": "69155793-b4cb-4768-bfe0-9c02a0765a20:0",
+                    "full_note": true,
+                    "gaps": [
+                      "document: image 0: SDK returned no retained image bytes",
+                      "document: image 1: SDK returned no retained image bytes",
+                      "document: SDK Markdown contains image references without retained bytes; external content was not fetched"
+                    ],
+                    "report": {
+                      "conversion": {
+                        "settings": {
+                          "converter": "xberg",
+                          "ai": false
+                        },
+                        "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                      },
+                      "status": "Unchecked",
+                      "issues": [
+                        {
+                          "kind": "Limitation",
+                          "locator": "document",
+                          "detail": "image 0: SDK returned no retained image bytes"
+                        },
+                        {
+                          "kind": "Limitation",
+                          "locator": "document",
+                          "detail": "image 1: SDK returned no retained image bytes"
+                        },
+                        {
+                          "kind": "Limitation",
+                          "locator": "document",
+                          "detail": "SDK Markdown contains image references without retained bytes; external content was not fetched"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "69155793-b4cb-4768-bfe0-9c02a0765a20:2",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "69155793-b4cb-4768-bfe0-9c02a0765a20:1",
+                  "to": "69155793-b4cb-4768-bfe0-9c02a0765a20:0",
+                  "relation": "full-import:46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85"
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:full-note import request",
+        "committed_at": "2026-10-23T02:02:27.278Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "f623f948-a857-4467-91c2-c13e33d7cc4e",
+        "request_hash": "6a3d317af2eadc12dc2cb6b8eff391435f801d3de0193aec47eb64615292a9af",
+        "reason": "Full-note import: Synthetic xlsx (Unchecked)",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "f623f948-a857-4467-91c2-c13e33d7cc4e:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Source": {
+                  "locator": "/workspace/brn-rust/crates/brn-intake/tests/fixtures/forecast.xlsx",
+                  "label": "Synthetic xlsx",
+                  "observed_at": "Unix seconds 1792720947",
+                  "external_version": "916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704",
+                  "outcome": "Unchecked",
+                  "gaps": [],
+                  "report": {
+                    "conversion": {
+                      "settings": {
+                        "converter": "xberg",
+                        "ai": false
+                      },
+                      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                    },
+                    "status": "Unchecked",
+                    "issues": []
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "f623f948-a857-4467-91c2-c13e33d7cc4e:1",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Synthetic xlsx",
+                  "markdown": "## Sheet\n\n| Out of scope forecast | EUR |\n| --- | --- |\n| Harbor budget | 4000 |\n",
+                  "protected": true,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": {
+                    "source": "f623f948-a857-4467-91c2-c13e33d7cc4e:0",
+                    "full_note": true,
+                    "gaps": [],
+                    "report": {
+                      "conversion": {
+                        "settings": {
+                          "converter": "xberg",
+                          "ai": false
+                        },
+                        "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                      },
+                      "status": "Unchecked",
+                      "issues": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "f623f948-a857-4467-91c2-c13e33d7cc4e:2",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "f623f948-a857-4467-91c2-c13e33d7cc4e:1",
+                  "to": "f623f948-a857-4467-91c2-c13e33d7cc4e:0",
+                  "relation": "full-import:916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704"
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:full-note import request",
+        "committed_at": "2026-10-23T02:02:27.320Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be",
+        "request_hash": "b796e6f16d5ff3d38ad9f58e1e836da9c578189b659586ed969cce911665f1f6",
+        "reason": "Full-note import: Synthetic pptx (Unchecked)",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Source": {
+                  "locator": "/workspace/brn-rust/crates/brn-intake/tests/fixtures/quay.pptx",
+                  "label": "Synthetic pptx",
+                  "observed_at": "Unix seconds 1792720947",
+                  "external_version": "64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46",
+                  "outcome": "Unchecked",
+                  "gaps": [],
+                  "report": {
+                    "conversion": {
+                      "settings": {
+                        "converter": "xberg",
+                        "ai": false
+                      },
+                      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                    },
+                    "status": "Unchecked",
+                    "issues": []
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:1",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Synthetic pptx",
+                  "markdown": "## Dock review is pending.\n\n\\![Authored pier capacity illustration](../media/image1.png)\n\n\\![image.jpg](../media/image2.jpg)\n\n## Dock review is pending.\n\n| Pier | Owner | State |\n| --- | --- | --- |\n| A | Leena | Pending |\n\nInspect pier A\n\nbefore cargo arrival.\n\nDisplay date: 14 October\n\n\\![Authored pier capacity illustration](../media/image1.png)\n",
+                  "protected": true,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": {
+                    "source": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:0",
+                    "full_note": true,
+                    "gaps": [],
+                    "report": {
+                      "conversion": {
+                        "settings": {
+                          "converter": "xberg",
+                          "ai": false
+                        },
+                        "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                      },
+                      "status": "Unchecked",
+                      "issues": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:2",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:1",
+                  "to": "bcb84a5f-f9f4-497b-8e93-2ccce5b981be:0",
+                  "relation": "full-import:64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46"
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:full-note import request",
+        "committed_at": "2026-10-23T02:02:27.378Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "dc154ab9-1682-4aec-8fff-abf7f8989eee",
+        "request_hash": "b599c03b6fe69f523170c164e6a0d14a38f0701d1da6bb1a9642859b1eb2955f",
+        "reason": "Full-note import: Synthetic eml-corrected (Unchecked)",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "dc154ab9-1682-4aec-8fff-abf7f8989eee:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Source": {
+                  "locator": "/workspace/brn-rust/crates/brn-intake/tests/fixtures/single.eml",
+                  "label": "Synthetic eml-corrected",
+                  "observed_at": "Unix seconds 1792720979",
+                  "external_version": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82",
+                  "outcome": "Unchecked",
+                  "gaps": [],
+                  "report": {
+                    "conversion": {
+                      "settings": {
+                        "converter": "xberg",
+                        "ai": false
+                      },
+                      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                    },
+                    "status": "Unchecked",
+                    "issues": []
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "dc154ab9-1682-4aec-8fff-abf7f8989eee:1",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Synthetic eml-corrected",
+                  "markdown": "**Subject**: Harbor pilot \u2013 review\n\n**From**: Mira \\<mira@example.test\\>\n\n**To**: ops@example.test\n\n**Date**: Tue, 06 Oct 2026 16:20:00 +0300\n\n**Message-ID**: harbor-single@example.test\n\nWater use fell 40%.\n\n[Image]\n\nSee attached decision.\n\nAttachments:\n\n inline-water.png (19936B)\n\n harbor.docx (55345B)\n",
+                  "protected": true,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": {
+                    "source": "dc154ab9-1682-4aec-8fff-abf7f8989eee:0",
+                    "full_note": true,
+                    "gaps": [],
+                    "report": {
+                      "conversion": {
+                        "settings": {
+                          "converter": "xberg",
+                          "ai": false
+                        },
+                        "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                      },
+                      "status": "Unchecked",
+                      "issues": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "dc154ab9-1682-4aec-8fff-abf7f8989eee:2",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "dc154ab9-1682-4aec-8fff-abf7f8989eee:1",
+                  "to": "dc154ab9-1682-4aec-8fff-abf7f8989eee:0",
+                  "relation": "full-import:47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82"
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:full-note import request",
+        "committed_at": "2026-10-23T02:02:59.273Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "2ed48cca-243a-4a1e-8dcc-f03ab285686d",
+        "request_hash": "a26cab0a7108024172965a17ebf8e10ff4d29d575678ee70a45c0705c272c12a",
+        "reason": "Full-note import: Synthetic html (Unchecked)",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Source": {
+                  "locator": "/workspace/brn-rust/crates/brn-intake/tests/fixtures/textual.html",
+                  "label": "Synthetic html",
+                  "observed_at": "Unix seconds 1792720979",
+                  "external_version": "04973e04d349c4415c5d89a97d754650f94a3128de0a35fd4044eaf5a2c7c1f5",
+                  "outcome": "Unchecked",
+                  "gaps": [],
+                  "report": {
+                    "conversion": {
+                      "settings": {
+                        "converter": "xberg",
+                        "ai": false
+                      },
+                      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                    },
+                    "status": "Unchecked",
+                    "issues": []
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:1",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Synthetic html",
+                  "markdown": "# Tide observations\n\nSynthetic public fixture about *Gezeitenstr\u00f6me* and **\u6f6e**, see [station notes](https://example.test/notes#tides).\n\n## Readings\n\n- morning high\n- evening low\n\n> Readings are provisional.\n\n```\nlevel = 3.2\n```\n\nLast line.\n",
+                  "protected": true,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": {
+                    "source": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:0",
+                    "full_note": true,
+                    "gaps": [],
+                    "report": {
+                      "conversion": {
+                        "settings": {
+                          "converter": "xberg",
+                          "ai": false
+                        },
+                        "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                      },
+                      "status": "Unchecked",
+                      "issues": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:2",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:1",
+                  "to": "2ed48cca-243a-4a1e-8dcc-f03ab285686d:0",
+                  "relation": "full-import:04973e04d349c4415c5d89a97d754650f94a3128de0a35fd4044eaf5a2c7c1f5"
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:full-note import request",
+        "committed_at": "2026-10-23T02:02:59.336Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "16cfc3a5-b960-4839-b147-d8b2d8d24186",
+        "request_hash": "b0025e1270a3ffae884922e4467c6d7ec8d2eb1ed4d73b62d5f115d81e768158",
+        "reason": "Full-note import: Synthetic txt (Unchecked)",
+        "writes": [
+          {
+            "before": null,
+            "after": {
+              "id": "16cfc3a5-b960-4839-b147-d8b2d8d24186:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Source": {
+                  "locator": "/tmp/brn-linux-files-20261023/synthetic.txt",
+                  "label": "Synthetic txt",
+                  "observed_at": "Unix seconds 1792720979",
+                  "external_version": "ef578b8ba51e55d3dd498ecd6c6457941b7afc06e71c40ad6077ec2c526f8e03",
+                  "outcome": "Unchecked",
+                  "gaps": [],
+                  "report": {
+                    "conversion": {
+                      "settings": {
+                        "converter": "xberg",
+                        "ai": false
+                      },
+                      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                    },
+                    "status": "Unchecked",
+                    "issues": []
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "16cfc3a5-b960-4839-b147-d8b2d8d24186:1",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Synthetic txt",
+                  "markdown": "Synthetic plain text \u2014 caf\u00e9.\n",
+                  "protected": true,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": {
+                    "source": "16cfc3a5-b960-4839-b147-d8b2d8d24186:0",
+                    "full_note": true,
+                    "gaps": [],
+                    "report": {
+                      "conversion": {
+                        "settings": {
+                          "converter": "xberg",
+                          "ai": false
+                        },
+                        "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d"
+                      },
+                      "status": "Unchecked",
+                      "issues": []
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "before": null,
+            "after": {
+              "id": "16cfc3a5-b960-4839-b147-d8b2d8d24186:2",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "16cfc3a5-b960-4839-b147-d8b2d8d24186:1",
+                  "to": "16cfc3a5-b960-4839-b147-d8b2d8d24186:0",
+                  "relation": "full-import:ef578b8ba51e55d3dd498ecd6c6457941b7afc06e71c40ad6077ec2c526f8e03"
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:full-note import request",
+        "committed_at": "2026-10-23T02:02:59.381Z",
+        "undo_of": null,
+        "needs_refresh": []
+      },
+      {
+        "operation": "a18e8166-af92-4125-a6e5-210a4fd5b9a3",
+        "request_hash": "d722a6af84e2827b7e8efd7eab83cd098e853c789f4ec52e8c1609451d2fb5ba",
+        "reason": "Owner Save",
+        "writes": [
+          {
+            "before": {
+              "id": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+              "version": 1,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Backup sentinel",
+                  "markdown": "Synthetic sentinel \u2014 preserve exactly.",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            },
+            "after": {
+              "id": "27db9e96-979c-4f1d-8ba1-4613a69f3a4c:0",
+              "version": 2,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Backup sentinel",
+                  "markdown": "Unsaved restore recovery \u2014 caf\u00e9 \u03bb.",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          }
+        ],
+        "authority": "owner:editor",
+        "committed_at": "2026-10-23T02:09:13.466Z",
+        "undo_of": null,
+        "needs_refresh": []
+      }
+    ],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "owner",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "candidates": {
+    "contract": 3,
+    "command": "candidates",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "owner",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  }
+}

@@ -1,17 +1,18 @@
-# Draft: Expose native Project and menu actions to accessibility
+# Draft: Upgrade GPUI Kit and verify Linux native accessibility
 
-Project selection rows were absent from the Linux accessibility tree, and
-menu triggers did not advertise activation. Give Project rows their existing
-full labels/selection with an actionable role and bridge dropdown activation to
-GPUI's existing Popover behavior. Preserve shared non-actionable row semantics.
+Pin released GPUI Kit 0.8.0 for desktop and writing UI while retaining the
+GPUI pre 0.3.9 backend. Use upstream disabled-node metadata support, verified
+in the existing unavailable-skill regression. Linux enabled/sensitive translation
+remains an explicit unpassed adapter limitation; no incompatible AccessKit upgrade.
 
-Retain timestamped native Connections retirement/Undo evidence, offline document
-conversion and backup/restore integrity results, and native recovered-copy tests.
-Document the portal admission blocker and the two upstream disabled-state layers
-without claiming those requirements passed or replacing Mac-only acceptance.
+Project selection rows now expose their full names and selected state as actions;
+a shared dropdown bridge advertises activation through GPUI's existing Popover.
+The released toolkit does not supersede these app fixes. Retain actual AT-SPI,
+menu/focus, immediate Connections retirement/Undo, save/reopen and restored-copy
+evidence. Native file-picker admission is blocked; no Mac-only acceptance claim.
 
-Validation: native desktop352passed/0failed/1ignored, production native build,
-strict Clippy, formatting/documentation/retirement checks; actual AT-SPI Project
-and menu journeys. Independent source review has no unresolved blocking finding.
-No dependency updates. This description is prepared locally; publication is not
-yet authorized for this branch.
+Validation: desktop 352 passed/0 failed/1 ignored, writing UI 44+12 passed,
+production native build, strict Clippy, formatting/documentation/retirement
+checks; native interactions and independent source/lock review. Source-specific
+0.7.3 and 0.8.0 evidence remain separate. Maintenance/Rig migration is excluded.
+This description is prepared locally; publication is not authorized for this branch.

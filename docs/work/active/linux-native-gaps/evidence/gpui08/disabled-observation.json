@@ -1,0 +1,21 @@
+{
+  "node": {
+    "path": "1/0/40",
+    "name": "Rewrite with AI, unavailable: Save your edit first",
+    "role": "button",
+    "states": [
+      "enabled",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [],
+    "bounds": [
+      195,
+      756,
+      154,
+      28
+    ]
+  },
+  "unix_enabled_sensitive_caveat": true
+}

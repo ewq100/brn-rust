@@ -1,0 +1,1121 @@
+[
+  {
+    "path": "",
+    "name": "main",
+    "role": "desktop frame",
+    "states": [],
+    "actions": [],
+    "bounds": [
+      0,
+      0,
+      1024,
+      768
+    ]
+  },
+  {
+    "path": "0",
+    "error": "atspi_error: Get failed (1)"
+  },
+  {
+    "path": "1",
+    "name": "brn-desktop",
+    "role": "application",
+    "states": [],
+    "actions": []
+  },
+  {
+    "path": "1/0",
+    "name": "BRN",
+    "role": "frame",
+    "states": [
+      "active",
+      "enabled",
+      "focusable",
+      "focused",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [],
+    "bounds": [
+      -1,
+      -1,
+      -1,
+      -1
+    ]
+  },
+  {
+    "path": "1/0/0",
+    "name": "Home",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      12,
+      4,
+      40,
+      28
+    ]
+  },
+  {
+    "path": "1/0/1",
+    "name": "Search notes, chats and commands",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      60,
+      2,
+      220,
+      32
+    ]
+  },
+  {
+    "path": "1/0/2",
+    "name": "Write",
+    "role": "toggle button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1104,
+      4,
+      52,
+      28
+    ]
+  },
+  {
+    "path": "1/0/3",
+    "name": "Chat",
+    "role": "toggle button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1156,
+      4,
+      47,
+      28
+    ]
+  },
+  {
+    "path": "1/0/4",
+    "name": "Solo",
+    "role": "toggle button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1203,
+      4,
+      45,
+      28
+    ]
+  },
+  {
+    "path": "1/0/5",
+    "name": "Chats",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      8,
+      39,
+      54,
+      28
+    ]
+  },
+  {
+    "path": "1/0/6",
+    "name": "Notes",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      66,
+      39,
+      55,
+      28
+    ]
+  },
+  {
+    "path": "1/0/7",
+    "name": "Projects",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      125,
+      39,
+      69,
+      28
+    ]
+  },
+  {
+    "path": "1/0/8",
+    "name": "Tasks",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      198,
+      39,
+      52,
+      28
+    ]
+  },
+  {
+    "path": "1/0/9",
+    "name": "Changes",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1022,
+      39,
+      74,
+      28
+    ]
+  },
+  {
+    "path": "1/0/10",
+    "name": "Settings",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1100,
+      41,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/11",
+    "name": "Open beside",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1128,
+      39,
+      124,
+      28
+    ]
+  },
+  {
+    "path": "1/0/12",
+    "name": "New chat, note or information",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      87,
+      82,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/13",
+    "name": "Chats panel actions",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      115,
+      82,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/14",
+    "name": "Close Chats",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      143,
+      82,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/15",
+    "name": "Recent",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      15,
+      121,
+      61,
+      28
+    ]
+  },
+  {
+    "path": "1/0/16",
+    "name": "All \u00b7 0",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      80,
+      121,
+      52,
+      28
+    ]
+  },
+  {
+    "path": "1/0/17",
+    "name": "Archived \u00b7 0",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      15,
+      153,
+      93,
+      28
+    ]
+  },
+  {
+    "path": "1/0/18",
+    "name": "Projects panel actions",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      786,
+      82,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/19",
+    "name": "Maximize Projects",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      814,
+      82,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/20",
+    "name": "Close Projects",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      842,
+      82,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/21",
+    "name": "Active",
+    "role": "toggle button",
+    "states": [
+      "enabled",
+      "focusable",
+      "pressed",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      191,
+      116,
+      56,
+      28
+    ]
+  },
+  {
+    "path": "1/0/22",
+    "name": "Trash",
+    "role": "toggle button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      247,
+      116,
+      52,
+      28
+    ]
+  },
+  {
+    "path": "1/0/23",
+    "name": "New project",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      771,
+      116,
+      95,
+      28
+    ]
+  },
+  {
+    "path": "1/0/24",
+    "name": "Project B \u2014 shared connections",
+    "role": "button",
+    "states": [
+      "enabled",
+      "selectable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      199,
+      190,
+      659,
+      28
+    ]
+  },
+  {
+    "path": "1/0/25",
+    "name": "Project A \u2014 retained private source",
+    "role": "button",
+    "states": [
+      "enabled",
+      "selectable",
+      "selected",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      199,
+      220,
+      659,
+      28
+    ]
+  },
+  {
+    "path": "1/0/26",
+    "name": "New chat",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      780,
+      272,
+      78,
+      28
+    ]
+  },
+  {
+    "path": "1/0/27",
+    "name": "Keep in BRN",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      697,
+      363,
+      98,
+      28
+    ]
+  },
+  {
+    "path": "1/0/28",
+    "name": "Unlink",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      799,
+      363,
+      59,
+      28
+    ]
+  },
+  {
+    "path": "1/0/29",
+    "name": "Chats for this note",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1137,
+      82,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/30",
+    "name": "Chat panel actions",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1165,
+      82,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/31",
+    "name": "Maximize Chat",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1193,
+      82,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/32",
+    "name": "Close Chat",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1221,
+      82,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/33",
+    "name": "Maintain ordinary notes: BRN updates ordinary notes and source references.",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      911,
+      360,
+      176,
+      28
+    ]
+  },
+  {
+    "path": "1/0/34",
+    "name": "Review changes first: BRN proposes; you approve.",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      911,
+      419,
+      153,
+      28
+    ]
+  },
+  {
+    "path": "1/0/35",
+    "name": "Refresh skills",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      920,
+      689,
+      108,
+      32
+    ]
+  },
+  {
+    "path": "1/0/36",
+    "name": "Ask or delegate",
+    "role": "entry",
+    "states": [
+      "editable",
+      "enabled",
+      "focusable",
+      "multi-line",
+      "sensitive",
+      "showing",
+      "visible",
+      "selectable-text"
+    ],
+    "actions": [],
+    "bounds": [
+      890,
+      725,
+      355,
+      64
+    ]
+  },
+  {
+    "path": "1/0/37",
+    "name": "Add information",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      890,
+      795,
+      24,
+      24
+    ]
+  },
+  {
+    "path": "1/0/38",
+    "name": "Model gpt-6.1-sol, effort medium",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1000,
+      793,
+      160,
+      28
+    ]
+  },
+  {
+    "path": "1/0/39",
+    "name": "Quiet off \u00b7 hide activity",
+    "role": "toggle button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1164,
+      793,
+      28,
+      28
+    ]
+  },
+  {
+    "path": "1/0/40",
+    "name": "Send",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1196,
+      793,
+      49,
+      28
+    ]
+  },
+  {
+    "path": "1/0/41",
+    "name": "Layout",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1139,
+      834,
+      85,
+      24
+    ]
+  },
+  {
+    "path": "1/0/42",
+    "name": "Keys",
+    "role": "button",
+    "states": [
+      "enabled",
+      "focusable",
+      "sensitive",
+      "showing",
+      "visible"
+    ],
+    "actions": [
+      {
+        "index": 0,
+        "name": "click",
+        "description": ""
+      }
+    ],
+    "bounds": [
+      1228,
+      834,
+      24,
+      24
+    ]
+  }
+]
