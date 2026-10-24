@@ -46,6 +46,11 @@ mod documents;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_documents_tests.rs"]
 mod documents_tests;
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_inbox_tests.rs"]
+mod inbox_tests;
+#[path = "threads_inbox.rs"]
+mod inbox_view;
 use brn_writing_ui::diff;
 use brn_writing_ui::formatting;
 #[path = "threads_layout.rs"]
@@ -2662,6 +2667,17 @@ impl ThreadsUi {
             self.cancel_restore(cx);
             return;
         }
+        if let Some(worker) = &self.worker
+            && worker.kind() == WorkerKind::Inbox
+        {
+            worker.cancel.cancel();
+            worker
+                .conversion_cancel
+                .store(true, std::sync::atomic::Ordering::Release);
+            self.progress = "Stopping inbox scan; pending files can be retried.".into();
+            cx.notify();
+            return;
+        }
         if self
             .worker
             .as_mut()
@@ -2868,7 +2884,7 @@ impl ThreadsUi {
                         });
                     }
                     let thread = identity.map(|run| run.thread.clone());
-                    if identity.is_none() {
+                    if identity.is_none() && kind != Some(WorkerKind::Inbox) {
                         allow_dispatch = result.is_ok();
                         if result.is_err() {
                             self.pause_failed_worker();
@@ -3066,7 +3082,13 @@ impl ThreadsUi {
         }
         // Preserve the old Run identity and visible partial before retiring it.
         // Non-Run interruption already recovers the queue in this checked path.
-        self.pause_failed_worker();
+        if !self
+            .worker
+            .as_ref()
+            .is_some_and(|worker| worker.kind() == WorkerKind::Inbox)
+        {
+            self.pause_failed_worker();
+        }
         if let Some(identity) = self.worker.as_ref().and_then(Worker::run_identity) {
             self.run_activity
                 .transition(RunActivityEvent::Disconnected(&identity.thread));

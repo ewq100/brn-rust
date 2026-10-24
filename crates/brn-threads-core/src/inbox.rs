@@ -35,6 +35,49 @@ pub struct InboxState {
 }
 
 impl Store {
+    /// Keep the explicit folder generation and captured conversion profile current
+    /// through the ordinary checked
+    /// writer's transaction. Unrelated theme/provider settings do not change it.
+    pub fn apply_inbox_import(
+        &mut self,
+        operation: &OperationId,
+        settings: &DocumentConversionSettings,
+        generation: &str,
+        authority: &HostAuthority,
+    ) -> Result<ApplyOutcome> {
+        if !matches!(authority.scope, crate::types::Scope::Owner) {
+            return Err(Error::Invalid(
+                "Inbox import requires owner authority".into(),
+            ));
+        }
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        let inbox_body: Option<String> = tx
+            .query_row("SELECT body FROM inbox_state WHERE id=1", [], |r| r.get(0))
+            .optional()?;
+        let inbox = inbox_body
+            .map(|body| serde_json::from_str::<InboxState>(&body))
+            .transpose()?;
+        if !inbox.as_ref().is_some_and(|state| {
+            state.generation == generation && state.destination == InboxDestination::General
+        }) {
+            return Err(Error::Invalid(
+                "Inbox folder choice changed; scan again".into(),
+            ));
+        }
+        let body:String=tx.query_row("SELECT body FROM records WHERE json_type(body,'$.data.Settings') IS NOT NULL AND json_extract(body,'$.archived')=0",[],|r|r.get(0))?;
+        let record: Record = serde_json::from_str(&body)?;
+        if !matches!(&record.data,RecordData::Settings(current) if &current.document_conversion==settings)
+        {
+            return Err(Error::Invalid(
+                "Document conversion settings changed; scan again".into(),
+            ));
+        }
+        let outcome = crate::store::apply_on(&tx, operation, authority, None)?;
+        tx.commit()?;
+        Ok(outcome)
+    }
     pub fn inbox_state(&self) -> Result<Option<InboxState>> {
         let body: Option<String> = self
             .conn
@@ -107,6 +150,25 @@ impl Store {
             return Err(Error::Invalid(
                 "Inbox changed; refresh before scanning again".into(),
             ));
+        }
+        if actual.is_some() {
+            let prior: String =
+                tx.query_row("SELECT body FROM inbox_state WHERE id=1", [], |r| r.get(0))?;
+            let prior: InboxState = serde_json::from_str(&prior)?;
+            if prior.generation == state.generation
+                && (prior.folder != state.folder
+                    || prior.folder_identity != state.folder_identity
+                    || prior.destination != state.destination)
+            {
+                return Err(Error::Invalid(
+                    "A changed inbox folder requires a fresh explicit choice".into(),
+                ));
+            }
+            if prior.generation != state.generation && !state.entries.is_empty() {
+                return Err(Error::Invalid(
+                    "A fresh inbox choice cannot inherit another folder's ledger".into(),
+                ));
+            }
         }
         let mut state = state.clone();
         state.revision = actual

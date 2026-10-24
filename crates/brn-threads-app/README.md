@@ -95,3 +95,51 @@ tombstones while clearing buffer text.
 Qualification uses public/synthetic data, offline application integration tests,
 and locked core tests. This service does not itself prove live provider behavior,
 native usability, universal import completeness, or external execution.
+
+## Manual document inbox
+
+The desktop's Data settings offers one explicitly chosen folder and **Scan inbox**.
+Folder selection alone is not authorization: a separate confirmation names
+**General knowledge (available across projects)**. This initial version supports
+only that typed destination; it never inherits the active private chat/project.
+Protected notes require checked edits, but protection is not a privacy boundary.
+No watcher, automatic scan, agent maintenance or chat-queue dispatch is started.
+
+`choose_inbox` and `scan_inbox` own the shared policy. The core's schema12
+`inbox_state` table stores bounded machine-local folder authorization and the latest
+pending/imported/failed ledger; it stores no original document bytes. Canonical
+full imports, versions, protection, assets, source hashes and receipts remain owned
+by the existing import service. Restore clears inbox authorization and ledger in
+its unpublished copy; retained knowledge and receipts survive. A restored workspace
+requires a new explicit folder/destination choice.
+
+A scan holds a process-released OS lock, enumerates at most 256 top-level entries,
+reads ordinary files up to 16 MiB each and at most 64 MiB of source snapshots (plus
+bounded rereads of those snapshots before commit). Converted Markdown plus retained
+asset bytes have a separate 64 MiB aggregate budget; receipt replays cost no output
+budget. An individually oversized output is Failed; aggregate remainder is Pending.
+A new scan can continue after replay, but a source-byte limit still requires a
+smaller folder rather than endless retries. No symlink component, directory,
+FIFO/device or path escape reaches conversion. The folder's device/inode and each
+opened file's metadata are checked; converted sources are re-read and hashed before
+commit. Original files are never edited, moved or deleted. A stable snapshot does
+not certify that an external writer has finished its document; visible changes
+fail the item, and the owner can scan again after saving finishes. Oversized folders
+must be split into smaller folders; this is not an unbounded background queue.
+
+Each entry is saved Pending before conversion. Exact absolute folder, filename,
+General destination, source hash and converter profile bind its stable operation,
+independently of the current listing, folder re-selection and unrelated settings
+edits. Folder generation separately fences current scan authorization.
+Committed/prepared import recovery uses existing checked request/receipt services
+without repeating model conversion. Changed bytes/profile form a new protected
+variant; repeated scans reuse the retained Note. Duplicate handling is per external
+source location, preserving provenance for separately named files. A conversion-profile change
+is fenced inside the canonical commit transaction. A stopped scan leaves retryable pending entries;
+failed items do not prevent independent files from importing. A removed/undone prior
+Note is not silently recreated by replay. No live provider is required by the
+scripted service tests.
+
+Headless UI tests cover explicit scope consent and isolated inbox worker finish,
+cancellation and disconnection. Actual native file-picker behavior, dialog focus,
+scrolling/status accessibility and owner acceptance remain a separate Mac gate.

@@ -15,7 +15,11 @@ mod chat;
 mod converge;
 mod decisions;
 mod export;
+mod inbox;
+#[cfg(unix)]
+mod inbox_files;
 mod intake;
+pub use inbox::{INBOX_DESTINATION_NOTICE, InboxDocument, InboxScanSummary};
 mod keyed;
 mod knowledge;
 mod mcp;

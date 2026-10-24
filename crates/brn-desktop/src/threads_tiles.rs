@@ -1902,6 +1902,7 @@ impl ThreadsUi {
         column()
             .id("settings-copies")
             .gap_6()
+            .child(self.inbox_settings(cx))
             .child(backup)
             .child(self.restore_section(cx))
             .child(export)

@@ -67,6 +67,7 @@ enum WorkerOperation {
     Import {
         reference: Option<ReferenceImportIntent>,
     },
+    Inbox,
     Export,
     Backup,
     Restore {
@@ -125,6 +126,19 @@ impl Worker {
             cancel,
             conversion_cancel,
             operation: WorkerOperation::Import { reference },
+        }
+    }
+
+    pub(super) fn inbox(
+        receiver: Receiver<WorkerEvent>,
+        cancel: CancellationToken,
+        conversion_cancel: Arc<AtomicBool>,
+    ) -> Self {
+        Self {
+            receiver,
+            cancel,
+            conversion_cancel,
+            operation: WorkerOperation::Inbox,
         }
     }
 
@@ -231,6 +245,7 @@ impl Worker {
         match &self.operation {
             WorkerOperation::Run { .. } => WorkerKind::Run,
             WorkerOperation::Import { .. } => WorkerKind::Import,
+            WorkerOperation::Inbox => WorkerKind::Inbox,
             WorkerOperation::Export => WorkerKind::Export,
             WorkerOperation::Backup => WorkerKind::Backup,
             WorkerOperation::Restore { publishing: false } => WorkerKind::RestoreValidation,

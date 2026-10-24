@@ -79,6 +79,7 @@ impl ComposerDrafts {
 pub(super) enum WorkerKind {
     Run,
     Import,
+    Inbox,
     Export,
     Backup,
     RestoreValidation,
@@ -91,12 +92,14 @@ impl WorkerKind {
     pub(super) fn can_cancel(self) -> bool {
         matches!(
             self,
-            Self::Run | Self::Import | Self::Connect | Self::RestoreValidation
+            Self::Run | Self::Import | Self::Inbox | Self::Connect | Self::RestoreValidation
         )
     }
     pub(super) fn status(self, progress: &str) -> String {
         match self {
-            Self::Run | Self::Import | Self::Connect | Self::RestoreValidation => progress.into(),
+            Self::Run | Self::Import | Self::Inbox | Self::Connect | Self::RestoreValidation => {
+                progress.into()
+            }
             Self::Export => "Finishing Markdown export… Please wait for completion.".into(),
             Self::Backup => "Finishing full backup… Please wait for completion.".into(),
             Self::Restore => "Publishing recovery copy… Please wait for completion.".into(),
@@ -106,6 +109,7 @@ impl WorkerKind {
         match self {
             Self::Run => "Finish or stop the current run before starting other work.",
             Self::Import => "Finish or stop the current import before starting other work.",
+            Self::Inbox => "Finish or stop the inbox scan before starting other work.",
             Self::Export => "Wait for the Markdown export to finish before starting other work.",
             Self::Backup => "Wait for the full backup to finish before starting other work.",
             Self::RestoreValidation => {
@@ -608,7 +612,7 @@ mod tests {
     }
     #[test]
     fn only_cancellable_workers_offer_stop_and_portable_outputs_explain_finishing() {
-        for kind in [WorkerKind::Run, WorkerKind::Import] {
+        for kind in [WorkerKind::Run, WorkerKind::Import, WorkerKind::Inbox] {
             assert!(kind.can_cancel());
             assert_eq!(kind.status("Actual progress"), "Actual progress");
             assert!(kind.busy_notice().contains("stop"));
