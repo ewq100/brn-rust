@@ -54,7 +54,7 @@ jobs:
   headless:
     name: Core and CLI (${{ matrix.runner }})
     runs-on: ${{ matrix.runner }}
-    # Mac also builds/tests both converters; main additionally lints the workspace.
+    # Mac and Linux build/test both converters; main additionally lints the workspace.
     # Allow finalization within the same bounded hour as the native lanes.
     timeout-minutes: ${{ matrix.runner == 'macos-15' && 60 || 30 }}
     strategy:
@@ -110,7 +110,7 @@ jobs:
             cargo clippy --manifest-path "$manifest" --all-targets --locked --offline --jobs 1 -- -D warnings
           done
       - name: Scripted document CLI route (no live provider)
-        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os == 'macOS' }}
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
         run: |
           cargo test -p brn --features scripted-document-tests --bin brn document_route_tests --locked --offline --jobs 1
           cargo clippy -p brn --features scripted-document-tests --all-targets --locked --offline --jobs 1 -- -D warnings
@@ -131,8 +131,7 @@ jobs:
           & ./target/debug/brn.exe --help
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Run offline end-to-end fixtures
-        # Current Save/recovery fixtures require macOS filesystem coordination.
-        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os == 'macOS' }}
+        if: ${{ !cancelled() && steps.workspace-build.outcome == 'success' && runner.os != 'Windows' }}
         run: |
           fixture_parent="$(mktemp -d "$RUNNER_TEMP/brn-ci-fixtures.XXXXXX")"
           fixture_parent="$(cd "$fixture_parent" && pwd -P)"
