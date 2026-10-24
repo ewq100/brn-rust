@@ -1,0 +1,23 @@
+{
+  "observed_at": "2026-10-24T00:01:42.498004+00:00",
+  "commit": "2c33838d609cf76c55d8cd253d3ba12bada6d483",
+  "tree": "32608be88985326d8ddb773484448b571ecaf461",
+  "source_root": "/workspace/brn-intake",
+  "working_changes": false,
+  "sha256": {
+    "crates/brn-intake/Cargo.toml": "d5818256425481707fb1d6c880299680571d7166c6bdaa041d65216a79a8d66c",
+    "crates/brn-intake/src/document.rs": "f08eef8eef3ee943ecf2ec4e5cdcdf5f2135c5fa608ae555078ac165403c9a5d",
+    "crates/brn-intake/src/helper_runtime.rs": "f243e859028c32a27dd17f8784fdf4eae767fffdd7085f07a3b71942f60eae52",
+    "crates/brn-intake/src/helper_runtime_linux.rs": "e7b1f3d411992b2c6210833106bbf55f3c6197f35d5b71ee77f884371ede54c8",
+    "crates/brn-intake/src/lib.rs": "658d0cb3748372952415df0c4da806fda142b05f35f6dceea9ec8eb7311e1aec",
+    "scripts/prepare-xberg-adapted.py": "e09d6340680601b5265e4e0cb1137799975c5fe2828d41f6d2287d8ea88181e5",
+    "tools/xberg-intake-helper/Cargo.lock": "1dcb389399c16f68932a322f1374cbc682a35e4413e3ff46d1a6c440e8d6c2cd",
+    "tools/xberg-intake-helper/Cargo.toml": "8326a9ec346ed4d5f89e88f94467d36813f6640ac017972656eaced5b7b17010",
+    "tools/xberg-intake-helper/adapted.Cargo.lock": "54dacaa58527e65c0fd26cf779a9a7d2e5ee159baef2b8745dd0c83d96bab2e2",
+    "tools/xberg-intake-helper/build-identity.txt": "0f5be637d4d78857dd354813ba190b309aa9ea0602d586ad69d1d13bdeab3b50",
+    "tools/xberg-intake-helper/build.rs": "4e486c7c21248ce87340c83228b48e10fcdbba273cbbd406f8fa0d69c507f317",
+    "tools/xberg-intake-helper/src/engine.rs": "3680a0502be4d11c653805cc5c8234ca5bc6234881609895eb36b50be72c15ce",
+    "tools/xberg-intake-helper/src/main.rs": "6124f77ba5204937f36afad2956d342cb14c35d33f1948356470eab5c91b9bd0",
+    "tools/xberg-intake-helper/src/project.rs": "c2e64f9d93d7157b61afbcda28de40b57fea45d0bf6536babb9d03a6d157ede5"
+  }
+}
