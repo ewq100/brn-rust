@@ -6,7 +6,7 @@
     "scope_record": "docs/work/active/daily-followups-inbox-restore/baseline.md"
   },
   "work_view": {
-    "observed_at": "2026-10-24T03:53:15.923856+00:00",
+    "observed_at": "2026-10-24T04:01:02.305983+00:00",
     "goal": "Turn meeting notes into dependable follow-ups, add a manually scanned document inbox, and expose safe desktop backup restoration.",
     "owner_attention": "All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main CI still needs lead reconciliation.",
     "tasks": [
@@ -15,9 +15,9 @@
         "title": "Close the prior batch resulting-main CI gate",
         "owner": "lead integration",
         "state": "active",
-        "activity": "PR226 merged as f60c5a2f from reviewed 54b0c3d6 with unchanged tree. Last reported run40058075212: documentation and Linux native UI/retrieval green, three optional Windows failures, four core/Mac checks active.",
-        "observed_at": "2026-10-24T03:52:34.194266+00:00",
-        "origin": "reported",
+        "activity": "Exact f60c5a2f run40058075212: documentation, all Linux checks, Mac core and Mac UI passed; Mac retrieval remains active. Three optional Windows failures remain separate.",
+        "observed_at": "2026-10-24T04:01:02.305983+00:00",
+        "origin": "observed",
         "next_action": "Inspect exact f60c5a2f resulting-main checks; preserve optional failures and diagnose any required failure.",
         "depends_on": [],
         "resource_waits": [
@@ -40,8 +40,8 @@
         "title": "Make meeting-note follow-ups dependable",
         "owner": "Actions implementation lane",
         "state": "active",
-        "activity": "Assigned narrow owners, waiting-on and follow-up-date extension to existing Actions; schema11 first.",
-        "observed_at": "2026-10-24T03:52:34.194266+00:00",
+        "activity": "Schema11 and bounded Action follow-up fields implemented. Agent reports 76 focused core and 13 app checks passed; desktop and authored semantic evaluation extension in progress.",
+        "observed_at": "2026-10-24T04:01:02.305983+00:00",
         "origin": "reported",
         "next_action": "Implement shared checked behavior and CLI/native presentation; test ambiguous commitments, duplicates, stale edits, replay and recovery.",
         "depends_on": [],
@@ -53,7 +53,7 @@
         ],
         "gates": {
           "implementation": "pending",
-          "checks": "pending: source-bound focused checks and independent review",
+          "checks": "passed: reported focused core76/app13; pending source-bound final candidate, desktop and semantic fixture checks",
           "integration": "pending: draft PR only; no new merge authority",
           "native": "pending: actual Mac interaction not authorized in this cloud batch",
           "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
@@ -65,15 +65,15 @@
         "title": "Scan a document inbox with visible status and safe retries",
         "owner": "Inbox implementation lane",
         "state": "active",
-        "activity": "Assigned manual Scan inbox flow reusing the qualified importer; schema12 stacks on Actions schema11. Original files remain untouched.",
-        "observed_at": "2026-10-24T03:52:34.194266+00:00",
+        "activity": "Schema12/ledger core candidate 0fd44ec4 reports 2 focused tests passed. Explicit General knowledge setup consent and private queue isolation are being implemented; no scan on picker selection.",
+        "observed_at": "2026-10-24T04:01:02.305983+00:00",
         "origin": "reported",
         "next_action": "Implement bounded manual scan, durable status and safe retries; integrate migration only after schema11 ownership is reconciled.",
         "depends_on": [
           {
             "task": "actions-followups",
             "condition": "Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage.",
-            "satisfied": false
+            "satisfied": true
           }
         ],
         "resource_waits": [
@@ -96,8 +96,8 @@
         "title": "Restore a backup through the existing checked engine",
         "owner": "Restore implementation lane",
         "state": "active",
-        "activity": "Assigned safe desktop Restore flow; reuse existing staging, validation and collision protections without a parallel restore engine.",
-        "observed_at": "2026-10-24T03:52:34.194266+00:00",
+        "activity": "PreparedRestore core candidate aa2c5ff2 reports 14 focused tests passed. Desktop flow and stricter staged readability validation in progress; build slot follows Inbox core checks.",
+        "observed_at": "2026-10-24T04:01:02.305983+00:00",
         "origin": "reported",
         "next_action": "Implement explicit owner flow and focused failure/reopen tests; keep native picker/focus acceptance separate.",
         "depends_on": [],
@@ -132,8 +132,8 @@
         ],
         "gates": {
           "implementation": "complete: documentation only",
-          "checks": "passed: 16 overview tests, generated overview check, Markdown links and diff whitespace; independent review pending",
-          "integration": "local documentation slice ready to commit; no push or new merge authority",
+          "checks": "passed: 16 overview tests, generated overview check, Markdown links and diff whitespace; independent source review complete",
+          "integration": "committed: 819c79e6; independent review found one stale selected-record link, corrected in lead follow-up",
           "native": "inapplicable: documentation routing",
           "owner_acceptance": "scope source recorded; no extra product choices inferred"
         },

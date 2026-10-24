@@ -14,8 +14,8 @@ Task details and full history: [selected work record](active/daily-followups-inb
 ### Close the prior batch resulting-main CI gate
 
 Task ID: `prior-main-ci`
-Owner: lead integration · State: **active** · Last reported: 2026-10-24T03:52:34.194266+00:00
-Activity: PR226 merged as f60c5a2f from reviewed 54b0c3d6 with unchanged tree. Last reported run40058075212: documentation and Linux native UI/retrieval green, three optional Windows failures, four core/Mac checks active.
+Owner: lead integration · State: **active** · Last observed: 2026-10-24T04:01:02.305983+00:00
+Activity: Exact f60c5a2f run40058075212: documentation, all Linux checks, Mac core and Mac UI passed; Mac retrieval remains active. Three optional Windows failures remain separate.
 Next: Inspect exact f60c5a2f resulting-main checks; preserve optional failures and diagnose any required failure.
 Resource waits: GitHub Actions run40058075212 completion
 
@@ -35,8 +35,8 @@ Gates:
 ### Make meeting-note follow-ups dependable
 
 Task ID: `actions-followups`
-Owner: Actions implementation lane · State: **active** · Last reported: 2026-10-24T03:52:34.194266+00:00
-Activity: Assigned narrow owners, waiting-on and follow-up-date extension to existing Actions; schema11 first.
+Owner: Actions implementation lane · State: **active** · Last reported: 2026-10-24T04:01:02.305983+00:00
+Activity: Schema11 and bounded Action follow-up fields implemented. Agent reports 76 focused core and 13 app checks passed; desktop and authored semantic evaluation extension in progress.
 Next: Implement shared checked behavior and CLI/native presentation; test ambiguous commitments, duplicates, stale edits, replay and recovery.
 Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
 
@@ -46,7 +46,7 @@ Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-ta
 Gates:
 
 - **implementation:** pending
-- **checks:** pending: source-bound focused checks and independent review
+- **checks:** passed: reported focused core76/app13; pending source-bound final candidate, desktop and semantic fixture checks
 - **integration:** pending: draft PR only; no new merge authority
 - **native:** pending: actual Mac interaction not authorized in this cloud batch
 - **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
@@ -56,10 +56,10 @@ Gates:
 ### Scan a document inbox with visible status and safe retries
 
 Task ID: `manual-inbox`
-Owner: Inbox implementation lane · State: **active** · Last reported: 2026-10-24T03:52:34.194266+00:00
-Activity: Assigned manual Scan inbox flow reusing the qualified importer; schema12 stacks on Actions schema11. Original files remain untouched.
+Owner: Inbox implementation lane · State: **active** · Last reported: 2026-10-24T04:01:02.305983+00:00
+Activity: Schema12/ledger core candidate 0fd44ec4 reports 2 focused tests passed. Explicit General knowledge setup consent and private queue isolation are being implemented; no scan on picker selection.
 Next: Implement bounded manual scan, durable status and safe retries; integrate migration only after schema11 ownership is reconciled.
-Depends on: actions-followups when Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (reported satisfied: false)
+Depends on: actions-followups when Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (reported satisfied: true)
 Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
 
 <details>
@@ -78,8 +78,8 @@ Gates:
 ### Restore a backup through the existing checked engine
 
 Task ID: `desktop-restore`
-Owner: Restore implementation lane · State: **active** · Last reported: 2026-10-24T03:52:34.194266+00:00
-Activity: Assigned safe desktop Restore flow; reuse existing staging, validation and collision protections without a parallel restore engine.
+Owner: Restore implementation lane · State: **active** · Last reported: 2026-10-24T04:01:02.305983+00:00
+Activity: PreparedRestore core candidate aa2c5ff2 reports 14 focused tests passed. Desktop flow and stricter staged readability validation in progress; build slot follows Inbox core checks.
 Next: Implement explicit owner flow and focused failure/reopen tests; keep native picker/focus acceptance separate.
 Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
 
@@ -148,7 +148,6 @@ Owner: Inbox implementation lane
 
 Waiting:
 
-- prerequisite actions-followups: Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (reported satisfied: false; task state: active)
 - resource: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
 
 ### Restore a backup through the existing checked engine
@@ -208,9 +207,9 @@ Completion here means the selected task scope is complete; it does not establish
 graph TD
   t1["Make meeting-note follow-ups dependable"]
   t2["Scan a document inbox with visible status and safe retries"]
-  t1 -->|Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (not satisfied)| t2
+  t1 -->|Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (satisfied)| t2
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-24T03:53:15.923856+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-24T04:01:02.305983+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

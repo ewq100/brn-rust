@@ -20,6 +20,10 @@ bounded them as follows:
 2. **Manual document inbox:** one folder with an explicit Scan inbox button,
    import status and safe retries. Reuse the improved importer; leave original
    files untouched. No always-running watcher, background daemon or automatic scan.
+   Destination scope must be conspicuous and explicitly confirmed during setup.
+   A folder picker alone grants no scan consent. General-only intake must say it
+   is available across projects and cannot inherit private chat/project context.
+   Regression checks must cover no scan before consent and private queue isolation.
 3. **Desktop Restore:** a clear, safe app flow over the existing backup restore
    engine. Reuse its staging, validation, collision and canonical-store protections;
    do not implement another engine or authorize destructive replacement implicitly.
