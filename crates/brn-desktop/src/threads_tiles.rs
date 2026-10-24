@@ -936,6 +936,115 @@ impl ThreadsUi {
         .test_support()
         .into_any_element()
     }
+    pub(super) fn action_details_dialog(
+        &mut self,
+        record: Record,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        let RecordData::Action(action) = &record.data else {
+            return;
+        };
+        let fields = [
+            (
+                "Owner",
+                "Person or team; blank if unknown",
+                action.owner.clone(),
+            ),
+            (
+                "Waiting on",
+                "Person, team or needed response",
+                action.waiting_on.clone(),
+            ),
+            (
+                "Follow up",
+                "YYYY-MM-DD; separate from due date",
+                action.follow_up.clone(),
+            ),
+        ]
+        .map(|(label, placeholder, value)| {
+            let input = cx.new(|cx| InputState::new(window, cx).placeholder(placeholder));
+            input.update(cx, |input, cx| {
+                input.set_value(value.unwrap_or_default(), window, cx)
+            });
+            (label, input)
+        });
+        let error = cx.new(|_| String::new());
+        let target = cx.entity().downgrade();
+        let key = format!("action-details:{}", uuid::Uuid::new_v4());
+        let save: components::DialogAction = {
+            let fields = fields.clone();
+            let error = error.clone();
+            std::rc::Rc::new(move |window, cx| {
+                let RecordData::Action(mut action) = record.data.clone() else {
+                    return;
+                };
+                let values = fields.each_ref().map(|(_, field)| {
+                    let text = field.read(cx).value().to_string();
+                    if text.trim().is_empty() {
+                        None
+                    } else {
+                        Some(text)
+                    }
+                });
+                [action.owner, action.waiting_on, action.follow_up] = values;
+                let request = ChangeRequest {
+                    reason: "Owner edited Action follow-up details".into(),
+                    writes: vec![Put {
+                        id: record.id.clone(),
+                        expected_version: Some(record.version),
+                        archived: record.archived,
+                        data: RecordData::Action(action),
+                    }],
+                    inputs: vec![],
+                };
+                let mut result = Err("This window is unavailable.".to_owned());
+                let _ = target.update(cx, |this, cx| {
+                    result = match this.workspace.owner_change(&key, &request) {
+                        Ok(outcome) => {
+                            this.report_outcome(&outcome);
+                            if matches!(outcome, ApplyOutcome::Applied(_)) { Ok(()) }
+                            else { Err("This task changed or needs review. Your entries are kept here; close and reopen its current details before retrying.".into()) }
+                        }
+                        Err(error) => Err(error.to_string()),
+                    };
+                    this.refresh();
+                    cx.notify();
+                });
+                match result {
+                    Ok(()) => window.close_dialog(cx),
+                    Err(message) => error.update(cx, |error, cx| {
+                        *error = message;
+                        cx.notify();
+                    }),
+                }
+            })
+        };
+        let first = fields[0].1.clone();
+        self.open_dialog(window, cx, move |dialog, window, cx| {
+            let mut form = components::form_keys(div().flex().flex_col().gap_3(), save.clone());
+            for (index, (label, input)) in fields.iter().enumerate() {
+                form = form.child(div().flex().flex_col().gap_1()
+                    .child(*label)
+                    .child(Input::new(input).id(format!("action-detail-{index}")).aria_label(*label)));
+            }
+            dialog.title("Task follow-up details").width(px(520.)).on_ok(|_, _, _| false)
+                .child(components::dialog_body("action-details-body", window)
+                    .child(form)
+                    .child(metadata("Blank means unspecified. Saving these details does not complete the task or schedule a reminder."))
+                    .child(components::field_error("action-details-error", error.read(cx).clone()))
+                    .test_support())
+                .footer(components::form_keys(components::dialog_footer(), save.clone())
+                    .child(button("action-details-cancel").label("Cancel").outline()
+                        .on_click(|_, window, cx| window.close_dialog(cx)))
+                    .child({ let save = save.clone();
+                        button("action-details-save").label("Save").primary()
+                            .on_click(move |_, window, cx| save(window, cx))
+                    }))
+        });
+        first.update(cx, |input, cx| input.focus(window, cx));
+    }
+
     /// A task row: its description and facts, the one main action for its
     /// state (outline) and a row ⋯ with the other state changes. `show_state`
     /// names the state where no section does.
@@ -965,6 +1074,15 @@ impl ThreadsUi {
                 .due
                 .as_ref()
                 .map(|due| format!("Due {}", lists::human_time(due))),
+            action.owner.as_ref().map(|owner| format!("Owner: {owner}")),
+            action
+                .waiting_on
+                .as_ref()
+                .map(|waiting| format!("Waiting on: {waiting}")),
+            action
+                .follow_up
+                .as_ref()
+                .map(|date| format!("Follow up: {date}")),
             action.evidence.clone(),
         ]
         .into_iter()
@@ -991,8 +1109,9 @@ impl ThreadsUi {
                     })),
             );
         }
-        if !steps.is_empty() {
+        {
             let this = cx.entity().downgrade();
+            let details = record.clone();
             let items: Vec<_> = steps
                 .into_iter()
                 .map(|step| (step, record.clone(), next(step)))
@@ -1000,6 +1119,17 @@ impl ThreadsUi {
             controls = controls.child(
                 components::overflow_menu(format!("task-menu-{id}"), "Task actions")
                     .accessible_dropdown_menu(move |mut menu, _, _| {
+                        let details = details.clone();
+                        menu = menu.item(item(
+                            &this,
+                            "Edit details",
+                            None,
+                            false,
+                            false,
+                            move |view, window, cx| {
+                                view.action_details_dialog(details.clone(), window, cx);
+                            },
+                        ));
                         for (step, record, data) in items.clone() {
                             if step == lists::TaskStep::Cancel {
                                 menu = menu.separator();
@@ -1772,7 +1902,9 @@ impl ThreadsUi {
         column()
             .id("settings-copies")
             .gap_6()
+            .child(self.inbox_settings(cx))
             .child(backup)
+            .child(self.restore_section(cx))
             .child(export)
             .test_support()
             .into_any_element()

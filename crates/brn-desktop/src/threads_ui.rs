@@ -46,6 +46,11 @@ mod documents;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_documents_tests.rs"]
 mod documents_tests;
+#[cfg(all(test, feature = "native-test-support"))]
+#[path = "threads_inbox_tests.rs"]
+mod inbox_tests;
+#[path = "threads_inbox.rs"]
+mod inbox_view;
 use brn_writing_ui::diff;
 use brn_writing_ui::formatting;
 #[path = "threads_layout.rs"]
@@ -76,6 +81,8 @@ mod theme;
 mod tiles;
 #[cfg(all(test, feature = "native-test-support"))]
 use brn_writing_ui::workbench;
+#[path = "threads_restore.rs"]
+mod restore_view;
 #[path = "threads_worker.rs"]
 mod worker;
 #[path = "threads_writing.rs"]
@@ -452,6 +459,7 @@ struct ThreadsUi {
     export_status: String,
     copilot_models: Vec<String>,
     backup_status: String,
+    restore: restore_view::RestoreFlow,
     subscriptions: Vec<Subscription>,
     poll: Option<Task<()>>,
 }
@@ -721,6 +729,7 @@ impl ThreadsUi {
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
             backup_status: "No backup created in this session.".into(),
+            restore: Default::default(),
             subscriptions,
             poll: Some(poll),
         };
@@ -2649,6 +2658,26 @@ impl ThreadsUi {
         }
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
+        if self.worker.as_ref().is_some_and(|w| {
+            matches!(
+                w.kind(),
+                WorkerKind::RestoreValidation | WorkerKind::Restore
+            )
+        }) {
+            self.cancel_restore(cx);
+            return;
+        }
+        if let Some(worker) = &self.worker
+            && worker.kind() == WorkerKind::Inbox
+        {
+            worker.cancel.cancel();
+            worker
+                .conversion_cancel
+                .store(true, std::sync::atomic::Ordering::Release);
+            self.progress = "Stopping inbox scan; pending files can be retried.".into();
+            cx.notify();
+            return;
+        }
         if self
             .worker
             .as_mut()
@@ -2694,6 +2723,10 @@ impl ThreadsUi {
         let Some(worker) = &self.worker else {
             return;
         };
+        let restore_worker = matches!(
+            worker.kind(),
+            WorkerKind::RestoreValidation | WorkerKind::Restore
+        );
         let (events, end) = worker.drain().into_parts();
         if events.is_empty() && end == WorkerBatchEnd::Pending {
             return;
@@ -2780,6 +2813,15 @@ impl ThreadsUi {
                         self.settings = settings;
                     }
                 }
+                WorkerEvent::RestorePrepared(result) => self.restore_prepared(result),
+                WorkerEvent::Finished(result)
+                    if self
+                        .worker
+                        .as_ref()
+                        .is_some_and(|w| w.kind() == WorkerKind::Restore) =>
+                {
+                    self.restore_finished(result)
+                }
                 WorkerEvent::Finished(result) => {
                     terminal_continuation = self
                         .worker
@@ -2842,7 +2884,7 @@ impl ThreadsUi {
                         });
                     }
                     let thread = identity.map(|run| run.thread.clone());
-                    if identity.is_none() {
+                    if identity.is_none() && kind != Some(WorkerKind::Inbox) {
                         allow_dispatch = result.is_ok();
                         if result.is_err() {
                             self.pause_failed_worker();
@@ -2999,6 +3041,13 @@ impl ThreadsUi {
                 }
             }
         }
+        if restore_worker {
+            if end == WorkerBatchEnd::Disconnected {
+                self.worker_disconnected();
+            }
+            cx.notify();
+            return;
+        }
         if end == WorkerBatchEnd::Finished {
             self.persist_theme();
             if let Some((prompt, thread)) = terminal_continuation {
@@ -3022,9 +3071,24 @@ impl ThreadsUi {
         cx.notify();
     }
     fn worker_disconnected(&mut self) {
+        if self.worker.as_ref().is_some_and(|w| {
+            matches!(
+                w.kind(),
+                WorkerKind::RestoreValidation | WorkerKind::Restore
+            )
+        }) {
+            self.restore_finished(Err("Restore worker ended unexpectedly. Preserve the selected destination; no successful restore is confirmed.".into()));
+            return;
+        }
         // Preserve the old Run identity and visible partial before retiring it.
         // Non-Run interruption already recovers the queue in this checked path.
-        self.pause_failed_worker();
+        if !self
+            .worker
+            .as_ref()
+            .is_some_and(|worker| worker.kind() == WorkerKind::Inbox)
+        {
+            self.pause_failed_worker();
+        }
         if let Some(identity) = self.worker.as_ref().and_then(Worker::run_identity) {
             self.run_activity
                 .transition(RunActivityEvent::Disconnected(&identity.thread));

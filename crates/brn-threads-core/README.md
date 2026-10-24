@@ -98,6 +98,12 @@ as part of a content revision needs no redundant confirmation permission; settin
 confirmation true still requires owner authority. Confirmation needs host authority
 and is cleared on a later autonomous content revision. Human Actions require
 instruction scope and evidence for Done; resolving a thread does not finish them.
+Optional `owner` and `waiting_on` are bounded reported labels, not identity or
+permission records. `follow_up` is a separate exact `YYYY-MM-DD` calendar date,
+not a reminder; unknown facts stay absent. Changes to these facts join the
+existing commitment authority and derivation checks, including Waiting progress
+and internal completion. Schema11 fences old writers without rewriting old
+records, revisions or prepared request bytes.
 
 `backup(new_file)` uses the SQLite backup API in a unique private directory under
 the destination parent. It converts the snapshot to standalone DELETE journal

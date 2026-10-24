@@ -1,0 +1,193 @@
+{
+  "baseline": "f60c5a2f2102f4925b1b182f9f1bab2739fde76d",
+  "authority": {
+    "approve_all_three": "Sentinel_4a4c26b62cf48191a984cea7ea942e63",
+    "prior_merge_and_calculator_deferral": "Sentinel_c40a2bce390c819198a4113ceb9717ae",
+    "scope_record": "docs/work/active/daily-followups-inbox-restore/baseline.md"
+  },
+  "work_view": {
+    "observed_at": "2026-10-24T04:46:55.734511+00:00",
+    "goal": "Turn meeting notes into dependable follow-ups, add a manually scanned document inbox, and expose safe desktop backup restoration.",
+    "owner_attention": "All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main required gates passed; optional Windows failures remain separate.",
+    "tasks": [
+      {
+        "id": "prior-main-ci",
+        "title": "Close the prior batch resulting-main CI gate",
+        "owner": "lead integration",
+        "state": "complete",
+        "activity": "Exact f60c5a2f run40058075212 completed: all seven Mac/Linux/documentation jobs passed; three optional Windows failures. Preview workflow40060785028 skipped build/package/publish via existing gate.",
+        "observed_at": "2026-10-24T04:03:44.836881+00:00",
+        "origin": "observed",
+        "next_action": "Retain terminal receipt; continue the three newly approved slices without new merge authority.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/baseline.md",
+          "https://github.com/ewq100/brn-rust/actions/runs/40058075212"
+        ],
+        "gates": {
+          "implementation": "complete: prior batch merged; no new implementation assigned",
+          "checks": "passed: seven Mac/Linux/docs jobs on exact merge f60c5a2f; three optional Windows jobs failed",
+          "integration": "passed: PR226 merged f60c5a2f; no authority to merge new PRs",
+          "native": "separate: prior headless/native observations retain original bounds",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "actions-followups",
+        "title": "Make meeting-note follow-ups dependable",
+        "owner": "Actions implementation lane",
+        "state": "ready",
+        "activity": "UI9c40c9b3 integrated as512e9eac; both focused native-feature tests passed after correcting a platform shortcut in the fixture. Service/core and semantic oracle source reviewed; four authored live cases remain unrun.",
+        "observed_at": "2026-10-24T04:46:55.734511+00:00",
+        "origin": "reported",
+        "next_action": "Participate in combined source review and repair any integration failures.",
+        "depends_on": [],
+        "resource_waits": [
+          "Lead-coordinated heavyweight build slot; no concurrent shared-target writers"
+        ],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/baseline.md"
+        ],
+        "gates": {
+          "implementation": "complete: reviewed local core/service/UI slices; not merged",
+          "checks": "passed: focused core76/app13/Python23/native2; pending combined source and CI",
+          "integration": "pending: draft PR only; no new merge authority",
+          "native": "pending: actual Mac interaction not authorized in this cloud batch",
+          "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "manual-inbox",
+        "title": "Scan a document inbox with visible status and safe retries",
+        "owner": "Inbox implementation lane",
+        "state": "active",
+        "activity": "Final app source covers stable receipt identity across settings/folder reselection and Undo, atomic settings/generation fences, descriptor reads and aggregate converted output limits. App suite compiling; native checks deferred to combined tree.",
+        "observed_at": "2026-10-24T04:46:55.734511+00:00",
+        "origin": "reported",
+        "next_action": "Finish app/core checks, commit source, then integrate and run the combined native suite.",
+        "depends_on": [
+          {
+            "task": "actions-followups",
+            "condition": "Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage.",
+            "satisfied": true
+          }
+        ],
+        "resource_waits": [
+          "Lead-coordinated heavyweight build slot; no concurrent shared-target writers"
+        ],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "pending: source-bound focused checks and independent review",
+          "integration": "pending: draft PR only; no new merge authority",
+          "native": "pending: actual Mac interaction not authorized in this cloud batch",
+          "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "desktop-restore",
+        "title": "Restore a backup through the existing checked engine",
+        "owner": "Restore implementation lane",
+        "state": "ready",
+        "activity": "UI569c708e integrated as11386576; seven native-feature desktop tests passed. Core16 and exact prior-main backup witness passed; independent source review clear.",
+        "observed_at": "2026-10-24T04:46:55.734511+00:00",
+        "origin": "reported",
+        "next_action": "Support combined qualification and bounded actual Linux observation; Mac gate remains separate.",
+        "depends_on": [],
+        "resource_waits": [
+          "Lead-coordinated heavyweight build slot; no concurrent shared-target writers"
+        ],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/baseline.md"
+        ],
+        "gates": {
+          "implementation": "complete: reviewed local staged-restore/UI slices; not merged",
+          "checks": "passed: focused core16/native7 and exact schema10 backup witness; pending combined source and CI",
+          "integration": "pending: draft PR only; no new merge authority",
+          "native": "pending: actual Mac interaction not authorized in this cloud batch",
+          "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "documentation",
+        "title": "Record selected scope and narrow backlog decisions",
+        "owner": "documentation lane; then lead integration",
+        "state": "complete",
+        "activity": "Selected record/baseline and routing prepared; five narrow owner decisions recorded in the existing backlog without changing other choices.",
+        "observed_at": "2026-10-24T03:53:15.923856+00:00",
+        "origin": "observed",
+        "next_action": "Hand current record ownership to lead after the documentation commit; independent source review remains part of integration.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/baseline.md"
+        ],
+        "gates": {
+          "implementation": "complete: documentation only",
+          "checks": "passed: 16 overview tests, generated overview check, Markdown links and diff whitespace; independent source review complete",
+          "integration": "committed: 819c79e6; independent review found one stale selected-record link, corrected in lead follow-up",
+          "native": "inapplicable: documentation routing",
+          "owner_acceptance": "scope source recorded; no extra product choices inferred"
+        },
+        "attempts": []
+      },
+      {
+        "id": "integration",
+        "title": "Independently review and qualify coherent draft slices",
+        "owner": "lead integration and independent reviewer",
+        "state": "active",
+        "activity": "Actions and Restore integrated through512e9eac. Final Python suite205 run:204 passed,1platform skip. Inbox holds Cargo slot for app/core qualification; lead will then run combined Rust/native gates and draft PR CI.",
+        "observed_at": "2026-10-24T04:46:55.734511+00:00",
+        "origin": "observed",
+        "next_action": "Integrate reviewed source-bound slices, run applicable fail-fast local checks and normal CI; open draft PRs only.",
+        "depends_on": [],
+        "resource_waits": [
+          "Lead-coordinated build slot; sandbox credential fixtures require normal CI"
+        ],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "passed: Python205 run/204pass/1platform skip; pending combined Rust/native and exact-head CI",
+          "integration": "pending: draft PR only; no new merge authority",
+          "native": "pending: one consolidated later Mac checklist",
+          "owner_acceptance": "pending: no delivered behavior acceptance"
+        },
+        "attempts": []
+      },
+      {
+        "id": "mac-acceptance",
+        "title": "Complete actual Mac follow-up, inbox and restore acceptance",
+        "owner": "future separately authorized native actor",
+        "state": "blocked",
+        "activity": "Mac is not authorized for dot tasks; headless checks do not establish picker, focus, rendering or accessibility.",
+        "observed_at": "2026-10-24T03:52:34.194266+00:00",
+        "origin": "reported",
+        "next_action": "After separate authorization, exercise Actions owner/waiting/follow-up controls, manual inbox selection/status/retry and safe Restore confirmation/reopen.",
+        "depends_on": [],
+        "resource_waits": [
+          "Separate Mac access/owner session authorization"
+        ],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/baseline.md"
+        ],
+        "gates": {
+          "implementation": "inapplicable: acceptance-only task",
+          "checks": "pending: source-bound candidate and fixture preparation",
+          "integration": "deferred: use reviewed candidate when native session authorized",
+          "native": "pending: not observed in this batch",
+          "owner_acceptance": "pending"
+        },
+        "attempts": []
+      }
+    ]
+  }
+}

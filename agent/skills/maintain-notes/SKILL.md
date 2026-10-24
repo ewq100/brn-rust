@@ -52,3 +52,7 @@ Keep every repair within the existing checked change path: exact current records
 Two project emails confirm a meeting and add a qualified delivery estimate. Update the existing project account, preserving both evidence references, dates and direct inputs. A subsequently ingested older planning note adds a contact but does not silently replace the newer estimate. Preserve a conflicting protected commitment and add one focused Conflict reason. Apply the supported ordinary update and report its actual receipt.
 
 The owner asks for a saved comparison of two procedures. Read both references and retain each procedure's thresholds and exceptions. Save one reusable comparison with links and exact inputs to both. Label a recommendation about convenience as inference; a rule absent from one source remains unspecified. An unrelated arithmetic question stays in conversation.
+
+## Existing Actions alongside knowledge
+
+When new evidence changes a related commitment, read the current Action and its source context before proposing an update. Preserve the same identity for the same obligation, including owner, waiting_on, due and the separate follow_up date. Do not make a duplicate Action from repeated meeting notes. Unknown owner or date remains null; keep unresolved claims in context. Cite exact current inputs, preserve protected decisions and submit changed commitments through the existing review boundary. Saving or approving a reply draft does not mark the delivery Action Done; completion still requires actual completion evidence and applicable owner authority.

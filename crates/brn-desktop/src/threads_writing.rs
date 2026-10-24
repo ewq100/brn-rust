@@ -621,6 +621,18 @@ impl ThreadsUi {
                     })
                     .test_support(),
             );
+        for write in &candidate.request.writes {
+            if let RecordData::Action(action) = &write.data {
+                let facts = brn_threads_app::action_review_text(action);
+                card = card.child(
+                    div()
+                        .id(format!("proposal-action-{op}-{}", write.id))
+                        .aria_label(facts.clone())
+                        .child(facts)
+                        .test_support(),
+                );
+            }
+        }
         if let Some(preview) = preview
             && !preview.text.is_empty()
         {

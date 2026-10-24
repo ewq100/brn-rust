@@ -14,7 +14,33 @@ impl Store {
     /// Restore a validated backup into a fresh directory, publishing only the
     /// complete workspace. An interrupted copy leaves no ready destination.
     pub fn restore(backup: impl AsRef<Path>, fresh_directory: impl AsRef<Path>) -> Result<Self> {
-        StagedRestore::create(backup.as_ref(), fresh_directory.as_ref())?.publish()
+        Self::prepare_restore(backup, fresh_directory)?.publish()
+    }
+
+    /// Validate and copy a backup into an unpublished private stage. Dropping
+    /// the returned preview cancels it; only explicit publication exposes the
+    /// restored workspace. The source is never reopened at confirmation time.
+    pub fn prepare_restore(
+        backup: impl AsRef<Path>,
+        fresh_directory: impl AsRef<Path>,
+    ) -> Result<PreparedRestore> {
+        Ok(PreparedRestore(StagedRestore::create(
+            backup.as_ref(),
+            fresh_directory.as_ref(),
+        )?))
+    }
+}
+
+/// A validated restore snapshot awaiting host-owner confirmation. Not
+/// serializable or cloneable: a preview is consumed once, or discarded on Drop.
+pub struct PreparedRestore(StagedRestore);
+impl PreparedRestore {
+    pub fn destination(&self) -> &Path {
+        &self.0.destination
+    }
+
+    pub fn publish(self) -> Result<Store> {
+        self.0.publish()
     }
 }
 
@@ -35,7 +61,7 @@ impl StagedRestore {
             Connection::open_with_flags(backup, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
         match validate_schema(
             &source,
-            &[3, 4, 5, 6, 7, 8, 9, crate::store::SCHEMA_VERSION],
+            &[3, 4, 5, 6, 7, 8, 9, 10, 11, crate::store::SCHEMA_VERSION],
         ) {
             Ok(()) => {}
             Err(Error::Sqlite(rusqlite::Error::SqliteFailure(code, _)))
@@ -106,11 +132,21 @@ impl StagedRestore {
             .conn
             .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
         crate::upgrade::upgrade_steps(&tx, from)?;
+        crate::inbox::reset_on_restore(&tx)?;
         tx.execute_batch(
             "DELETE FROM edit_session_bindings;
              INSERT OR REPLACE INTO workspace_profile(id,purpose,changed_at) VALUES(1,'owner',NULL);",
         )?;
         tx.commit()?;
+        // SQLite integrity does not establish canonical record readability.
+        // Reuse the normal typed read, one row at a time, without collecting a
+        // second workspace-sized copy or trusting payload IDs as a page cursor.
+        {
+            let mut statement = store.conn.prepare("SELECT id FROM records")?;
+            for id in statement.query_map([], |row| row.get::<_, String>(0))? {
+                store.record(&id?)?;
+            }
+        }
         // Online Backup inherits WAL mode. Close a standalone DELETE database
         // before validation/flush and before moving the entire directory.
         store.conn.pragma_update(None, "journal_mode", "DELETE")?;
@@ -264,6 +300,120 @@ mod tests {
         let backup = root.path().join("backup.sqlite3");
         source.backup(&backup).unwrap();
         (root, backup)
+    }
+
+    #[test]
+    fn public_restore_preview_drop_discards_copy_and_retry_can_publish() {
+        let (root, backup) = fixture();
+        let before = fs::read(&backup).unwrap();
+        let destination = root.path().join("restored");
+        let preview = Store::prepare_restore(&backup, &destination).unwrap();
+        assert_eq!(preview.destination(), destination);
+        assert!(!destination.exists());
+        let staged = preview.0.directory.clone();
+        drop(preview);
+        assert_stage_gone(&staged);
+        assert!(!destination.exists());
+        Store::prepare_restore(&backup, &destination)
+            .unwrap()
+            .publish()
+            .unwrap();
+        assert!(Store::open(&destination).is_ok());
+        assert_eq!(fs::read(&backup).unwrap(), before);
+    }
+
+    #[test]
+    fn public_restore_preview_binds_copy_not_later_source_bytes() {
+        let (root, backup) = fixture();
+        let destination = root.path().join("restored");
+        let preview = Store::prepare_restore(&backup, &destination).unwrap();
+        fs::write(&backup, b"replaced after preview").unwrap();
+        let restored = preview.publish().unwrap();
+        assert!(restored.records().is_ok());
+        drop(restored);
+        assert!(Store::open(&destination).is_ok());
+        assert_eq!(fs::read(&backup).unwrap(), b"replaced after preview");
+    }
+
+    #[test]
+    fn public_restore_preview_rechecks_destination_at_confirmation() {
+        let (root, backup) = fixture();
+        let destination = root.path().join("restored");
+        let preview = Store::prepare_restore(&backup, &destination).unwrap();
+        let staged = preview.0.directory.clone();
+        fs::create_dir(&destination).unwrap();
+        fs::write(destination.join("human-work"), b"preserve").unwrap();
+        assert!(preview.publish().is_err());
+        assert_eq!(
+            fs::read(destination.join("human-work")).unwrap(),
+            b"preserve"
+        );
+        assert_stage_gone(&staged);
+    }
+
+    #[test]
+    fn restore_preview_refuses_unreadable_current_records_before_confirmation() {
+        for missing_table in [false, true] {
+            let (root, backup) = fixture();
+            let conn = Connection::open(&backup).unwrap();
+            if missing_table {
+                conn.execute_batch("DROP TABLE records").unwrap();
+            } else {
+                // Valid SQLite/JSON and BRN identity, but not a canonical Record.
+                conn.execute(
+                    "INSERT INTO records(id,version,body) VALUES('forged',1,'{}')",
+                    [],
+                )
+                .unwrap();
+            }
+            drop(conn);
+            let original = fs::read(&backup).unwrap();
+            let destination = root.path().join("restore");
+            let result = Store::prepare_restore(&backup, &destination);
+            assert!(
+                result.is_err(),
+                "unreadable backup must not reach confirmation"
+            );
+            assert!(!destination.exists());
+            assert_eq!(fs::read(&backup).unwrap(), original);
+            assert!(!fs::read_dir(root.path()).unwrap().any(|entry| {
+                entry
+                    .unwrap()
+                    .file_name()
+                    .to_string_lossy()
+                    .starts_with(".brn-restore-stage-")
+            }));
+        }
+    }
+
+    #[test]
+    fn restored_copy_requires_new_machine_local_inbox_authorization() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let mut source = Store::open(root.path().join("source")).unwrap();
+        let state = crate::InboxState {
+            revision: 0,
+            generation: "synthetic".into(),
+            folder: root.path().join("inbox").display().to_string(),
+            folder_identity: "synthetic-identity".into(),
+            destination: crate::InboxDestination::General,
+            entries: vec![],
+        };
+        source
+            .save_inbox_state(None, &state, &crate::HostAuthority::owner("fixture"))
+            .unwrap();
+        let records = source.records().unwrap();
+        let backup = root.path().join("backup.sqlite3");
+        source.backup(&backup).unwrap();
+        let original = fs::read(&backup).unwrap();
+        let preview = Store::prepare_restore(&backup, root.path().join("recovered")).unwrap();
+        let staged = Store::open(&preview.0.directory).unwrap();
+        assert!(staged.inbox_state().unwrap().is_none());
+        drop(staged);
+        let restored = preview.publish().unwrap();
+        assert!(restored.inbox_state().unwrap().is_none());
+        assert_eq!(restored.records().unwrap(), records);
+        assert!(source.inbox_state().unwrap().is_some());
+        assert_eq!(fs::read(&backup).unwrap(), original);
     }
 
     #[test]

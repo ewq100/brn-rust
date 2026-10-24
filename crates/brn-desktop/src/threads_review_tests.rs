@@ -195,6 +195,9 @@ fn tasks(cx: &mut TestAppContext, f: &Fixture) -> Vec<Record> {
                                 archived: false,
                                 data: RecordData::Action(Action {
                                     kept_outside_project: false,
+                                    owner: None,
+                                    waiting_on: None,
+                                    follow_up: None,
                                     chat: None,
                                     description: description.into(),
                                     state: ActionState::Open,
@@ -313,6 +316,9 @@ fn proposal_shapes_name_the_label_primary_and_exact_footer() {
         archived: false,
         data: RecordData::Action(Action {
             kept_outside_project: false,
+            owner: None,
+            waiting_on: None,
+            follow_up: None,
             chat: None,
             description: "Task".into(),
             state: ActionState::Done,
@@ -1937,5 +1943,42 @@ fn real_review_input_and_card_apply_share_draft_and_selection_guards(cx: &mut Te
             view.writing.review_editor.read(cx).value().as_ref(),
             REVISED
         );
+    });
+}
+
+#[gpui_kit::test]
+fn action_review_displays_exact_unknown_and_changed_followup_facts(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1100., 800., TEXT);
+    let tasks = tasks(cx, &f);
+    let task = &tasks[0];
+    let RecordData::Action(mut after) = task.data.clone() else {
+        panic!()
+    };
+    after.owner = Some("Märta".into());
+    after.waiting_on = None;
+    after.follow_up = Some("2028-02-29".into());
+    let id = task.id.clone();
+    let version = task.version;
+    review_writes(cx, &f, "Review reported follow-up facts", |_| {
+        vec![
+            note_put(&f.note, REVISED),
+            Put {
+                id: id.clone(),
+                expected_version: Some(version),
+                archived: false,
+                data: RecordData::Action(after.clone()),
+            },
+        ]
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.find(format!("review-action-{id}")).visible());
+        let label = window
+            .find(format!("review-action-{id}"))
+            .label()
+            .unwrap()
+            .to_owned();
+        assert!(label.contains("Owner: Märta\nWaiting on: Unspecified"));
+        assert!(label.contains("Due: Unspecified\nFollow up: 2028-02-29"));
+        assert!(label.contains("Completion evidence: Unspecified"));
     });
 }

@@ -96,7 +96,7 @@ impl StagedBackup {
         )?;
         crate::store::validate_schema(
             &check,
-            &[3, 4, 5, 6, 7, 8, 9, crate::store::SCHEMA_VERSION],
+            &[3, 4, 5, 6, 7, 8, 9, 10, 11, crate::store::SCHEMA_VERSION],
         )?;
         drop(check);
         fs::OpenOptions::new()

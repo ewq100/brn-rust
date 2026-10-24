@@ -170,6 +170,9 @@ fn task(workspace: &mut Workspace, description: &str, state: ActionState) -> Str
                     archived: false,
                     data: RecordData::Action(Action {
                         kept_outside_project: false,
+                        owner: None,
+                        waiting_on: None,
+                        follow_up: None,
                         chat: None,
                         description: description.into(),
                         state,
