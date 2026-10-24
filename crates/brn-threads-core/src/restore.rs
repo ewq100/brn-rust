@@ -14,7 +14,33 @@ impl Store {
     /// Restore a validated backup into a fresh directory, publishing only the
     /// complete workspace. An interrupted copy leaves no ready destination.
     pub fn restore(backup: impl AsRef<Path>, fresh_directory: impl AsRef<Path>) -> Result<Self> {
-        StagedRestore::create(backup.as_ref(), fresh_directory.as_ref())?.publish()
+        Self::prepare_restore(backup, fresh_directory)?.publish()
+    }
+
+    /// Validate and copy a backup into an unpublished private stage. Dropping
+    /// the returned preview cancels it; only explicit publication exposes the
+    /// restored workspace. The source is never reopened at confirmation time.
+    pub fn prepare_restore(
+        backup: impl AsRef<Path>,
+        fresh_directory: impl AsRef<Path>,
+    ) -> Result<PreparedRestore> {
+        Ok(PreparedRestore(StagedRestore::create(
+            backup.as_ref(),
+            fresh_directory.as_ref(),
+        )?))
+    }
+}
+
+/// A validated restore snapshot awaiting host-owner confirmation. Not
+/// serializable or cloneable: a preview is consumed once, or discarded on Drop.
+pub struct PreparedRestore(StagedRestore);
+impl PreparedRestore {
+    pub fn destination(&self) -> &Path {
+        &self.0.destination
+    }
+
+    pub fn publish(self) -> Result<Store> {
+        self.0.publish()
     }
 }
 
@@ -264,6 +290,55 @@ mod tests {
         let backup = root.path().join("backup.sqlite3");
         source.backup(&backup).unwrap();
         (root, backup)
+    }
+
+    #[test]
+    fn public_restore_preview_drop_discards_copy_and_retry_can_publish() {
+        let (root, backup) = fixture();
+        let before = fs::read(&backup).unwrap();
+        let destination = root.path().join("restored");
+        let preview = Store::prepare_restore(&backup, &destination).unwrap();
+        assert_eq!(preview.destination(), destination);
+        assert!(!destination.exists());
+        let staged = preview.0.directory.clone();
+        drop(preview);
+        assert_stage_gone(&staged);
+        assert!(!destination.exists());
+        Store::prepare_restore(&backup, &destination)
+            .unwrap()
+            .publish()
+            .unwrap();
+        assert!(Store::open(&destination).is_ok());
+        assert_eq!(fs::read(&backup).unwrap(), before);
+    }
+
+    #[test]
+    fn public_restore_preview_binds_copy_not_later_source_bytes() {
+        let (root, backup) = fixture();
+        let destination = root.path().join("restored");
+        let preview = Store::prepare_restore(&backup, &destination).unwrap();
+        fs::write(&backup, b"replaced after preview").unwrap();
+        let restored = preview.publish().unwrap();
+        assert!(restored.records().is_ok());
+        drop(restored);
+        assert!(Store::open(&destination).is_ok());
+        assert_eq!(fs::read(&backup).unwrap(), b"replaced after preview");
+    }
+
+    #[test]
+    fn public_restore_preview_rechecks_destination_at_confirmation() {
+        let (root, backup) = fixture();
+        let destination = root.path().join("restored");
+        let preview = Store::prepare_restore(&backup, &destination).unwrap();
+        let staged = preview.0.directory.clone();
+        fs::create_dir(&destination).unwrap();
+        fs::write(destination.join("human-work"), b"preserve").unwrap();
+        assert!(preview.publish().is_err());
+        assert_eq!(
+            fs::read(destination.join("human-work")).unwrap(),
+            b"preserve"
+        );
+        assert_stage_gone(&staged);
     }
 
     #[test]

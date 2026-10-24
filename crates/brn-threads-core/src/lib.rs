@@ -26,6 +26,7 @@ pub use locator::{canonical_locator, find_source, matching_sources, same_locator
 mod read;
 mod reader;
 mod restore;
+pub use restore::PreparedRestore;
 mod revision_read;
 pub mod run_attention;
 mod stage;
