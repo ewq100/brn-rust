@@ -3,8 +3,7 @@
 Repository audit observed 2026-10-23 UTC against shipped main
 `f30f37e0dc50fdcf91e97a77bc7cda9acb678d78` and the current unmerged daily-use
 branch. This is a bounded source/document inventory, not a new test run, full
-historical re-review or authority to execute old plans. Chat research is owned by
-the integration lead and will reconcile into the same [decision backlog](decision-backlog.md).
+historical re-review or authority to execute old plans. The parent’s curated chat research is reconciled into the same [decision backlog](decision-backlog.md), with [source aliases and coverage limits](chat-source-map.md).
 
 ## Fact ownership
 
@@ -61,12 +60,10 @@ maintained navigation/version/status summaries only, not archived proof bytes.
 Check local links and whitespace after changes. Source inventory is evidence of
 implementation placement, not fresh suite results. The integration owner records
 actual checks and review in the batch receipt. Backlog rows marked unknown need
-specific evidence before implementation classification. Chat-derived candidates
-are still pending the lead's research; merge them by outcome, not by duplicating
-old task names. No owner decision has been filled in by the audit.
+specific evidence before implementation classification. The source map accounts for all 71 supplied chat topics and 14 dot aliases, grouped by outcome. Inaccessible sessions/attachments and truncated-page limits remain explicit; no exhaustive private-history claim is made. No owner decision has been filled in by the audit.
 
-Follow-up repository verification: all 29 backlog IDs are unique, all owner choices
-remain blank, all shorthand D-number references resolve, and D022/D025–D027
-separate connectors, delivery, sync and automation. A blank line that interrupted
-the final five rendered table rows was removed. Chat source coverage remains
-pending the integration lead; this verification makes no chat-completeness claim.
+Follow-up reconciliation preserves the original 29 IDs and adds 22 outcome-specific
+choices (51 total), with seven compact owner-facing groups and the full register
+behind an expandable section. All owner choices remain blank. The source appendix
+maps 71 curated CHAT IDs and 14 DOT aliases to outcomes/evidence; these counts
+measure the supplied inventory, not inaccessible personal-history completeness.

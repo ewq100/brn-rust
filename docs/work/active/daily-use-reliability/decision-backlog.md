@@ -4,7 +4,7 @@ Canonical product-disposition list for this audit. Execution remains in the
 [selected task record](record.json); findings and fact ownership are in the
 [documentation audit](documentation-audit.md). Repository evidence was reconciled
 against main `f30f37e0dc50fdcf91e97a77bc7cda9acb678d78`. Unmerged batch changes are
-not counted as shipped. Chat findings are pending integration by the lead.
+not counted as shipped. All 71 curated chat topics and 14 dot-room aliases are reconciled in the [source map](chat-source-map.md); its coverage limits apply to this backlog.
 
 Stable IDs survive reordering. `Verified shipped` means source/evidence present
 on that main, not fresh tests, release readiness or owner acceptance. `Partial`
@@ -15,6 +15,31 @@ intentionally blank for the owner's **Keep / Later / Drop** choice. Existing
 scope/authority is not overridden by a blank choice, and no new feature is
 assigned merely by listing it. Shipped entries prevent duplicate implementation;
 Drop would require a separate concrete retirement assessment before removal.
+
+## Start with these choices
+
+No new choice is required to continue the approved intake, workflow-evaluation and
+documentation batch. These groups make later review manageable; the individually
+blank decisions and implementation evidence are in the expandable register below.
+The owner can reply with individual IDs and Keep / Later / Drop; no default choice
+has been filled in.
+
+- **Useful outputs:** calculator/chart worker; later DOCX, PPTX and HTML exports (D015–D018).
+- **Everyday intake:** watched inbox, URLs, meeting-note extraction and figure fidelity (D007, D032–D034).
+- **Writing and knowledge:** style/templates, profiles/preferences, maintenance/organization and graph (D019–D021, D030–D031, D035–D038, D051).
+- **Daily controls:** desktop Restore, richer Actions, chat lifecycle and UI concepts (D013, D039–D041).
+- **External/platform scope:** read access, providers, connectors/sending, sync, mobile, encryption and Windows (D022–D023, D025–D027, D042–D043, D046–D047).
+- **Evidence and delivery:** native acceptance, model comparisons, package performance and release readiness (D008, D010–D011, D024, D048–D050).
+- **Alternative directions:** Pi/runtime exploration and development-tool alternatives (D044–D045).
+
+Existing shipped controls and engineering policies are retained as reference,
+not presented as undone work. Historical architecture conflicts are resolved by
+the later SQLite/Threads direction in the source map; this audit does not reopen
+them. “Keep” selects a direction for later concrete scoping, not blanket execution,
+merge, spending, external access or release permission.
+
+<details>
+<summary>Full decision register, including shipped baselines and separate future choices</summary>
 
 | ID | User-visible outcome | Implementation status | Source evidence / limits | Prerequisite or next evidence | Owner choice: Keep / Later / Drop |
 | --- | --- | --- | --- | --- | --- |
@@ -44,15 +69,39 @@ Drop would require a separate concrete retirement assessment before removal.
 | BRN-D024 | Ship another accepted release | Unknown | [Roadmap](../../../roadmap.md) records earlier previews; [preview process](../../../development/preview-release.md) is procedure, not current readiness evidence. | Fresh source/package/signing/clean-machine/native/owner gates and separate release authority. No current release investigation performed. | |
 | BRN-D025 | Send email/messages or perform external delivery from BRN | Not built | [Product scope](../../../product/BRN_PRODUCT_VISION.md) defers direct external sending; preparing a reply is not sending it. | Destination/recipient/action authority and evidence of actual delivery; outside batch. | |
 | BRN-D026 | Sync or collaborate across devices/users | Not built | [Canonical scope](../../../architecture/threads-target.md) defers sync/multiplayer; SQLite backup is not sync. | Separate consistency, privacy and conflict design; outside batch. | |
-| BRN-D027 | Background or recurring automation, including watched intake | Not built | [Canonical scope](../../../architecture/threads-target.md) selects manual intake and defers daemon/full recurring machinery. Watched-inbox chat intent is still pending source reconciliation. | Define the exact trigger/outcome from owner evidence; no watcher or schedule assigned here. | |
+| BRN-D027 | Recurring automation or background execution | Not built | [Canonical scope](../../../architecture/threads-target.md) selects manual intake and defers daemon/full recurring machinery. The historical weekly-on-next-launch choice (D036) and watched folder (D032) are distinct from an always-running daemon. | Define the exact trigger/outcome from owner evidence; no watcher or schedule assigned here. | |
 | BRN-D028 | Clear, compact development instructions and documentation | Partial | [AGENTS](../../../../AGENTS.md), [strategic programming](../../../development/strategic-programming.md), [this audit](documentation-audit.md). Existing responsibility guidance is shipped; stale/duplicated navigation is being corrected in the unmerged batch. | Integrate reviewed factual corrections; preserve dated evidence and distinguish runtime from development prompts. | |
 | BRN-D029 | A visible development cycle with truthful progress and gates | Partial | [Renderer](../../../../scripts/render-work-overview.py), [workflow](../../../development/workflow.md), [selected record](record.json). Generated visibility exists; old remote campaign projection is not current live execution. | Keep one source record and current projection; any new remote refresh/automation needs its own authorized scope. | |
+| BRN-D030 | A separate writing app after proving the internal module | Partial | [Writing module](../../../../crates/brn-writing-ui/README.md) and writing_host exist; separate product not established. | Keep internal qualification distinct; separate-app product decision remains open. | |
+| BRN-D031 | Learn approved writing style and suggest reusable document templates | Unknown | [Installed skills](../../../development/setup.md) provide instructions; an automatic approved-output learning/template workflow is not established by this audit. | Define owner-controlled learning and template adoption; inspect skills before adding a subsystem. | |
+| BRN-D032 | A watched/drop-folder document inbox | Not built | [Target intake](../../../architecture/threads-target.md) and [current adapter](../../../../crates/brn-threads-intake/src/lib.rs) cover explicit intake; a watched-folder service is not established. CHAT-012 repeats the idea. | Choose trigger, duplicate/recovery behavior and authorization; no watcher assigned by current intake batch. | |
+| BRN-D033 | Import web URLs with useful content and origin/date | Unknown | [Source tools](../../../../crates/brn-ai/src/threads_sources.rs) retain supplied-source provenance; this audit does not establish a production arbitrary-URL fetch workflow. | Verify actual URL admission/host path and scoped network policy before design. | |
+| BRN-D034 | Turn meeting notes into decisions, actions and unresolved questions | Partial | [Intake skill](../../../../agent/skills/intake/SKILL.md), [Action type](../../../../crates/brn-threads-core/src/types.rs) and existing agent tools can express outcomes; semantic quality is not proved. | Evaluate current tools/skills first; no dedicated meeting subsystem implied. | |
+| BRN-D035 | Maintain person/project profiles, aliases and relationship context | Partial | [Topics](../../../../crates/brn-threads-app/src/topics.rs) and generic Notes/Links exist; complete profile/alias behavior is not qualified. | Separate useful note conventions from any justified specialized model. | |
+| BRN-D036 | Quiet stale/conflict checks, including weekly checks on next launch | Unknown | [Maintenance skill](../../../../agent/skills/maintain-notes/SKILL.md) supports agent maintenance; a weekly launch trigger is not established. | Preserve historical next-launch choice; define bounded trigger/notice policy separately from D027 daemon. | |
+| BRN-D037 | Propose organization for an empty or messy knowledge base | Partial | [Maintenance skill](../../../../agent/skills/maintain-notes/SKILL.md), Topics and checked changes provide primitives; end-to-end organization quality unqualified. | Evaluate current agent on representative messy input without user-authored metadata. | |
+| BRN-D038 | Maintain owner working preferences without learning accidental defaults | Unknown | [Settings](../../../../crates/brn-threads-app/src/settings.rs) exist; a distinct learned working-preference profile is not established. | Current instructions must override saved defaults; define explicit adoption/revocation. | |
+| BRN-D039 | Richer Action ownership, follow-up dates, dependencies and decomposition | Partial | [Current Action](../../../../crates/brn-threads-core/src/types.rs) has state/description/evidence/due; generic Links exist. Separate follow-up/blocked/owner/dependency UX is not established by old proposal types. | Inspect current service/UI semantics; keep real completion distinct from draft approval; recurrence is D027. | |
+| BRN-D040 | Choose roles for Living Brief, Maintained Brain and Thinking Desk | Unknown | [UI records](../tiled-writing-workbench/plan.md) and current workspace do not prove adoption of these three later concepts. | Exploration only: decide useful role(s) before production modules; avoid three parallel workspace rewrites. | |
+| BRN-D041 | Archive inactive chats and warn before losing uncaptured outcomes | Partial | [Chat service](../../../../crates/brn-threads-app/src/chat.rs) supports durable chats/archive; automatic 30-day archive and uncaptured-outcome warning are not established. | Reconcile historical policy with current Project/conversation model and explicit deletion behavior. | |
+| BRN-D042 | Expose bounded read access to external Codex/ChatGPT agents | Partial | [CLI contract](../../../../crates/brn/README.md) enables external callers; BRN as a remotely exposed knowledge server is not established. | Clarify local CLI versus server/API need; existing outgoing local MCP is not an incoming server. | |
+| BRN-D043 | Subscription/model/reasoning choice with understandable privacy and usage | Partial | [Provider/setup](../../../development/setup.md) and [runtime](../../../../crates/brn-ai/README.md) exist. [Recorded cloud admission failure](../precise-edit-ui-qualification/evidence/live-admission.json) (2026-10-23) and missing universal cost/privacy evidence remain separate. | Qualify chosen existing account route; no credentials/security changes or assumed provider parity. | |
+| BRN-D044 | Evaluate Pi or another runtime/UI stack as an alternative direction | Not built | [Current architecture](../../../architecture/overview.md) is Rust/Rig/GPUI; chat requested research, not an approved Pi/Bun/Electron/TUI rewrite. | Require comparison and an explicit replacement decision; preserve current working paths. | |
+| BRN-D045 | Evaluate development orchestration and low-cost triage alternatives | Unknown | [Development workflow](../../../development/workflow.md) is current; Kiro ACP/T3/Pi orchestration, Jev trials and external Product-to-Production skill adoption are not verified repo features. | Development tooling only; measure benefit, keep quota/security constraints, and avoid runtime scope creep. | |
+| BRN-D046 | A mobile client | Not built | [Product scope](../../../product/BRN_PRODUCT_VISION.md) defers mobile; desktop portability is not a mobile implementation. | Separate client/platform decision; sync D026 is another choice. | |
+| BRN-D047 | App-level lock or encryption | Not built | [Product scope](../../../product/BRN_PRODUCT_VISION.md) excludes this from v1; local storage is not an app-lock/encryption guarantee. | Separate threat model, recovery and platform decision; no security settings changed here. | |
+| BRN-D048 | Broader model/reasoning and helper-delegation benchmarks | Partial | [Wiki evaluator](../../../../scripts/evaluate_wiki_v2.py) and [journeys](../../../../crates/brn-threads-app/tests/agent_eval_journeys.rs) exist; current extension does not prove a broad live model comparison. | Reuse existing framework; require supported admission, explicit bounds and actual usage/cost evidence. | |
+| BRN-D049 | Smaller packages and faster useful builds | Unknown | [Packaging workflow](../../../development/preview-release.md) exists; historical 700 MB observation is not a current measurement. | Measure current package/build before optimizing; no release implied. | |
+| BRN-D050 | Evaluate EmbeddingGemma against the current local embedding model | Not built | [Retrieval model](../../../../crates/brn-retrieval/README.md) pins multilingual-e5-small; EmbeddingGemma was a research question. | Controlled corpus/latency/size comparison before adoption; indexes stay rebuildable. | |
+| BRN-D051 | A simple visual graph of note relationships | Partial | [Connections](../../../../crates/brn-desktop/src/threads_connections.rs) and Links are implemented; a rendered spatial graph is not established. | Decide whether visual graph adds value over current Connections; do not duplicate relationship storage. | |
+
+</details>
 
 D022 originally grouped several deferred directions in the first uncommitted draft;
 D025–D027 now separate those owner decisions. No choice or status history was lost.
 
 Do not treat old `build-sequence` decisions D-S/D-M or old not-started tables as
 new approvals needed for already-shipped D006. Conversely, a shipped primitive
-never approves a broader future capability. Chat research may refine/split rows
-where the user named a distinct outcome; retain existing IDs and record provenance
-rather than copying a second backlog into chat notes or the execution record.
+never approves a broader future capability. The source map retains origin, latest direction and implementation status separately.
+Future reconciliation keeps these IDs and aliases instead of copying another backlog
+into chat notes or the execution record.
