@@ -53,6 +53,110 @@ fn notes(w: &Workspace) -> Vec<Record> {
         .collect()
 }
 #[test]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
+fn stock_docx_inbox_retains_exact_figure_and_replays_after_reopen_without_conversion() {
+    use brn_threads_intake::{ConversionRequest, Converter, DocumentHelpers, import_limits};
+    let (root, folder, mut workspace) = world();
+    let bytes = include_bytes!("../../brn-intake/tests/fixtures/harbor.docx");
+    let path = folder.join("harbor.docx");
+    fs::write(&path, bytes).unwrap();
+    let settings = DocumentConversionSettings {
+        converter: DocumentConverter::Xberg,
+        ai: false,
+    };
+    workspace
+        .choose_document_conversion(settings.clone())
+        .unwrap();
+    let helpers = DocumentHelpers::discover().expect("qualified document helpers must resolve");
+    let stop = AtomicBool::new(false);
+    let summary = workspace
+        .scan_inbox(&stop, |doc, actual_settings| {
+            assert_eq!(actual_settings, &settings);
+            Converter {
+                temp_root: root.path().join("scratch"),
+                limits: import_limits(doc.kind),
+            }
+            .convert_document(
+                ConversionRequest {
+                    kind: doc.kind,
+                    bytes: &doc.bytes,
+                    intent: ImportIntent::FullNote,
+                    source_reference: &doc.source_reference,
+                },
+                &helpers,
+                "xberg",
+                &stop,
+            )
+            .map_err(|error| AppError::Unavailable(error.to_string()))
+        })
+        .unwrap();
+    assert_eq!(summary.imported, 1, "{:?}", workspace.inbox().unwrap());
+    assert_eq!((summary.failed, summary.pending), (0, 0));
+    assert_eq!(fs::read(&path).unwrap(), bytes);
+    let imported = notes(&workspace);
+    assert_eq!(imported.len(), 1);
+    let RecordData::Note(note) = &imported[0].data else {
+        panic!()
+    };
+    assert!(note.protected && note.chat.is_none());
+    let coverage = note.import.as_ref().unwrap();
+    let provenance = coverage
+        .report
+        .as_ref()
+        .unwrap()
+        .conversion
+        .as_ref()
+        .unwrap();
+    assert_eq!(provenance.settings, settings);
+    assert_eq!(
+        provenance.engine_identity,
+        brn_threads_intake::expected_engine_identity("xberg").unwrap()
+    );
+    let records = workspace.records().unwrap();
+    let assets = records
+        .iter()
+        .filter_map(|record| match &record.data {
+            RecordData::Asset(asset) => Some((record, asset)),
+            _ => None,
+        })
+        .collect::<Vec<_>>();
+    assert_eq!(assets.len(), 1);
+    let (asset_record, asset) = assets[0];
+    assert_eq!(asset.note, imported[0].id);
+    assert_eq!(
+        asset.bytes,
+        include_bytes!("../../brn-intake/tests/fixtures/water-use.png")
+    );
+    assert!(
+        note.markdown
+            .contains(&format!("brn-asset://{}", asset_record.id))
+    );
+    let source = records
+        .iter()
+        .find(|record| record.id == coverage.source)
+        .unwrap();
+    let RecordData::Source(source) = &source.data else {
+        panic!()
+    };
+    assert_eq!(source.locator, path.to_str().unwrap());
+    assert_eq!(
+        source.external_version,
+        Some(format!("{:x}", Sha256::digest(bytes)))
+    );
+    assert!(source.chat.is_none());
+    drop(workspace);
+    let mut reopened = Workspace::open_existing_no_upgrade(root.path().join("data")).unwrap();
+    assert_eq!(
+        reopened
+            .scan_inbox(&stop, |_, _| panic!("committed DOCX must not reconvert"))
+            .unwrap()
+            .imported,
+        1
+    );
+    assert_eq!(reopened.records().unwrap(), records);
+    assert_eq!(fs::read(path).unwrap(), bytes);
+}
+#[test]
 fn explicit_general_import_preserves_files_and_replays_after_reopen() {
     let (root, folder, mut w) = world();
     let bytes = b"# Synthetic meeting\n\nOwner evidence only.\n";
