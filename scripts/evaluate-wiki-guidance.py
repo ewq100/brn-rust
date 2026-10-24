@@ -228,6 +228,9 @@ def action_checks(expectation, after):
     fields = expectation.get('fields', {})
     return {
         'action_count_including_pending': expectation.get('min', 0) <= len(variants) <= expectation['max'],
+        'action_states_including_pending': all(
+            action.get('state') in expectation['states']
+            for actions in variants.values() for action in actions) if 'states' in expectation else True,
         'saved_action_facts': all(
             all(action.get(field) == value for field, value in expectation.get('saved_fields', {}).items())
             for action in saved),

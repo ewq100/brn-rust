@@ -227,6 +227,13 @@ class MeetingActionOracleTests(unittest.TestCase):
         self.assertFalse(checks['action_count_including_pending'])
         self.assertIsNone(wiki_eval.action_checks(expected, {'records': []})['action_evidence_available'])
 
+    def test_pending_open_proposal_is_not_misclassified_as_completed_work(self):
+        expected = {'min': 1, 'max': 1, 'states': ['Suggested', 'Open', 'Waiting']}
+        after = {'records': [], 'candidates': [self.candidate('one', state='Open')]}
+        self.assertTrue(wiki_eval.action_checks(expected, after)['action_states_including_pending'])
+        after['candidates'][0]['request']['writes'][0]['data']['Action']['state'] = 'Done'
+        self.assertFalse(wiki_eval.action_checks(expected, after)['action_states_including_pending'])
+
     def test_proposed_reassignment_is_distinct_from_silently_changed_saved_owner(self):
         expected = {'min': 1, 'max': 1, 'saved_fields': {'owner': 'Mari'}}
         after = {'records': [self.record('one', owner='Mari')], 'candidates': [self.candidate('one', owner='Leena')]}
