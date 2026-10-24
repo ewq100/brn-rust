@@ -1867,7 +1867,11 @@ mod cw2_run_tests {
 }
 
 // This module is an in-process CLI-route witness, never a subprocess/live proof.
-#[cfg(all(test, feature = "scripted-document-tests", target_os = "macos"))]
+#[cfg(all(
+    test,
+    feature = "scripted-document-tests",
+    any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64"))
+))]
 mod document_route_tests {
     use super::*;
     use brn_ai::document_refine::{
