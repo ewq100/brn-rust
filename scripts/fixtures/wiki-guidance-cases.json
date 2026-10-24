@@ -174,7 +174,10 @@
           "Suggested",
           "Open",
           "Waiting"
-        ]
+        ],
+        "saved_fields": {
+          "state": "Suggested"
+        }
       },
       "rubric": [
         "Exactly one current-or-pending Action represents the supplier request across both copies.",
@@ -214,7 +217,8 @@
           "evidence": null
         },
         "saved_fields": {
-          "owner": "Mari"
+          "owner": "Mari",
+          "state": "Suggested"
         },
         "states": [
           "Suggested",
