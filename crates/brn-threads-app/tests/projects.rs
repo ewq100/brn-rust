@@ -876,9 +876,9 @@ fn private_actions_on_shared_documents_need_explicit_choices_and_never_leak() {
             archived: false,
             data: RecordData::Action(Action {
                 kept_outside_project: false,
-                owner: None,
-                waiting_on: None,
-                follow_up: None,
+                owner: Some("Private contact Mari".into()),
+                waiting_on: Some("Confidential supplier approval".into()),
+                follow_up: Some("2028-03-02".into()),
                 chat: (index != 3).then_some(c.clone()),
                 description: format!("Private obligation {index}"),
                 state,

@@ -4,12 +4,28 @@
     {
       "id": "sequential-project",
       "seeds": [
-        {"title": "Harbor project", "text": "# Harbor project\nWorking summary for the Harbor shipment. On 8 October 2026 the delivery estimate was 20 November 2026. Keep scheduling evidence and constraints here.", "protected": false},
-        {"title": "Harbor signed commitment reference", "text": "# Harbor signed commitment reference\nSynthetic signed agreement dated 1 October 2026 reports a committed delivery date of 22 November 2026. Changes require the parties' agreement. This is imported evidence, not an owner-confirmation receipt.", "protected": true}
+        {
+          "title": "Harbor project",
+          "text": "# Harbor project\nWorking summary for the Harbor shipment. On 8 October 2026 the delivery estimate was 20 November 2026. Keep scheduling evidence and constraints here.",
+          "protected": false
+        },
+        {
+          "title": "Harbor signed commitment reference",
+          "text": "# Harbor signed commitment reference\nSynthetic signed agreement dated 1 October 2026 reports a committed delivery date of 22 November 2026. Changes require the parties' agreement. This is imported evidence, not an owner-confirmation receipt.",
+          "protected": true
+        }
       ],
       "steps": [
-        {"kind": "intake", "title": "Harbor update, 12 October", "text": "# Harbor update\nMari kirjutab 12. oktoobril 2026: Harbori saadetise eeldatav tarne on 15. november 2026, kuid see pole kinnitatud lubadus. Koorem võib olla kuni 12 tonni. Laadimiseks peab veesügavus olema vähemalt 1,2 meetrit. Koosolek on kinnitatud 10. novembriks 2026. Säilita hinnangu tingimuslikkus ja erista seda allkirjastatud kokkuleppest."},
-        {"kind": "intake", "title": "Harbor older planning note, 8 October", "text": "# Harbor planning note\nThis synthetic planning note was written on 8 October 2026, before Mari's update of 12 October. It estimates delivery on 20 November 2026, not a binding commitment. The cargo cap is 12 tonnes; the loading depth minimum is 1.2 metres. It adds the contact Jaan for loading coordination. Its later ingestion does not make its estimate newer evidence."}
+        {
+          "kind": "intake",
+          "title": "Harbor update, 12 October",
+          "text": "# Harbor update\nMari kirjutab 12. oktoobril 2026: Harbori saadetise eeldatav tarne on 15. november 2026, kuid see pole kinnitatud lubadus. Koorem võib olla kuni 12 tonni. Laadimiseks peab veesügavus olema vähemalt 1,2 meetrit. Koosolek on kinnitatud 10. novembriks 2026. Säilita hinnangu tingimuslikkus ja erista seda allkirjastatud kokkuleppest."
+        },
+        {
+          "kind": "intake",
+          "title": "Harbor older planning note, 8 October",
+          "text": "# Harbor planning note\nThis synthetic planning note was written on 8 October 2026, before Mari's update of 12 October. It estimates delivery on 20 November 2026, not a binding commitment. The cargo cap is 12 tonnes; the loading depth minimum is 1.2 metres. It adds the contact Jaan for loading coordination. Its later ingestion does not make its estimate newer evidence."
+        }
       ],
       "rubric": [
         "Revise the existing Harbor project note rather than create a disconnected summary per source.",
@@ -25,11 +41,22 @@
     {
       "id": "reusable-synthesis",
       "seeds": [
-        {"title": "Fixed-slot access reference", "text": "# Fixed-slot access\nSynthetic process dated 12 October 2026. Passage is Tuesday 09:00-11:00 local time. Reserve at least 48 hours beforehand. Minimum depth is 1.2 metres. Medical emergencies may request an exception through the duty coordinator. This process gives no cargo-mass limit.", "protected": true},
-        {"title": "Tidal access reference", "text": "# Tidal access\nSynthetic process dated 12 October 2026. Passage requires tide height at least 2.4 metres, without a fixed clock window. Reserve at least 24 hours beforehand. Cargo is capped at 12 tonnes. Passage closes when wind is 18 metres/second or stronger. This process gives no medical-exception rule.", "protected": true}
+        {
+          "title": "Fixed-slot access reference",
+          "text": "# Fixed-slot access\nSynthetic process dated 12 October 2026. Passage is Tuesday 09:00-11:00 local time. Reserve at least 48 hours beforehand. Minimum depth is 1.2 metres. Medical emergencies may request an exception through the duty coordinator. This process gives no cargo-mass limit.",
+          "protected": true
+        },
+        {
+          "title": "Tidal access reference",
+          "text": "# Tidal access\nSynthetic process dated 12 October 2026. Passage requires tide height at least 2.4 metres, without a fixed clock window. Reserve at least 24 hours beforehand. Cargo is capped at 12 tonnes. Passage closes when wind is 18 metres/second or stronger. This process gives no medical-exception rule.",
+          "protected": true
+        }
       ],
       "steps": [
-        {"kind": "ask", "prompt": "Prepare and save a reusable comparison of the fixed-slot and tidal access processes from the two current imported references. Explain when each may be useful, preserve their constraints and exceptions, and distinguish source reports from your inference. Retain links and the evidence used so we can revisit the comparison."}
+        {
+          "kind": "ask",
+          "prompt": "Prepare and save a reusable comparison of the fixed-slot and tidal access processes from the two current imported references. Explain when each may be useful, preserve their constraints and exceptions, and distinguish source reports from your inference. Retain links and the evidence used so we can revisit the comparison."
+        }
       ],
       "rubric": [
         "Create a useful comparison with a stable subject, rather than duplicate both full references.",
@@ -46,7 +73,10 @@
       "id": "conversation-only",
       "seeds": [],
       "steps": [
-        {"kind": "ask", "prompt": "What is 17 multiplied by 6? Answer in this thread only; I do not need a saved knowledge note."}
+        {
+          "kind": "ask",
+          "prompt": "What is 17 multiplied by 6? Answer in this thread only; I do not need a saved knowledge note."
+        }
       ],
       "rubric": [
         "Answer 102 accurately and briefly.",
@@ -54,6 +84,141 @@
       ],
       "expected_existing_note": null,
       "no_new_notes": true
+    },
+    {
+      "seeds": [
+        {
+          "title": "Unassigned meeting discussion",
+          "text": "Meeting discussion: Someone might talk to the supplier someday. No decision, assignment, requested response or date was agreed. The idea was set aside.",
+          "protected": true
+        }
+      ],
+      "expected_existing_note": null,
+      "no_new_notes": false,
+      "id": "meeting-ambiguous-discussion",
+      "steps": [
+        {
+          "kind": "ask",
+          "prompt": "Save a short account of the Unassigned meeting discussion. Distinguish the floated idea from an agreed action. Only create a follow-up if the evidence supports a useful obligation; do not invent a task just to fill a list."
+        }
+      ],
+      "action_expectation": {
+        "max": 0
+      },
+      "rubric": [
+        "Retain that no decision, assignment, requested response or date was agreed.",
+        "No saved or pending Action is justified by this set-aside idea. Do not manufacture an owner or a follow-up date.",
+        "Inspect exact source inputs and source links for the saved meeting account; protection stays intact."
+      ]
+    },
+    {
+      "seeds": [
+        {
+          "title": "Supplier clarification meeting",
+          "text": "Meeting decision: a clarification is needed from the supplier about whether approval is required before loading. Nobody accepted responsibility for asking. No due date or follow-up date was agreed.",
+          "protected": true
+        }
+      ],
+      "expected_existing_note": null,
+      "no_new_notes": false,
+      "id": "meeting-clarification-unknown-owner",
+      "steps": [
+        {
+          "kind": "ask",
+          "prompt": "Save this meeting outcome and propose one Suggested Action to obtain the supported supplier clarification. Preserve the unknown owner and dates; this is a proposal for review, not an assignment or completed task."
+        }
+      ],
+      "action_expectation": {
+        "min": 1,
+        "max": 1,
+        "fields": {
+          "state": "Suggested",
+          "owner": null,
+          "follow_up": null,
+          "due": null,
+          "evidence": null
+        }
+      },
+      "rubric": [
+        "The one Action asks whether supplier approval is required before loading, not an invented broader task.",
+        "Owner, due and follow-up stay unspecified; Suggested is not an accepted assignment or completion.",
+        "Inspect source-linked exact input evidence for both the meeting account and Action, including any pending candidate."
+      ]
+    },
+    {
+      "seeds": [],
+      "expected_existing_note": null,
+      "no_new_notes": false,
+      "id": "meeting-duplicate-notes-one-followup",
+      "steps": [
+        {
+          "kind": "intake",
+          "title": "Supplier follow-up minutes",
+          "text": "Meeting minutes, 1 March 2028. Mari will ask the supplier for written approval. Follow up on 3 March 2028; delivery is due 10 March 2028. Record the reported commitment as one Suggested Action for review and preserve these minutes."
+        },
+        {
+          "kind": "intake",
+          "title": "Second copy of supplier minutes",
+          "text": "This is a second copy of the same 1 March 2028 meeting, not another obligation: Mari will ask the supplier for written approval. Follow up on 3 March 2028; delivery is due 10 March 2028. Reuse the existing Action and meeting account; retain this copy as additional evidence, without a second task."
+        }
+      ],
+      "action_expectation": {
+        "min": 1,
+        "max": 1,
+        "fields": {
+          "state": "Suggested",
+          "owner": "Mari",
+          "follow_up": "2028-03-03",
+          "evidence": null
+        }
+      },
+      "rubric": [
+        "Exactly one current-or-pending Action represents the supplier request across both copies.",
+        "Follow-up 3 March stays distinct from due 10 March; owner is Mari, as reported, without human-completion claims.",
+        "Inspect both sources and exact input lineage. A second source identity is not a second task.",
+        "Semantic review checks that descriptions and qualifications remain faithful; structural counts alone cannot prove meaning."
+      ]
+    },
+    {
+      "id": "meeting-changed-commitment-conflict",
+      "seeds": [
+        {
+          "title": "Approved supplier commitment",
+          "text": "Approved commitment: Mari requests supplier approval; delivery remains due 10 March 2028. A change in responsible person or delivery date needs an owner decision.",
+          "protected": true
+        }
+      ],
+      "steps": [
+        {
+          "kind": "intake",
+          "title": "Supplier meeting follow-up",
+          "text": "Meeting note: Mari should request supplier approval. Follow up on 3 March 2028; delivery remains due 10 March 2028. Preserve this report as a Suggested follow-up Action for review."
+        },
+        {
+          "kind": "intake",
+          "title": "Unapproved supplier revision",
+          "text": "A later email proposes that Leena take over and delivery move to 12 March 2028. Mari and the owner have not agreed. This conflicts with the Approved supplier commitment. Do not treat later receipt as approval; preserve the existing obligation and expose the unresolved decision with its exact source evidence."
+        }
+      ],
+      "expected_existing_note": null,
+      "no_new_notes": false,
+      "action_expectation": {
+        "min": 1,
+        "max": 1,
+        "fields": {
+          "state": "Suggested",
+          "evidence": null
+        },
+        "saved_fields": {
+          "owner": "Mari"
+        }
+      },
+      "rubric": [
+        "Protected approved commitment remains exact; the later email is a proposal, not an owner decision.",
+        "Inspect saved and pending Action owner/dates: preserve the existing Mari commitment until actual owner review; any proposed change must be explicit and attributed, not silently accepted.",
+        "Keep one related Action rather than two contradictory obligations; retain both exact source versions and visibly flag the unresolved conflict.",
+        "No completed task, sent email or accepted reassignment is claimed. Structural cardinality/state checks supplement, not replace, review of commitment meaning."
+      ]
     }
   ]
 }

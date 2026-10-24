@@ -2912,3 +2912,87 @@ fn existing_zero_byte_foreign_and_incompatible_databases_are_refused_without_mut
         );
     }
 }
+
+#[test]
+fn action_followup_changes_cannot_hide_in_routine_wait_or_internal_completion() {
+    for internal_done in [false, true] {
+        for field in ["owner", "waiting_on", "follow_up"] {
+            let (_dir, mut store) = delegated_store();
+            let create = store.allocate_operation("agreed task").unwrap();
+            let action = Action {
+                kept_outside_project: false,
+                chat: None,
+                description: "Send approved supplier reply".into(),
+                state: ActionState::Open,
+                internal: internal_done,
+                evidence: None,
+                due: Some("Friday".into()),
+                owner: Some("Mari".into()),
+                waiting_on: Some("Supplier confirmation".into()),
+                follow_up: Some("2028-03-02".into()),
+            };
+            let record = apply(
+                &mut store,
+                &create,
+                &request(vec![created(
+                    &create,
+                    0,
+                    RecordData::Action(action.clone()),
+                )]),
+                &owner(),
+            )
+            .writes[0]
+                .after
+                .clone();
+            let mut next = action.clone();
+            next.state = if internal_done {
+                ActionState::Done
+            } else {
+                ActionState::Waiting
+            };
+            if internal_done {
+                next.evidence = Some("Saved internal result".into());
+            }
+            let routine = store
+                .allocate_operation("unchanged routine progress")
+                .unwrap();
+            store
+                .prepare(
+                    &routine,
+                    &request(vec![edited(&record, RecordData::Action(next.clone()))]),
+                )
+                .unwrap();
+            // A different candidate adds a commitment change to the same progress transition.
+            match field {
+                "owner" => next.owner = Some("Leena".into()),
+                "waiting_on" => next.waiting_on = None,
+                "follow_up" => next.follow_up = Some("2028-03-09".into()),
+                _ => unreachable!(),
+            }
+            let changed = store
+                .allocate_operation("concealed commitment change")
+                .unwrap();
+            store
+                .prepare(
+                    &changed,
+                    &request(vec![edited(&record, RecordData::Action(next))]),
+                )
+                .unwrap();
+            assert!(
+                matches!(
+                    store.apply(&changed, &ai()).unwrap(),
+                    ApplyOutcome::NeedsReview { .. }
+                ),
+                "{field}, internal={internal_done}"
+            );
+            assert_eq!(store.record(&record.id).unwrap().unwrap(), record);
+            assert!(
+                matches!(
+                    store.apply(&routine, &ai()).unwrap(),
+                    ApplyOutcome::Applied(_)
+                ),
+                "unchanged progress remains allowed"
+            );
+        }
+    }
+}

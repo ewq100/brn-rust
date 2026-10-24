@@ -83,7 +83,7 @@ On Unix, export flushes the staged asset and snapshot directories before
 publication and the destination parent after rename. If the final parent flush
 fails, export reports the error while preserving the complete published snapshot.
 
-The core uses schema10. Supported schema3–9 workspaces upgrade only after a
+The core uses schema11. Supported schema3–10 workspaces upgrade only after a
 verified external pre-upgrade backup; restoring an older backup upgrades only its
 unpublished copy and leaves the source snapshot unchanged. Foreign/unsupported
 formats remain refused. Save maps

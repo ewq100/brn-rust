@@ -22,6 +22,7 @@ fn legacy_actions_keep_unknown_facts_and_exact_serialization() {
 fn follow_up_fields_reject_invalid_dates_and_labels_at_checked_prepare() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let mut store = Store::open(root.path().join("data")).unwrap();
+    let oversized = "õ".repeat(257);
     for (index, field, value) in [
         (0, "follow_up", "2027-02-29"),
         (1, "follow_up", "2028-2-29"),
@@ -29,6 +30,8 @@ fn follow_up_fields_reject_invalid_dates_and_labels_at_checked_prepare() {
         (3, "follow_up", "2028-02-29T00:00:00Z"),
         (4, "owner", " "),
         (5, "waiting_on", "Supplier\nApproval"),
+        (6, "owner", oversized.as_str()),
+        (7, "waiting_on", oversized.as_str()),
     ] {
         let mut value_json = serde_json::to_value(legacy_action()).unwrap();
         value_json[field] = value.into();
@@ -108,6 +111,18 @@ fn schema10_actions_upgrade_only_after_external_snapshot_without_rewriting_recor
     let body: String = conn
         .query_row("SELECT body FROM records WHERE id=?1", [&id], |r| r.get(0))
         .unwrap();
+    let revision: String = conn
+        .query_row("SELECT body FROM revisions WHERE id=?1", [&id], |r| {
+            r.get(0)
+        })
+        .unwrap();
+    let saved_request: String = conn
+        .query_row(
+            "SELECT request FROM operations WHERE id=?1",
+            [operation.as_str()],
+            |r| r.get(0),
+        )
+        .unwrap();
     drop(conn);
     let bytes = std::fs::read(&database).unwrap();
     assert!(matches!(
@@ -129,6 +144,21 @@ fn schema10_actions_upgrade_only_after_external_snapshot_without_rewriting_recor
             .get::<_, String>(0))
             .unwrap(),
         body
+    );
+    assert_eq!(
+        conn.query_row("SELECT body FROM revisions WHERE id=?1", [&id], |r| r
+            .get::<_, String>(0))
+            .unwrap(),
+        revision
+    );
+    assert_eq!(
+        conn.query_row(
+            "SELECT request FROM operations WHERE id=?1",
+            [operation.as_str()],
+            |r| r.get::<_, String>(0)
+        )
+        .unwrap(),
+        saved_request
     );
     let snapshots: Vec<_> = std::fs::read_dir(&backup)
         .unwrap()
