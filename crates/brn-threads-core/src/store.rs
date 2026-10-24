@@ -17,7 +17,7 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 11;
+pub(crate) const SCHEMA_VERSION: i64 = 12;
 /// Read-only canonical watermark, external commit version and exact pending keys.
 pub type ViewChangeToken = (u64, u64, Vec<(String, String)>);
 pub struct Store {
@@ -165,6 +165,7 @@ impl Store {
             tx.execute_batch(crate::upgrade::PROJECT_SCHEMA)?;
             tx.execute_batch(crate::upgrade::CALLER_SCHEMA)?;
             tx.execute_batch(crate::upgrade::WRITING_SCHEMA)?;
+            tx.execute_batch(crate::inbox::INBOX_SCHEMA)?;
             // Written before commit: no committed state shows a test-intended
             // workspace as an owner workspace.
             if let OpenMode::Create(purpose) = mode {
@@ -1437,7 +1438,7 @@ fn open_existing_database(database: &Path, upgrade: bool) -> Result<Connection> 
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if matches!(schema, 3..=10) {
+    if matches!(schema, 3..=11) {
         if !upgrade {
             let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
             if app == APPLICATION_ID {

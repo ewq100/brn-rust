@@ -52,6 +52,9 @@ pub(crate) fn upgrade_steps(tx: &Connection, from: i64) -> Result<()> {
     if from < 7 {
         tx.execute_batch(WRITING_SCHEMA)?;
     }
+    if from < 12 {
+        tx.execute_batch(crate::inbox::INBOX_SCHEMA)?;
+    }
     tx.pragma_update(None, "user_version", crate::store::SCHEMA_VERSION)?;
     Ok(())
 }
@@ -82,7 +85,7 @@ pub(crate) fn upgrade_connection(
     database: &Path,
     chosen: Option<&Path>,
 ) -> Result<()> {
-    validate_schema(conn, &[3, 4, 5, 6, 7, 8, 9, 10])?;
+    validate_schema(conn, &[3, 4, 5, 6, 7, 8, 9, 10, 11])?;
     let from: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
     let workspace = database
         .parent()

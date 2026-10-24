@@ -71,7 +71,7 @@ fn schema9_snapshot_stays9_and_only_unpublished_restore_copy_upgrades() {
         Store::open_existing_without_upgrade(&data),
         Err(Error::UpgradeRequired {
             schema_found: 9,
-            schema_required: 11
+            schema_required: 12
         })
     ));
     assert_eq!(std::fs::read(&db).unwrap(), bytes);
@@ -79,7 +79,7 @@ fn schema9_snapshot_stays9_and_only_unpublished_restore_copy_upgrades() {
     std::fs::copy(&db, &snapshot).unwrap();
     let old_bytes = std::fs::read(&snapshot).unwrap();
     let restored = Store::restore(&snapshot, root.path().join("restored")).unwrap();
-    assert_eq!(version(&restored.directory().join(DATABASE_FILENAME)), 11);
+    assert_eq!(version(&restored.directory().join(DATABASE_FILENAME)), 12);
     assert_eq!(
         canonical(&restored.directory().join(DATABASE_FILENAME)),
         rows
@@ -90,7 +90,7 @@ fn schema9_snapshot_stays9_and_only_unpublished_restore_copy_upgrades() {
     let backups = root.path().join("backups");
     std::fs::create_dir(&backups).unwrap();
     Store::upgrade(&data, &backups).unwrap();
-    assert_eq!(version(&db), 11);
+    assert_eq!(version(&db), 12);
     assert_eq!(canonical(&db), rows);
     if let Some(binary) = std::env::var_os("BRN_SCHEMA9_BINARY") {
         let before = std::fs::read(&db).unwrap();

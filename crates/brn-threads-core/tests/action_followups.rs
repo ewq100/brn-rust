@@ -129,7 +129,7 @@ fn schema10_actions_upgrade_only_after_external_snapshot_without_rewriting_recor
         Store::open_existing_without_upgrade(&data),
         Err(Error::UpgradeRequired {
             schema_found: 10,
-            schema_required: 11
+            schema_required: 12
         })
     ));
     assert_eq!(std::fs::read(&database).unwrap(), bytes);
