@@ -417,6 +417,7 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
             "Work in Worker destination · Synthetic progress",
         ),
         (WorkerKind::Import, true, "Synthetic progress"),
+        (WorkerKind::Inbox, true, "Synthetic progress"),
         (
             WorkerKind::Export,
             false,
@@ -461,6 +462,11 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                             CancellationToken::new(),
                             Arc::new(AtomicBool::new(false)),
                             None,
+                        ),
+                        WorkerKind::Inbox => Worker::inbox(
+                            receiver,
+                            CancellationToken::new(),
+                            Arc::new(AtomicBool::new(false)),
                         ),
                         WorkerKind::Export | WorkerKind::Backup => {
                             Worker::output(receiver, kind == WorkerKind::Backup)
