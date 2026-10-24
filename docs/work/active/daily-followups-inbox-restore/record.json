@@ -6,7 +6,7 @@
     "scope_record": "docs/work/active/daily-followups-inbox-restore/baseline.md"
   },
   "work_view": {
-    "observed_at": "2026-10-24T04:03:44.836881+00:00",
+    "observed_at": "2026-10-24T04:10:06.413034+00:00",
     "goal": "Turn meeting notes into dependable follow-ups, add a manually scanned document inbox, and expose safe desktop backup restoration.",
     "owner_attention": "All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main required gates passed; optional Windows failures remain separate.",
     "tasks": [
@@ -39,8 +39,8 @@
         "title": "Make meeting-note follow-ups dependable",
         "owner": "Actions implementation lane",
         "state": "active",
-        "activity": "Schema11 and bounded Action follow-up fields implemented. Agent reports 76 focused core and 13 app checks passed; desktop and authored semantic evaluation extension in progress.",
-        "observed_at": "2026-10-24T04:01:02.305983+00:00",
+        "activity": "Service/evaluation slice472cf665 independently reviewed and integrated. Four authored semantic cases remain unrun live. Desktop controls source-reviewed; focused native tests queued after Restore.",
+        "observed_at": "2026-10-24T04:10:06.413034+00:00",
         "origin": "reported",
         "next_action": "Implement shared checked behavior and CLI/native presentation; test ambiguous commitments, duplicates, stale edits, replay and recovery.",
         "depends_on": [],
@@ -64,8 +64,8 @@
         "title": "Scan a document inbox with visible status and safe retries",
         "owner": "Inbox implementation lane",
         "state": "active",
-        "activity": "Schema12/ledger core candidate 0fd44ec4 reports 2 focused tests passed. Explicit General knowledge setup consent and private queue isolation are being implemented; no scan on picker selection.",
-        "observed_at": "2026-10-24T04:01:02.305983+00:00",
+        "activity": "Core0fd44ec4 reviewed and integrated. App corrections address descriptor enumeration and canonical receipt identity across settings edits/file disappearance, with no resurrection after Undo. Explicit General consent/private queue witnesses authored; tests pending.",
+        "observed_at": "2026-10-24T04:10:06.413034+00:00",
         "origin": "reported",
         "next_action": "Implement bounded manual scan, durable status and safe retries; integrate migration only after schema11 ownership is reconciled.",
         "depends_on": [
@@ -95,8 +95,8 @@
         "title": "Restore a backup through the existing checked engine",
         "owner": "Restore implementation lane",
         "state": "active",
-        "activity": "PreparedRestore core candidate aa2c5ff2 reports 14 focused tests passed. Desktop flow and stricter staged readability validation in progress; build slot follows Inbox core checks.",
-        "observed_at": "2026-10-24T04:01:02.305983+00:00",
+        "activity": "Core e5b7edf5 reviewed/integrated; 16 focused tests and exact f60c5a2f schema10 backup to schema12 restore witness passed. Desktop source review has no blocker; native compilation active after correcting saved dependency environment.",
+        "observed_at": "2026-10-24T04:10:06.413034+00:00",
         "origin": "reported",
         "next_action": "Implement explicit owner flow and focused failure/reopen tests; keep native picker/focus acceptance separate.",
         "depends_on": [],
@@ -108,7 +108,7 @@
         ],
         "gates": {
           "implementation": "pending",
-          "checks": "pending: source-bound focused checks and independent review",
+          "checks": "passed: reported focused core16 and exact prior-main backup witness; pending desktop/runtime and integrated gates",
           "integration": "pending: draft PR only; no new merge authority",
           "native": "pending: actual Mac interaction not authorized in this cloud batch",
           "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
@@ -143,9 +143,9 @@
         "title": "Independently review and qualify coherent draft slices",
         "owner": "lead integration and independent reviewer",
         "state": "active",
-        "activity": "Three implementation lanes use separate worktrees; lead owns schema sequencing, build slots and final exact-head evidence.",
-        "observed_at": "2026-10-24T03:52:34.194266+00:00",
-        "origin": "reported",
+        "activity": "Core/service slices integrated through7d929feb. Configured Python suite204 passed with1platform skip. Native Cargo slot held by Restore; Actions then Inbox follow. Reviewer findings remain actionable before final qualification.",
+        "observed_at": "2026-10-24T04:10:06.413034+00:00",
+        "origin": "observed",
         "next_action": "Integrate reviewed source-bound slices, run applicable fail-fast local checks and normal CI; open draft PRs only.",
         "depends_on": [],
         "resource_waits": [
@@ -156,7 +156,7 @@
         ],
         "gates": {
           "implementation": "pending",
-          "checks": "pending: applicable local checks plus exact-head CI; known local Git-ancestor credential fixture refusal must fail fast",
+          "checks": "passed: integrated Python204 with1platform skip; pending Rust/native and exact-head CI",
           "integration": "pending: draft PR only; no new merge authority",
           "native": "pending: one consolidated later Mac checklist",
           "owner_acceptance": "pending: no delivered behavior acceptance"

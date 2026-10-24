@@ -14,8 +14,8 @@ Task details and full history: [selected work record](active/daily-followups-inb
 ### Make meeting-note follow-ups dependable
 
 Task ID: `actions-followups`
-Owner: Actions implementation lane · State: **active** · Last reported: 2026-10-24T04:01:02.305983+00:00
-Activity: Schema11 and bounded Action follow-up fields implemented. Agent reports 76 focused core and 13 app checks passed; desktop and authored semantic evaluation extension in progress.
+Owner: Actions implementation lane · State: **active** · Last reported: 2026-10-24T04:10:06.413034+00:00
+Activity: Service/evaluation slice472cf665 independently reviewed and integrated. Four authored semantic cases remain unrun live. Desktop controls source-reviewed; focused native tests queued after Restore.
 Next: Implement shared checked behavior and CLI/native presentation; test ambiguous commitments, duplicates, stale edits, replay and recovery.
 Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
 
@@ -35,8 +35,8 @@ Gates:
 ### Scan a document inbox with visible status and safe retries
 
 Task ID: `manual-inbox`
-Owner: Inbox implementation lane · State: **active** · Last reported: 2026-10-24T04:01:02.305983+00:00
-Activity: Schema12/ledger core candidate 0fd44ec4 reports 2 focused tests passed. Explicit General knowledge setup consent and private queue isolation are being implemented; no scan on picker selection.
+Owner: Inbox implementation lane · State: **active** · Last reported: 2026-10-24T04:10:06.413034+00:00
+Activity: Core0fd44ec4 reviewed and integrated. App corrections address descriptor enumeration and canonical receipt identity across settings edits/file disappearance, with no resurrection after Undo. Explicit General consent/private queue witnesses authored; tests pending.
 Next: Implement bounded manual scan, durable status and safe retries; integrate migration only after schema11 ownership is reconciled.
 Depends on: actions-followups when Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (reported satisfied: true)
 Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
@@ -57,8 +57,8 @@ Gates:
 ### Restore a backup through the existing checked engine
 
 Task ID: `desktop-restore`
-Owner: Restore implementation lane · State: **active** · Last reported: 2026-10-24T04:01:02.305983+00:00
-Activity: PreparedRestore core candidate aa2c5ff2 reports 14 focused tests passed. Desktop flow and stricter staged readability validation in progress; build slot follows Inbox core checks.
+Owner: Restore implementation lane · State: **active** · Last reported: 2026-10-24T04:10:06.413034+00:00
+Activity: Core e5b7edf5 reviewed/integrated; 16 focused tests and exact f60c5a2f schema10 backup to schema12 restore witness passed. Desktop source review has no blocker; native compilation active after correcting saved dependency environment.
 Next: Implement explicit owner flow and focused failure/reopen tests; keep native picker/focus acceptance separate.
 Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
 
@@ -68,7 +68,7 @@ Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-ta
 Gates:
 
 - **implementation:** pending
-- **checks:** pending: source-bound focused checks and independent review
+- **checks:** passed: reported focused core16 and exact prior-main backup witness; pending desktop/runtime and integrated gates
 - **integration:** pending: draft PR only; no new merge authority
 - **native:** pending: actual Mac interaction not authorized in this cloud batch
 - **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
@@ -78,8 +78,8 @@ Gates:
 ### Independently review and qualify coherent draft slices
 
 Task ID: `integration`
-Owner: lead integration and independent reviewer · State: **active** · Last reported: 2026-10-24T03:52:34.194266+00:00
-Activity: Three implementation lanes use separate worktrees; lead owns schema sequencing, build slots and final exact-head evidence.
+Owner: lead integration and independent reviewer · State: **active** · Last observed: 2026-10-24T04:10:06.413034+00:00
+Activity: Core/service slices integrated through7d929feb. Configured Python suite204 passed with1platform skip. Native Cargo slot held by Restore; Actions then Inbox follow. Reviewer findings remain actionable before final qualification.
 Next: Integrate reviewed source-bound slices, run applicable fail-fast local checks and normal CI; open draft PRs only.
 Resource waits: Lead-coordinated build slot; sandbox credential fixtures require normal CI
 
@@ -89,7 +89,7 @@ Resource waits: Lead-coordinated build slot; sandbox credential fixtures require
 Gates:
 
 - **implementation:** pending
-- **checks:** pending: applicable local checks plus exact-head CI; known local Git-ancestor credential fixture refusal must fail fast
+- **checks:** passed: integrated Python204 with1platform skip; pending Rust/native and exact-head CI
 - **integration:** pending: draft PR only; no new merge authority
 - **native:** pending: one consolidated later Mac checklist
 - **owner acceptance:** pending: no delivered behavior acceptance
@@ -183,4 +183,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-24T04:03:44.836881+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-24T04:10:06.413034+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

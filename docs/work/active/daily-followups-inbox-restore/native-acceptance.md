@@ -37,6 +37,11 @@ reconcile them with the candidate before the session.
   a second authorized synthetic host; stale Save must preserve newer accepted data
   and the local entries, with an understandable reopen/retry instruction.
 
+- [ ] Inspect a synthetic Action proposal in the card and full review: owner, waiting-on,
+  due/follow-up and explicit cleared/Unspecified facts agree. Apply, reopen and Undo
+  retain exact state/evidence/date semantics. Long Unicode labels remain readable
+  at a narrow window; no control implies external reminders or real-world completion.
+
 ## Inbox: explicit General consent and manual work
 
 - [ ] In Settings, inspect **Document inbox**, **Choose General inbox folder…** and
