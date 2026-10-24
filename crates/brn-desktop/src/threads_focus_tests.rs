@@ -760,6 +760,9 @@ fn native_whole_group_selection_prepares_new_comparison_before_exact_apply(
                         archived: false,
                         data: RecordData::Action(Action {
                             kept_outside_project: false,
+                            owner: None,
+                            waiting_on: None,
+                            follow_up: None,
                             chat: None,
                             description: "Human wording check".into(),
                             state: ActionState::Waiting,

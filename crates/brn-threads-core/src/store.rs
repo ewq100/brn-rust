@@ -17,7 +17,7 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 10;
+pub(crate) const SCHEMA_VERSION: i64 = 11;
 /// Read-only canonical watermark, external commit version and exact pending keys.
 pub type ViewChangeToken = (u64, u64, Vec<(String, String)>);
 pub struct Store {
@@ -1437,7 +1437,7 @@ fn open_existing_database(database: &Path, upgrade: bool) -> Result<Connection> 
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if matches!(schema, 3..=9) {
+    if matches!(schema, 3..=10) {
         if !upgrade {
             let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
             if app == APPLICATION_ID {
@@ -1583,6 +1583,9 @@ fn validate_request(operation: &OperationId, request: &ChangeRequest) -> Result<
             && !note.protected
         {
             return Err(Error::Invalid("full imports begin protected".into()));
+        }
+        if let RecordData::Action(action) = &write.data {
+            action.validate_follow_up()?;
         }
         if let RecordData::Action(action) = &write.data
             && action.kept_outside_project
@@ -2218,8 +2221,7 @@ pub(crate) fn apply_on(
             });
             let commitment_changed = prior.is_some_and(|prior| {
                 prior.state != ActionState::Suggested
-                    && (prior.due != next.due
-                        || prior.description != next.description
+                    && (!prior.same_commitment(next)
                         || prior.state != next.state
                         || current
                             .as_ref()
@@ -2231,8 +2233,7 @@ pub(crate) fn apply_on(
                 && next.state == ActionState::Done
                 && prior.is_some_and(|prior| {
                     prior.internal
-                        && prior.due == next.due
-                        && prior.description == next.description
+                        && prior.same_commitment(next)
                         && current
                             .as_ref()
                             .is_some_and(|record| record.archived == write.archived)
@@ -2242,8 +2243,7 @@ pub(crate) fn apply_on(
             let routine_wait = prior.is_some_and(|prior| {
                 matches!(prior.state, ActionState::Open | ActionState::Waiting)
                     && matches!(next.state, ActionState::Open | ActionState::Waiting)
-                    && prior.due == next.due
-                    && prior.description == next.description
+                    && prior.same_commitment(next)
                     && prior.internal == next.internal
                     && current
                         .as_ref()
@@ -2785,7 +2785,7 @@ fn derivation_is_current(derived: &Record, current: &Record) -> bool {
         // Progress/completion changes do not erase where the task itself came
         // from. A later input may warrant a follow-up even for completed work.
         (RecordData::Action(old), RecordData::Action(new)) => {
-            old.description == new.description && old.due == new.due && old.internal == new.internal
+            old.same_commitment(new) && old.internal == new.internal
         }
         (RecordData::Note(_), RecordData::Note(_))
         | (RecordData::Source(_), RecordData::Source(_))

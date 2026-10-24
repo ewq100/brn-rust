@@ -82,6 +82,9 @@ fn selecting_action_group_keeps_shared_source_guard_and_refuses_newer_evidence()
             archived: false,
             data: RecordData::Action(Action {
                 kept_outside_project: false,
+                owner: None,
+                waiting_on: None,
+                follow_up: None,
                 chat: None,
                 description: "Check supported evidence".into(),
                 state: ActionState::Suggested,
@@ -175,6 +178,9 @@ fn independent_whole_note_and_action_selection_requires_new_displayed_candidate(
                 archived: false,
                 data: RecordData::Action(Action {
                     kept_outside_project: false,
+                    owner: None,
+                    waiting_on: None,
+                    follow_up: None,
                     chat: None,
                     description: "Human checks wording".into(),
                     state: ActionState::Waiting,
@@ -327,6 +333,9 @@ fn review_selection_preserves_structural_new_record_dependencies_and_exact_bases
                     archived: false,
                     data: RecordData::Action(Action {
                         kept_outside_project: false,
+                        owner: None,
+                        waiting_on: None,
+                        follow_up: None,
                         chat: None,
                         description: "New suggested work".into(),
                         state: ActionState::Suggested,
@@ -447,6 +456,9 @@ fn update_and_undo_expose_direct_work_and_one_recoverable_refresh_followup() {
             archived: false,
             data: RecordData::Action(Action {
                 kept_outside_project: false,
+                owner: None,
+                waiting_on: None,
+                follow_up: None,
                 chat: None,
                 description: "Consider original fact".into(),
                 state: ActionState::Suggested,
@@ -834,6 +846,9 @@ fn configuration_and_pause_fence_runs_while_thread_resolution_preserves_actions(
     };
     let action = Action {
         kept_outside_project: false,
+        owner: None,
+        waiting_on: None,
+        follow_up: None,
         chat: None,
         description: "Human sends report".into(),
         state: ActionState::Waiting,
@@ -1364,6 +1379,9 @@ fn selected_review_groups_and_replacement_preserve_current_or_historical_note_in
                 archived: false,
                 data: RecordData::Action(Action {
                     kept_outside_project: false,
+                    owner: None,
+                    waiting_on: None,
+                    follow_up: None,
                     chat: None,
                     description: "Prepare delivery Monday".into(),
                     state: ActionState::Suggested,

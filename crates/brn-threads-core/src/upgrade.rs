@@ -36,6 +36,9 @@ CREATE TABLE IF NOT EXISTS receipt_actors(operation TEXT PRIMARY KEY REFERENCES 
 /// have one normalized SQL key. Nonempty scope IDs are checked by the writer.
 pub(crate) const WRITING_SCHEMA: &str = "CREATE UNIQUE INDEX IF NOT EXISTS one_writing_setup ON records(json_extract(body,'$.data.WritingSetup.note'), COALESCE(json_extract(body,'$.data.WritingSetup.chat'),'')) WHERE json_type(body,'$.data.WritingSetup') IS NOT NULL;";
 
+/// Schema 11 adds optional Action ownership and follow-up facts. The format
+/// gate fences older writers; existing record/revision/request bytes are unchanged.
+///
 /// Applies the schema steps a version-`from` database is missing, ending at
 /// the current schema. The caller owns the transaction.
 pub(crate) fn upgrade_steps(tx: &Connection, from: i64) -> Result<()> {
@@ -79,7 +82,7 @@ pub(crate) fn upgrade_connection(
     database: &Path,
     chosen: Option<&Path>,
 ) -> Result<()> {
-    validate_schema(conn, &[3, 4, 5, 6, 7, 8, 9])?;
+    validate_schema(conn, &[3, 4, 5, 6, 7, 8, 9, 10])?;
     let from: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
     let workspace = database
         .parent()

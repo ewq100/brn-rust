@@ -143,6 +143,9 @@ fn lost_prepare_and_apply_responses_replay_across_connections_and_restart() {
             1,
             RecordData::Action(Action {
                 kept_outside_project: false,
+                owner: None,
+                waiting_on: None,
+                follow_up: None,
                 chat: None,
                 description: "consider follow-up".into(),
                 state: ActionState::Suggested,
@@ -444,6 +447,9 @@ fn meaningful_newer_inputs_flag_current_direct_note_and_action_dependents_only()
             1,
             RecordData::Action(Action {
                 kept_outside_project: false,
+                owner: None,
+                waiting_on: None,
+                follow_up: None,
                 chat: None,
                 description: "Read derived summary".into(),
                 state: ActionState::Suggested,
@@ -1191,6 +1197,9 @@ fn human_action_completion_requires_evidence_and_scope_and_thread_resolve_cannot
     let op = store.allocate_operation("human obligation").unwrap();
     let action = Action {
         kept_outside_project: false,
+        owner: None,
+        waiting_on: None,
+        follow_up: None,
         chat: None,
         description: "human sends report".into(),
         state: ActionState::Open,

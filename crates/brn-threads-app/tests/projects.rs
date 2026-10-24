@@ -289,6 +289,9 @@ fn delete_preview_guards_choices_and_restore_preserve_later_shared_work() {
                     archived: false,
                     data: RecordData::Action(Action {
                         kept_outside_project: false,
+                        owner: None,
+                        waiting_on: None,
+                        follow_up: None,
                         chat: None,
                         description: description.into(),
                         state: ActionState::Open,
@@ -774,6 +777,9 @@ fn existing_terminal_private_actions_go_to_trash_without_becoming_general_and_re
                             archived: false,
                             data: RecordData::Action(Action {
                                 kept_outside_project: false,
+                                owner: None,
+                                waiting_on: None,
+                                follow_up: None,
                                 chat: None,
                                 description: "Private Mari reply".into(),
                                 state: state.clone(),
@@ -870,6 +876,9 @@ fn private_actions_on_shared_documents_need_explicit_choices_and_never_leak() {
             archived: false,
             data: RecordData::Action(Action {
                 kept_outside_project: false,
+                owner: None,
+                waiting_on: None,
+                follow_up: None,
                 chat: (index != 3).then_some(c.clone()),
                 description: format!("Private obligation {index}"),
                 state,
@@ -918,6 +927,9 @@ fn private_actions_on_shared_documents_need_explicit_choices_and_never_leak() {
                         data: RecordData::Action(Action {
                             chat: Some(cb.clone()),
                             kept_outside_project: false,
+                            owner: None,
+                            waiting_on: None,
+                            follow_up: None,
                             description: "Other project private task".into(),
                             state: ActionState::Open,
                             internal: false,

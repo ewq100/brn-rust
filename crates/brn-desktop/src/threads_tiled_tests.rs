@@ -315,6 +315,9 @@ fn action_status_tile_writes_one_checked_receipt_and_history_undo_compensates(
                             archived: false,
                             data: RecordData::Action(Action {
                                 kept_outside_project: false,
+                                owner: None,
+                                waiting_on: None,
+                                follow_up: None,
                                 chat: None,
                                 description: description.clone(),
                                 state: ActionState::Open,

@@ -35,7 +35,7 @@ impl StagedRestore {
             Connection::open_with_flags(backup, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
         match validate_schema(
             &source,
-            &[3, 4, 5, 6, 7, 8, 9, crate::store::SCHEMA_VERSION],
+            &[3, 4, 5, 6, 7, 8, 9, 10, crate::store::SCHEMA_VERSION],
         ) {
             Ok(()) => {}
             Err(Error::Sqlite(rusqlite::Error::SqliteFailure(code, _)))

@@ -195,6 +195,9 @@ fn tasks(cx: &mut TestAppContext, f: &Fixture) -> Vec<Record> {
                                 archived: false,
                                 data: RecordData::Action(Action {
                                     kept_outside_project: false,
+                                    owner: None,
+                                    waiting_on: None,
+                                    follow_up: None,
                                     chat: None,
                                     description: description.into(),
                                     state: ActionState::Open,
@@ -313,6 +316,9 @@ fn proposal_shapes_name_the_label_primary_and_exact_footer() {
         archived: false,
         data: RecordData::Action(Action {
             kept_outside_project: false,
+            owner: None,
+            waiting_on: None,
+            follow_up: None,
             chat: None,
             description: "Task".into(),
             state: ActionState::Done,
