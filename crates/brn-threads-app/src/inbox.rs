@@ -270,12 +270,45 @@ impl Workspace {
                     .operation_by_host_key(&format!("full-import:{key}"))?
                     && self.store.prepared(&op).is_ok()
                 {
+                    let uncommitted = self.store.receipt(&op)?.is_none();
+                    let recovered_bytes = if uncommitted {
+                        self.store
+                            .prepared(&op)?
+                            .request
+                            .writes
+                            .iter()
+                            .try_fold(0usize, |sum, write| {
+                                sum.checked_add(match &write.data {
+                                    RecordData::Note(note) => note.markdown.len(),
+                                    RecordData::Asset(asset) => asset.bytes.len(),
+                                    _ => 0,
+                                })
+                            })
+                            .ok_or_else(|| {
+                                AppError::Invalid("Recovered output size overflow".into())
+                            })?
+                    } else {
+                        0
+                    };
+                    if recovered_bytes > max_retained {
+                        return Err(AppError::Invalid(format!(
+                            "This document exceeds the {max_retained} byte converted-output scan limit; use a smaller document"
+                        )));
+                    }
+                    if retained
+                        .checked_add(recovered_bytes)
+                        .is_none_or(|sum| sum > max_retained)
+                    {
+                        output_exhausted = true;
+                        return Ok(None);
+                    }
                     let receipt = applied_receipt(self.store.apply_inbox_import(
                         &op,
                         &settings,
                         &state.generation,
                         &owner(),
                     )?)?;
+                    retained += recovered_bytes;
                     return self
                         .full_import_note_in_scope(&receipt, &hash, None)
                         .map(|note| Some(note.id));
@@ -470,6 +503,121 @@ mod tests {
                 .filter(|r| !r.archived && matches!(r.data, RecordData::Note(_)))
                 .count(),
             3
+        );
+    }
+    #[test]
+    fn prepared_recovery_charges_output_before_apply_and_committed_replay_is_free() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let folder = root.path().join("inbox");
+        std::fs::create_dir(&folder).unwrap();
+        for name in ["a.txt", "b.txt", "c.txt"] {
+            std::fs::write(folder.join(name), name).unwrap();
+        }
+        let mut workspace =
+            Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+        workspace
+            .choose_inbox(&folder, InboxDestination::General)
+            .unwrap();
+        let stop = AtomicBool::new(false);
+        let settings = workspace.settings().unwrap().document_conversion;
+        workspace
+            .scan_inbox_limited(
+                &stop,
+                64,
+                &mut |_: InboxDocument, _: &DocumentConversionSettings| {
+                    Err(AppError::Unavailable(
+                        "Synthetic interruption before preparation".into(),
+                    ))
+                },
+            )
+            .unwrap();
+        fn converted(folder: &Path, name: &str, size: usize) -> ConversionResult {
+            ConversionResult {
+                intent: brn_threads_intake::ImportIntent::FullNote,
+                markdown: "x".repeat(size),
+                assets: vec![],
+                source_sha256: Sha256::digest(name.as_bytes()).into(),
+                source_reference: folder.join(name).display().to_string(),
+                converter: brn_threads_intake::document_conversion_label("xberg", false).unwrap(),
+                sources: vec![],
+                coverage: brn_threads_intake::Coverage {
+                    status: brn_threads_intake::CoverageStatus::Unchecked,
+                    checked_items: vec![],
+                    gaps: vec![],
+                },
+            }
+        }
+        // A rejected generation leaves the real import prepared but uncommitted,
+        // exactly the recovery boundary a process interruption may leave.
+        for (name, size) in [("a.txt", 40), ("c.txt", 70)] {
+            let key = workspace
+                .inbox()
+                .unwrap()
+                .unwrap()
+                .entries
+                .iter()
+                .find(|e| e.name == name)
+                .unwrap()
+                .operation_key
+                .clone()
+                .unwrap();
+            assert!(
+                workspace
+                    .import_inbox_full(
+                        &key,
+                        name.trim_end_matches(".txt"),
+                        &converted(&folder, name, size),
+                        &settings,
+                        "stale-generation"
+                    )
+                    .is_err()
+            );
+            let op = workspace
+                .store
+                .operation_by_host_key(&format!("full-import:{key}"))
+                .unwrap()
+                .unwrap();
+            assert!(workspace.store.prepared(&op).is_ok());
+            assert!(workspace.store.receipt(&op).unwrap().is_none());
+        }
+        let mut calls = 0;
+        let mut conversion = |doc: InboxDocument, _: &DocumentConversionSettings| {
+            assert!(
+                doc.source_reference.ends_with("b.txt"),
+                "prepared work must not reconvert"
+            );
+            calls += 1;
+            Ok(converted(&folder, "b.txt", 30))
+        };
+        let first = workspace
+            .scan_inbox_limited(&stop, 64, &mut conversion)
+            .unwrap();
+        assert_eq!((first.imported, first.failed, first.pending), (1, 0, 2));
+        let second = workspace
+            .scan_inbox_limited(&stop, 64, &mut conversion)
+            .unwrap();
+        assert_eq!((second.imported, second.failed, second.pending), (2, 1, 0));
+        assert_eq!(calls, 2);
+        let state = workspace.inbox().unwrap().unwrap();
+        let oversized = state.entries.iter().find(|e| e.name == "c.txt").unwrap();
+        assert!(oversized.detail.contains("converted-output scan limit"));
+        let op = workspace
+            .store
+            .operation_by_host_key(&format!(
+                "full-import:{}",
+                oversized.operation_key.as_ref().unwrap()
+            ))
+            .unwrap()
+            .unwrap();
+        assert!(workspace.store.receipt(&op).unwrap().is_none());
+        assert_eq!(
+            workspace
+                .records()
+                .unwrap()
+                .iter()
+                .filter(|r| !r.archived && matches!(r.data, RecordData::Note(_)))
+                .count(),
+            2
         );
     }
 }
