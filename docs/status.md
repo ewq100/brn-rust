@@ -8,6 +8,9 @@ The earlier [vacation campaign](work/active/vacation-campaign/campaign.json) and
 
 Useful result routes:
 
+- [Decision backlog](work/active/daily-use-reliability/decision-backlog.md): compact grouped choices, implementation evidence and blank Keep/Later/Drop decisions; [source coverage](work/active/daily-use-reliability/chat-source-map.md) preserves the curated conversation provenance and limits.
+- [Documentation audit](work/active/daily-use-reliability/documentation-audit.md): corrected maintained summaries and preserved historical evidence.
+
 - [State ownership and existing-journey hardening](work/active/vacation-campaign/evidence.md): worker identity, completion, recovery, reference import and MCP freshness.
 - [Agent-first reconciliation](work/active/agent-first-simplification/reconciliation.md): bounded correction, local editing, selected feedback and deferred artifact activation. Its dated results are supporting history; current gates live in the overview.
 - [Native queue](work/active/vacation-campaign/native-queue.md): source-bound synthetic scenarios and qualification limits. Automated checks do not establish native usability or owner acceptance.

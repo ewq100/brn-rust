@@ -153,7 +153,7 @@ human edits must block stale Apply/Undo as they do for other Notes.
 Format contracts differ by boundary: generic core assets require nonempty MIME
 and bytes; [application export](../../../../crates/brn-threads-app/src/export.rs)
 recognizes PNG/JPEG/WebP; transient agent source validation recognizes PNG/JPEG/GIF;
-the document helper currently retains validated PNG. Choosing PNG satisfies the
+the baseline document helper retained validated PNG (the unmerged intake slice adds JPEG). Choosing PNG satisfies the
 relevant route without claiming that these allowlists are identical or expanding
 the asset contract.
 
