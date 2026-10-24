@@ -6,7 +6,7 @@
     "scope_record": "docs/work/active/daily-followups-inbox-restore/baseline.md"
   },
   "work_view": {
-    "observed_at": "2026-10-24T04:10:06.413034+00:00",
+    "observed_at": "2026-10-24T04:46:55.734511+00:00",
     "goal": "Turn meeting notes into dependable follow-ups, add a manually scanned document inbox, and expose safe desktop backup restoration.",
     "owner_attention": "All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main required gates passed; optional Windows failures remain separate.",
     "tasks": [
@@ -38,11 +38,11 @@
         "id": "actions-followups",
         "title": "Make meeting-note follow-ups dependable",
         "owner": "Actions implementation lane",
-        "state": "active",
-        "activity": "Service/evaluation slice472cf665 independently reviewed and integrated. Four authored semantic cases remain unrun live. Desktop controls source-reviewed; focused native tests queued after Restore.",
-        "observed_at": "2026-10-24T04:10:06.413034+00:00",
+        "state": "ready",
+        "activity": "UI9c40c9b3 integrated as512e9eac; both focused native-feature tests passed after correcting a platform shortcut in the fixture. Service/core and semantic oracle source reviewed; four authored live cases remain unrun.",
+        "observed_at": "2026-10-24T04:46:55.734511+00:00",
         "origin": "reported",
-        "next_action": "Implement shared checked behavior and CLI/native presentation; test ambiguous commitments, duplicates, stale edits, replay and recovery.",
+        "next_action": "Participate in combined source review and repair any integration failures.",
         "depends_on": [],
         "resource_waits": [
           "Lead-coordinated heavyweight build slot; no concurrent shared-target writers"
@@ -51,8 +51,8 @@
           "docs/work/active/daily-followups-inbox-restore/baseline.md"
         ],
         "gates": {
-          "implementation": "pending",
-          "checks": "passed: reported focused core76/app13; pending source-bound final candidate, desktop and semantic fixture checks",
+          "implementation": "complete: reviewed local core/service/UI slices; not merged",
+          "checks": "passed: focused core76/app13/Python23/native2; pending combined source and CI",
           "integration": "pending: draft PR only; no new merge authority",
           "native": "pending: actual Mac interaction not authorized in this cloud batch",
           "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
@@ -64,10 +64,10 @@
         "title": "Scan a document inbox with visible status and safe retries",
         "owner": "Inbox implementation lane",
         "state": "active",
-        "activity": "Core0fd44ec4 reviewed and integrated. App corrections address descriptor enumeration and canonical receipt identity across settings edits/file disappearance, with no resurrection after Undo. Explicit General consent/private queue witnesses authored; tests pending.",
-        "observed_at": "2026-10-24T04:10:06.413034+00:00",
+        "activity": "Final app source covers stable receipt identity across settings/folder reselection and Undo, atomic settings/generation fences, descriptor reads and aggregate converted output limits. App suite compiling; native checks deferred to combined tree.",
+        "observed_at": "2026-10-24T04:46:55.734511+00:00",
         "origin": "reported",
-        "next_action": "Implement bounded manual scan, durable status and safe retries; integrate migration only after schema11 ownership is reconciled.",
+        "next_action": "Finish app/core checks, commit source, then integrate and run the combined native suite.",
         "depends_on": [
           {
             "task": "actions-followups",
@@ -94,11 +94,11 @@
         "id": "desktop-restore",
         "title": "Restore a backup through the existing checked engine",
         "owner": "Restore implementation lane",
-        "state": "active",
-        "activity": "Core e5b7edf5 reviewed/integrated; 16 focused tests and exact f60c5a2f schema10 backup to schema12 restore witness passed. Desktop source review has no blocker; native compilation active after correcting saved dependency environment.",
-        "observed_at": "2026-10-24T04:10:06.413034+00:00",
+        "state": "ready",
+        "activity": "UI569c708e integrated as11386576; seven native-feature desktop tests passed. Core16 and exact prior-main backup witness passed; independent source review clear.",
+        "observed_at": "2026-10-24T04:46:55.734511+00:00",
         "origin": "reported",
-        "next_action": "Implement explicit owner flow and focused failure/reopen tests; keep native picker/focus acceptance separate.",
+        "next_action": "Support combined qualification and bounded actual Linux observation; Mac gate remains separate.",
         "depends_on": [],
         "resource_waits": [
           "Lead-coordinated heavyweight build slot; no concurrent shared-target writers"
@@ -107,8 +107,8 @@
           "docs/work/active/daily-followups-inbox-restore/baseline.md"
         ],
         "gates": {
-          "implementation": "pending",
-          "checks": "passed: reported focused core16 and exact prior-main backup witness; pending desktop/runtime and integrated gates",
+          "implementation": "complete: reviewed local staged-restore/UI slices; not merged",
+          "checks": "passed: focused core16/native7 and exact schema10 backup witness; pending combined source and CI",
           "integration": "pending: draft PR only; no new merge authority",
           "native": "pending: actual Mac interaction not authorized in this cloud batch",
           "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
@@ -143,8 +143,8 @@
         "title": "Independently review and qualify coherent draft slices",
         "owner": "lead integration and independent reviewer",
         "state": "active",
-        "activity": "Core/service slices integrated through7d929feb. Configured Python suite204 passed with1platform skip. Native Cargo slot held by Restore; Actions then Inbox follow. Reviewer findings remain actionable before final qualification.",
-        "observed_at": "2026-10-24T04:10:06.413034+00:00",
+        "activity": "Actions and Restore integrated through512e9eac. Final Python suite205 run:204 passed,1platform skip. Inbox holds Cargo slot for app/core qualification; lead will then run combined Rust/native gates and draft PR CI.",
+        "observed_at": "2026-10-24T04:46:55.734511+00:00",
         "origin": "observed",
         "next_action": "Integrate reviewed source-bound slices, run applicable fail-fast local checks and normal CI; open draft PRs only.",
         "depends_on": [],
@@ -156,7 +156,7 @@
         ],
         "gates": {
           "implementation": "pending",
-          "checks": "passed: integrated Python204 with1platform skip; pending Rust/native and exact-head CI",
+          "checks": "passed: Python205 run/204pass/1platform skip; pending combined Rust/native and exact-head CI",
           "integration": "pending: draft PR only; no new merge authority",
           "native": "pending: one consolidated later Mac checklist",
           "owner_acceptance": "pending: no delivered behavior acceptance"

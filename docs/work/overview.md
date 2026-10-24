@@ -11,33 +11,12 @@ Task details and full history: [selected work record](active/daily-followups-inb
 
 ## Working on
 
-### Make meeting-note follow-ups dependable
-
-Task ID: `actions-followups`
-Owner: Actions implementation lane · State: **active** · Last reported: 2026-10-24T04:10:06.413034+00:00
-Activity: Service/evaluation slice472cf665 independently reviewed and integrated. Four authored semantic cases remain unrun live. Desktop controls source-reviewed; focused native tests queued after Restore.
-Next: Implement shared checked behavior and CLI/native presentation; test ambiguous commitments, duplicates, stale edits, replay and recovery.
-Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** pending
-- **checks:** passed: reported focused core76/app13; pending source-bound final candidate, desktop and semantic fixture checks
-- **integration:** pending: draft PR only; no new merge authority
-- **native:** pending: actual Mac interaction not authorized in this cloud batch
-- **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
-
-</details>
-
 ### Scan a document inbox with visible status and safe retries
 
 Task ID: `manual-inbox`
-Owner: Inbox implementation lane · State: **active** · Last reported: 2026-10-24T04:10:06.413034+00:00
-Activity: Core0fd44ec4 reviewed and integrated. App corrections address descriptor enumeration and canonical receipt identity across settings edits/file disappearance, with no resurrection after Undo. Explicit General consent/private queue witnesses authored; tests pending.
-Next: Implement bounded manual scan, durable status and safe retries; integrate migration only after schema11 ownership is reconciled.
+Owner: Inbox implementation lane · State: **active** · Last reported: 2026-10-24T04:46:55.734511+00:00
+Activity: Final app source covers stable receipt identity across settings/folder reselection and Undo, atomic settings/generation fences, descriptor reads and aggregate converted output limits. App suite compiling; native checks deferred to combined tree.
+Next: Finish app/core checks, commit source, then integrate and run the combined native suite.
 Depends on: actions-followups when Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (reported satisfied: true)
 Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
 
@@ -54,32 +33,11 @@ Gates:
 
 </details>
 
-### Restore a backup through the existing checked engine
-
-Task ID: `desktop-restore`
-Owner: Restore implementation lane · State: **active** · Last reported: 2026-10-24T04:10:06.413034+00:00
-Activity: Core e5b7edf5 reviewed/integrated; 16 focused tests and exact f60c5a2f schema10 backup to schema12 restore witness passed. Desktop source review has no blocker; native compilation active after correcting saved dependency environment.
-Next: Implement explicit owner flow and focused failure/reopen tests; keep native picker/focus acceptance separate.
-Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** pending
-- **checks:** passed: reported focused core16 and exact prior-main backup witness; pending desktop/runtime and integrated gates
-- **integration:** pending: draft PR only; no new merge authority
-- **native:** pending: actual Mac interaction not authorized in this cloud batch
-- **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
-
-</details>
-
 ### Independently review and qualify coherent draft slices
 
 Task ID: `integration`
-Owner: lead integration and independent reviewer · State: **active** · Last observed: 2026-10-24T04:10:06.413034+00:00
-Activity: Core/service slices integrated through7d929feb. Configured Python suite204 passed with1platform skip. Native Cargo slot held by Restore; Actions then Inbox follow. Reviewer findings remain actionable before final qualification.
+Owner: lead integration and independent reviewer · State: **active** · Last observed: 2026-10-24T04:46:55.734511+00:00
+Activity: Actions and Restore integrated through512e9eac. Final Python suite205 run:204 passed,1platform skip. Inbox holds Cargo slot for app/core qualification; lead will then run combined Rust/native gates and draft PR CI.
 Next: Integrate reviewed source-bound slices, run applicable fail-fast local checks and normal CI; open draft PRs only.
 Resource waits: Lead-coordinated build slot; sandbox credential fixtures require normal CI
 
@@ -89,7 +47,7 @@ Resource waits: Lead-coordinated build slot; sandbox credential fixtures require
 Gates:
 
 - **implementation:** pending
-- **checks:** passed: integrated Python204 with1platform skip; pending Rust/native and exact-head CI
+- **checks:** passed: Python205 run/204pass/1platform skip; pending combined Rust/native and exact-head CI
 - **integration:** pending: draft PR only; no new merge authority
 - **native:** pending: one consolidated later Mac checklist
 - **owner acceptance:** pending: no delivered behavior acceptance
@@ -105,7 +63,23 @@ None recorded.
 ### Make meeting-note follow-ups dependable
 
 Task ID: `actions-followups`
-Owner: Actions implementation lane
+Owner: Actions implementation lane · State: **ready** · Last reported: 2026-10-24T04:46:55.734511+00:00
+Activity: UI9c40c9b3 integrated as512e9eac; both focused native-feature tests passed after correcting a platform shortcut in the fixture. Service/core and semantic oracle source reviewed; four authored live cases remain unrun.
+Next: Participate in combined source review and repair any integration failures.
+Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** complete: reviewed local core/service/UI slices; not merged
+- **checks:** passed: focused core76/app13/Python23/native2; pending combined source and CI
+- **integration:** pending: draft PR only; no new merge authority
+- **native:** pending: actual Mac interaction not authorized in this cloud batch
+- **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
+
+</details>
 
 Waiting:
 
@@ -123,7 +97,23 @@ Waiting:
 ### Restore a backup through the existing checked engine
 
 Task ID: `desktop-restore`
-Owner: Restore implementation lane
+Owner: Restore implementation lane · State: **ready** · Last reported: 2026-10-24T04:46:55.734511+00:00
+Activity: UI569c708e integrated as11386576; seven native-feature desktop tests passed. Core16 and exact prior-main backup witness passed; independent source review clear.
+Next: Support combined qualification and bounded actual Linux observation; Mac gate remains separate.
+Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** complete: reviewed local staged-restore/UI slices; not merged
+- **checks:** passed: focused core16/native7 and exact schema10 backup witness; pending combined source and CI
+- **integration:** pending: draft PR only; no new merge authority
+- **native:** pending: actual Mac interaction not authorized in this cloud batch
+- **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
+
+</details>
 
 Waiting:
 
@@ -183,4 +173,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-24T04:10:06.413034+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-24T04:46:55.734511+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
