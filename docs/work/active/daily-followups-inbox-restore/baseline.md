@@ -64,16 +64,18 @@ and build waits belong in [record.json](record.json), not another tracker.
 
 ## Prior resulting-main gate
 
-The parent reports [run40058075212](https://github.com/ewq100/brn-rust/actions/runs/40058075212)
-on resulting main `f60c5a2f`: documentation and Linux native UI/retrieval passed;
-three optional Windows checks failed; four core/Mac checks were still active.
-This is a reported checkpoint, not a fresh CI lookup by the documentation lane.
-The lead owns the explicit prior-main-ci task to inspect final results, preserve
-optional failures and diagnose any required failure. Prior head qualification and
-resulting-main qualification remain separate.
+The lead observed terminal [run40058075212](https://github.com/ewq100/brn-rust/actions/runs/40058075212)
+on exact resulting main `f60c5a2f`: all seven Mac/Linux/documentation jobs passed.
+Three optional Windows jobs failed and remain outside the approved batch. The
+merge tree matches reviewed `54b0c3d6`. The automatic preview workflow
+[run40060785028](https://github.com/ewq100/brn-rust/actions/runs/40060785028)
+skipped all build/package/publish steps through its existing approval gate;
+no release was made. This closes the prior-main CI task, not actual Mac owner
+acceptance or any new batch gate.
 
 ## Later consolidated native acceptance
 
+Use the [unperformed interaction checklist](native-acceptance.md).
 In one separately authorized actual Mac session, verify Action owner/waiting-on/
 follow-up controls and keyboard/focus/accessibility; select the inbox folder using
 the real picker, scan, inspect statuses and retry safely; then select a synthetic

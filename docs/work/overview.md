@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Turn meeting notes into dependable follow-ups, add a manually scanned document inbox, and expose safe desktop backup restoration.
-**Owner attention:** All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main CI still needs lead reconciliation.
+**Owner attention:** All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main required gates passed; optional Windows failures remain separate.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -10,27 +10,6 @@ Ready eligibility is a conservative state/admission display derived from reporte
 Task details and full history: [selected work record](active/daily-followups-inbox-restore/record.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.
 
 ## Working on
-
-### Close the prior batch resulting-main CI gate
-
-Task ID: `prior-main-ci`
-Owner: lead integration · State: **active** · Last observed: 2026-10-24T04:01:02.305983+00:00
-Activity: Exact f60c5a2f run40058075212: documentation, all Linux checks, Mac core and Mac UI passed; Mac retrieval remains active. Three optional Windows failures remain separate.
-Next: Inspect exact f60c5a2f resulting-main checks; preserve optional failures and diagnose any required failure.
-Resource waits: GitHub Actions run40058075212 completion
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** complete: prior batch merged; no new implementation assigned
-- **checks:** pending: resulting-main run40058075212; last state reported, not independently refreshed here
-- **integration:** passed: PR226 merged f60c5a2f; no authority to merge new PRs
-- **native:** separate: prior headless/native observations retain original bounds
-- **owner acceptance:** not claimed
-
-</details>
 
 ### Make meeting-note follow-ups dependable
 
@@ -123,15 +102,6 @@ None recorded.
 
 ## Needs attention
 
-### Close the prior batch resulting-main CI gate
-
-Task ID: `prior-main-ci`
-Owner: lead integration
-
-Waiting:
-
-- resource: GitHub Actions run40058075212 completion
-
 ### Make meeting-note follow-ups dependable
 
 Task ID: `actions-followups`
@@ -197,8 +167,9 @@ Waiting:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+2 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `prior-main-ci` — Close the prior batch resulting-main CI gate
 - `documentation` — Record selected scope and narrow backlog decisions
 
 ## Dependencies
@@ -212,4 +183,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-24T04:01:02.305983+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-24T04:03:44.836881+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

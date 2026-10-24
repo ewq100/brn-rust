@@ -6,29 +6,28 @@
     "scope_record": "docs/work/active/daily-followups-inbox-restore/baseline.md"
   },
   "work_view": {
-    "observed_at": "2026-10-24T04:01:02.305983+00:00",
+    "observed_at": "2026-10-24T04:03:44.836881+00:00",
     "goal": "Turn meeting notes into dependable follow-ups, add a manually scanned document inbox, and expose safe desktop backup restoration.",
-    "owner_attention": "All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main CI still needs lead reconciliation.",
+    "owner_attention": "All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main required gates passed; optional Windows failures remain separate.",
     "tasks": [
       {
         "id": "prior-main-ci",
         "title": "Close the prior batch resulting-main CI gate",
         "owner": "lead integration",
-        "state": "active",
-        "activity": "Exact f60c5a2f run40058075212: documentation, all Linux checks, Mac core and Mac UI passed; Mac retrieval remains active. Three optional Windows failures remain separate.",
-        "observed_at": "2026-10-24T04:01:02.305983+00:00",
+        "state": "complete",
+        "activity": "Exact f60c5a2f run40058075212 completed: all seven Mac/Linux/documentation jobs passed; three optional Windows failures. Preview workflow40060785028 skipped build/package/publish via existing gate.",
+        "observed_at": "2026-10-24T04:03:44.836881+00:00",
         "origin": "observed",
-        "next_action": "Inspect exact f60c5a2f resulting-main checks; preserve optional failures and diagnose any required failure.",
+        "next_action": "Retain terminal receipt; continue the three newly approved slices without new merge authority.",
         "depends_on": [],
-        "resource_waits": [
-          "GitHub Actions run40058075212 completion"
-        ],
+        "resource_waits": [],
         "evidence": [
-          "docs/work/active/daily-followups-inbox-restore/baseline.md"
+          "docs/work/active/daily-followups-inbox-restore/baseline.md",
+          "https://github.com/ewq100/brn-rust/actions/runs/40058075212"
         ],
         "gates": {
           "implementation": "complete: prior batch merged; no new implementation assigned",
-          "checks": "pending: resulting-main run40058075212; last state reported, not independently refreshed here",
+          "checks": "passed: seven Mac/Linux/docs jobs on exact merge f60c5a2f; three optional Windows jobs failed",
           "integration": "passed: PR226 merged f60c5a2f; no authority to merge new PRs",
           "native": "separate: prior headless/native observations retain original bounds",
           "owner_acceptance": "not claimed"
