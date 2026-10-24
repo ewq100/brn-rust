@@ -320,7 +320,18 @@ async fn stop_and_concurrent_configuration_change_never_publish_inflight_summary
             }
             gate.release.notify_one();
         };
-        let (result, ()) = tokio::join!(worker, change);
+        // A failed admission may finish before the transport signals its barrier.
+        // Fail with that cause instead of leaving the fixture control task waiting.
+        tokio::pin!(worker);
+        tokio::select! {
+            biased;
+            () = change => {}
+            result = &mut worker => match result {
+                Ok(result) => panic!("worker ended before fixture barrier: {:?}", result.answer.terminal),
+                Err(error) => panic!("worker failed before fixture barrier: {:?}", error.kind),
+            }
+        }
+        let result = worker.await;
         let result = result.unwrap();
         assert!(
             matches!(result.answer.terminal, AiTerminal::Interrupted),
@@ -1043,7 +1054,18 @@ async fn canonical_generation_change_rejects_publication_even_when_run_and_sourc
         assert!(live(&scope, &store).is_ok(), "generation alone changed");
         gate.release.notify_one();
     };
-    let (result, ()) = tokio::join!(worker, change);
+    // A failed admission may finish before the transport signals its barrier.
+    // Fail with that cause instead of leaving the fixture control task waiting.
+    tokio::pin!(worker);
+    tokio::select! {
+        biased;
+        () = change => {}
+        result = &mut worker => match result {
+            Ok(result) => panic!("worker ended before fixture barrier: {:?}", result.answer.terminal),
+            Err(error) => panic!("worker failed before fixture barrier: {:?}", error.kind),
+        }
+    }
+    let result = worker.await;
     let result = result.unwrap();
     assert_eq!(result.answer.text, "Done");
     assert_eq!(http.requests().len(), 2);

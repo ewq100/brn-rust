@@ -662,7 +662,18 @@ async fn live_disable_blocks_late_skill_delivery_and_next_dispatch_without_rewri
             .unwrap();
         gate.release.notify_one();
     };
-    let (result, ()) = tokio::join!(worker, revoke);
+    // A failed admission may finish before the transport signals its barrier.
+    // Fail with that cause instead of leaving the fixture control task waiting.
+    tokio::pin!(worker);
+    tokio::select! {
+        biased;
+        () = revoke => {}
+        result = &mut worker => match result {
+            Ok(result) => panic!("worker ended before fixture barrier: {:?}", result.answer.terminal),
+            Err(error) => panic!("worker failed before fixture barrier: {:?}", error.kind),
+        }
+    }
+    let result = worker.await;
     let result = result.unwrap();
     assert!(matches!(result.answer.terminal, AiTerminal::Interrupted));
     assert_eq!(http.requests().len(), 1);
