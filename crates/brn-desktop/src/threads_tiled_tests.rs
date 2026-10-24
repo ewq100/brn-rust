@@ -125,13 +125,22 @@ fn reveal(cx: &mut TestAppContext, f: &Fixture, container: &str, target: &str) {
     // Exercise real scrolling rather than counting an offscreen test element as accessible.
     for _ in 0..20 {
         // Wholly inside the scroller, so a click at its center lands on it.
-        let visible = cx
+        let (visible, delta) = cx
             .update_window(f.window, |_, window, _| {
                 let shown = window.find(target.to_owned());
                 let (item, frame) = (shown.bounds(), window.find(container.to_owned()).bounds());
-                shown.visible()
+                let visible = shown.visible()
                     && item.origin.y >= frame.origin.y
-                    && item.origin.y + item.size.height <= frame.origin.y + frame.size.height
+                    && item.origin.y + item.size.height <= frame.origin.y + frame.size.height;
+                // A longer Settings section can leave an earlier control above
+                // the viewport after visiting its last control. Wheel back up
+                // in that case; still require the whole target to be visible.
+                let delta = if item.origin.y < frame.origin.y {
+                    120.
+                } else {
+                    -120.
+                };
+                (visible, delta)
             })
             .unwrap();
         if visible {
@@ -142,7 +151,7 @@ fn reveal(cx: &mut TestAppContext, f: &Fixture, container: &str, target: &str) {
         cx.update_window(f.window, |_, window, cx| {
             window.scroll(
                 container.to_owned(),
-                gpui_kit::ScrollDelta::Pixels(point(px(0.), px(-120.))),
+                gpui_kit::ScrollDelta::Pixels(point(px(0.), px(delta))),
                 cx,
             );
         })
@@ -721,8 +730,18 @@ fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut Te
     click(cx, &f, "delegation-review-first");
     click(cx, &f, "settings-section-data");
     reveal(cx, &f, "settings-content", "export-now");
+    // Traverse the longer Data section in both directions, including the new
+    // controls. Keep real wheel events and full in-viewport bounds assertions.
+    reveal(cx, &f, "settings-content", "inbox-choose-folder");
+    reveal(cx, &f, "settings-content", "inbox-scan");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(window.find("inbox-scan").disabled(), Some(true));
+    })
+    .unwrap();
+    reveal(cx, &f, "settings-content", "restore-select");
     reveal(cx, &f, "settings-content", "backup-change-folder");
     reveal(cx, &f, "settings-content", "backup-now");
+    reveal(cx, &f, "settings-content", "export-now");
     cx.read(|cx| {
         let settings = f.view.read(cx).workspace.settings().unwrap();
         assert!(settings.delegation_chosen && settings.review_first);
