@@ -61,7 +61,7 @@ impl StagedRestore {
             Connection::open_with_flags(backup, rusqlite::OpenFlags::SQLITE_OPEN_READ_ONLY)?;
         match validate_schema(
             &source,
-            &[3, 4, 5, 6, 7, 8, 9, 10, crate::store::SCHEMA_VERSION],
+            &[3, 4, 5, 6, 7, 8, 9, 10, 11, crate::store::SCHEMA_VERSION],
         ) {
             Ok(()) => {}
             Err(Error::Sqlite(rusqlite::Error::SqliteFailure(code, _)))
@@ -132,11 +132,21 @@ impl StagedRestore {
             .conn
             .transaction_with_behavior(rusqlite::TransactionBehavior::Immediate)?;
         crate::upgrade::upgrade_steps(&tx, from)?;
+        crate::inbox::reset_on_restore(&tx)?;
         tx.execute_batch(
             "DELETE FROM edit_session_bindings;
              INSERT OR REPLACE INTO workspace_profile(id,purpose,changed_at) VALUES(1,'owner',NULL);",
         )?;
         tx.commit()?;
+        // SQLite integrity does not establish canonical record readability.
+        // Reuse the normal typed read, one row at a time, without collecting a
+        // second workspace-sized copy or trusting payload IDs as a page cursor.
+        {
+            let mut statement = store.conn.prepare("SELECT id FROM records")?;
+            for id in statement.query_map([], |row| row.get::<_, String>(0))? {
+                store.record(&id?)?;
+            }
+        }
         // Online Backup inherits WAL mode. Close a standalone DELETE database
         // before validation/flush and before moving the entire directory.
         store.conn.pragma_update(None, "journal_mode", "DELETE")?;
@@ -339,6 +349,71 @@ mod tests {
             b"preserve"
         );
         assert_stage_gone(&staged);
+    }
+
+    #[test]
+    fn restore_preview_refuses_unreadable_current_records_before_confirmation() {
+        for missing_table in [false, true] {
+            let (root, backup) = fixture();
+            let conn = Connection::open(&backup).unwrap();
+            if missing_table {
+                conn.execute_batch("DROP TABLE records").unwrap();
+            } else {
+                // Valid SQLite/JSON and BRN identity, but not a canonical Record.
+                conn.execute(
+                    "INSERT INTO records(id,version,body) VALUES('forged',1,'{}')",
+                    [],
+                )
+                .unwrap();
+            }
+            drop(conn);
+            let original = fs::read(&backup).unwrap();
+            let destination = root.path().join("restore");
+            let result = Store::prepare_restore(&backup, &destination);
+            assert!(
+                result.is_err(),
+                "unreadable backup must not reach confirmation"
+            );
+            assert!(!destination.exists());
+            assert_eq!(fs::read(&backup).unwrap(), original);
+            assert!(!fs::read_dir(root.path()).unwrap().any(|entry| {
+                entry
+                    .unwrap()
+                    .file_name()
+                    .to_string_lossy()
+                    .starts_with(".brn-restore-stage-")
+            }));
+        }
+    }
+
+    #[test]
+    fn restored_copy_requires_new_machine_local_inbox_authorization() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let mut source = Store::open(root.path().join("source")).unwrap();
+        let state = crate::InboxState {
+            revision: 0,
+            generation: "synthetic".into(),
+            folder: root.path().join("inbox").display().to_string(),
+            folder_identity: "synthetic-identity".into(),
+            destination: crate::InboxDestination::General,
+            entries: vec![],
+        };
+        source
+            .save_inbox_state(None, &state, &crate::HostAuthority::owner("fixture"))
+            .unwrap();
+        let records = source.records().unwrap();
+        let backup = root.path().join("backup.sqlite3");
+        source.backup(&backup).unwrap();
+        let original = fs::read(&backup).unwrap();
+        let preview = Store::prepare_restore(&backup, root.path().join("recovered")).unwrap();
+        let staged = Store::open(&preview.0.directory).unwrap();
+        assert!(staged.inbox_state().unwrap().is_none());
+        drop(staged);
+        let restored = preview.publish().unwrap();
+        assert!(restored.inbox_state().unwrap().is_none());
+        assert_eq!(restored.records().unwrap(), records);
+        assert!(source.inbox_state().unwrap().is_some());
+        assert_eq!(fs::read(&backup).unwrap(), original);
     }
 
     #[test]
