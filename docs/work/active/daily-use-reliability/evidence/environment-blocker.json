@@ -1,0 +1,30 @@
+{
+  "observed_at": "2026-10-24T00:36:14.847470+00:00",
+  "action": "Run full deterministic workspace and scripted-provider tests",
+  "target": "cloud fixture roots under /tmp and a narrowly granted /var/tmp/brn-daily-fixtures-20261024",
+  "result": "blocked: synthetic credential admission returns UnsafeCredentials",
+  "reason": "Sandbox exposes a read-only .git directory at each writable root; Auth::validate_ancestors refuses caches beneath any Git ancestor. A separately granted fresh root reproduced the same refusal.",
+  "original_workspace_run": "failed tests observed, then terminated owned cargo/test processes when three async fixtures waited indefinitely for unreachable provider signals; not a completed full-suite result",
+  "completed_independent_checks": [
+    "default workspace build",
+    "strict default all-target Clippy",
+    "offline CLI108steps1266checks",
+    "focused intake/workflow checks"
+  ],
+  "security_changes": "none; no marker removal, credential guard changes, real credential access, or unsandboxed retry",
+  "alternate_directory_attempts": [
+    {
+      "action": "create child with child-only filesystem grant",
+      "result": "read-only parent; no directory created"
+    },
+    {
+      "action": "create fresh directory with parent grant",
+      "result": "created"
+    },
+    {
+      "action": "run synthetic test with child-only grant",
+      "result": "UnsafeCredentials; injected .git marker observed at granted root"
+    }
+  ],
+  "ci_alternative": "normal GitHub CI Linux core/CLI and native build/state passed aa5d53ce; final test-only changes require final-head CI"
+}

@@ -44,8 +44,8 @@ def qualify_app(app, host_cli=None):
         for patch in ["0001-docx-table-grid-spans.patch", "0003-docx-namespaces.patch",
                       "0004-pptx-order-hidden.patch", "0005-docx-comment-references.patch"]:
             material += f"{patch} {packaging.digest(ROOT / 'patches/xberg/1.3.10' / patch)}\n"
-        identities = {"xberg": f"xberg/1.3.10/stock/{archive_sha}",
-                      "xberg_brn": "xberg/1.3.10/brn/" + hashlib.sha256(material.encode()).hexdigest()}
+        identities = {"xberg": f"xberg/1.3.10/stock/{archive_sha}/figures-v1",
+                      "xberg_brn": "xberg/1.3.10/brn/" + hashlib.sha256(material.encode()).hexdigest() + "/figures-v1"}
         fixtures = [("pdf", ROOT / "crates/brn-threads-intake/tests/fixtures/harbor-study.pdf")]
         fixtures += [(kind, ROOT / f"crates/brn-intake/tests/fixtures/{name}") for kind, name in
                      [("docx", "harbor.docx"), ("pptx", "quay.pptx"), ("xlsx", "forecast.xlsx"),

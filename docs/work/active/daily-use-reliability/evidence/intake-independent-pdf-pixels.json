@@ -1,0 +1,56 @@
+{
+  "helper_sha256": "ee475910694951858eb8ae84daa4232a1724e03affb7968322a512684e963b1c",
+  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1",
+  "source_sha256": "30668386e293bf1b6d4f384b4ff758ef90211167e12d18a2b5798f7cec1c8d35",
+  "asset_sha256": "d268586051b64827ed456d804e07a48de48145ac2c7f9b7b5b79c12964551b40",
+  "decoder": "Pillow 12.3.0",
+  "dimensions": [
+    2,
+    2
+  ],
+  "expected_rgb": [
+    [
+      255,
+      0,
+      0
+    ],
+    [
+      0,
+      255,
+      0
+    ],
+    [
+      0,
+      0,
+      255
+    ],
+    [
+      255,
+      255,
+      255
+    ]
+  ],
+  "actual_rgb": [
+    [
+      255,
+      0,
+      0
+    ],
+    [
+      0,
+      255,
+      0
+    ],
+    [
+      0,
+      0,
+      255
+    ],
+    [
+      255,
+      255,
+      255
+    ]
+  ],
+  "result": "PASS"
+}

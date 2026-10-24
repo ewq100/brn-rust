@@ -191,3 +191,15 @@ fn restricted_runtime_reports_platform_unavailable() {
         serde_json::json!({"error":"native intake restrictions require macOS or Linux x86_64; conversion refused"})
     );
 }
+
+#[test]
+fn prior_image_service_profile_cannot_impersonate_the_current_helper() {
+    let r = request();
+    let mut old = result(&r);
+    old.engine_identity = old
+        .engine_identity
+        .strip_suffix("/figures-v1")
+        .unwrap()
+        .into();
+    assert!(old.validate_for(&r).is_err());
+}

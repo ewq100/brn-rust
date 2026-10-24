@@ -20,9 +20,12 @@ proves that limited lifecycle observation only, not cancellation of chart work,
 filesystem/network/memory containment, hostile-input safety or platform behavior.
 SVG source was structurally validated; no native/visual/owner acceptance is claimed.
 
-Production activation is **deferred with evidence**. The current asset contract
-accepts PNG/JPEG/WebP rather than SVG; adoption needs an approved validated output
-conversion or explicit asset contract. Before a production grant, prepare one
+Production activation is **deferred with evidence**. Format support differs by
+boundary: application export recognizes PNG/JPEG/WebP, transient agent source
+validation recognizes PNG/JPEG/GIF, and the document helper retains validated
+PNG. The [constrained artifact proposal](../daily-use-reliability/artifact-proposal.md)
+selects PNG output without broadening those contracts. Adoption needs an approved,
+validated output path. Before a production grant, prepare one
 named local process/tool, bounded scratch/input/output scope, qualified resource
 and cancellation behavior, owned runtime/dependency packaging and a chart/report
 preview accepted through the existing service/review/Undo. Scratch cannot directly

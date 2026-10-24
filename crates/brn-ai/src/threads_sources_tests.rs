@@ -44,8 +44,22 @@ fn source() -> TransientSource {
 #[tokio::test]
 async fn useful_intake_model_tools_retain_selected_figure_omissions_and_replay_without_raw_archive()
 {
+    selected_figure_replay(false).await;
+}
+
+#[tokio::test]
+async fn useful_intake_model_tools_retain_native_jpeg_and_replay_without_raw_archive() {
+    selected_figure_replay(true).await;
+}
+
+async fn selected_figure_replay(jpeg: bool) {
     let (_root, mut request, note) = super::tests::fixture();
-    request.sources.push(source());
+    let mut supplied = source();
+    if jpeg {
+        supplied.assets.swap(0, 1);
+        supplied.text = "Retain the map where relevant. ![Map](unused.jpg)\nUnneeded illustration ![Unused](map.png)\nEXCLUDED_RAW_CANARY_FIGURES_68219".into();
+    }
+    request.sources.push(supplied);
     let (scope, input) = begin(&request).unwrap();
     super::tests::read_all(&scope);
     let metadata = read_source(
@@ -192,6 +206,10 @@ async fn useful_intake_model_tools_retain_selected_figure_omissions_and_replay_w
         .collect();
     assert_eq!(assets.len(), 1, "unselected figure must not be retained");
     assert_eq!(assets[0].1.bytes, request.sources[0].assets[0].bytes);
+    assert_eq!(
+        assets[0].1.media_type,
+        if jpeg { "image/jpeg" } else { "image/png" }
+    );
     assert_eq!(assets[0].1.note, note);
     let RecordData::Note(note) = store.note(&note).unwrap().unwrap().data else {
         panic!("expected note")

@@ -702,6 +702,24 @@ class FixtureTests(unittest.TestCase):
             'steps': [{'kind': 'ask', 'thread': 'case', 'prompt': 'What happened to the car last spring?'}],
             'checks': [{'type': 'read', 'step': 1, 'keys': ['a']}]}]}
 
+    def test_daily_duplicate_oracles_reject_a_second_topic(self):
+        fixture = json.loads((ROOT / 'scripts/fixtures/wiki-eval-cases-v2.json').read_text())
+        for case in fixture['cases']:
+            if not case['id'].startswith('DW'):
+                continue
+            for check in case['checks']:
+                if check['type'] != 'no_new_note_titled':
+                    continue
+                existing = next(n for n in case['seeds']['notes'] if not n.get('import'))
+                after = BASE + [note('duplicate', 'new text', title=existing['title'])]
+                context = ctx_for(CASE, BASE, after)
+                self.assertFalse(run(check, context)['passed'], case['id'])
+
+    def test_empty_topics_rejected_before_seeder_execution(self):
+        fixture = self.small()
+        fixture['cases'][0]['seeds']['topics'] = {'pages': []}
+        self.assertTrue(any('topics.pages must not be empty' in p for p in v2.validate_fixture(fixture)))
+
     def test_valid_small_fixture(self):
         fixture = self.small()
         fixture['cases'][0]['steps'][0]['prompt'] = 'Which vehicle gearbox work was done?'
@@ -1126,8 +1144,6 @@ class PipelineWithStubBinary(unittest.TestCase):
         self.assertIn('Codex needs an absolute --auth-file', str(raised.exception))
         args.auth_file = Path('/abs/auth.json')
         self.assertEqual(v2.prepare_arms(args, Parser())[0]['provider'], 'Codex')
-if __name__ == '__main__':
-    unittest.main()
 
 
 class UndoVerification(unittest.TestCase):
@@ -1141,3 +1157,50 @@ class UndoVerification(unittest.TestCase):
         self.assertTrue(v2.verify_undo(receipt, [restored]))
         self.assertFalse(v2.verify_undo(receipt, [dict(after, version=3)]))
 
+
+
+class DimensionTests(unittest.TestCase):
+    def test_categories_keep_grounding_recovery_and_safety_distinct(self):
+        checks = [dict(type=kind, passed=True) for kind in
+                  ('answer_contains_any', 'read', 'input_lineage', 'undo', 'protected_preserved')]
+        counts = v2.dimension_counts(checks)
+        self.assertEqual(counts['grounding'], dict(passed=2, failed=0, unverified=0, total=2))
+        self.assertEqual(counts['recovery']['passed'], 1)
+        self.assertEqual(counts['safety']['passed'], 2)
+        self.assertEqual(counts['correctness']['passed'], 2)
+
+    def test_missing_evidence_never_becomes_a_dimension_pass(self):
+        counts = v2.dimension_counts([
+            dict(type='read', passed=None), dict(type='read', passed=False),
+            dict(type='read', passed=True, report_only=True),
+            dict(type='read', passed=True, applicable=False)])
+        self.assertEqual(counts['grounding'], dict(passed=0, failed=1, unverified=1, total=2))
+        self.assertEqual(counts['recovery'], dict(passed=0, failed=0, unverified=0, total=0))
+
+    def test_explicit_dimension_and_legacy_report_records(self):
+        result = run({'type': 'answer_contains_any', 'step': 1, 'values': ['yes'],
+                      'dimensions': ['correctness', 'grounding']},
+                     ctx_for(CASE, BASE, BASE, [step('yes')]))
+        self.assertEqual(result['dimensions'], ['correctness', 'grounding'])
+        counts = v2.dimension_counts([result, dict(type='undo', passed=None, safety=True)])
+        self.assertEqual(counts['grounding']['passed'], 1)
+        self.assertEqual(counts['safety']['unverified'], 1)
+
+    def test_invalid_dimensions_refused_at_fixture_admission(self):
+        for invalid in ([], ['cost'], ['safety', 'safety'], 'safety'):
+            fixture = FixtureTests().small()
+            fixture['cases'][0]['checks'][0]['dimensions'] = invalid
+            self.assertTrue(any('dimensions' in p for p in v2.validate_fixture(fixture)))
+
+    def test_report_keeps_unknown_grounding_visible_even_when_comparison_excludes_it(self):
+        result = BlockerAndReportTests().result('A', 1, None)
+        result['checks'][0]['unverified'] = True
+        report = v2.build_report([result], [{'id': 'R1', 'repetitions': 1}])
+        counts = report['cases'][0]['dimensions']['grounding']
+        self.assertEqual(counts, dict(passed=0, failed=0, unverified=1, total=1))
+        self.assertEqual(report['matrix']['A']['dimensions']['grounding'], counts)
+        self.assertIn('grounding: 0/1 checks passed, 0 failed, 1 unverified', v2.format_report(report))
+
+
+if __name__ == '__main__':
+    unittest.main()

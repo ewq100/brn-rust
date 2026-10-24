@@ -1,7 +1,7 @@
 use brn_intake::document::{DocumentExtraction, DocumentRequest};
 use xberg::{ExtractInput, ExtractionConfig, OutputFormat, SecurityLimits};
 
-/// Normal SDK text policy; only explicit execution/security/service settings differ.
+/// Normal SDK text policy; explicit execution/security and retained-image service settings differ.
 pub fn config(request: &DocumentRequest) -> ExtractionConfig {
     let limits = &request.limits;
     let e = limits.max_expanded_bytes;
@@ -19,7 +19,13 @@ pub fn config(request: &DocumentRequest) -> ExtractionConfig {
         force_ocr: false,
         force_ocr_pages: None,
         ocr_embedded_images: Some(false),
-        images: None,
+        images: Some(xberg::ImageExtractionConfig {
+            extract_images: true,
+            run_ocr_on_images: false,
+            max_images_per_page: Some(brn_intake::MAX_ASSETS as u32),
+            max_image_dimension: 4096,
+            ..Default::default()
+        }),
         captioning: None,
         qr_codes: Some(false),
         chunking: None,

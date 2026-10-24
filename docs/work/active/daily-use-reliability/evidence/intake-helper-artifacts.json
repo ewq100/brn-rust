@@ -1,0 +1,19 @@
+{
+  "commit": "2c33838d609cf76c55d8cd253d3ba12bada6d483",
+  "source_manifest": "intake-helper-source-manifest.json",
+  "observed_at": "2026-10-24T00:04:38.159614+00:00",
+  "artifacts": {
+    "brn-xberg-helper": {
+      "path": "/workspace/brn-daily-helpers/artifacts/brn-xberg-helper",
+      "sha256": "ee475910694951858eb8ae84daa4232a1724e03affb7968322a512684e963b1c",
+      "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1",
+      "restricted_identity_smoke": "PASS"
+    },
+    "brn-xberg-helper-brn": {
+      "path": "/workspace/brn-daily-helpers/artifacts/brn-xberg-helper-brn",
+      "sha256": "cd286c69654e486c0b86086fd666bd910e934167d899811c322809f3598f6d2b",
+      "engine_identity": "xberg/1.3.10/brn/524a4d3bb6a9eeae95f586bc71a9330bd2ba7e43af1e1c681e16eb01896bb490/figures-v1",
+      "restricted_identity_smoke": "PASS"
+    }
+  }
+}

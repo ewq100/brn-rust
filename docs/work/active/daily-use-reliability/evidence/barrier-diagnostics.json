@@ -1,0 +1,27 @@
+{
+  "source_commit": "3393d4e010f673f78f3c9b4eb2bfd98d8e8e898e",
+  "diagnostics": [
+    {
+      "test": "threads::skills_tests::live_disable_blocks_late_skill_delivery_and_next_dispatch_without_rewriting_prefix",
+      "exit_code": 101,
+      "seconds": 0.087,
+      "observed": "expected explicit UnsafeCredentials failure before fixture barrier; no hang",
+      "success_path_qualified": false
+    },
+    {
+      "test": "threads::summary_tests::canonical_generation_change_rejects_publication_even_when_run_and_sources_stay_live",
+      "exit_code": 101,
+      "seconds": 0.048,
+      "observed": "expected explicit UnsafeCredentials failure before fixture barrier; no hang",
+      "success_path_qualified": false
+    },
+    {
+      "test": "threads::summary_tests::stop_and_concurrent_configuration_change_never_publish_inflight_summary",
+      "exit_code": 101,
+      "seconds": 0.047,
+      "observed": "expected explicit UnsafeCredentials failure before fixture barrier; no hang",
+      "success_path_qualified": false
+    }
+  ],
+  "interpretation": "Failure-path diagnostics only; these Rust tests failed as expected in the incompatible environment and are not counted as passing behavioral tests."
+}

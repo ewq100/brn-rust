@@ -179,3 +179,60 @@ fn decode_png(
     }
     Ok((width, height))
 }
+
+/// Validate retained native PNG/JPEG bytes before asset construction. Dimensions
+/// come from the decoder, never office display extents or a filename. Other
+/// formats (including animations) remain explicit projection gaps.
+pub fn validate_document_image(
+    bytes: &[u8],
+    media_type: &str,
+    limits: &IntakeLimits,
+) -> Result<(u32, u32), String> {
+    limits.validate()?;
+    if bytes.is_empty() || bytes.len() > MAX_IMAGE_BYTES.min(limits.max_decoded_bytes) {
+        return Err("image encoded byte budget".into());
+    }
+    match media_type {
+        "image/png" => decode_png(
+            bytes,
+            MAX_IMAGE_BYTES.min(limits.max_decoded_bytes),
+            u32::MAX,
+            limits.max_image_pixels,
+        ),
+        "image/jpeg" => {
+            // Bounded raster decoding is not a JPEG integrity certificate: upstream
+            // may recover incomplete entropy data with an authored terminal marker.
+            if !bytes.starts_with(&[0xff, 0xd8]) || !bytes.ends_with(&[0xff, 0xd9]) {
+                return Err("JPEG container markers".into());
+            }
+            let options = zune_core::options::DecoderOptions::default()
+                .set_strict_mode(true)
+                .set_max_width(limits.max_image_pixels.min(65535) as usize)
+                .set_max_height(limits.max_image_pixels.min(65535) as usize)
+                .jpeg_set_max_scans(100);
+            let mut cursor = std::io::Cursor::new(bytes);
+            let mut decoder = zune_jpeg::JpegDecoder::new_with_options(&mut cursor, options);
+            decoder
+                .decode_headers()
+                .map_err(|e| format!("JPEG header: {e}"))?;
+            let (w, h) = decoder.dimensions().ok_or("JPEG missing dimensions")?;
+            if w == 0 || h == 0 || (w as u64) * (h as u64) > limits.max_image_pixels {
+                return Err("JPEG dimension/pixel budget".into());
+            }
+            let size = decoder.output_buffer_size().ok_or("JPEG output overflow")?;
+            if size as u64 > limits.max_image_pixels * 4 {
+                return Err("JPEG decoded byte budget".into());
+            }
+            let mut pixels = vec![0; size];
+            decoder
+                .decode_into(&mut pixels)
+                .map_err(|e| format!("JPEG raster decode: {e}"))?;
+            drop(decoder);
+            if cursor.position() != bytes.len() as u64 {
+                return Err("JPEG trailing data".into());
+            }
+            Ok((w as u32, h as u32))
+        }
+        _ => Err("unsupported retained image format (PNG/JPEG only)".into()),
+    }
+}

@@ -243,5 +243,61 @@ class EvidenceTests(unittest.TestCase):
             evidence.record_gate('verify-end-to-end.sh', [], 'relative', self.root)
 
 
+
+
+class HeadlessDocumentGateTests(unittest.TestCase):
+    def test_e2e_qualifies_helpers_and_scripted_documents_on_supported_hosts(self):
+        # Execute the real gate's shell control flow with inert command fixtures;
+        # no compiler/provider or actual document helper is launched.
+        for system, machine, supported in [('Linux', 'x86_64', True), ('Darwin', 'arm64', True),
+                                            ('Linux', 'aarch64', False)]:
+            with self.subTest(system=system, machine=machine), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                scripts = root / 'scripts'
+                scripts.mkdir()
+                gate = scripts / 'verify-end-to-end.sh'
+                # Keep platform branches intact while preventing a Mac's real
+                # Homebrew Cargo from taking precedence over the inert fixture.
+                source = (SCRIPTS / gate.name).read_text()
+                source = source.replace('export PATH="/opt/homebrew/opt/rustup/bin:$PATH"\n', '')
+                gate.write_text(source)
+                for name in ['check-provider-retirement.py', 'check-intake-retirement.py',
+                             'verify-end-to-end-fixtures.py', 'cli_journey.py']:
+                    (scripts / name).write_text('pass\n')
+                (scripts / 'build-document-helpers.sh').write_text('''#!/usr/bin/env bash
+set -eu
+while (($#)); do
+  if [[ "$1" == --target-root ]]; then target="$2"; shift 2; else shift; fi
+done
+mkdir -p "$target/artifacts"
+printf stock > "$target/artifacts/brn-xberg-helper"
+printf adapted > "$target/artifacts/brn-xberg-helper-brn"
+''')
+                bins = root / 'bin'
+                bins.mkdir()
+                for name, text in {
+                    'uname': '#!/bin/sh\nif [ "$1" = -s ]; then echo "$FAKE_SYSTEM"; else echo "$FAKE_MACHINE"; fi\n',
+                    'cargo': '#!/bin/sh\nprintf "%s\\n" "$*" >> "$FAKE_LOG"\n',
+                }.items():
+                    path = bins / name
+                    path.write_text(text)
+                    path.chmod(0o700)
+                target = root / 'target'
+                log = root / 'calls'
+                env = dict(os.environ, PATH=f'{bins}:{os.environ["PATH"]}', TMPDIR=str(root),
+                           CARGO_TARGET_DIR=str(target), FAKE_LOG=str(log),
+                           FAKE_SYSTEM=system, FAKE_MACHINE=machine)
+                env.pop('BRN_VERIFY_OUTPUT_DIR', None)
+                result = subprocess.run(['bash', str(gate)], env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                calls = log.read_text()
+                self.assertEqual('scripted-document-tests' in calls, supported)
+                for name, payload in [('brn-xberg-helper', 'stock'), ('brn-xberg-helper-brn', 'adapted')]:
+                    sibling = target / 'debug' / name
+                    self.assertEqual(sibling.exists(), supported)
+                    if supported:
+                        self.assertEqual(sibling.read_text(), payload)
+
+
 if __name__ == '__main__':
     unittest.main()

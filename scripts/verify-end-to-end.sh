@@ -27,7 +27,7 @@ if [[ "$CARGO_TARGET_DIR" != /* ]]; then
 fi
 if [[ "${1:-}" != "--fixtures-only" ]]; then
   cargo fmt --all -- --check
-  if [[ "$(uname -s)" == Darwin ]]; then
+  if [[ "$(uname -s)" == Darwin || ( "$(uname -s)" == Linux && "$(uname -m)" == x86_64 ) ]]; then
     bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root "$CARGO_TARGET_DIR/document-helpers"
     export BRN_XBERG_HELPER="$CARGO_TARGET_DIR/document-helpers/artifacts/brn-xberg-helper"
     export BRN_XBERG_HELPER_BRN="$CARGO_TARGET_DIR/document-helpers/artifacts/brn-xberg-helper-brn"
@@ -37,7 +37,7 @@ if [[ "${1:-}" != "--fixtures-only" ]]; then
   cargo build --workspace --locked --offline
   cargo clippy --workspace --all-targets --locked --offline -- -D warnings
   cargo test --workspace --no-fail-fast --locked --offline
-  if [[ "$(uname -s)" == Darwin ]]; then
+  if [[ "$(uname -s)" == Darwin || ( "$(uname -s)" == Linux && "$(uname -m)" == x86_64 ) ]]; then
     cargo test -p brn --features scripted-document-tests --bin brn document_route_tests --locked --offline --jobs 1
     cargo clippy -p brn --features scripted-document-tests --all-targets --locked --offline --jobs 1 -- -D warnings
   fi

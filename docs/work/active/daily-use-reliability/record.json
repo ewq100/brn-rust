@@ -1,0 +1,160 @@
+{
+  "baseline": "f30f37e0dc50fdcf91e97a77bc7cda9acb678d78",
+  "work_view": {
+    "observed_at": "2026-10-24T00:48:27.793861+00:00",
+    "goal": "Improve bounded document image intake and daily workflow verification; reconcile documentation and owner decisions; deliver a gated useful-output design.",
+    "owner_attention": "Draft PR226 only; no merge/release authorized. Local full deterministic provider-fixture tests are blocked by sandbox Git-ancestor markers; final-head CI is required. Backlog choices remain blank; calculator activation and actual Mac acceptance remain separate.",
+    "tasks": [
+      {
+        "id": "intake",
+        "title": "Retain bounded common document images",
+        "owner": "intake implementation lane",
+        "state": "complete",
+        "activity": "Bounded PNG/JPEG retention and figures-v1 identity integrated and independently reviewed. Both rebuilt helpers and focused host checks pass; Linux CI at aa5d53ce passed its full workspace/helper gates.",
+        "observed_at": "2026-10-24T00:41:16.950841+00:00",
+        "origin": "observed",
+        "next_action": "Review final-head CI and later actual Mac acceptance; no further intake implementation assigned.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-use-reliability/baseline.md",
+          "docs/work/active/daily-use-reliability/qualification.md"
+        ],
+        "gates": {
+          "implementation": "complete: e78f3ff4",
+          "checks": "passed: 19 active tests per helper, strict Clippy, independent PDF pixels, host source/asset checks; full Linux CI at aa5d53ce. Final-head CI pending.",
+          "integration": "published: draft PR226; not merged",
+          "native": "pending: not observed in this batch",
+          "owner_acceptance": "pending: not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "workflow",
+        "title": "Exercise useful daily outcomes and recovery",
+        "owner": "workflow implementation lane",
+        "state": "complete",
+        "activity": "12 authored semantic cases and 8 composed scripted journeys integrated; separate scoring dimensions and actual Linux gate coverage added. Three fixture barriers now detect early worker completion.",
+        "observed_at": "2026-10-24T00:41:16.950841+00:00",
+        "origin": "observed",
+        "next_action": "Qualify final-head CI, including newly enabled Linux document and offline CLI steps; live semantic quality remains unqualified.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-use-reliability/baseline.md",
+          "docs/work/active/daily-use-reliability/qualification.md"
+        ],
+        "gates": {
+          "implementation": "complete: workflow commits through 42e4f4f2 and CI 3393d4e0",
+          "checks": "passed: focused journeys/seeder/Python, final strict Clippy, offline CLI: 108 steps, 1,266 checks. Local full deterministic provider-fixture/scripted-document qualification blocked by synthetic credential Git-ancestor refusal; final-head CI pending.",
+          "integration": "published: draft PR226; not merged",
+          "native": "pending: not observed in this batch",
+          "owner_acceptance": "pending: not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "artifact-design",
+        "title": "Specify constrained calculator and chart output",
+        "owner": "design lane",
+        "state": "complete",
+        "activity": "Source-grounded design committed 97d1ea28 and independently reviewed; no capability implemented or activated.",
+        "observed_at": "2026-10-24T00:41:16.950841+00:00",
+        "origin": "observed",
+        "next_action": "Await separate focused implementation/activation decision; no executable capability is added.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-use-reliability/baseline.md",
+          "docs/work/active/daily-use-reliability/artifact-proposal.md"
+        ],
+        "gates": {
+          "implementation": "complete: design only, commit 97d1ea28",
+          "checks": "passed: independent source review, diff whitespace and Markdown links",
+          "integration": "published: draft PR226; not merged",
+          "native": "deferred: future separately authorized worker qualification",
+          "owner_acceptance": "pending: separate capability decision"
+        },
+        "attempts": []
+      },
+      {
+        "id": "integration",
+        "title": "Review and qualify the integrated batch",
+        "owner": "lead integration and independent reviewer",
+        "state": "blocked",
+        "activity": "Reviewed implementation and test/CI corrections integrated. Default build, strict Clippy, independent crates and offline CLI gates pass. Local full-suite run recorded auth fixture failures and was terminated after barrier hangs; no full local pass claimed. Final daily/seeder rerun passed 9+6 tests and figure-profile reimport passed; three repaired fixtures now fail explicitly in under 0.1 seconds in the incompatible cloud environment.",
+        "observed_at": "2026-10-24T00:48:27.793861+00:00",
+        "origin": "observed",
+        "next_action": "Inspect final-head CI for full deterministic workspace/provider-fixture and newly enabled Linux gates; preserve separate native/live/activation/merge decisions.",
+        "depends_on": [],
+        "resource_waits": [
+          "Final-head CI for full provider and newly enabled Linux document gates"
+        ],
+        "evidence": [
+          "docs/work/active/daily-use-reliability/baseline.md",
+          "docs/work/active/daily-use-reliability/qualification.md",
+          "docs/work/active/daily-use-reliability/evidence/environment-blocker.json"
+        ],
+        "gates": {
+          "implementation": "complete: runtime source aa5d53ce; later test-only/CI corrections through 3393d4e0",
+          "checks": "passed: 199 Python tests run / 1 platform skip, build, strict Clippy, 307 independent crate tests / 1 child entry skip, offline CLI: 108 steps, 1,266 checks. Full local provider suite blocked; final-head CI pending.",
+          "integration": "published: draft PR226; not merged",
+          "native": "pending: not observed in this batch",
+          "owner_acceptance": "pending: not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "native-acceptance",
+        "title": "Consolidated actual Mac acceptance",
+        "owner": "future authorized native actor",
+        "state": "blocked",
+        "activity": "No Mac access authorized for this batch. PR225 narrow live CLI evidence is preserved, not repeated.",
+        "observed_at": "2026-10-24T00:41:16.950841+00:00",
+        "origin": "observed",
+        "next_action": "Use the later consolidated checklist after separate native authorization.",
+        "depends_on": [],
+        "resource_waits": [
+          "Separate authorization for actual Mac interaction"
+        ],
+        "evidence": [
+          "docs/work/active/daily-use-reliability/baseline.md"
+        ],
+        "gates": {
+          "implementation": "inapplicable: acceptance only",
+          "checks": "pending",
+          "integration": "published: draft PR226; not merged",
+          "native": "pending: not observed in this batch",
+          "owner_acceptance": "pending: not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "documentation-backlog",
+        "title": "Reconcile documentation and one owner decision backlog",
+        "owner": "documentation lane with parent chat-history research",
+        "state": "complete",
+        "activity": "One canonical 51-item grouped backlog reconciles all 71 curated CHAT sources and 14 DOT aliases; current documentation audited and independently reviewed.",
+        "observed_at": "2026-10-24T00:41:16.950841+00:00",
+        "origin": "observed",
+        "next_action": "Parent presents the compact decision view; owner Keep/Later/Drop choices remain blank.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-use-reliability/baseline.md",
+          "docs/work/active/daily-use-reliability/decision-backlog.md",
+          "docs/work/active/daily-use-reliability/chat-source-map.md",
+          "docs/work/active/daily-use-reliability/documentation-audit.md"
+        ],
+        "gates": {
+          "implementation": "complete: 2d81fb04 and aa5d53ce",
+          "checks": "passed: independent evidence/source coverage review and Markdown navigation checks",
+          "integration": "published: draft PR226; not merged",
+          "native": "inapplicable: documentation audit",
+          "owner_acceptance": "pending: blank Keep/Later/Drop choices"
+        },
+        "attempts": []
+      }
+    ]
+  }
+}
