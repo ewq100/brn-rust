@@ -2357,19 +2357,6 @@ impl<T: 'static> WritingView<'_, T> {
                 .filter(|saved| self.writing_requests.get(&saved.request_message) == Some(*saved));
             details = details.child(self.sources_used(evidence, captured));
         }
-        // Action facts are part of the exact result, including in mixed Note
-        // groups; hiding the source-input section must not hide a reassignment.
-        for write in &review.candidate.request.writes {
-            if let RecordData::Action(action) = &write.data {
-                let facts = brn_threads_app::action_review_text(action);
-                details = details.child(
-                    metadata(facts.clone())
-                        .id(format!("review-action-{}", write.id))
-                        .aria_label(facts)
-                        .test_support(),
-                );
-            }
-        }
         if self.review.inputs_shown() || review.note.is_none() {
             // The bar names the reason when the proposal has no note text.
             if review.note.is_some() {
@@ -2512,6 +2499,21 @@ impl<T: 'static> WritingView<'_, T> {
                 );
             }
             details = details.child(members.test_support());
+        }
+        // Keep group/member navigation before potentially long Action facts:
+        // exact details remain expanded in this scroller without pushing the
+        // controls for selecting the reviewed change offscreen. These facts
+        // stay independent of the source-input toggle, including mixed groups.
+        for write in &review.candidate.request.writes {
+            if let RecordData::Action(action) = &write.data {
+                let facts = brn_threads_app::action_review_text(action);
+                details = details.child(
+                    metadata(facts.clone())
+                        .id(format!("review-action-{}", write.id))
+                        .aria_label(facts)
+                        .test_support(),
+                );
+            }
         }
         let body = if review.note.is_none() {
             div().into_any_element()

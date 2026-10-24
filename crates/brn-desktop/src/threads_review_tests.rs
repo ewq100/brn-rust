@@ -1085,8 +1085,18 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
         assert!(window.find("review-details").visible());
         assert!(window.try_find("review-show-changes").is_none());
     });
-    // Omitting a group makes Prepare selection the primary; Apply waits.
+    // Exact Action facts must not push the group-selection controls below
+    // the visible details viewport. Omitting a group makes Prepare selection
+    // the primary; Apply waits.
     on_window(cx, &f, |window, cx| {
+        for task in &tasks {
+            assert!(window.find(format!("review-group-{}", task.id)).visible());
+            assert!(
+                window
+                    .try_find(format!("review-action-{}", task.id))
+                    .is_some()
+            );
+        }
         window.click(format!("review-group-{}", tasks[1].id), cx)
     });
     on_window(cx, &f, |window, _| {

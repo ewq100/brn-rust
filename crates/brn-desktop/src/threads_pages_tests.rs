@@ -651,19 +651,19 @@ fn each_open_task_has_one_quiet_main_action_and_a_menu_for_its_state(cx: &mut Te
             &suggested,
             "open-action",
             "done-action",
-            vec!["Waiting", "Confirm done", "Cancel task"],
+            vec!["Edit details", "Waiting", "Confirm done", "Cancel task"],
         ),
         (
             &open,
             "done-action",
             "open-action",
-            vec!["Waiting", "Cancel task"],
+            vec!["Edit details", "Waiting", "Cancel task"],
         ),
         (
             &waiting,
             "done-action",
             "open-action",
-            vec!["Mark open", "Cancel task"],
+            vec!["Edit details", "Mark open", "Cancel task"],
         ),
     ] {
         on_window(cx, &f, |window, _| {
@@ -685,8 +685,8 @@ fn each_open_task_has_one_quiet_main_action_and_a_menu_for_its_state(cx: &mut Te
         assert_eq!(menu_rows(cx, &f), items, "{id}");
         close_menu(cx, &f);
     }
-    // Done and Cancelled start collapsed, keep their counts and offer no
-    // actions once shown.
+    // Done and Cancelled start collapsed and keep their counts. Their
+    // metadata remains editable, but no state transition is offered.
     for (key, id) in [("done", &done), ("cancelled", &cancelled)] {
         on_window(cx, &f, |window, _| {
             assert!(window.find(format!("actions-group-{key}")).visible());
@@ -696,9 +696,13 @@ fn each_open_task_has_one_quiet_main_action_and_a_menu_for_its_state(cx: &mut Te
         click(cx, &f, format!("tasks-{key}-toggle"));
         on_window(cx, &f, |window, _| {
             assert!(window.find(format!("action-tile-{id}")).visible());
-            assert!(window.try_find(format!("task-menu-{id}")).is_none());
+            assert!(window.find(format!("task-menu-{id}")).visible());
             assert!(window.try_find(format!("done-action-{id}")).is_none());
+            assert!(window.try_find(format!("open-action-{id}")).is_none());
         });
+        click(cx, &f, format!("task-menu-{id}"));
+        assert_eq!(menu_rows(cx, &f), vec!["Edit details"]);
+        close_menu(cx, &f);
     }
     // The menu and the main action run the same checked change.
     click(cx, &f, format!("task-menu-{waiting}"));
