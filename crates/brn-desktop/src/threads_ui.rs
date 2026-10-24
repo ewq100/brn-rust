@@ -76,6 +76,8 @@ mod theme;
 mod tiles;
 #[cfg(all(test, feature = "native-test-support"))]
 use brn_writing_ui::workbench;
+#[path = "threads_restore.rs"]
+mod restore_view;
 #[path = "threads_worker.rs"]
 mod worker;
 #[path = "threads_writing.rs"]
@@ -452,6 +454,7 @@ struct ThreadsUi {
     export_status: String,
     copilot_models: Vec<String>,
     backup_status: String,
+    restore: restore_view::RestoreFlow,
     subscriptions: Vec<Subscription>,
     poll: Option<Task<()>>,
 }
@@ -721,6 +724,7 @@ impl ThreadsUi {
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
             backup_status: "No backup created in this session.".into(),
+            restore: Default::default(),
             subscriptions,
             poll: Some(poll),
         };
@@ -2649,6 +2653,15 @@ impl ThreadsUi {
         }
     }
     fn cancel(&mut self, cx: &mut Context<Self>) {
+        if self.worker.as_ref().is_some_and(|w| {
+            matches!(
+                w.kind(),
+                WorkerKind::RestoreValidation | WorkerKind::Restore
+            )
+        }) {
+            self.cancel_restore(cx);
+            return;
+        }
         if self
             .worker
             .as_mut()
@@ -2694,6 +2707,10 @@ impl ThreadsUi {
         let Some(worker) = &self.worker else {
             return;
         };
+        let restore_worker = matches!(
+            worker.kind(),
+            WorkerKind::RestoreValidation | WorkerKind::Restore
+        );
         let (events, end) = worker.drain().into_parts();
         if events.is_empty() && end == WorkerBatchEnd::Pending {
             return;
@@ -2779,6 +2796,15 @@ impl ThreadsUi {
                     } else {
                         self.settings = settings;
                     }
+                }
+                WorkerEvent::RestorePrepared(result) => self.restore_prepared(result),
+                WorkerEvent::Finished(result)
+                    if self
+                        .worker
+                        .as_ref()
+                        .is_some_and(|w| w.kind() == WorkerKind::Restore) =>
+                {
+                    self.restore_finished(result)
                 }
                 WorkerEvent::Finished(result) => {
                     terminal_continuation = self
@@ -2999,6 +3025,13 @@ impl ThreadsUi {
                 }
             }
         }
+        if restore_worker {
+            if end == WorkerBatchEnd::Disconnected {
+                self.worker_disconnected();
+            }
+            cx.notify();
+            return;
+        }
         if end == WorkerBatchEnd::Finished {
             self.persist_theme();
             if let Some((prompt, thread)) = terminal_continuation {
@@ -3022,6 +3055,15 @@ impl ThreadsUi {
         cx.notify();
     }
     fn worker_disconnected(&mut self) {
+        if self.worker.as_ref().is_some_and(|w| {
+            matches!(
+                w.kind(),
+                WorkerKind::RestoreValidation | WorkerKind::Restore
+            )
+        }) {
+            self.restore_finished(Err("Restore worker ended unexpectedly. Preserve the selected destination; no successful restore is confirmed.".into()));
+            return;
+        }
         // Preserve the old Run identity and visible partial before retiring it.
         // Non-Run interruption already recovers the queue in this checked path.
         self.pause_failed_worker();

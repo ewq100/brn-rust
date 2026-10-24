@@ -466,6 +466,11 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                             Worker::output(receiver, kind == WorkerKind::Backup)
                         }
                         WorkerKind::Connect => Worker::connect(receiver, CancellationToken::new()),
+                        WorkerKind::RestoreValidation | WorkerKind::Restore => Worker::restore(
+                            receiver,
+                            CancellationToken::new(),
+                            kind == WorkerKind::Restore,
+                        ),
                     };
                     let cancel = worker.cancel.clone();
                     let conversion_cancel = worker.conversion_cancel.clone();

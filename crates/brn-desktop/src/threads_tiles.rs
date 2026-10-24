@@ -1773,6 +1773,7 @@ impl ThreadsUi {
             .id("settings-copies")
             .gap_6()
             .child(backup)
+            .child(self.restore_section(cx))
             .child(export)
             .test_support()
             .into_any_element()

@@ -18,6 +18,7 @@ pub(super) enum WorkerEvent {
     Activity(String),
     Text(String),
     Finished(Result<String, String>),
+    RestorePrepared(Result<brn_threads_app::PreparedRestore, String>),
     RunFinished {
         result: Result<String, String>,
         terminal: Option<(String, u64)>,
@@ -68,6 +69,9 @@ enum WorkerOperation {
     },
     Export,
     Backup,
+    Restore {
+        publishing: bool,
+    },
     Connect,
 }
 
@@ -134,6 +138,19 @@ impl Worker {
             } else {
                 WorkerOperation::Export
             },
+        }
+    }
+
+    pub(super) fn restore(
+        receiver: Receiver<WorkerEvent>,
+        cancel: CancellationToken,
+        publishing: bool,
+    ) -> Self {
+        Self {
+            receiver,
+            cancel,
+            conversion_cancel: Arc::new(AtomicBool::new(false)),
+            operation: WorkerOperation::Restore { publishing },
         }
     }
 
@@ -216,6 +233,8 @@ impl Worker {
             WorkerOperation::Import { .. } => WorkerKind::Import,
             WorkerOperation::Export => WorkerKind::Export,
             WorkerOperation::Backup => WorkerKind::Backup,
+            WorkerOperation::Restore { publishing: false } => WorkerKind::RestoreValidation,
+            WorkerOperation::Restore { publishing: true } => WorkerKind::Restore,
             WorkerOperation::Connect => WorkerKind::Connect,
         }
     }
@@ -235,6 +254,7 @@ impl Worker {
                     let terminal = matches!(
                         event,
                         WorkerEvent::Finished(_)
+                            | WorkerEvent::RestorePrepared(_)
                             | WorkerEvent::RunFinished { .. }
                             | WorkerEvent::Converted { .. }
                     );
