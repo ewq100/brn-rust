@@ -4,7 +4,7 @@ The three approved slices are implemented in [draft PR227](https://github.com/ew
 Corrected production source is through `09e26825`; `1e4c91df` strengthens the
 existing menu-to-Owner test without changing production. Local deterministic gates
 passed. Actual Linux observation established the bounded outcomes below, with
-explicit accessibility/editing limitations. No new merge, release, live-model
+explicit accessibility limitations. No new merge, release, live-model
 usefulness or actual Mac acceptance is claimed.
 
 The [record](record.json) owns current activity. The PR records the final published
@@ -79,9 +79,15 @@ and control states are retained in [the readback receipt](evidence/linux-readbac
   description, due and evidence. A prior corrected run's independent CLI reopen
   also confirmed persistence after app cleanup.
 
-This is not blanket native acceptance. Editing-time capture still showed the
-placeholder before the settled saved result; live text echo is unqualified.
-Owner's AT focus remained on the window, and its Text interface was unavailable.
+A later controlled run with the compiler idle (`run.wyfobb`) opened the same task
+menu and typed without an Owner-field click. The [entry capture](evidence/linux-action-entry.png)
+visibly shows Synthetic owner before Save, followed by the saved row and v2 readback.
+This establishes initial keyboard focus and visible text for that bounded Linux
+observation. Earlier stale placeholder captures are retained; their precise timing
+cause is not proved. It is not a broad rendering/performance guarantee.
+
+This is not blanket native acceptance. Owner's AT focus remained on the window,
+and its Text interface was unavailable.
 Screen coordinates omitted the window origin; the successful physical probe used
 explicit Window coordinates. Pinned GPUI has a bounds-update method with no found
 caller, and input/frame focus mapping is a plausible contributor to AT focus;
@@ -128,7 +134,7 @@ Other retained attempts distinguish environment/probe errors from product fixes:
 - Early Linux probes used unsupported registry/role methods or an unconfigured
   session service, then confused Screen/Window coordinates and raced changing
   nodes. Original captures/logs remain. Corrected physical readback proves only the
-  observed saved outcome; it does not erase the accessibility/editing limits above.
+  observed saved outcome; it does not erase the accessibility limits and earlier capture caveat above.
 
 ## CI and release boundary
 

@@ -18,8 +18,8 @@ None recorded.
 ### Make meeting-note follow-ups dependable
 
 Task ID: `actions-followups`
-Owner: Actions implementation lane · State: **ready** · Last observed: 2026-10-25T08:41:43.776833+00:00
-Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; editing/AT/picker limits remain explicit.
+Owner: Actions implementation lane · State: **ready** · Last observed: 2026-10-25T08:50:04.683741+00:00
+Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.
 Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
 
 <details>
@@ -30,7 +30,7 @@ Gates:
 - **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
 - **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
 - **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
-- **native:** partial: Linux Data controls and saved Action observed; editing text echo/ATfocus/Screen coordinates and pickers unqualified; actualMac pending
+- **native:** partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending
 - **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
 
 </details>
@@ -38,8 +38,8 @@ Gates:
 ### Scan a document inbox with visible status and safe retries
 
 Task ID: `manual-inbox`
-Owner: Inbox implementation lane · State: **ready** · Last observed: 2026-10-25T08:41:43.776833+00:00
-Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; editing/AT/picker limits remain explicit.
+Owner: Inbox implementation lane · State: **ready** · Last observed: 2026-10-25T08:50:04.683741+00:00
+Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.
 Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
 Depends on: actions-followups when Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (reported satisfied: true)
 
@@ -51,7 +51,7 @@ Gates:
 - **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
 - **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
 - **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
-- **native:** partial: Linux Data controls and saved Action observed; editing text echo/ATfocus/Screen coordinates and pickers unqualified; actualMac pending
+- **native:** partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending
 - **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
 
 </details>
@@ -59,8 +59,8 @@ Gates:
 ### Restore a backup through the existing checked engine
 
 Task ID: `desktop-restore`
-Owner: Restore implementation lane · State: **ready** · Last observed: 2026-10-25T08:41:43.776833+00:00
-Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; editing/AT/picker limits remain explicit.
+Owner: Restore implementation lane · State: **ready** · Last observed: 2026-10-25T08:50:04.683741+00:00
+Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.
 Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
 
 <details>
@@ -71,7 +71,7 @@ Gates:
 - **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
 - **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
 - **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
-- **native:** partial: Linux Data controls and saved Action observed; editing text echo/ATfocus/Screen coordinates and pickers unqualified; actualMac pending
+- **native:** partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending
 - **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
 
 </details>
@@ -79,8 +79,8 @@ Gates:
 ### Independently review and qualify coherent draft slices
 
 Task ID: `integration`
-Owner: lead integration and independent reviewer · State: **ready** · Last observed: 2026-10-25T08:41:43.776833+00:00
-Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; editing/AT/picker limits remain explicit.
+Owner: lead integration and independent reviewer · State: **ready** · Last observed: 2026-10-25T08:50:04.683741+00:00
+Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.
 Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
 
 <details>
@@ -91,7 +91,7 @@ Gates:
 - **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
 - **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
 - **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
-- **native:** partial: Linux Data controls and saved Action observed; editing text echo/ATfocus/Screen coordinates and pickers unqualified; actualMac pending
+- **native:** partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending
 - **owner acceptance:** pending: no delivered behavior acceptance
 
 </details>
@@ -143,4 +143,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-25T08:41:43.776833+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-25T08:50:04.683741+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

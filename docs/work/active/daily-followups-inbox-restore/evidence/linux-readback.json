@@ -116,11 +116,35 @@
   "limitations": [
     "No file picker invoked; no real user folder configured or scanned.",
     "Owner entry used explicit physical field click with Window-relative coordinates.",
-    "Initial autofocus, AT focus/Screen coordinates and editing-time text echo not qualified.",
+    "The first observation did not qualify initial autofocus or text echo; the later observation below does. AT focus/Screen coordinates remain unqualified.",
     "No model calls, actual Mac interaction, owner acceptance, merge or release."
   ],
   "capture_sha256": {
     "02-data.png": "d07ff1746ff3bcddb4f64997ef4632d7f7812c4eb09a5f961e1a6457e181b7d1",
     "04-action-saved.png": "e97e34ee371aad5397af12e7ec0ce82ba6f065c0efded9a34e869ef65ed9a234"
+  },
+  "later_autofocus_observation": {
+    "directory": "/workspace/brn-next-evidence/native/run.wyfobb",
+    "method": "Task actions -> Edit details -> ASCII keyboard typing WITHOUT Owner click -> physical Save using explicit Window-relative coordinates",
+    "result": "Entered text visibly rendered; saved owner/readback version2 with Suggested state retained",
+    "entry_capture_sha256": "5afb41e3b002a3c784f071937b54df65f44af755778cc981ec561e899495e996",
+    "action_after": [
+      {
+        "id": "5b227838-17fb-4ddc-a8b9-ca3ad5f1e06a:0",
+        "version": 2,
+        "archived": false,
+        "data": {
+          "Action": {
+            "description": "Exact schema10 sentinel \u03a9",
+            "state": "Suggested",
+            "internal": false,
+            "evidence": null,
+            "due": null,
+            "owner": "Synthetic owner"
+          }
+        }
+      }
+    ],
+    "limits": "AT focus/Text/Screen coordinate mapping, file pickers, Mac and owner acceptance remain separate."
   }
 }
