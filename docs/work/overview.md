@@ -14,9 +14,9 @@ Task details and full history: [selected work record](active/daily-followups-inb
 ### Independently review and qualify coherent draft slices
 
 Task ID: `integration`
-Owner: lead integration and independent reviewer · State: **active** · Last observed: 2026-10-25T10:31:29.748698+00:00
-Activity: Merged PR227 main CI terminal: seven Mac/Linux/docs pass, three optional Windows failures. Two new targeted inbox witnesses pass; extended Linux field input unqualified.
-Next: Publish reviewed draft PR and follow exact-head CI; no merge authority.
+Owner: lead integration and independent reviewer · State: **active** · Last observed: 2026-10-25T10:58:26.882361+00:00
+Activity: Initial PR228 Linux CI exposed retained-descriptor inbox lock. Regression failed before fix; explicit-unlock guard reviewed, green regression and all 23 inbox tests plus strict lint passed.
+Next: Publish corrected draft and follow exact-head CI; no merge authority.
 Resource waits: One shared Cargo writer; no simultaneous heavy build and actual Linux UI observation
 
 <details>
@@ -24,9 +24,9 @@ Resource waits: One shared Cargo writer; no simultaneous heavy build and actual 
 
 Gates:
 
-- **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
-- **checks:** passed: two targeted inbox witnesses, strict app/native test Clippy, formatting and documentation checks; remote follow-up CI pending at publication
-- **integration:** pending: new follow-up draft only; merged227 closed
+- **implementation:** scoped correction: explicit inbox lease release; independently reviewed
+- **checks:** passed locally: red/green regression, 23 inbox tests, strict app lint; corrected-head CI pending at publication
+- **integration:** draft PR228; separate merge decision required
 - **native:** partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending
 - **owner acceptance:** pending: no delivered behavior acceptance
 
@@ -143,4 +143,4 @@ Completion here means the selected task scope is complete; it does not establish
 - `prior-main-ci` — Close the prior batch resulting-main CI gate
 - `documentation` — Record selected scope and narrow backlog decisions
 
-Local page reflects the last saved observations in this record (2026-10-25T10:31:29.748698+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-25T10:58:26.882361+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

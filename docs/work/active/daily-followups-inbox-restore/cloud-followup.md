@@ -26,8 +26,9 @@ Independent inventory selected two uncovered boundaries:
 
 ## Results
 
-Test source: `ece02f7f348fd4e27baada3f44f029d9e99fac44`; production source
-is unchanged from merged main `90e5bcebac1d64fc98ef315675fd2810e1e26f1e`.
+Initial test source: `ece02f7f348fd4e27baada3f44f029d9e99fac44`; its production source
+was unchanged from merged main `90e5bcebac1d64fc98ef315675fd2810e1e26f1e`.
+The later CI-discovered lock correction below is the only production change.
 
 - `cargo test -p brn-threads-app --test manual_inbox killed_scan_releases_lock_and_recovers_committed_prefix_without_reconversion --locked --offline`: **1 passed**. The owned child is killed and reaped; its partial test banner is not an additional pass.
 - `cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop inbox_tests::scan_button_runs_stock_worker --locked --offline`: **1 passed** (0.59 seconds after compilation). This is the GPUI test harness with real Stock conversion, not actual native picker acceptance.
@@ -39,6 +40,35 @@ adapted `cd286c69654e486c0b86086fd666bd910e934167d899811c322809f3598f6d2b`.
 [Targeted test output](evidence/cloud-inbox-tests.txt) preserves actual results.
 Independent source review found no blockers; both additions extend existing suites
 and add no production capability.
+
+## CI-discovered lock lifetime correction
+
+Initial draft PR228 head `0006b8dea990d38378feba1af0a87d79f0517cf7` failed
+[Linux core CI40185145844](https://github.com/ewq100/brn-rust/actions/runs/40185145844).
+The existing folder-reselection test received “An inbox scan is already active”
+immediately after its scan returned. The new child-process test was spawning
+concurrently. All other Mac/Linux/docs jobs passed; optional Windows failed on
+Unix-only APIs, outside this batch.
+
+The original lease relied on closing its `File`. A duplicate descriptor retains
+the same open-file description and therefore its flock; `O_CLOEXEC` does not
+close an inherited descriptor until exec. A concurrent subprocess is a plausible
+trigger for the observed CI timing, not a captured syscall trace.
+
+Regression commit `aa38ca4d` deterministically retained a `try_clone()` descriptor:
+competing configuration was refused while the owner lived, but reacquisition
+incorrectly failed after owner drop. It failed with the same busy error. Fix
+`48e82be9` wraps the private lease in an explicit-unlock-on-drop guard, as the
+existing staging guard does. It keeps the named inode, nonblocking acquisition,
+no-follow and link-count guards. No retries, sleeps or test serialization hide
+the defect. The regression also checks inode stability and exclusion before drop.
+Independent source review cleared both commits. The corrected regression passed
+(1 test), the parallel inbox integration suite passed (23 tests), and strict app
+library/inbox-test Clippy passed. [Red/green and suite output](evidence/cloud-lease-red-green.txt)
+preserves the original failure. The first broad reproduction command was cancelled
+during a dependency rebuild before any tests ran; it contributes no result.
+Corrected-head remote CI remains pending at publication; earlier-head passes are
+not substituted for that gate.
 
 ## Native observation limits
 
@@ -55,8 +85,8 @@ at all three fields did **not** establish input delivery:
 
 The [final pre-Save capture](evidence/cloud-action-fields-unqualified.png) retains
 that failed observation. These used disposable synthetic data and existing binaries
-whose production source is unchanged through the reviewed candidate; they did not
-invoke a provider. AT-SPI text/focus reporting and reliable extended input remain
+whose production source is unchanged through the reviewed PR227 candidate; they
+predate the lock-release fix and did not invoke a provider. AT-SPI text/focus reporting and reliable extended input remain
 unqualified; no new product defect was established by these probes. Logs and prior
 captures remain in the cloud evidence directory. No actual picker/portal retry,
 Mac access or unchanged live-admission workaround occurred.
