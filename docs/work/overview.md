@@ -11,122 +11,92 @@ Task details and full history: [selected work record](active/daily-followups-inb
 
 ## Working on
 
-### Scan a document inbox with visible status and safe retries
-
-Task ID: `manual-inbox`
-Owner: Inbox implementation lane · State: **active** · Last reported: 2026-10-24T04:46:55.734511+00:00
-Activity: Final app source covers stable receipt identity across settings/folder reselection and Undo, atomic settings/generation fences, descriptor reads and aggregate converted output limits. App suite compiling; native checks deferred to combined tree.
-Next: Finish app/core checks, commit source, then integrate and run the combined native suite.
-Depends on: actions-followups when Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (reported satisfied: true)
-Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** pending
-- **checks:** pending: source-bound focused checks and independent review
-- **integration:** pending: draft PR only; no new merge authority
-- **native:** pending: actual Mac interaction not authorized in this cloud batch
-- **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
-
-</details>
-
-### Independently review and qualify coherent draft slices
-
-Task ID: `integration`
-Owner: lead integration and independent reviewer · State: **active** · Last observed: 2026-10-24T04:46:55.734511+00:00
-Activity: Actions and Restore integrated through512e9eac. Final Python suite205 run:204 passed,1platform skip. Inbox holds Cargo slot for app/core qualification; lead will then run combined Rust/native gates and draft PR CI.
-Next: Integrate reviewed source-bound slices, run applicable fail-fast local checks and normal CI; open draft PRs only.
-Resource waits: Lead-coordinated build slot; sandbox credential fixtures require normal CI
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** pending
-- **checks:** passed: Python205 run/204pass/1platform skip; pending combined Rust/native and exact-head CI
-- **integration:** pending: draft PR only; no new merge authority
-- **native:** pending: one consolidated later Mac checklist
-- **owner acceptance:** pending: no delivered behavior acceptance
-
-</details>
-
-## Next
-
 None recorded.
 
-## Needs attention
+## Next
 
 ### Make meeting-note follow-ups dependable
 
 Task ID: `actions-followups`
-Owner: Actions implementation lane · State: **ready** · Last reported: 2026-10-24T04:46:55.734511+00:00
-Activity: UI9c40c9b3 integrated as512e9eac; both focused native-feature tests passed after correcting a platform shortcut in the fixture. Service/core and semantic oracle source reviewed; four authored live cases remain unrun.
-Next: Participate in combined source review and repair any integration failures.
-Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
+Owner: Actions implementation lane · State: **ready** · Last observed: 2026-10-25T08:41:43.776833+00:00
+Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; editing/AT/picker limits remain explicit.
+Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** complete: reviewed local core/service/UI slices; not merged
-- **checks:** passed: focused core76/app13/Python23/native2; pending combined source and CI
-- **integration:** pending: draft PR only; no new merge authority
-- **native:** pending: actual Mac interaction not authorized in this cloud batch
+- **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
+- **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
+- **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
+- **native:** partial: Linux Data controls and saved Action observed; editing text echo/ATfocus/Screen coordinates and pickers unqualified; actualMac pending
 - **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
 
 </details>
-
-Waiting:
-
-- resource: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
 
 ### Scan a document inbox with visible status and safe retries
 
 Task ID: `manual-inbox`
-Owner: Inbox implementation lane
-
-Waiting:
-
-- resource: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
-
-### Restore a backup through the existing checked engine
-
-Task ID: `desktop-restore`
-Owner: Restore implementation lane · State: **ready** · Last reported: 2026-10-24T04:46:55.734511+00:00
-Activity: UI569c708e integrated as11386576; seven native-feature desktop tests passed. Core16 and exact prior-main backup witness passed; independent source review clear.
-Next: Support combined qualification and bounded actual Linux observation; Mac gate remains separate.
-Resource waits: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
+Owner: Inbox implementation lane · State: **ready** · Last observed: 2026-10-25T08:41:43.776833+00:00
+Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; editing/AT/picker limits remain explicit.
+Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
+Depends on: actions-followups when Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (reported satisfied: true)
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** complete: reviewed local staged-restore/UI slices; not merged
-- **checks:** passed: focused core16/native7 and exact schema10 backup witness; pending combined source and CI
-- **integration:** pending: draft PR only; no new merge authority
-- **native:** pending: actual Mac interaction not authorized in this cloud batch
+- **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
+- **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
+- **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
+- **native:** partial: Linux Data controls and saved Action observed; editing text echo/ATfocus/Screen coordinates and pickers unqualified; actualMac pending
 - **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
 
 </details>
 
-Waiting:
+### Restore a backup through the existing checked engine
 
-- resource: Lead-coordinated heavyweight build slot; no concurrent shared-target writers
+Task ID: `desktop-restore`
+Owner: Restore implementation lane · State: **ready** · Last observed: 2026-10-25T08:41:43.776833+00:00
+Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; editing/AT/picker limits remain explicit.
+Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
+- **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
+- **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
+- **native:** partial: Linux Data controls and saved Action observed; editing text echo/ATfocus/Screen coordinates and pickers unqualified; actualMac pending
+- **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
+
+</details>
 
 ### Independently review and qualify coherent draft slices
 
 Task ID: `integration`
-Owner: lead integration and independent reviewer
+Owner: lead integration and independent reviewer · State: **ready** · Last observed: 2026-10-25T08:41:43.776833+00:00
+Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; editing/AT/picker limits remain explicit.
+Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
 
-Waiting:
+<details>
+<summary>Gate status</summary>
 
-- resource: Lead-coordinated build slot; sandbox credential fixtures require normal CI
+Gates:
+
+- **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
+- **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
+- **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
+- **native:** partial: Linux Data controls and saved Action observed; editing text echo/ATfocus/Screen coordinates and pickers unqualified; actualMac pending
+- **owner acceptance:** pending: no delivered behavior acceptance
+
+</details>
+
+## Needs attention
 
 ### Complete actual Mac follow-up, inbox and restore acceptance
 
@@ -173,4 +143,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-10-24T04:46:55.734511+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-25T08:41:43.776833+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

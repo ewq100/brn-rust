@@ -1,156 +1,144 @@
 # Follow-ups, inbox and Restore qualification
 
-Status: **draft qualification; native corrections pending**. Source checkpoint is
-`c74f30332706b00be56083709a5108d56769ccf4` on
-[draft PR227](https://github.com/ewq100/brn-rust/pull/227). Independent source review
-reports no remaining source blockers, but the combined desktop suite has three
-failures and both native CI widget jobs failed. This is not final qualification.
-No merge, release, live-model usefulness or actual Mac acceptance is claimed.
-The selected [record](record.json) owns current activity; this receipt preserves
-source-bound observations, original failures and unresolved gates.
+The three approved slices are implemented in [draft PR227](https://github.com/ewq100/brn-rust/pull/227).
+Corrected production source is through `09e26825`; `1e4c91df` strengthens the
+existing menu-to-Owner test without changing production. Local deterministic gates
+passed. Actual Linux observation established the bounded outcomes below, with
+explicit accessibility/editing limitations. No new merge, release, live-model
+usefulness or actual Mac acceptance is claimed.
 
-## Baseline and source
+The [record](record.json) owns current activity. The PR records the final published
+head and its terminal CI result; earlier-head CI is not substituted for that gate.
 
-Baseline is merged `f60c5a2f2102f4925b1b182f9f1bab2739fde76d` (PR226).
-All seven Mac/Linux/documentation jobs passed on its
-[resulting-main run](https://github.com/ewq100/brn-rust/actions/runs/40058075212).
-Three optional Windows jobs failed; Windows implementation remains outside scope.
-The existing preview gate skipped build/package/publication, so no release occurred.
+## Baseline and implemented outcomes
 
-The new integration branch contains coherent core/service slices:
+Main remains `f60c5a2f2102f4925b1b182f9f1bab2739fde76d`, re-fetched on October25.
+Its [resulting-main run](https://github.com/ewq100/brn-rust/actions/runs/40058075212)
+passed all seven Mac/Linux/docs jobs; three optional Windows jobs failed. The gated
+preview workflow skipped publication. Original worktrees and unpublished work were
+preserved through the allowance interruption.
 
-| Outcome | Authored slice | Integration commit | Observation |
-| --- | --- | --- | --- |
-| Optional Action owner, waiting-on and distinct follow-up date; schema11 | `7aa793de` | `ff207ecc` | Focused core/service checks reported below; absent old fields retain serialization. |
-| Action review facts, service recovery and existing semantic fixtures | `472cf665` | `13bff3e0` | Independently source-reviewed. Four authored semantic cases remain unrun live. |
-| Bounded local inbox ledger and schema12 adoption | `0fd44ec4` | `4e58e77a` | Two focused migration/authority tests passed; source-reviewed. |
-| Existing staged Restore exposed for explicit confirmation | `aa2c5ff2` | `6c6b1ff4` | Fourteen focused Restore tests passed; source-reviewed. |
-| Staged readability validation and reset copied inbox authorization | `e5b7edf5` | `36ca3779` | Sixteen focused Restore tests passed; source-reviewed. |
-
-Restore desktop `569c708e` is integrated as `11386576`; its seven focused
-native-feature tests passed. Actions desktop `9c40c9b3` is integrated as
-`512e9eac`; both focused native-feature tests passed. Inbox application/desktop
-integration is `2e68d9db`, with the prepared-recovery output bound in `504bab8e`
-and actual Stock DOCX/PNG witness in `b2adf4c1`. `c74f3033` corrects an exhaustive
-native worker fixture to include Inbox. These focused results do not override the
-combined failures below.
-
-## Observed checks
-
-The following existing logs were inspected in `/workspace/brn-next-evidence/`.
-This documentation update ran no Cargo/build/test command. Checks used pinned
-Rust1.98.1, the saved Cargo/native dependencies and coordinated shared-target builds;
-Python process tests used the existing process-local subreaper.
-
-| Check | Recorded outcome | Evidence log |
+| Outcome | Integration commits | Delivered boundary |
 | --- | --- | --- |
-| Integrated core unit/integration targets | **228 passed**, no failure | `core-all.log` |
-| Integrated app targets: Action follow-ups, manual inbox, Projects | **35 passed**: 4 + 22 + 9 | `integrated-app-corrected.log` |
-| Python tooling | **205 run: 204 passed, one Apple Silicon packaging skip** | `python-final.log` |
-| Strict default Clippy | Passed | `clippy-default.log` |
-| Strict native Clippy | Passed after exhaustive Inbox worker fixture correction | `clippy-native-corrected.log`; original `clippy-native.log` retained |
-| Combined desktop native-feature suite | **360 passed, 3 failed, 1 ignored** | `native-combined-clean-core.log` |
-| Writing module native targets after core artifact refresh | **44 + 12 passed**; zero-test doc target not counted | `writing-native-clean.log` |
+| Action follow-ups | `ff207ecc`, `13bff3e0`, `512e9eac` | Optional owner/waiting-on and strict ISO follow-up date, separate from due. Checked editing, complete review facts, migration, replay/Undo and unchanged real-world completion semantics. |
+| Manual inbox | `4e58e77a`, `2e68d9db`, `504bab8e`, `b2adf4c1` | Explicit General-only folder consent and separate Scan; descriptor-bound bounded reads, durable status/retry, exact source/assets/provenance and canonical receipt recovery. No source writes, watcher, private-context inheritance or automatic scan. |
+| Desktop Restore | `6c6b1ff4`, `36ca3779`, `11386576` | Existing staged engine with select/validate/confirm/publish/open flow. Fresh recovery copy, readable current records, original workspace untouched, copied inbox authorization reset. |
+| Native corrections | `8ee6b0c0`, `09e26825`, `1e4c91df` | Bidirectional real-scroll witness, review navigation before expanded facts, exact task menus and real menu-to-input focus coverage. |
 
-The app witness invokes the actual Stock helper on a synthetic DOCX, checks its
-exact retained PNG bytes/hash and source/provenance, then reopens and replays without
-reconversion. This is converter/service evidence, not live-model or Mac UI proof.
-The ignored desktop case requires `BRN_DWR_SHARED_DATA`, `BRN_DWR_SHARED_SOURCE`
-and `BRN_DWR_SHARED_CHAT` from a CLI useful intake; no pass is claimed for it.
+The inbox is nonrecursive: 256 entries,16MiB/file,64MiB source-input budget (plus a separate bounded recheck) and
+64MiB converted Markdown/asset output per scan. Aggregate overflow leaves honest
+pending outcomes; individual oversize fails. Prepared recovery obeys the output
+budget too. Settings/generation checks share the existing write transaction.
+Unchanged canonical receipts do not resurrect an owner-undone or deleted import.
+Schema11→12 uses existing backup-first adoption; absent Action fields preserve old
+serialized records, requests and revision bytes.
 
-Earlier focused evidence remains valid within its bounds: Actions reported 76 core
-and 13 app checks, plus the later three-test raw-byte/label-limit follow-up; Restore
-used a schema10 Action backup generated by the actual baseline `f60c5a2f` production
-core, then prepared, published and reopened it with schema12 while preserving exact
-records and backup bytes. These counts are not added to integrated totals as if
-all were disjoint tests.
+## Local deterministic evidence
 
-## Open combined native failures
+Logs remain in `/workspace/brn-next-evidence/`. Checks used pinned Rust1.98.1,
+saved native dependencies, unchanged locked document helpers and serialized Cargo
+builds. Python process tests used the existing process-local subreaper.
 
-| Test | Observed failure | Current disposition |
+| Check | Outcome | Log |
 | --- | --- | --- |
-| `pages_tests::each_open_task_has_one_quiet_main_action_and_a_menu_for_its_state` | Actual menu includes `Edit details` before the existing state actions; expected list omits it. | Correction assigned; changed expectation must retain exact state-action assertions. Not yet requalified. |
-| `review_tests::review_states_keep_one_primary_and_the_exact_footer` | Requested review-group control was not visible when clicked. | Visibility/reachability correction assigned; cause and final evidence remain pending. |
-| `tiled_tests::narrow_settings_and_global_controls_remain_reachable_by_scrolling` | `backup-change-folder` could not be reached by scrolling `settings-content`. | Settings reachability correction assigned; product/test disposition and final evidence remain pending. |
+| Full core targets | 228 passed | `core-all.log` |
+| Integrated Action/inbox/project app targets | 35 passed: 4+22+9 | `integrated-app-corrected.log` |
+| Python tooling | 205 run:204 passed, one Apple Silicon packaging skip | `python-final.log` |
+| Strict default/scripted-document all-target Clippy | Passed | `clippy-default.log` |
+| Full corrected native desktop and writing targets | 363+44+12 passed; one existing shared-host fixture ignored | `native-corrected-helpers.log` |
+| Strict corrected native all-target Clippy | Passed | `clippy-native-final.log` |
+| Stronger actual task-menu→Owner test at `1e4c91df` | Passed; types without clicking Owner, retains invalid-date/stale-version assertions | `action-menu-focus-final.log` |
+| Rebuilt CLI journey | 108 steps,1,266 checks passed | `cli-journey-final.log` |
+| Runtime CLI and native desktop builds | Passed | `build-cli.log`, `build-desktop-final.log` |
+| Offline Save/recovery/search/export/backup/startup/refusal | Passed | `e2e-fixtures-final.log` |
 
-Original failures are retained. A future corrected focused run must name its
-source, followed by appropriate integrated/native checks; no rerun-only success
-or blanket flaky-test explanation is assumed here.
+The ignored desktop case needs separately seeded `BRN_DWR_SHARED_*` CLI intake
+state. It is not counted as passed. Focused author totals overlap integrated
+checks and are not added as distinct coverage.
 
-## PR227 CI checkpoint
+The actual Stock DOCX/PNG inbox witness uses AI off and checks exact asset bytes,
+source hash/profile, protected General content, untouched original and reopened
+canonical replay without reconversion. Private-session regressions verify no scan
+before consent, no import on confirmation, no private sentinel in General and no
+queue dispatch on finish/cancel/disconnect. Restore also reopened a synthetic
+schema10 backup produced by actual baseline code, preserving its original bytes.
+
+## Actual Linux observation and remaining limits
+
+On October25 the built runtime was exercised in a fresh isolated Xvfb/Openbox
+session with software Vulkan and synthetic records only. The successful bounded
+run is `/workspace/brn-next-evidence/native/run.v0QYrE`; binary hashes, record delta
+and control states are retained in [the readback receipt](evidence/linux-readback.json).
+
+- [Data screen](evidence/linux-data.png): conspicuous General disclosure, manual
+  bounds, disabled unconfigured Scan, and separate-copy Restore explanation.
+  AT-SPI reports Scan neither enabled nor sensitive and Choose backup enabled.
+- [Saved Action](evidence/linux-action-saved.png): physical Owner click, ASCII
+  entry and physical Save produce the visible owner and Saved notice. The checked
+  record advances v1→v2 with `owner: Synthetic owner`, preserving Suggested state,
+  description, due and evidence. A prior corrected run's independent CLI reopen
+  also confirmed persistence after app cleanup.
+
+This is not blanket native acceptance. Editing-time capture still showed the
+placeholder before the settled saved result; live text echo is unqualified.
+Owner's AT focus remained on the window, and its Text interface was unavailable.
+Screen coordinates omitted the window origin; the successful physical probe used
+explicit Window coordinates. Pinned GPUI has a bounds-update method with no found
+caller, and input/frame focus mapping is a plausible contributor to AT focus;
+these source findings are not a proved universal diagnosis. Track these limitations
+in the native acceptance gate, not as a reason to rewrite the editor here.
+
+No file-picker action was attempted after the historical portal admission denial.
+No real folder was configured/scanned, no provider was contacted, and the original
+workspace was not replaced. Actual inbox picker/import and Restore picker/confirm/
+recovered-window interaction remain pending. The [Mac checklist](native-acceptance.md)
+is entirely unperformed; Linux/CLI results do not satisfy Mac or owner acceptance.
+
+## Failures retained and corrections
+
+The first full native run at `c74f3033` had360 pass,3 fail,1 ignored:
+
+| Failure | Diagnosed correction |
+| --- | --- |
+| Exact task menu omitted new Edit details | `09e26825` updates exact menu expectations, explicitly retaining terminal-task absence of state controls. |
+| Review group toggle offscreen | `09e26825` moves the same expanded Action facts after group/member navigation. Original click/footer assertions remain and visibility checks strengthen them. |
+| Backup control unreachable after visiting Export | `8ee6b0c0` fixes the downward-only test helper to scroll toward the target; full visibility and finite attempt bounds remain. Inbox/Restore roundtrip coverage added. |
+
+Corrected full parallel execution passed; no flaky-test label or unexplained rerun
+replaced diagnosis. `1e4c91df` additionally covers the real menu-to-input route.
+Independent source review cleared these changes without test weakening.
+
+Other retained attempts distinguish environment/probe errors from product fixes:
+
+- The first Python invocation lacked saved Cargo configuration and encountered the
+  known PID1 reaping limitation. Saved environment/subreaper passed without weakened assertions.
+- An Actions fixture used Mac select-all on Linux; existing platform-aware keys fixed it.
+- The first native build omitted saved fontconfig configuration. Later a shared
+  target reused an older core artifact lacking Inbox exports; cleaning only core
+  artifacts recompiled current source. Neither required a product workaround.
+- The Stock test initially compared engine identity to a label including `ai=off`;
+  corrected oracle checks identity and AI setting separately.
+- The first corrected native invocation omitted helper paths (358 pass,5 conversion
+  failures,1 ignored). Diagnostics showed Unavailable; normal paths/sibling discovery
+  restored the same verified helpers and the complete suite passed.
+- Review found prepared inbox recovery omitted output accounting; `504bab8e`
+  adds the same bound before Apply with a retained failing-then-passing witness.
+- Restore initially accepted readable SQLite with missing/malformed current records;
+  staged typed-decoder validation now rejects them, without changing original backups.
+- Early Linux probes used unsupported registry/role methods or an unconfigured
+  session service, then confused Screen/Window coordinates and raced changing
+  nodes. Original captures/logs remain. Corrected physical readback proves only the
+  observed saved outcome; it does not erase the accessibility/editing limits above.
+
+## CI and release boundary
 
 [Run40066087095](https://github.com/ewq100/brn-rust/actions/runs/40066087095)
-for the recorded integration head has both Linux and Mac native UI jobs failed
-at their widget stage. Documentation, Mac core and Mac retrieval passed; Linux
-core remains pending in the lead's latest reported checkpoint. An optional Windows
-build failed. The native failures remain actionable; Windows implementation is
-outside this batch. This is a reported status snapshot, not a new CI query by the
-documentation lane, and does not substitute for corrected exact-head CI.
+on old `c74f3033` is terminal: Mac/Linux core, Mac combined build and docs passed;
+both native widget jobs failed; optional Windows build failed. Normal Mac log
+download returned HTTP403 at storage redirect; no bypass was attempted. Local logs
+supplied the diagnosed failures. Final corrected-head CI is pending at publication; its terminal receipt will be recorded on PR227.
 
-## Corrections and review evidence
-
-The initial unconfigured Python run failed five generator fixtures because it used
-the default Cargo cache instead of the saved environment. Its child-process timeout
-witness also exposed the known container PID1 reaping limitation. Running with the
-existing saved environment and process-local subreaper passed the complete suite;
-no test assertion or security guard changed.
-
-The Actions form fixture initially used the Mac select-all shortcut on Linux.
-The unchanged product then correctly rejected the still-invalid date. Reusing the
-existing platform-aware shortcut fixed the fixture; assertions and product behavior
-were preserved, and both focused UI tests passed. The original failure is retained.
-
-The first desktop build lacked the saved native pkg-config environment and could
-not locate fontconfig. The installed dependency was verified as version2.15.0 and
-the normal build retried with its existing environment; no new package/security
-workaround was introduced.
-
-Independent review identified inbox path-based enumeration and receipt identity
-coupling to unrelated settings changes. Integrated `2e68d9db` uses descriptor-bound
-enumeration and stable canonical receipt keys, with disappearance/reappearance and
-owner Undo coverage. The integrated app results above include these corrections;
-combined native and final CI gates still remain open.
-
-Restore's previous validation accepted a readable SQLite database with missing or
-malformed current records. A failing witness preceded the narrow fix: stream the
-existing typed record decoder over the staged copy before confirmation. The source
-backup remains untouched. This validates current-record readability, not every
-possible future semantic use of arbitrary historical payloads.
-
-The prepared-import recovery branch originally bypassed the per-scan retained-output
-budget. `504bab8e` counts recovered uncommitted Note/Asset bytes with checked
-arithmetic before Apply: a single oversized result is refused, exhausted aggregate
-capacity leaves work pending, and committed replay costs no new retained-output
-budget. Its witness checks no reconversion, bounded multi-scan recovery and no
-receipt for the oversized prepared item. This is a product correction, not a test
-expectation adjustment.
-
-The first actual Stock DOCX app witness expected the conversion label ending
-`;ai=off` in the engine-identity field. The returned engine identity correctly ended
-`/figures-v1`; the test now compares the engine identity rather than conflating it
-with the conversion/AI label. The original 21-pass/1-failure run is retained in
-`integrated-app.log`; the corrected integrated app run passed all 35 tests.
-
-A writing/native build initially reported missing Inbox types from the app's core
-import despite those types being present in current source. The shared target had
-retained an older core artifact after worktree switching. The lead refreshed only
-the affected core artifacts (`core-cache-refresh.log`: 1,257 files / 858.5 MiB),
-and the subsequent log shows current core and dependent local crates rebuilt.
-The clean writing run passed 44 + 12 tests; the combined desktop run then exposed
-the three real pending failures above. This artifact-identity issue is not recorded
-as a product source bug or used to dismiss those failures. The original failed
-build remains in `writing-native-all.log`.
-
-## Remaining acceptance boundaries
-
-The [actual Mac checklist](native-acceptance.md) is unperformed. Linux toolkit tests
-cannot establish Mac picker, focus, accessibility, rendering or owner acceptance.
-Corrected exact-head CI and the remaining integrated native checks are pending;
-passed focused/core/app gates do not establish full native acceptance. Known sandbox Git-ancestor credential-fixture refusal must fail promptly;
-ordinary CI supplies the supported full-suite environment, without copying
-credentials or weakening checks.
-
-No new BRN live-model calls have been made. Authored semantic cases and scripted
-transport fixtures are not evidence of live extraction quality. Provider admission
-is still blocked by the previously observed read-only state; no unchanged retry or
-new paid service is authorized. Calculator/chart/report work remains deferred.
+No new BRN live-model calls occurred. Four authored meeting-note cases extend the
+existing evaluator but remain unrun live; scripted integrity is not semantic quality.
+Read-only admission/credential restrictions were not bypassed. Calculator remains
+deferred. New merge, release and deployment require separate authorization.

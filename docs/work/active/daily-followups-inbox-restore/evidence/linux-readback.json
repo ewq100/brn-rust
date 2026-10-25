@@ -1,0 +1,126 @@
+{
+  "source": "392117b8a282ef42cb3796717ec17108adce081a",
+  "production_unchanged_by": "1e4c91df (test only)",
+  "environment": "Linux Xvfb/Openbox/software Vulkan; isolated synthetic workspace",
+  "observation_directory": "/workspace/brn-next-evidence/native/run.v0QYrE",
+  "binary_hashes": [
+    "1e3ffbc40a29800e1442256743a32cb38431726b1c5f604c64c1e1342582269a  /workspace/brn-environment/target/debug/brn-desktop",
+    "4db58df02312956f7585982a2e2970fb6415c0f54b52b9d0123087de23a2328a  /workspace/brn-environment/target/debug/brn"
+  ],
+  "action_before": [
+    {
+      "id": "5b227838-17fb-4ddc-a8b9-ca3ad5f1e06a:0",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Action": {
+          "description": "Exact schema10 sentinel \u03a9",
+          "state": "Suggested",
+          "internal": false,
+          "evidence": null,
+          "due": null
+        }
+      }
+    }
+  ],
+  "action_after": [
+    {
+      "id": "5b227838-17fb-4ddc-a8b9-ca3ad5f1e06a:0",
+      "version": 2,
+      "archived": false,
+      "data": {
+        "Action": {
+          "description": "Exact schema10 sentinel \u03a9",
+          "state": "Suggested",
+          "internal": false,
+          "evidence": null,
+          "due": null,
+          "owner": "Synthetic owner"
+        }
+      }
+    }
+  ],
+  "data_controls": [
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/279352642052616370493452517461597356032",
+      "depth": 3,
+      "name": "Choose General inbox folder\u2026",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/186922421865836735502061525297673535488",
+      "depth": 3,
+      "name": "Scan inbox",
+      "role": 43,
+      "state_words": [
+        1107296256,
+        0
+      ],
+      "states": {
+        "enabled": false,
+        "focusable": false,
+        "focused": false,
+        "sensitive": false,
+        "showing": true,
+        "visible": true
+      }
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/37486077182726132681314032736425476096",
+      "depth": 3,
+      "name": "Choose backup\u2026",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    }
+  ],
+  "limitations": [
+    "No file picker invoked; no real user folder configured or scanned.",
+    "Owner entry used explicit physical field click with Window-relative coordinates.",
+    "Initial autofocus, AT focus/Screen coordinates and editing-time text echo not qualified.",
+    "No model calls, actual Mac interaction, owner acceptance, merge or release."
+  ],
+  "capture_sha256": {
+    "02-data.png": "d07ff1746ff3bcddb4f64997ef4632d7f7812c4eb09a5f961e1a6457e181b7d1",
+    "04-action-saved.png": "e97e34ee371aad5397af12e7ec0ce82ba6f065c0efded9a34e869ef65ed9a234"
+  }
+}
