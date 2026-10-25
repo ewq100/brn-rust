@@ -426,6 +426,42 @@ impl Workspace {
 mod tests {
     use super::*;
     #[test]
+    fn lease_release_is_not_delayed_by_a_duplicate_open_file_description() {
+        use std::os::unix::fs::MetadataExt;
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let folder = root.path().join("inbox");
+        std::fs::create_dir(&folder).unwrap();
+        let workspace =
+            Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+        let mut other = Workspace::open_existing_no_upgrade(root.path().join("data")).unwrap();
+        let lease = workspace.inbox_lease().unwrap();
+        // dup and fork both retain the same open-file description. Keep it alive
+        // beyond the owning scope, deterministically modeling the pre-exec window.
+        let inherited = lease.try_clone().unwrap();
+        let inode = inherited.metadata().unwrap().ino();
+        assert!(
+            other
+                .choose_inbox(&folder, InboxDestination::General)
+                .is_err()
+        );
+        assert!(other.inbox().unwrap().is_none());
+        drop(lease);
+        other
+            .choose_inbox(&folder, InboxDestination::General)
+            .expect(
+                "completed owner must release its lease even while another descriptor survives",
+            );
+        assert_eq!(inherited.metadata().unwrap().ino(), inode);
+        let next = workspace.inbox_lease().unwrap();
+        assert_eq!(
+            next.metadata().unwrap().ino(),
+            inode,
+            "the named lock inode must remain stable"
+        );
+        drop(next);
+        drop(inherited);
+    }
+    #[test]
     fn output_budget_counts_markdown_and_assets_replays_are_free_and_oversize_is_failed() {
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let folder = root.path().join("inbox");
