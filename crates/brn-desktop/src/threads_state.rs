@@ -79,29 +79,43 @@ impl ComposerDrafts {
 pub(super) enum WorkerKind {
     Run,
     Import,
+    Inbox,
     Export,
     Backup,
+    RestoreValidation,
+    Restore,
     // Only the native UI starts GitHub Copilot sign-in.
     #[cfg_attr(not(feature = "native-ui"), allow(dead_code))]
     Connect,
 }
 impl WorkerKind {
     pub(super) fn can_cancel(self) -> bool {
-        matches!(self, Self::Run | Self::Import | Self::Connect)
+        matches!(
+            self,
+            Self::Run | Self::Import | Self::Inbox | Self::Connect | Self::RestoreValidation
+        )
     }
     pub(super) fn status(self, progress: &str) -> String {
         match self {
-            Self::Run | Self::Import | Self::Connect => progress.into(),
+            Self::Run | Self::Import | Self::Inbox | Self::Connect | Self::RestoreValidation => {
+                progress.into()
+            }
             Self::Export => "Finishing Markdown export… Please wait for completion.".into(),
             Self::Backup => "Finishing full backup… Please wait for completion.".into(),
+            Self::Restore => "Publishing recovery copy… Please wait for completion.".into(),
         }
     }
     pub(super) fn busy_notice(self) -> &'static str {
         match self {
             Self::Run => "Finish or stop the current run before starting other work.",
             Self::Import => "Finish or stop the current import before starting other work.",
+            Self::Inbox => "Finish or stop the inbox scan before starting other work.",
             Self::Export => "Wait for the Markdown export to finish before starting other work.",
             Self::Backup => "Wait for the full backup to finish before starting other work.",
+            Self::RestoreValidation => {
+                "Finish or cancel backup validation before starting other work."
+            }
+            Self::Restore => "Wait for the recovery copy to finish before starting other work.",
             Self::Connect => "Finish or stop GitHub Copilot sign-in before starting other work.",
         }
     }
@@ -598,7 +612,7 @@ mod tests {
     }
     #[test]
     fn only_cancellable_workers_offer_stop_and_portable_outputs_explain_finishing() {
-        for kind in [WorkerKind::Run, WorkerKind::Import] {
+        for kind in [WorkerKind::Run, WorkerKind::Import, WorkerKind::Inbox] {
             assert!(kind.can_cancel());
             assert_eq!(kind.status("Actual progress"), "Actual progress");
             assert!(kind.busy_notice().contains("stop"));
@@ -609,6 +623,13 @@ mod tests {
             assert!(kind.busy_notice().starts_with("Wait for"));
             assert!(!kind.busy_notice().contains("stop"));
         }
+        assert!(WorkerKind::RestoreValidation.can_cancel());
+        assert_eq!(
+            WorkerKind::RestoreValidation.status("Checking copy"),
+            "Checking copy"
+        );
+        assert!(!WorkerKind::Restore.can_cancel());
+        assert!(WorkerKind::Restore.status("").contains("Please wait"));
     }
     #[test]
     fn saved_working_run_can_continue_only_without_a_local_worker_and_in_an_open_thread() {
@@ -1776,6 +1797,9 @@ mod integrity_tests {
                     archived: false,
                     data: RecordData::Action(Action {
                         kept_outside_project: false,
+                        owner: None,
+                        waiting_on: None,
+                        follow_up: None,
                         chat: None,
                         description: "Deliver the update".into(),
                         state: ActionState::Waiting,

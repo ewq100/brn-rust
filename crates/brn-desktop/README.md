@@ -34,3 +34,11 @@ connection. Changing it hides old metadata/errors and refuses stale approval; la
 discovery is admitted only for the same canonical endpoint and context. Discover
 and inspect the new destination before approving it. Exact runtime input review
 and the checked service remain authoritative.
+
+Tasks show reported owner, waiting-on context and a separate follow-up date.
+Edit details uses the current checked record version; invalid dates or concurrent
+changes keep the form open. Empty fields mean unspecified. Proposal cards and
+full review display these facts, including explicit Unspecified removals.
+Saving details or approving a draft does not complete human work or schedule
+external reminders. Native focus and keyboard acceptance remains separately
+qualified from deterministic component tests.

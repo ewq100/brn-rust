@@ -2363,13 +2363,16 @@ impl<T: 'static> WritingView<'_, T> {
                 details = details.child(review.candidate.request.reason.clone());
             }
             for write in &review.candidate.request.writes {
+                if matches!(write.data, RecordData::Action(_)) {
+                    continue;
+                }
                 details = details.child(metadata(match &write.data {
                     RecordData::Note(n) => format!(
                         "Note: {}{}",
                         n.title,
                         if n.protected { " · protected" } else { "" }
                     ),
-                    RecordData::Action(a) => format!("Task: {} · {:?}", a.description, a.state),
+                    RecordData::Action(a) => brn_threads_app::action_review_text(a),
                     RecordData::Thread(t) => format!("Chat: {}", t.title),
                     RecordData::Message(m) => format!("Message: {}", short(&m.text)),
                     RecordData::Link(_) => "Connect related work".into(),
@@ -2496,6 +2499,21 @@ impl<T: 'static> WritingView<'_, T> {
                 );
             }
             details = details.child(members.test_support());
+        }
+        // Keep group/member navigation before potentially long Action facts:
+        // exact details remain expanded in this scroller without pushing the
+        // controls for selecting the reviewed change offscreen. These facts
+        // stay independent of the source-input toggle, including mixed groups.
+        for write in &review.candidate.request.writes {
+            if let RecordData::Action(action) = &write.data {
+                let facts = brn_threads_app::action_review_text(action);
+                details = details.child(
+                    metadata(facts.clone())
+                        .id(format!("review-action-{}", write.id))
+                        .aria_label(facts)
+                        .test_support(),
+                );
+            }
         }
         let body = if review.note.is_none() {
             div().into_any_element()

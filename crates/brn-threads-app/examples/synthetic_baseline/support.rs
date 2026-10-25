@@ -255,6 +255,9 @@ pub fn create(root: &Path, notes: usize, source: &str) -> Result<Corpus> {
                     op.creation_id(2),
                     RecordData::Action(Action {
                         kept_outside_project: false,
+                        owner: None,
+                        waiting_on: None,
+                        follow_up: None,
                         chat: None,
                         description: format!("Confirm quay inspection {index}"),
                         state: ActionState::Waiting,

@@ -8,12 +8,18 @@ use std::{
     path::Path,
 };
 
+mod actions;
+pub use actions::action_review_text;
 mod assets;
 mod chat;
 mod converge;
 mod decisions;
 mod export;
+mod inbox;
+#[cfg(unix)]
+mod inbox_files;
 mod intake;
+pub use inbox::{INBOX_DESTINATION_NOTICE, InboxDocument, InboxScanSummary};
 mod keyed;
 mod knowledge;
 mod mcp;

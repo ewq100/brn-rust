@@ -207,6 +207,39 @@ def saved_notes(records):
             and record['data']['Note']['superseded_by'] is None]
 
 
+def action_checks(expectation, after):
+    """Check actual saved AND pending Action facts, not prescribed tool calls.
+
+    These are bounded structural oracles. A human still reviews whether the
+    description is the right obligation and whether its evidence supports it.
+    """
+    if not isinstance(after.get('candidates'), list):
+        return {'action_evidence_available': None}
+    variants = {}
+    saved = []
+    for record in after['records']:
+        if not record['archived'] and 'Action' in record['data']:
+            variants.setdefault(record['id'], []).append(record['data']['Action'])
+            saved.append(record['data']['Action'])
+    for candidate in after['candidates']:
+        for write in candidate['request']['writes']:
+            if not write['archived'] and 'Action' in write['data']:
+                variants.setdefault(write['id'], []).append(write['data']['Action'])
+    fields = expectation.get('fields', {})
+    return {
+        'action_count_including_pending': expectation.get('min', 0) <= len(variants) <= expectation['max'],
+        'action_states_including_pending': all(
+            action.get('state') in expectation['states']
+            for actions in variants.values() for action in actions) if 'states' in expectation else True,
+        'saved_action_facts': all(
+            all(action.get(field) == value for field, value in expectation.get('saved_fields', {}).items())
+            for action in saved),
+        'action_facts_including_pending': all(
+            all(action.get(field) == value for field, value in fields.items())
+            for actions in variants.values() for action in actions),
+    }
+
+
 def structural_checks(case, before, after, filler=frozenset()):
     # Distractor notes are workspace scale, not part of the case.
     previous = [note for note in saved_notes(before['records']) if note['id'] not in filler]
@@ -219,6 +252,8 @@ def structural_checks(case, before, after, filler=frozenset()):
         checks['conversation_only_no_attention'] = not any(record['data'].get('Thread', {}).get('attention') for record in after['records'])
     else:
         checks['knowledge_change_applied'] = any('Note' in write['after']['data'] for receipt in after['receipts'] for write in receipt['writes'])
+    if 'action_expectation' in case:
+        checks.update(action_checks(case['action_expectation'], after))
     expected = case['expected_existing_note']
     if expected:
         subject = next(note for note in previous if note['data']['Note']['title'] == expected)

@@ -198,5 +198,59 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
             wiki_eval.main()
         self.assertEqual(raised.exception.code, 2)
         self.assertIn('Codex needs an absolute --auth-file', stderr.getvalue())
+class MeetingActionOracleTests(unittest.TestCase):
+    def record(self, identity, **fields):
+        return {'id': identity, 'archived': False, 'data': {'Action': fields}}
+
+    def candidate(self, identity, **fields):
+        return {'request': {'writes': [self.record(identity, **fields)]}}
+
+    def test_pending_duplicate_is_counted_and_bad_facts_cannot_hide_in_review(self):
+        expected = {'min': 1, 'max': 1, 'fields': {'owner': None, 'follow_up': None}}
+        after = {'records': [self.record('one')], 'candidates': [self.candidate('two', owner='Invented', follow_up='2028-03-03')]}
+        checks = wiki_eval.action_checks(expected, after)
+        self.assertFalse(checks['action_count_including_pending'])
+        self.assertFalse(checks['action_facts_including_pending'])
+
+    def test_pending_update_does_not_double_count_same_identity_but_checks_after_fields(self):
+        expected = {'min': 1, 'max': 1, 'fields': {'owner': None}}
+        after = {'records': [self.record('one')], 'candidates': [self.candidate('one', owner='Invented')]}
+        checks = wiki_eval.action_checks(expected, after)
+        self.assertTrue(checks['action_count_including_pending'])
+        self.assertFalse(checks['action_facts_including_pending'])
+        after['candidates'] = [self.candidate('one', owner=None)]
+        self.assertTrue(all(wiki_eval.action_checks(expected, after).values()))
+
+    def test_missing_action_or_missing_pending_evidence_cannot_pass_required_followup(self):
+        expected = {'min': 1, 'max': 1, 'fields': {'owner': None}}
+        checks = wiki_eval.action_checks(expected, {'records': [], 'candidates': []})
+        self.assertFalse(checks['action_count_including_pending'])
+        self.assertIsNone(wiki_eval.action_checks(expected, {'records': []})['action_evidence_available'])
+
+    def test_pending_open_proposal_is_not_misclassified_as_completed_work(self):
+        expected = {'min': 1, 'max': 1, 'states': ['Suggested', 'Open', 'Waiting'],
+                    'saved_fields': {'state': 'Suggested'}}
+        after = {'records': [], 'candidates': [self.candidate('one', state='Open')]}
+        self.assertTrue(all(wiki_eval.action_checks(expected, after).values()))
+        accepted = {'records': [self.record('one', state='Open')], 'candidates': []}
+        self.assertFalse(wiki_eval.action_checks(expected, accepted)['saved_action_facts'])
+        after['candidates'][0]['request']['writes'][0]['data']['Action']['state'] = 'Done'
+        self.assertFalse(wiki_eval.action_checks(expected, after)['action_states_including_pending'])
+
+    def test_proposed_reassignment_is_distinct_from_silently_changed_saved_owner(self):
+        expected = {'min': 1, 'max': 1, 'saved_fields': {'owner': 'Mari'}}
+        after = {'records': [self.record('one', owner='Mari')], 'candidates': [self.candidate('one', owner='Leena')]}
+        self.assertTrue(wiki_eval.action_checks(expected, after)['saved_action_facts'])
+        after['records'][0]['data']['Action']['owner'] = 'Leena'
+        self.assertFalse(wiki_eval.action_checks(expected, after)['saved_action_facts'])
+
+    def test_authored_meeting_cases_have_explicit_independent_oracles(self):
+        cases = json.loads(wiki_eval.CASES.read_text())['cases']
+        meetings = [case for case in cases if case['id'].startswith('meeting-')]
+        self.assertEqual(len(meetings), 4)
+        self.assertTrue(all('action_expectation' in case and case['rubric'] for case in meetings))
+        self.assertEqual(next(case for case in meetings if 'duplicate' in case['id'])['action_expectation']['max'], 1)
+
+
 if __name__ == '__main__':
     unittest.main()

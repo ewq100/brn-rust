@@ -573,7 +573,7 @@ fn the_no_upgrade_open_refuses_schema_5_and_changes_nothing() {
         Store::open_existing_without_upgrade(&data),
         Err(Error::UpgradeRequired {
             schema_found: 5,
-            schema_required: 10
+            schema_required: 12
         })
     ));
     assert_eq!(snapshot(&data), before);
@@ -581,7 +581,7 @@ fn the_no_upgrade_open_refuses_schema_5_and_changes_nothing() {
     // A missing or empty folder is creation, not an upgrade.
     let fresh = Store::open_existing_without_upgrade(root.path().join("fresh")).unwrap();
     assert_eq!(fresh.workspace_purpose().unwrap(), WorkspacePurpose::Owner);
-    assert_eq!(user_version(&fresh.directory().join(DATABASE_FILENAME)), 10);
+    assert_eq!(user_version(&fresh.directory().join(DATABASE_FILENAME)), 12);
 }
 
 #[test]
@@ -684,9 +684,9 @@ fn schema_5_upgrade_backs_up_first_and_ends_at_7_as_an_owner_workspace() {
         .collect();
     assert_eq!(files.len(), 1);
     let name = files[0].file_name().unwrap().to_str().unwrap();
-    assert!(name.starts_with("brn-before-schema-10-") && name.ends_with(".sqlite3"));
+    assert!(name.starts_with("brn-before-schema-12-") && name.ends_with(".sqlite3"));
     assert_eq!(user_version(&files[0]), 5);
-    assert_eq!(user_version(&data.join(DATABASE_FILENAME)), 10);
+    assert_eq!(user_version(&data.join(DATABASE_FILENAME)), 12);
     let store = Store::open_existing_without_upgrade(&data).unwrap();
     assert_eq!(store.workspace_purpose().unwrap(), WorkspacePurpose::Owner);
     assert_eq!(store.record(&a.id).unwrap().unwrap(), a);
@@ -703,7 +703,7 @@ fn schema_5_upgrade_backs_up_first_and_ends_at_7_as_an_owner_workspace() {
 // Restore
 
 #[test]
-fn older_backups_restore_as_schema_10_owner_workspaces() {
+fn older_backups_restore_as_schema_12_owner_workspaces() {
     let root = root();
     for version in [3, 4, 5] {
         let mut store = Store::open(root.path().join(format!("v{version}"))).unwrap();
@@ -729,7 +729,7 @@ fn older_backups_restore_as_schema_10_owner_workspaces() {
         );
         assert_eq!(
             user_version(&restored.directory().join(DATABASE_FILENAME)),
-            10
+            12
         );
         assert_eq!(restored.record(&a.id).unwrap().unwrap(), a);
         assert_eq!(std::fs::read(&source).unwrap(), before, "v{version}");

@@ -163,6 +163,9 @@ fn project_instructions_discussion_and_current_document_context_use_real_handler
         data: RecordData::Action(Action {
             chat: None,
             kept_outside_project: false,
+            owner: None,
+            waiting_on: None,
+            follow_up: None,
             description: "Private proposed follow-up".into(),
             state: ActionState::Suggested,
             internal: false,

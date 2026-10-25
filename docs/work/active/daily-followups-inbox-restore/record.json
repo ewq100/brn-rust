@@ -1,0 +1,189 @@
+{
+  "baseline": "f60c5a2f2102f4925b1b182f9f1bab2739fde76d",
+  "authority": {
+    "approve_all_three": "Sentinel_4a4c26b62cf48191a984cea7ea942e63",
+    "prior_merge_and_calculator_deferral": "Sentinel_c40a2bce390c819198a4113ceb9717ae",
+    "scope_record": "docs/work/active/daily-followups-inbox-restore/baseline.md"
+  },
+  "work_view": {
+    "observed_at": "2026-10-25T08:50:04.683741+00:00",
+    "goal": "Turn meeting notes into dependable follow-ups, add a manually scanned document inbox, and expose safe desktop backup restoration.",
+    "owner_attention": "All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main required gates passed; optional Windows failures remain separate.",
+    "tasks": [
+      {
+        "id": "prior-main-ci",
+        "title": "Close the prior batch resulting-main CI gate",
+        "owner": "lead integration",
+        "state": "complete",
+        "activity": "Exact f60c5a2f run40058075212 completed: all seven Mac/Linux/documentation jobs passed; three optional Windows failures. Preview workflow40060785028 skipped build/package/publish via existing gate.",
+        "observed_at": "2026-10-24T04:03:44.836881+00:00",
+        "origin": "observed",
+        "next_action": "Retain terminal receipt; continue the three newly approved slices without new merge authority.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/baseline.md",
+          "https://github.com/ewq100/brn-rust/actions/runs/40058075212"
+        ],
+        "gates": {
+          "implementation": "complete: prior batch merged; no new implementation assigned",
+          "checks": "passed: seven Mac/Linux/docs jobs on exact merge f60c5a2f; three optional Windows jobs failed",
+          "integration": "passed: PR226 merged f60c5a2f; no authority to merge new PRs",
+          "native": "separate: prior headless/native observations retain original bounds",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "actions-followups",
+        "title": "Make meeting-note follow-ups dependable",
+        "owner": "Actions implementation lane",
+        "state": "ready",
+        "activity": "All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.",
+        "observed_at": "2026-10-25T08:50:04.683741+00:00",
+        "origin": "observed",
+        "next_action": "Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/qualification.md",
+          "https://github.com/ewq100/brn-rust/pull/227"
+        ],
+        "gates": {
+          "implementation": "complete: approved scope implemented and source-reviewed; no new merge authority",
+          "checks": "passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks",
+          "integration": "pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized",
+          "native": "partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending",
+          "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "manual-inbox",
+        "title": "Scan a document inbox with visible status and safe retries",
+        "owner": "Inbox implementation lane",
+        "state": "ready",
+        "activity": "All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.",
+        "observed_at": "2026-10-25T08:50:04.683741+00:00",
+        "origin": "observed",
+        "next_action": "Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.",
+        "depends_on": [
+          {
+            "task": "actions-followups",
+            "condition": "Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage.",
+            "satisfied": true
+          }
+        ],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/qualification.md",
+          "https://github.com/ewq100/brn-rust/pull/227"
+        ],
+        "gates": {
+          "implementation": "complete: approved scope implemented and source-reviewed; no new merge authority",
+          "checks": "passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks",
+          "integration": "pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized",
+          "native": "partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending",
+          "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "desktop-restore",
+        "title": "Restore a backup through the existing checked engine",
+        "owner": "Restore implementation lane",
+        "state": "ready",
+        "activity": "All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.",
+        "observed_at": "2026-10-25T08:50:04.683741+00:00",
+        "origin": "observed",
+        "next_action": "Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/qualification.md",
+          "https://github.com/ewq100/brn-rust/pull/227"
+        ],
+        "gates": {
+          "implementation": "complete: approved scope implemented and source-reviewed; no new merge authority",
+          "checks": "passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks",
+          "integration": "pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized",
+          "native": "partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending",
+          "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "documentation",
+        "title": "Record selected scope and narrow backlog decisions",
+        "owner": "documentation lane; then lead integration",
+        "state": "complete",
+        "activity": "Selected record/baseline and routing prepared; five narrow owner decisions recorded in the existing backlog without changing other choices.",
+        "observed_at": "2026-10-24T03:53:15.923856+00:00",
+        "origin": "observed",
+        "next_action": "Hand current record ownership to lead after the documentation commit; independent source review remains part of integration.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/baseline.md"
+        ],
+        "gates": {
+          "implementation": "complete: documentation only",
+          "checks": "passed: 16 overview tests, generated overview check, Markdown links and diff whitespace; independent source review complete",
+          "integration": "committed: 819c79e6; independent review found one stale selected-record link, corrected in lead follow-up",
+          "native": "inapplicable: documentation routing",
+          "owner_acceptance": "scope source recorded; no extra product choices inferred"
+        },
+        "attempts": []
+      },
+      {
+        "id": "integration",
+        "title": "Independently review and qualify coherent draft slices",
+        "owner": "lead integration and independent reviewer",
+        "state": "ready",
+        "activity": "All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.",
+        "observed_at": "2026-10-25T08:50:04.683741+00:00",
+        "origin": "observed",
+        "next_action": "Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/qualification.md",
+          "https://github.com/ewq100/brn-rust/pull/227"
+        ],
+        "gates": {
+          "implementation": "complete: approved scope implemented and source-reviewed; no new merge authority",
+          "checks": "passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks",
+          "integration": "pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized",
+          "native": "partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending",
+          "owner_acceptance": "pending: no delivered behavior acceptance"
+        },
+        "attempts": []
+      },
+      {
+        "id": "mac-acceptance",
+        "title": "Complete actual Mac follow-up, inbox and restore acceptance",
+        "owner": "future separately authorized native actor",
+        "state": "blocked",
+        "activity": "Mac is not authorized for dot tasks; headless checks do not establish picker, focus, rendering or accessibility.",
+        "observed_at": "2026-10-24T03:52:34.194266+00:00",
+        "origin": "reported",
+        "next_action": "After separate authorization, exercise Actions owner/waiting/follow-up controls, manual inbox selection/status/retry and safe Restore confirmation/reopen.",
+        "depends_on": [],
+        "resource_waits": [
+          "Separate Mac access/owner session authorization"
+        ],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/baseline.md"
+        ],
+        "gates": {
+          "implementation": "inapplicable: acceptance-only task",
+          "checks": "pending: source-bound candidate and fixture preparation",
+          "integration": "deferred: use reviewed candidate when native session authorized",
+          "native": "pending: not observed in this batch",
+          "owner_acceptance": "pending"
+        },
+        "attempts": []
+      }
+    ]
+  }
+}

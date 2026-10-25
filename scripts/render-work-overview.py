@@ -13,7 +13,7 @@ from urllib.parse import quote
 
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_RECORD = ROOT / "docs/work/active/daily-use-reliability/record.json"
+DEFAULT_RECORD = ROOT / "docs/work/active/daily-followups-inbox-restore/record.json"
 DEFAULT_OUTPUT = ROOT / "docs/work/overview.md"
 STATES = {"active", "ready", "blocked", "complete"}
 ORIGINS = {"reported", "observed"}

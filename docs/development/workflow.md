@@ -10,7 +10,7 @@
 | Development cycle, fact ownership and integration | This workflow | Skills supply task-specific procedures. |
 | Design rationale, reuse, responsibility and test judgment | [Strategic programming](strategic-programming.md) | Read for meaningful design, not every wake. |
 | Assignment scope and permission limits | Latest owner instructions and the selected assignment record | Historical campaign permissions do not authorize new work. |
-| Current assignment, activity, next action, dependencies, waits and gates | Selected assignment's current task record: currently `work_view` in [the daily-use record](../work/active/daily-use-reliability/record.json) | [Overview](../work/overview.md) is generated; do not hand-edit it. |
+| Current assignment, activity, next action, dependencies, waits and gates | Selected assignment's current task record: currently `work_view` in [the follow-ups/inbox/Restore record](../work/active/daily-followups-inbox-restore/record.json) | [Overview](../work/overview.md) is generated; do not hand-edit it. |
 | Current allowance/admission observation | Current task evidence, when available | Historical campaign admission is not current quota; report unavailable values honestly. |
 | Machine-specific resumption pointers | Selected assignment baseline/checkpoint | The earlier [campaign checkpoint](../work/active/vacation-campaign/checkpoint.md) is historical; no duplicate task status or current PR list. |
 | Exact source, checks, failures and qualification limits | Selected task receipts; earlier [campaign evidence](../work/active/vacation-campaign/evidence.md) remains historical | Dated evidence supports claims; it never controls the next action. |

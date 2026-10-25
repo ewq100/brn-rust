@@ -417,6 +417,7 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
             "Work in Worker destination · Synthetic progress",
         ),
         (WorkerKind::Import, true, "Synthetic progress"),
+        (WorkerKind::Inbox, true, "Synthetic progress"),
         (
             WorkerKind::Export,
             false,
@@ -462,10 +463,20 @@ fn worker_controls_match_real_cancellation_capabilities(cx: &mut TestAppContext)
                             Arc::new(AtomicBool::new(false)),
                             None,
                         ),
+                        WorkerKind::Inbox => Worker::inbox(
+                            receiver,
+                            CancellationToken::new(),
+                            Arc::new(AtomicBool::new(false)),
+                        ),
                         WorkerKind::Export | WorkerKind::Backup => {
                             Worker::output(receiver, kind == WorkerKind::Backup)
                         }
                         WorkerKind::Connect => Worker::connect(receiver, CancellationToken::new()),
+                        WorkerKind::RestoreValidation | WorkerKind::Restore => Worker::restore(
+                            receiver,
+                            CancellationToken::new(),
+                            kind == WorkerKind::Restore,
+                        ),
                     };
                     let cancel = worker.cancel.clone();
                     let conversion_cancel = worker.conversion_cancel.clone();
@@ -760,6 +771,9 @@ fn native_whole_group_selection_prepares_new_comparison_before_exact_apply(
                         archived: false,
                         data: RecordData::Action(Action {
                             kept_outside_project: false,
+                            owner: None,
+                            waiting_on: None,
+                            follow_up: None,
                             chat: None,
                             description: "Human wording check".into(),
                             state: ActionState::Waiting,

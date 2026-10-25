@@ -154,6 +154,49 @@ pub struct Action {
     pub internal: bool,
     pub evidence: Option<String>,
     pub due: Option<String>,
+    /// Reported responsible person or team, not an access-control identity.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub owner: Option<String>,
+    /// Person, team or response needed before this obligation can progress.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub waiting_on: Option<String>,
+    /// Calendar date to revisit the obligation; distinct from its due date.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub follow_up: Option<String>,
+}
+impl Action {
+    pub(crate) fn validate_follow_up(&self) -> crate::Result<()> {
+        for (field, value) in [("owner", &self.owner), ("waiting on", &self.waiting_on)] {
+            if value.as_ref().is_some_and(|text| {
+                text.trim().is_empty() || text.len() > 512 || text.chars().any(char::is_control)
+            }) {
+                return Err(crate::Error::Invalid(format!(
+                    "Action {field} must be a nonempty label of at most 512 bytes without control characters, or null"
+                )));
+            }
+        }
+        if let Some(date) = &self.follow_up {
+            let parsed = chrono::NaiveDate::parse_from_str(date, "%Y-%m-%d");
+            if date.len() != 10
+                || parsed.is_err()
+                || parsed.is_ok_and(|parsed| parsed.to_string() != *date)
+            {
+                return Err(crate::Error::Invalid(
+                    "Action follow_up must be an exact calendar date YYYY-MM-DD, or null".into(),
+                ));
+            }
+        }
+        Ok(())
+    }
+
+    /// Facts defining the obligation, independent of progress or completion evidence.
+    pub(crate) fn same_commitment(&self, other: &Self) -> bool {
+        self.description == other.description
+            && self.due == other.due
+            && self.owner == other.owner
+            && self.waiting_on == other.waiting_on
+            && self.follow_up == other.follow_up
+    }
 }
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Source {

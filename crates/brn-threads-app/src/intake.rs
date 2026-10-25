@@ -287,7 +287,7 @@ impl Workspace {
         converted: &ConversionResult,
         chat: Option<&str>,
     ) -> AppResult<ApplyOutcome> {
-        self.import_full_checked(key, title, converted, chat, None)
+        self.import_full_checked(key, title, converted, chat, None, None)
     }
     pub fn import_full_scoped_with_conversion(
         &mut self,
@@ -306,7 +306,48 @@ impl Workspace {
             scope,
             settings,
         )?;
-        self.import_full_checked(key, title, converted, scope, Some(report))
+        self.import_full_checked(key, title, converted, scope, Some(report), None)
+    }
+    /// Inbox conversion commits only while its captured profile is current.
+    #[cfg(unix)]
+    pub(crate) fn import_inbox_full(
+        &mut self,
+        key: &str,
+        title: &str,
+        converted: &ConversionResult,
+        settings: &DocumentConversionSettings,
+        generation: &str,
+    ) -> AppResult<ApplyOutcome> {
+        let report = import_report_with_conversion(converted, settings)?;
+        self.check_document_import(
+            key,
+            title,
+            &converted.source_reference,
+            &converted.source_sha256,
+            None,
+            settings,
+        )?;
+        self.import_full_checked(
+            key,
+            title,
+            converted,
+            None,
+            Some(report),
+            Some((settings, generation)),
+        )
+    }
+    fn apply_document_import(
+        &mut self,
+        op: &OperationId,
+        authority: &HostAuthority,
+        settings: Option<(&DocumentConversionSettings, &str)>,
+    ) -> AppResult<ApplyOutcome> {
+        Ok(if let Some((settings, generation)) = settings {
+            self.store
+                .apply_inbox_import(op, settings, generation, authority)?
+        } else {
+            self.store.apply(op, authority)?
+        })
     }
     fn import_full_checked(
         &mut self,
@@ -315,6 +356,7 @@ impl Workspace {
         converted: &ConversionResult,
         chat: Option<&str>,
         checked_report: Option<ImportReport>,
+        inbox_guard: Option<(&DocumentConversionSettings, &str)>,
     ) -> AppResult<ApplyOutcome> {
         if converted.intent != ImportIntent::FullNote {
             return Err(AppError::Invalid(
@@ -357,7 +399,7 @@ impl Workspace {
         // A project import stops that project's Working Runs; their free
         // lease files go with them on every applied path below.
         if self.store.receipt(&op)?.is_some() {
-            let outcome = self.store.apply(&op, &authority)?;
+            let outcome = self.apply_document_import(&op, &authority, inbox_guard)?;
             return Ok(self.remove_leases_ended_by(outcome));
         }
         if let Some(thread) = chat
@@ -378,14 +420,25 @@ impl Workspace {
             ));
         }
         if self.store.prepared(&op).is_ok() {
-            let outcome = self.store.apply(&op, &authority)?;
+            let outcome = self.apply_document_import(&op, &authority, inbox_guard)?;
             return Ok(self.remove_leases_ended_by(outcome));
         }
         let records = self.records()?;
         // The exact real path first, then a Source saved under an older
         // spelling of the same file; the Put below records the real path.
-        let locator = canonical_locator(&converted.source_reference);
-        let existing = find_source(&records, &locator, |source| source.chat.as_deref() == chat);
+        // Inbox already validated this exact absolute snapshot path through a
+        // pinned no-follow directory descriptor. Do not resolve it again after
+        // conversion: a later filesystem swap must not redirect provenance.
+        let locator = if inbox_guard.is_some() {
+            converted.source_reference.clone()
+        } else {
+            canonical_locator(&converted.source_reference)
+        };
+        let existing = if inbox_guard.is_some() {
+            records.iter().find(|record|matches!(&record.data,RecordData::Source(source) if source.locator==locator && source.chat.as_deref()==chat))
+        } else {
+            find_source(&records, &locator, |source| source.chat.as_deref() == chat)
+        };
         let source_id = existing
             .map(|record| record.id.clone())
             .unwrap_or_else(|| op.creation_id(0));
@@ -557,7 +610,7 @@ impl Workspace {
             inputs: vec![],
         };
         self.store.prepare_owner(&op, &request, &authority)?;
-        let outcome = self.store.apply(&op, &authority)?;
+        let outcome = self.apply_document_import(&op, &authority, inbox_guard)?;
         Ok(self.remove_leases_ended_by(outcome))
     }
     pub fn keep_in_brn(

@@ -125,13 +125,22 @@ fn reveal(cx: &mut TestAppContext, f: &Fixture, container: &str, target: &str) {
     // Exercise real scrolling rather than counting an offscreen test element as accessible.
     for _ in 0..20 {
         // Wholly inside the scroller, so a click at its center lands on it.
-        let visible = cx
+        let (visible, delta) = cx
             .update_window(f.window, |_, window, _| {
                 let shown = window.find(target.to_owned());
                 let (item, frame) = (shown.bounds(), window.find(container.to_owned()).bounds());
-                shown.visible()
+                let visible = shown.visible()
                     && item.origin.y >= frame.origin.y
-                    && item.origin.y + item.size.height <= frame.origin.y + frame.size.height
+                    && item.origin.y + item.size.height <= frame.origin.y + frame.size.height;
+                // A longer Settings section can leave an earlier control above
+                // the viewport after visiting its last control. Wheel back up
+                // in that case; still require the whole target to be visible.
+                let delta = if item.origin.y < frame.origin.y {
+                    120.
+                } else {
+                    -120.
+                };
+                (visible, delta)
             })
             .unwrap();
         if visible {
@@ -142,7 +151,7 @@ fn reveal(cx: &mut TestAppContext, f: &Fixture, container: &str, target: &str) {
         cx.update_window(f.window, |_, window, cx| {
             window.scroll(
                 container.to_owned(),
-                gpui_kit::ScrollDelta::Pixels(point(px(0.), px(-120.))),
+                gpui_kit::ScrollDelta::Pixels(point(px(0.), px(delta))),
                 cx,
             );
         })
@@ -315,6 +324,9 @@ fn action_status_tile_writes_one_checked_receipt_and_history_undo_compensates(
                             archived: false,
                             data: RecordData::Action(Action {
                                 kept_outside_project: false,
+                                owner: None,
+                                waiting_on: None,
+                                follow_up: None,
                                 chat: None,
                                 description: description.clone(),
                                 state: ActionState::Open,
@@ -718,8 +730,18 @@ fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut Te
     click(cx, &f, "delegation-review-first");
     click(cx, &f, "settings-section-data");
     reveal(cx, &f, "settings-content", "export-now");
+    // Traverse the longer Data section in both directions, including the new
+    // controls. Keep real wheel events and full in-viewport bounds assertions.
+    reveal(cx, &f, "settings-content", "inbox-choose-folder");
+    reveal(cx, &f, "settings-content", "inbox-scan");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(window.find("inbox-scan").disabled(), Some(true));
+    })
+    .unwrap();
+    reveal(cx, &f, "settings-content", "restore-select");
     reveal(cx, &f, "settings-content", "backup-change-folder");
     reveal(cx, &f, "settings-content", "backup-now");
+    reveal(cx, &f, "settings-content", "export-now");
     cx.read(|cx| {
         let settings = f.view.read(cx).workspace.settings().unwrap();
         assert!(settings.delegation_chosen && settings.review_first);
@@ -1601,6 +1623,161 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
             }
             assert!(view.worker.is_none());
         });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn task_details_owner_form_preserves_state_due_and_rejects_ambiguous_date(cx: &mut TestAppContext) {
+    let f = fixture(cx, false, 900., 700.);
+    let mut record = None;
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |view, cx| {
+            let operation = view
+                .workspace
+                .store
+                .allocate_operation("followup form fixture")
+                .unwrap();
+            let id = operation.creation_id(0);
+            view.workspace
+                .owner_change(
+                    "followup form fixture",
+                    &ChangeRequest {
+                        reason: "Owner task".into(),
+                        inputs: vec![],
+                        writes: vec![Put {
+                            id: id.clone(),
+                            expected_version: None,
+                            archived: false,
+                            data: RecordData::Action(Action {
+                                kept_outside_project: false,
+                                chat: None,
+                                description: "Await supplier approval".into(),
+                                state: ActionState::Waiting,
+                                internal: false,
+                                evidence: None,
+                                due: Some("Friday".into()),
+                                owner: None,
+                                waiting_on: None,
+                                follow_up: None,
+                            }),
+                        }],
+                    },
+                )
+                .unwrap();
+            record = view.workspace.store.record(&id).unwrap();
+            focus_tests::solo(view, TileKind::Actions, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    let record = record.unwrap();
+    // Exercise the real menu dismissal and initial focus transfer. Typing must
+    // reach Owner without a compensating click on the field.
+    click(cx, &f, format!("task-menu-{}", record.id));
+    choose(cx, &f, "Edit details");
+    cx.simulate_input(f.window, "Märta");
+    cx.run_until_parked();
+    click(cx, &f, "action-detail-1");
+    cx.simulate_input(f.window, "Supplier approval");
+    cx.run_until_parked();
+    click(cx, &f, "action-detail-2");
+    cx.simulate_input(f.window, "next Friday");
+    cx.run_until_parked();
+    click(cx, &f, "action-details-save");
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.has_active_dialog(cx));
+        assert!(window.find("action-details-error").visible());
+        assert_eq!(
+            f.view
+                .read(cx)
+                .workspace
+                .store
+                .record(&record.id)
+                .unwrap()
+                .unwrap(),
+            record
+        );
+        window.click("action-detail-2", cx);
+        window.press(focus_tests::SELECT_ALL, cx);
+    })
+    .unwrap();
+    cx.simulate_input(f.window, "2028-02-29");
+    cx.run_until_parked();
+    click(cx, &f, "action-details-save");
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(
+            !window.has_active_dialog(cx),
+            "{}",
+            window
+                .try_find("action-details-error")
+                .and_then(|e| e.label().map(str::to_owned))
+                .unwrap_or_default()
+        );
+        let current = f
+            .view
+            .read(cx)
+            .workspace
+            .store
+            .record(&record.id)
+            .unwrap()
+            .unwrap();
+        let RecordData::Action(action) = current.data else {
+            panic!()
+        };
+        assert_eq!(action.owner.as_deref(), Some("Märta"));
+        assert_eq!(action.waiting_on.as_deref(), Some("Supplier approval"));
+        assert_eq!(action.follow_up.as_deref(), Some("2028-02-29"));
+        assert_eq!(action.due.as_deref(), Some("Friday"));
+        assert_eq!(action.state, ActionState::Waiting);
+        assert_eq!(action.evidence, None);
+    })
+    .unwrap();
+    // A form opened on an earlier version cannot overwrite a later owner edit.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let current = view.workspace.store.record(&record.id).unwrap().unwrap();
+            view.action_details_dialog(current.clone(), window, cx);
+            let RecordData::Action(mut action) = current.data else {
+                panic!()
+            };
+            action.owner = Some("Leena".into());
+            view.workspace
+                .owner_change(
+                    "concurrent owner assignment",
+                    &ChangeRequest {
+                        reason: "New owner assignment".into(),
+                        inputs: vec![],
+                        writes: vec![Put {
+                            id: current.id,
+                            expected_version: Some(current.version),
+                            archived: false,
+                            data: RecordData::Action(action),
+                        }],
+                    },
+                )
+                .unwrap();
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    click(cx, &f, "action-details-save");
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.has_active_dialog(cx));
+        assert!(window.find("action-details-error").visible());
+        let current = f
+            .view
+            .read(cx)
+            .workspace
+            .store
+            .record(&record.id)
+            .unwrap()
+            .unwrap();
+        let RecordData::Action(action) = current.data else {
+            panic!()
+        };
+        assert_eq!(action.owner.as_deref(), Some("Leena"));
+        assert_eq!(action.state, ActionState::Waiting);
     })
     .unwrap();
 }

@@ -16,6 +16,14 @@ Full imports start protected through the host workflow without a second creation
 
 Original files and messages remain external. Intake reads those supplied sources; it does not delete, move, send or mark them handled. Retain only useful results, requested full-note content/assets, source references and processing outcomes. If interrupted work needs uncaptured input, reread it or ask the owner to supply it again.
 
+## Meeting outcomes and follow-ups
+
+Use the existing Notes and Actions rather than inventing a meeting-specific record. Separate adopted decisions, reported commitments and unresolved questions. Read current related Actions and their linked evidence before proposing another: repeated notes or a second copy of the same source do not establish a second obligation. Update the existing Action when the evidence actually changes the same commitment; retain distinct obligations when the subject or responsible party differs.
+
+For a supported Action, record `owner` only when a person or team is explicit, `waiting_on` for an explicit needed person/team/response, and `follow_up` only for an unambiguous calendar date to revisit it. Follow-up is separate from `due`; neither means a reminder was scheduled. Leave unknown fields null. Preserve relative or ambiguous dates and tentative assignments as qualified context or a focused question rather than guessing. “Someone could ask the supplier” is not a confirmed assignment. A proposed useful clarification may remain Suggested with an unknown owner.
+
+Bind changes to exact observed Source and Note input versions and link the evidence actually used. A changed owner, deadline or follow-up is a changed commitment, not routine Waiting progress. Preserve the existing commitment for review when authority is missing. Draft preparation or approval is not evidence that someone sent a message, accepted an assignment or completed the real task. No external follow-up is sent by creating an Action.
+
 ## Example
 
 The host imports a process DOCX as a full note. Read its protected saved note and coverage, including the final section through `read_note`, and verify the ordered steps, roles, prerequisites, table and references. Preserve a missing figure's location and report partial if it did not convert. Keep the DOCX at its external location.
