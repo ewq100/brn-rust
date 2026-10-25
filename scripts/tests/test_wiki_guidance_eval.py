@@ -346,6 +346,38 @@ class MeetingActionOracleTests(unittest.TestCase):
         after['receipts'][0]['writes'][0]['after'] = dict(action, version=1)
         self.assertFalse(wiki_eval.action_source_checks([0, 1], after)['action_source_inputs'])
 
+    def test_saved_action_source_metadata_write_uses_same_receipt_before_version(self):
+        after = self.with_sources({'records': [], 'candidates': [self.candidate('one', state='Suggested')]})
+        request = after['candidates'].pop()['request']
+        action = dict(request['writes'][0], version=1)
+        after['records'].extend([action] + request['writes'][1:])
+        source = next(r for r in after['records'] if r['id'] == 'source:0')
+        before = copy.deepcopy(source)
+        source['version'] = 2
+        source['data']['Source']['outcome'] = 'Recorded'
+        after['receipts'] = [{'operation': 'accepted', 'writes': [
+            {'before': None, 'after': copy.deepcopy(action)},
+            {'before': before, 'after': copy.deepcopy(source)}]}]
+        after['lineage'] = [{'operation': 'accepted', 'applied': True, 'inputs': request['inputs']}]
+        self.assertTrue(all(wiki_eval.action_source_checks([0, 1], after).values()))
+        for mutation in ['new-version', 'wrong-before-version', 'wrong-before-id', 'wrong-before-type',
+                         'archived-before', 'other-operation', 'later-version', 'later-body', 'ambiguous-receipt']:
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(after)
+                write = bad['receipts'][0]['writes'][1]
+                if mutation == 'new-version': bad['lineage'][0]['inputs'][0]['version'] = 2
+                elif mutation == 'wrong-before-version': write['before']['version'] = 2
+                elif mutation == 'wrong-before-id': write['before']['id'] = 'different-source'
+                elif mutation == 'wrong-before-type': write['before']['data'] = {'Note': {}}
+                elif mutation == 'archived-before': write['before']['archived'] = True
+                elif mutation == 'other-operation':
+                    bad['receipts'][0]['writes'].pop()
+                    bad['receipts'].append({'operation': 'unrelated', 'writes': [write]})
+                elif mutation == 'later-version': bad['records'][0]['version'] = 3
+                elif mutation == 'later-body': bad['records'][0]['data']['Source']['outcome'] = 'Changed later'
+                else: bad['receipts'].append(copy.deepcopy(bad['receipts'][0]))
+                self.assertFalse(wiki_eval.action_source_checks([0, 1], bad)['action_source_inputs'])
+
     def test_explicit_meeting_account_request_still_requires_an_applied_note(self):
         cases = json.loads(wiki_eval.CASES.read_text())['cases']
         case = next(case for case in cases if case['id'] == 'meeting-clarification-unknown-owner')

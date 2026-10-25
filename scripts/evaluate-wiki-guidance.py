@@ -267,31 +267,49 @@ def action_source_checks(steps, after):
         for write in request['writes']:
             if not write['archived'] and 'Action' in write['data']:
                 pending_ids.add(write['id'])
-                groups.append((write['id'], list(effective.values()), request.get('inputs', [])))
+                groups.append((write['id'], list(effective.values()), request.get('inputs', []), sources))
     # A saved Action remains allowed. Its latest accepting receipt, rather than
     # some unrelated old operation, must carry the source observations.
     for record in after['records']:
         if record['archived'] or 'Action' not in record['data'] or record['id'] in pending_ids:
             continue
         receipts = [receipt for receipt in after.get('receipts', [])
-                    if any(w['after']['id'] == record['id']
-                           and w['after']['version'] == record['version']
-                           for w in receipt['writes'])]
+                    if any(w['after'] == record for w in receipt['writes'])]
+        receipt = receipts[0] if len(receipts) == 1 else None
         lineage = [entry for entry in after.get('lineage', [])
-                   if entry.get('applied') and any(entry['operation'] == r['operation'] for r in receipts)]
+                   if receipt and entry.get('applied') and entry['operation'] == receipt['operation']]
         inputs = lineage[0]['inputs'] if len(lineage) == 1 else []
-        groups.append((record['id'], after['records'], inputs))
+        observed_versions = dict(sources)
+        # A source metadata write in the SAME accepting operation increments
+        # its version. The input records the version read before that write.
+        # Only an exact current after-image establishes this exception.
+        current = by_id(after['records'])
+        for source in sources:
+            writes = [w for w in receipt['writes'] if w['after']['id'] == source] if receipt else []
+            if not writes:
+                continue
+            write = writes[0]
+            prior = write.get('before')
+            if (len(writes) != 1 or write['after'] != current[source]
+                    or not prior or prior['id'] != source or prior['archived']
+                    or 'Source' not in prior['data']
+                    or type(prior.get('version')) is not int
+                    or prior['version'] < 1 or prior['version'] + 1 != current[source]['version']):
+                observed_versions = None
+                break
+            observed_versions[source] = prior['version']
+        groups.append((record['id'], after['records'], inputs, observed_versions))
     def linked(identity, writes):
         links = [w['data']['Link'] for w in writes if not w['archived'] and 'Link' in w['data']]
         return all(any(link == {'from': identity, 'to': source, 'relation': 'source'}
                        for link in links) for source in sources)
-    def observed(inputs):
-        return all(any(i.get('record') == source and i.get('version') == version
+    def observed(inputs, versions):
+        return versions is not None and all(any(i.get('record') == source and i.get('version') == version
                        and i.get('expectation', 'Current') == 'Current'
-                       for i in inputs) for source, version in sources.items())
+                       for i in inputs) for source, version in versions.items())
     return {'action_sources_resolved': True,
-            'action_source_links': bool(groups) and all(linked(identity, writes) for identity, writes, _ in groups),
-            'action_source_inputs': bool(groups) and all(observed(inputs) for _, _, inputs in groups)}
+            'action_source_links': bool(groups) and all(linked(identity, writes) for identity, writes, _, _ in groups),
+            'action_source_inputs': bool(groups) and all(observed(inputs, versions) for _, _, inputs, versions in groups)}
 
 
 def structural_checks(case, before, after, filler=frozenset()):
