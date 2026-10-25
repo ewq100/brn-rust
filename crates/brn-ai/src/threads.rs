@@ -4238,7 +4238,7 @@ fn run_preamble(scope: &Scope) -> String {
         .unwrap_or_default();
     let preamble = scope.skills.preamble();
     format!(
-        "{preamble}{external}\n\nCanonical records use externally tagged data objects. Note fields: title, markdown, protected, confirmed, superseded_by (null), import (null). Thread: title, state (Open/Resolved), attention [{{kind:Question/Review/Conflict/Blocker,reason,record:null}}]. Action: description,state,internal,evidence:null,due:null. Source: locator,label,observed_at,external_version:null,outcome,gaps:[]; Link: from,to,relation. Message: thread,role,text. Comment: note,base_version,quote,range,mapped_version,mapped_range,body,unresolved. New IDs use new:0 etc. Message/Run/Settings and receipt authority are host-only."
+        "{preamble}{external}\n\nCanonical records use externally tagged data objects. Note fields: title, markdown, protected, confirmed, superseded_by (null), import (null). Thread: title, state (Open/Resolved), attention [{{kind:Question/Review/Conflict/Blocker,reason,record:null}}]. Action: description,state,internal,evidence:null,due:null,owner:null,waiting_on:null,follow_up:null. Set owner and waiting_on only from explicit evidence; follow_up is a YYYY-MM-DD revisit date, separate from due; unknown owner, waiting_on and dates remain null. Source: locator,label,observed_at,external_version:null,outcome,gaps:[]; Link: from,to,relation. Message: thread,role,text. Comment: note,base_version,quote,range,mapped_version,mapped_range,body,unresolved. New IDs use new:0 etc. Message/Run/Settings and receipt authority are host-only."
     )
 }
 fn budget_tool_definitions(scope: &Scope) -> Vec<Value> {
@@ -4446,6 +4446,24 @@ fn has_writing_proposal(scope: &Scope) -> AiResult<bool> {
 mod tests {
     use super::*;
     use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    #[test]
+    fn canonical_action_prompt_preserves_structured_follow_up_fields() {
+        let (_root, request, _) = fixture();
+        let (scope, _) = begin(&request).unwrap();
+        let preamble = run_preamble(&scope);
+        let action_shape = preamble
+            .split("Action: ")
+            .nth(1)
+            .unwrap()
+            .split(" Source:")
+            .next()
+            .unwrap();
+        for field in ["owner:null", "waiting_on:null", "follow_up:null"] {
+            assert!(action_shape.contains(field), "missing Action field {field}");
+        }
+        assert!(action_shape.contains("YYYY-MM-DD revisit date, separate from due"));
+        assert!(action_shape.contains("unknown owner, waiting_on and dates remain null"));
+    }
     #[test]
     fn activity_reports_apply_domain_outcomes_without_exposing_results() {
         use rig::tool::{ToolOutput, ToolResult};

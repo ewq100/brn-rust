@@ -250,7 +250,12 @@ def structural_checks(case, before, after, filler=frozenset()):
         checks['conversation_only_no_new_note'] = current_ids == {note['id'] for note in previous}
         checks['conversation_only_no_action'] = not any('Action' in record['data'] for record in after['records'])
         checks['conversation_only_no_attention'] = not any(record['data'].get('Thread', {}).get('attention') for record in after['records'])
-    else:
+    elif not (case.get('action_expectation', {}).get('min', 0) > 0
+              and case.get('steps') and all(step['kind'] == 'intake' for step in case['steps'])):
+        # Follow-up-only intake rubrics allow a saved OR pending Action. Their
+        # cardinality, facts and accepted/proposed states are checked below;
+        # do not additionally demand a Note that the request did not require.
+        # Ask cases that explicitly request a saved account retain this gate.
         checks['knowledge_change_applied'] = any('Note' in write['after']['data'] for receipt in after['receipts'] for write in receipt['writes'])
     if 'action_expectation' in case:
         checks.update(action_checks(case['action_expectation'], after))

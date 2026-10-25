@@ -205,6 +205,29 @@ class MeetingActionOracleTests(unittest.TestCase):
     def candidate(self, identity, **fields):
         return {'request': {'writes': [self.record(identity, **fields)]}}
 
+    def test_followup_only_intake_accepts_pending_action_without_inventing_a_note_requirement(self):
+        cases = json.loads(wiki_eval.CASES.read_text())['cases']
+        case = next(case for case in cases if case['id'] == 'meeting-duplicate-notes-one-followup')
+        action = dict(state='Open', owner='Mari', follow_up='2028-03-03', evidence=None)
+        after = {'records': [], 'receipts': [], 'candidates': [self.candidate('one', **action)]}
+        before = {'records': []}
+        self.assertTrue(all(wiki_eval.structural_checks(case, before, after).values()))
+        after['candidates'][0]['request']['writes'][0]['data']['Action']['owner'] = None
+        self.assertFalse(wiki_eval.structural_checks(case, before, after)['action_facts_including_pending'])
+        after['candidates'] = []
+        self.assertFalse(wiki_eval.structural_checks(case, before, after)['action_count_including_pending'])
+        after['records'] = [self.record('one', **action)]
+        self.assertFalse(wiki_eval.structural_checks(case, before, after)['saved_action_facts'])
+
+    def test_explicit_meeting_account_request_still_requires_an_applied_note(self):
+        cases = json.loads(wiki_eval.CASES.read_text())['cases']
+        case = next(case for case in cases if case['id'] == 'meeting-clarification-unknown-owner')
+        after = {'records': [], 'receipts': [], 'candidates': [self.candidate(
+            'one', state='Suggested', owner=None, follow_up=None, due=None, evidence=None)]}
+        checks = wiki_eval.structural_checks(case, {'records': []}, after)
+        self.assertFalse(checks['knowledge_change_applied'])
+        self.assertTrue(checks['action_count_including_pending'])
+
     def test_pending_duplicate_is_counted_and_bad_facts_cannot_hide_in_review(self):
         expected = {'min': 1, 'max': 1, 'fields': {'owner': None, 'follow_up': None}}
         after = {'records': [self.record('one')], 'candidates': [self.candidate('two', owner='Invented', follow_up='2028-03-03')]}
