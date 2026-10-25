@@ -621,8 +621,9 @@ fn parse_valid(name: &str, args: &Value) -> bool {
     validate_arguments(name, args).is_ok()
 }
 // Default Current is omitted from immutable request serialization, but both
-// omitted and explicit Current are valid model arguments. Preserve strict
-// round-trip validation of every other field, including unknown fields.
+// omitted and explicit Current are valid model arguments. The three offered
+// nullable Action follow-up fields also omit None in immutable serialization.
+// Normalize only those equivalent forms; all other fields remain strict.
 fn request_matches_args(request: &ChangeRequest, args: &Value) -> bool {
     let mut canonical = args.clone();
     if let Some(inputs) = canonical.get_mut("inputs").and_then(Value::as_array_mut) {
@@ -631,6 +632,21 @@ fn request_matches_args(request: &ChangeRequest, args: &Value) -> bool {
                 && let Some(input) = input.as_object_mut()
             {
                 input.remove("expectation");
+            }
+        }
+    }
+    if let Some(writes) = canonical.get_mut("writes").and_then(Value::as_array_mut) {
+        for write in writes {
+            if let Some(action) = write
+                .get_mut("data")
+                .and_then(|data| data.get_mut("Action"))
+                .and_then(Value::as_object_mut)
+            {
+                for field in ["owner", "waiting_on", "follow_up"] {
+                    if action.get(field) == Some(&Value::Null) {
+                        action.remove(field);
+                    }
+                }
             }
         }
     }

@@ -24,6 +24,82 @@ fn creation(key: &str) -> Value {
         writes:vec![Put { id:"new:0".into(),expected_version:None,archived:false,data:RecordData::Note(Note::working("Corrected", "Exact õun content")) }], inputs:vec![]
     }})
 }
+
+fn action_creation() -> Value {
+    json!({"request_key":"nullable-action","request":{
+        "reason":"Record the source-reported follow-up as a suggestion",
+        "writes":[{"id":"new:0","expected_version":null,"archived":false,"data":{"Action":{
+            "description":"Ask the supplier for approval","state":"Suggested","internal":false,
+            "evidence":null,"due":null,"owner":"Mari","waiting_on":null,"follow_up":"2028-03-03"
+        }}}],"inputs":[]}})
+}
+
+#[test]
+fn offered_nullable_action_fields_accept_null_and_preserve_strict_record_shapes() {
+    for mask in 0..8 {
+        let mut args = action_creation();
+        let fields = &mut args["request"]["writes"][0]["data"]["Action"];
+        for (index, (field, value)) in [
+            ("owner", "Mari"),
+            ("waiting_on", "Supplier response"),
+            ("follow_up", "2028-03-03"),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            fields[field] = if mask & (1 << index) == 0 {
+                Value::Null
+            } else {
+                json!(value)
+            };
+        }
+        assert!(
+            validate_arguments("prepare_changes", &args).is_ok(),
+            "{args}"
+        );
+        for field in ["unoffered", "chat", "kept_outside_project"] {
+            let mut extra = args.clone();
+            extra["request"]["writes"][0]["data"]["Action"][field] = Value::Null;
+            assert!(
+                validate_arguments("prepare_changes", &extra).is_err(),
+                "{field}"
+            );
+        }
+    }
+    let mut wrong_variant = creation("wrong-variant");
+    wrong_variant["request"]["writes"][0]["data"]["Note"]["owner"] = Value::Null;
+    assert!(validate_arguments("prepare_changes", &wrong_variant).is_err());
+}
+
+#[tokio::test]
+async fn offered_null_action_field_reaches_production_prepare_without_correction() {
+    let (_root, request, _) = tests::fixture();
+    let (scope, input) = begin(&request).unwrap();
+    let (answer, _, events) = scripted(
+        scope.clone(),
+        &input,
+        vec![
+            turn(&[("action", "prepare_changes", action_creation())]),
+            done(),
+        ],
+        4,
+    )
+    .await;
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{answer:?}"
+    );
+    assert!(!events.iter().any(|event| matches!(event, AiEvent::Activity(text) if text.starts_with("Tool arguments rejected"))));
+    let store = scope.store.lock().unwrap();
+    let candidates = store.candidates().unwrap();
+    assert_eq!(candidates.len(), 1);
+    let RecordData::Action(action) = &candidates[0].request.writes[0].data else {
+        panic!("Action")
+    };
+    assert_eq!(action.owner.as_deref(), Some("Mari"));
+    assert_eq!(action.follow_up.as_deref(), Some("2028-03-03"));
+    assert_eq!(action.waiting_on, None);
+}
 fn run_state(scope: &Scope) -> Run {
     let RecordData::Run(run) = scope
         .store
