@@ -60,13 +60,27 @@ fn detail(error: impl std::fmt::Display) -> String {
     error.to_string().chars().take(256).collect()
 }
 
+#[cfg(unix)]
+struct InboxLease(std::fs::File);
+
+#[cfg(unix)]
+impl Drop for InboxLease {
+    fn drop(&mut self) {
+        // Closing alone waits for every duplicate (including a concurrent fork's
+        // pre-exec descriptor) to close. End this operation's lock explicitly.
+        // Drop cannot return an error: as with StageDir, unlock is best effort,
+        // and the owned File still closes afterward. Never unlink the lock inode.
+        let _ = self.0.unlock();
+    }
+}
+
 impl Workspace {
     pub fn inbox(&self) -> AppResult<Option<InboxState>> {
         Ok(self.store.inbox_state()?)
     }
 
     #[cfg(unix)]
-    fn inbox_lease(&self) -> AppResult<std::fs::File> {
+    fn inbox_lease(&self) -> AppResult<InboxLease> {
         use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
         let path = self.store.derived_directory()?.join("manual-inbox.lock");
         let file = std::fs::OpenOptions::new()
@@ -88,7 +102,7 @@ impl Workspace {
             )
         })?;
         // Keep this named lock file: unlinking it could give another process a second lock inode.
-        Ok(file)
+        Ok(InboxLease(file))
     }
 
     /// Called only after the owner explicitly chooses the displayed General destination.
@@ -437,7 +451,7 @@ mod tests {
         let lease = workspace.inbox_lease().unwrap();
         // dup and fork both retain the same open-file description. Keep it alive
         // beyond the owning scope, deterministically modeling the pre-exec window.
-        let inherited = lease.try_clone().unwrap();
+        let inherited = lease.0.try_clone().unwrap();
         let inode = inherited.metadata().unwrap().ino();
         assert!(
             other
@@ -454,7 +468,7 @@ mod tests {
         assert_eq!(inherited.metadata().unwrap().ino(), inode);
         let next = workspace.inbox_lease().unwrap();
         assert_eq!(
-            next.metadata().unwrap().ino(),
+            next.0.metadata().unwrap().ino(),
             inode,
             "the named lock inode must remain stable"
         );
