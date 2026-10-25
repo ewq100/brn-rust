@@ -208,3 +208,147 @@ fn inbox_finish_cancel_and_disconnect_leave_private_queue_unchanged(cx: &mut Tes
         .unwrap();
     }
 }
+
+#[gpui_kit::test]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
+fn scan_button_runs_stock_worker_and_reopens_import_without_dispatching_private_queue(
+    cx: &mut TestAppContext,
+) {
+    use std::time::{Duration, Instant};
+    let f = fixture(cx);
+    let bytes = include_bytes!("../../brn-intake/tests/fixtures/harbor.docx");
+    let source_path = f.folder.join("harbor.docx");
+    std::fs::write(&source_path, bytes).unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.workspace
+                .choose_document_conversion(DocumentConversionSettings {
+                    converter: DocumentConverter::Xberg,
+                    ai: false,
+                })
+                .unwrap();
+            // Synthetic picker result only; the real consent and Scan controls run below.
+            ui.inbox_folder_chosen(Ok(Some(vec![f.folder.clone()])), window, cx);
+            assert!(ui.workspace.inbox().unwrap().is_none());
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        window.click("inbox-consent-confirm", cx)
+    })
+    .unwrap();
+    cx.run_until_parked();
+    let before = cx.read(|cx| {
+        let ui = f.view.read(cx);
+        assert!(ui.worker.is_none());
+        assert!(ui.workspace.inbox().unwrap().unwrap().entries.is_empty());
+        ui.workspace.records().unwrap()
+    });
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("inbox-scan").visible());
+        window.click("inbox-scan", cx);
+        assert!(
+            f.view.read(cx).worker.is_some(),
+            "Scan must create the real worker"
+        );
+    })
+    .unwrap();
+    let deadline = Instant::now() + Duration::from_secs(20);
+    loop {
+        let done = cx
+            .update_window(f.window, |_, window, cx| {
+                f.view.update(cx, |ui, cx| {
+                    ui.poll_worker(window, cx);
+                    ui.worker.is_none()
+                })
+            })
+            .unwrap();
+        if done {
+            break;
+        }
+        if Instant::now() >= deadline {
+            cx.update_window(f.window, |_, _, cx| {
+                f.view.update(cx, |ui, cx| ui.cancel(cx))
+            })
+            .unwrap();
+            panic!("Stock inbox worker did not finish within twenty seconds");
+        }
+        std::thread::sleep(Duration::from_millis(10));
+    }
+    cx.run_until_parked();
+    let reopened = Workspace::open_existing_no_upgrade(f._root.path().join("data")).unwrap();
+    let state = reopened.inbox().unwrap().unwrap();
+    assert_eq!(state.entries.len(), 1);
+    assert_eq!(state.entries[0].status, InboxStatus::Imported, "{state:?}");
+    let key = state.entries[0].operation_key.as_ref().unwrap();
+    let operation = reopened
+        .store
+        .operation_by_host_key(&format!("full-import:{key}"))
+        .unwrap()
+        .unwrap();
+    assert!(reopened.store.receipt(&operation).unwrap().is_some());
+    let records = reopened.records().unwrap();
+    for record in &before {
+        assert!(
+            records.contains(record),
+            "pre-existing private context/queue changed: {}",
+            record.id
+        );
+    }
+    assert!(
+        records
+            .iter()
+            .all(|r| !matches!(r.data, RecordData::Run(_)))
+    );
+    let general: Vec<_> = records
+        .iter()
+        .filter_map(|r| match &r.data {
+            RecordData::Note(n) if n.chat.is_none() => Some((r, n)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(general.len(), 1);
+    let (record, note) = general[0];
+    assert_eq!(state.entries[0].note.as_ref(), Some(&record.id));
+    assert!(note.protected);
+    assert!(!note.markdown.contains("PRIVATE-INBOX-SENTINEL"));
+    let provenance = note
+        .import
+        .as_ref()
+        .unwrap()
+        .report
+        .as_ref()
+        .unwrap()
+        .conversion
+        .as_ref()
+        .unwrap();
+    assert_eq!(
+        provenance.settings,
+        DocumentConversionSettings {
+            converter: DocumentConverter::Xberg,
+            ai: false
+        }
+    );
+    assert_eq!(
+        provenance.engine_identity,
+        brn_threads_intake::expected_engine_identity("xberg").unwrap()
+    );
+    let assets: Vec<_> = records
+        .iter()
+        .filter_map(|r| match &r.data {
+            RecordData::Asset(a) => Some((r, a)),
+            _ => None,
+        })
+        .collect();
+    assert_eq!(assets.len(), 1);
+    assert_eq!(
+        assets[0].1.bytes,
+        include_bytes!("../../brn-intake/tests/fixtures/water-use.png")
+    );
+    assert!(
+        note.markdown
+            .contains(&format!("brn-asset://{}", assets[0].0.id))
+    );
+    assert_eq!(std::fs::read(source_path).unwrap(), bytes);
+}

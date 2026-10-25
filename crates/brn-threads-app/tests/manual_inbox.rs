@@ -659,3 +659,111 @@ fn changed_folder_generation_fences_old_worker_without_overwriting_new_choice() 
     assert_eq!(next.generation, "synthetic-new-explicit-choice");
     assert!(next.entries.is_empty());
 }
+
+#[test]
+fn killed_scan_releases_lock_and_recovers_committed_prefix_without_reconversion() {
+    use std::os::unix::process::ExitStatusExt;
+    use std::{
+        process::Command,
+        thread,
+        time::{Duration, Instant},
+    };
+    const CHILD_ROOT: &str = "BRN_INBOX_INTERRUPTION_CHILD_ROOT";
+    const TEST_NAME: &str =
+        "killed_scan_releases_lock_and_recovers_committed_prefix_without_reconversion";
+    if let Some(root) = std::env::var_os(CHILD_ROOT) {
+        let root = PathBuf::from(root);
+        let mut workspace = Workspace::open_existing_no_upgrade(root.join("data")).unwrap();
+        workspace
+            .scan_inbox(&AtomicBool::new(false), |doc, settings| {
+                if doc.source_reference.ends_with("b.txt") {
+                    fs::write(root.join("second-conversion-ready"), b"ready").unwrap();
+                    let deadline = Instant::now() + Duration::from_secs(30);
+                    while Instant::now() < deadline {
+                        thread::sleep(Duration::from_millis(10));
+                    }
+                    panic!("parent did not terminate the owned child at the conversion barrier");
+                }
+                converted(doc, settings)
+            })
+            .unwrap();
+        panic!("child scan unexpectedly completed");
+    }
+    // Same owned-child cleanup pattern as the existing export interruption test.
+    struct OwnedChild(std::process::Child);
+    impl Drop for OwnedChild {
+        fn drop(&mut self) {
+            if self.0.try_wait().ok().flatten().is_none() {
+                let _ = self.0.kill();
+            }
+            let _ = self.0.wait();
+        }
+    }
+    let (root, folder, workspace) = world();
+    fs::write(folder.join("a.txt"), b"First committed source").unwrap();
+    fs::write(folder.join("b.txt"), b"Second interrupted source").unwrap();
+    drop(workspace);
+    let mut child = OwnedChild(
+        Command::new(std::env::current_exe().unwrap())
+            .args(["--exact", TEST_NAME, "--nocapture", "--test-threads=1"])
+            .env(CHILD_ROOT, root.path())
+            .spawn()
+            .unwrap(),
+    );
+    let deadline = Instant::now() + Duration::from_secs(20);
+    while !root.path().join("second-conversion-ready").exists() {
+        assert!(
+            child.0.try_wait().unwrap().is_none(),
+            "child exited before conversion barrier"
+        );
+        assert!(
+            Instant::now() < deadline,
+            "child did not reach conversion barrier"
+        );
+        thread::sleep(Duration::from_millis(10));
+    }
+    let before = Workspace::open_existing_no_upgrade(root.path().join("data")).unwrap();
+    let first = notes(&before);
+    assert_eq!(first.len(), 1);
+    let state = before.inbox().unwrap().unwrap();
+    assert_eq!(state.entries[0].status, InboxStatus::Imported);
+    assert_eq!(state.entries[1].status, InboxStatus::Pending);
+    let key = state.entries[0].operation_key.as_ref().unwrap();
+    let operation = before
+        .store
+        .operation_by_host_key(&format!("full-import:{key}"))
+        .unwrap()
+        .unwrap();
+    let receipt = before.store.receipt(&operation).unwrap().unwrap();
+    drop(before);
+    child.0.kill().unwrap();
+    assert_eq!(child.0.wait().unwrap().signal(), Some(libc::SIGKILL));
+    let mut reopened = Workspace::open_existing_no_upgrade(root.path().join("data")).unwrap();
+    let mut converted_names = vec![];
+    let result = reopened
+        .scan_inbox(&AtomicBool::new(false), |doc, settings| {
+            assert!(
+                doc.source_reference.ends_with("b.txt"),
+                "committed prefix must replay without conversion"
+            );
+            converted_names.push(doc.source_reference.clone());
+            converted(doc, settings)
+        })
+        .unwrap();
+    assert_eq!((result.imported, result.failed, result.pending), (2, 0, 0));
+    assert_eq!(converted_names.len(), 1);
+    assert_eq!(notes(&reopened).len(), 2);
+    assert!(notes(&reopened).contains(&first[0]));
+    assert_eq!(
+        reopened.store.receipt(&operation).unwrap().unwrap(),
+        receipt
+    );
+    assert_eq!(
+        fs::read(folder.join("a.txt")).unwrap(),
+        b"First committed source"
+    );
+    assert_eq!(
+        fs::read(folder.join("b.txt")).unwrap(),
+        b"Second interrupted source"
+    );
+}
