@@ -2925,7 +2925,8 @@ mod capture_runner {
                 permitted(name)
                     || matches!(
                         name,
-                        "apply_changes"
+                        "read_candidate"
+                            | "apply_changes"
                             | "withdraw_proposal"
                             | "refresh_candidate"
                             | "prepare_note_edit"

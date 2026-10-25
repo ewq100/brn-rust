@@ -328,6 +328,15 @@ fn rewrite_closes_mutable_reads_old_apply_refresh_and_progress_cannot_expand_sco
     let (_root, mut request, snapshot) = rewrite_fixture(false, 1);
     let (scope, _) = begin(&request).unwrap();
     assert!(
+        read_candidate(
+            &scope,
+            CandidateArgs {
+                operation: "any-pending-operation".into()
+            }
+        )
+        .is_err()
+    );
+    assert!(
         read_records(
             &scope,
             ReadArgs {

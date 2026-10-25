@@ -2,6 +2,7 @@ import importlib.util
 import json
 from pathlib import Path
 import ast
+import copy
 import tempfile
 import unittest
 from types import SimpleNamespace
@@ -205,11 +206,24 @@ class MeetingActionOracleTests(unittest.TestCase):
     def candidate(self, identity, **fields):
         return {'request': {'writes': [self.record(identity, **fields)]}}
 
+    def with_sources(self, after):
+        request = after['candidates'][0]['request']
+        action_id = request['writes'][0]['id']
+        request['inputs'] = []
+        for step in [0, 1]:
+            identity = f'source:{step}'
+            after['records'].append({'id': identity, 'version': 1, 'archived': False,
+                                     'data': {'Source': {'locator': f'/fixture/update-{step}.md'}}})
+            request['inputs'].append({'record': identity, 'version': 1})
+            request['writes'].append({'id': f'link:{step}', 'archived': False,
+                                     'data': {'Link': {'from': action_id, 'to': identity, 'relation': 'source'}}})
+        return after
+
     def test_followup_only_intake_accepts_pending_action_without_inventing_a_note_requirement(self):
         cases = json.loads(wiki_eval.CASES.read_text())['cases']
         case = next(case for case in cases if case['id'] == 'meeting-duplicate-notes-one-followup')
         action = dict(state='Open', owner='Mari', follow_up='2028-03-03', evidence=None)
-        after = {'records': [], 'receipts': [], 'candidates': [self.candidate('one', **action)]}
+        after = self.with_sources({'records': [], 'receipts': [], 'candidates': [self.candidate('one', **action)]})
         before = {'records': []}
         self.assertTrue(all(wiki_eval.structural_checks(case, before, after).values()))
         after['candidates'][0]['request']['writes'][0]['data']['Action']['owner'] = None
@@ -232,10 +246,103 @@ class MeetingActionOracleTests(unittest.TestCase):
         checks = wiki_eval.structural_checks(case, {'records': []}, after)
         self.assertTrue(checks['action_count_including_pending'])
         self.assertFalse(checks['action_facts_including_pending'])
-        # Proper provenance survives; only genuine absence of completion evidence passes.
+        # Complete provenance cannot substitute for absent completion evidence.
+        self.with_sources(after)
+        grounded = wiki_eval.structural_checks(case, {'records': []}, after)
+        self.assertTrue(grounded['action_source_links'])
+        self.assertTrue(grounded['action_source_inputs'])
+        self.assertFalse(grounded['action_facts_including_pending'])
         candidate['request']['writes'][0]['data']['Action']['evidence'] = None
         self.assertTrue(all(wiki_eval.structural_checks(case, {'records': []}, after).values()))
-        self.assertEqual(candidate['request']['inputs'], [{'record': 'source:2', 'version': 1}])
+        self.assertEqual(len(candidate['request']['inputs']), 2)
+
+    def test_published_duplicate_receipt_requires_second_source_on_active_request(self):
+        receipt = json.loads((SCRIPT.parents[1] / 'docs/work/active/daily-followups-inbox-restore/evidence/mac-completion-20261025/receipt.json').read_text())
+        after = receipt['steps'][-1]['snapshot']
+        checks = wiki_eval.action_source_checks([0, 1], after)
+        self.assertTrue(checks['action_sources_resolved'])
+        self.assertFalse(checks['action_source_links'])
+        self.assertFalse(checks['action_source_inputs'])
+        fixed = copy.deepcopy(after)
+        request = fixed['candidates'][0]['request']
+        action_id = next(w['id'] for w in request['writes'] if 'Action' in w['data'])
+        missing = receipt['reviews'][-1]['missing_provenance'][0]
+        request['inputs'].append({'record': missing['id'], 'version': missing['version']})
+        request['writes'].append({'id': 'synthetic-second-link', 'archived': False,
+                                 'data': {'Link': {'from': action_id, 'to': missing['id'], 'relation': 'source'}}})
+        self.assertTrue(all(wiki_eval.action_source_checks([0, 1], fixed).values()))
+        case = next(c for c in json.loads(wiki_eval.CASES.read_text())['cases']
+                    if c['id'] == 'meeting-duplicate-notes-one-followup')
+        self.assertTrue(all(wiki_eval.structural_checks(case, {'records': []}, fixed).values()))
+        self.assertFalse(all(wiki_eval.structural_checks(case, {'records': []}, after).values()))
+        # The published failure is immutable; this is a synthetic oracle witness.
+        self.assertEqual(after, receipt['steps'][-1]['snapshot'])
+        for mutation in ['stale-version', 'context-only', 'wrong-relation', 'wrong-action', 'archived-link', 'missing-source', 'ambiguous-source', 'historical-only']:
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(fixed)
+                pending = bad['candidates'][0]['request']
+                if mutation == 'stale-version': pending['inputs'][-1]['version'] += 1
+                elif mutation == 'context-only': pending['inputs'][-1]['expectation'] = 'ChatContext'
+                elif mutation == 'wrong-relation': pending['writes'][-1]['data']['Link']['relation'] = 'related'
+                elif mutation == 'wrong-action': pending['writes'][-1]['data']['Link']['from'] = 'other-action'
+                elif mutation == 'archived-link': pending['writes'][-1]['archived'] = True
+                elif mutation == 'missing-source': bad['records'] = [r for r in bad['records'] if r['id'] != missing['id']]
+                elif mutation == 'ambiguous-source': bad['records'].append(copy.deepcopy(next(r for r in bad['records'] if r['id'] == missing['id'])))
+                else:
+                    bad['lineage'].append({'operation': 'retired', 'applied': False, 'inputs': pending['inputs']})
+                    pending['inputs'] = pending['inputs'][:-1]
+                self.assertFalse(all(wiki_eval.action_source_checks([0, 1], bad).values()))
+        self.assertFalse(all(wiki_eval.action_source_checks([0, 0], fixed).values()))
+
+    def test_unavailable_candidates_leave_provenance_unverified_not_passing(self):
+        case = next(c for c in json.loads(wiki_eval.CASES.read_text())['cases']
+                    if c['id'] == 'meeting-duplicate-notes-one-followup')
+        for unavailable in [None, {}, 'unsupported']:
+            with self.subTest(candidates=unavailable):
+                after = {'records': [], 'receipts': [], 'candidates': unavailable}
+                checks = wiki_eval.structural_checks(case, {'records': []}, after)
+                self.assertIsNone(checks['action_evidence_available'])
+                for name in ['action_sources_resolved', 'action_source_links', 'action_source_inputs']:
+                    self.assertIsNone(checks[name])
+                problem = wiki_eval.verification_problem(checks, {'status': 'not_run'})
+                self.assertIn('action_source_inputs', problem)
+        self.assertTrue(all(value is None for value in
+                            wiki_eval.action_source_checks([0, 1], {'records': []}).values()))
+
+    def test_pending_update_reuses_saved_links_but_honors_candidate_overrides(self):
+        after = self.with_sources({'records': [], 'candidates': [self.candidate('one', state='Suggested')]})
+        request = after['candidates'][0]['request']
+        saved_links = copy.deepcopy(request['writes'][1:])
+        after['records'].extend(saved_links)
+        after['records'].append(dict(self.record('one', state='Suggested'), version=1))
+        request['writes'] = request['writes'][:1]
+        self.assertTrue(all(wiki_eval.action_source_checks([0, 1], after).values()))
+        for mutation in ['archive', 'retarget', 'missing-current-input']:
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(after)
+                pending = bad['candidates'][0]['request']
+                if mutation == 'missing-current-input':
+                    bad['lineage'] = [{'operation': 'old', 'applied': True, 'inputs': pending['inputs']}]
+                    pending['inputs'] = []
+                    self.assertFalse(wiki_eval.action_source_checks([0, 1], bad)['action_source_inputs'])
+                else:
+                    override = copy.deepcopy(saved_links[0])
+                    if mutation == 'archive': override['archived'] = True
+                    else: override['data']['Link']['to'] = 'unrelated-source'
+                    pending['writes'].append(override)
+                    self.assertFalse(wiki_eval.action_source_checks([0, 1], bad)['action_source_links'])
+
+    def test_saved_action_provenance_requires_its_current_receipt(self):
+        after = self.with_sources({'records': [], 'candidates': [self.candidate('one', state='Suggested')]})
+        request = after['candidates'].pop()['request']
+        action = request['writes'][0]
+        action['version'] = 2
+        after['records'].extend(request['writes'])
+        after['receipts'] = [{'operation': 'accepted', 'writes': [{'after': action}]}]
+        after['lineage'] = [{'operation': 'accepted', 'applied': True, 'inputs': request['inputs']}]
+        self.assertTrue(all(wiki_eval.action_source_checks([0, 1], after).values()))
+        after['receipts'][0]['writes'][0]['after'] = dict(action, version=1)
+        self.assertFalse(wiki_eval.action_source_checks([0, 1], after)['action_source_inputs'])
 
     def test_explicit_meeting_account_request_still_requires_an_applied_note(self):
         cases = json.loads(wiki_eval.CASES.read_text())['cases']

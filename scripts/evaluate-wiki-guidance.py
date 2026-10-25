@@ -240,6 +240,60 @@ def action_checks(expectation, after):
     }
 
 
+def action_source_checks(steps, after):
+    """Qualify provenance on each current proposal, never pooled across history."""
+    if not isinstance(after.get('candidates'), list):
+        return {'action_sources_resolved': None,
+                'action_source_links': None, 'action_source_inputs': None}
+    sources = {}
+    for step in steps:
+        matches = [r for r in after['records'] if not r['archived'] and 'Source' in r['data']
+                   and Path(r['data']['Source']['locator']).name == f'update-{step}.md']
+        if len(matches) != 1:
+            return {'action_sources_resolved': False,
+                    'action_source_links': False, 'action_source_inputs': False}
+        sources[matches[0]['id']] = matches[0]['version']
+    if len(sources) != len(steps):
+        return {'action_sources_resolved': False,
+                'action_source_links': False, 'action_source_inputs': False}
+    groups = []
+    pending_ids = set()
+    for candidate in after.get('candidates', []):
+        request = candidate['request']
+        # Apply this candidate's replacements by identity, including archived
+        # links. Another candidate's proposed links cannot satisfy this one.
+        effective = by_id(after['records'])
+        effective.update(by_id(request['writes']))
+        for write in request['writes']:
+            if not write['archived'] and 'Action' in write['data']:
+                pending_ids.add(write['id'])
+                groups.append((write['id'], list(effective.values()), request.get('inputs', [])))
+    # A saved Action remains allowed. Its latest accepting receipt, rather than
+    # some unrelated old operation, must carry the source observations.
+    for record in after['records']:
+        if record['archived'] or 'Action' not in record['data'] or record['id'] in pending_ids:
+            continue
+        receipts = [receipt for receipt in after.get('receipts', [])
+                    if any(w['after']['id'] == record['id']
+                           and w['after']['version'] == record['version']
+                           for w in receipt['writes'])]
+        lineage = [entry for entry in after.get('lineage', [])
+                   if entry.get('applied') and any(entry['operation'] == r['operation'] for r in receipts)]
+        inputs = lineage[0]['inputs'] if len(lineage) == 1 else []
+        groups.append((record['id'], after['records'], inputs))
+    def linked(identity, writes):
+        links = [w['data']['Link'] for w in writes if not w['archived'] and 'Link' in w['data']]
+        return all(any(link == {'from': identity, 'to': source, 'relation': 'source'}
+                       for link in links) for source in sources)
+    def observed(inputs):
+        return all(any(i.get('record') == source and i.get('version') == version
+                       and (i.get('expectation') or 'Current') == 'Current'
+                       for i in inputs) for source, version in sources.items())
+    return {'action_sources_resolved': True,
+            'action_source_links': bool(groups) and all(linked(identity, writes) for identity, writes, _ in groups),
+            'action_source_inputs': bool(groups) and all(observed(inputs) for _, _, inputs in groups)}
+
+
 def structural_checks(case, before, after, filler=frozenset()):
     # Distractor notes are workspace scale, not part of the case.
     previous = [note for note in saved_notes(before['records']) if note['id'] not in filler]
@@ -259,6 +313,8 @@ def structural_checks(case, before, after, filler=frozenset()):
         checks['knowledge_change_applied'] = any('Note' in write['after']['data'] for receipt in after['receipts'] for write in receipt['writes'])
     if 'action_expectation' in case:
         checks.update(action_checks(case['action_expectation'], after))
+        if 'source_steps' in case['action_expectation']:
+            checks.update(action_source_checks(case['action_expectation']['source_steps'], after))
     expected = case['expected_existing_note']
     if expected:
         subject = next(note for note in previous if note['data']['Note']['title'] == expected)

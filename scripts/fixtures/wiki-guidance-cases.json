@@ -177,7 +177,11 @@
         ],
         "saved_fields": {
           "state": "Suggested"
-        }
+        },
+        "source_steps": [
+          0,
+          1
+        ]
       },
       "rubric": [
         "Exactly one current-or-pending Action represents the supplier request across both copies.",

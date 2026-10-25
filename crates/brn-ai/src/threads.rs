@@ -80,7 +80,7 @@ mod trace;
 pub use trace::{HelperTrace, RunTrace, SummaryTrace, TraceCall, TraceLevel, TraceUsage};
 #[path = "threads_sources.rs"]
 mod sources;
-use history::{HistoryArgs, RefreshArgs};
+use history::{CandidateArgs, HistoryArgs, RefreshArgs};
 use note_search::read_message;
 pub use note_search::{
     ConnectionHop, ConnectionLink, ConnectionNode, MAX_SEARCH_LIMIT, NoteNeighbourhood,
@@ -555,6 +555,10 @@ fn validate_arguments(name: &str, args: &Value) -> std::result::Result<(), Argum
             history::validate_history(args),
             "Supply id (1..256 bytes), version (positive integer or null), nonnegative start and max_bytes in 1..131072; only offered fields are accepted.",
         ),
+        "read_candidate" => (
+            history::validate_candidate(args),
+            "Supply only operation: an exact pending operation ID of 1..256 UTF-8 bytes from this chat.",
+        ),
         "refresh_candidate" => return history::validate_refresh_arguments(args),
         "prepare_note_edit" => return note_edit::validate_arguments(args),
         "read_records" => (
@@ -659,6 +663,7 @@ fn schema(name: &str) -> Value {
     match name {
         "read_message" => note_search::message_schema(),
         "read_history" => history::history_schema(),
+        "read_candidate" => history::candidate_schema(),
         "refresh_candidate" => history::refresh_schema(),
         "prepare_note_edit" => note_edit::schema(),
         "read_records" => object(
@@ -884,6 +889,16 @@ tool!(
     read_history
 );
 tool!(
+    ReadCandidate,
+    "read_candidate",
+    CandidateArgs,
+    "Inspect one active pending proposal from this chat's Run family. Returns its complete bounded request with new:N creation placeholders and exact inputs for refresh_candidate. Not accepted knowledge, a current-note read, or apply authority; oversized or invisible proposals are refused.",
+    read_candidate
+);
+fn read_candidate(scope: &Scope, args: CandidateArgs) -> AiResult<Value> {
+    history::read_candidate(scope, args)
+}
+tool!(
     RefreshCandidate,
     "refresh_candidate",
     RefreshArgs,
@@ -944,6 +959,7 @@ runtime_catalog!(
     (ApplyChanges, "Checking and applying a change…"),
     (RetainProgress, "Saving useful progress…"),
     (ReadHistory, "Inspecting an accepted note revision…"),
+    (ReadCandidate, "Inspecting a pending proposal…"),
     (RefreshCandidate, "Preparing a fresh proposal…"),
     (WithdrawProposal, "Withdrawing an obsolete proposal…"),
 );
@@ -1365,6 +1381,10 @@ fn remap(request: &mut ChangeRequest, op: &OperationId) -> AiResult<()> {
             }
         }
     }
+    remap_request_ids(request, &mapping);
+    Ok(())
+}
+fn remap_request_ids(request: &mut ChangeRequest, mapping: &BTreeMap<String, String>) {
     fn id(value: &mut String, map: &BTreeMap<String, String>) {
         if let Some(replacement) = map.get(value) {
             *value = replacement.clone();
@@ -1376,32 +1396,31 @@ fn remap(request: &mut ChangeRequest, op: &OperationId) -> AiResult<()> {
         }
     }
     for write in &mut request.writes {
-        id(&mut write.id, &mapping);
+        id(&mut write.id, mapping);
         match &mut write.data {
             RecordData::Note(note) => {
-                optional(&mut note.superseded_by, &mapping);
+                optional(&mut note.superseded_by, mapping);
                 if let Some(import) = &mut note.import {
-                    id(&mut import.source, &mapping);
+                    id(&mut import.source, mapping);
                 }
             }
             RecordData::Thread(thread) => {
                 for attention in &mut thread.attention {
-                    optional(&mut attention.record, &mapping);
+                    optional(&mut attention.record, mapping);
                 }
             }
             RecordData::Link(link) => {
-                id(&mut link.from, &mapping);
-                id(&mut link.to, &mapping);
+                id(&mut link.from, mapping);
+                id(&mut link.to, mapping);
             }
-            RecordData::Comment(comment) => id(&mut comment.note, &mapping),
-            RecordData::Message(message) => id(&mut message.thread, &mapping),
+            RecordData::Comment(comment) => id(&mut comment.note, mapping),
+            RecordData::Message(message) => id(&mut message.thread, mapping),
             _ => {}
         }
     }
     for input in &mut request.inputs {
-        id(&mut input.record, &mapping);
+        id(&mut input.record, mapping);
     }
-    Ok(())
 }
 // The host fixes the complete target, metadata and inputs. The model supplies
 // only the replacement Markdown and its explanation, never a broader scope.
@@ -5552,7 +5571,7 @@ mod tests {
                 |e| matches!(e, AiEvent::Activity(text) if text == &format!("< {name} · {outcome}"))
             ));
         }
-        assert_eq!(tool_names().len(), 12);
+        assert_eq!(tool_names().len(), 13);
         assert!(tool_names().contains(&"read_message"));
         assert!(tool_names().contains(&"withdraw_proposal"));
         for name in tool_names() {
