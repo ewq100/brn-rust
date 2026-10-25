@@ -287,7 +287,7 @@ def action_source_checks(steps, after):
                        for link in links) for source in sources)
     def observed(inputs):
         return all(any(i.get('record') == source and i.get('version') == version
-                       and (i.get('expectation') or 'Current') == 'Current'
+                       and i.get('expectation', 'Current') == 'Current'
                        for i in inputs) for source, version in sources.items())
     return {'action_sources_resolved': True,
             'action_source_links': bool(groups) and all(linked(identity, writes) for identity, writes, _ in groups),

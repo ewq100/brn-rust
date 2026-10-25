@@ -277,12 +277,14 @@ class MeetingActionOracleTests(unittest.TestCase):
         self.assertFalse(all(wiki_eval.structural_checks(case, {'records': []}, after).values()))
         # The published failure is immutable; this is a synthetic oracle witness.
         self.assertEqual(after, receipt['steps'][-1]['snapshot'])
-        for mutation in ['stale-version', 'context-only', 'wrong-relation', 'wrong-action', 'archived-link', 'missing-source', 'ambiguous-source', 'historical-only']:
+        for mutation in ['stale-version', 'context-only', 'null-expectation', 'empty-expectation', 'wrong-relation', 'wrong-action', 'archived-link', 'missing-source', 'ambiguous-source', 'historical-only']:
             with self.subTest(mutation=mutation):
                 bad = copy.deepcopy(fixed)
                 pending = bad['candidates'][0]['request']
                 if mutation == 'stale-version': pending['inputs'][-1]['version'] += 1
                 elif mutation == 'context-only': pending['inputs'][-1]['expectation'] = 'ChatContext'
+                elif mutation == 'null-expectation': pending['inputs'][-1]['expectation'] = None
+                elif mutation == 'empty-expectation': pending['inputs'][-1]['expectation'] = ''
                 elif mutation == 'wrong-relation': pending['writes'][-1]['data']['Link']['relation'] = 'related'
                 elif mutation == 'wrong-action': pending['writes'][-1]['data']['Link']['from'] = 'other-action'
                 elif mutation == 'archived-link': pending['writes'][-1]['archived'] = True
