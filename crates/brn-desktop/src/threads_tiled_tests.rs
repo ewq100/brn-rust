@@ -1631,7 +1631,7 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
 fn task_details_owner_form_preserves_state_due_and_rejects_ambiguous_date(cx: &mut TestAppContext) {
     let f = fixture(cx, false, 900., 700.);
     let mut record = None;
-    cx.update_window(f.window, |_, window, cx| {
+    cx.update_window(f.window, |_, _, cx| {
         f.view.update(cx, |view, cx| {
             let operation = view
                 .workspace
@@ -1667,13 +1667,15 @@ fn task_details_owner_form_preserves_state_due_and_rejects_ambiguous_date(cx: &m
                 .unwrap();
             record = view.workspace.store.record(&id).unwrap();
             focus_tests::solo(view, TileKind::Actions, cx);
-            view.action_details_dialog(record.clone().unwrap(), window, cx);
         });
     })
     .unwrap();
     cx.run_until_parked();
     let record = record.unwrap();
-    click(cx, &f, "action-detail-0");
+    // Exercise the real menu dismissal and initial focus transfer. Typing must
+    // reach Owner without a compensating click on the field.
+    click(cx, &f, format!("task-menu-{}", record.id));
+    choose(cx, &f, "Edit details");
     cx.simulate_input(f.window, "Märta");
     cx.run_until_parked();
     click(cx, &f, "action-detail-1");
