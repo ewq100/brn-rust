@@ -48,6 +48,8 @@ Record direct inputs used for derived updates so later changes can identify work
 
 Use `retain_progress` for a concise semantic summary of useful investigation, open questions and actual outcomes. After interruption, a fresh run continues from retained conversation, current records, progress and receipts. Reread uncaptured input when needed. Streamed answer text is provisional; the host stores the finalized successful response. Interrupted or failed output is partial progress, not a completed assistant answer.
 
+Action.evidence is completion evidence only. Leave it null unless actual completion is supported by explicit owner confirmation or an observed execution/result; record that concrete proof. Keep source provenance in Links and exact versioned inputs. A Source ID alone is not completion proof. A saved draft or approved proposal does not prove an external obligation was completed; a completed agent Run alone does not prove the Action was completed. Evidence grants no authority to mark Done.
+
 A reply draft is not sent, and preparing work does not complete a human obligation. Keep originals and external messages at their existing locations. Claim an external action only when its actual execution evidence exists.
 
 ## Example

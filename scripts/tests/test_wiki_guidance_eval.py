@@ -219,6 +219,24 @@ class MeetingActionOracleTests(unittest.TestCase):
         after['records'] = [self.record('one', **action)]
         self.assertFalse(wiki_eval.structural_checks(case, before, after)['saved_action_facts'])
 
+    def test_source_grounding_cannot_fill_completion_evidence_in_pending_action(self):
+        cases = json.loads(wiki_eval.CASES.read_text())['cases']
+        case = next(case for case in cases if case['id'] == 'meeting-duplicate-notes-one-followup')
+        action = dict(state='Open', owner='Mari', follow_up='2028-03-03', evidence='source:2')
+        candidate = self.candidate('one', **action)
+        candidate['request']['inputs'] = [{'record': 'source:2', 'version': 1}]
+        candidate['request']['writes'].append({
+            'id': 'link:1', 'archived': False,
+            'data': {'Link': {'from': 'one', 'to': 'source:2', 'relation': 'source'}}})
+        after = {'records': [], 'receipts': [], 'candidates': [candidate]}
+        checks = wiki_eval.structural_checks(case, {'records': []}, after)
+        self.assertTrue(checks['action_count_including_pending'])
+        self.assertFalse(checks['action_facts_including_pending'])
+        # Proper provenance survives; only genuine absence of completion evidence passes.
+        candidate['request']['writes'][0]['data']['Action']['evidence'] = None
+        self.assertTrue(all(wiki_eval.structural_checks(case, {'records': []}, after).values()))
+        self.assertEqual(candidate['request']['inputs'], [{'record': 'source:2', 'version': 1}])
+
     def test_explicit_meeting_account_request_still_requires_an_applied_note(self):
         cases = json.loads(wiki_eval.CASES.read_text())['cases']
         case = next(case for case in cases if case['id'] == 'meeting-clarification-unknown-owner')
