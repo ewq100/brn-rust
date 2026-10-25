@@ -1,0 +1,49 @@
+Runtime red regression (original guidance plus new test):
+running 1 test
+test threads::tests::action_guidance_separates_completion_evidence_from_source_grounding ... FAILED
+
+failures:
+
+---- threads::tests::action_guidance_separates_completion_evidence_from_source_grounding stdout ----
+
+thread 'threads::tests::action_guidance_separates_completion_evidence_from_source_grounding' (14447) panicked at crates/brn-ai/src/threads.rs:4492:13:
+assertion failed: text.contains("Action.evidence is completion evidence only")
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::panicking::panic
+   3: brn_ai::threads::tests::action_guidance_separates_completion_evidence_from_source_grounding
+   4: <brn_ai::threads::tests::action_guidance_separates_completion_evidence_from_source_grounding::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+failures:
+    threads::tests::action_guidance_separates_completion_evidence_from_source_grounding
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 507 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p brn-ai --lib`
+
+Final runtime selected lines (full suite remains FAILED):
+test threads::summary_tests::guide_bundle_change_recomputes_prior_stamp_summary_then_reuses_unchanged_stamp ... ok
+test threads::tests::action_guidance_separates_completion_evidence_from_source_grounding ... ok
+test result: FAILED. 351 passed; 156 failed; 1 ignored; 0 measured; 0 filtered out; finished in 10.59s
+
+Representative admission failure:
+---- auth::tests::cache_symlinks_hardlinks_owner_and_modes_are_rejected stdout ----
+
+thread 'auth::tests::cache_symlinks_hardlinks_owner_and_modes_are_rejected' (14846) panicked at crates/brn-ai/src/auth.rs:1061:14:
+called `Result::unwrap()` on an `Err` value: AiError { kind: UnsafeCredentials, retry_after_seconds: None, detail: None }
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::result::unwrap_failed
+   3: brn_ai::auth::tests::fixture
+   4: brn_ai::auth::tests::cache_symlinks_hardlinks_owner_and_modes_are_rejected
+   5: <brn_ai::auth::tests::cache_symlinks_hardlinks_owner_and_modes_are_rejected::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+
+
+Strict all-target Clippy:
+    Finished `dev` profile [unoptimized] target(s) in 41.25s
+Evaluator/helper tests: 28 passed; v2 tests: 99 passed.

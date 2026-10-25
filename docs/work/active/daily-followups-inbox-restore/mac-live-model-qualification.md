@@ -69,3 +69,12 @@ The smoke exposed 6,235 input tokens, 10 output tokens, zero cached input tokens
 Detailed redacted commands, timestamps, hashes, fixtures, snapshots, original failures and fresh-process checks remain in three local evidence directories, respectively prefixed `brn-live-20261025-`, `brn-live-repair-20261025-` and `brn-nullable-qualification-20261025-`. The receipts are read-only evidence for their recorded sources; no closed historical vacation or precise-edit session was reopened.
 
 Independent code review is pending: the selected live-test prompt excludes helper agents, so lead inspection and tests are not described as independent review. Hosted checks for the repair and Mac UI/IME/focus/accessibility/file-picker acceptance are separate pending gates. This draft is not merged or released. No task-owned live worker or build remains running.
+
+
+## Subsequent cloud follow-up
+
+The owner later approved the narrow [completion-evidence guidance correction](completion-evidence-guidance.md).
+This does not change the historical nine-Run result above. The cloud follow-up
+adds independent source/evaluator review and deterministic checks; live semantic
+requalification remains for the separately executing Mac agent. No Mac receipt
+or failed candidate was rewritten.

@@ -5,12 +5,13 @@
     "prior_merge_and_calculator_deferral": "Sentinel_c40a2bce390c819198a4113ceb9717ae",
     "scope_record": "docs/work/active/daily-followups-inbox-restore/baseline.md",
     "merge_227": "Sentinel_b34d87bb54c08191ab04b92d611f2287",
-    "post_merge_cloud_and_mac_prompt": "Sentinel_1ef3c9fc4a048191891c8049b4eefa03"
+    "post_merge_cloud_and_mac_prompt": "Sentinel_1ef3c9fc4a048191891c8049b4eefa03",
+    "completion_evidence_guidance": "Sentinel_edc8704882d08191b468d38e52715ac2"
   },
   "work_view": {
-    "observed_at": "2026-10-25T10:58:26.882361+00:00",
-    "goal": "Close useful remaining cloud verification for merged follow-ups, manual inbox and Restore; provide a bounded headless Mac live-model prompt.",
-    "owner_attention": "PR227 merged90e5bceb with seven Mac/Linux/docs main jobs passed; three optional Windows failures. Follow-up tests/evidence may be drafted, not merged. Mac execution/UI acceptance, calculator and release remain outside this cloud task.",
+    "observed_at": "2026-10-25T12:57:22.452423+00:00",
+    "goal": "Clarify Action completion evidence after the bounded Mac live failure; qualify the narrow guidance correction and hand off a capped Mac continuation.",
+    "owner_attention": "PR229 remains draft/unmerged. Guidance correction is approved; live semantic outcome still failed/partial with nine prior Runs. No cloud live workaround, Mac access, merge, release or calculator scope.",
     "tasks": [
       {
         "id": "prior-main-ci",
@@ -144,11 +145,11 @@
         "id": "integration",
         "title": "Independently review and qualify coherent draft slices",
         "owner": "lead integration and independent reviewer",
-        "state": "active",
-        "activity": "Initial PR228 Linux CI exposed retained-descriptor inbox lock. Regression failed before fix; explicit-unlock guard reviewed, green regression and all 23 inbox tests plus strict lint passed.",
-        "observed_at": "2026-10-25T10:58:26.882361+00:00",
+        "state": "complete",
+        "activity": "PR228 merged b270ad2f. Main CI40189058904 passed seven Mac/Linux/docs jobs with three optional Windows failures; preview40190505277 skipped publication.",
+        "observed_at": "2026-10-25T12:47:02.054907+00:00",
         "origin": "observed",
-        "next_action": "Publish corrected draft and follow exact-head CI; no merge authority.",
+        "next_action": "Retain merged receipt; the separate PR229 completion-guidance task owns current work.",
         "depends_on": [],
         "resource_waits": [
           "One shared Cargo writer; no simultaneous heavy build and actual Linux UI observation"
@@ -159,8 +160,8 @@
         ],
         "gates": {
           "implementation": "scoped correction: explicit inbox lease release; independently reviewed",
-          "checks": "passed locally: red/green regression, 23 inbox tests, strict app lint; corrected-head CI pending at publication",
-          "integration": "draft PR228; separate merge decision required",
+          "checks": "passed: resulting-main Mac/Linux/docs checks; optional Windows failures separate",
+          "integration": "passed: authorized PR228 normal merge, candidate-identical tree",
           "native": "partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending",
           "owner_acceptance": "pending: no delivered behavior acceptance"
         },
@@ -280,6 +281,31 @@
           "integration": "pending: follow-up draft PR only; no merge authority",
           "native": "partial: previous Owner input/save observed; extended flow unqualified",
           "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "completion-evidence-guidance",
+        "title": "Separate completion evidence from source grounding",
+        "owner": "cloud integration lead with independent source/evidence review",
+        "state": "ready",
+        "activity": "Reviewed code79422f8f: new guidance/cache tests pass, evaluator127 and strict lint pass. Full cloud runtime351pass/156fail/1ignored, dominated by synthetic credential admission; failures retained.",
+        "observed_at": "2026-10-25T12:57:22.452423+00:00",
+        "origin": "observed",
+        "next_action": "Recheck remote drift, fast-forward draft PR229 and follow exact-head hosted CI. Mac continuation pinned to79422f8f; live not run.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/mac-live-model-qualification.md",
+          "https://github.com/ewq100/brn-rust/pull/229",
+          "docs/work/active/daily-followups-inbox-restore/completion-evidence-guidance.md"
+        ],
+        "gates": {
+          "implementation": "approved narrow runtime-guidance correction only",
+          "checks": "partial locally: focused regression/cache/evaluator/lint passed; full cloud suite failed with credential-boundary evidence; hosted CI pending",
+          "integration": "draft only; no merge authority",
+          "native": "inapplicable: no UI execution",
+          "owner_acceptance": "pending: live continuation not executed"
         },
         "attempts": []
       }
