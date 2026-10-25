@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Turn meeting notes into dependable follow-ups, add a manually scanned document inbox, and expose safe desktop backup restoration.
-**Owner attention:** All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main required gates passed; optional Windows failures remain separate.
+**Goal:** Close useful remaining cloud verification for merged follow-ups, manual inbox and Restore; provide a bounded headless Mac live-model prompt.
+**Owner attention:** PR227 merged90e5bceb with seven Mac/Linux/docs main jobs passed; three optional Windows failures. Follow-up tests/evidence may be drafted, not merged. Mac execution/UI acceptance, calculator and release remain outside this cloud task.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,77 +11,13 @@ Task details and full history: [selected work record](active/daily-followups-inb
 
 ## Working on
 
-None recorded.
-
-## Next
-
-### Make meeting-note follow-ups dependable
-
-Task ID: `actions-followups`
-Owner: Actions implementation lane · State: **ready** · Last observed: 2026-10-25T08:50:04.683741+00:00
-Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.
-Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
-- **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
-- **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
-- **native:** partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending
-- **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
-
-</details>
-
-### Scan a document inbox with visible status and safe retries
-
-Task ID: `manual-inbox`
-Owner: Inbox implementation lane · State: **ready** · Last observed: 2026-10-25T08:50:04.683741+00:00
-Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.
-Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
-Depends on: actions-followups when Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (reported satisfied: true)
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
-- **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
-- **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
-- **native:** partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending
-- **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
-
-</details>
-
-### Restore a backup through the existing checked engine
-
-Task ID: `desktop-restore`
-Owner: Restore implementation lane · State: **ready** · Last observed: 2026-10-25T08:50:04.683741+00:00
-Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.
-Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
-- **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
-- **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
-- **native:** partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending
-- **owner acceptance:** pending: implementation scope approved, delivered behavior not accepted
-
-</details>
-
 ### Independently review and qualify coherent draft slices
 
 Task ID: `integration`
-Owner: lead integration and independent reviewer · State: **ready** · Last observed: 2026-10-25T08:50:04.683741+00:00
-Activity: All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.
-Next: Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.
+Owner: lead integration and independent reviewer · State: **active** · Last observed: 2026-10-25T10:31:29.748698+00:00
+Activity: Merged PR227 main CI terminal: seven Mac/Linux/docs pass, three optional Windows failures. Two new targeted inbox witnesses pass; extended Linux field input unqualified.
+Next: Publish reviewed draft PR and follow exact-head CI; no merge authority.
+Resource waits: One shared Cargo writer; no simultaneous heavy build and actual Linux UI observation
 
 <details>
 <summary>Gate status</summary>
@@ -89,14 +25,65 @@ Next: Follow final exact-head CI on draftPR227; present reviewed scope and remai
 Gates:
 
 - **implementation:** complete: approved scope implemented and source-reviewed; no new merge authority
-- **checks:** passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks
-- **integration:** pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized
+- **checks:** passed: two targeted inbox witnesses, strict app/native test Clippy, formatting and documentation checks; remote follow-up CI pending at publication
+- **integration:** pending: new follow-up draft only; merged227 closed
 - **native:** partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending
 - **owner acceptance:** pending: no delivered behavior acceptance
 
 </details>
 
+## Next
+
+### Qualify real Scan button and Stock worker
+
+Task ID: `inbox-real-worker`
+Owner: lead integration with bounded source/evidence reviewer · State: **ready** · Last observed: 2026-10-25T10:31:29.748698+00:00
+Activity: Targeted witness passed on ece02f7f; independent source review found no blockers.
+Next: Publish reviewed draft PR and follow exact-head CI; no merge authority.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** test/evidence only; no new product capability
+- **checks:** passed: two targeted inbox witnesses, strict app/native test Clippy, formatting and documentation checks; remote follow-up CI pending at publication
+- **integration:** pending: follow-up draft PR only; no merge authority
+- **native:** inapplicable: deterministic cloud or documentation task
+- **owner acceptance:** not claimed
+
+</details>
+
+### Qualify killed scan process and durable recovery
+
+Task ID: `inbox-killed-process`
+Owner: lead integration with bounded source/evidence reviewer · State: **ready** · Last observed: 2026-10-25T10:31:29.748698+00:00
+Activity: Targeted witness passed on ece02f7f; independent source review found no blockers.
+Next: Publish reviewed draft PR and follow exact-head CI; no merge authority.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** test/evidence only; no new product capability
+- **checks:** passed: two targeted inbox witnesses, strict app/native test Clippy, formatting and documentation checks; remote follow-up CI pending at publication
+- **integration:** pending: follow-up draft PR only; no merge authority
+- **native:** inapplicable: deterministic cloud or documentation task
+- **owner acceptance:** not claimed
+
+</details>
+
 ## Needs attention
+
+### Independently review and qualify coherent draft slices
+
+Task ID: `integration`
+Owner: lead integration and independent reviewer
+
+Waiting:
+
+- resource: One shared Cargo writer; no simultaneous heavy build and actual Linux UI observation
 
 ### Complete actual Mac follow-up, inbox and restore acceptance
 
@@ -123,24 +110,37 @@ Waiting:
 
 - resource: Separate Mac access/owner session authorization
 
+### Observe remaining Action fields in Linux
+
+Task ID: `linux-action-fields`
+Owner: lead integration with bounded source/evidence reviewer · State: **blocked** · Last observed: 2026-10-25T10:28:57.427416+00:00
+Activity: Final keyboard-only attempt run.lbu5SR showed blank fields; stopped before Save. No validation or persistence defect established.
+Next: Retain failed evidence and qualify actual input/focus in a separately authorized native session; no blind retries.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** test/evidence only; no new product capability
+- **checks:** unqualified: input delivery not established; no invalid-date validation pass
+- **integration:** pending: follow-up draft PR only; no merge authority
+- **native:** partial: previous Owner input/save observed; extended flow unqualified
+- **owner acceptance:** not claimed
+
+</details>
+
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-2 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+6 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `actions-followups` — Make meeting-note follow-ups dependable
+- `desktop-restore` — Restore a backup through the existing checked engine
+- `mac-live-prompt` — Deliver bounded headless Mac live-model prompt
+- `manual-inbox` — Scan a document inbox with visible status and safe retries
 - `prior-main-ci` — Close the prior batch resulting-main CI gate
 - `documentation` — Record selected scope and narrow backlog decisions
 
-## Dependencies
-
-```mermaid
-graph TD
-  t1["Make meeting-note follow-ups dependable"]
-  t2["Scan a document inbox with visible status and safe retries"]
-  t1 -->|Reviewed schema11 migration contract is available before stacking schema12 and integrating Inbox storage. (satisfied)| t2
-```
-
-Resource waits are listed on tasks and are not dependency edges.
-
-Local page reflects the last saved observations in this record (2026-10-25T08:50:04.683741+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-25T10:31:29.748698+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

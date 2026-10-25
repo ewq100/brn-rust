@@ -3,12 +3,14 @@
   "authority": {
     "approve_all_three": "Sentinel_4a4c26b62cf48191a984cea7ea942e63",
     "prior_merge_and_calculator_deferral": "Sentinel_c40a2bce390c819198a4113ceb9717ae",
-    "scope_record": "docs/work/active/daily-followups-inbox-restore/baseline.md"
+    "scope_record": "docs/work/active/daily-followups-inbox-restore/baseline.md",
+    "merge_227": "Sentinel_b34d87bb54c08191ab04b92d611f2287",
+    "post_merge_cloud_and_mac_prompt": "Sentinel_1ef3c9fc4a048191891c8049b4eefa03"
   },
   "work_view": {
-    "observed_at": "2026-10-25T08:50:04.683741+00:00",
-    "goal": "Turn meeting notes into dependable follow-ups, add a manually scanned document inbox, and expose safe desktop backup restoration.",
-    "owner_attention": "All three narrow slices approved. Calculator remains deferred. Draft PRs only; no new merge/release authority or Mac access. Prior resulting-main required gates passed; optional Windows failures remain separate.",
+    "observed_at": "2026-10-25T10:31:29.748698+00:00",
+    "goal": "Close useful remaining cloud verification for merged follow-ups, manual inbox and Restore; provide a bounded headless Mac live-model prompt.",
+    "owner_attention": "PR227 merged90e5bceb with seven Mac/Linux/docs main jobs passed; three optional Windows failures. Follow-up tests/evidence may be drafted, not merged. Mac execution/UI acceptance, calculator and release remain outside this cloud task.",
     "tasks": [
       {
         "id": "prior-main-ci",
@@ -38,21 +40,22 @@
         "id": "actions-followups",
         "title": "Make meeting-note follow-ups dependable",
         "owner": "Actions implementation lane",
-        "state": "ready",
-        "activity": "All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.",
-        "observed_at": "2026-10-25T08:50:04.683741+00:00",
+        "state": "complete",
+        "activity": "Approved implementation merged as PR227 at90e5bceb, tree-identical to reviewedc693. Resulting-main CI40182655027: seven Mac/Linux/docs jobs passed; three optional Windows failures.",
+        "observed_at": "2026-10-25T10:23:11.057418+00:00",
         "origin": "observed",
-        "next_action": "Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.",
+        "next_action": "Retain implementation proof; see selected cloud follow-up witnesses and separate native/live gates.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/daily-followups-inbox-restore/qualification.md",
-          "https://github.com/ewq100/brn-rust/pull/227"
+          "https://github.com/ewq100/brn-rust/pull/227",
+          "https://github.com/ewq100/brn-rust/actions/runs/40182655027"
         ],
         "gates": {
-          "implementation": "complete: approved scope implemented and source-reviewed; no new merge authority",
-          "checks": "passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks",
-          "integration": "pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized",
+          "implementation": "complete: merged approved narrow scope",
+          "checks": "passed: candidate and resulting-main Mac/Linux/docs gates; optional Windows failures separate",
+          "integration": "passed: owner-authorized normal merge227 at90e5bceb",
           "native": "partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending",
           "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
         },
@@ -62,11 +65,11 @@
         "id": "manual-inbox",
         "title": "Scan a document inbox with visible status and safe retries",
         "owner": "Inbox implementation lane",
-        "state": "ready",
-        "activity": "All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.",
-        "observed_at": "2026-10-25T08:50:04.683741+00:00",
+        "state": "complete",
+        "activity": "Approved implementation merged as PR227 at90e5bceb, tree-identical to reviewedc693. Resulting-main CI40182655027: seven Mac/Linux/docs jobs passed; three optional Windows failures.",
+        "observed_at": "2026-10-25T10:23:11.057418+00:00",
         "origin": "observed",
-        "next_action": "Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.",
+        "next_action": "Retain implementation proof; see selected cloud follow-up witnesses and separate native/live gates.",
         "depends_on": [
           {
             "task": "actions-followups",
@@ -77,12 +80,13 @@
         "resource_waits": [],
         "evidence": [
           "docs/work/active/daily-followups-inbox-restore/qualification.md",
-          "https://github.com/ewq100/brn-rust/pull/227"
+          "https://github.com/ewq100/brn-rust/pull/227",
+          "https://github.com/ewq100/brn-rust/actions/runs/40182655027"
         ],
         "gates": {
-          "implementation": "complete: approved scope implemented and source-reviewed; no new merge authority",
-          "checks": "passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks",
-          "integration": "pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized",
+          "implementation": "complete: merged approved narrow scope",
+          "checks": "passed: candidate and resulting-main Mac/Linux/docs gates; optional Windows failures separate",
+          "integration": "passed: owner-authorized normal merge227 at90e5bceb",
           "native": "partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending",
           "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
         },
@@ -92,21 +96,22 @@
         "id": "desktop-restore",
         "title": "Restore a backup through the existing checked engine",
         "owner": "Restore implementation lane",
-        "state": "ready",
-        "activity": "All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.",
-        "observed_at": "2026-10-25T08:50:04.683741+00:00",
+        "state": "complete",
+        "activity": "Approved implementation merged as PR227 at90e5bceb, tree-identical to reviewedc693. Resulting-main CI40182655027: seven Mac/Linux/docs jobs passed; three optional Windows failures.",
+        "observed_at": "2026-10-25T10:23:11.057418+00:00",
         "origin": "observed",
-        "next_action": "Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.",
+        "next_action": "Retain implementation proof; see selected cloud follow-up witnesses and separate native/live gates.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/daily-followups-inbox-restore/qualification.md",
-          "https://github.com/ewq100/brn-rust/pull/227"
+          "https://github.com/ewq100/brn-rust/pull/227",
+          "https://github.com/ewq100/brn-rust/actions/runs/40182655027"
         ],
         "gates": {
-          "implementation": "complete: approved scope implemented and source-reviewed; no new merge authority",
-          "checks": "passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks",
-          "integration": "pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized",
+          "implementation": "complete: merged approved narrow scope",
+          "checks": "passed: candidate and resulting-main Mac/Linux/docs gates; optional Windows failures separate",
+          "integration": "passed: owner-authorized normal merge227 at90e5bceb",
           "native": "partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending",
           "owner_acceptance": "pending: implementation scope approved, delivered behavior not accepted"
         },
@@ -139,21 +144,23 @@
         "id": "integration",
         "title": "Independently review and qualify coherent draft slices",
         "owner": "lead integration and independent reviewer",
-        "state": "ready",
-        "activity": "All three slices and native corrections source-reviewed. Full native419+1ignored, strengthened menu-focus test, core228/app35/Python204+1skip, strictlint, CLI108steps1266checks and offline runtime fixtures passed. Actual Linux saved-owner/readback and Data controls observed; later menu-to-keyboard input/visible text passed without Owner click; AT/picker limits remain explicit.",
-        "observed_at": "2026-10-25T08:50:04.683741+00:00",
+        "state": "active",
+        "activity": "Merged PR227 main CI terminal: seven Mac/Linux/docs pass, three optional Windows failures. Two new targeted inbox witnesses pass; extended Linux field input unqualified.",
+        "observed_at": "2026-10-25T10:31:29.748698+00:00",
         "origin": "observed",
-        "next_action": "Follow final exact-head CI on draftPR227; present reviewed scope and remaining native/live gates for separate merge decision.",
+        "next_action": "Publish reviewed draft PR and follow exact-head CI; no merge authority.",
         "depends_on": [],
-        "resource_waits": [],
+        "resource_waits": [
+          "One shared Cargo writer; no simultaneous heavy build and actual Linux UI observation"
+        ],
         "evidence": [
           "docs/work/active/daily-followups-inbox-restore/qualification.md",
           "https://github.com/ewq100/brn-rust/pull/227"
         ],
         "gates": {
           "implementation": "complete: approved scope implemented and source-reviewed; no new merge authority",
-          "checks": "passed: applicable local deterministic checks; final publication CI receipt is maintained on PR227, not inferred from earlier-head checks",
-          "integration": "pending: reviewed draftPR227; final published head/terminal CI on PR; merge separately authorized",
+          "checks": "passed: two targeted inbox witnesses, strict app/native test Clippy, formatting and documentation checks; remote follow-up CI pending at publication",
+          "integration": "pending: new follow-up draft only; merged227 closed",
           "native": "partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending",
           "owner_acceptance": "pending: no delivered behavior acceptance"
         },
@@ -183,7 +190,100 @@
           "owner_acceptance": "pending"
         },
         "attempts": []
+      },
+      {
+        "id": "inbox-real-worker",
+        "title": "Qualify real Scan button and Stock worker",
+        "owner": "lead integration with bounded source/evidence reviewer",
+        "state": "ready",
+        "activity": "Targeted witness passed on ece02f7f; independent source review found no blockers.",
+        "observed_at": "2026-10-25T10:31:29.748698+00:00",
+        "origin": "observed",
+        "next_action": "Publish reviewed draft PR and follow exact-head CI; no merge authority.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/cloud-followup.md"
+        ],
+        "gates": {
+          "implementation": "test/evidence only; no new product capability",
+          "checks": "passed: two targeted inbox witnesses, strict app/native test Clippy, formatting and documentation checks; remote follow-up CI pending at publication",
+          "integration": "pending: follow-up draft PR only; no merge authority",
+          "native": "inapplicable: deterministic cloud or documentation task",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "inbox-killed-process",
+        "title": "Qualify killed scan process and durable recovery",
+        "owner": "lead integration with bounded source/evidence reviewer",
+        "state": "ready",
+        "activity": "Targeted witness passed on ece02f7f; independent source review found no blockers.",
+        "observed_at": "2026-10-25T10:31:29.748698+00:00",
+        "origin": "observed",
+        "next_action": "Publish reviewed draft PR and follow exact-head CI; no merge authority.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/cloud-followup.md"
+        ],
+        "gates": {
+          "implementation": "test/evidence only; no new product capability",
+          "checks": "passed: two targeted inbox witnesses, strict app/native test Clippy, formatting and documentation checks; remote follow-up CI pending at publication",
+          "integration": "pending: follow-up draft PR only; no merge authority",
+          "native": "inapplicable: deterministic cloud or documentation task",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "mac-live-prompt",
+        "title": "Deliver bounded headless Mac live-model prompt",
+        "owner": "lead integration with bounded source/evidence reviewer",
+        "state": "complete",
+        "activity": "Published68542a97 prompt after source/help and independent budget/selection review; no Mac/model execution.",
+        "observed_at": "2026-10-25T10:23:11.057418+00:00",
+        "origin": "observed",
+        "next_action": "Parent may hand the self-contained prompt to the Mac build agent.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/cloud-followup.md"
+        ],
+        "gates": {
+          "implementation": "test/evidence only; no new product capability",
+          "checks": "passed: parser/help and source option verification; actual semantic execution not performed",
+          "integration": "pending: follow-up draft PR only; no merge authority",
+          "native": "inapplicable: deterministic cloud or documentation task",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "linux-action-fields",
+        "title": "Observe remaining Action fields in Linux",
+        "owner": "lead integration with bounded source/evidence reviewer",
+        "state": "blocked",
+        "activity": "Final keyboard-only attempt run.lbu5SR showed blank fields; stopped before Save. No validation or persistence defect established.",
+        "observed_at": "2026-10-25T10:28:57.427416+00:00",
+        "origin": "observed",
+        "next_action": "Retain failed evidence and qualify actual input/focus in a separately authorized native session; no blind retries.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/cloud-followup.md"
+        ],
+        "gates": {
+          "implementation": "test/evidence only; no new product capability",
+          "checks": "unqualified: input delivery not established; no invalid-date validation pass",
+          "integration": "pending: follow-up draft PR only; no merge authority",
+          "native": "partial: previous Owner input/save observed; extended flow unqualified",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
       }
     ]
-  }
+  },
+  "post_merge_baseline": "90e5bcebac1d64fc98ef315675fd2810e1e26f1e"
 }
