@@ -9,9 +9,9 @@
     "completion_evidence_guidance": "Sentinel_edc8704882d08191b468d38e52715ac2"
   },
   "work_view": {
-    "observed_at": "2026-10-25T12:57:22.452423+00:00",
-    "goal": "Clarify Action completion evidence after the bounded Mac live failure; qualify the narrow guidance correction and hand off a capped Mac continuation.",
-    "owner_attention": "PR229 remains draft/unmerged. Guidance correction is approved; live semantic outcome still failed/partial with nine prior Runs. No cloud live workaround, Mac access, merge, release or calculator scope.",
+    "observed_at": "2026-10-25T15:24:51.072089+00:00",
+    "goal": "Repair pending-proposal inspection and source provenance refresh after PR229 Mac duplicate-intake qualification; local implementation and tests only.",
+    "owner_attention": "PR229 remains draft/unmerged. Publication needs separate approval. No additional live Runs, Mac access, merge or release; calculator deferred.",
     "tasks": [
       {
         "id": "prior-main-ci",
@@ -288,11 +288,11 @@
         "id": "completion-evidence-guidance",
         "title": "Separate completion evidence from source grounding",
         "owner": "cloud integration lead with independent source/evidence review",
-        "state": "ready",
-        "activity": "Reviewed code79422f8f: new guidance/cache tests pass, evaluator127 and strict lint pass. Full cloud runtime351pass/156fail/1ignored, dominated by synthetic credential admission; failures retained.",
-        "observed_at": "2026-10-25T12:57:22.452423+00:00",
+        "state": "complete",
+        "activity": "Published a829ef28; exact-head CI40195458332 six supported Mac/Linux/docs jobs passed, optional Windows failed. Mac b4decd86 then ran two additional Runs (eleven total): null completion evidence passed, second-source pending provenance failed.",
+        "observed_at": "2026-10-25T14:49:07.702751+00:00",
         "origin": "observed",
-        "next_action": "Recheck remote drift, fast-forward draft PR229 and follow exact-head hosted CI. Mac continuation pinned to79422f8f; live not run.",
+        "next_action": "Preserve receipt; address narrowly approved pending-provenance defect locally.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -302,10 +302,35 @@
         ],
         "gates": {
           "implementation": "approved narrow runtime-guidance correction only",
-          "checks": "partial locally: focused regression/cache/evaluator/lint passed; full cloud suite failed with credential-boundary evidence; hosted CI pending",
+          "checks": "supported exact-head hosted CI passed; prior cloud credential-boundary failures retained",
           "integration": "draft only; no merge authority",
           "native": "inapplicable: no UI execution",
-          "owner_acceptance": "pending: live continuation not executed"
+          "owner_acceptance": "partial live: completion evidence null; pending source provenance failed; no native acceptance"
+        },
+        "attempts": []
+      },
+      {
+        "id": "pending-proposal-provenance",
+        "title": "Inspect pending proposals and refresh accurate source provenance",
+        "owner": "cloud integration lead; bounded runtime/evaluator writers and independent reviewer",
+        "state": "ready",
+        "activity": "Local reviewed c3e1d4ef+e33e9bde+e4bd53ab. Four new Rust regressions and existing history/cache pass; full suite355pass/156unchangedfail/1ignored. Strict lint and130 Python tests pass. No publication/live calls.",
+        "observed_at": "2026-10-25T15:24:51.072089+00:00",
+        "origin": "observed",
+        "next_action": "Request approval for normal draft PR229 publication and exact-head hosted CI after remote drift check; no merge/live authority.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/mac-completion-evidence-qualification.md",
+          "docs/work/active/daily-followups-inbox-restore/evidence/mac-completion-20261025/receipt.json",
+          "docs/work/active/daily-followups-inbox-restore/pending-proposal-provenance.md"
+        ],
+        "gates": {
+          "implementation": "passed: bounded inspection, existing refresh, strict provenance oracle; independently reviewed",
+          "checks": "targeted pass; full local Rust suite FAILED with unchanged156 credential-boundary-related failures; lint and130 Python pass; hostedCI unrun",
+          "integration": "local only; publication approval pending; no merge",
+          "native": "unrun: no Mac/UI execution authorized",
+          "owner_acceptance": "pending: no new live Runs; eleven historical Runs remain partial/failed evidence"
         },
         "attempts": []
       }

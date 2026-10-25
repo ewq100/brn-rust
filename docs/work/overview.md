@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Clarify Action completion evidence after the bounded Mac live failure; qualify the narrow guidance correction and hand off a capped Mac continuation.
-**Owner attention:** PR229 remains draft/unmerged. Guidance correction is approved; live semantic outcome still failed/partial with nine prior Runs. No cloud live workaround, Mac access, merge, release or calculator scope.
+**Goal:** Repair pending-proposal inspection and source provenance refresh after PR229 Mac duplicate-intake qualification; local implementation and tests only.
+**Owner attention:** PR229 remains draft/unmerged. Publication needs separate approval. No additional live Runs, Mac access, merge or release; calculator deferred.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -55,23 +55,23 @@ Gates:
 
 </details>
 
-### Separate completion evidence from source grounding
+### Inspect pending proposals and refresh accurate source provenance
 
-Task ID: `completion-evidence-guidance`
-Owner: cloud integration lead with independent source/evidence review · State: **ready** · Last observed: 2026-10-25T12:57:22.452423+00:00
-Activity: Reviewed code79422f8f: new guidance/cache tests pass, evaluator127 and strict lint pass. Full cloud runtime351pass/156fail/1ignored, dominated by synthetic credential admission; failures retained.
-Next: Recheck remote drift, fast-forward draft PR229 and follow exact-head hosted CI. Mac continuation pinned to79422f8f; live not run.
+Task ID: `pending-proposal-provenance`
+Owner: cloud integration lead; bounded runtime/evaluator writers and independent reviewer · State: **ready** · Last observed: 2026-10-25T15:24:51.072089+00:00
+Activity: Local reviewed c3e1d4ef+e33e9bde+e4bd53ab. Four new Rust regressions and existing history/cache pass; full suite355pass/156unchangedfail/1ignored. Strict lint and130 Python tests pass. No publication/live calls.
+Next: Request approval for normal draft PR229 publication and exact-head hosted CI after remote drift check; no merge/live authority.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** approved narrow runtime-guidance correction only
-- **checks:** partial locally: focused regression/cache/evaluator/lint passed; full cloud suite failed with credential-boundary evidence; hosted CI pending
-- **integration:** draft only; no merge authority
-- **native:** inapplicable: no UI execution
-- **owner acceptance:** pending: live continuation not executed
+- **implementation:** passed: bounded inspection, existing refresh, strict provenance oracle; independently reviewed
+- **checks:** targeted pass; full local Rust suite FAILED with unchanged156 credential-boundary-related failures; lint and130 Python pass; hostedCI unrun
+- **integration:** local only; publication approval pending; no merge
+- **native:** unrun: no Mac/UI execution authorized
+- **owner acceptance:** pending: no new live Runs; eleven historical Runs remain partial/failed evidence
 
 </details>
 
@@ -126,8 +126,9 @@ Gates:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-7 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+8 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `completion-evidence-guidance` — Separate completion evidence from source grounding
 - `integration` — Independently review and qualify coherent draft slices
 - `actions-followups` — Make meeting-note follow-ups dependable
 - `desktop-restore` — Restore a backup through the existing checked engine
@@ -136,4 +137,4 @@ Completion here means the selected task scope is complete; it does not establish
 - `prior-main-ci` — Close the prior batch resulting-main CI gate
 - `documentation` — Record selected scope and narrow backlog decisions
 
-Local page reflects the last saved observations in this record (2026-10-25T12:57:22.452423+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-25T15:24:51.072089+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
