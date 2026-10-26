@@ -1,0 +1,41 @@
+   Compiling tokio-rustls v0.26.5
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.13.5
+   Compiling rig-reqwest v0.45.0
+   Compiling rig-core v0.45.0
+   Compiling rmcp v3.5.0
+   Compiling rig-memory v0.45.0
+   Compiling rig-agent v0.45.0
+   Compiling brn-intake v0.1.0 (/workspace/brn-performance/crates/brn-intake)
+   Compiling rig-rmcp v0.45.0
+   Compiling rig v0.45.0
+   Compiling brn-threads-intake v0.1.0 (/workspace/brn-performance/crates/brn-threads-intake)
+   Compiling brn-threads-core v0.1.0 (/workspace/brn-performance/crates/brn-threads-core)
+   Compiling brn-retrieval v0.1.0 (/workspace/brn-performance/crates/brn-retrieval)
+   Compiling brn-ai v0.1.0 (/workspace/brn-performance/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/workspace/brn-performance/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 4m 28s
+     Running tests/user_scale.rs (/workspace/brn-environment/target/debug/deps/user_scale-f6dfd2a4ac6f1b90)
+
+running 1 test
+
+thread 'ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly' (3940) panicked at crates/brn-threads-app/tests/user_scale.rs:64:73:
+called `Result::unwrap()` on an `Err` value: Os { code: 2, kind: NotFound, message: "No such file or directory" }
+stack backtrace:
+   0: __rustc::rust_begin_unwind
+   1: core::panicking::panic_fmt
+   2: core::result::unwrap_failed
+   3: user_scale::ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly
+   4: <user_scale::ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly::{closure#0} as core::ops::function::FnOnce<()>>::call_once
+note: Some details are omitted, run with `RUST_BACKTRACE=full` for a verbose backtrace.
+test ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly ... FAILED
+
+failures:
+
+failures:
+    ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p brn-threads-app --test user_scale`
+PROCESS elapsed_s=269.024 user_s=261.894 sys_s=7.170

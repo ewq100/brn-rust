@@ -1,0 +1,29 @@
+   Compiling brn-threads-app v0.1.0 (/workspace/brn-performance/crates/brn-threads-app)
+    Finished `test` profile [optimized] target(s) in 2.81s
+     Running tests/inbox_scale.rs (/workspace/brn-environment/target/debug/deps/inbox_scale-abbeadef7bcee4d9)
+
+running 1 test
+test bounded_inbox_scan_cancel_reopen_and_exact_replay_profile ... INBOX_PROFILE {"files":16,"repeat":0,"interrupted_ms":6.222314,"open_ms":0.508669,"resume_ms":11.954876,"replay_ms":7.382959,"conversion":"deterministic text fixture"}
+INBOX_PROFILE {"files":64,"repeat":0,"interrupted_ms":41.845367,"open_ms":0.632998,"resume_ms":76.004085,"replay_ms":62.694644,"conversion":"deterministic text fixture"}
+INBOX_PROFILE {"files":256,"repeat":0,"interrupted_ms":394.14015800000004,"open_ms":1.831591,"resume_ms":1000.1374910000001,"replay_ms":825.797996,"conversion":"deterministic text fixture"}
+INBOX_PROFILE {"files":16,"repeat":1,"interrupted_ms":7.194064,"open_ms":0.42431199999999997,"resume_ms":12.870510999999999,"replay_ms":6.842112,"conversion":"deterministic text fixture"}
+INBOX_PROFILE {"files":64,"repeat":1,"interrupted_ms":47.476130999999995,"open_ms":0.650965,"resume_ms":105.267567,"replay_ms":97.70603799999999,"conversion":"deterministic text fixture"}
+INBOX_PROFILE {"files":256,"repeat":1,"interrupted_ms":354.598436,"open_ms":1.790959,"resume_ms":1042.696428,"replay_ms":965.008344,"conversion":"deterministic text fixture"}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.12s
+
+     Running tests/user_scale.rs (/workspace/brn-environment/target/debug/deps/user_scale-f6dfd2a4ac6f1b90)
+
+running 1 test
+test repeated_startup_search_scale_profile ... SCALE_PROFILE {"notes":1000,"repeat":0,"fresh_open_ms":1.798551,"seed_ms":55.383779000000004,"cold_build_ms":133.873194,"workspace_reopen_ms":4.455841,"index_reopen_ms":6.419341999999999,"one_note_sync_ms":0.728281,"query_p95_ms":8.084420999999999,"query_count":126}
+SCALE_PROFILE {"notes":5000,"repeat":0,"fresh_open_ms":1.5537509999999999,"seed_ms":333.818978,"cold_build_ms":775.839384,"workspace_reopen_ms":14.900824,"index_reopen_ms":28.539597999999998,"one_note_sync_ms":0.873061,"query_p95_ms":38.29128,"query_count":122}
+SCALE_PROFILE {"notes":10000,"repeat":0,"fresh_open_ms":1.5295040000000002,"seed_ms":663.084729,"cold_build_ms":1628.076509,"workspace_reopen_ms":29.746267,"index_reopen_ms":48.725252,"one_note_sync_ms":0.982525,"query_p95_ms":65.021585,"query_count":122}
+SCALE_PROFILE {"notes":1000,"repeat":1,"fresh_open_ms":1.654992,"seed_ms":56.186244,"cold_build_ms":143.840644,"workspace_reopen_ms":4.766768,"index_reopen_ms":6.786102,"one_note_sync_ms":0.693649,"query_p95_ms":7.063401000000001,"query_count":126}
+SCALE_PROFILE {"notes":5000,"repeat":1,"fresh_open_ms":1.587188,"seed_ms":287.030681,"cold_build_ms":713.7752320000001,"workspace_reopen_ms":13.96843,"index_reopen_ms":29.650969,"one_note_sync_ms":0.796624,"query_p95_ms":37.712249,"query_count":122}
+SCALE_PROFILE {"notes":10000,"repeat":1,"fresh_open_ms":1.521167,"seed_ms":608.4923759999999,"cold_build_ms":1701.012948,"workspace_reopen_ms":41.919943,"index_reopen_ms":53.383339,"one_note_sync_ms":0.8274009999999999,"query_p95_ms":90.137661,"query_count":122}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 21.42s
+
+PROCESS elapsed_s=29.425 user_s=28.361 sys_s=1.209
