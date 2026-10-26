@@ -607,6 +607,63 @@ fn kept_edits_read_recover_edit_with_an_unsaved_chip(cx: &mut TestAppContext) {
 }
 
 #[gpui_kit::test]
+fn follow_up_views_show_dates_without_changing_task_state_or_due(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 1000., |_| {});
+    let (ids, before) = update(cx, &f, |view, _, cx| {
+        let today = lists::follow_up_today().to_string();
+        let ids = [
+            ("Old follow-up", ActionState::Open, "2000-01-01"),
+            ("Waiting today", ActionState::Waiting, today.as_str()),
+            ("Later follow-up", ActionState::Open, "2099-01-01"),
+        ]
+        .map(|(description, state, date)| {
+            let id = task(&mut view.workspace, description, state);
+            let record = view.workspace.store.record(&id).unwrap().unwrap();
+            let RecordData::Action(mut action) = record.data else {
+                panic!()
+            };
+            action.follow_up = Some(date.into());
+            view.workspace
+                .owner_change(
+                    &format!("set-follow-up-{id}"),
+                    &ChangeRequest {
+                        reason: "Synthetic follow-up date".into(),
+                        inputs: vec![],
+                        writes: vec![Put {
+                            id: id.clone(),
+                            expected_version: Some(record.version),
+                            archived: false,
+                            data: RecordData::Action(action),
+                        }],
+                    },
+                )
+                .unwrap();
+            id
+        });
+        focus_tests::solo(view, TileKind::Actions, cx);
+        (ids, view.workspace.records().unwrap())
+    });
+    on_window(cx, &f, |window, _| {
+        for (key, id) in ["overdue", "today", "upcoming"].into_iter().zip(&ids) {
+            assert!(window.find(format!("actions-group-{key}")).visible());
+            assert!(window.find(format!("task-menu-{id}")).visible());
+            assert!(window.find(format!("done-action-{id}")).visible());
+        }
+        assert!(window.try_find("actions-group-waiting").is_none());
+        assert!(window.try_find("actions-group-open").is_none());
+    });
+    update(cx, &f, |view, _, _| {
+        assert_eq!(view.workspace.records().unwrap(), before);
+        let current = view.workspace.store.record(&ids[1]).unwrap().unwrap();
+        let RecordData::Action(action) = current.data else {
+            panic!()
+        };
+        assert_eq!(action.state, ActionState::Waiting);
+        assert_eq!(action.due.as_deref(), Some("2026-10-15"));
+    });
+}
+
+#[gpui_kit::test]
 fn each_open_task_has_one_quiet_main_action_and_a_menu_for_its_state(cx: &mut TestAppContext) {
     let f = fixture(cx, 1250., 860., |_| {});
     update(cx, &f, |view, _, cx| {

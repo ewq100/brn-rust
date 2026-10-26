@@ -776,12 +776,21 @@ def check_answer_contains_any(c, ctx):
 def check_answer_excludes(c, ctx):
     numbers = c.get('steps') or ([c['step']] if 'step' in c else range(1, len(ctx['steps']) + 1))
     leaked = []
+    missing = []
+    observed = 0
     for number in numbers:
         step = step_of(ctx, number)
         if step and step.get('answer') is not None:
+            observed += 1
             answer = norm(step['answer'])
             leaked += [(number, value) for value in c['values'] if norm(value) in answer]
-    return not leaked, f'leaked {leaked}' if leaked else 'no excluded value in the answers'
+        else:
+            missing.append(number)
+    if leaked:
+        return False, f'leaked {leaked}'
+    if missing or not observed:
+        return None, f'no answer evidence for steps {missing}' if missing else 'no answer evidence'
+    return True, 'no excluded value in the answers'
 
 
 def check_no_writes(c, ctx):

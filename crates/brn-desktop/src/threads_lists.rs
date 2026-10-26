@@ -6,6 +6,115 @@ use super::theme::ThemeId;
 use brn_threads_app::{ActionState, Receipt, Record, RecordData, ThreadState, record_in_chat};
 use std::collections::{BTreeMap, BTreeSet};
 
+/// Presentation only: a follow-up date is not a deadline or a state transition.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) enum FollowUpGroup {
+    Suggested,
+    Overdue,
+    Today,
+    Upcoming,
+    CheckDate,
+    Waiting,
+    Open,
+    Done,
+    Cancelled,
+}
+impl FollowUpGroup {
+    pub(super) const ALL: [Self; 9] = [
+        Self::Suggested,
+        Self::Overdue,
+        Self::Today,
+        Self::Upcoming,
+        Self::CheckDate,
+        Self::Waiting,
+        Self::Open,
+        Self::Done,
+        Self::Cancelled,
+    ];
+
+    pub(super) fn presentation(self) -> (&'static str, &'static str, Option<&'static str>) {
+        match self {
+            Self::Suggested => ("suggested", "Suggested", None),
+            Self::Overdue => ("overdue", "Overdue follow-ups", None),
+            Self::Today => ("today", "Follow up today", None),
+            Self::Upcoming => ("upcoming", "Upcoming follow-ups", None),
+            Self::CheckDate => ("check-date", "Check follow-up date", None),
+            Self::Waiting => ("waiting", "Waiting", None),
+            Self::Open => ("open", "Open", None),
+            Self::Done => ("done", "Done", Some("tasks-done")),
+            Self::Cancelled => ("cancelled", "Cancelled", Some("tasks-cancelled")),
+        }
+    }
+}
+
+/// Strict date-only parsing matches canonical Action validation. Do not use
+/// day_number: it intentionally accepts timestamp prefixes and loose dates.
+fn follow_up_date(value: &str) -> Option<chrono::NaiveDate> {
+    let date = chrono::NaiveDate::parse_from_str(value, "%Y-%m-%d").ok()?;
+    (value.len() == 10 && date.to_string() == value).then_some(date)
+}
+
+/// Re-evaluated when the view renders; no midnight timer or background work.
+/// Uses the existing platform offset adapter (UTC if the system cannot say).
+pub(super) fn follow_up_today() -> chrono::NaiveDate {
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_or(0, |elapsed| elapsed.as_secs() as i64);
+    follow_up_day_at(now, local_offset(now))
+}
+fn follow_up_day_at(now: i64, offset: i64) -> chrono::NaiveDate {
+    chrono::DateTime::from_timestamp(now.saturating_add(offset), 0)
+        .unwrap_or(chrono::DateTime::UNIX_EPOCH)
+        .date_naive()
+}
+
+pub(super) fn follow_up_group(
+    action: &brn_threads_app::Action,
+    today: chrono::NaiveDate,
+) -> FollowUpGroup {
+    use FollowUpGroup::*;
+    match action.state {
+        ActionState::Suggested => return Suggested,
+        ActionState::Done => return Done,
+        ActionState::Cancelled => return Cancelled,
+        ActionState::Open | ActionState::Waiting => {}
+    }
+    if let Some(value) = &action.follow_up {
+        return match follow_up_date(value) {
+            None => CheckDate,
+            Some(date) if date < today => Overdue,
+            Some(date) if date == today => Today,
+            Some(_) => Upcoming,
+        };
+    }
+    if action.state == ActionState::Waiting {
+        Waiting
+    } else {
+        Open
+    }
+}
+
+/// Only partition the already-visible records; never expand a project scope.
+/// Earliest follow-up first, stable identity tie-break. `due` is never consulted.
+pub(super) fn follow_up_records(
+    records: &[Record],
+    group: FollowUpGroup,
+    today: chrono::NaiveDate,
+) -> Vec<&Record> {
+    let mut rows: Vec<_> = records.iter().filter(|record| !record.archived
+        && matches!(&record.data, RecordData::Action(action) if follow_up_group(action, today) == group)).collect();
+    rows.sort_by_key(|record| {
+        let RecordData::Action(action) = &record.data else {
+            unreachable!()
+        };
+        (
+            action.follow_up.as_deref().and_then(follow_up_date),
+            record.id.as_str(),
+        )
+    });
+    rows
+}
+
 /// Latest receipt position and commit time for records and the threads their
 /// messages and runs belong to.
 #[derive(Default)]
@@ -884,6 +993,130 @@ pub(super) fn launcher(
 mod tests {
     use super::*;
     use brn_threads_app::*;
+
+    fn follow_up_action(state: ActionState, date: Option<&str>) -> Action {
+        Action {
+            kept_outside_project: false,
+            chat: None,
+            description: "Synthetic follow-up".into(),
+            state,
+            internal: false,
+            evidence: None,
+            due: Some("1900-01-01".into()),
+            owner: None,
+            waiting_on: None,
+            follow_up: date.map(str::to_owned),
+        }
+    }
+
+    #[test]
+    fn follow_up_groups_keep_commitments_dates_and_waiting_distinct() {
+        use FollowUpGroup::*;
+        let today = follow_up_date("2028-03-01").unwrap();
+        for (state, date, expected) in [
+            (ActionState::Open, Some("2028-02-29"), Overdue),
+            (ActionState::Waiting, Some("2028-03-01"), Today),
+            (ActionState::Open, Some("2028-03-02"), Upcoming),
+            (ActionState::Waiting, None, Waiting),
+            (ActionState::Open, None, Open),
+            (ActionState::Suggested, Some("2000-01-01"), Suggested),
+            (ActionState::Done, Some("2000-01-01"), Done),
+            (ActionState::Cancelled, Some("2000-01-01"), Cancelled),
+        ] {
+            let action = follow_up_action(state, date);
+            assert_eq!(follow_up_group(&action, today), expected);
+            let mut other_due = action.clone();
+            other_due.due = Some("2099-12-31".into());
+            assert_eq!(
+                follow_up_group(&other_due, today),
+                expected,
+                "due must not become follow-up"
+            );
+        }
+        for invalid in [
+            "",
+            "tomorrow",
+            "2027-02-29",
+            "2028-02-30",
+            "2028-3-01",
+            "2028-03-01T00:00:00Z",
+            " 2028-03-01",
+        ] {
+            assert_eq!(
+                follow_up_group(
+                    &follow_up_action(ActionState::Waiting, Some(invalid)),
+                    today
+                ),
+                CheckDate,
+                "{invalid}"
+            );
+        }
+    }
+
+    #[test]
+    fn follow_up_day_uses_local_midnight_and_offset_at_current_instant() {
+        let utc = chrono::NaiveDate::from_ymd_opt(2028, 3, 1)
+            .unwrap()
+            .and_hms_opt(0, 30, 0)
+            .unwrap()
+            .and_utc()
+            .timestamp();
+        assert_eq!(follow_up_day_at(utc, 0).to_string(), "2028-03-01");
+        assert_eq!(follow_up_day_at(utc, -3600).to_string(), "2028-02-29");
+        assert_eq!(
+            follow_up_day_at(utc + 23 * 3600, 3600).to_string(),
+            "2028-03-02"
+        );
+        // Offset comes from the current instant, not a fixed zone/DST assumption.
+        assert_eq!(follow_up_day_at(utc - 5400, 3600).to_string(), "2028-03-01");
+        assert_eq!(follow_up_day_at(utc - 5401, 3600).to_string(), "2028-02-29");
+    }
+
+    #[test]
+    fn follow_up_partition_is_read_only_complete_and_stably_ordered() {
+        let today = follow_up_date("2028-03-01").unwrap();
+        let mut records = vec![
+            record(
+                "later",
+                RecordData::Action(follow_up_action(ActionState::Waiting, Some("2028-02-29"))),
+            ),
+            record(
+                "z",
+                RecordData::Action(follow_up_action(ActionState::Open, Some("2028-02-28"))),
+            ),
+            record(
+                "a",
+                RecordData::Action(follow_up_action(ActionState::Open, Some("2028-02-28"))),
+            ),
+            record(
+                "undated",
+                RecordData::Action(follow_up_action(ActionState::Waiting, None)),
+            ),
+            record(
+                "archived",
+                RecordData::Action(follow_up_action(ActionState::Open, Some("2028-02-27"))),
+            ),
+        ];
+        records.last_mut().unwrap().archived = true;
+        let before = records.clone();
+        let overdue = follow_up_records(&records, FollowUpGroup::Overdue, today);
+        assert_eq!(
+            overdue.iter().map(|r| r.id.as_str()).collect::<Vec<_>>(),
+            ["a", "z", "later"]
+        );
+        let all = FollowUpGroup::ALL
+            .into_iter()
+            .flat_map(|group| follow_up_records(&records, group, today))
+            .collect::<Vec<_>>();
+        assert_eq!(all.len(), 4);
+        assert_eq!(all.iter().map(|r| &r.id).collect::<BTreeSet<_>>().len(), 4);
+        assert_eq!(records, before);
+        // Passing a scoped record list never pulls in records from elsewhere.
+        assert_eq!(
+            follow_up_records(&records[3..4], FollowUpGroup::Overdue, today).len(),
+            0
+        );
+    }
 
     fn record(id: &str, data: RecordData) -> Record {
         Record {

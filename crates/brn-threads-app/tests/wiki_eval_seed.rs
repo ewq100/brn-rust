@@ -289,7 +289,16 @@ fn daily_use_cases_seed_real_protected_sources_and_existing_topics() {
         .iter()
         .filter(|case| case["id"].as_str().unwrap().starts_with("DW"))
         .collect();
-    assert_eq!(cases.len(), 12);
+    // Guard the named coverage without making future appended cases fail a
+    // fixed count. Every selected case is still seeded and checked below.
+    for number in 1..=14 {
+        let required = format!("DW{number}");
+        assert_eq!(
+            cases.iter().filter(|case| case["id"] == required).count(),
+            1,
+            "missing or duplicated daily case {required}"
+        );
+    }
     for case in cases {
         let (_root, data) = dir();
         let report =
@@ -297,15 +306,41 @@ fn daily_use_cases_seed_real_protected_sources_and_existing_topics() {
         let workspace = Workspace::open_without_default_credentials(&data).unwrap();
         for expected in case["seeds"]["notes"].as_array().unwrap() {
             let id = &report.notes[expected["key"].as_str().unwrap()];
-            let (_, actual) = note(&workspace, id);
+            let (version, actual) = note(&workspace, id);
+            let edits = expected["edits"]
+                .as_array()
+                .map(Vec::as_slice)
+                .unwrap_or(&[]);
+            assert_eq!(version, 1 + edits.len() as u64);
+            let current_text = edits.last().unwrap_or(&expected["text"]);
             assert_eq!(
                 actual.markdown,
                 format!(
                     "# {}\n\n{}\n",
                     expected["title"].as_str().unwrap(),
-                    expected["text"].as_str().unwrap()
+                    current_text.as_str().unwrap()
                 )
             );
+            // DW13's withdrawn permission must be current while its former
+            // authorization remains exact history, not overwritten evidence.
+            for (index, text) in std::iter::once(&expected["text"]).chain(edits).enumerate() {
+                let revision = workspace
+                    .store
+                    .revision(id, 1 + index as u64)
+                    .unwrap()
+                    .unwrap();
+                let RecordData::Note(historical) = revision.data else {
+                    panic!("not a note revision")
+                };
+                assert_eq!(
+                    historical.markdown,
+                    format!(
+                        "# {}\n\n{}\n",
+                        expected["title"].as_str().unwrap(),
+                        text.as_str().unwrap()
+                    )
+                );
+            }
             assert_eq!(actual.protected, expected.get("import").is_some());
             if let Some(coverage) = actual.import {
                 assert!(matches!(
