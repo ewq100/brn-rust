@@ -11,32 +11,12 @@ Task details and full history: [selected work record](active/capture-followup-re
 
 ## Working on
 
-### Strengthen distinct daily workflow guarantees
-
-Task ID: `reliability`
-Owner: Reliability lane · State: **active** · Last reported: 2026-10-26T14:39:04.107117+00:00
-Activity: Draft PR232 corrected at0fe6187f. CI40337695045 last observed five supported jobs passed, Mac core running; original seeder failure retained.
-Next: Record terminal exact-head CI; preserve initial failed seeder evidence and do not infer live semantic success.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** implemented; corrected seeder reviewed
-- **checks:** six corrected seeder tests and strict targeted lint passed; exact-head CI40337695045 pending Mac core at latest report; five supported jobs passed
-- **integration:** draft PR232, unmerged
-- **native:** actual Linux observation pending; actual Mac acceptance separate and unperformed in this batch
-- **owner acceptance:** pending; actual owner acceptance not claimed
-
-</details>
-
 ### Review and integrate bounded slices
 
 Task ID: `integration`
-Owner: Integration owner · State: **active** · Last reported: 2026-10-26T14:39:04.107117+00:00
-Activity: Integration ef09669e native suite passed377, failed0, ignored1 after helper setup correction. PR230/231/233 supported CI green; PR232 last Mac core pending. Capture draft publication pending. Historical cloud355/156/1 and13 live Runs remain source-bound history.
-Next: Finish Capture draft publication and exact-head CI, close PR232 CI, observe Linux controls, then present exact reviewed scope for separate merge decision.
+Owner: Integration owner · State: **active** · Last observed: 2026-10-26T14:42:21.757675+00:00
+Activity: Four reviewed draft PRs have terminal supported CI passes; Capture/schema13 reviewed locally. Combined native377/0/1 and actual Linux grouping/open/Cancel passed narrowly; accessibility gaps retained.
+Next: Publish reviewed Capture draft, verify its exact head and follow hosted CI to terminal; no merge or live authority.
 
 <details>
 <summary>Gate status</summary>
@@ -44,9 +24,9 @@ Next: Finish Capture draft publication and exact-head CI, close PR232 CI, observ
 Gates:
 
 - **implementation:** bounded slices reviewed; Capture schema13 local candidate; no automatic merge
-- **checks:** integrated native377pass/0fail/1ignored; initial371pass/6fail/1ignored missing-helper result preserved, then9 targeted passed; final hosted/observation gates remain open
+- **checks:** integrated native377pass/0fail/1ignored; initial371pass/6fail/1ignored missing-helper result preserved, then9 targeted passed; final hosted/observation gates remain open; CLI schema upgrade4pass; Python tooling211pass/1fail/1skip (process-group existence assertion; correlated unreaped zombies, exact failedPID not retained; hosted qualification pending)
 - **integration:** all published PR230–233 draft/unmerged; no Capture PR number assigned in this record
-- **native:** actual Linux observation pending; actual Mac acceptance separate and unperformed in this batch
+- **native:** passed narrowly: actual Linux follow-up grouping and Capture open/Cancel; AT chat-row/group-text gaps disclosed; Mac/focus/picker/owner acceptance pending
 - **owner acceptance:** pending; actual owner acceptance not claimed
 
 </details>
@@ -56,9 +36,9 @@ Gates:
 ### Capture useful chat outcomes
 
 Task ID: `capture`
-Owner: Capture lane · State: **ready** · Last reported: 2026-10-26T14:39:04.107117+00:00
-Activity: Schema13 Capture candidate bd52 source/tests reviewed; explicit host review fence and existing Run/review/Undo retained. Final Capture PR not yet recorded.
-Next: Complete Capture documentation/publication and exact-head CI; record actual Linux observation separately.
+Owner: Capture lane · State: **ready** · Last observed: 2026-10-26T14:42:21.757675+00:00
+Activity: Capture and schema13 gate implemented and independently reviewed; deterministic checks and actual Linux open/Cancel passed narrowly.
+Next: Publish reviewed draft and monitor exact-head CI; no merge or live authority.
 
 <details>
 <summary>Gate status</summary>
@@ -66,9 +46,9 @@ Next: Complete Capture documentation/publication and exact-head CI; record actua
 Gates:
 
 - **implementation:** implemented and reviewed locally; schema13 fences older writers
-- **checks:** source/tests reviewed; integrated native at ef09669e passed377, failed0, ignored1; Capture exact-head hosted CI not yet recorded
+- **checks:** source/tests reviewed; integrated native at ef09669e passed377, failed0, ignored1; Capture exact-head hosted CI not yet recorded; CLI schema upgrade4pass; Python tooling211pass/1fail/1skip (process-group existence assertion; correlated unreaped zombies, exact failedPID not retained; hosted qualification pending)
 - **integration:** pending final draft Capture PR; unmerged
-- **native:** actual Linux observation pending; actual Mac acceptance separate and unperformed in this batch
+- **native:** passed narrowly: actual Linux follow-up grouping and Capture open/Cancel; AT chat-row/group-text gaps disclosed; Mac/focus/picker/owner acceptance pending
 - **owner acceptance:** pending; actual owner acceptance not claimed
 
 </details>
@@ -76,9 +56,9 @@ Gates:
 ### See which follow-ups need attention
 
 Task ID: `followups`
-Owner: Follow-up views lane · State: **ready** · Last reported: 2026-10-26T14:39:04.107117+00:00
+Owner: Follow-up views lane · State: **ready** · Last observed: 2026-10-26T14:42:21.757675+00:00
 Activity: Draft PR231 at019c8097 implements date-based Action views; exact-head CI passed six supported jobs, optional Windows failed.
-Next: Complete actual Linux observation and retain separate Mac/owner gates; await merge decision.
+Next: Await separate merge and owner acceptance decisions; actual Mac native/focus/accessibility gates remain open.
 
 <details>
 <summary>Gate status</summary>
@@ -88,7 +68,27 @@ Gates:
 - **implementation:** implemented; reviewed
 - **checks:** passed focused checks and six supported exact-head CI jobs; optional Windows failure retained
 - **integration:** draft PR231, unmerged
-- **native:** actual Linux observation pending; actual Mac acceptance separate and unperformed in this batch
+- **native:** passed narrowly: actual Linux follow-up grouping and Capture open/Cancel; AT chat-row/group-text gaps disclosed; Mac/focus/picker/owner acceptance pending
+- **owner acceptance:** pending; actual owner acceptance not claimed
+
+</details>
+
+### Strengthen distinct daily workflow guarantees
+
+Task ID: `reliability`
+Owner: Reliability lane · State: **ready** · Last observed: 2026-10-26T14:42:21.757675+00:00
+Activity: Draft PR232 corrected seeder assertions; exact-head supported CI terminal green; original failure preserved.
+Next: Await separate merge decision; proposed five-Run Mac sample requires separate approval.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** implemented; corrected seeder reviewed
+- **checks:** passed: corrected0fe exact-head CI40337695045 all six supported jobs; optional Windows core failed; initial seeder failure retained
+- **integration:** draft PR232, unmerged
+- **native:** inapplicable to deterministic evaluator changes; broader live-model and actual Mac acceptance remain unrun
 - **owner acceptance:** pending; actual owner acceptance not claimed
 
 </details>
@@ -125,4 +125,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `performance` — Measure scale and recovery before optimizing
 
-Local page reflects the last saved observations in this record (2026-10-26T14:39:04.107117+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-26T14:42:21.757675+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

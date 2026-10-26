@@ -1,0 +1,1497 @@
+{
+  "complete": true,
+  "nodes": [
+    {
+      "bus": "org.a11y.atspi.Registry",
+      "path": "/org/a11y/atspi/accessible/root",
+      "depth": 0,
+      "name": "main",
+      "role": 14,
+      "state_words": [
+        0,
+        0
+      ],
+      "states": {
+        "enabled": false,
+        "focusable": false,
+        "focused": false,
+        "sensitive": false,
+        "showing": false,
+        "visible": false
+      }
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/root",
+      "depth": 1,
+      "name": "brn-desktop",
+      "role": 75,
+      "state_words": [
+        0,
+        0
+      ],
+      "states": {
+        "enabled": false,
+        "focusable": false,
+        "focused": false,
+        "sensitive": false,
+        "showing": false,
+        "visible": false
+      }
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/0",
+      "depth": 2,
+      "name": "BRN",
+      "role": 23,
+      "state_words": [
+        1124073730,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": false,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      }
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/238500846966971323188792202236279128064",
+      "depth": 3,
+      "name": "Home",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/287585915533680590422489281315211313152",
+      "depth": 3,
+      "name": "Search notes, chats and commands",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/143334290866035343968325769573355749376",
+      "depth": 3,
+      "name": "Write",
+      "role": 62,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/177745384061169933363631344183945461760",
+      "depth": 3,
+      "name": "Chat",
+      "role": 62,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/102531603497736905765906061716935933952",
+      "depth": 3,
+      "name": "Solo",
+      "role": 62,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/212625458331039233573324327440443506688",
+      "depth": 3,
+      "name": "Chats",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/295547281005595447278754184697357533184",
+      "depth": 3,
+      "name": "Notes",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/56740503842503322504548278646974971904",
+      "depth": 3,
+      "name": "Projects",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/295713540260191663043113272579415080960",
+      "depth": 3,
+      "name": "Tasks",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/172920976694065556089046246096761782272",
+      "depth": 3,
+      "name": "Changes",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/124283549953574651816278368278326280192",
+      "depth": 3,
+      "name": "Settings",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/119121255389417197684698760087366270976",
+      "depth": 3,
+      "name": "Open beside",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/7428924472796251683353887557401182208",
+      "depth": 3,
+      "name": "New chat, note or information",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/217926112936363510018301822887545274368",
+      "depth": 3,
+      "name": "Chats panel actions",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/263566344036589509889952542202081050624",
+      "depth": 3,
+      "name": "Close Chats",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/216178098657762547100261391601372233728",
+      "depth": 3,
+      "name": "Recent",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/60970949163388948510178478676525449216",
+      "depth": 3,
+      "name": "All \u00b7 1",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/222793189087987320183233599574277881856",
+      "depth": 3,
+      "name": "Archived \u00b7 0",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/302255395679034642715280956701739581440",
+      "depth": 3,
+      "name": "Tasks panel actions",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/65749368505955860082125400474705199104",
+      "depth": 3,
+      "name": "Maximize Tasks",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/105238970067541634533666043851668717568",
+      "depth": 3,
+      "name": "Close Tasks",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/285745742333106219011084788308375502848",
+      "depth": 3,
+      "name": "Confirm done",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/29759472018418075555503778526933286912",
+      "depth": 3,
+      "name": "Task actions",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/286373420029456237110194889187255123968",
+      "depth": 3,
+      "name": "Confirm done",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/156990457539456953649909216776881700864",
+      "depth": 3,
+      "name": "Task actions",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/10967813626936450550437552979372408832",
+      "depth": 3,
+      "name": "Confirm done",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/335891765401548542508322015891129630720",
+      "depth": 3,
+      "name": "Task actions",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/210089576841763311450527549885035577344",
+      "depth": 3,
+      "name": "Confirm done",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/226421252643483376427018564422057590784",
+      "depth": 3,
+      "name": "Task actions",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/140489767940629745161722630921798025216",
+      "depth": 3,
+      "name": "Confirm done",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/167576367154191622272251906544105422848",
+      "depth": 3,
+      "name": "Task actions",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/323549488365372539539395859173232082944",
+      "depth": 3,
+      "name": "Capture outcomes\u2026",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/192235610075601088275783220534699884544",
+      "depth": 3,
+      "name": "Archive this chat. Stops work and pauses the queue.",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/89750356861483635867498040236533874688",
+      "depth": 3,
+      "name": "Chats for this note",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/308319900700409919855070564707020570624",
+      "depth": 3,
+      "name": "Chat panel actions",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/76871575967563753117630767055375433728",
+      "depth": 3,
+      "name": "Maximize Chat",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/272409988341220585594269482171647393792",
+      "depth": 3,
+      "name": "Close Chat",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/247332999655029549167071175986697469952",
+      "depth": 3,
+      "name": "",
+      "role": 111,
+      "state_words": [
+        1124073728,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": false,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      }
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/55710149320560260937801099794494521344",
+      "depth": 3,
+      "name": "intake",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/164375440064932023237589674729821700096",
+      "depth": 3,
+      "name": "maintain-notes",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/280373059358917162679333717014344630272",
+      "depth": 3,
+      "name": "prepare-reply",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/137195150229594594521079061445194285056",
+      "depth": 3,
+      "name": "resolve-conflict",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/334436603836093886153165278495989825536",
+      "depth": 3,
+      "name": "None",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/44633321640349283509025866708275953664",
+      "depth": 3,
+      "name": "Refresh skills",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/55380224798122327082169060199646625792",
+      "depth": 3,
+      "name": "Ask or delegate",
+      "role": 79,
+      "state_words": [
+        1124206976,
+        64
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      }
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/153802756071750448277646942313507717120",
+      "depth": 3,
+      "name": "Add information",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/1622723579329422102529343564957089792",
+      "depth": 3,
+      "name": "Model synthetic-no-provider, effort medium",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/153093489982860689192241883921944412160",
+      "depth": 3,
+      "name": "Quiet off \u00b7 hide activity",
+      "role": 62,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/96110487469086167297533264418106769408",
+      "depth": 3,
+      "name": "Send",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/291978651599876641911710390624624574464",
+      "depth": 3,
+      "name": "Layout",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/104316276953535519664969869463178444800",
+      "depth": 3,
+      "name": "Keys",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/271968172882875442880461675718137348096",
+      "depth": 3,
+      "name": "",
+      "role": 16,
+      "state_words": [
+        1124079874,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": true,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      }
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/195248479205637882832474958416503111680",
+      "depth": 4,
+      "name": "Continue",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/97524949637431418118090174885999411200",
+      "depth": 4,
+      "name": "Cancel",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/334273789958703423998096855652987043840",
+      "depth": 4,
+      "name": "Propose outcomes",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    },
+    {
+      "bus": ":1.0",
+      "path": "/org/a11y/atspi/accessible/0/35429118260957916390643899523145924608",
+      "depth": 4,
+      "name": "Close",
+      "role": 43,
+      "state_words": [
+        1124075776,
+        0
+      ],
+      "states": {
+        "enabled": true,
+        "focusable": true,
+        "focused": false,
+        "sensitive": true,
+        "showing": true,
+        "visible": true
+      },
+      "actions": [
+        [
+          "click",
+          "",
+          ""
+        ]
+      ]
+    }
+  ]
+}
