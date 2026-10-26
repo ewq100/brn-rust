@@ -17,7 +17,7 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 12;
+pub(crate) const SCHEMA_VERSION: i64 = 13;
 /// Read-only canonical watermark, external commit version and exact pending keys.
 pub type ViewChangeToken = (u64, u64, Vec<(String, String)>);
 pub struct Store {
@@ -48,7 +48,7 @@ enum OpenMode {
 /// `Store::create` on a folder that already holds a workspace.
 pub(crate) const WORKSPACE_EXISTS: &str = "A test workspace needs a new data folder";
 impl Store {
-    /// Opens or creates the workspace. An existing schema 3, 4 or 5 database
+    /// Opens or creates the workspace. An existing supported older Threads database
     /// is upgraded first, after a verified backup into the remembered folder.
     pub fn open(directory: impl AsRef<Path>) -> Result<Self> {
         Self::open_with(directory.as_ref(), OpenMode::Upgrade)
@@ -1447,7 +1447,7 @@ fn open_existing_database(database: &Path, upgrade: bool) -> Result<Connection> 
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if matches!(schema, 3..=11) {
+    if matches!(schema, 3..=12) {
         if !upgrade {
             let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
             if app == APPLICATION_ID {
