@@ -838,6 +838,7 @@ dependencies = [
  "brn-threads-app",
  "brn-threads-intake",
  "brn-writing-ui",
+ "chrono",
  "gpui-kit",
  "rig",
  "serde",
