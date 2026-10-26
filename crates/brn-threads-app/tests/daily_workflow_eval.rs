@@ -808,3 +808,101 @@ async fn corrected_source_resupply_reopens_one_source_without_rewriting_adopted_
     );
     assert!(w.workspace.candidates().unwrap().is_empty());
 }
+
+/// Compose the crash boundary with a later owner edit, then a fresh reviewed
+/// retry. Existing crash tests cover notice/lease paths; this guards against a
+/// recovered proposal accidentally regaining authority over the owner's text.
+#[tokio::test(flavor = "multi_thread")]
+async fn abandoned_precise_proposal_cannot_cross_owner_edit_and_retry_undo_keeps_that_edit() {
+    let mut w = draft_world();
+    let decision = w.workspace.store.record(&w.decision).unwrap().unwrap();
+    let version = w
+        .workspace
+        .store
+        .record(&w.survey)
+        .unwrap()
+        .unwrap()
+        .version;
+    let start = REPEATED.rfind("Depth pending.").unwrap();
+    let prepared = prepare_run(request(
+        &w,
+        &w.chat,
+        "Propose the final depth only.",
+        vec![],
+    ))
+    .unwrap();
+    let model = MockCompletionModel::from_stream_turns([
+        call(
+            "edit",
+            "prepare_note_edit",
+            json!({
+                "id":w.survey,"version":version,"start":start,"end":start+"Depth pending.".len(),
+                "expected_text":"Depth pending.","replacement_text":"Depth confirmed at 1.4 m.",
+                "request_key":"crash-depth","reason":"Synthetic pending proposal"
+            }),
+        ),
+        finish("Pending review, not applied."),
+    ]);
+    let run = brn_ai::threads::run_prepared_scripted_then_abandon(prepared, model.clone())
+        .await
+        .unwrap();
+    assert_eq!(model.requests().len(), 2);
+    let candidates = w.workspace.candidates().unwrap();
+    assert_eq!(candidates.len(), 1);
+    let old = candidates[0].operation.as_str().to_owned();
+    let immutable = w
+        .workspace
+        .store
+        .prepared(&candidates[0].operation)
+        .unwrap();
+    assert_eq!(note_text(&w.workspace, &w.survey), REPEATED);
+    let owner = format!("{REPEATED}\nOwner qualification: approval is still pending.\n");
+    let edit = w.workspace.store.begin_edit(&w.survey, version).unwrap();
+    w.workspace
+        .store
+        .update_buffer(&edit.id, 1, &owner)
+        .unwrap();
+    assert!(matches!(
+        w.workspace.store.save(&edit.id, 1).unwrap(),
+        SaveOutcome::Saved(_)
+    ));
+    reopen(&mut w);
+    assert_eq!(
+        w.workspace.recover_orphaned_runs().unwrap(),
+        vec![run.clone()]
+    );
+    assert!(w.workspace.recover_orphaned_runs().unwrap().is_empty());
+    assert!(
+        matches!(w.workspace.store.record(&run).unwrap().unwrap().data,
+        RecordData::Run(r) if r.state == RunState::Interrupted && r.operations.contains(&immutable.operation))
+    );
+    assert_eq!(
+        w.workspace.store.prepared(&immutable.operation).unwrap(),
+        immutable
+    );
+    assert!(matches!(
+        w.workspace.review_apply(&old).unwrap().outcome,
+        ApplyOutcome::Stale { .. }
+    ));
+    assert_eq!(note_text(&w.workspace, &w.survey), owner);
+    w.workspace.review_dismiss(&old).unwrap();
+    let retry = precise_candidate(&mut w, "Depth reported at 1.3 m.").await;
+    assert_ne!(retry, old);
+    assert_eq!(w.workspace.candidates().unwrap().len(), 1);
+    applied(w.workspace.review_apply(&retry).unwrap().outcome);
+    assert_eq!(
+        note_text(&w.workspace, &w.survey),
+        owner.replacen(
+            "Depth pending.\n\nOwner",
+            "Depth reported at 1.3 m.\n\nOwner",
+            1
+        )
+    );
+    applied(w.workspace.undo(&retry).unwrap());
+    reopen(&mut w);
+    assert_eq!(note_text(&w.workspace, &w.survey), owner);
+    assert_eq!(
+        w.workspace.store.record(&w.decision).unwrap().unwrap(),
+        decision
+    );
+}

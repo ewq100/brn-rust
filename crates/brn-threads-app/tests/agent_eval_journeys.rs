@@ -521,3 +521,69 @@ async fn s2_review_names_the_links_one_change_group_resolves() {
     }
     assert_eq!(count(FindingKind::DuplicateTitle), 1);
 }
+
+/// The authored answer is not scored here. These fixtures qualify the real
+/// read boundary: current permission and item-specific approval reach the model
+/// verbatim, without changing accepted notes or leaking content into the trace.
+#[tokio::test(flavor = "multi_thread")]
+async fn revised_permission_and_partial_approval_reach_read_tools_without_writes() {
+    for (fixture, key, expected_version, expected) in [
+        ("DW13", "permit", 2, "Gate C authorization was withdrawn."),
+        (
+            "DW14",
+            "approval",
+            1,
+            "approve only ventilation at 4,200 EUR.",
+        ),
+    ] {
+        let case = seeded(fixture);
+        let id = case.id(key).to_owned();
+        let chat = case.id("case").to_owned();
+        let workspace = Workspace::open_without_default_credentials(&case.data).unwrap();
+        let before = workspace.store.record(&id).unwrap().unwrap();
+        assert_eq!(before.version, expected_version);
+        let prepared = prepare_run(ThreadRunRequest {
+            request_message: None,
+            queue_claim: None,
+            owner_request: None,
+            data_dir: case.data.clone(),
+            thread: chat,
+            prompt: "Read the current source; do not change it.".into(),
+            selection: Selection {
+                provider: Provider::Chatgpt,
+                model: "gpt-6.1-sol".into(),
+            },
+            effort: ReasoningEffort::Medium,
+            max_tool_rounds: 2,
+            auth_file: None,
+            credentials_dir: None,
+            sources: vec![],
+            search: Some(Arc::new(case.handle.clone())),
+            trace: TraceLevel::Full,
+        })
+        .unwrap();
+        let model = MockCompletionModel::from_stream_turns([
+            call(
+                "read",
+                "read_note",
+                json!({"id":id,"version":before.version,"start":0,"max_bytes":2048,"section":false}),
+            ),
+            finish(),
+        ]);
+        let result = run_prepared_scripted(prepared, model.clone())
+            .await
+            .unwrap();
+        assert!(matches!(result.answer.terminal, AiTerminal::Completed));
+        assert_eq!(model.requests().len(), 2);
+        assert!(
+            format!("{:?}", model.requests()[1].chat_history.last()).contains(expected),
+            "{fixture}: source must reach the model"
+        );
+        let trace = result.trace.unwrap();
+        assert_eq!(trace.calls.len(), 1);
+        assert_eq!(trace.calls[0].outcome, "success");
+        assert!(!serde_json::to_string(&trace).unwrap().contains(expected));
+        assert_eq!(workspace.store.record(&id).unwrap().unwrap(), before);
+        assert!(workspace.candidates().unwrap().is_empty());
+    }
+}
