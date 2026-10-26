@@ -228,6 +228,10 @@
           "Suggested",
           "Open",
           "Waiting"
+        ],
+        "source_steps": [
+          0,
+          1
         ]
       },
       "rubric": [
