@@ -491,6 +491,15 @@ impl Store {
         {
             return Err(Error::Invalid("Writing candidate evidence and input bindings must survive replacement; Refresh creates a new request".into()));
         }
+        for (marker, _) in crate::capture::markers(&original_prepared.request, |id, version| {
+            revision_on(&tx, id, version)
+        })? {
+            if !request.inputs.contains(&marker) {
+                return Err(Error::Invalid(
+                    "Capture review binding must survive replacement".into(),
+                ));
+            }
+        }
         for marker in writing_markers_on(&tx, &original_prepared.request)? {
             if !request.inputs.contains(&marker) {
                 return Err(Error::Invalid(
@@ -1701,6 +1710,19 @@ pub(crate) fn apply_on(
         return Err(Error::Invalid("candidate retired".into()));
     }
     let prepared = prepared_on(tx, operation)?;
+    let capture_markers = crate::capture::markers(&prepared.request, |id, version| {
+        revision_on(tx, id, version)
+    })?;
+    if !capture_markers.is_empty() && !matches!(authority.scope, crate::types::Scope::Owner) {
+        return Ok(ApplyOutcome::NeedsReview {
+            denied: prepared
+                .request
+                .writes
+                .iter()
+                .map(|w| w.id.clone())
+                .collect(),
+        });
+    }
     let writing_markers = writing_markers_on(tx, &prepared.request)?;
     for required in &writing_markers {
         if !prepared.request.inputs.contains(required) {
@@ -1743,7 +1765,8 @@ pub(crate) fn apply_on(
             }
         }
     }
-    let needs_context = authority.chat_binding.is_some()
+    let needs_context = !capture_markers.is_empty()
+        || authority.chat_binding.is_some()
         || !writing_contexts.is_empty()
         || prepared
             .request
@@ -1855,6 +1878,14 @@ pub(crate) fn apply_on(
                 denied: denied_inputs,
             });
         }
+    }
+    for (_, snapshot) in &capture_markers {
+        crate::capture::validate_visibility(
+            &prepared.request,
+            snapshot,
+            &context_rows,
+            |id, version| revision_on(tx, id, version),
+        )?;
     }
     if !matches!(authority.scope, crate::types::Scope::Owner) && !writing_markers.is_empty() {
         return Ok(ApplyOutcome::NeedsReview {
@@ -3011,6 +3042,7 @@ pub(crate) fn prepare_on(
     owner_direct: bool,
 ) -> Result<Prepared> {
     validate_request(operation, request)?;
+    crate::capture::markers(request, |id, version| revision_on(tx, id, version))?;
     crate::writing::validate_candidate_evidence(request, |id, version| {
         revision_on(tx, id, version)
     })?;

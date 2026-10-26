@@ -1,6 +1,10 @@
 //! Final-use Threads persistence. Authority is supplied by the trusted host,
 //! never decoded from a model request. All writers use SQLite IMMEDIATE transactions.
 mod backup;
+mod capture;
+pub use capture::{
+    CAPTURE_REQUEST_ROLE, CaptureSnapshot, MAX_CAPTURE_BYTES, MAX_CAPTURE_HISTORY_RECORDS,
+};
 mod inbox;
 mod inspect;
 pub use inbox::{InboxDestination, InboxEntry, InboxState, InboxStatus};

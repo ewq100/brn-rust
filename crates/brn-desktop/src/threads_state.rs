@@ -206,6 +206,8 @@ pub(super) enum ContinuePath {
     /// The newest request after the last owner message is a rewrite; the
     /// Note's Retry saved rewrite owns it, never the chat.
     RetryRewrite(String),
+    RetryCapture(String),
+    CaptureNeedsConfirmation,
     /// A fresh reply from the saved chat and current notes.
     FreshRun,
 }
@@ -370,6 +372,16 @@ pub(super) fn recovery(
                 "Resume queue",
             )
         }
+        ContinuePath::CaptureNeedsConfirmation => (
+            "Capture has no matching started Run. Use Capture outcomes to confirm a fresh request.".into(),
+            Severity::Neutral,
+            "Confirm Capture",
+        ),
+        ContinuePath::RetryCapture(_) => (
+            "Continue retries this saved Capture request; proposals still require Apply in Changes.".into(),
+            if still_running {Severity::Warning} else {Severity::Neutral},
+            "Continue Capture",
+        ),
         _ if still_running => (
             format!(
                 "{} may still be running elsewhere. Continue starts a fresh reply and replaces it.",
@@ -406,7 +418,7 @@ pub(super) fn recovery(
         next_severity,
         waiting,
         action,
-        available: true,
+        available: *path != ContinuePath::CaptureNeedsConfirmation,
     }
 }
 
