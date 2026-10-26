@@ -11,10 +11,10 @@ fn bound(strict_ms: u64) -> Duration {
     Duration::from_millis(if strict { strict_ms } else { strict_ms * 40 })
 }
 
-fn create_notes(workspace: &mut Workspace) -> Vec<String> {
+fn create_notes(workspace: &mut Workspace, notes: usize) -> Vec<String> {
     let owner = HostAuthority::owner("synthetic scale fixture");
-    let mut ids = Vec::with_capacity(NOTES);
-    for batch in 0..NOTES / 500 {
+    let mut ids = Vec::with_capacity(notes);
+    for batch in 0..notes / 500 {
         let op = workspace
             .store
             .allocate_operation(&format!("scale-batch:{batch}"))
@@ -61,27 +61,49 @@ fn p95(mut samples: Vec<Duration>) -> Duration {
 
 #[test]
 fn ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly() {
+    profile(NOTES, 0);
+}
+
+#[test]
+#[ignore = "explicit repeated synthetic timing; normal CI retains the 10k correctness witness"]
+fn repeated_startup_search_scale_profile() {
+    for repeat in 0..2 {
+        for notes in [1_000, 5_000, 10_000] {
+            profile(notes, repeat);
+        }
+    }
+}
+
+fn profile(notes: usize, repeat: usize) {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = root.path().join("data");
+    let started = Instant::now();
     let mut workspace = Workspace::open(&data).unwrap();
-    let ids = create_notes(&mut workspace);
-    let anchor = ids[2500].clone();
+    let fresh_open = started.elapsed();
+    let started = Instant::now();
+    let ids = create_notes(&mut workspace, notes);
+    let seed = started.elapsed();
+    let anchor_index = notes / 4;
+    let anchor = ids[anchor_index].clone();
+    let original_query = format!("harborunique{anchor_index}");
 
     let started = Instant::now();
     workspace.search_handle().unwrap().prepare().wait().unwrap();
     let cold_build = started.elapsed();
-    let hits = workspace.search("harborunique2500").unwrap();
+    let hits = workspace.search(&original_query).unwrap();
     assert_eq!(hits[0].note, anchor);
     assert_eq!(hits[0].version, 1);
     assert!(hits[0].heading_path.starts_with("Overview"));
-    assert!(hits[0].snippet.contains("harborunique2500"));
+    assert!(hits[0].snippet.contains(&original_query));
     let page = workspace.search_page("harbor", None, 12, None).unwrap();
-    assert_eq!((page.total, page.hits.len()), (NOTES, 12));
+    assert_eq!((page.total, page.hits.len()), (notes, 12));
     assert_eq!(page.cursor.as_deref(), Some("12"));
     drop(workspace);
 
     // Reopen: the persisted index already mirrors the canonical watermark.
+    let started = Instant::now();
     let mut workspace = Workspace::open(&data).unwrap();
+    let workspace_reopen = started.elapsed();
     let started = Instant::now();
     workspace.search_handle().unwrap().prepare().wait().unwrap();
     let reopen = started.elapsed();
@@ -103,7 +125,7 @@ fn ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly() {
     assert!(one_note_sync < bound(50), "one-note sync {one_note_sync:?}");
     assert!(
         !workspace
-            .search("harborunique2500")
+            .search(&original_query)
             .unwrap()
             .iter()
             .any(|hit| hit.note == anchor),
@@ -116,7 +138,7 @@ fn ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly() {
     );
 
     let mut samples = Vec::new();
-    for i in (0..NOTES).step_by(NOTES / 60) {
+    for i in (0..notes).step_by(notes / 60) {
         for query in [
             format!("harborunique{i}"),
             format!("berths number {}", i % 97),
@@ -127,6 +149,7 @@ fn ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly() {
             assert!(!page.hits.is_empty(), "{query}");
         }
     }
+    let query_count = samples.len();
     let query_p95 = p95(samples);
     assert!(query_p95 < bound(150), "query p95 {query_p95:?}");
 
@@ -148,7 +171,17 @@ fn ten_thousand_notes_reopen_without_rebuild_sync_one_note_and_query_quickly() {
         .unwrap();
     assert!(workspace.search("berthshiftedanchor").unwrap().is_empty());
     eprintln!(
-        "10,000 notes: cold build {cold_build:?}, reopen {reopen:?}, \
-         one-note sync {one_note_sync:?}, query p95 {query_p95:?}"
+        "SCALE_PROFILE {}",
+        serde_json::json!({
+            "notes": notes, "repeat": repeat,
+            "fresh_open_ms": fresh_open.as_secs_f64() * 1000.,
+            "seed_ms": seed.as_secs_f64() * 1000.,
+            "cold_build_ms": cold_build.as_secs_f64() * 1000.,
+            "workspace_reopen_ms": workspace_reopen.as_secs_f64() * 1000.,
+            "index_reopen_ms": reopen.as_secs_f64() * 1000.,
+            "one_note_sync_ms": one_note_sync.as_secs_f64() * 1000.,
+            "query_p95_ms": query_p95.as_secs_f64() * 1000.,
+            "query_count": query_count,
+        })
     );
 }
