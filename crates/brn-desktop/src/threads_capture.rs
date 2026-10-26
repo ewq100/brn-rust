@@ -1,4 +1,5 @@
 //! Capture confirmation and typed dispatch; existing Run and review lifecycles own results.
+use super::state::capture_continuation;
 use super::*;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_capture_tests.rs"]
@@ -85,43 +86,6 @@ impl ThreadsUi {
     }
 }
 
-// Continue belongs to the latest durable Run, never merely to a newer marker.
-fn capture_continuation(
-    path: ContinuePath,
-    messages: &[Record],
-    latest: Option<&Record>,
-) -> ContinuePath {
-    if matches!(
-        path,
-        ContinuePath::ResumeQueue | ContinuePath::RetryRewrite(_)
-    ) {
-        return path;
-    }
-    let after_owner = messages
-        .iter()
-        .rposition(|r| matches!(&r.data,RecordData::Message(m) if m.role=="owner"))
-        .map_or(0, |i| i + 1);
-    let captures = messages[after_owner..]
-        .iter()
-        .filter(|r| matches!(&r.data,RecordData::Message(m) if m.role==CAPTURE_REQUEST_ROLE))
-        .collect::<Vec<_>>();
-    if let Some(Record {
-        data: RecordData::Run(run),
-        ..
-    }) = latest
-        && let Some(record) = captures.iter().find(|r| {
-            run.instruction.as_ref() == Some(&r.id)
-                && matches!(&r.data,RecordData::Message(m) if m.thread==run.thread)
-        })
-    {
-        return ContinuePath::RetryCapture(record.id.clone());
-    }
-    if !captures.is_empty() {
-        ContinuePath::CaptureNeedsConfirmation
-    } else {
-        path
-    }
-}
 impl ThreadsUi {
     pub(super) fn continue_chat_path(&self, messages: &[Record], thread: &str) -> ContinuePath {
         capture_continuation(

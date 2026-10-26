@@ -1,0 +1,38 @@
+Core and CLI (ubuntu-24.04)	Lint the default workspace	﻿2026-10-26T14:56:54.6328422Z ##[group]Run cargo clippy --workspace --all-targets --locked --offline -- -D warnings
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6329084Z [36;1mcargo clippy --workspace --all-targets --locked --offline -- -D warnings[0m
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6391811Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6392154Z env:
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6392371Z   CARGO_TERM_COLOR: always
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6392613Z   CARGO_INCREMENTAL: 0
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6392832Z   RUST_BACKTRACE: 1
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6393043Z   BRN_NATIVE_MODEL_DIR: 
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6393267Z   CACHE_ON_FAILURE: true
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6393542Z   TMPDIR: /home/runner/work/_temp/brn-ci-tests.sTKqft
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6394105Z   BRN_XBERG_HELPER: /home/runner/work/brn-rust/brn-rust/.brn-ci-document-helpers/artifacts/brn-xberg-helper
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6394862Z   BRN_XBERG_HELPER_BRN: /home/runner/work/brn-rust/brn-rust/.brn-ci-document-helpers/artifacts/brn-xberg-helper-brn
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:54.6395390Z ##[endgroup]
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:55.0854249Z [1m[92m    Checking[0m brn-threads-core v0.1.0 (/home/runner/work/brn-rust/brn-rust/crates/brn-threads-core)
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:55.0959620Z [1m[92m    Checking[0m brn-intake v0.1.0 (/home/runner/work/brn-rust/brn-rust/crates/brn-intake)
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:55.1039778Z [1m[92m    Checking[0m brn-retrieval v0.1.0 (/home/runner/work/brn-rust/brn-rust/crates/brn-retrieval)
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:55.3619793Z [1m[92m    Checking[0m brn-threads-intake v0.1.0 (/home/runner/work/brn-rust/brn-rust/crates/brn-threads-intake)
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:56:57.6543934Z [1m[92m    Checking[0m brn-ai v0.1.0 (/home/runner/work/brn-rust/brn-rust/crates/brn-ai)
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:00.8287586Z [1m[92m    Checking[0m brn-threads-app v0.1.0 (/home/runner/work/brn-rust/brn-rust/crates/brn-threads-app)
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:02.5363688Z [1m[92m    Checking[0m brn-writing-ui v0.1.0 (/home/runner/work/brn-rust/brn-rust/crates/brn-writing-ui)
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:02.6159718Z [1m[92m    Checking[0m brn v0.0.0 (/home/runner/work/brn-rust/brn-rust/crates/brn)
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:02.7431603Z [1m[92m    Checking[0m brn-desktop v0.1.0 (/home/runner/work/brn-rust/brn-rust/crates/brn-desktop)
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1129547Z [1m[91merror[0m[1m: variant `RetryCapture` is never constructed[0m
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1158876Z    [1m[94m--> [0mcrates/brn-desktop/src/threads_state.rs:209:5
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1188498Z     [1m[94m|[0m
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1218655Z [1m[94m203[0m [1m[94m|[0m pub(super) enum ContinuePath {
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1239082Z     [1m[94m|[0m                 [1m[94m------------[0m [1m[94mvariant in this enum[0m
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1278466Z [1m[94m...[0m
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1298638Z [1m[94m209[0m [1m[94m|[0m     RetryCapture(String),
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1299414Z     [1m[94m|[0m     [1m[91m^^^^^^^^^^^^[0m
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1299987Z     [1m[94m|[0m
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1301275Z     [1m[94m= [0m[1mnote[0m: `ContinuePath` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1302738Z     [1m[94m= [0m[1mnote[0m: `-D dead-code` implied by `-D warnings`
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1303874Z     [1m[94m= [0m[1mhelp[0m: to override `-D warnings` add `#[expect(dead_code)]` or `#[allow(dead_code)]`
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1304548Z 
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1729707Z [1m[91merror[0m: could not compile `brn-desktop` (bin "brn-desktop" test) due to 1 previous error
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:03.1748938Z [1m[33mwarning[0m: build failed, waiting for other jobs to finish...
+Core and CLI (ubuntu-24.04)	Lint the default workspace	2026-10-26T14:57:08.7726291Z ##[error]Process completed with exit code 101.

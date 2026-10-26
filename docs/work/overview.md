@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Capture useful outcomes and make follow-ups actionable; qualify reliability, measure performance and improve bounded Search transitions.
-**Owner attention:** Draft PR230–234 published; separate merge decision required. Four slices have supported CI passes; final Capture exact-head CI pending at this observation. No live-model or Mac execution authority.
+**Owner attention:** Draft PR230–234 remain unmerged. Capture headless feature correction reviewed and locally qualified; corrected exact-head hosted CI pending. No merge/live/Mac authority.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -14,9 +14,9 @@ Task details and full history: [selected work record](active/capture-followup-re
 ### Review and integrate bounded slices
 
 Task ID: `integration`
-Owner: Integration owner · State: **active** · Last observed: 2026-10-26T14:46:34.123322+00:00
-Activity: Four reviewed draft PRs have terminal supported CI passes; Capture/schema13 published as draft PR234. Combined native377/0/1 and actual Linux grouping/open/Cancel passed narrowly; accessibility gaps retained.
-Next: Monitor final draft PR234 exact-head hosted CI through terminal; report failures separately. No merge/live authority.
+Owner: Integration owner · State: **active** · Last observed: 2026-10-26T15:17:45.692080+00:00
+Activity: Capture headless feature gap corrected by moving unchanged pure continuation decision/test to shared state; independent review clear; default/native strict lint and selected tests passed.
+Next: Monitor corrected draft PR234 exact-head hosted CI through terminal; no merge/live authority.
 
 <details>
 <summary>Gate status</summary>
@@ -24,7 +24,7 @@ Next: Monitor final draft PR234 exact-head hosted CI through terminal; report fa
 Gates:
 
 - **implementation:** bounded slices reviewed; Capture schema13 local candidate; no automatic merge
-- **checks:** integrated native377pass/0fail/1ignored; initial371pass/6fail/1ignored missing-helper result preserved, then9 targeted passed; final hosted/observation gates remain open; CLI schema upgrade4pass; Python tooling211pass/1fail/1skip (process-group existence assertion; correlated unreaped zombies, exact failedPID not retained; hosted qualification pending)
+- **checks:** initial9b0 CI40342822182: five supportedpass, Linuxheadlesslintfailure, optionalWindowsfailure. Correction: headless/native strict alltargets lint passed; headless1test and native3tests passed. Corrected hostedCIpending. Earlier local Python211/1/1 preserved; unchanged hostedtoolingpassed.
 - **integration:** draft PR234 published, stacked on PR230; unmerged
 - **native:** passed narrowly: actual Linux follow-up grouping and Capture open/Cancel; AT chat-row/group-text gaps disclosed; Mac/focus/picker/owner acceptance pending
 - **owner acceptance:** pending; actual owner acceptance not claimed
@@ -36,9 +36,9 @@ Gates:
 ### Capture useful chat outcomes
 
 Task ID: `capture`
-Owner: Capture lane · State: **ready** · Last observed: 2026-10-26T14:46:34.123322+00:00
-Activity: Capture and schema13 gate published in independently reviewed draft PR234; deterministic checks and actual Linux open/Cancel passed narrowly.
-Next: Monitor final draft PR234 exact-head hosted CI through terminal; report failures separately. No merge/live authority.
+Owner: Capture lane · State: **ready** · Last observed: 2026-10-26T15:17:45.692080+00:00
+Activity: Capture headless feature gap corrected by moving unchanged pure continuation decision/test to shared state; independent review clear; default/native strict lint and selected tests passed.
+Next: Monitor corrected draft PR234 exact-head hosted CI through terminal; no merge/live authority.
 
 <details>
 <summary>Gate status</summary>
@@ -46,7 +46,7 @@ Next: Monitor final draft PR234 exact-head hosted CI through terminal; report fa
 Gates:
 
 - **implementation:** implemented and reviewed locally; schema13 fences older writers
-- **checks:** source/tests reviewed; integrated native at ef09669e passed377, failed0, ignored1; Capture exact-head hosted CI not yet recorded; CLI schema upgrade4pass; Python tooling211pass/1fail/1skip (process-group existence assertion; correlated unreaped zombies, exact failedPID not retained; hosted qualification pending)
+- **checks:** initial9b0 CI40342822182: five supportedpass, Linuxheadlesslintfailure, optionalWindowsfailure. Correction: headless/native strict alltargets lint passed; headless1test and native3tests passed. Corrected hostedCIpending. Earlier local Python211/1/1 preserved; unchanged hostedtoolingpassed.
 - **integration:** draft PR234 published, stacked on PR230; unmerged
 - **native:** passed narrowly: actual Linux follow-up grouping and Capture open/Cancel; AT chat-row/group-text gaps disclosed; Mac/focus/picker/owner acceptance pending
 - **owner acceptance:** pending; actual owner acceptance not claimed
@@ -125,4 +125,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `performance` — Measure scale and recovery before optimizing
 
-Local page reflects the last saved observations in this record (2026-10-26T14:46:34.123322+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-26T15:17:45.692080+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

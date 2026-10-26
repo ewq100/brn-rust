@@ -6,19 +6,19 @@
     "bounded_reducer_test_improvements": "Sentinel_a48323558788819195068f6db7b4953c"
   },
   "work_view": {
-    "observed_at": "2026-10-26T14:46:34.123322+00:00",
+    "observed_at": "2026-10-26T15:17:45.692080+00:00",
     "goal": "Capture useful outcomes and make follow-ups actionable; qualify reliability, measure performance and improve bounded Search transitions.",
-    "owner_attention": "Draft PR230\u2013234 published; separate merge decision required. Four slices have supported CI passes; final Capture exact-head CI pending at this observation. No live-model or Mac execution authority.",
+    "owner_attention": "Draft PR230\u2013234 remain unmerged. Capture headless feature correction reviewed and locally qualified; corrected exact-head hosted CI pending. No merge/live/Mac authority.",
     "tasks": [
       {
         "id": "capture",
         "title": "Capture useful chat outcomes",
         "owner": "Capture lane",
         "state": "ready",
-        "activity": "Capture and schema13 gate published in independently reviewed draft PR234; deterministic checks and actual Linux open/Cancel passed narrowly.",
-        "observed_at": "2026-10-26T14:46:34.123322+00:00",
+        "activity": "Capture headless feature gap corrected by moving unchanged pure continuation decision/test to shared state; independent review clear; default/native strict lint and selected tests passed.",
+        "observed_at": "2026-10-26T15:17:45.692080+00:00",
         "origin": "observed",
-        "next_action": "Monitor final draft PR234 exact-head hosted CI through terminal; report failures separately. No merge/live authority.",
+        "next_action": "Monitor corrected draft PR234 exact-head hosted CI through terminal; no merge/live authority.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -28,12 +28,21 @@
         ],
         "gates": {
           "implementation": "implemented and reviewed locally; schema13 fences older writers",
-          "checks": "source/tests reviewed; integrated native at ef09669e passed377, failed0, ignored1; Capture exact-head hosted CI not yet recorded; CLI schema upgrade4pass; Python tooling211pass/1fail/1skip (process-group existence assertion; correlated unreaped zombies, exact failedPID not retained; hosted qualification pending)",
+          "checks": "initial9b0 CI40342822182: five supportedpass, Linuxheadlesslintfailure, optionalWindowsfailure. Correction: headless/native strict alltargets lint passed; headless1test and native3tests passed. Corrected hostedCIpending. Earlier local Python211/1/1 preserved; unchanged hostedtoolingpassed.",
           "integration": "draft PR234 published, stacked on PR230; unmerged",
           "native": "passed narrowly: actual Linux follow-up grouping and Capture open/Cancel; AT chat-row/group-text gaps disclosed; Mac/focus/picker/owner acceptance pending",
           "owner_acceptance": "pending; actual owner acceptance not claimed"
         },
-        "attempts": []
+        "attempts": [
+          {
+            "outcome": "CI40342822182 default Linuxdesktop lint found RetryCapture unconstructed in headless tests; native configuration had passed.",
+            "change": "Move existing pure continuation decision and unchanged test to shared state; preserve native adapter and all assertions.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/40342822182",
+              "docs/work/active/capture-followup-reliability/capture-qualification.md"
+            ]
+          }
+        ]
       },
       {
         "id": "followups",
@@ -157,10 +166,10 @@
         "title": "Review and integrate bounded slices",
         "owner": "Integration owner",
         "state": "active",
-        "activity": "Four reviewed draft PRs have terminal supported CI passes; Capture/schema13 published as draft PR234. Combined native377/0/1 and actual Linux grouping/open/Cancel passed narrowly; accessibility gaps retained.",
-        "observed_at": "2026-10-26T14:46:34.123322+00:00",
+        "activity": "Capture headless feature gap corrected by moving unchanged pure continuation decision/test to shared state; independent review clear; default/native strict lint and selected tests passed.",
+        "observed_at": "2026-10-26T15:17:45.692080+00:00",
         "origin": "observed",
-        "next_action": "Monitor final draft PR234 exact-head hosted CI through terminal; report failures separately. No merge/live authority.",
+        "next_action": "Monitor corrected draft PR234 exact-head hosted CI through terminal; no merge/live authority.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -170,7 +179,7 @@
         ],
         "gates": {
           "implementation": "bounded slices reviewed; Capture schema13 local candidate; no automatic merge",
-          "checks": "integrated native377pass/0fail/1ignored; initial371pass/6fail/1ignored missing-helper result preserved, then9 targeted passed; final hosted/observation gates remain open; CLI schema upgrade4pass; Python tooling211pass/1fail/1skip (process-group existence assertion; correlated unreaped zombies, exact failedPID not retained; hosted qualification pending)",
+          "checks": "initial9b0 CI40342822182: five supportedpass, Linuxheadlesslintfailure, optionalWindowsfailure. Correction: headless/native strict alltargets lint passed; headless1test and native3tests passed. Corrected hostedCIpending. Earlier local Python211/1/1 preserved; unchanged hostedtoolingpassed.",
           "integration": "draft PR234 published, stacked on PR230; unmerged",
           "native": "passed narrowly: actual Linux follow-up grouping and Capture open/Cancel; AT chat-row/group-text gaps disclosed; Mac/focus/picker/owner acceptance pending",
           "owner_acceptance": "pending; actual owner acceptance not claimed"
@@ -181,6 +190,14 @@
             "change": "Configured existing helpers; nine affected targeted tests passed; final integrated ef09669e run377passed/0failed/1ignored. Original failure remains evidence, not erased by rerun.",
             "evidence": [
               "docs/work/active/capture-followup-reliability/baseline.md"
+            ]
+          },
+          {
+            "outcome": "CI40342822182 default Linuxdesktop lint found RetryCapture unconstructed in headless tests; native configuration had passed.",
+            "change": "Move existing pure continuation decision and unchanged test to shared state; preserve native adapter and all assertions.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/40342822182",
+              "docs/work/active/capture-followup-reliability/capture-qualification.md"
             ]
           }
         ]
