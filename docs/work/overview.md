@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Repair pending-proposal inspection and source provenance refresh after PR229 Mac duplicate-intake qualification; local implementation and tests only.
-**Owner attention:** PR229 remains draft/unmerged. Publication needs separate approval. No additional live Runs, Mac access, merge or release; calculator deferred.
+**Goal:** Complete the owner-selected two-step headless Mac pending-provenance qualification at exact 800d26bb; evidence-only local handoff.
+**Owner attention:** The single duplicate-meeting case passed: two new Runs, thirteen cumulative. No further cases, retries, push, merge, release or native interaction are authorized in this session.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -126,8 +126,9 @@ Gates:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-8 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+9 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `mac-pending-provenance-live` — Qualify both-source provenance on one pending Action
 - `completion-evidence-guidance` — Separate completion evidence from source grounding
 - `integration` — Independently review and qualify coherent draft slices
 - `actions-followups` — Make meeting-note follow-ups dependable
@@ -137,4 +138,4 @@ Completion here means the selected task scope is complete; it does not establish
 - `prior-main-ci` — Close the prior batch resulting-main CI gate
 - `documentation` — Record selected scope and narrow backlog decisions
 
-Local page reflects the last saved observations in this record (2026-10-25T15:24:51.072089+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-26T06:49:01.931386+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
