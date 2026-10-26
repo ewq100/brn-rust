@@ -76,3 +76,37 @@ selected checks do not resolve that earlier full-suite result. Native rendering,
 OS access/focus/pickers and owner acceptance remain separate. See the
 [proposed Mac headless handoff](mac-live-handoff.md), which requires new explicit
 approval and excludes already-passed duplicate/precise samples.
+
+## PR232 hosted failure and bounded correction
+
+Exact candidate `53fcdfa4`, hosted run `40330526613`, failed the same
+`wiki_eval_seed::daily_use_cases_seed_real_protected_sources_and_existing_topics`
+assertion in Linux core job `121598430549`, Mac core `121598430256`, and Mac native
+retrieval `121598430458`: the test expected 12 daily fixtures but found 14.
+Only those specific supported job logs were retrieved and preserved as
+`pr232-{linux,mac-core,mac-retrieval}-failure.log` in the local reliability evidence
+directory. No Windows job log was retrieved. The previously passing 19 focused
+journey tests did not include this seeder integration binary; they did not establish
+full-suite readiness.
+
+Source inspection also found that the same test assumed each seeded note's
+current bytes equal its initial text. DW13 deliberately advances to a withdrawn
+permission revision. The correction keeps all cases in the seeding loop, requires
+DW1–DW14 individually exactly once without rejecting future appended cases,
+asserts the final edited text and version, and checks every original/intermediate
+revision against independently formatted fixture bytes. Protected imports and
+Source identity assertions remain. No fixture, product behavior or expected
+current permission is weakened to obtain a pass.
+
+Correction verification: the entire `wiki_eval_seed` binary passed **6 tests**,
+zero failures/ignored/filtered, with
+`cargo test -p brn-threads-app --test wiki_eval_seed --locked --offline --jobs 1 -- --test-threads=1`.
+The build log identifies this checkout's rebuilt core, AI and application crates;
+compile 1m48s, tests 0.14s. Strict targeted Clippy also passed:
+`cargo clippy -p brn-threads-app --test wiki_eval_seed --locked --offline --jobs 1 -- -D warnings`.
+Logs: `seeder-ci-repair-test.log` and `seeder-ci-repair-clippy.log` in the same
+local evidence directory. Independent source review found no weakening.
+Formatting/diff and Markdown links passed. Existing 19 journey results remain
+relevant because only the additional seeder test and this receipt change.
+New exact-head hosted verification remains pending; the failed original run is
+not relabeled as passing.
