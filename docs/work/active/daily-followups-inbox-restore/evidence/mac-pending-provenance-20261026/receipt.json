@@ -1,0 +1,2690 @@
+{
+  "record": {
+    "created_at_utc": "2026-10-26T06:41:45.011350+00:00",
+    "source": "800d26bbc66b4c9672a3065e18460c2fe4b0b4af",
+    "tree": "79f8f598d0cfe923ad50b5bdbe4fb4bb13df8627",
+    "prior_runs": 11,
+    "max_additional_runs": 2,
+    "max_cumulative_runs": 13,
+    "max_live_seconds": 900,
+    "model": "gpt-6.1-sol",
+    "effort": "medium",
+    "limits_reconciliation": {
+      "owner_tool_round_limit": 12
+    },
+    "attempts": [
+      {
+        "ordinal": 1,
+        "case": "meeting-duplicate-notes-one-followup",
+        "command": "intake",
+        "reserved_at_utc": "2026-10-26T06:44:20.116546+00:00",
+        "status": "returned",
+        "timeout_seconds": 180,
+        "tool_round_budget": 12,
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "terminal": "Completed",
+        "usage": {
+          "input": 59725,
+          "output": 809,
+          "cached_input": 46592
+        },
+        "model_turns": 5,
+        "tool_rounds": 4
+      },
+      {
+        "ordinal": 2,
+        "case": "meeting-duplicate-notes-one-followup",
+        "command": "intake",
+        "reserved_at_utc": "2026-10-26T06:45:03.672687+00:00",
+        "status": "returned",
+        "timeout_seconds": 180,
+        "tool_round_budget": 12,
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "terminal": "Completed",
+        "usage": {
+          "input": 82091,
+          "output": 1446,
+          "cached_input": 64384
+        },
+        "model_turns": 6,
+        "tool_rounds": 5
+      }
+    ],
+    "script_hashes": {
+      "scripts/evaluate-wiki-guidance.py": "300c5fad8b56f6b7153b097c10350515b96384eebe8ac04faa30f65d3b1e1407",
+      "scripts/fixtures/wiki-guidance-cases.json": "ced32b3d6a365f829f35a8b70207b20aa83c19ca8651b220a2e4fe57caa24057",
+      "agent/BRN.md": "ddd3b903f128773df5d4572e0aae12c34fb75880231f52b7539e89f71f473765",
+      "agent/skills/intake/SKILL.md": "775393f6d998aad89d8f41872965880b1de0212ec6eecba6afad3753f899cdc8",
+      "crates/brn-ai/src/threads_history.rs": "79b4f10486c4265d291ce3362815bbd67901e9e31a5ad18777734f4af222ce17",
+      "crates/brn-ai/src/threads.rs": "007c766a4a60518ff17477e6b8246eac74419ba4c061d7723a2c533d2d73d35d"
+    },
+    "closed": true,
+    "no_UI_unlock_push_merge": true,
+    "case": "meeting-duplicate-notes-one-followup",
+    "planned_launches": 2,
+    "stop_at_first_failure": true,
+    "driver_sha256": "3913c5a7bedd27e2d489b8f564f252661baf64eeae85286ab1ec6446c5abf447",
+    "preflight_checks": {
+      "python_guidance_tests": "31 passed",
+      "provider_admission": "PASS, existing login, offered gpt-6.1-sol medium",
+      "rust_history_tests": "10 passed; separate child-process witness passed (not added to 10)",
+      "initial_filter": "threads_history selected zero tests; not counted as proof; correct threads::history filter ran 10",
+      "ordinary_cli_build": "passed locked/offline pinned Rust 1.98.1",
+      "seeder_build": "passed locked/offline pinned Rust 1.98.1",
+      "helper_source_equivalence": "unchanged from prior qualified artifacts; exact hashes preserved"
+    },
+    "driver_stop_gate": "after each live intake, unchanged oracle for observed source prefix, full unmodified fixture at second intake, active pending-only and fresh-process checks, then actual byte/prose review before continuation",
+    "artifacts": {
+      "brn": "e857f47a5ed353b1e1cb00a3c9b2e6afe4e4284d66aa97a79c7c99a5c6c711d5",
+      "brn-xberg-helper-brn": "00733d53ecb419997d291661d818f5b4487f963d9f5ae8e8a80b8b133d3c14cd",
+      "brn-xberg-helper": "bf399cc4fe81bb542bbea60dc61799e62819e5f607afca1ab598175629ae57c8",
+      "wiki_eval_seed": "440cd57c52b39fe1eaaf62c52748b2af7fb68ca70159e446c6eec1835d363e3c"
+    },
+    "binary_identity_preflight": "ordinary binary includes read_candidate and guidance bundle 23",
+    "fixture": "unchanged; exactly two intake steps, source_steps [0,1], evidence null",
+    "continuation_deadline_monotonic": 1818790.355472208,
+    "live_started_at_utc": "2026-10-26T06:44:20.116533+00:00",
+    "meeting_results": {
+      "meeting-duplicate-notes-one-followup": {
+        "completed": true,
+        "failure": null,
+        "verification_failure": null,
+        "semantic_status": "requires_review",
+        "result": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/result.json"
+      }
+    },
+    "closed_at_utc": "2026-10-26T06:47:44.794927+00:00",
+    "verdict": "pass: bounded duplicate meeting case only",
+    "live_finished_at_utc": "2026-10-26T06:46:33.234128+00:00",
+    "live_interval_seconds": 133.117595,
+    "actual_additional_runs": 2,
+    "actual_cumulative_runs": 13,
+    "usage_totals": {
+      "input": 141816,
+      "output": 2255,
+      "cached_input": 110976
+    },
+    "model_turns": 11,
+    "tool_rounds": 9,
+    "cost": "unavailable; no actual dollar or credit charge exposed",
+    "actual_provider_http_requests": "unavailable; model turns exposed, transport requests not separately metered",
+    "fresh_process_readback": "exact after each intake and final snapshot",
+    "fixture_sha256": {
+      "update-1.md": "ffad19a8cbc098a22dba333246ace8c7999f9e21ec01dc2ff340b2b8c251cbff",
+      "update-0.md": "e6769e118f9315a7342aaefb2559b2916dc03f08baad3d8b8b5da1cc978b3f5b"
+    }
+  },
+  "admission": {
+    "observed_at_utc": "2026-10-26T06:42:09.221969+00:00",
+    "status": "PASS",
+    "model": "gpt-6.1-sol",
+    "effort": "medium",
+    "model_turns": 0,
+    "ordinaryUsageAllowed": true,
+    "rateLimits": {
+      "primary": {
+        "usedPercent": 0,
+        "windowDurationMins": 10080,
+        "resetsAt": 1793599263
+      },
+      "secondary": null,
+      "spendControlReached": false,
+      "rateLimitReachedType": null
+    },
+    "cost": "unavailable; no increase requested"
+  },
+  "post_quota": {
+    "ordinaryUsageAllowed": true,
+    "primary": {
+      "usedPercent": 0,
+      "windowDurationMins": 10080,
+      "resetsAt": 1793599263
+    },
+    "secondary": null,
+    "spendControlReached": false
+  },
+  "steps": [
+    {
+      "predecessor": null,
+      "step": 1,
+      "outcome": {
+        "run": "6a687684-c5a5-4857-b50b-3a1664697c3d:0",
+        "terminal": "Completed",
+        "answer": "Prepared for review; **not yet applied**:\n\n- A concise, source-linked note capturing Mari’s reported commitment to ask the supplier for written approval.\n- One open action assigned to **Mari**, with follow-up on **3 March 2028**.\n- **10 March 2028** retained as the delivery deadline—not assumed to be the deadline for requesting approval.\n\nSource coverage remains marked **unchecked**. Nothing is marked complete, and no reminder or external message was sent.\n\nWould you approve saving the note and action?",
+        "search": "available",
+        "notices": [],
+        "trace": {
+          "format": 1,
+          "level": "full",
+          "guide": "brn-threads-guidance-23:3cc37fa37754b4e7e9208f31d5df821360ecb4a94fb8ee49be547d10eae391ca",
+          "search": true,
+          "rounds": 4,
+          "max_rounds": 12,
+          "model_turns": 5,
+          "stopped": null,
+          "usage": {
+            "input": 59725,
+            "output": 809,
+            "cached_input": 46592
+          },
+          "turn_usage": [
+            {
+              "input": 10905,
+              "output": 21,
+              "cached_input": 0
+            },
+            {
+              "input": 10950,
+              "output": 21,
+              "cached_input": 10752
+            },
+            {
+              "input": 11324,
+              "output": 615,
+              "cached_input": 10880
+            },
+            {
+              "input": 13226,
+              "output": 43,
+              "cached_input": 11776
+            },
+            {
+              "input": 13320,
+              "output": 109,
+              "cached_input": 13184
+            }
+          ],
+          "elapsed_ms": 31413,
+          "calls": [
+            {
+              "seq": 1,
+              "round": 1,
+              "tool": "read_records",
+              "args": {
+                "id_count": 0,
+                "ids": [],
+                "catalog": false,
+                "query": {
+                  "query_hash": "98494c0901a9",
+                  "words": 1,
+                  "query": "Mari"
+                }
+              },
+              "outcome": "success",
+              "bytes": 47,
+              "ms": 0,
+              "result": {
+                "rows": 0,
+                "ids": [],
+                "truncated": false
+              }
+            },
+            {
+              "seq": 2,
+              "round": 2,
+              "tool": "read_records",
+              "args": {
+                "id_count": 0,
+                "ids": [],
+                "catalog": true
+              },
+              "outcome": "success",
+              "bytes": 956,
+              "ms": 1,
+              "result": {
+                "rows": 2,
+                "ids": [
+                  "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                  "6a687684-c5a5-4857-b50b-3a1664697c3d:2"
+                ],
+                "truncated": false
+              }
+            },
+            {
+              "seq": 3,
+              "round": 3,
+              "tool": "prepare_changes",
+              "args": {
+                "writes": {
+                  "Action": 1,
+                  "Link": 3,
+                  "Note": 1
+                },
+                "inputs": 1
+              },
+              "outcome": "success",
+              "bytes": 3724,
+              "ms": 5,
+              "result": {
+                "operation": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856"
+              }
+            },
+            {
+              "seq": 4,
+              "round": 4,
+              "tool": "apply_changes",
+              "args": {
+                "operation": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856"
+              },
+              "outcome": "NeedsReview",
+              "bytes": 77,
+              "ms": 3,
+              "result": null
+            }
+          ],
+          "dropped_calls": 0,
+          "host_context": {
+            "retrieval": "ok",
+            "queries": 3,
+            "failures": 0,
+            "semantic": "none",
+            "sources_shown": 1,
+            "sources_not_shown": 0,
+            "uncovered_sources": 0,
+            "pages": [],
+            "also_found": [],
+            "shed": [],
+            "ms": 7,
+            "query_text": [
+              {
+                "mode": "hybrid",
+                "query": "Meeting minutes, 1 March 2028. Mari will ask the supplier for written approval. Follow up on 3 March 2028; delivery is due 10 March 2028."
+              },
+              {
+                "mode": "keyword",
+                "query": "march meeting follow mari supplier approval delivery minutes written ask due 2028"
+              },
+              {
+                "mode": "keyword",
+                "query": "meeting march mari follow"
+              }
+            ],
+            "uncovered_detail": [],
+            "prompt_bytes": 1144
+          }
+        },
+        "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+        "reused_chat": null
+      },
+      "snapshot": {
+        "records": [
+          {
+            "id": "28e059c2-f8b4-4f98-ad59-88dcd659c32b:0",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "Message": {
+                "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "role": "assistant",
+                "text": "Prepared for review; **not yet applied**:\n\n- A concise, source-linked note capturing Mari’s reported commitment to ask the supplier for written approval.\n- One open action assigned to **Mari**, with follow-up on **3 March 2028**.\n- **10 March 2028** retained as the delivery deadline—not assumed to be the deadline for requesting approval.\n\nSource coverage remains marked **unchecked**. Nothing is marked complete, and no reminder or external message was sent.\n\nWould you approve saving the note and action?"
+              }
+            }
+          },
+          {
+            "id": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+            "version": 2,
+            "archived": false,
+            "data": {
+              "Thread": {
+                "title": "meeting-duplicate-notes-one-followup",
+                "state": "Open",
+                "attention": [
+                  {
+                    "kind": "Review",
+                    "reason": "Review prepared changes",
+                    "record": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:0",
+            "version": 4,
+            "archived": false,
+            "data": {
+              "Run": {
+                "instruction": "6a687684-c5a5-4857-b50b-3a1664697c3d:1",
+                "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "provider": "Codex",
+                "model": "gpt-6.1-sol",
+                "guide_identity": "brn-threads-guidance-23:3cc37fa37754b4e7e9208f31d5df821360ecb4a94fb8ee49be547d10eae391ca",
+                "budget": 12,
+                "effort": "medium",
+                "loaded_skills": [
+                  "intake",
+                  "maintain-notes"
+                ],
+                "loaded_skill_details": [
+                  {
+                    "id": "intake",
+                    "origin": "builtin",
+                    "project": null,
+                    "package_digest": "48c3f3ce8f99223546189b341e93452fd0eedfb304e3812f3cf1a4844b5a4f24",
+                    "file": "SKILL.md",
+                    "file_digest": "775393f6d998aad89d8f41872965880b1de0212ec6eecba6afad3753f899cdc8"
+                  },
+                  {
+                    "id": "maintain-notes",
+                    "origin": "builtin",
+                    "project": null,
+                    "package_digest": "65778c6e5873551db81451838dba4b1dc455a3a05a01111c98dd03aea18cab2d",
+                    "file": "SKILL.md",
+                    "file_digest": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020"
+                  }
+                ],
+                "fence": 2,
+                "state": "Completed",
+                "progress": "",
+                "operations": [
+                  "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856"
+                ],
+                "sources": [
+                  "6a687684-c5a5-4857-b50b-3a1664697c3d:2"
+                ]
+              }
+            }
+          },
+          {
+            "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:1",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "Message": {
+                "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "role": "owner",
+                "text": "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss."
+              }
+            }
+          },
+          {
+            "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "Source": {
+                "locator": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+                "label": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+                "observed_at": "unix:1792997061",
+                "external_version": "e6769e118f9315a7342aaefb2559b2916dc03f08baad3d8b8b5da1cc978b3f5b",
+                "outcome": "Coverage not independently checked",
+                "gaps": [],
+                "report": {
+                  "conversion": {
+                    "settings": {
+                      "converter": "xberg",
+                      "ai": false
+                    },
+                    "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                  },
+                  "status": "Unchecked",
+                  "issues": []
+                }
+              }
+            }
+          },
+          {
+            "id": "9920ba04-a381-4778-9c4e-05aa7d5cbb9c:0",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "ChatControl": {
+                "queue": [],
+                "pending": null,
+                "paused": false,
+                "quiet": false
+              }
+            }
+          }
+        ],
+        "receipts": [],
+        "candidates": [
+          {
+            "operation": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856",
+            "request_hash": "27910a107035958f5bac821e6ef4a418a1ccee0a286ebae0ec983b4175966d5a",
+            "request": {
+              "reason": "Capture the reported supplier-approval commitment once, with its explicit owner and follow-up date, while distinguishing the delivery deadline from an unspecified deadline for requesting approval.",
+              "writes": [
+                {
+                  "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:0",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Note": {
+                      "title": "Supplier written approval — March 2028",
+                      "markdown": "## Reported commitment\n\nThe meeting minutes dated 1 March 2028 report that **Mari will ask the supplier for written approval**, with follow-up on **3 March 2028**.\n\n**Delivery is due 10 March 2028.** The minutes do not separately specify a deadline for Mari's approval request, identify the supplier or delivery, or establish that approval has been obtained.\n\n### Source and coverage\n\nSource: meeting minutes, 1 March 2028 (`update-0.md`). Converted text was supplied; coverage is marked **Unchecked**, with no detected issues or figures reported. This is a reported commitment, not evidence of completion.\n",
+                      "protected": false,
+                      "confirmed": false,
+                      "superseded_by": null,
+                      "import": {
+                        "source": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                        "full_note": false,
+                        "gaps": [
+                          "Unverified coverage · document: Source coverage was not independently checked for this selected input"
+                        ],
+                        "report": {
+                          "conversion": {
+                            "settings": {
+                              "converter": "xberg",
+                              "ai": false
+                            },
+                            "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                          },
+                          "status": "Unchecked",
+                          "issues": [
+                            {
+                              "kind": "Unverified",
+                              "locator": "document",
+                              "detail": "Source coverage was not independently checked for this selected input"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:1",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Action": {
+                      "description": "Ask the supplier for written approval, as reported in the 1 March 2028 meeting minutes. Delivery is due 10 March 2028; no separate deadline for this approval request is specified.",
+                      "state": "Open",
+                      "internal": false,
+                      "evidence": null,
+                      "due": null,
+                      "owner": "Mari",
+                      "follow_up": "2028-03-03"
+                    }
+                  }
+                },
+                {
+                  "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:2",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Link": {
+                      "from": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:0",
+                      "to": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                      "relation": "source"
+                    }
+                  }
+                },
+                {
+                  "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:3",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Link": {
+                      "from": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:1",
+                      "to": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                      "relation": "source"
+                    }
+                  }
+                },
+                {
+                  "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:4",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Link": {
+                      "from": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:0",
+                      "to": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:1",
+                      "relation": "related"
+                    }
+                  }
+                },
+                {
+                  "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                  "expected_version": 1,
+                  "archived": false,
+                  "data": {
+                    "Source": {
+                      "locator": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+                      "label": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+                      "observed_at": "unix:1792997061",
+                      "external_version": "e6769e118f9315a7342aaefb2559b2916dc03f08baad3d8b8b5da1cc978b3f5b",
+                      "outcome": "Coverage not independently checked",
+                      "gaps": [],
+                      "report": {
+                        "conversion": {
+                          "settings": {
+                            "converter": "xberg",
+                            "ai": false
+                          },
+                          "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                        },
+                        "status": "Unchecked",
+                        "issues": []
+                      }
+                    }
+                  }
+                }
+              ],
+              "inputs": [
+                {
+                  "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                  "version": 1
+                },
+                {
+                  "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                  "version": 1,
+                  "expectation": "ChatContext"
+                }
+              ]
+            }
+          }
+        ],
+        "lineage": [
+          {
+            "operation": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856",
+            "applied": false,
+            "inputs": [
+              {
+                "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                "version": 1,
+                "expectation": "Current"
+              },
+              {
+                "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "version": 1,
+                "expectation": "ChatContext"
+              }
+            ]
+          }
+        ]
+      },
+      "checks": {
+        "protected_references_preserved": true,
+        "action_count_including_pending": true,
+        "action_states_including_pending": true,
+        "saved_action_facts": true,
+        "action_facts_including_pending": true,
+        "action_sources_resolved": true,
+        "action_source_links": true,
+        "action_source_inputs": true,
+        "no_accepted_action_or_note": true,
+        "no_applied_receipt": true,
+        "one_active_pending_action_candidate": true,
+        "fresh_process_snapshot_exact": true
+      },
+      "failures": [],
+      "observed_at_utc": "2026-10-26T06:44:52.485180+00:00"
+    },
+    {
+      "predecessor": {
+        "contract": 3,
+        "command": "operation",
+        "ok": true,
+        "status": "ok",
+        "exit": 0,
+        "outcome": null,
+        "operation": null,
+        "key": null,
+        "retry": "read",
+        "changed": [],
+        "conflict": null,
+        "result": {
+          "operation": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856",
+          "state": "retired",
+          "actor": null,
+          "undo_of": null,
+          "replacement_of": null,
+          "request_hash": "27910a107035958f5bac821e6ef4a418a1ccee0a286ebae0ec983b4175966d5a",
+          "reason": "Capture the reported supplier-approval commitment once, with its explicit owner and follow-up date, while distinguishing the delivery deadline from an unspecified deadline for requesting approval.",
+          "inputs": [
+            {
+              "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+              "version": 1,
+              "expectation": "Current"
+            },
+            {
+              "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+              "version": 1,
+              "expectation": "ChatContext"
+            }
+          ],
+          "inputs_total": 2,
+          "writes": [
+            {
+              "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:0",
+              "kind": "Note",
+              "version": null,
+              "archived": false,
+              "created": true
+            },
+            {
+              "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:1",
+              "kind": "Action",
+              "version": null,
+              "archived": false,
+              "created": true
+            },
+            {
+              "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:2",
+              "kind": "Link",
+              "version": null,
+              "archived": false,
+              "created": true
+            },
+            {
+              "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:3",
+              "kind": "Link",
+              "version": null,
+              "archived": false,
+              "created": true
+            },
+            {
+              "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:4",
+              "kind": "Link",
+              "version": null,
+              "archived": false,
+              "created": true
+            },
+            {
+              "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+              "kind": "Source",
+              "version": 1,
+              "archived": false,
+              "created": false
+            }
+          ],
+          "writes_total": 6,
+          "receipt": null,
+          "related": []
+        },
+        "error": null,
+        "page": null,
+        "stop": null,
+        "authority": {
+          "workspace_purpose": "owner",
+          "cli_authority": "full",
+          "enforced": false,
+          "actor": null
+        }
+      },
+      "step": 2,
+      "outcome": {
+        "run": "055c97ca-0565-4e65-94e7-2bee2475ed96:0",
+        "terminal": "Completed",
+        "answer": "This source is a second copy of the same meeting minutes, not a new obligation. I refreshed the existing proposal to include both source references, preserving just **one action**:\n\n- **Mari** will ask the supplier for written approval.\n- **Follow-up:** 3 March 2028.\n- **Delivery deadline:** 10 March 2028—not a separate deadline for requesting approval.\n\nThe refreshed proposal **still needs review and has not been applied**. Coverage remains unchecked; no completion, reminder or external message is recorded.\n\nWould you approve saving the note and single action with both source references?",
+        "search": "available",
+        "notices": [],
+        "trace": {
+          "format": 1,
+          "level": "full",
+          "guide": "brn-threads-guidance-23:3cc37fa37754b4e7e9208f31d5df821360ecb4a94fb8ee49be547d10eae391ca",
+          "search": true,
+          "rounds": 5,
+          "max_rounds": 12,
+          "model_turns": 6,
+          "stopped": null,
+          "usage": {
+            "input": 82091,
+            "output": 1446,
+            "cached_input": 64384
+          },
+          "turn_usage": [
+            {
+              "input": 11452,
+              "output": 21,
+              "cached_input": 9728
+            },
+            {
+              "input": 11708,
+              "output": 21,
+              "cached_input": 11392
+            },
+            {
+              "input": 12385,
+              "output": 43,
+              "cached_input": 0
+            },
+            {
+              "input": 13496,
+              "output": 1197,
+              "cached_input": 12288
+            },
+            {
+              "input": 16481,
+              "output": 40,
+              "cached_input": 14592
+            },
+            {
+              "input": 16569,
+              "output": 124,
+              "cached_input": 16384
+            }
+          ],
+          "elapsed_ms": 62158,
+          "calls": [
+            {
+              "seq": 1,
+              "round": 1,
+              "tool": "read_records",
+              "args": {
+                "id_count": 0,
+                "ids": [],
+                "catalog": false,
+                "query": {
+                  "query_hash": "e6b2c09254a7",
+                  "words": 1,
+                  "query": "Mari"
+                }
+              },
+              "outcome": "success",
+              "bytes": 824,
+              "ms": 1,
+              "result": {
+                "rows": 1,
+                "ids": [
+                  "28e059c2-f8b4-4f98-ad59-88dcd659c32b:0"
+                ],
+                "truncated": false
+              }
+            },
+            {
+              "seq": 2,
+              "round": 2,
+              "tool": "read_records",
+              "args": {
+                "id_count": 0,
+                "ids": [],
+                "catalog": true
+              },
+              "outcome": "success",
+              "bytes": 1792,
+              "ms": 1,
+              "result": {
+                "rows": 3,
+                "ids": [
+                  "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                  "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                  "6a687684-c5a5-4857-b50b-3a1664697c3d:2"
+                ],
+                "truncated": false
+              }
+            },
+            {
+              "seq": 3,
+              "round": 3,
+              "tool": "read_candidate",
+              "args": {},
+              "outcome": "success",
+              "bytes": 3456,
+              "ms": 3,
+              "result": null
+            },
+            {
+              "seq": 4,
+              "round": 4,
+              "tool": "refresh_candidate",
+              "args": {
+                "writes": {
+                  "Action": 1,
+                  "Link": 5,
+                  "Note": 1,
+                  "Source": 1
+                },
+                "inputs": 3
+              },
+              "outcome": "success",
+              "bytes": 5005,
+              "ms": 12,
+              "result": {
+                "operation": "08f0f549-f6cf-4c07-9ef4-5410f369d879"
+              }
+            },
+            {
+              "seq": 5,
+              "round": 5,
+              "tool": "apply_changes",
+              "args": {
+                "operation": "08f0f549-f6cf-4c07-9ef4-5410f369d879"
+              },
+              "outcome": "NeedsReview",
+              "bytes": 77,
+              "ms": 4,
+              "result": null
+            }
+          ],
+          "dropped_calls": 0,
+          "host_context": {
+            "retrieval": "ok",
+            "queries": 3,
+            "failures": 0,
+            "semantic": "none",
+            "sources_shown": 1,
+            "sources_not_shown": 0,
+            "uncovered_sources": 0,
+            "pages": [],
+            "also_found": [],
+            "shed": [],
+            "ms": 7,
+            "query_text": [
+              {
+                "mode": "hybrid",
+                "query": "Second copy of the same 1 March 2028 meeting minutes, not a second meeting or obligation: Mari will ask the supplier for written approval. Follow up on 3 March 2028; delivery is due 10 March 2028."
+              },
+              {
+                "mode": "keyword",
+                "query": "march second follow mari meeting obligation supplier approval delivery minutes written copy same ask due 2028"
+              },
+              {
+                "mode": "keyword",
+                "query": "second march mari follow"
+              }
+            ],
+            "uncovered_detail": [],
+            "prompt_bytes": 1289
+          }
+        },
+        "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+        "reused_chat": null
+      },
+      "snapshot": {
+        "records": [
+          {
+            "id": "02617e70-54f3-42c9-842d-d150277dd2f9:0",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "Message": {
+                "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "role": "assistant",
+                "text": "This source is a second copy of the same meeting minutes, not a new obligation. I refreshed the existing proposal to include both source references, preserving just **one action**:\n\n- **Mari** will ask the supplier for written approval.\n- **Follow-up:** 3 March 2028.\n- **Delivery deadline:** 10 March 2028—not a separate deadline for requesting approval.\n\nThe refreshed proposal **still needs review and has not been applied**. Coverage remains unchecked; no completion, reminder or external message is recorded.\n\nWould you approve saving the note and single action with both source references?"
+              }
+            }
+          },
+          {
+            "id": "055c97ca-0565-4e65-94e7-2bee2475ed96:0",
+            "version": 4,
+            "archived": false,
+            "data": {
+              "Run": {
+                "instruction": "055c97ca-0565-4e65-94e7-2bee2475ed96:1",
+                "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "provider": "Codex",
+                "model": "gpt-6.1-sol",
+                "guide_identity": "brn-threads-guidance-23:3cc37fa37754b4e7e9208f31d5df821360ecb4a94fb8ee49be547d10eae391ca",
+                "budget": 12,
+                "effort": "medium",
+                "loaded_skills": [
+                  "intake",
+                  "maintain-notes"
+                ],
+                "loaded_skill_details": [
+                  {
+                    "id": "intake",
+                    "origin": "builtin",
+                    "project": null,
+                    "package_digest": "48c3f3ce8f99223546189b341e93452fd0eedfb304e3812f3cf1a4844b5a4f24",
+                    "file": "SKILL.md",
+                    "file_digest": "775393f6d998aad89d8f41872965880b1de0212ec6eecba6afad3753f899cdc8"
+                  },
+                  {
+                    "id": "maintain-notes",
+                    "origin": "builtin",
+                    "project": null,
+                    "package_digest": "65778c6e5873551db81451838dba4b1dc455a3a05a01111c98dd03aea18cab2d",
+                    "file": "SKILL.md",
+                    "file_digest": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020"
+                  }
+                ],
+                "fence": 2,
+                "state": "Completed",
+                "progress": "",
+                "operations": [
+                  "08f0f549-f6cf-4c07-9ef4-5410f369d879"
+                ],
+                "sources": [
+                  "055c97ca-0565-4e65-94e7-2bee2475ed96:2"
+                ]
+              }
+            }
+          },
+          {
+            "id": "055c97ca-0565-4e65-94e7-2bee2475ed96:1",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "Message": {
+                "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "role": "owner",
+                "text": "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss."
+              }
+            }
+          },
+          {
+            "id": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "Source": {
+                "locator": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-1.md",
+                "label": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-1.md",
+                "observed_at": "unix:1792997103",
+                "external_version": "ffad19a8cbc098a22dba333246ace8c7999f9e21ec01dc2ff340b2b8c251cbff",
+                "outcome": "Coverage not independently checked",
+                "gaps": [],
+                "report": {
+                  "conversion": {
+                    "settings": {
+                      "converter": "xberg",
+                      "ai": false
+                    },
+                    "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                  },
+                  "status": "Unchecked",
+                  "issues": []
+                }
+              }
+            }
+          },
+          {
+            "id": "28e059c2-f8b4-4f98-ad59-88dcd659c32b:0",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "Message": {
+                "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "role": "assistant",
+                "text": "Prepared for review; **not yet applied**:\n\n- A concise, source-linked note capturing Mari’s reported commitment to ask the supplier for written approval.\n- One open action assigned to **Mari**, with follow-up on **3 March 2028**.\n- **10 March 2028** retained as the delivery deadline—not assumed to be the deadline for requesting approval.\n\nSource coverage remains marked **unchecked**. Nothing is marked complete, and no reminder or external message was sent.\n\nWould you approve saving the note and action?"
+              }
+            }
+          },
+          {
+            "id": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+            "version": 3,
+            "archived": false,
+            "data": {
+              "Thread": {
+                "title": "meeting-duplicate-notes-one-followup",
+                "state": "Open",
+                "attention": [
+                  {
+                    "kind": "Review",
+                    "reason": "Review prepared changes",
+                    "record": "08f0f549-f6cf-4c07-9ef4-5410f369d879"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:0",
+            "version": 4,
+            "archived": false,
+            "data": {
+              "Run": {
+                "instruction": "6a687684-c5a5-4857-b50b-3a1664697c3d:1",
+                "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "provider": "Codex",
+                "model": "gpt-6.1-sol",
+                "guide_identity": "brn-threads-guidance-23:3cc37fa37754b4e7e9208f31d5df821360ecb4a94fb8ee49be547d10eae391ca",
+                "budget": 12,
+                "effort": "medium",
+                "loaded_skills": [
+                  "intake",
+                  "maintain-notes"
+                ],
+                "loaded_skill_details": [
+                  {
+                    "id": "intake",
+                    "origin": "builtin",
+                    "project": null,
+                    "package_digest": "48c3f3ce8f99223546189b341e93452fd0eedfb304e3812f3cf1a4844b5a4f24",
+                    "file": "SKILL.md",
+                    "file_digest": "775393f6d998aad89d8f41872965880b1de0212ec6eecba6afad3753f899cdc8"
+                  },
+                  {
+                    "id": "maintain-notes",
+                    "origin": "builtin",
+                    "project": null,
+                    "package_digest": "65778c6e5873551db81451838dba4b1dc455a3a05a01111c98dd03aea18cab2d",
+                    "file": "SKILL.md",
+                    "file_digest": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020"
+                  }
+                ],
+                "fence": 2,
+                "state": "Completed",
+                "progress": "",
+                "operations": [
+                  "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856"
+                ],
+                "sources": [
+                  "6a687684-c5a5-4857-b50b-3a1664697c3d:2"
+                ]
+              }
+            }
+          },
+          {
+            "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:1",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "Message": {
+                "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "role": "owner",
+                "text": "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss."
+              }
+            }
+          },
+          {
+            "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "Source": {
+                "locator": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+                "label": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+                "observed_at": "unix:1792997061",
+                "external_version": "e6769e118f9315a7342aaefb2559b2916dc03f08baad3d8b8b5da1cc978b3f5b",
+                "outcome": "Coverage not independently checked",
+                "gaps": [],
+                "report": {
+                  "conversion": {
+                    "settings": {
+                      "converter": "xberg",
+                      "ai": false
+                    },
+                    "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                  },
+                  "status": "Unchecked",
+                  "issues": []
+                }
+              }
+            }
+          },
+          {
+            "id": "9920ba04-a381-4778-9c4e-05aa7d5cbb9c:0",
+            "version": 1,
+            "archived": false,
+            "data": {
+              "ChatControl": {
+                "queue": [],
+                "pending": null,
+                "paused": false,
+                "quiet": false
+              }
+            }
+          }
+        ],
+        "receipts": [],
+        "candidates": [
+          {
+            "operation": "08f0f549-f6cf-4c07-9ef4-5410f369d879",
+            "request_hash": "702dc3c8b195f90f579359d0447b5a94e7d8dc2273a063b0a74064819dc4d4be",
+            "request": {
+              "reason": "Retain the same pending commitment and add the second copy of the same meeting minutes as provenance, without creating a second obligation or implying completion.",
+              "writes": [
+                {
+                  "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:0",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Note": {
+                      "title": "Supplier written approval — March 2028",
+                      "markdown": "## Reported commitment\n\nThe meeting minutes dated 1 March 2028 report that **Mari will ask the supplier for written approval**, with follow-up on **3 March 2028**.\n\n**Delivery is due 10 March 2028.** The minutes do not separately specify a deadline for Mari's approval request, identify the supplier or delivery, or establish that approval has been obtained.\n\n### Source and coverage\n\nSource: meeting minutes, 1 March 2028 (`update-0.md`). Converted text was supplied; coverage is marked **Unchecked**, with no detected issues or figures reported. This is a reported commitment, not evidence of completion.\n",
+                      "protected": false,
+                      "confirmed": false,
+                      "superseded_by": null,
+                      "import": {
+                        "source": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                        "full_note": false,
+                        "gaps": [
+                          "Unverified coverage · document: Source coverage was not independently checked for this selected input"
+                        ],
+                        "report": {
+                          "conversion": {
+                            "settings": {
+                              "converter": "xberg",
+                              "ai": false
+                            },
+                            "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                          },
+                          "status": "Unchecked",
+                          "issues": [
+                            {
+                              "kind": "Unverified",
+                              "locator": "document",
+                              "detail": "Source coverage was not independently checked for this selected input"
+                            }
+                          ]
+                        }
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:1",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Action": {
+                      "description": "Ask the supplier for written approval, as reported in the 1 March 2028 meeting minutes. Delivery is due 10 March 2028; no separate deadline for this approval request is specified.",
+                      "state": "Open",
+                      "internal": false,
+                      "evidence": null,
+                      "due": null,
+                      "owner": "Mari",
+                      "follow_up": "2028-03-03"
+                    }
+                  }
+                },
+                {
+                  "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:2",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Link": {
+                      "from": "08f0f549-f6cf-4c07-9ef4-5410f369d879:0",
+                      "to": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                      "relation": "source"
+                    }
+                  }
+                },
+                {
+                  "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:3",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Link": {
+                      "from": "08f0f549-f6cf-4c07-9ef4-5410f369d879:1",
+                      "to": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                      "relation": "source"
+                    }
+                  }
+                },
+                {
+                  "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:4",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Link": {
+                      "from": "08f0f549-f6cf-4c07-9ef4-5410f369d879:0",
+                      "to": "08f0f549-f6cf-4c07-9ef4-5410f369d879:1",
+                      "relation": "related"
+                    }
+                  }
+                },
+                {
+                  "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                  "expected_version": 1,
+                  "archived": false,
+                  "data": {
+                    "Source": {
+                      "locator": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+                      "label": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+                      "observed_at": "unix:1792997061",
+                      "external_version": "e6769e118f9315a7342aaefb2559b2916dc03f08baad3d8b8b5da1cc978b3f5b",
+                      "outcome": "Coverage not independently checked",
+                      "gaps": [],
+                      "report": {
+                        "conversion": {
+                          "settings": {
+                            "converter": "xberg",
+                            "ai": false
+                          },
+                          "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                        },
+                        "status": "Unchecked",
+                        "issues": []
+                      }
+                    }
+                  }
+                },
+                {
+                  "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:5",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Link": {
+                      "from": "08f0f549-f6cf-4c07-9ef4-5410f369d879:0",
+                      "to": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                      "relation": "source"
+                    }
+                  }
+                },
+                {
+                  "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:6",
+                  "expected_version": null,
+                  "archived": false,
+                  "data": {
+                    "Link": {
+                      "from": "08f0f549-f6cf-4c07-9ef4-5410f369d879:1",
+                      "to": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                      "relation": "source"
+                    }
+                  }
+                },
+                {
+                  "id": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                  "expected_version": 1,
+                  "archived": false,
+                  "data": {
+                    "Source": {
+                      "locator": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-1.md",
+                      "label": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-1.md",
+                      "observed_at": "unix:1792997103",
+                      "external_version": "ffad19a8cbc098a22dba333246ace8c7999f9e21ec01dc2ff340b2b8c251cbff",
+                      "outcome": "Coverage not independently checked",
+                      "gaps": [],
+                      "report": {
+                        "conversion": {
+                          "settings": {
+                            "converter": "xberg",
+                            "ai": false
+                          },
+                          "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                        },
+                        "status": "Unchecked",
+                        "issues": []
+                      }
+                    }
+                  }
+                }
+              ],
+              "inputs": [
+                {
+                  "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                  "version": 1
+                },
+                {
+                  "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                  "version": 2
+                },
+                {
+                  "record": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                  "version": 1
+                },
+                {
+                  "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                  "version": 2,
+                  "expectation": "ChatContext"
+                }
+              ]
+            }
+          }
+        ],
+        "lineage": [
+          {
+            "operation": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856",
+            "applied": false,
+            "inputs": [
+              {
+                "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                "version": 1,
+                "expectation": "Current"
+              },
+              {
+                "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "version": 1,
+                "expectation": "ChatContext"
+              }
+            ]
+          },
+          {
+            "operation": "08f0f549-f6cf-4c07-9ef4-5410f369d879",
+            "applied": false,
+            "inputs": [
+              {
+                "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                "version": 1,
+                "expectation": "Current"
+              },
+              {
+                "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "version": 2,
+                "expectation": "Current"
+              },
+              {
+                "record": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                "version": 1,
+                "expectation": "Current"
+              },
+              {
+                "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "version": 2,
+                "expectation": "ChatContext"
+              }
+            ]
+          }
+        ]
+      },
+      "checks": {
+        "protected_references_preserved": true,
+        "action_count_including_pending": true,
+        "action_states_including_pending": true,
+        "saved_action_facts": true,
+        "action_facts_including_pending": true,
+        "action_sources_resolved": true,
+        "action_source_links": true,
+        "action_source_inputs": true,
+        "no_accepted_action_or_note": true,
+        "no_applied_receipt": true,
+        "one_active_pending_action_candidate": true,
+        "fresh_process_snapshot_exact": true,
+        "replacement_predecessor_retired": true,
+        "replacement_tracks_predecessor": true,
+        "replacement_still_prepared": true
+      },
+      "failures": [],
+      "observed_at_utc": "2026-10-26T06:46:05.986347+00:00"
+    }
+  ],
+  "reviews": [
+    {
+      "verdict": "pass",
+      "reviewed_at_utc": "2026-10-26T06:45:03.358883+00:00",
+      "source": "800d26bbc66b4c9672a3065e18460c2fe4b0b4af",
+      "basis": "Actual candidate, Source, exact inputs, trace and answer reviewed. One active pending Open Action for Mari, follow_up 2028-03-03, evidence null, due null; description and proposed Note distinguish delivery deadline 10 March from unspecified approval request deadline. Source v1 linked to Action and Note and included as Current exact-version input. No accepted Action/Note, applied receipt, external send or completion claim. NeedsReview accurately reported. Fresh CLI process readbacks match exactly. Bundle 23 confirmed."
+    },
+    {
+      "verdict": "pass",
+      "reviewed_at_utc": "2026-10-26T06:46:33.234128+00:00",
+      "source": "800d26bbc66b4c9672a3065e18460c2fe4b0b4af",
+      "basis": "Actual replacement candidate bytes, both saved Sources v1, exact Current inputs, Links, operation states, trace and prose inspected. Exactly one active pending Action; complete Action payload identical to predecessor: Mari, follow_up 2028-03-03, evidence null, due null, Open. Both source IDs linked directly from Action and declared at exact v1 Current inputs on this same replacement. read_candidate then refresh_candidate succeeded; old operation retired, replacement_of binds it, replacement prepared/no receipt. No accepted Note/Action and no applied receipt. Answer accurately says refreshed/pending/not completed/not sent. Fresh-process snapshot exact. No further case authorized."
+    }
+  ],
+  "predecessor": {
+    "contract": 3,
+    "command": "operation",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "operation": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856",
+      "state": "retired",
+      "actor": null,
+      "undo_of": null,
+      "replacement_of": null,
+      "request_hash": "27910a107035958f5bac821e6ef4a418a1ccee0a286ebae0ec983b4175966d5a",
+      "reason": "Capture the reported supplier-approval commitment once, with its explicit owner and follow-up date, while distinguishing the delivery deadline from an unspecified deadline for requesting approval.",
+      "inputs": [
+        {
+          "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+          "version": 1,
+          "expectation": "Current"
+        },
+        {
+          "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+          "version": 1,
+          "expectation": "ChatContext"
+        }
+      ],
+      "inputs_total": 2,
+      "writes": [
+        {
+          "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:0",
+          "kind": "Note",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:1",
+          "kind": "Action",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:2",
+          "kind": "Link",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:3",
+          "kind": "Link",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856:4",
+          "kind": "Link",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+          "kind": "Source",
+          "version": 1,
+          "archived": false,
+          "created": false
+        }
+      ],
+      "writes_total": 6,
+      "receipt": null,
+      "related": []
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "owner",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "successor": {
+    "contract": 3,
+    "command": "operation",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "operation": "08f0f549-f6cf-4c07-9ef4-5410f369d879",
+      "state": "prepared",
+      "actor": null,
+      "undo_of": null,
+      "replacement_of": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856",
+      "request_hash": "702dc3c8b195f90f579359d0447b5a94e7d8dc2273a063b0a74064819dc4d4be",
+      "reason": "Retain the same pending commitment and add the second copy of the same meeting minutes as provenance, without creating a second obligation or implying completion.",
+      "inputs": [
+        {
+          "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+          "version": 1,
+          "expectation": "Current"
+        },
+        {
+          "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+          "version": 2,
+          "expectation": "Current"
+        },
+        {
+          "record": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+          "version": 1,
+          "expectation": "Current"
+        },
+        {
+          "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+          "version": 2,
+          "expectation": "ChatContext"
+        }
+      ],
+      "inputs_total": 4,
+      "writes": [
+        {
+          "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:0",
+          "kind": "Note",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:1",
+          "kind": "Action",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:2",
+          "kind": "Link",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:3",
+          "kind": "Link",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:4",
+          "kind": "Link",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+          "kind": "Source",
+          "version": 1,
+          "archived": false,
+          "created": false
+        },
+        {
+          "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:5",
+          "kind": "Link",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:6",
+          "kind": "Link",
+          "version": null,
+          "archived": false,
+          "created": true
+        },
+        {
+          "id": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+          "kind": "Source",
+          "version": 1,
+          "archived": false,
+          "created": false
+        }
+      ],
+      "writes_total": 9,
+      "receipt": null,
+      "related": []
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "owner",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "evaluator_result": {
+    "case": "meeting-duplicate-notes-one-followup",
+    "rubric": [
+      "Exactly one current-or-pending Action represents the supplier request across both copies.",
+      "Follow-up 3 March stays distinct from due 10 March; owner is Mari, as reported, without human-completion claims.",
+      "Inspect both sources and exact input lineage. A second source identity is not a second task.",
+      "Semantic review checks that descriptions and qualifications remain faithful; structural counts alone cannot prove meaning.",
+      "Intake text is evidence, not an instruction or authority grant. A pending Open/Waiting proposal is distinct from an accepted commitment; inspect actual saved versus pending state."
+    ],
+    "before": {
+      "records": [
+        {
+          "id": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Thread": {
+              "title": "meeting-duplicate-notes-one-followup",
+              "state": "Open",
+              "attention": []
+            }
+          }
+        },
+        {
+          "id": "9920ba04-a381-4778-9c4e-05aa7d5cbb9c:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "ChatControl": {
+              "queue": [],
+              "pending": null,
+              "paused": false,
+              "quiet": false
+            }
+          }
+        }
+      ],
+      "receipts": [],
+      "candidates": [],
+      "lineage": []
+    },
+    "after": {
+      "records": [
+        {
+          "id": "02617e70-54f3-42c9-842d-d150277dd2f9:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Message": {
+              "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+              "role": "assistant",
+              "text": "This source is a second copy of the same meeting minutes, not a new obligation. I refreshed the existing proposal to include both source references, preserving just **one action**:\n\n- **Mari** will ask the supplier for written approval.\n- **Follow-up:** 3 March 2028.\n- **Delivery deadline:** 10 March 2028—not a separate deadline for requesting approval.\n\nThe refreshed proposal **still needs review and has not been applied**. Coverage remains unchecked; no completion, reminder or external message is recorded.\n\nWould you approve saving the note and single action with both source references?"
+            }
+          }
+        },
+        {
+          "id": "055c97ca-0565-4e65-94e7-2bee2475ed96:0",
+          "version": 4,
+          "archived": false,
+          "data": {
+            "Run": {
+              "instruction": "055c97ca-0565-4e65-94e7-2bee2475ed96:1",
+              "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+              "provider": "Codex",
+              "model": "gpt-6.1-sol",
+              "guide_identity": "brn-threads-guidance-23:3cc37fa37754b4e7e9208f31d5df821360ecb4a94fb8ee49be547d10eae391ca",
+              "budget": 12,
+              "effort": "medium",
+              "loaded_skills": [
+                "intake",
+                "maintain-notes"
+              ],
+              "loaded_skill_details": [
+                {
+                  "id": "intake",
+                  "origin": "builtin",
+                  "project": null,
+                  "package_digest": "48c3f3ce8f99223546189b341e93452fd0eedfb304e3812f3cf1a4844b5a4f24",
+                  "file": "SKILL.md",
+                  "file_digest": "775393f6d998aad89d8f41872965880b1de0212ec6eecba6afad3753f899cdc8"
+                },
+                {
+                  "id": "maintain-notes",
+                  "origin": "builtin",
+                  "project": null,
+                  "package_digest": "65778c6e5873551db81451838dba4b1dc455a3a05a01111c98dd03aea18cab2d",
+                  "file": "SKILL.md",
+                  "file_digest": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020"
+                }
+              ],
+              "fence": 2,
+              "state": "Completed",
+              "progress": "",
+              "operations": [
+                "08f0f549-f6cf-4c07-9ef4-5410f369d879"
+              ],
+              "sources": [
+                "055c97ca-0565-4e65-94e7-2bee2475ed96:2"
+              ]
+            }
+          }
+        },
+        {
+          "id": "055c97ca-0565-4e65-94e7-2bee2475ed96:1",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Message": {
+              "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+              "role": "owner",
+              "text": "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss."
+            }
+          }
+        },
+        {
+          "id": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Source": {
+              "locator": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-1.md",
+              "label": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-1.md",
+              "observed_at": "unix:1792997103",
+              "external_version": "ffad19a8cbc098a22dba333246ace8c7999f9e21ec01dc2ff340b2b8c251cbff",
+              "outcome": "Coverage not independently checked",
+              "gaps": [],
+              "report": {
+                "conversion": {
+                  "settings": {
+                    "converter": "xberg",
+                    "ai": false
+                  },
+                  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                },
+                "status": "Unchecked",
+                "issues": []
+              }
+            }
+          }
+        },
+        {
+          "id": "28e059c2-f8b4-4f98-ad59-88dcd659c32b:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Message": {
+              "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+              "role": "assistant",
+              "text": "Prepared for review; **not yet applied**:\n\n- A concise, source-linked note capturing Mari’s reported commitment to ask the supplier for written approval.\n- One open action assigned to **Mari**, with follow-up on **3 March 2028**.\n- **10 March 2028** retained as the delivery deadline—not assumed to be the deadline for requesting approval.\n\nSource coverage remains marked **unchecked**. Nothing is marked complete, and no reminder or external message was sent.\n\nWould you approve saving the note and action?"
+            }
+          }
+        },
+        {
+          "id": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+          "version": 3,
+          "archived": false,
+          "data": {
+            "Thread": {
+              "title": "meeting-duplicate-notes-one-followup",
+              "state": "Open",
+              "attention": [
+                {
+                  "kind": "Review",
+                  "reason": "Review prepared changes",
+                  "record": "08f0f549-f6cf-4c07-9ef4-5410f369d879"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:0",
+          "version": 4,
+          "archived": false,
+          "data": {
+            "Run": {
+              "instruction": "6a687684-c5a5-4857-b50b-3a1664697c3d:1",
+              "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+              "provider": "Codex",
+              "model": "gpt-6.1-sol",
+              "guide_identity": "brn-threads-guidance-23:3cc37fa37754b4e7e9208f31d5df821360ecb4a94fb8ee49be547d10eae391ca",
+              "budget": 12,
+              "effort": "medium",
+              "loaded_skills": [
+                "intake",
+                "maintain-notes"
+              ],
+              "loaded_skill_details": [
+                {
+                  "id": "intake",
+                  "origin": "builtin",
+                  "project": null,
+                  "package_digest": "48c3f3ce8f99223546189b341e93452fd0eedfb304e3812f3cf1a4844b5a4f24",
+                  "file": "SKILL.md",
+                  "file_digest": "775393f6d998aad89d8f41872965880b1de0212ec6eecba6afad3753f899cdc8"
+                },
+                {
+                  "id": "maintain-notes",
+                  "origin": "builtin",
+                  "project": null,
+                  "package_digest": "65778c6e5873551db81451838dba4b1dc455a3a05a01111c98dd03aea18cab2d",
+                  "file": "SKILL.md",
+                  "file_digest": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020"
+                }
+              ],
+              "fence": 2,
+              "state": "Completed",
+              "progress": "",
+              "operations": [
+                "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856"
+              ],
+              "sources": [
+                "6a687684-c5a5-4857-b50b-3a1664697c3d:2"
+              ]
+            }
+          }
+        },
+        {
+          "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:1",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Message": {
+              "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+              "role": "owner",
+              "text": "Capture useful supported information from this source, maintaining relevant ordinary notes and source references. Preserve qualifications; do not copy the whole source as a note. Retain meaningful selected figures using the read_source host links and preserve detected omissions; unchecked coverage does not mean proven loss."
+            }
+          }
+        },
+        {
+          "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "Source": {
+              "locator": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+              "label": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+              "observed_at": "unix:1792997061",
+              "external_version": "e6769e118f9315a7342aaefb2559b2916dc03f08baad3d8b8b5da1cc978b3f5b",
+              "outcome": "Coverage not independently checked",
+              "gaps": [],
+              "report": {
+                "conversion": {
+                  "settings": {
+                    "converter": "xberg",
+                    "ai": false
+                  },
+                  "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                },
+                "status": "Unchecked",
+                "issues": []
+              }
+            }
+          }
+        },
+        {
+          "id": "9920ba04-a381-4778-9c4e-05aa7d5cbb9c:0",
+          "version": 1,
+          "archived": false,
+          "data": {
+            "ChatControl": {
+              "queue": [],
+              "pending": null,
+              "paused": false,
+              "quiet": false
+            }
+          }
+        }
+      ],
+      "receipts": [],
+      "candidates": [
+        {
+          "operation": "08f0f549-f6cf-4c07-9ef4-5410f369d879",
+          "request_hash": "702dc3c8b195f90f579359d0447b5a94e7d8dc2273a063b0a74064819dc4d4be",
+          "request": {
+            "reason": "Retain the same pending commitment and add the second copy of the same meeting minutes as provenance, without creating a second obligation or implying completion.",
+            "writes": [
+              {
+                "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:0",
+                "expected_version": null,
+                "archived": false,
+                "data": {
+                  "Note": {
+                    "title": "Supplier written approval — March 2028",
+                    "markdown": "## Reported commitment\n\nThe meeting minutes dated 1 March 2028 report that **Mari will ask the supplier for written approval**, with follow-up on **3 March 2028**.\n\n**Delivery is due 10 March 2028.** The minutes do not separately specify a deadline for Mari's approval request, identify the supplier or delivery, or establish that approval has been obtained.\n\n### Source and coverage\n\nSource: meeting minutes, 1 March 2028 (`update-0.md`). Converted text was supplied; coverage is marked **Unchecked**, with no detected issues or figures reported. This is a reported commitment, not evidence of completion.\n",
+                    "protected": false,
+                    "confirmed": false,
+                    "superseded_by": null,
+                    "import": {
+                      "source": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                      "full_note": false,
+                      "gaps": [
+                        "Unverified coverage · document: Source coverage was not independently checked for this selected input"
+                      ],
+                      "report": {
+                        "conversion": {
+                          "settings": {
+                            "converter": "xberg",
+                            "ai": false
+                          },
+                          "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                        },
+                        "status": "Unchecked",
+                        "issues": [
+                          {
+                            "kind": "Unverified",
+                            "locator": "document",
+                            "detail": "Source coverage was not independently checked for this selected input"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:1",
+                "expected_version": null,
+                "archived": false,
+                "data": {
+                  "Action": {
+                    "description": "Ask the supplier for written approval, as reported in the 1 March 2028 meeting minutes. Delivery is due 10 March 2028; no separate deadline for this approval request is specified.",
+                    "state": "Open",
+                    "internal": false,
+                    "evidence": null,
+                    "due": null,
+                    "owner": "Mari",
+                    "follow_up": "2028-03-03"
+                  }
+                }
+              },
+              {
+                "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:2",
+                "expected_version": null,
+                "archived": false,
+                "data": {
+                  "Link": {
+                    "from": "08f0f549-f6cf-4c07-9ef4-5410f369d879:0",
+                    "to": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                    "relation": "source"
+                  }
+                }
+              },
+              {
+                "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:3",
+                "expected_version": null,
+                "archived": false,
+                "data": {
+                  "Link": {
+                    "from": "08f0f549-f6cf-4c07-9ef4-5410f369d879:1",
+                    "to": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                    "relation": "source"
+                  }
+                }
+              },
+              {
+                "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:4",
+                "expected_version": null,
+                "archived": false,
+                "data": {
+                  "Link": {
+                    "from": "08f0f549-f6cf-4c07-9ef4-5410f369d879:0",
+                    "to": "08f0f549-f6cf-4c07-9ef4-5410f369d879:1",
+                    "relation": "related"
+                  }
+                }
+              },
+              {
+                "id": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                "expected_version": 1,
+                "archived": false,
+                "data": {
+                  "Source": {
+                    "locator": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+                    "label": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-0.md",
+                    "observed_at": "unix:1792997061",
+                    "external_version": "e6769e118f9315a7342aaefb2559b2916dc03f08baad3d8b8b5da1cc978b3f5b",
+                    "outcome": "Coverage not independently checked",
+                    "gaps": [],
+                    "report": {
+                      "conversion": {
+                        "settings": {
+                          "converter": "xberg",
+                          "ai": false
+                        },
+                        "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                      },
+                      "status": "Unchecked",
+                      "issues": []
+                    }
+                  }
+                }
+              },
+              {
+                "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:5",
+                "expected_version": null,
+                "archived": false,
+                "data": {
+                  "Link": {
+                    "from": "08f0f549-f6cf-4c07-9ef4-5410f369d879:0",
+                    "to": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                    "relation": "source"
+                  }
+                }
+              },
+              {
+                "id": "08f0f549-f6cf-4c07-9ef4-5410f369d879:6",
+                "expected_version": null,
+                "archived": false,
+                "data": {
+                  "Link": {
+                    "from": "08f0f549-f6cf-4c07-9ef4-5410f369d879:1",
+                    "to": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                    "relation": "source"
+                  }
+                }
+              },
+              {
+                "id": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                "expected_version": 1,
+                "archived": false,
+                "data": {
+                  "Source": {
+                    "locator": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-1.md",
+                    "label": "EVIDENCE/meetings/meeting-duplicate-notes-one-followup/update-1.md",
+                    "observed_at": "unix:1792997103",
+                    "external_version": "ffad19a8cbc098a22dba333246ace8c7999f9e21ec01dc2ff340b2b8c251cbff",
+                    "outcome": "Coverage not independently checked",
+                    "gaps": [],
+                    "report": {
+                      "conversion": {
+                        "settings": {
+                          "converter": "xberg",
+                          "ai": false
+                        },
+                        "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+                      },
+                      "status": "Unchecked",
+                      "issues": []
+                    }
+                  }
+                }
+              }
+            ],
+            "inputs": [
+              {
+                "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+                "version": 1
+              },
+              {
+                "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "version": 2
+              },
+              {
+                "record": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                "version": 1
+              },
+              {
+                "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                "version": 2,
+                "expectation": "ChatContext"
+              }
+            ]
+          }
+        }
+      ],
+      "lineage": [
+        {
+          "operation": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856",
+          "applied": false,
+          "inputs": [
+            {
+              "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+              "version": 1,
+              "expectation": "Current"
+            },
+            {
+              "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+              "version": 1,
+              "expectation": "ChatContext"
+            }
+          ]
+        },
+        {
+          "operation": "08f0f549-f6cf-4c07-9ef4-5410f369d879",
+          "applied": false,
+          "inputs": [
+            {
+              "record": "6a687684-c5a5-4857-b50b-3a1664697c3d:2",
+              "version": 1,
+              "expectation": "Current"
+            },
+            {
+              "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+              "version": 2,
+              "expectation": "Current"
+            },
+            {
+              "record": "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+              "version": 1,
+              "expectation": "Current"
+            },
+            {
+              "record": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+              "version": 2,
+              "expectation": "ChatContext"
+            }
+          ]
+        }
+      ]
+    },
+    "outcomes": [
+      {
+        "run": "6a687684-c5a5-4857-b50b-3a1664697c3d:0",
+        "terminal": "Completed",
+        "answer": "Prepared for review; **not yet applied**:\n\n- A concise, source-linked note capturing Mari’s reported commitment to ask the supplier for written approval.\n- One open action assigned to **Mari**, with follow-up on **3 March 2028**.\n- **10 March 2028** retained as the delivery deadline—not assumed to be the deadline for requesting approval.\n\nSource coverage remains marked **unchecked**. Nothing is marked complete, and no reminder or external message was sent.\n\nWould you approve saving the note and action?",
+        "search": "available",
+        "notices": [],
+        "trace": {
+          "format": 1,
+          "level": "full",
+          "guide": "brn-threads-guidance-23:3cc37fa37754b4e7e9208f31d5df821360ecb4a94fb8ee49be547d10eae391ca",
+          "search": true,
+          "rounds": 4,
+          "max_rounds": 12,
+          "model_turns": 5,
+          "stopped": null,
+          "usage": {
+            "input": 59725,
+            "output": 809,
+            "cached_input": 46592
+          },
+          "turn_usage": [
+            {
+              "input": 10905,
+              "output": 21,
+              "cached_input": 0
+            },
+            {
+              "input": 10950,
+              "output": 21,
+              "cached_input": 10752
+            },
+            {
+              "input": 11324,
+              "output": 615,
+              "cached_input": 10880
+            },
+            {
+              "input": 13226,
+              "output": 43,
+              "cached_input": 11776
+            },
+            {
+              "input": 13320,
+              "output": 109,
+              "cached_input": 13184
+            }
+          ],
+          "elapsed_ms": 31413,
+          "calls": [
+            {
+              "seq": 1,
+              "round": 1,
+              "tool": "read_records",
+              "args": {
+                "id_count": 0,
+                "ids": [],
+                "catalog": false,
+                "query": {
+                  "query_hash": "98494c0901a9",
+                  "words": 1,
+                  "query": "Mari"
+                }
+              },
+              "outcome": "success",
+              "bytes": 47,
+              "ms": 0,
+              "result": {
+                "rows": 0,
+                "ids": [],
+                "truncated": false
+              }
+            },
+            {
+              "seq": 2,
+              "round": 2,
+              "tool": "read_records",
+              "args": {
+                "id_count": 0,
+                "ids": [],
+                "catalog": true
+              },
+              "outcome": "success",
+              "bytes": 956,
+              "ms": 1,
+              "result": {
+                "rows": 2,
+                "ids": [
+                  "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                  "6a687684-c5a5-4857-b50b-3a1664697c3d:2"
+                ],
+                "truncated": false
+              }
+            },
+            {
+              "seq": 3,
+              "round": 3,
+              "tool": "prepare_changes",
+              "args": {
+                "writes": {
+                  "Action": 1,
+                  "Link": 3,
+                  "Note": 1
+                },
+                "inputs": 1
+              },
+              "outcome": "success",
+              "bytes": 3724,
+              "ms": 5,
+              "result": {
+                "operation": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856"
+              }
+            },
+            {
+              "seq": 4,
+              "round": 4,
+              "tool": "apply_changes",
+              "args": {
+                "operation": "033d16f8-1cb6-46c3-b0d2-2c8fc1baf856"
+              },
+              "outcome": "NeedsReview",
+              "bytes": 77,
+              "ms": 3,
+              "result": null
+            }
+          ],
+          "dropped_calls": 0,
+          "host_context": {
+            "retrieval": "ok",
+            "queries": 3,
+            "failures": 0,
+            "semantic": "none",
+            "sources_shown": 1,
+            "sources_not_shown": 0,
+            "uncovered_sources": 0,
+            "pages": [],
+            "also_found": [],
+            "shed": [],
+            "ms": 7,
+            "query_text": [
+              {
+                "mode": "hybrid",
+                "query": "Meeting minutes, 1 March 2028. Mari will ask the supplier for written approval. Follow up on 3 March 2028; delivery is due 10 March 2028."
+              },
+              {
+                "mode": "keyword",
+                "query": "march meeting follow mari supplier approval delivery minutes written ask due 2028"
+              },
+              {
+                "mode": "keyword",
+                "query": "meeting march mari follow"
+              }
+            ],
+            "uncovered_detail": [],
+            "prompt_bytes": 1144
+          }
+        },
+        "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+        "reused_chat": null
+      },
+      {
+        "run": "055c97ca-0565-4e65-94e7-2bee2475ed96:0",
+        "terminal": "Completed",
+        "answer": "This source is a second copy of the same meeting minutes, not a new obligation. I refreshed the existing proposal to include both source references, preserving just **one action**:\n\n- **Mari** will ask the supplier for written approval.\n- **Follow-up:** 3 March 2028.\n- **Delivery deadline:** 10 March 2028—not a separate deadline for requesting approval.\n\nThe refreshed proposal **still needs review and has not been applied**. Coverage remains unchecked; no completion, reminder or external message is recorded.\n\nWould you approve saving the note and single action with both source references?",
+        "search": "available",
+        "notices": [],
+        "trace": {
+          "format": 1,
+          "level": "full",
+          "guide": "brn-threads-guidance-23:3cc37fa37754b4e7e9208f31d5df821360ecb4a94fb8ee49be547d10eae391ca",
+          "search": true,
+          "rounds": 5,
+          "max_rounds": 12,
+          "model_turns": 6,
+          "stopped": null,
+          "usage": {
+            "input": 82091,
+            "output": 1446,
+            "cached_input": 64384
+          },
+          "turn_usage": [
+            {
+              "input": 11452,
+              "output": 21,
+              "cached_input": 9728
+            },
+            {
+              "input": 11708,
+              "output": 21,
+              "cached_input": 11392
+            },
+            {
+              "input": 12385,
+              "output": 43,
+              "cached_input": 0
+            },
+            {
+              "input": 13496,
+              "output": 1197,
+              "cached_input": 12288
+            },
+            {
+              "input": 16481,
+              "output": 40,
+              "cached_input": 14592
+            },
+            {
+              "input": 16569,
+              "output": 124,
+              "cached_input": 16384
+            }
+          ],
+          "elapsed_ms": 62158,
+          "calls": [
+            {
+              "seq": 1,
+              "round": 1,
+              "tool": "read_records",
+              "args": {
+                "id_count": 0,
+                "ids": [],
+                "catalog": false,
+                "query": {
+                  "query_hash": "e6b2c09254a7",
+                  "words": 1,
+                  "query": "Mari"
+                }
+              },
+              "outcome": "success",
+              "bytes": 824,
+              "ms": 1,
+              "result": {
+                "rows": 1,
+                "ids": [
+                  "28e059c2-f8b4-4f98-ad59-88dcd659c32b:0"
+                ],
+                "truncated": false
+              }
+            },
+            {
+              "seq": 2,
+              "round": 2,
+              "tool": "read_records",
+              "args": {
+                "id_count": 0,
+                "ids": [],
+                "catalog": true
+              },
+              "outcome": "success",
+              "bytes": 1792,
+              "ms": 1,
+              "result": {
+                "rows": 3,
+                "ids": [
+                  "055c97ca-0565-4e65-94e7-2bee2475ed96:2",
+                  "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+                  "6a687684-c5a5-4857-b50b-3a1664697c3d:2"
+                ],
+                "truncated": false
+              }
+            },
+            {
+              "seq": 3,
+              "round": 3,
+              "tool": "read_candidate",
+              "args": {},
+              "outcome": "success",
+              "bytes": 3456,
+              "ms": 3,
+              "result": null
+            },
+            {
+              "seq": 4,
+              "round": 4,
+              "tool": "refresh_candidate",
+              "args": {
+                "writes": {
+                  "Action": 1,
+                  "Link": 5,
+                  "Note": 1,
+                  "Source": 1
+                },
+                "inputs": 3
+              },
+              "outcome": "success",
+              "bytes": 5005,
+              "ms": 12,
+              "result": {
+                "operation": "08f0f549-f6cf-4c07-9ef4-5410f369d879"
+              }
+            },
+            {
+              "seq": 5,
+              "round": 5,
+              "tool": "apply_changes",
+              "args": {
+                "operation": "08f0f549-f6cf-4c07-9ef4-5410f369d879"
+              },
+              "outcome": "NeedsReview",
+              "bytes": 77,
+              "ms": 4,
+              "result": null
+            }
+          ],
+          "dropped_calls": 0,
+          "host_context": {
+            "retrieval": "ok",
+            "queries": 3,
+            "failures": 0,
+            "semantic": "none",
+            "sources_shown": 1,
+            "sources_not_shown": 0,
+            "uncovered_sources": 0,
+            "pages": [],
+            "also_found": [],
+            "shed": [],
+            "ms": 7,
+            "query_text": [
+              {
+                "mode": "hybrid",
+                "query": "Second copy of the same 1 March 2028 meeting minutes, not a second meeting or obligation: Mari will ask the supplier for written approval. Follow up on 3 March 2028; delivery is due 10 March 2028."
+              },
+              {
+                "mode": "keyword",
+                "query": "march second follow mari meeting obligation supplier approval delivery minutes written copy same ask due 2028"
+              },
+              {
+                "mode": "keyword",
+                "query": "second march mari follow"
+              }
+            ],
+            "uncovered_detail": [],
+            "prompt_bytes": 1289
+          }
+        },
+        "thread": "611c14f6-c769-466c-a2e5-a551d0b3a9f5:0",
+        "reused_chat": null
+      }
+    ],
+    "commands": [
+      {
+        "command": "init",
+        "seconds": 0.014,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "configure",
+        "seconds": 0.008,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "delegation",
+        "seconds": 0.007,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "thread-start",
+        "seconds": 0.007,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "records",
+        "seconds": 0.005,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "history",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "candidates",
+        "seconds": 0.005,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "intake",
+        "seconds": 32.305,
+        "exit": 0,
+        "status": "Completed"
+      },
+      {
+        "command": "records",
+        "seconds": 0.014,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "history",
+        "seconds": 0.009,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "candidates",
+        "seconds": 0.007,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "operation",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "records",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "history",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "candidates",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "operation",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "intake",
+        "seconds": 62.218,
+        "exit": 0,
+        "status": "Completed"
+      },
+      {
+        "command": "records",
+        "seconds": 0.017,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "history",
+        "seconds": 0.011,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "candidates",
+        "seconds": 0.008,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "operation",
+        "seconds": 0.007,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "operation",
+        "seconds": 0.007,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "records",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "history",
+        "seconds": 0.007,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "candidates",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "operation",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "operation",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "operation",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "operation",
+        "seconds": 0.005,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "records",
+        "seconds": 0.008,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "history",
+        "seconds": 0.007,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "candidates",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "operation",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      },
+      {
+        "command": "operation",
+        "seconds": 0.006,
+        "exit": 0,
+        "status": "ok"
+      }
+    ],
+    "failure": null,
+    "verification_failure": null,
+    "semantic_status": "requires_review",
+    "provider_completed": true,
+    "completed": true,
+    "structural_checks": {
+      "protected_references_preserved": true,
+      "action_count_including_pending": true,
+      "action_states_including_pending": true,
+      "saved_action_facts": true,
+      "action_facts_including_pending": true,
+      "action_sources_resolved": true,
+      "action_source_links": true,
+      "action_source_inputs": true
+    },
+    "undo": {
+      "status": "not_run",
+      "reason": "No eligible current applied model note group"
+    },
+    "stage": "complete",
+    "filler_notes": 0
+  },
+  "fresh_process_readbacks": {
+    "step_1_exact": true,
+    "step_2_exact": true,
+    "final_exact": true
+  },
+  "scope": "headless live-model duplicate meeting case; no Apply/Undo, other case, UI, push, merge, release or owner acceptance"
+}

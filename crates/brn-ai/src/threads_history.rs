@@ -3,6 +3,145 @@ use super::*;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
+pub(super) struct CandidateArgs {
+    pub operation: String,
+}
+pub(super) fn validate_candidate(args: &Value) -> bool {
+    serde_json::from_value::<CandidateArgs>(args.clone())
+        .is_ok_and(|args| !args.operation.is_empty() && args.operation.len() <= 256)
+}
+pub(super) fn candidate_schema() -> Value {
+    object(
+        json!({"operation":{"type":"string","description":"Exact pending operation ID from this chat's Run family"}}),
+        json!(["operation"]),
+    )
+}
+pub(super) fn read_candidate(scope: &Scope, args: CandidateArgs) -> AiResult<Value> {
+    if scope.writing_snapshot.is_some()
+        || scope.scout.is_some()
+        || !validate_candidate(&json!({"operation":args.operation}))
+    {
+        return Err(rejected());
+    }
+    let store = scope.store.lock().map_err(storage)?;
+    live(scope, &store)?;
+    let operation = store.operation(&args.operation).map_err(|_| rejected())?;
+    let thread = thread_for(scope, &store)?;
+    if thread != scope.chat {
+        return Err(rejected());
+    }
+    // Membership is the same host-owned authority boundary as runtime refresh.
+    // Owner preparations and other chats are not this Run family's proposals.
+    if !store.records().map_err(storage)?.iter().any(|record| !record.archived
+        && matches!(&record.data, RecordData::Run(run) if run.thread == thread && run.operations.contains(&operation)))
+        || store.active_candidates(std::slice::from_ref(&operation)).map_err(storage)?.is_empty() {
+        return Err(rejected());
+    }
+    let prepared = store.prepared(&operation).map_err(|_| rejected())?;
+    check_scope(scope, &store, &prepared.request)?;
+    if validate_request_policy(&prepared.request).is_err() {
+        return Err(rejected());
+    }
+    for input in &prepared.request.inputs {
+        if matches!(store.revision(&input.record, input.version).map_err(storage)?,
+            Some(Record { data: RecordData::Message(message), .. }) if message.role == WRITING_REQUEST_ROLE)
+        {
+            return Err(rejected());
+        }
+    }
+    let mut request = prepared.request;
+    let mut mapping = BTreeMap::new();
+    for write in &request.writes {
+        if write.expected_version.is_none() {
+            let index = (0..64)
+                .find(|index| operation.creation_id(*index) == write.id)
+                .ok_or_else(rejected)?;
+            mapping.insert(write.id.clone(), format!("new:{index}"));
+        }
+    }
+    let visible = |id: &str| -> AiResult<()> {
+        if mapping.contains_key(id)
+            || store
+                .record_visible_in_chat(id, Some(&scope.chat))
+                .map_err(storage)?
+        {
+            Ok(())
+        } else {
+            Err(rejected())
+        }
+    };
+    for write in &mut request.writes {
+        if let Some(version) = write.expected_version
+            && !store
+                .revision_visible_in_chat(&write.id, version, Some(&scope.chat))
+                .map_err(storage)?
+        {
+            return Err(rejected());
+        }
+        let chat = match &mut write.data {
+            RecordData::Note(note) => {
+                if let Some(id) = &note.superseded_by {
+                    visible(id)?;
+                }
+                if let Some(import) = &note.import {
+                    visible(&import.source)?;
+                }
+                Some(&mut note.chat)
+            }
+            RecordData::Action(action) => Some(&mut action.chat),
+            RecordData::Source(source) => Some(&mut source.chat),
+            RecordData::Link(link) => {
+                visible(&link.from)?;
+                visible(&link.to)?;
+                None
+            }
+            RecordData::Comment(comment) => {
+                visible(&comment.note)?;
+                if !mapping.contains_key(&comment.note)
+                    && !store
+                        .revision_visible_in_chat(
+                            &comment.note,
+                            comment.base_version,
+                            Some(&scope.chat),
+                        )
+                        .map_err(storage)?
+                {
+                    return Err(rejected());
+                }
+                None
+            }
+            RecordData::Thread(thread) => {
+                for attention in &thread.attention {
+                    if let Some(id) = &attention.record {
+                        visible(id)?;
+                    }
+                }
+                None
+            }
+            _ => return Err(rejected()),
+        };
+        if let Some(chat) = chat {
+            if chat.as_ref().is_some_and(|id| id != &scope.chat) {
+                return Err(rejected());
+            }
+            if write.expected_version.is_none() {
+                // Creation scope is host-owned: refresh will rebind it from the
+                // same live chat's sticky private context, not from model JSON.
+                *chat = None;
+            }
+        }
+    }
+    remap_request_ids(&mut request, &mapping);
+    let out = json!({"outcome":"PendingCandidate","operation":operation,"request_hash":prepared.request_hash,"request":request});
+    // Never return a truncated request that could silently drop provenance.
+    if !context_budget::result_fits(&out) {
+        return Err(context_budget::result_failure());
+    }
+    Ok(out)
+}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 pub(super) struct HistoryArgs {
     pub id: String,
     pub version: Option<u64>,
@@ -187,6 +326,515 @@ pub(super) fn refresh(scope: &Scope, mut args: RefreshArgs) -> AiResult<Value> {
 mod tests {
     use super::*;
     use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+
+    #[test]
+    fn runtime_offers_bounded_pending_candidate_inspection() {
+        assert!(
+            tool_names().contains(&"read_candidate"),
+            "pending proposal bodies must be inspectable before provenance refresh"
+        );
+        assert!(parse_valid(
+            "read_candidate",
+            &json!({"operation":"known-pending-operation"})
+        ));
+        assert!(!parse_valid("read_candidate", &json!({"operation":""})));
+        assert!(!parse_valid(
+            "read_candidate",
+            &json!({"operation":"known", "all":true})
+        ));
+    }
+
+    fn save_source(store: &mut Store, key: &str, chat: Option<String>) -> String {
+        let op = store.allocate_operation(key).unwrap();
+        let id = op.creation_id(0);
+        let request = ChangeRequest {
+            reason: "Synthetic intake observation".into(),
+            inputs: vec![],
+            writes: vec![Put {
+                id: id.clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Source(Source {
+                    chat,
+                    locator: format!("synthetic://{key}"),
+                    label: key.into(),
+                    observed_at: "2026-10-25".into(),
+                    external_version: None,
+                    outcome: "Observed".into(),
+                    gaps: vec![],
+                    report: None,
+                }),
+            }],
+        };
+        let owner = HostAuthority::owner("synthetic source");
+        store.prepare_owner(&op, &request, &owner).unwrap();
+        store.apply(&op, &owner).unwrap();
+        id
+    }
+    fn action_request(source: &str) -> ChangeRequest {
+        serde_json::from_value(json!({"reason":"Owner follow-up requires review","inputs":[{"record":source,"version":1}],"writes":[
+            {"id":"new:0","expected_version":null,"archived":false,"data":{"Action":{"description":"Mari to ask for approval","state":"Open","internal":false,"evidence":null,"due":null,"owner":"Mari","waiting_on":null,"follow_up":"2028-03-03"}}},
+            {"id":"new:1","expected_version":null,"archived":false,"data":{"Link":{"from":"new:0","to":source,"relation":"source"}}}
+        ]})).unwrap()
+    }
+    // Simulate two durable intake Source observations across fresh runtime scopes;
+    // no converter, provider call, automatic attachment or Apply is exercised.
+    #[test]
+    fn sequential_intakes_inspect_and_refresh_one_pending_action_with_both_sources() {
+        const CHILD_ROOT: &str = "BRN_PENDING_PROVENANCE_READBACK_ROOT";
+        if let Some(root) = std::env::var_os(CHILD_ROOT) {
+            let root = std::path::PathBuf::from(root);
+            let expected: Prepared =
+                serde_json::from_slice(&std::fs::read(root.join("expected.json")).unwrap())
+                    .unwrap();
+            let store = Store::open(root.join("workspace")).unwrap();
+            assert_eq!(store.candidates().unwrap(), vec![expected.clone()]);
+            assert_eq!(store.prepared(&expected.operation).unwrap(), expected);
+            assert!(store.receipt(&expected.operation).unwrap().is_none());
+            assert!(
+                !store
+                    .records()
+                    .unwrap()
+                    .iter()
+                    .any(|r| matches!(r.data, RecordData::Action(_)))
+            );
+            std::fs::write(root.join("readback-checked"), b"checked").unwrap();
+            return;
+        }
+        let (root, run_request, _) = super::super::tests::fixture();
+        let first_source = save_source(
+            &mut Store::open(&run_request.data_dir).unwrap(),
+            "first-source",
+            None,
+        );
+        let (first_scope, _) = begin(&run_request).unwrap();
+        let initial = prepare(
+            &first_scope,
+            PrepareArgs {
+                writing: None,
+                request_key: "first-proposal".into(),
+                request: action_request(&first_source),
+            },
+        )
+        .unwrap();
+        let original = initial["operation"].as_str().unwrap().to_owned();
+        drop(first_scope);
+        let second_source = save_source(
+            &mut Store::open(&run_request.data_dir).unwrap(),
+            "second-source",
+            None,
+        );
+        let (scope, _) = begin(&run_request).unwrap();
+        let inspected = read_candidate(
+            &scope,
+            CandidateArgs {
+                operation: original.clone(),
+            },
+        )
+        .unwrap();
+        let mut request: ChangeRequest =
+            serde_json::from_value(inspected["request"].clone()).unwrap();
+        assert_eq!(request.writes[0].id, "new:0");
+        assert!(
+            matches!(&request.writes[1].data, RecordData::Link(link) if link.from == "new:0" && link.to == first_source)
+        );
+        assert!(
+            request
+                .inputs
+                .iter()
+                .any(|input| input.record == first_source && input.version == 1)
+        );
+        request.writes.push(Put {
+            id: "new:2".into(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Link(Link {
+                from: "new:0".into(),
+                to: second_source.clone(),
+                relation: "source".into(),
+            }),
+        });
+        request.inputs.push(RevisionInput {
+            record: second_source.clone(),
+            version: 1,
+            expectation: InputExpectation::Current,
+        });
+        let replacement = refresh(
+            &scope,
+            RefreshArgs {
+                operation: original.clone(),
+                request_key: "both-sources".into(),
+                request: request.clone(),
+            },
+        )
+        .unwrap();
+        assert_eq!(
+            replacement,
+            refresh(
+                &scope,
+                RefreshArgs {
+                    operation: original.clone(),
+                    request_key: "both-sources".into(),
+                    request: request.clone()
+                }
+            )
+            .unwrap()
+        );
+        assert!(
+            read_candidate(
+                &scope,
+                CandidateArgs {
+                    operation: original.clone()
+                }
+            )
+            .is_err()
+        );
+        let replacement_id = replacement["operation"].as_str().unwrap().to_owned();
+        let saved = {
+            let store = scope.store.lock().unwrap();
+            let candidates = store.candidates().unwrap();
+            assert_eq!(candidates.len(), 1);
+            let candidate = &candidates[0];
+            assert_eq!(candidate.operation.as_str(), replacement_id);
+            let actions: Vec<_> = candidate
+                .request
+                .writes
+                .iter()
+                .filter(|w| matches!(w.data, RecordData::Action(_)))
+                .collect();
+            assert_eq!(actions.len(), 1);
+            assert!(
+                matches!(&actions[0].data, RecordData::Action(a) if a.evidence.is_none() && a.owner.as_deref()==Some("Mari") && a.follow_up.as_deref()==Some("2028-03-03") && a.due.is_none() && a.state==ActionState::Open)
+            );
+            for source in [&first_source, &second_source] {
+                assert!(candidate.request.inputs.iter().any(|i| &i.record == source
+                    && i.version == 1
+                    && i.expectation == InputExpectation::Current));
+                assert!(candidate.request.writes.iter().any(|w| matches!(&w.data,RecordData::Link(l) if l.from==actions[0].id && &l.to==source && l.relation=="source")));
+            }
+            assert!(store.receipt(&candidate.operation).unwrap().is_none());
+            assert!(
+                store
+                    .receipt(&store.operation(&original).unwrap())
+                    .unwrap()
+                    .is_none()
+            );
+            assert!(
+                !store
+                    .records()
+                    .unwrap()
+                    .iter()
+                    .any(|r| matches!(r.data, RecordData::Action(_)))
+            );
+            candidate.clone()
+        };
+        drop(scope);
+        std::fs::write(
+            root.path().join("expected.json"),
+            serde_json::to_vec(&saved).unwrap(),
+        )
+        .unwrap();
+        struct Child(std::process::Child);
+        impl Drop for Child {
+            fn drop(&mut self) {
+                if self.0.try_wait().ok().flatten().is_none() {
+                    let _ = self.0.kill();
+                }
+                let _ = self.0.wait();
+            }
+        }
+        let mut child=Child(std::process::Command::new(std::env::current_exe().unwrap())
+            .args(["--exact","threads::history::tests::sequential_intakes_inspect_and_refresh_one_pending_action_with_both_sources","--test-threads=1","--nocapture"])
+            .env(CHILD_ROOT,root.path()).spawn().unwrap());
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
+        loop {
+            if let Some(status) = child.0.try_wait().unwrap() {
+                assert!(
+                    status.success(),
+                    "fresh-process pending readback failed: {status}"
+                );
+                break;
+            }
+            assert!(
+                std::time::Instant::now() < deadline,
+                "fresh-process readback timed out"
+            );
+            std::thread::sleep(std::time::Duration::from_millis(10));
+        }
+        assert!(root.path().join("readback-checked").is_file());
+        assert_eq!(
+            Store::open(&run_request.data_dir)
+                .unwrap()
+                .prepared(&saved.operation)
+                .unwrap(),
+            saved
+        );
+        let (reopened, _) = begin(&run_request).unwrap();
+        let readback = read_candidate(
+            &reopened,
+            CandidateArgs {
+                operation: replacement_id,
+            },
+        )
+        .unwrap();
+        assert_eq!(readback["request_hash"], json!(saved.request_hash));
+        assert_eq!(readback["request"]["writes"][0]["id"], "new:0");
+    }
+
+    #[test]
+    fn pending_private_creation_reconstructs_sparse_ids_without_rewriting_prose() {
+        let (_root, run_request, _) = super::super::tests::fixture();
+        let source = {
+            let mut store = Store::open(&run_request.data_dir).unwrap();
+            let mut chat = store.record(&run_request.thread).unwrap().unwrap();
+            if let RecordData::Thread(t) = &mut chat.data {
+                t.private_context = true;
+            }
+            let op = store.allocate_operation("private-chat-fixture").unwrap();
+            let owner = HostAuthority::owner("private fixture");
+            store
+                .prepare_owner(
+                    &op,
+                    &ChangeRequest {
+                        reason: "Synthetic private scope".into(),
+                        inputs: vec![],
+                        writes: vec![Put {
+                            id: chat.id,
+                            expected_version: Some(chat.version),
+                            archived: false,
+                            data: chat.data,
+                        }],
+                    },
+                    &owner,
+                )
+                .unwrap();
+            store.apply(&op, &owner).unwrap();
+            save_source(
+                &mut store,
+                "private-source",
+                Some(run_request.thread.clone()),
+            )
+        };
+        let (scope, _) = begin(&run_request).unwrap();
+        let op = scope
+            .store
+            .lock()
+            .unwrap()
+            .allocate_operation(&format!("{}:proposal:sparse", scope.run))
+            .unwrap();
+        let prose = format!("Preserve literal {} and new:7 as prose", op.creation_id(7));
+        let mut request = action_request(&source);
+        request.writes[0].id = "new:7".into();
+        if let RecordData::Action(a) = &mut request.writes[0].data {
+            a.description = prose.clone();
+        }
+        request.writes[1].id = "new:12".into();
+        if let RecordData::Link(l) = &mut request.writes[1].data {
+            l.from = "new:7".into();
+        }
+        let prepared = prepare(
+            &scope,
+            PrepareArgs {
+                writing: None,
+                request_key: "sparse".into(),
+                request,
+            },
+        )
+        .unwrap();
+        let inspected = read_candidate(
+            &scope,
+            CandidateArgs {
+                operation: prepared["operation"].as_str().unwrap().into(),
+            },
+        )
+        .unwrap();
+        let reconstructed: ChangeRequest =
+            serde_json::from_value(inspected["request"].clone()).unwrap();
+        assert_eq!(reconstructed.writes[0].id, "new:7");
+        assert_eq!(reconstructed.writes[1].id, "new:12");
+        assert!(
+            matches!(&reconstructed.writes[0].data,RecordData::Action(a) if a.chat.is_none() && a.description==prose)
+        );
+        assert!(matches!(&reconstructed.writes[1].data,RecordData::Link(l) if l.from=="new:7"));
+        let refreshed = refresh(
+            &scope,
+            RefreshArgs {
+                operation: op.as_str().into(),
+                request_key: "private-refresh".into(),
+                request: reconstructed,
+            },
+        )
+        .unwrap();
+        let store = scope.store.lock().unwrap();
+        let replacement = store
+            .operation(refreshed["operation"].as_str().unwrap())
+            .unwrap();
+        let saved = store.prepared(&replacement).unwrap();
+        assert!(
+            matches!(&saved.request.writes[0].data,RecordData::Action(a) if a.chat.as_deref()==Some(scope.chat.as_str()) && a.description==prose)
+        );
+        assert!(store.receipt(&replacement).unwrap().is_none());
+    }
+
+    #[test]
+    fn pending_inspection_rejects_owner_other_chat_private_and_oversized_proposals() {
+        let (_root, run_request, note) = super::super::tests::fixture();
+        let (scope, _) = begin(&run_request).unwrap();
+        let owner_op = {
+            let mut store = scope.store.lock().unwrap();
+            let op = store.allocate_operation("owner-only-proposal").unwrap();
+            store
+                .prepare_owner(
+                    &op,
+                    &request(&note, 1, "OWNER PRIVATE CANDIDATE", false),
+                    &HostAuthority::owner("owner"),
+                )
+                .unwrap();
+            op
+        };
+        assert!(
+            read_candidate(
+                &scope,
+                CandidateArgs {
+                    operation: owner_op.as_str().into()
+                }
+            )
+            .is_err()
+        );
+        super::super::tests::read_all(&scope);
+        let candidate = prepare(
+            &scope,
+            PrepareArgs {
+                writing: None,
+                request_key: "same-chat".into(),
+                request: request(&note, 1, "Candidate body", false),
+            },
+        )
+        .unwrap();
+        let operation = candidate["operation"].as_str().unwrap().to_owned();
+        let other_chat = {
+            let mut store = scope.store.lock().unwrap();
+            let op = store.allocate_operation("other-chat-inspection").unwrap();
+            let id = op.creation_id(0);
+            let request = ChangeRequest {
+                reason: "Other private chat".into(),
+                inputs: vec![],
+                writes: vec![Put {
+                    id: id.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Thread(Thread {
+                        private_context: true,
+                        context_epoch: 0,
+                        title: "Other private".into(),
+                        state: ThreadState::Open,
+                        attention: vec![],
+                    }),
+                }],
+            };
+            let owner = HostAuthority::owner("fixture");
+            store.prepare_owner(&op, &request, &owner).unwrap();
+            store.apply(&op, &owner).unwrap();
+            id
+        };
+        let mut other_request = run_request;
+        other_request.thread = other_chat.clone();
+        let (other, _) = begin(&other_request).unwrap();
+        assert!(
+            read_candidate(
+                &other,
+                CandidateArgs {
+                    operation: operation.clone()
+                }
+            )
+            .is_err()
+        );
+        // A visibility change after preparation cannot expose the prior body.
+        {
+            let mut store = scope.store.lock().unwrap();
+            let mut moved = request(&note, 1, "PRIVATE AFTER MOVE", false);
+            if let RecordData::Note(note) = &mut moved.writes[0].data {
+                note.chat = Some(other_chat);
+            }
+            let op = store.allocate_operation("move-note-private").unwrap();
+            let owner = HostAuthority::owner("fixture");
+            store.prepare_owner(&op, &moved, &owner).unwrap();
+            store.apply(&op, &owner).unwrap();
+        }
+        assert!(read_candidate(&scope, CandidateArgs { operation }).is_err());
+        // Construct a host fixture with an otherwise authorized family reference
+        // to an old private base. Current publication alone must not expose that
+        // historical candidate body. Runtime tools cannot forge Run membership.
+        let historical = {
+            let mut store = scope.store.lock().unwrap();
+            let owner = HostAuthority::owner("historical visibility fixture");
+            let op = store.allocate_operation("private-base-proposal").unwrap();
+            store
+                .prepare_owner(
+                    &op,
+                    &request(&note, 2, "HIDDEN HISTORICAL BODY", false),
+                    &owner,
+                )
+                .unwrap();
+            let publish = store.allocate_operation("publish-current-only").unwrap();
+            store
+                .prepare_owner(
+                    &publish,
+                    &request(&note, 2, "Public current body", false),
+                    &owner,
+                )
+                .unwrap();
+            store.apply(&publish, &owner).unwrap();
+            assert!(
+                store
+                    .record_visible_in_chat(&note, Some(&scope.chat))
+                    .unwrap()
+            );
+            assert!(
+                !store
+                    .revision_visible_in_chat(&note, 2, Some(&scope.chat))
+                    .unwrap()
+            );
+            update_run(&scope, &mut store, |run| run.operations.push(op.clone())).unwrap();
+            op
+        };
+        assert!(
+            read_candidate(
+                &scope,
+                CandidateArgs {
+                    operation: historical.as_str().into()
+                }
+            )
+            .is_err()
+        );
+        let huge = prepare(
+            &scope,
+            PrepareArgs {
+                writing: None,
+                request_key: "large".into(),
+                request: ChangeRequest {
+                    reason: "Bounded inspect refuses complete oversized output".into(),
+                    inputs: vec![],
+                    writes: vec![Put {
+                        id: "new:0".into(),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Note(Note::working("Large", "\\\"".repeat(200_000))),
+                    }],
+                },
+            },
+        )
+        .unwrap();
+        assert!(
+            read_candidate(
+                &scope,
+                CandidateArgs {
+                    operation: huge["operation"].as_str().unwrap().into()
+                }
+            )
+            .is_err()
+        );
+    }
 
     fn request(note: &str, version: u64, text: &str, protected: bool) -> ChangeRequest {
         let mut data = Note::working("Decision", text);

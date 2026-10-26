@@ -1,0 +1,8 @@
+   Compiling brn-intake v0.1.0 (SOURCE_CHECKOUT/crates/brn-intake)
+   Compiling brn-threads-intake v0.1.0 (SOURCE_CHECKOUT/crates/brn-threads-intake)
+   Compiling brn-threads-core v0.1.0 (SOURCE_CHECKOUT/crates/brn-threads-core)
+   Compiling brn-retrieval v0.1.0 (SOURCE_CHECKOUT/crates/brn-retrieval)
+   Compiling brn-ai v0.1.0 (SOURCE_CHECKOUT/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (SOURCE_CHECKOUT/crates/brn-threads-app)
+   Compiling brn v0.0.0 (SOURCE_CHECKOUT/crates/brn)
+    Finished `dev` profile [unoptimized] target(s) in 11.75s

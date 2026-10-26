@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Close useful remaining cloud verification for merged follow-ups, manual inbox and Restore; provide a bounded headless Mac live-model prompt.
-**Owner attention:** PR227 merged90e5bceb with seven Mac/Linux/docs main jobs passed; three optional Windows failures. Follow-up tests/evidence may be drafted, not merged. Mac execution/UI acceptance, calculator and release remain outside this cloud task.
+**Goal:** Complete the owner-selected two-step headless Mac pending-provenance qualification at exact 800d26bb; evidence-only local handoff.
+**Owner attention:** The single duplicate-meeting case passed: two new Runs, thirteen cumulative. No further cases, retries, push, merge, release or native interaction are authorized in this session.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,26 +11,7 @@ Task details and full history: [selected work record](active/daily-followups-inb
 
 ## Working on
 
-### Independently review and qualify coherent draft slices
-
-Task ID: `integration`
-Owner: lead integration and independent reviewer · State: **active** · Last observed: 2026-10-25T10:58:26.882361+00:00
-Activity: Initial PR228 Linux CI exposed retained-descriptor inbox lock. Regression failed before fix; explicit-unlock guard reviewed, green regression and all 23 inbox tests plus strict lint passed.
-Next: Publish corrected draft and follow exact-head CI; no merge authority.
-Resource waits: One shared Cargo writer; no simultaneous heavy build and actual Linux UI observation
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** scoped correction: explicit inbox lease release; independently reviewed
-- **checks:** passed locally: red/green regression, 23 inbox tests, strict app lint; corrected-head CI pending at publication
-- **integration:** draft PR228; separate merge decision required
-- **native:** partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending
-- **owner acceptance:** pending: no delivered behavior acceptance
-
-</details>
+None recorded.
 
 ## Next
 
@@ -74,16 +55,27 @@ Gates:
 
 </details>
 
+### Inspect pending proposals and refresh accurate source provenance
+
+Task ID: `pending-proposal-provenance`
+Owner: cloud integration lead; bounded runtime/evaluator writers and independent reviewer · State: **ready** · Last observed: 2026-10-25T15:24:51.072089+00:00
+Activity: Local reviewed c3e1d4ef+e33e9bde+e4bd53ab. Four new Rust regressions and existing history/cache pass; full suite355pass/156unchangedfail/1ignored. Strict lint and130 Python tests pass. No publication/live calls.
+Next: Request approval for normal draft PR229 publication and exact-head hosted CI after remote drift check; no merge/live authority.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** passed: bounded inspection, existing refresh, strict provenance oracle; independently reviewed
+- **checks:** targeted pass; full local Rust suite FAILED with unchanged156 credential-boundary-related failures; lint and130 Python pass; hostedCI unrun
+- **integration:** local only; publication approval pending; no merge
+- **native:** unrun: no Mac/UI execution authorized
+- **owner acceptance:** pending: no new live Runs; eleven historical Runs remain partial/failed evidence
+
+</details>
+
 ## Needs attention
-
-### Independently review and qualify coherent draft slices
-
-Task ID: `integration`
-Owner: lead integration and independent reviewer
-
-Waiting:
-
-- resource: One shared Cargo writer; no simultaneous heavy build and actual Linux UI observation
 
 ### Complete actual Mac follow-up, inbox and restore acceptance
 
@@ -134,8 +126,11 @@ Gates:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-6 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+9 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `mac-pending-provenance-live` — Qualify both-source provenance on one pending Action
+- `completion-evidence-guidance` — Separate completion evidence from source grounding
+- `integration` — Independently review and qualify coherent draft slices
 - `actions-followups` — Make meeting-note follow-ups dependable
 - `desktop-restore` — Restore a backup through the existing checked engine
 - `mac-live-prompt` — Deliver bounded headless Mac live-model prompt
@@ -143,4 +138,4 @@ Completion here means the selected task scope is complete; it does not establish
 - `prior-main-ci` — Close the prior batch resulting-main CI gate
 - `documentation` — Record selected scope and narrow backlog decisions
 
-Local page reflects the last saved observations in this record (2026-10-25T10:58:26.882361+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-26T06:49:01.931386+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

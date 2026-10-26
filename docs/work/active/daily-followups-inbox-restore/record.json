@@ -5,12 +5,13 @@
     "prior_merge_and_calculator_deferral": "Sentinel_c40a2bce390c819198a4113ceb9717ae",
     "scope_record": "docs/work/active/daily-followups-inbox-restore/baseline.md",
     "merge_227": "Sentinel_b34d87bb54c08191ab04b92d611f2287",
-    "post_merge_cloud_and_mac_prompt": "Sentinel_1ef3c9fc4a048191891c8049b4eefa03"
+    "post_merge_cloud_and_mac_prompt": "Sentinel_1ef3c9fc4a048191891c8049b4eefa03",
+    "completion_evidence_guidance": "Sentinel_edc8704882d08191b468d38e52715ac2"
   },
   "work_view": {
-    "observed_at": "2026-10-25T10:58:26.882361+00:00",
-    "goal": "Close useful remaining cloud verification for merged follow-ups, manual inbox and Restore; provide a bounded headless Mac live-model prompt.",
-    "owner_attention": "PR227 merged90e5bceb with seven Mac/Linux/docs main jobs passed; three optional Windows failures. Follow-up tests/evidence may be drafted, not merged. Mac execution/UI acceptance, calculator and release remain outside this cloud task.",
+    "observed_at": "2026-10-26T06:49:01.931386+00:00",
+    "goal": "Complete the owner-selected two-step headless Mac pending-provenance qualification at exact 800d26bb; evidence-only local handoff.",
+    "owner_attention": "The single duplicate-meeting case passed: two new Runs, thirteen cumulative. No further cases, retries, push, merge, release or native interaction are authorized in this session.",
     "tasks": [
       {
         "id": "prior-main-ci",
@@ -144,11 +145,11 @@
         "id": "integration",
         "title": "Independently review and qualify coherent draft slices",
         "owner": "lead integration and independent reviewer",
-        "state": "active",
-        "activity": "Initial PR228 Linux CI exposed retained-descriptor inbox lock. Regression failed before fix; explicit-unlock guard reviewed, green regression and all 23 inbox tests plus strict lint passed.",
-        "observed_at": "2026-10-25T10:58:26.882361+00:00",
+        "state": "complete",
+        "activity": "PR228 merged b270ad2f. Main CI40189058904 passed seven Mac/Linux/docs jobs with three optional Windows failures; preview40190505277 skipped publication.",
+        "observed_at": "2026-10-25T12:47:02.054907+00:00",
         "origin": "observed",
-        "next_action": "Publish corrected draft and follow exact-head CI; no merge authority.",
+        "next_action": "Retain merged receipt; the separate PR229 completion-guidance task owns current work.",
         "depends_on": [],
         "resource_waits": [
           "One shared Cargo writer; no simultaneous heavy build and actual Linux UI observation"
@@ -159,8 +160,8 @@
         ],
         "gates": {
           "implementation": "scoped correction: explicit inbox lease release; independently reviewed",
-          "checks": "passed locally: red/green regression, 23 inbox tests, strict app lint; corrected-head CI pending at publication",
-          "integration": "draft PR228; separate merge decision required",
+          "checks": "passed: resulting-main Mac/Linux/docs checks; optional Windows failures separate",
+          "integration": "passed: authorized PR228 normal merge, candidate-identical tree",
           "native": "partial: Linux Data controls, initial Owner keyboard input/visible text and saved Action observed; ATfocus/Text/Screen coordinates and pickers unqualified; actualMac pending",
           "owner_acceptance": "pending: no delivered behavior acceptance"
         },
@@ -280,6 +281,79 @@
           "integration": "pending: follow-up draft PR only; no merge authority",
           "native": "partial: previous Owner input/save observed; extended flow unqualified",
           "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "completion-evidence-guidance",
+        "title": "Separate completion evidence from source grounding",
+        "owner": "cloud integration lead with independent source/evidence review",
+        "state": "complete",
+        "activity": "Published a829ef28; exact-head CI40195458332 six supported Mac/Linux/docs jobs passed, optional Windows failed. Mac b4decd86 then ran two additional Runs (eleven total): null completion evidence passed, second-source pending provenance failed.",
+        "observed_at": "2026-10-25T14:49:07.702751+00:00",
+        "origin": "observed",
+        "next_action": "Preserve receipt; address narrowly approved pending-provenance defect locally.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/mac-live-model-qualification.md",
+          "https://github.com/ewq100/brn-rust/pull/229",
+          "docs/work/active/daily-followups-inbox-restore/completion-evidence-guidance.md"
+        ],
+        "gates": {
+          "implementation": "approved narrow runtime-guidance correction only",
+          "checks": "supported exact-head hosted CI passed; prior cloud credential-boundary failures retained",
+          "integration": "draft only; no merge authority",
+          "native": "inapplicable: no UI execution",
+          "owner_acceptance": "partial live: completion evidence null; pending source provenance failed; no native acceptance"
+        },
+        "attempts": []
+      },
+      {
+        "id": "pending-proposal-provenance",
+        "title": "Inspect pending proposals and refresh accurate source provenance",
+        "owner": "cloud integration lead; bounded runtime/evaluator writers and independent reviewer",
+        "state": "ready",
+        "activity": "Local reviewed c3e1d4ef+e33e9bde+e4bd53ab. Four new Rust regressions and existing history/cache pass; full suite355pass/156unchangedfail/1ignored. Strict lint and130 Python tests pass. No publication/live calls.",
+        "observed_at": "2026-10-25T15:24:51.072089+00:00",
+        "origin": "observed",
+        "next_action": "Request approval for normal draft PR229 publication and exact-head hosted CI after remote drift check; no merge/live authority.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/mac-completion-evidence-qualification.md",
+          "docs/work/active/daily-followups-inbox-restore/evidence/mac-completion-20261025/receipt.json",
+          "docs/work/active/daily-followups-inbox-restore/pending-proposal-provenance.md"
+        ],
+        "gates": {
+          "implementation": "passed: bounded inspection, existing refresh, strict provenance oracle; independently reviewed",
+          "checks": "targeted pass; full local Rust suite FAILED with unchanged156 credential-boundary-related failures; lint and130 Python pass; hostedCI unrun",
+          "integration": "local only; publication approval pending; no merge",
+          "native": "unrun: no Mac/UI execution authorized",
+          "owner_acceptance": "pending: no new live Runs; eleven historical Runs remain partial/failed evidence"
+        },
+        "attempts": []
+      },
+      {
+        "id": "mac-pending-provenance-live",
+        "title": "Qualify both-source provenance on one pending Action",
+        "owner": "Mac qualification lead",
+        "state": "complete",
+        "activity": "Exact 800d26bb: two fresh intakes passed unchanged strict provenance/completion checks and actual byte/trace review. One active pending Action; read_candidate/refresh_candidate added both source v1 inputs/Links, predecessor retired. No Apply. Two new Runs, thirteen cumulative.",
+        "observed_at": "2026-10-26T06:49:01.931386+00:00",
+        "origin": "observed",
+        "next_action": "Retain local evidence commit; this bounded session is closed. No push or further live case without new authorization.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/daily-followups-inbox-restore/mac-pending-provenance-qualification.md"
+        ],
+        "gates": {
+          "implementation": "inapplicable: evidence only; production code unchanged",
+          "checks": "passed: 10 focused Rust tests plus separate child-process witness, 31 guidance tests, pinned CLI/seeder builds, two live steps and fresh-process checks",
+          "integration": "local commit only; no push or merge authorized",
+          "native": "unrun: headless only; no UI or unlock",
+          "owner_acceptance": "not claimed; single live fixture passed"
         },
         "attempts": []
       }

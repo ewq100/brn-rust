@@ -80,7 +80,7 @@ mod trace;
 pub use trace::{HelperTrace, RunTrace, SummaryTrace, TraceCall, TraceLevel, TraceUsage};
 #[path = "threads_sources.rs"]
 mod sources;
-use history::{HistoryArgs, RefreshArgs};
+use history::{CandidateArgs, HistoryArgs, RefreshArgs};
 use note_search::read_message;
 pub use note_search::{
     ConnectionHop, ConnectionLink, ConnectionNode, MAX_SEARCH_LIMIT, NoteNeighbourhood,
@@ -555,6 +555,10 @@ fn validate_arguments(name: &str, args: &Value) -> std::result::Result<(), Argum
             history::validate_history(args),
             "Supply id (1..256 bytes), version (positive integer or null), nonnegative start and max_bytes in 1..131072; only offered fields are accepted.",
         ),
+        "read_candidate" => (
+            history::validate_candidate(args),
+            "Supply only operation: an exact pending operation ID of 1..256 UTF-8 bytes from this chat.",
+        ),
         "refresh_candidate" => return history::validate_refresh_arguments(args),
         "prepare_note_edit" => return note_edit::validate_arguments(args),
         "read_records" => (
@@ -621,8 +625,9 @@ fn parse_valid(name: &str, args: &Value) -> bool {
     validate_arguments(name, args).is_ok()
 }
 // Default Current is omitted from immutable request serialization, but both
-// omitted and explicit Current are valid model arguments. Preserve strict
-// round-trip validation of every other field, including unknown fields.
+// omitted and explicit Current are valid model arguments. The three offered
+// nullable Action follow-up fields also omit None in immutable serialization.
+// Normalize only those equivalent forms; all other fields remain strict.
 fn request_matches_args(request: &ChangeRequest, args: &Value) -> bool {
     let mut canonical = args.clone();
     if let Some(inputs) = canonical.get_mut("inputs").and_then(Value::as_array_mut) {
@@ -631,6 +636,21 @@ fn request_matches_args(request: &ChangeRequest, args: &Value) -> bool {
                 && let Some(input) = input.as_object_mut()
             {
                 input.remove("expectation");
+            }
+        }
+    }
+    if let Some(writes) = canonical.get_mut("writes").and_then(Value::as_array_mut) {
+        for write in writes {
+            if let Some(action) = write
+                .get_mut("data")
+                .and_then(|data| data.get_mut("Action"))
+                .and_then(Value::as_object_mut)
+            {
+                for field in ["owner", "waiting_on", "follow_up"] {
+                    if action.get(field) == Some(&Value::Null) {
+                        action.remove(field);
+                    }
+                }
             }
         }
     }
@@ -643,6 +663,7 @@ fn schema(name: &str) -> Value {
     match name {
         "read_message" => note_search::message_schema(),
         "read_history" => history::history_schema(),
+        "read_candidate" => history::candidate_schema(),
         "refresh_candidate" => history::refresh_schema(),
         "prepare_note_edit" => note_edit::schema(),
         "read_records" => object(
@@ -678,7 +699,7 @@ fn schema(name: &str) -> Value {
         ),
         "retain_progress" => continuation::schema(),
         "prepare_changes" => object(
-            json!({"writing":{"type":["object","null"],"properties":{"quotations":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"version":{"type":"integer"},"start":{"type":"integer"},"end":{"type":"integer"},"quote":{"type":"string"}},"required":["id","version","start","end","quote"],"additionalProperties":false}},"requirements_reported":{"type":"array","items":{"type":"object","properties":{"claim":{"type":"string"},"quotations":{"type":"array","items":{"type":"integer"}}},"required":["claim","quotations"],"additionalProperties":false}},"proposed_addressed_comment_ids":{"type":"array","maxItems":128,"uniqueItems":true,"items":{"type":"string"},"description":"Optional untrusted suggestions: only exact IDs in the saved request captured comments. Empty means none; never resolves or selects comments."}},"required":["quotations","requirements_reported"],"additionalProperties":false},"request_key":{"type":"string"},"request":object(json!({"reason":{"type":"string"},"writes":{"type":"array","items":object(json!({"id":{"type":"string"},"expected_version":{"type":["integer","null"]},"archived":{"type":"boolean"},"data":{"type":"object","description":"Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due,owner,waiting_on,follow_up. owner and waiting_on are optional person/team or needed-response labels (max 512 bytes); null means unknown. follow_up is optional YYYY-MM-DD revisit date, separate from due. Do not infer missing commitments or dates. New IDs use new:0, new:1 etc; references may use those same placeholders."}}),json!(["id","expected_version","archived","data"]))},"inputs":{"type":"array","items":object(json!({"record":{"type":"string"},"version":{"type":"integer"},"expectation":{"type":"string","enum":["Current","Historical"],"description":"Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts."}}),json!(["record","version"]))}}),json!(["reason","writes","inputs"]))}),
+            json!({"writing":{"type":["object","null"],"properties":{"quotations":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"version":{"type":"integer"},"start":{"type":"integer"},"end":{"type":"integer"},"quote":{"type":"string"}},"required":["id","version","start","end","quote"],"additionalProperties":false}},"requirements_reported":{"type":"array","items":{"type":"object","properties":{"claim":{"type":"string"},"quotations":{"type":"array","items":{"type":"integer"}}},"required":["claim","quotations"],"additionalProperties":false}},"proposed_addressed_comment_ids":{"type":"array","maxItems":128,"uniqueItems":true,"items":{"type":"string"},"description":"Optional untrusted suggestions: only exact IDs in the saved request captured comments. Empty means none; never resolves or selects comments."}},"required":["quotations","requirements_reported"],"additionalProperties":false},"request_key":{"type":"string"},"request":object(json!({"reason":{"type":"string"},"writes":{"type":"array","items":object(json!({"id":{"type":"string"},"expected_version":{"type":["integer","null"]},"archived":{"type":"boolean"},"data":{"type":"object","description":"Exactly one typed variant: Note, Thread, Action, Source, Link, or Comment. Read current records for complete field shape. Note: title,markdown,protected,confirmed,superseded_by,import. Action: description,state (Suggested/Open/Waiting/Done/Cancelled),internal,evidence,due,owner,waiting_on,follow_up. owner and waiting_on are optional person/team or needed-response labels (max 512 bytes); null means unknown. follow_up is optional YYYY-MM-DD revisit date, separate from due. Do not infer missing commitments or dates. Action.evidence is completion evidence only. Leave it null unless actual completion is supported by explicit owner confirmation or an observed execution/result; record that concrete proof. Keep source provenance in Links and exact versioned inputs. A Source ID alone is not completion proof. A saved draft or approved proposal does not prove an external obligation was completed; a completed agent Run alone does not prove the Action was completed. Evidence grants no authority to mark Done. New IDs use new:0, new:1 etc; references may use those same placeholders."}}),json!(["id","expected_version","archived","data"]))},"inputs":{"type":"array","items":object(json!({"record":{"type":"string"},"version":{"type":"integer"},"expectation":{"type":"string","enum":["Current","Historical"],"description":"Default Current checks this exact active version atomically at Apply. Use Historical only for an intentional citation of an accepted older revision, not current facts."}}),json!(["record","version"]))}}),json!(["reason","writes","inputs"]))}),
             json!(["request_key", "request"]),
         ),
         _ => unreachable!(),
@@ -868,6 +889,16 @@ tool!(
     read_history
 );
 tool!(
+    ReadCandidate,
+    "read_candidate",
+    CandidateArgs,
+    "Inspect one active pending proposal from this chat's Run family. Returns its complete bounded request with new:N creation placeholders and exact inputs for refresh_candidate. Not accepted knowledge, a current-note read, or apply authority; oversized or invisible proposals are refused.",
+    read_candidate
+);
+fn read_candidate(scope: &Scope, args: CandidateArgs) -> AiResult<Value> {
+    history::read_candidate(scope, args)
+}
+tool!(
     RefreshCandidate,
     "refresh_candidate",
     RefreshArgs,
@@ -928,6 +959,7 @@ runtime_catalog!(
     (ApplyChanges, "Checking and applying a change…"),
     (RetainProgress, "Saving useful progress…"),
     (ReadHistory, "Inspecting an accepted note revision…"),
+    (ReadCandidate, "Inspecting a pending proposal…"),
     (RefreshCandidate, "Preparing a fresh proposal…"),
     (WithdrawProposal, "Withdrawing an obsolete proposal…"),
 );
@@ -1349,6 +1381,10 @@ fn remap(request: &mut ChangeRequest, op: &OperationId) -> AiResult<()> {
             }
         }
     }
+    remap_request_ids(request, &mapping);
+    Ok(())
+}
+fn remap_request_ids(request: &mut ChangeRequest, mapping: &BTreeMap<String, String>) {
     fn id(value: &mut String, map: &BTreeMap<String, String>) {
         if let Some(replacement) = map.get(value) {
             *value = replacement.clone();
@@ -1360,32 +1396,31 @@ fn remap(request: &mut ChangeRequest, op: &OperationId) -> AiResult<()> {
         }
     }
     for write in &mut request.writes {
-        id(&mut write.id, &mapping);
+        id(&mut write.id, mapping);
         match &mut write.data {
             RecordData::Note(note) => {
-                optional(&mut note.superseded_by, &mapping);
+                optional(&mut note.superseded_by, mapping);
                 if let Some(import) = &mut note.import {
-                    id(&mut import.source, &mapping);
+                    id(&mut import.source, mapping);
                 }
             }
             RecordData::Thread(thread) => {
                 for attention in &mut thread.attention {
-                    optional(&mut attention.record, &mapping);
+                    optional(&mut attention.record, mapping);
                 }
             }
             RecordData::Link(link) => {
-                id(&mut link.from, &mapping);
-                id(&mut link.to, &mapping);
+                id(&mut link.from, mapping);
+                id(&mut link.to, mapping);
             }
-            RecordData::Comment(comment) => id(&mut comment.note, &mapping),
-            RecordData::Message(message) => id(&mut message.thread, &mapping),
+            RecordData::Comment(comment) => id(&mut comment.note, mapping),
+            RecordData::Message(message) => id(&mut message.thread, mapping),
             _ => {}
         }
     }
     for input in &mut request.inputs {
-        id(&mut input.record, &mapping);
+        id(&mut input.record, mapping);
     }
-    Ok(())
 }
 // The host fixes the complete target, metadata and inputs. The model supplies
 // only the replacement Markdown and its explanation, never a broader scope.
@@ -4238,7 +4273,7 @@ fn run_preamble(scope: &Scope) -> String {
         .unwrap_or_default();
     let preamble = scope.skills.preamble();
     format!(
-        "{preamble}{external}\n\nCanonical records use externally tagged data objects. Note fields: title, markdown, protected, confirmed, superseded_by (null), import (null). Thread: title, state (Open/Resolved), attention [{{kind:Question/Review/Conflict/Blocker,reason,record:null}}]. Action: description,state,internal,evidence:null,due:null. Source: locator,label,observed_at,external_version:null,outcome,gaps:[]; Link: from,to,relation. Message: thread,role,text. Comment: note,base_version,quote,range,mapped_version,mapped_range,body,unresolved. New IDs use new:0 etc. Message/Run/Settings and receipt authority are host-only."
+        "{preamble}{external}\n\nCanonical records use externally tagged data objects. Note fields: title, markdown, protected, confirmed, superseded_by (null), import (null). Thread: title, state (Open/Resolved), attention [{{kind:Question/Review/Conflict/Blocker,reason,record:null}}]. Action: description,state,internal,evidence:null,due:null,owner:null,waiting_on:null,follow_up:null. Set owner and waiting_on only from explicit evidence; follow_up is a YYYY-MM-DD revisit date, separate from due; unknown owner, waiting_on and dates remain null. Source: locator,label,observed_at,external_version:null,outcome,gaps:[]; Link: from,to,relation. Message: thread,role,text. Comment: note,base_version,quote,range,mapped_version,mapped_range,body,unresolved. New IDs use new:0 etc. Message/Run/Settings and receipt authority are host-only."
     )
 }
 fn budget_tool_definitions(scope: &Scope) -> Vec<Value> {
@@ -4446,6 +4481,39 @@ fn has_writing_proposal(scope: &Scope) -> AiResult<bool> {
 mod tests {
     use super::*;
     use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    #[test]
+    fn canonical_action_prompt_preserves_structured_follow_up_fields() {
+        let (_root, request, _) = fixture();
+        let (scope, _) = begin(&request).unwrap();
+        let preamble = run_preamble(&scope);
+        let action_shape = preamble
+            .split("Action: ")
+            .nth(1)
+            .unwrap()
+            .split(" Source:")
+            .next()
+            .unwrap();
+        for field in ["owner:null", "waiting_on:null", "follow_up:null"] {
+            assert!(action_shape.contains(field), "missing Action field {field}");
+        }
+        assert!(action_shape.contains("YYYY-MM-DD revisit date, separate from due"));
+        assert!(action_shape.contains("unknown owner, waiting_on and dates remain null"));
+    }
+    #[test]
+    fn action_guidance_separates_completion_evidence_from_source_grounding() {
+        let (_root, request, _) = fixture();
+        let (scope, _) = begin(&request).unwrap();
+        let preamble = run_preamble(&scope);
+        let tool = schema("prepare_changes");
+        let description = tool["properties"]["request"]["properties"]["writes"]["items"]
+            ["properties"]["data"]["description"].as_str().unwrap();
+        for text in [&preamble[..], description] {
+            assert!(text.contains("Action.evidence is completion evidence only"));
+            assert!(text.contains("Leave it null unless actual completion is supported"));
+            assert!(text.contains("Links and exact versioned inputs"));
+            assert!(text.contains("Source ID alone is not completion proof"));
+        }
+    }
     #[test]
     fn activity_reports_apply_domain_outcomes_without_exposing_results() {
         use rig::tool::{ToolOutput, ToolResult};
@@ -5503,7 +5571,7 @@ mod tests {
                 |e| matches!(e, AiEvent::Activity(text) if text == &format!("< {name} · {outcome}"))
             ));
         }
-        assert_eq!(tool_names().len(), 12);
+        assert_eq!(tool_names().len(), 13);
         assert!(tool_names().contains(&"read_message"));
         assert!(tool_names().contains(&"withdraw_proposal"));
         for name in tool_names() {

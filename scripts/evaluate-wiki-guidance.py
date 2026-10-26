@@ -240,6 +240,78 @@ def action_checks(expectation, after):
     }
 
 
+def action_source_checks(steps, after):
+    """Qualify provenance on each current proposal, never pooled across history."""
+    if not isinstance(after.get('candidates'), list):
+        return {'action_sources_resolved': None,
+                'action_source_links': None, 'action_source_inputs': None}
+    sources = {}
+    for step in steps:
+        matches = [r for r in after['records'] if not r['archived'] and 'Source' in r['data']
+                   and Path(r['data']['Source']['locator']).name == f'update-{step}.md']
+        if len(matches) != 1:
+            return {'action_sources_resolved': False,
+                    'action_source_links': False, 'action_source_inputs': False}
+        sources[matches[0]['id']] = matches[0]['version']
+    if len(sources) != len(steps):
+        return {'action_sources_resolved': False,
+                'action_source_links': False, 'action_source_inputs': False}
+    groups = []
+    pending_ids = set()
+    for candidate in after.get('candidates', []):
+        request = candidate['request']
+        # Apply this candidate's replacements by identity, including archived
+        # links. Another candidate's proposed links cannot satisfy this one.
+        effective = by_id(after['records'])
+        effective.update(by_id(request['writes']))
+        for write in request['writes']:
+            if not write['archived'] and 'Action' in write['data']:
+                pending_ids.add(write['id'])
+                groups.append((write['id'], list(effective.values()), request.get('inputs', []), sources))
+    # A saved Action remains allowed. Its latest accepting receipt, rather than
+    # some unrelated old operation, must carry the source observations.
+    for record in after['records']:
+        if record['archived'] or 'Action' not in record['data'] or record['id'] in pending_ids:
+            continue
+        receipts = [receipt for receipt in after.get('receipts', [])
+                    if any(w['after'] == record for w in receipt['writes'])]
+        receipt = receipts[0] if len(receipts) == 1 else None
+        lineage = [entry for entry in after.get('lineage', [])
+                   if receipt and entry.get('applied') and entry['operation'] == receipt['operation']]
+        inputs = lineage[0]['inputs'] if len(lineage) == 1 else []
+        observed_versions = dict(sources)
+        # A source metadata write in the SAME accepting operation increments
+        # its version. The input records the version read before that write.
+        # Only an exact current after-image establishes this exception.
+        current = by_id(after['records'])
+        for source in sources:
+            writes = [w for w in receipt['writes'] if w['after']['id'] == source] if receipt else []
+            if not writes:
+                continue
+            write = writes[0]
+            prior = write.get('before')
+            if (len(writes) != 1 or write['after'] != current[source]
+                    or not prior or prior['id'] != source or prior['archived']
+                    or 'Source' not in prior['data']
+                    or type(prior.get('version')) is not int
+                    or prior['version'] < 1 or prior['version'] + 1 != current[source]['version']):
+                observed_versions = None
+                break
+            observed_versions[source] = prior['version']
+        groups.append((record['id'], after['records'], inputs, observed_versions))
+    def linked(identity, writes):
+        links = [w['data']['Link'] for w in writes if not w['archived'] and 'Link' in w['data']]
+        return all(any(link == {'from': identity, 'to': source, 'relation': 'source'}
+                       for link in links) for source in sources)
+    def observed(inputs, versions):
+        return versions is not None and all(any(i.get('record') == source and i.get('version') == version
+                       and i.get('expectation', 'Current') == 'Current'
+                       for i in inputs) for source, version in versions.items())
+    return {'action_sources_resolved': True,
+            'action_source_links': bool(groups) and all(linked(identity, writes) for identity, writes, _, _ in groups),
+            'action_source_inputs': bool(groups) and all(observed(inputs, versions) for _, _, inputs, versions in groups)}
+
+
 def structural_checks(case, before, after, filler=frozenset()):
     # Distractor notes are workspace scale, not part of the case.
     previous = [note for note in saved_notes(before['records']) if note['id'] not in filler]
@@ -250,10 +322,17 @@ def structural_checks(case, before, after, filler=frozenset()):
         checks['conversation_only_no_new_note'] = current_ids == {note['id'] for note in previous}
         checks['conversation_only_no_action'] = not any('Action' in record['data'] for record in after['records'])
         checks['conversation_only_no_attention'] = not any(record['data'].get('Thread', {}).get('attention') for record in after['records'])
-    else:
+    elif not (case.get('action_expectation', {}).get('min', 0) > 0
+              and case.get('steps') and all(step['kind'] == 'intake' for step in case['steps'])):
+        # Follow-up-only intake rubrics allow a saved OR pending Action. Their
+        # cardinality, facts and accepted/proposed states are checked below;
+        # do not additionally demand a Note that the request did not require.
+        # Ask cases that explicitly request a saved account retain this gate.
         checks['knowledge_change_applied'] = any('Note' in write['after']['data'] for receipt in after['receipts'] for write in receipt['writes'])
     if 'action_expectation' in case:
         checks.update(action_checks(case['action_expectation'], after))
+        if 'source_steps' in case['action_expectation']:
+            checks.update(action_source_checks(case['action_expectation']['source_steps'], after))
     expected = case['expected_existing_note']
     if expected:
         subject = next(note for note in previous if note['data']['Note']['title'] == expected)
