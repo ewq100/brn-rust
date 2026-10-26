@@ -6,30 +6,30 @@
     "bounded_reducer_test_improvements": "Sentinel_a48323558788819195068f6db7b4953c"
   },
   "work_view": {
-    "observed_at": "2026-10-26T13:20:42.857029+00:00",
-    "goal": "Capture useful outcomes and make follow-ups actionable; qualify reliability, measure performance and audit state/test coverage.",
-    "owner_attention": "Four bounded tracks approved. Reviewed draft PRs only; no merge or live-model spending. Calculator and other held work remain excluded.",
+    "observed_at": "2026-10-26T14:39:04.107117+00:00",
+    "goal": "Capture useful outcomes and make follow-ups actionable; qualify reliability, measure performance and improve bounded Search transitions.",
+    "owner_attention": "Four bounded tracks and narrow Search improvements approved. PR230–233 remain draft/unmerged; Capture publication pending. No merge, live-model spending or Mac acceptance authority; held scope remains excluded.",
     "tasks": [
       {
         "id": "capture",
         "title": "Capture useful chat outcomes",
         "owner": "Capture lane",
-        "state": "active",
-        "activity": "Implementing explicit capture-request with durable host review fence; existing Run lifecycle/review/Undo reused; separate archiving.",
-        "observed_at": "2026-10-26T13:15:58.417771+00:00",
+        "state": "ready",
+        "activity": "Schema13 Capture candidate bd52 source/tests reviewed; explicit host review fence and existing Run/review/Undo retained. Final Capture PR not yet recorded.",
+        "observed_at": "2026-10-26T14:39:04.107117+00:00",
         "origin": "reported",
-        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "next_action": "Complete Capture documentation/publication and exact-head CI; record actual Linux observation separately.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/capture-followup-reliability/baseline.md"
         ],
         "gates": {
-          "implementation": "pending",
-          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
-          "integration": "pending; draft publication only, no merge",
-          "native": "unrun for new changes; actual Mac acceptance separate",
-          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+          "implementation": "implemented and reviewed locally; schema13 fences older writers",
+          "checks": "source/tests reviewed; integrated native at ef09669e passed377, failed0, ignored1; Capture exact-head hosted CI not yet recorded",
+          "integration": "pending final draft Capture PR; unmerged",
+          "native": "actual Linux observation pending; actual Mac acceptance separate and unperformed in this batch",
+          "owner_acceptance": "pending; actual owner acceptance not claimed"
         },
         "attempts": []
       },
@@ -37,24 +37,23 @@
         "id": "followups",
         "title": "See which follow-ups need attention",
         "owner": "Follow-up views lane",
-        "state": "active",
-        "activity": "Pure grouping and Actions UI implemented; independent source review provisionally clear; focused Rust/native checks queued behind baseline.",
-        "observed_at": "2026-10-26T13:15:58.417771+00:00",
+        "state": "ready",
+        "activity": "Draft PR231 at019c8097 implements date-based Action views; exact-head CI passed six supported jobs, optional Windows failed.",
+        "observed_at": "2026-10-26T14:39:04.107117+00:00",
         "origin": "reported",
-        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "next_action": "Complete actual Linux observation and retain separate Mac/owner gates; await merge decision.",
         "depends_on": [],
-        "resource_waits": [
-          "Shared Rust build slot currently held by performance baseline."
-        ],
+        "resource_waits": [],
         "evidence": [
-          "docs/work/active/capture-followup-reliability/baseline.md"
+          "docs/work/active/capture-followup-reliability/baseline.md",
+          "https://github.com/ewq100/brn-rust/pull/231"
         ],
         "gates": {
-          "implementation": "pending",
-          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
-          "integration": "pending; draft publication only, no merge",
-          "native": "unrun for new changes; actual Mac acceptance separate",
-          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+          "implementation": "implemented; reviewed",
+          "checks": "passed focused checks and six supported exact-head CI jobs; optional Windows failure retained",
+          "integration": "draft PR231, unmerged",
+          "native": "actual Linux observation pending; actual Mac acceptance separate and unperformed in this batch",
+          "owner_acceptance": "pending; actual owner acceptance not claimed"
         },
         "attempts": []
       },
@@ -63,45 +62,57 @@
         "title": "Strengthen distinct daily workflow guarantees",
         "owner": "Reliability lane",
         "state": "active",
-        "activity": "Added distinct changed-commitment/interruption fixtures; tightening missing-answer exclusion result and exact-source changed-commitment oracle; Python checks underway.",
-        "observed_at": "2026-10-26T13:15:58.417771+00:00",
+        "activity": "Draft PR232 corrected at0fe6187f. CI40337695045 last observed five supported jobs passed, Mac core running; original seeder failure retained.",
+        "observed_at": "2026-10-26T14:39:04.107117+00:00",
         "origin": "reported",
-        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "next_action": "Record terminal exact-head CI; preserve initial failed seeder evidence and do not infer live semantic success.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/capture-followup-reliability/baseline.md"
+          "docs/work/active/capture-followup-reliability/baseline.md",
+          "https://github.com/ewq100/brn-rust/pull/232",
+          "https://github.com/ewq100/brn-rust/actions/runs/40337695045"
         ],
         "gates": {
-          "implementation": "pending",
-          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
-          "integration": "pending; draft publication only, no merge",
-          "native": "unrun for new changes; actual Mac acceptance separate",
-          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+          "implementation": "implemented; corrected seeder reviewed",
+          "checks": "six corrected seeder tests and strict targeted lint passed; exact-head CI40337695045 pending Mac core at latest report; five supported jobs passed",
+          "integration": "draft PR232, unmerged",
+          "native": "actual Linux observation pending; actual Mac acceptance separate and unperformed in this batch",
+          "owner_acceptance": "pending; actual owner acceptance not claimed"
         },
-        "attempts": []
+        "attempts": [
+          {
+            "outcome": "Initial PR232 head53fc hosted seeder failed: expected12 cases versus14 and assumed original rather than current edited revision.",
+            "change": "Correction0fe6187f verifies required case identities, current edited text and every historical revision; six tests and strict targeted lint passed.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/40330526613",
+              "https://github.com/ewq100/brn-rust/pull/232"
+            ]
+          }
+        ]
       },
       {
         "id": "performance",
         "title": "Measure scale and recovery before optimizing",
         "owner": "Performance lane",
         "state": "complete",
-        "activity": "Measured baseline and two opt-in profiles passed (12 datasets); strict targeted lint passed; independent source/evidence review clear. No demonstrated bottleneck justifies production changes.",
-        "observed_at": "2026-10-26T13:20:42.857029+00:00",
+        "activity": "Draft PR230 at9a8b1af5 contains reviewed measurements and audit. Exact-head CI passed six supported jobs; optional Windows failed. No production performance optimization justified.",
+        "observed_at": "2026-10-26T14:39:04.107117+00:00",
         "origin": "reported",
-        "next_action": "Retain source-bound measurements; exact-head hosted checks pending publication.",
+        "next_action": "Retain measurements and await merge decision; native/release performance remains separate.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/capture-followup-reliability/baseline.md",
-          "docs/work/active/capture-followup-reliability/performance.md"
+          "docs/work/active/capture-followup-reliability/performance.md",
+          "https://github.com/ewq100/brn-rust/pull/230"
         ],
         "gates": {
-          "implementation": "complete: instrumentation only, no production optimization",
-          "checks": "passed: baseline 1, profiles 2 (12 datasets), targeted Clippy/fmt/docs; exact-head CI pending",
-          "integration": "pending; draft publication only, no merge",
-          "native": "unrun: service measurements only, target Mac release/native timing remains separate",
-          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+          "implementation": "complete: instrumentation and evidence only; no production optimization",
+          "checks": "baseline and two opt-in profiles passed (12 datasets); strict lint; six supported exact-head CI jobs passed, optional Windows failed",
+          "integration": "draft PR230, unmerged",
+          "native": "service measurements only; actual target Mac release/native timing unmeasured",
+          "owner_acceptance": "pending; actual owner acceptance not claimed"
         },
         "attempts": [
           {
@@ -117,23 +128,24 @@
         "id": "state-test-audit",
         "title": "Audit and improve bounded state transitions and test value",
         "owner": "Audit lane",
-        "state": "active",
-        "activity": "Baseline audit complete: helper preparation dominates measured CI time; no test deletion justified. Bounded Search request/cursor state extraction source-reviewed, tests queued.",
-        "observed_at": "2026-10-26T13:20:42.857029+00:00",
+        "state": "ready",
+        "activity": "Bounded Search request/cursor owner extracted in draft PR233 at9452c8c1. Six pure plus seven retained native tests passed; no tests removed. Exact-head CI passed six supported jobs, optional Windows failed.",
+        "observed_at": "2026-10-26T14:39:04.107117+00:00",
         "origin": "reported",
-        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "next_action": "Retain distinct native wiring/privacy/recovery tests; await merge decision and separate actual native acceptance.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/capture-followup-reliability/baseline.md",
-          "docs/work/active/capture-followup-reliability/state-test-audit.md"
+          "docs/work/active/capture-followup-reliability/state-test-audit.md",
+          "https://github.com/ewq100/brn-rust/pull/233"
         ],
         "gates": {
-          "implementation": "pending",
-          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
-          "integration": "pending; draft publication only, no merge",
-          "native": "unrun for new changes; actual Mac acceptance separate",
-          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+          "implementation": "implemented and reviewed; Search only, no global reducer/Restore rewrite",
+          "checks": "13 focused tests, strict native lint and exact inventory365→371 passed; six supported exact-head CI jobs passed, optional Windows failed",
+          "integration": "draft PR233, unmerged",
+          "native": "actual Linux observation pending; actual Mac acceptance separate and unperformed in this batch",
+          "owner_acceptance": "pending; actual owner acceptance not claimed"
         },
         "attempts": []
       },
@@ -142,23 +154,31 @@
         "title": "Review and integrate bounded slices",
         "owner": "Integration owner",
         "state": "active",
-        "activity": "Baseline and prior merged results reconciled; isolated lanes assigned; no new PR merge authority.",
-        "observed_at": "2026-10-26T13:15:58.417771+00:00",
-        "origin": "observed",
-        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "activity": "Integration ef09669e native suite passed377, failed0, ignored1 after helper setup correction. PR230/231/233 supported CI green; PR232 last Mac core pending. Capture draft publication pending. Historical cloud355/156/1 and13 live Runs remain source-bound history.",
+        "observed_at": "2026-10-26T14:39:04.107117+00:00",
+        "origin": "reported",
+        "next_action": "Finish Capture draft publication and exact-head CI, close PR232 CI, observe Linux controls, then present exact reviewed scope for separate merge decision.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/capture-followup-reliability/baseline.md"
         ],
         "gates": {
-          "implementation": "pending",
-          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
-          "integration": "pending; draft publication only, no merge",
-          "native": "unrun for new changes; actual Mac acceptance separate",
-          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+          "implementation": "bounded slices reviewed; Capture schema13 local candidate; no automatic merge",
+          "checks": "integrated native377pass/0fail/1ignored; initial371pass/6fail/1ignored missing-helper result preserved, then9 targeted passed; final hosted/observation gates remain open",
+          "integration": "all published PR230–233 draft/unmerged; no Capture PR number assigned in this record",
+          "native": "actual Linux observation pending; actual Mac acceptance separate and unperformed in this batch",
+          "owner_acceptance": "pending; actual owner acceptance not claimed"
         },
-        "attempts": []
+        "attempts": [
+          {
+            "outcome": "Initial integrated native run371passed/6failed/1ignored with missing document helpers.",
+            "change": "Configured existing helpers; nine affected targeted tests passed; final integrated ef09669e run377passed/0failed/1ignored. Original failure remains evidence, not erased by rerun.",
+            "evidence": [
+              "docs/work/active/capture-followup-reliability/baseline.md"
+            ]
+          }
+        ]
       }
     ]
   }
