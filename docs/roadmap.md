@@ -1,6 +1,6 @@
 # BRN Threads roadmap
 
-The core, provider runtime and native workspace are implemented. Reconciled against main `f30f37e0` (PR #225): later work includes Projects, hybrid retrieval/Topics/Connections, instruction-only skills, narrow local MCP, the current Xberg intake routes, Linux UI support and precise editing. These shipped capabilities do not establish complete native or owner acceptance. The [canonical target](architecture/threads-target.md) owns the selected scope; [status](status.md) owns actual evidence.
+The core, provider runtime and native workspace are implemented. Baseline audit covered main `f30f37e0` (PR #225): later work includes Projects, hybrid retrieval/Topics/Connections, instruction-only skills, narrow local MCP, the current Xberg intake routes, Linux UI support and precise editing. PR227–229 subsequently shipped Action follow-up fields, manual General inbox, desktop Restore and pending-proposal provenance improvements through `bc699c41`. These shipped capabilities do not establish complete native or owner acceptance. The [canonical target](architecture/threads-target.md) owns the selected scope; [status](status.md) owns actual evidence.
 
 | Work | Owner-visible result | Remaining proof |
 |---|---|---|
@@ -16,3 +16,5 @@ Local reading, writing, search, Actions, review and recovery work offline; infer
 DOCX is the first later output format, followed by PPTX/HTML. External sending, broad connectors, sync/multiplayer, a background daemon, arbitrary branch merging and plugin/theme marketplaces remain later scope. New adopted-schema changes require transactional upgrades and pre-upgrade backups; migration from old BRN is outside the target.
 
 The [decision backlog](work/active/daily-use-reliability/decision-backlog.md) reconciles shipped, partial and future outcomes without assigning them. [Documentation audit](work/active/daily-use-reliability/documentation-audit.md) records stale claims and preserved historical boundaries. Current batch execution remains in the selected task record reached through status.
+
+The current [Capture/follow-up/reliability batch](work/active/capture-followup-reliability/baseline.md) is approved for bounded implementation, measurement and audit, with reviewed draft PRs. It does not activate calculator, export expansion, broad test deletion, a state-machine rewrite, new live spending or release.

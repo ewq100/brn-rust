@@ -2,7 +2,9 @@
 
 Open the [development overview](work/overview.md) for current work, next actions, attention items and a compact completed-task index. It is generated from the selected task record; detailed gates, evidence and attempts remain in that record and its linked receipts. A remote page shows the last published checkpoint, not live agent activity.
 
-Current assignment: the [follow-ups, manual inbox and desktop Restore batch](work/active/daily-followups-inbox-restore/record.json), projected into the overview. Its [baseline and scope](work/active/daily-followups-inbox-restore/baseline.md) records the narrow approvals, schema sequencing, prior resulting-main CI and later native checklist. The renderer defaults to this selected record.
+Current assignment: [Capture outcomes, follow-up views and reliability](work/active/capture-followup-reliability/record.json), projected into the overview. Its [baseline and scope](work/active/capture-followup-reliability/baseline.md) records the approved four tracks, reducer/test audit, prior merged results and separate acceptance gates. The renderer defaults to this selected record.
+
+PR227–229 are merged through `bc699c41`. The earlier [follow-ups/inbox/Restore record](work/active/daily-followups-inbox-restore/record.json) and receipts remain dated evidence, including failed attempts; its historical local/pending labels are not current integration status. Actual Mac native and broader live semantic acceptance remain open.
 
 The [prior daily-use batch](work/active/daily-use-reliability/record.json) was merged in PR226 as `f60c5a2f`; its saved pre-merge labels remain dated observations. The current record owns the remaining resulting-main CI reconciliation. The canonical decision backlog stays at its existing location; no second backlog is created.
 

@@ -1,0 +1,153 @@
+{
+  "baseline": "bc699c4164147354b96e433b6327e194275102b0",
+  "authority": {
+    "batch": "Sentinel_c991513e8b988191b027c28f8f1e24b5",
+    "scope_record": "docs/work/active/capture-followup-reliability/baseline.md",
+    "bounded_reducer_test_improvements": "Sentinel_a48323558788819195068f6db7b4953c"
+  },
+  "work_view": {
+    "observed_at": "2026-10-26T13:11:15.154719+00:00",
+    "goal": "Capture useful outcomes and make follow-ups actionable; qualify reliability, measure performance and audit state/test coverage.",
+    "owner_attention": "Four bounded tracks approved. Reviewed draft PRs only; no merge or live-model spending. Calculator and other held work remain excluded.",
+    "tasks": [
+      {
+        "id": "capture",
+        "title": "Capture useful chat outcomes",
+        "owner": "Capture lane",
+        "state": "active",
+        "activity": "Designing explicit scope-bound request and durable review fence before implementation.",
+        "observed_at": "2026-10-26T13:11:15.154719+00:00",
+        "origin": "reported",
+        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/capture-followup-reliability/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
+          "integration": "pending; draft publication only, no merge",
+          "native": "unrun for new changes; actual Mac acceptance separate",
+          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "followups",
+        "title": "See which follow-ups need attention",
+        "owner": "Follow-up views lane",
+        "state": "active",
+        "activity": "Implementing pure date grouping with Suggested/accepted/terminal separation.",
+        "observed_at": "2026-10-26T13:11:15.154719+00:00",
+        "origin": "reported",
+        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/capture-followup-reliability/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
+          "integration": "pending; draft publication only, no merge",
+          "native": "unrun for new changes; actual Mac acceptance separate",
+          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "reliability",
+        "title": "Strengthen distinct daily workflow guarantees",
+        "owner": "Reliability lane",
+        "state": "active",
+        "activity": "Inventorying existing assertions before adding changed-commitment and interruption cases.",
+        "observed_at": "2026-10-26T13:11:15.154719+00:00",
+        "origin": "reported",
+        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/capture-followup-reliability/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
+          "integration": "pending; draft publication only, no merge",
+          "native": "unrun for new changes; actual Mac acceptance separate",
+          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "performance",
+        "title": "Measure scale and recovery before optimizing",
+        "owner": "Performance lane",
+        "state": "active",
+        "activity": "Baseline existing synthetic scale check; shared Rust build slot assigned.",
+        "observed_at": "2026-10-26T13:11:15.154719+00:00",
+        "origin": "reported",
+        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/capture-followup-reliability/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
+          "integration": "pending; draft publication only, no merge",
+          "native": "unrun for new changes; actual Mac acceptance separate",
+          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "state-test-audit",
+        "title": "Audit and improve bounded state transitions and test value",
+        "owner": "Audit lane",
+        "state": "active",
+        "activity": "Audit identifies Search coordination as first bounded reducer candidate; owner separately approved justified improvements/consolidation with retained distinct guarantees.",
+        "observed_at": "2026-10-26T13:11:15.154719+00:00",
+        "origin": "reported",
+        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/capture-followup-reliability/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
+          "integration": "pending; draft publication only, no merge",
+          "native": "unrun for new changes; actual Mac acceptance separate",
+          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+        },
+        "attempts": []
+      },
+      {
+        "id": "integration",
+        "title": "Review and integrate bounded slices",
+        "owner": "Integration owner",
+        "state": "active",
+        "activity": "Baseline and prior merged results reconciled; isolated lanes assigned; no new PR merge authority.",
+        "observed_at": "2026-10-26T13:11:15.154719+00:00",
+        "origin": "observed",
+        "next_action": "Complete bounded implementation or audit, obtain independent review and record proportionate checks.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/capture-followup-reliability/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained",
+          "integration": "pending; draft publication only, no merge",
+          "native": "unrun for new changes; actual Mac acceptance separate",
+          "owner_acceptance": "pending; scope selected, delivered behavior not accepted"
+        },
+        "attempts": []
+      }
+    ]
+  }
+}
