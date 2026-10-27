@@ -752,10 +752,12 @@ fn each_open_task_has_one_quiet_main_action_and_a_menu_for_its_state(cx: &mut Te
             assert!(shown.visible(), "{main}-{id}");
             assert_eq!(
                 shown.label(),
-                Some(if main == "open-action" {
-                    "Accept task"
+                Some(if id == &suggested {
+                    "Accept task: Suggested synthetic task"
+                } else if id == &open {
+                    "Confirm done: Open synthetic task"
                 } else {
-                    "Confirm done"
+                    "Confirm done: Waiting synthetic task"
                 })
             );
             assert!(window.try_find(format!("{absent}-{id}")).is_none());
@@ -1513,10 +1515,10 @@ fn chat_rows_are_named_controls_and_enter_space_select_without_run(cx: &mut Test
             assert!(row.label().unwrap().starts_with("Keyboard chat Ω"));
             assert_eq!(row.selected(), Some(false));
         });
-        // Recent -> All -> Archived -> first chat. No other control is activated.
-        for _ in 0..3 {
-            press(cx, &f, "tab");
-        }
+        // Locate the preceding navigation control by actual keyboard traversal;
+        // panel focus landing need not be the clicked Recent button.
+        assert!(tab_to(cx, &f, "resolved-count"));
+        press(cx, &f, "tab");
         press(cx, &f, key);
         cx.read(|cx| {
             let ui = f.view.read(cx);

@@ -11,6 +11,7 @@ fn fixture(
 ) {
     cx.update(|cx| {
         gpui_kit::init(cx);
+        cx.bind_keys(bindings());
         cx.set_reduce_motion(true);
     });
     let root = tempfile::tempdir().unwrap();
@@ -105,14 +106,32 @@ fn capture_confirmation_rejects_changed_destination_before_saving_or_dispatch(
     })
     .unwrap();
     let before = cx.read(|cx| view.read(cx).workspace.records().unwrap());
-    cx.update_window(window, |_, window, cx| {
-        window.click("capture-outcomes-confirm", cx)
-    })
-    .unwrap();
+    let mut focused = false;
+    for _ in 0..12 {
+        focused = cx
+            .update_window(window, |_, window, _| {
+                window.find("capture-outcomes-confirm").focused() == Some(true)
+            })
+            .unwrap();
+        if focused {
+            break;
+        }
+        cx.update_window(window, |_, window, cx| window.press("tab", cx))
+            .unwrap();
+        cx.run_until_parked();
+    }
+    assert!(focused, "Propose must be keyboard reachable");
+    cx.update_window(window, |_, window, cx| window.press("enter", cx))
+        .unwrap();
     cx.run_until_parked();
     cx.read(|cx| {
         let ui = view.read(cx);
         assert!(ui.worker.is_none());
+        assert_eq!(
+            ui.notice_tone(),
+            Tone::Error,
+            "focused Enter must invoke the checked callback"
+        );
         assert_eq!(ui.workspace.records().unwrap(), before);
         assert!(
             !ui.workspace
@@ -130,6 +149,11 @@ fn capture_keyboard_open_cancel_and_escape_restore_trigger_focus_without_run(
 ) {
     let (_root, view, window, _chat) = fixture(cx);
     let before = cx.read(|cx| view.read(cx).workspace.records().unwrap());
+    // The multiline composer owns Tab for editing. Use the app's existing
+    // panel-navigation shortcut to leave it before ordinary control traversal.
+    cx.update_window(window, |_, window, cx| window.press("cmd-]", cx))
+        .unwrap();
+    cx.run_until_parked();
     for exit in ["enter", "escape"] {
         let mut found = false;
         for _ in 0..80 {
@@ -152,6 +176,20 @@ fn capture_keyboard_open_cancel_and_escape_restore_trigger_focus_without_run(
         cx.update_window(window, |_, window, cx| window.press("space", cx))
             .unwrap();
         cx.run_until_parked();
+        cx.update_window(window, |_, window, _| {
+            assert!(window.find("capture-outcomes-confirm").visible())
+        })
+        .unwrap();
+        // The dialog body initially holds focus. Enter here must not start
+        // proposals or persist the captured request.
+        cx.update_window(window, |_, window, cx| window.press("enter", cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.read(|cx| {
+            let ui = view.read(cx);
+            assert_eq!(ui.workspace.records().unwrap(), before);
+            assert!(ui.worker.is_none());
+        });
         cx.update_window(window, |_, window, _| {
             assert!(window.find("capture-outcomes-confirm").visible())
         })
