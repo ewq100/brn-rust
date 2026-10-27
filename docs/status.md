@@ -2,7 +2,9 @@
 
 Open the [development overview](work/overview.md) for current work, next actions, attention items and a compact completed-task index. It is generated from the selected task record; detailed gates, evidence and attempts remain in that record and its linked receipts. A remote page shows the last published checkpoint, not live agent activity.
 
-Current assignment: [Capture outcomes, follow-up views and reliability](work/active/capture-followup-reliability/record.json), projected into the overview. Its [baseline and scope](work/active/capture-followup-reliability/baseline.md) records the approved four tracks, reducer/test audit, prior merged results and separate acceptance gates. The renderer defaults to this selected record.
+Current assignment: [Knowledge triage, accessibility and CI helper reuse](work/active/knowledge-triage-accessibility-ci/record.json), projected into the overview. Its [baseline and scope](work/active/knowledge-triage-accessibility-ci/baseline.md) records three bounded tracks and the unresolved prior merge gate. New publication is draft-only. The renderer defaults to this selected record.
+
+PR230–232 are merged through `ed1e3979`; [resulting-main CI](https://github.com/ewq100/brn-rust/actions/runs/40422473703) passed seven supported jobs, with three optional Windows failures. PR233 remains blocked by its refreshed-head Linux core test failure; PR234 waits unmerged. The [prior Capture/follow-up record](work/active/capture-followup-reliability/record.json) preserves dated implementation and qualification history; its old pending labels are not live state.
 
 PR227–229 are merged through `bc699c41`. The earlier [follow-ups/inbox/Restore record](work/active/daily-followups-inbox-restore/record.json) and receipts remain dated evidence, including failed attempts; its historical local/pending labels are not current integration status. Actual Mac native and broader live semantic acceptance remain open.
 

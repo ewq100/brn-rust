@@ -2,6 +2,7 @@ import importlib.util
 import io
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -15,6 +16,59 @@ SPEC = importlib.util.spec_from_file_location("prepare", ROOT / "scripts/prepare
 p = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(p)
 ARCHIVE = Path(os.environ.get("CARGO_HOME", Path.home() / ".cargo")) / "registry/cache/index.crates.io-1949cf8c6b5b557f/xberg-1.3.10.crate"
+
+
+class HelperCacheContractTests(unittest.TestCase):
+    """Configuration boundaries; these do not emulate hosted cache restoration."""
+
+    def test_supported_targets_and_main_only_dependency_cache(self):
+        action = (ROOT / ".github/actions/setup-rust/action.yml").read_text()
+        cache_steps = [step for step in action.split("    - name:")
+                       if "uses: Swatinem/rust-cache@" in step]
+        for platform in ("Linux", "macOS"):
+            steps = [step for step in cache_steps if f"runner.os == '{platform}'" in step]
+            self.assertTrue(steps, f"missing {platform} dependency cache")
+            for step in steps:
+                self.assertIn("save-if: ${{ github.ref == 'refs/heads/main' }}", step)
+                for flag in ("cache-workspace-crates", "cache-all-crates", "cache-bin"):
+                    self.assertIn(f"{flag}: 'false'", step)
+                for target in ("stock", "adapted"):
+                    self.assertIn(f"tools/xberg-intake-helper -> ../../.brn-ci-document-helpers/{target}", step)
+                for dimension in ("runner.os", "runner.arch", "inputs.lane"):
+                    self.assertIn("${{ " + dimension + " }}", step)
+                self.assertNotIn("shared-key:", step)
+        self.assertFalse(any("runner.os == 'Windows'" in step for step in cache_steps))
+
+    def test_explicit_key_covers_both_locks_and_all_accepted_adapter_inputs(self):
+        action = (ROOT / ".github/actions/setup-rust/action.yml").read_text()
+        expression = re.search(r"hashFiles\(([^)]*)\)", action).group(1)
+        patterns = re.findall(r"'([^']+)'", expression)
+        matched = {path.relative_to(ROOT).as_posix()
+                   for pattern in patterns for path in ROOT.glob(pattern)}
+        required = {
+            "Cargo.toml", "tools/xberg-intake-helper/Cargo.toml",
+            "tools/xberg-intake-helper/Cargo.lock",
+            "tools/xberg-intake-helper/adapted.Cargo.lock",
+            "tools/xberg-intake-helper/build.rs",
+            "tools/xberg-intake-helper/build-identity.txt",
+            "scripts/build-document-helpers.sh", "scripts/prepare-xberg-adapted.py",
+        }
+        for patch, _, manifest, _ in p.PATCHES:
+            required.update(f"patches/xberg/1.3.10/{name}" for name in (patch, manifest))
+        self.assertEqual(required - matched, set(), "changed helper inputs must invalidate the key")
+
+    def test_cache_hits_cannot_skip_locked_helper_builds(self):
+        # Each Unix lane runs its normal helper build regardless of cache result.
+        workflow = (ROOT / ".github/workflows/ci.yml").read_text()
+        steps = [step for step in workflow.split("      - name:")
+                 if "bash scripts/build-document-helpers.sh" in step]
+        self.assertEqual(len(steps), 3)
+        for step in steps:
+            self.assertNotIn("cache-hit", step)
+            self.assertIn("--offline --jobs 1", step)
+        builder = (ROOT / "scripts/build-document-helpers.sh").read_text()
+        self.assertIn("build --offline --locked --jobs 1", builder)
+        self.assertIn("target/source association mismatch", builder)
 
 
 class PrepareTests(unittest.TestCase):
@@ -125,6 +179,15 @@ class PrepareTests(unittest.TestCase):
         )
         self.assertEqual(foreign.read_bytes(), b"preserve cached helper artifacts")
         self.assertEqual(sibling.read_bytes(), b"preserve foreign sibling")
+
+    def test_setup_cleanup_cache_miss_still_generates(self):
+        cleaned = self.cleanup_from_setup_action()
+        self.assertEqual(cleaned.returncode, 0, cleaned.stderr)
+        self.assertFalse(self.output.exists())
+        manifest = p.prepare(self.repo, ARCHIVE, self.output)
+        self.assertTrue(manifest.is_file())
+        self.assertEqual(p.file_hashes(self.output / "source"),
+                         json.loads((self.output / "source-manifest.json").read_text())["files"])
 
     def test_setup_cleanup_rebuilds_partial_cached_generation(self):
         (self.output / "workspace").mkdir(parents=True)
