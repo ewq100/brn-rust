@@ -123,3 +123,71 @@ fn capture_confirmation_rejects_changed_destination_before_saving_or_dispatch(
         );
     });
 }
+
+#[gpui_kit::test]
+fn capture_keyboard_open_cancel_and_escape_restore_trigger_focus_without_run(
+    cx: &mut TestAppContext,
+) {
+    let (_root, view, window, _chat) = fixture(cx);
+    let before = cx.read(|cx| view.read(cx).workspace.records().unwrap());
+    for exit in ["enter", "escape"] {
+        let mut found = false;
+        for _ in 0..80 {
+            found = cx
+                .update_window(window, |_, window, _| {
+                    window.find("capture-outcomes").focused() == Some(true)
+                })
+                .unwrap();
+            if found {
+                break;
+            }
+            cx.update_window(window, |_, window, cx| window.press("tab", cx))
+                .unwrap();
+            cx.run_until_parked();
+        }
+        assert!(
+            found,
+            "Capture must be reachable through keyboard traversal"
+        );
+        cx.update_window(window, |_, window, cx| window.press("space", cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, _| {
+            assert!(window.find("capture-outcomes-confirm").visible())
+        })
+        .unwrap();
+        if exit == "enter" {
+            let mut cancel = false;
+            for _ in 0..12 {
+                cancel = cx
+                    .update_window(window, |_, window, _| {
+                        window.find("capture-outcomes-cancel").focused() == Some(true)
+                    })
+                    .unwrap();
+                if cancel {
+                    break;
+                }
+                cx.update_window(window, |_, window, cx| window.press("tab", cx))
+                    .unwrap();
+                cx.run_until_parked();
+            }
+            assert!(
+                cancel,
+                "Cancel must be reachable without activating Propose"
+            );
+        }
+        cx.update_window(window, |_, window, cx| window.press(exit, cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, _| {
+            assert!(window.try_find("capture-outcomes-confirm").is_none());
+            assert_eq!(window.find("capture-outcomes").focused(), Some(true));
+        })
+        .unwrap();
+        cx.read(|cx| {
+            let ui = view.read(cx);
+            assert_eq!(ui.workspace.records().unwrap(), before);
+            assert!(ui.worker.is_none());
+        });
+    }
+}

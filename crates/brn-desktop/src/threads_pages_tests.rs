@@ -612,9 +612,11 @@ fn follow_up_views_show_dates_without_changing_task_state_or_due(cx: &mut TestAp
     let (ids, before) = update(cx, &f, |view, _, cx| {
         let today = lists::follow_up_today().to_string();
         let ids = [
-            ("Old follow-up", ActionState::Open, "2000-01-01"),
-            ("Waiting today", ActionState::Waiting, today.as_str()),
-            ("Later follow-up", ActionState::Open, "2099-01-01"),
+            ("Old follow-up", ActionState::Open, Some("2000-01-01")),
+            ("Waiting today", ActionState::Waiting, Some(today.as_str())),
+            ("Later follow-up", ActionState::Open, Some("2099-01-01")),
+            ("Undated waiting", ActionState::Waiting, None),
+            ("Undated open", ActionState::Open, None),
         ]
         .map(|(description, state, date)| {
             let id = task(&mut view.workspace, description, state);
@@ -622,7 +624,7 @@ fn follow_up_views_show_dates_without_changing_task_state_or_due(cx: &mut TestAp
             let RecordData::Action(mut action) = record.data else {
                 panic!()
             };
-            action.follow_up = Some(date.into());
+            action.follow_up = date.map(str::to_owned);
             view.workspace
                 .owner_change(
                     &format!("set-follow-up-{id}"),
@@ -644,13 +646,35 @@ fn follow_up_views_show_dates_without_changing_task_state_or_due(cx: &mut TestAp
         (ids, view.workspace.records().unwrap())
     });
     on_window(cx, &f, |window, _| {
-        for (key, id) in ["overdue", "today", "upcoming"].into_iter().zip(&ids) {
-            assert!(window.find(format!("actions-group-{key}")).visible());
-            assert!(window.find(format!("task-menu-{id}")).visible());
-            assert!(window.find(format!("done-action-{id}")).visible());
+        for ((key, group_name), id) in [
+            ("overdue", "Overdue follow-ups"),
+            ("today", "Follow up today"),
+            ("upcoming", "Upcoming follow-ups"),
+            ("waiting", "Waiting"),
+            ("open", "Open"),
+        ]
+        .into_iter()
+        .zip(&ids)
+        {
+            let group = window.find(format!("actions-group-{key}"));
+            assert!(group.visible());
+            assert_eq!(group.role(), Some(gpui_kit::Role::Group));
+            assert_eq!(group.label(), Some(format!("{group_name} · 1").as_str()));
+            let description = window.find(format!("action-description-{id}"));
+            assert_eq!(description.role(), Some(gpui_kit::Role::Label));
+            let text = description.label().unwrap().to_owned();
+            assert_eq!(
+                label(window, format!("task-menu-{id}")),
+                format!("Task actions: {text}")
+            );
+            assert_eq!(
+                label(window, format!("done-action-{id}")),
+                format!("Confirm done: {text}")
+            );
+            let facts = window.find(format!("action-facts-{id}"));
+            assert_eq!(facts.role(), Some(gpui_kit::Role::Label));
+            assert!(facts.label().unwrap().contains("Due"));
         }
-        assert!(window.try_find("actions-group-waiting").is_none());
-        assert!(window.try_find("actions-group-open").is_none());
     });
     update(cx, &f, |view, _, _| {
         assert_eq!(view.workspace.records().unwrap(), before);
@@ -1457,4 +1481,57 @@ fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
         format!("undo-{}", receipt.operation.as_str())
     });
     assert!(tab_to(cx, &f, &undo), "Tab reaches {undo}");
+}
+
+/// The saved Linux AT tree omitted these labeled rows entirely. Keyboard
+/// activation must use the same open-chat callback without creating a Run.
+#[gpui_kit::test]
+fn chat_rows_are_named_controls_and_enter_space_select_without_run(cx: &mut TestAppContext) {
+    for (key, attention) in [("enter", false), ("space", true)] {
+        let mut chat = String::new();
+        let f = fixture(cx, 1250., 1000., |workspace| {
+            chat = workspace.new_thread("Keyboard chat Ω").unwrap().id;
+            workspace
+                .post_message(&chat, "Synthetic posted context")
+                .unwrap();
+            if attention {
+                needs(
+                    workspace,
+                    &chat,
+                    AttentionKind::Question,
+                    "Owner input needed",
+                    None,
+                );
+            }
+        });
+        let before = cx.read(|cx| f.view.read(cx).workspace.records().unwrap());
+        click(cx, &f, "chats-recent");
+        let row = format!("{}-{chat}", if attention { "attention" } else { "thread" });
+        on_window(cx, &f, |window, _| {
+            let row = window.find(row.clone());
+            assert_eq!(row.role(), Some(gpui_kit::Role::Button));
+            assert!(row.label().unwrap().starts_with("Keyboard chat Ω"));
+            assert_eq!(row.selected(), Some(false));
+        });
+        // Recent -> All -> Archived -> first chat. No other control is activated.
+        for _ in 0..3 {
+            press(cx, &f, "tab");
+        }
+        press(cx, &f, key);
+        cx.read(|cx| {
+            let ui = f.view.read(cx);
+            assert_eq!(ui.chat_thread(), Some(chat.as_str()));
+            assert_eq!(ui.workspace.records().unwrap(), before);
+            assert!(ui.worker.is_none());
+        });
+        on_window(cx, &f, |window, _| {
+            assert_eq!(window.find(row).selected(), Some(true))
+        });
+        click(cx, &f, "all-threads");
+        on_window(cx, &f, |window, _| {
+            let row = window.find(format!("all-thread-{chat}"));
+            assert_eq!(row.role(), Some(gpui_kit::Role::Button));
+            assert!(row.label().unwrap().starts_with("Keyboard chat Ω"));
+        });
+    }
 }
