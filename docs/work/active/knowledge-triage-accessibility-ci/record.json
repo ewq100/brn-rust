@@ -10,7 +10,7 @@
     "holds": "No Mac access, release, user-store upgrades, credential/security changes or held feature expansion."
   },
   "work_view": {
-    "observed_at": "2026-10-27T00:15:17.500876+00:00",
+    "observed_at": "2026-10-27T00:21:38.912252+00:00",
     "goal": "Make existing findings useful, close demonstrated keyboard/accessibility gaps and reduce repeated helper build work safely.",
     "owner_attention": "PR233 supported test failure blocks the remaining prior merges. New work proceeds independently; new PRs require a separate merge decision.",
     "tasks": [
@@ -95,19 +95,20 @@
         "id": "ci-helper-reuse",
         "title": "Reuse helper build work safely",
         "owner": "Performance lane",
-        "state": "active",
-        "activity": "Isolated cold/warm measurement completed; no cache implementation yet.",
-        "observed_at": "2026-10-27T00:12:13.427495+00:00",
-        "origin": "reported",
-        "next_action": "Review maintained cache semantics and identity/trust safeguards before changing workflows.",
+        "state": "ready",
+        "activity": "Local reviewed commit22370d33 adds Linux helper dependency targets; fourteen focused Python checks pass. No executable cache fast path.",
+        "observed_at": "2026-10-27T00:21:38.912252+00:00",
+        "origin": "observed",
+        "next_action": "Publish reviewed independent draft from qualified main and monitor exact-head CI; hosted warm benefit remains unmeasured.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md"
+          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md",
+          "docs/work/active/knowledge-triage-accessibility-ci/helper-cache.md"
         ],
         "gates": {
-          "implementation": "pending",
-          "checks": "pending; measurements and source inspection are not complete qualification",
+          "implementation": "implemented locally; independent source/security review clear",
+          "checks": "fourteen focused Python tests passed; old config fails two boundary checks; documentation links passed; hosted exact-head CI pending",
           "integration": "pending; new draft publication only, no new merge authority",
           "native": "inapplicable to CI-only work",
           "owner_acceptance": "pending"
