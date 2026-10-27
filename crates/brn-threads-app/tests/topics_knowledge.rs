@@ -904,3 +904,375 @@ fn hub_findings_and_the_review_message_stay_bounded() {
         text.contains("maintain-notes playbook") && text.contains("A clean check is not proof")
     );
 }
+
+fn triage_duplicate(ws: &Workspace) -> KnowledgeSelection {
+    let snapshot = ws.knowledge_triage().unwrap();
+    let index = snapshot
+        .check
+        .findings
+        .iter()
+        .position(|f| f.kind == FindingKind::DuplicateTitle)
+        .unwrap();
+    ws.select_knowledge_finding(&snapshot, index).unwrap()
+}
+
+#[test]
+fn triage_draft_is_unsent_persists_and_replays_without_overwriting_owner_edits() {
+    let (_root, data, mut ws) = workspace();
+    write(
+        &mut ws,
+        "twins",
+        vec![
+            (None, note("Twin", "First"), false),
+            (None, note("Twins", "Second"), false),
+        ],
+    );
+    let selection = triage_duplicate(&ws);
+    let before = ws.store.records().unwrap();
+    let (chat, draft) = ws
+        .draft_knowledge_follow_up("selected", &selection)
+        .unwrap();
+    assert_eq!(
+        draft.destination,
+        serde_json::json!({"Thread": chat}).to_string()
+    );
+    assert!(draft.text.contains("DuplicateTitle"));
+    assert!(ws.messages(&chat).unwrap().is_empty());
+    for record in before {
+        assert_eq!(ws.store.record(&record.id).unwrap(), Some(record));
+    }
+    assert!(
+        !ws.store
+            .records()
+            .unwrap()
+            .iter()
+            .any(|r| matches!(r.data, RecordData::Run(_)))
+    );
+    ws.store
+        .save_chat_draft(&draft.destination, 2, "Owner revised unsent draft")
+        .unwrap();
+    drop(ws);
+    let mut ws = Workspace::open(&data).unwrap();
+    let (again, recovered) = ws
+        .draft_knowledge_follow_up("selected", &selection)
+        .unwrap();
+    assert_eq!(again, chat);
+    assert_eq!(recovered.text, "Owner revised unsent draft");
+    ws.store.save_chat_draft(&draft.destination, 3, "").unwrap();
+    assert_eq!(
+        ws.draft_knowledge_follow_up("selected", &selection)
+            .unwrap()
+            .1
+            .text,
+        ""
+    );
+}
+
+#[test]
+fn triage_rejects_stale_or_newly_private_findings_before_drafting() {
+    for private in [false, true] {
+        let (_root, _data, mut ws) = workspace();
+        let records = write(
+            &mut ws,
+            "twins",
+            vec![
+                (None, note("Twin", "First"), false),
+                (None, note("Twins", "Second"), false),
+            ],
+        );
+        let selection = triage_duplicate(&ws);
+        let mut changed = match records[0].data.clone() {
+            RecordData::Note(n) => n,
+            _ => unreachable!(),
+        };
+        if private {
+            changed.chat = Some(ws.new_thread("Private discussion").unwrap().id);
+        } else {
+            changed
+                .markdown
+                .push_str(" updated without changing the duplicate title");
+        }
+        write(
+            &mut ws,
+            "changed",
+            vec![(Some(&records[0]), RecordData::Note(changed), false)],
+        );
+        let before = ws.store.records().unwrap();
+        assert!(ws.draft_knowledge_follow_up("refuse", &selection).is_err());
+        assert_eq!(ws.store.records().unwrap(), before);
+        assert!(ws.store.chat_drafts().unwrap().is_empty());
+    }
+}
+
+#[test]
+fn triage_check_time_versions_are_not_silently_rebased_on_selection() {
+    let (_root, _data, mut ws) = workspace();
+    let records = write(
+        &mut ws,
+        "twins",
+        vec![
+            (None, note("Twin", "First"), false),
+            (None, note("Twins", "Second"), false),
+        ],
+    );
+    let snapshot = ws.knowledge_triage().unwrap();
+    let index = snapshot
+        .check
+        .findings
+        .iter()
+        .position(|f| f.kind == FindingKind::DuplicateTitle)
+        .unwrap();
+    write(
+        &mut ws,
+        "changed",
+        vec![(Some(&records[0]), note("Twin", "Later contents"), false)],
+    );
+    assert!(ws.select_knowledge_finding(&snapshot, index).is_err());
+}
+
+#[test]
+fn triage_pending_fix_binds_the_whole_candidate_and_refuses_retired_or_private_members() {
+    for private in [false, true] {
+        let (_root, _data, mut ws) = workspace();
+        let records = write(
+            &mut ws,
+            "notes",
+            vec![
+                (None, note("First", "A"), false),
+                (None, note("Second", "B"), false),
+            ],
+        );
+        let op = ws.store.allocate_operation("pending").unwrap();
+        let request = ChangeRequest {
+            reason: "Pending comparison".into(),
+            inputs: vec![],
+            writes: records
+                .iter()
+                .map(|r| Put {
+                    id: r.id.clone(),
+                    expected_version: Some(r.version),
+                    archived: false,
+                    data: note("Updated", "Pending"),
+                })
+                .collect(),
+        };
+        let prepared = ws.store.prepare(&op, &request).unwrap();
+        write(
+            &mut ws,
+            "stale",
+            vec![(Some(&records[0]), note("First", "Changed"), false)],
+        );
+        if private {
+            let chat = ws.new_thread("Private").unwrap();
+            let mut n = Note::working("Second", "B");
+            n.chat = Some(chat.id);
+            write(
+                &mut ws,
+                "private",
+                vec![(Some(&records[1]), RecordData::Note(n), false)],
+            );
+        }
+        let snapshot = ws.knowledge_triage().unwrap();
+        let index = snapshot
+            .check
+            .findings
+            .iter()
+            .position(|f| f.kind == FindingKind::StaleCandidate)
+            .unwrap();
+        let result = ws.select_knowledge_finding(&snapshot, index);
+        if private {
+            assert!(result.is_err());
+        } else {
+            let selection = result.unwrap();
+            assert_eq!(selection.candidate, Some(prepared));
+            ws.store.retire(&op).unwrap();
+            assert!(ws.validate_knowledge_selection(&selection).is_err());
+        }
+    }
+}
+
+#[test]
+fn triage_draft_writer_rechecks_evidence_missing_endpoints_and_destination() {
+    let (_root, data, mut ws) = workspace();
+    let record = ws.new_note("General", "Original").unwrap();
+    let thread = ws.new_thread("Draft destination").unwrap();
+    let guard = KnowledgeDraftGuard {
+        records: vec![record.clone()],
+        missing: vec!["known-missing".into()],
+        candidate: None,
+    };
+    ws.store.validate_knowledge_draft(&guard).unwrap();
+    let mut second = Workspace::open(&data).unwrap();
+    write(
+        &mut second,
+        "concurrent",
+        vec![(Some(&record), note("General", "Changed"), false)],
+    );
+    assert!(
+        ws.store
+            .create_knowledge_draft(&thread, &guard, "Must not persist")
+            .is_err()
+    );
+    assert!(ws.store.chat_drafts().unwrap().is_empty());
+    let current = ws.store.record(&record.id).unwrap().unwrap();
+    let appeared = KnowledgeDraftGuard {
+        records: vec![current.clone()],
+        missing: vec![thread.id.clone()],
+        candidate: None,
+    };
+    assert!(
+        ws.store
+            .create_knowledge_draft(&thread, &appeared, "No")
+            .is_err()
+    );
+    let valid = KnowledgeDraftGuard {
+        records: vec![current],
+        missing: vec![],
+        candidate: None,
+    };
+    write(
+        &mut ws,
+        "archive-destination",
+        vec![(Some(&thread), thread.data.clone(), true)],
+    );
+    assert!(
+        ws.store
+            .create_knowledge_draft(&thread, &valid, "No")
+            .is_err()
+    );
+}
+
+#[test]
+fn triage_draft_writer_rechecks_canonical_chat_privacy_without_thread_version_change() {
+    for archived in [false, true] {
+        let (_root, _data, mut ws) = workspace();
+        let reference = ws.new_note("General", "Visible reference").unwrap();
+        let thread = ws.new_thread("Initially general").unwrap();
+        let guard = KnowledgeDraftGuard {
+            records: vec![reference],
+            missing: vec![],
+            candidate: None,
+        };
+        ws.store.validate_knowledge_draft(&guard).unwrap();
+        let mut private = Note::working("Private discussion", "Do not copy outside this chat");
+        private.chat = Some(thread.id.clone());
+        write(
+            &mut ws,
+            "private-note",
+            vec![(None, RecordData::Note(private), archived)],
+        );
+        assert_eq!(ws.store.record(&thread.id).unwrap(), Some(thread.clone()));
+        assert!(
+            ws.store
+                .create_knowledge_draft(&thread, &guard, "Must remain unpersisted")
+                .is_err()
+        );
+        let context_guard = KnowledgeDraftGuard {
+            records: vec![thread],
+            missing: vec![],
+            candidate: None,
+        };
+        assert!(ws.store.validate_knowledge_draft(&context_guard).is_err());
+        assert!(ws.store.chat_drafts().unwrap().is_empty());
+    }
+}
+
+#[test]
+fn triage_pending_fix_rejects_private_historical_input_even_if_current_record_is_general() {
+    let (_root, _data, mut ws) = workspace();
+    let chat = ws.new_thread("Private source discussion").unwrap();
+    let mut private = Note::working("Earlier private evidence", "Private historical bytes");
+    private.chat = Some(chat.id);
+    let prior = write(
+        &mut ws,
+        "private source",
+        vec![(None, RecordData::Note(private), false)],
+    )
+    .remove(0);
+    write(
+        &mut ws,
+        "public current",
+        vec![(
+            Some(&prior),
+            note("Public replacement", "Different public bytes"),
+            false,
+        )],
+    );
+    let target = ws.new_note("Derived note", "Before").unwrap();
+    let op = ws.store.allocate_operation("historical proposal").unwrap();
+    ws.store
+        .prepare(
+            &op,
+            &ChangeRequest {
+                reason: "Historical input witness".into(),
+                writes: vec![Put {
+                    id: target.id.clone(),
+                    expected_version: Some(target.version),
+                    archived: false,
+                    data: note("Derived note", "Proposed"),
+                }],
+                inputs: vec![RevisionInput {
+                    record: prior.id,
+                    version: prior.version,
+                    expectation: InputExpectation::Historical,
+                }],
+            },
+        )
+        .unwrap();
+    write(
+        &mut ws,
+        "later target",
+        vec![(Some(&target), note("Derived note", "Later"), false)],
+    );
+    let snapshot = ws.knowledge_triage().unwrap();
+    let index = snapshot
+        .check
+        .findings
+        .iter()
+        .position(|f| f.kind == FindingKind::StaleCandidate)
+        .unwrap();
+    assert!(ws.select_knowledge_finding(&snapshot, index).is_err());
+}
+
+#[test]
+fn triage_pending_fix_with_thread_input_requires_original_scoped_review() {
+    let (_root, _data, mut ws) = workspace();
+    let chat = ws.new_thread("General chat metadata").unwrap();
+    let target = ws.new_note("General target", "Before").unwrap();
+    let op = ws
+        .store
+        .allocate_operation("thread-input-proposal")
+        .unwrap();
+    ws.store
+        .prepare(
+            &op,
+            &ChangeRequest {
+                reason: "Chat metadata remains scoped".into(),
+                inputs: vec![RevisionInput {
+                    record: chat.id,
+                    version: chat.version,
+                    expectation: InputExpectation::Current,
+                }],
+                writes: vec![Put {
+                    id: target.id.clone(),
+                    expected_version: Some(target.version),
+                    archived: false,
+                    data: note("General target", "Proposed"),
+                }],
+            },
+        )
+        .unwrap();
+    write(
+        &mut ws,
+        "later target",
+        vec![(Some(&target), note("General target", "Later"), false)],
+    );
+    let snapshot = ws.knowledge_triage().unwrap();
+    let index = snapshot
+        .check
+        .findings
+        .iter()
+        .position(|f| f.kind == FindingKind::StaleCandidate)
+        .unwrap();
+    assert!(ws.select_knowledge_finding(&snapshot, index).is_err());
+}

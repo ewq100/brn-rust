@@ -6,6 +6,127 @@ use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 
+/// Evidence for a Knowledge Check composer draft, not execution authority.
+#[derive(Clone, Debug)]
+pub struct KnowledgeDraftGuard {
+    pub records: Vec<Record>,
+    pub missing: Vec<String>,
+    pub candidate: Option<Prepared>,
+}
+fn check_knowledge_draft(conn: &rusqlite::Connection, guard: &KnowledgeDraftGuard) -> Result<()> {
+    let stale = || {
+        Error::Invalid(
+            "Knowledge finding changed or is no longer General. Check knowledge again.".into(),
+        )
+    };
+    if guard.records.is_empty() || guard.records.len() + guard.missing.len() > 128 {
+        return Err(stale());
+    }
+    let rows = crate::projects::rows_on(conn)?;
+    let allowed = |record: &Record| match &record.data {
+        RecordData::Thread(thread) => {
+            !record.archived
+                && !crate::context::chat_private(&rows, &record.id)
+                && thread.state == ThreadState::Open
+                && crate::project_for_chat(&rows, &record.id).is_none()
+        }
+        RecordData::Note(_) | RecordData::Source(_) | RecordData::Action(_) => {
+            crate::record_in_chat(record, &rows, None)
+        }
+        _ => false,
+    };
+    for record in &guard.records {
+        if record_on(conn, &record.id)?.as_ref() != Some(record) {
+            return Err(stale());
+        }
+        let visible = match &record.data {
+            RecordData::Link(link) => [&link.from, &link.to].into_iter().all(|id| {
+                rows.iter()
+                    .find(|r| &r.id == id)
+                    .map_or_else(|| guard.missing.contains(id), &allowed)
+            }),
+            _ => allowed(record),
+        };
+        if !visible {
+            return Err(stale());
+        }
+    }
+    for id in &guard.missing {
+        if record_on(conn, id)?.is_some() {
+            return Err(stale());
+        }
+    }
+    if let Some(candidate) = &guard.candidate {
+        let active: bool = conn.query_row("SELECT EXISTS(SELECT 1 FROM operations WHERE id=?1 AND hash=?2 AND retired=0 AND NOT EXISTS(SELECT 1 FROM receipts WHERE operation=operations.id))", params![candidate.operation.as_str(), candidate.request_hash], |r| r.get(0))?;
+        if !active || crate::store::prepared_on(conn, &candidate.operation)? != *candidate {
+            return Err(stale());
+        }
+    }
+    Ok(())
+}
+
+impl Store {
+    pub fn validate_knowledge_draft(&self, guard: &KnowledgeDraftGuard) -> Result<()> {
+        check_knowledge_draft(&self.conn, guard)
+    }
+    /// Create unsent recovery text once. Validation and insertion share the
+    /// writer transaction; replay preserves even an emptied/edited draft.
+    pub fn create_knowledge_draft(
+        &mut self,
+        thread: &Record,
+        guard: &KnowledgeDraftGuard,
+        text: &str,
+    ) -> Result<ChatDraft> {
+        if text.len() > 16 * 1024 {
+            return Err(Error::Invalid("Knowledge draft is too large".into()));
+        }
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        check_knowledge_draft(&tx, guard)?;
+        let rows = crate::projects::rows_on(&tx)?;
+        if record_on(&tx, &thread.id)?.as_ref() != Some(thread)
+            || thread.archived
+            || !matches!(&thread.data, RecordData::Thread(t) if !t.private_context && t.state == ThreadState::Open)
+            || crate::context::chat_private(&rows, &thread.id)
+            || crate::project_for_chat(&rows, &thread.id).is_some()
+        {
+            return Err(Error::Invalid(
+                "Draft destination is no longer an open General chat".into(),
+            ));
+        }
+        let destination = serde_json::json!({"Thread": thread.id}).to_string();
+        let prior = tx
+            .query_row(
+                "SELECT generation,text FROM chat_drafts WHERE destination=?1",
+                [&destination],
+                |r| {
+                    Ok(ChatDraft {
+                        destination: destination.clone(),
+                        generation: crate::read_u64(r, 0)?,
+                        text: r.get(1)?,
+                    })
+                },
+            )
+            .optional()?;
+        let draft = prior.unwrap_or(ChatDraft {
+            destination,
+            generation: 1,
+            text: text.into(),
+        });
+        tx.execute(
+            "INSERT OR IGNORE INTO chat_drafts(destination,generation,text) VALUES(?1,?2,?3)",
+            params![
+                draft.destination,
+                crate::integer(draft.generation)?,
+                draft.text
+            ],
+        )?;
+        tx.commit()?;
+        Ok(draft)
+    }
+}
+
 #[derive(Clone, Debug, Serialize)]
 pub enum ChatCommand {
     Bootstrap,

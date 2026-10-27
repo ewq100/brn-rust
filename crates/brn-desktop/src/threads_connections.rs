@@ -29,7 +29,42 @@ pub(super) struct KnowledgeView {
     pub(super) running: bool,
     pub(super) result: Option<KnowledgeCheck>,
     pub(super) error: Option<String>,
+    snapshot: Option<KnowledgeTriage>,
+    selected: Option<(KnowledgeSelection, String)>,
+    filter: Option<FindingKind>,
+    page: usize,
+    generation: u64,
+    busy: bool,
     task: Option<Task<()>>,
+}
+#[derive(Clone)]
+enum KnowledgeAction {
+    Inspect(usize),
+    Open(String),
+    Review,
+    Draft,
+}
+pub(super) enum KnowledgeAnswer {
+    Selected,
+    Open(String),
+    Review(Prepared),
+    Draft(String, ChatDraft),
+}
+const KNOWLEDGE_PAGE: usize = 8;
+fn finding_label(kind: FindingKind) -> &'static str {
+    match kind {
+        FindingKind::BrokenLink => "Broken links",
+        FindingKind::StaleInput => "Outdated inputs",
+        FindingKind::StaleCandidate => "Outdated proposals",
+        FindingKind::CoverageGap => "Coverage gaps",
+        FindingKind::Orphan => "Unconnected notes",
+        FindingKind::DuplicateTitle => "Similar titles",
+        FindingKind::DuplicateContent => "Duplicate content",
+        FindingKind::Contradiction => "Recorded conflicts",
+        FindingKind::Supersession => "Superseded notes",
+        FindingKind::RelationVariant => "Relation names",
+        FindingKind::UnlistedTopic => "Unlisted topics",
+    }
 }
 
 fn relation_label(relation: &brn_threads_app::search::Relation) -> String {
@@ -360,6 +395,12 @@ impl ThreadsUi {
 
     fn run_knowledge_check(&mut self, cx: &mut Context<Self>) {
         let data = self.data_dir.clone();
+        self.knowledge.generation += 1;
+        self.knowledge.snapshot = None;
+        self.knowledge.selected = None;
+        self.knowledge.filter = None;
+        self.knowledge.page = 0;
+        self.knowledge.busy = false;
         self.knowledge.running = true;
         self.knowledge.result = None;
         self.knowledge.error = None;
@@ -367,12 +408,15 @@ impl ThreadsUi {
         self.knowledge.task = Some(cx.spawn(async move |this, cx| {
             let answer = cx
                 .background_executor()
-                .spawn(async move { Workspace::open(&data)?.knowledge_check() })
+                .spawn(async move { Workspace::open(&data)?.knowledge_triage() })
                 .await;
             let _ = this.update(cx, |this, cx| {
                 this.knowledge.running = false;
                 match answer {
-                    Ok(check) => this.knowledge.result = Some(check),
+                    Ok(snapshot) => {
+                        this.knowledge.result = Some(snapshot.check.clone());
+                        this.knowledge.snapshot = Some(snapshot);
+                    }
                     Err(error) => this.knowledge.error = Some(error.to_string()),
                 }
                 cx.notify();
@@ -381,18 +425,115 @@ impl ThreadsUi {
         cx.notify();
     }
 
-    fn review_knowledge(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let Some(check) = self.knowledge.result.clone() else {
+    fn knowledge_action(
+        &mut self,
+        action: KnowledgeAction,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.knowledge.running || self.knowledge.busy {
+            return;
+        }
+        let Some(snapshot) = self.knowledge.snapshot.clone() else {
             return;
         };
-        match self.workspace.seed_knowledge_review(&check) {
-            Ok(chat) => {
+        let selected = self.knowledge.selected.clone();
+        let data = self.data_dir.clone();
+        self.knowledge.generation += 1;
+        let generation = self.knowledge.generation;
+        self.knowledge.busy = true;
+        self.knowledge.error = None;
+        self.knowledge.task = Some(cx.spawn_in(window, async move |this, cx| {
+            let answer: AppResult<(KnowledgeSelection, KnowledgeAnswer)> = cx.background_executor().spawn(async move {
+                let mut workspace = Workspace::open(&data)?;
+                if let KnowledgeAction::Inspect(index) = action {
+                    return workspace.select_knowledge_finding(&snapshot, index).map(|selection| (selection, KnowledgeAnswer::Selected));
+                }
+                let (selection, key) = selected.ok_or_else(|| AppError::Invalid("Select a finding first".into()))?;
+                workspace.validate_knowledge_selection(&selection)?;
+                let answer = match action {
+                    KnowledgeAction::Open(id) => selection.records.iter().find(|r| r.id == id && !r.archived && matches!(&r.data, RecordData::Note(n) if n.superseded_by.is_none())).map(|r| KnowledgeAnswer::Open(r.id.clone())).ok_or_else(|| AppError::Invalid("This affected note is unavailable".into())),
+                    KnowledgeAction::Review => selection.candidate.clone().map(KnowledgeAnswer::Review).ok_or_else(|| AppError::Invalid("No pending fix exists for this finding".into())),
+                    KnowledgeAction::Draft => workspace.draft_knowledge_follow_up(&key, &selection).map(|(chat, draft)| KnowledgeAnswer::Draft(chat, draft)),
+                    KnowledgeAction::Inspect(_) => unreachable!(),
+                }?;
+                Ok((selection, answer))
+            }).await;
+            let _ = this.update_in(cx, |this, window, cx| {
+                if this.knowledge.generation != generation { return; }
+                this.knowledge.busy = false;
+                let result = answer.and_then(|(selection, answer)| this.finish_knowledge_action(&selection, answer, window, cx));
+                if let Err(error) = result {
+                    this.knowledge.selected = None;
+                    this.knowledge.snapshot = None;
+                    this.knowledge.result = None;
+                    this.knowledge.error = Some(error.to_string());
+                }
+                cx.notify();
+            });
+        }));
+        cx.notify();
+    }
+
+    /// Validate again after executor delivery before exposing records or a proposal.
+    pub(super) fn finish_knowledge_action(
+        &mut self,
+        selection: &KnowledgeSelection,
+        answer: KnowledgeAnswer,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> AppResult<()> {
+        self.workspace.validate_knowledge_selection(selection)?;
+        match answer {
+            KnowledgeAnswer::Selected => {
+                self.knowledge.selected =
+                    Some((selection.clone(), uuid::Uuid::new_v4().to_string()))
+            }
+            KnowledgeAnswer::Open(id) => self.open_note(&id, None, window, cx),
+            KnowledgeAnswer::Review(candidate) => self.open_review(candidate, window, cx),
+            KnowledgeAnswer::Draft(chat, delivered) => {
+                let thread = self
+                    .workspace
+                    .store
+                    .record(&chat)?
+                    .ok_or_else(|| AppError::Invalid("Draft chat disappeared".into()))?;
+                if thread.archived
+                    || !matches!(thread.data, RecordData::Thread(ref t) if t.state == ThreadState::Open)
+                    || self.workspace.store.chat_has_private_context(&chat)?
+                    || self
+                        .workspace
+                        .store
+                        .project_context_record(&chat)?
+                        .is_some()
+                {
+                    return Err(AppError::Invalid(
+                        "Draft destination changed; reopen it explicitly".into(),
+                    ));
+                }
+                // The user can edit while background work runs. Never replace a
+                // visible target composer, even if the user just emptied it.
+                if self.chat_thread() != Some(chat.as_str()) {
+                    let destination = ComposerDestination::Thread(chat.clone());
+                    let latest = self
+                        .workspace
+                        .store
+                        .chat_drafts()?
+                        .into_iter()
+                        .find(|d| d.destination == delivered.destination)
+                        .ok_or_else(|| AppError::Invalid("Draft recovery disappeared".into()))?;
+                    let local = self.draft_generations.get(&latest.destination).copied();
+                    if local.is_none_or(|generation| generation < latest.generation) {
+                        self.draft_generations
+                            .insert(latest.destination, latest.generation);
+                        self.composer_drafts.preserve(destination, latest.text);
+                    }
+                }
                 self.refresh();
                 self.open_thread(&chat, window, cx);
+                self.warn("Unsent follow-up draft. Review and edit it before sending; no AI request has started.");
             }
-            Err(error) => self.fail(error.to_string()),
         }
-        cx.notify();
+        Ok(())
     }
 
     /// The overview panel for the owner-triggered knowledge check.
@@ -418,7 +559,7 @@ impl ThreadsUi {
                         })
                         .outline()
                         .loading(knowledge.running)
-                        .disabled(knowledge.running)
+                        .disabled(knowledge.running || knowledge.busy)
                         .when(knowledge.running, |button| {
                             let (announced, tooltip) =
                                 components::unavailable("Check knowledge", Some("a check is running"));
@@ -446,29 +587,178 @@ impl ThreadsUi {
                 .id("knowledge-summary")
                 .test_support(),
             );
-            for (kind, count) in &check.counts {
-                panel = panel.child(metadata(format!("{kind:?} · {count}")));
+            let mut filters = div().flex().flex_wrap().gap_2().child(
+                button("knowledge-filter-all")
+                    .label("All findings")
+                    .outline()
+                    .selected(knowledge.filter.is_none())
+                    .disabled(knowledge.busy)
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.knowledge.filter = None;
+                        this.knowledge.page = 0;
+                        this.knowledge.selected = None;
+                        cx.notify();
+                    })),
+            );
+            for (&kind, count) in &check.counts {
+                filters = filters.child(
+                    button(format!("knowledge-filter-{kind:?}"))
+                        .label(format!("{} · {count}", finding_label(kind)))
+                        .outline()
+                        .selected(knowledge.filter == Some(kind))
+                        .disabled(knowledge.busy)
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            this.knowledge.filter = Some(kind);
+                            this.knowledge.page = 0;
+                            this.knowledge.selected = None;
+                            cx.notify();
+                        })),
+                );
             }
-            for (index, finding) in check.findings.iter().take(8).enumerate() {
+            panel = panel.child(filters);
+            let listed: Vec<_> = check
+                .findings
+                .iter()
+                .enumerate()
+                .filter(|(_, f)| knowledge.filter.is_none_or(|kind| kind == f.kind))
+                .collect();
+            let count = knowledge
+                .filter
+                .map_or(total, |kind| check.counts.get(&kind).copied().unwrap_or(0));
+            let start = knowledge.page * KNOWLEDGE_PAGE;
+            let page_summary = format!(
+                "Showing {}–{} of {} listed findings ({count} total).",
+                if listed.is_empty() { 0 } else { start + 1 },
+                (start + KNOWLEDGE_PAGE).min(listed.len()),
+                listed.len()
+            );
+            panel = panel.child(
+                metadata(page_summary.clone())
+                    .id("knowledge-page-summary")
+                    .role(gpui_kit::Role::Label)
+                    .aria_label(page_summary)
+                    .test_support(),
+            );
+            if count > listed.len() {
+                panel = panel.child(metadata("Only the first 25 findings per kind are listed. Check again after reviewing them."));
+            }
+            for &(index, finding) in listed.iter().skip(start).take(KNOWLEDGE_PAGE) {
                 panel = panel.child(
                     div()
                         .id(format!("knowledge-finding-{index}"))
-                        .text_size(UI_TEXT)
-                        .child(finding.detail.clone()),
-                );
-            }
-            if total > 0 {
-                panel =
-                    panel.child(
-                        div().child(
-                            button("knowledge-review")
-                                .label("Review findings in a chat")
+                        .flex()
+                        .flex_col()
+                        .gap_1()
+                        .child(finding.detail.clone())
+                        .child(
+                            button(format!("knowledge-inspect-{index}"))
+                                .label("Inspect finding")
                                 .outline()
-                                .on_click(cx.listener(|this, _, window, cx| {
-                                    this.review_knowledge(window, cx)
+                                .disabled(knowledge.busy)
+                                .on_click(cx.listener(move |this, _, window, cx| {
+                                    this.knowledge_action(
+                                        KnowledgeAction::Inspect(index),
+                                        window,
+                                        cx,
+                                    )
                                 })),
                         ),
+                );
+            }
+            if listed.len() > KNOWLEDGE_PAGE {
+                panel = panel.child(
+                    div()
+                        .flex()
+                        .gap_2()
+                        .child(
+                            button("knowledge-previous")
+                                .label("Previous")
+                                .outline()
+                                .disabled(knowledge.page == 0 || knowledge.busy)
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    this.knowledge.page = this.knowledge.page.saturating_sub(1);
+                                    this.knowledge.selected = None;
+                                    cx.notify();
+                                })),
+                        )
+                        .child(
+                            button("knowledge-next")
+                                .label("Next")
+                                .outline()
+                                .disabled(start + KNOWLEDGE_PAGE >= listed.len() || knowledge.busy)
+                                .on_click(cx.listener(|this, _, _, cx| {
+                                    this.knowledge.page += 1;
+                                    this.knowledge.selected = None;
+                                    cx.notify();
+                                })),
+                        ),
+                );
+            }
+            if let Some((selection, _)) = &knowledge.selected {
+                let mut detail = div()
+                    .id("knowledge-selected")
+                    .flex()
+                    .flex_col()
+                    .gap_2()
+                    .child(section(finding_label(selection.finding.kind)))
+                    .child(selection.finding.detail.clone());
+                for record in &selection.records {
+                    if let RecordData::Note(note) = &record.data {
+                        let id = record.id.clone();
+                        detail = detail.child(
+                            button(format!("knowledge-open-{id}"))
+                                .label(format!("Open {} · v{}", note.title, record.version))
+                                .outline()
+                                .disabled(
+                                    knowledge.busy
+                                        || record.archived
+                                        || note.superseded_by.is_some(),
+                                )
+                                .on_click(cx.listener(move |this, _, window, cx| {
+                                    this.knowledge_action(
+                                        KnowledgeAction::Open(id.clone()),
+                                        window,
+                                        cx,
+                                    )
+                                })),
+                        );
+                    } else if let RecordData::Source(source) = &record.data {
+                        detail = detail.child(metadata(format!(
+                            "Source {} · v{} · {}",
+                            source.label, record.version, source.outcome
+                        )));
+                    } else if let RecordData::Link(link) = &record.data {
+                        detail = detail.child(metadata(format!(
+                            "Link {} · v{} · {} → {} ({})",
+                            record.id, record.version, link.from, link.to, link.relation
+                        )));
+                    }
+                }
+                for id in &selection.finding.records {
+                    if !selection.records.iter().any(|r| &r.id == id)
+                        && selection
+                            .candidate
+                            .as_ref()
+                            .is_none_or(|p| p.operation.as_str() != id)
+                    {
+                        detail = detail.child(metadata(format!("Unavailable reference: {id}")));
+                    }
+                }
+                if selection.candidate.is_some() {
+                    detail = detail.child(
+                        button("knowledge-review-fix")
+                            .label("Review existing pending fix")
+                            .outline()
+                            .disabled(knowledge.busy)
+                            .on_click(cx.listener(|this, _, window, cx| {
+                                this.knowledge_action(KnowledgeAction::Review, window, cx)
+                            })),
                     );
+                }
+                detail = detail.child(metadata("Drafting a follow-up starts no AI request and changes no knowledge. Sending later uses your current delegation settings."))
+                    .child(button("knowledge-draft").label("Draft follow-up in chat").outline().disabled(knowledge.busy)
+                        .on_click(cx.listener(|this, _, window, cx| this.knowledge_action(KnowledgeAction::Draft, window, cx))));
+                panel = panel.child(detail.test_support());
             }
         }
         panel.test_support().into_any_element()
