@@ -1,0 +1,10 @@
+   Compiling brn-threads-core v0.1.0 (/workspace/brn-capture/crates/brn-threads-core)
+    Finished `test` profile [optimized] target(s) in 28.35s
+     Running tests/capture_format.rs (/workspace/brn-environment/target/debug/deps/capture_format-fe7cae6ddbccaf57)
+
+running 2 tests
+test schema12_upgrade_and_restore_preserve_exact_history_and_pending_requests ... ok
+test schema13_capture_backup_restore_retains_review_fence_and_owner_undo ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

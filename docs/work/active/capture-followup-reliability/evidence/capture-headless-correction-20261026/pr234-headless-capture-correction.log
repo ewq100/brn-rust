@@ -1,0 +1,16 @@
+   Compiling brn-intake v0.1.0 (/workspace/brn-capture-publication/crates/brn-intake)
+   Compiling brn-threads-core v0.1.0 (/workspace/brn-capture-publication/crates/brn-threads-core)
+   Compiling brn-threads-intake v0.1.0 (/workspace/brn-capture-publication/crates/brn-threads-intake)
+   Compiling brn-retrieval v0.1.0 (/workspace/brn-capture-publication/crates/brn-retrieval)
+   Compiling brn-ai v0.1.0 (/workspace/brn-capture-publication/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/workspace/brn-capture-publication/crates/brn-threads-app)
+   Compiling brn-writing-ui v0.1.0 (/workspace/brn-capture-publication/crates/brn-writing-ui)
+   Compiling brn-desktop v0.1.0 (/workspace/brn-capture-publication/crates/brn-desktop)
+    Finished `test` profile [optimized] target(s) in 1m 08s
+     Running unittests src/main.rs (/workspace/brn-environment/target/debug/deps/brn_desktop-07b5c7a3153bb60d)
+
+running 1 test
+test threads_state::tests::capture_continue_binds_latest_run_not_newest_marker_and_later_owner_input_starts_fresh ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 30 filtered out; finished in 0.00s
+

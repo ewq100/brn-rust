@@ -1,0 +1,12 @@
+   Compiling brn-threads-core v0.1.0 (/workspace/brn-capture/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/workspace/brn-capture/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 3m 27s
+     Running unittests src/lib.rs (/workspace/brn-environment/target/debug/deps/brn_ai-568a09b540058002)
+
+running 3 tests
+test threads_guides::tests::guidance_says_when_to_withdraw_an_obsolete_proposal ... ok
+test threads_guides::tests::runtime_descriptions_are_parsed_from_packaged_frontmatter ... ok
+test threads_guides::tests::fixed_catalog_has_valid_frontmatter_and_rejects_paths ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 513 filtered out; finished in 0.02s
+

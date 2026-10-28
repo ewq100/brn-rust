@@ -42,9 +42,9 @@ PR227 shipped the three narrow slices at `90e5bceb`; PR228 added inbox interrupt
 
 ## Latest bounded work — 27 October 2026
 
-`Sentinel_e8a0b912f2808191801dc1475073b6f0` approved existing Knowledge Check triage, demonstrated keyboard/accessibility repairs and measured safe CI helper reuse. [Selected scope](../knowledge-triage-accessibility-ci/baseline.md) preserves the existing detector, checked review/Undo, privacy and dependency-cache trust boundaries. New PRs remain draft-only; no automatic maintenance, broader UI redesign, live spending or new merge authority.
+`Sentinel_e8a0b912f2808191801dc1475073b6f0` approved existing Knowledge Check triage, demonstrated keyboard/accessibility repairs and measured safe CI helper reuse. [Selected scope](../knowledge-triage-accessibility-ci/baseline.md) preserves the existing detector, checked review/Undo, privacy and dependency-cache trust boundaries. Later lead authority permits reviewed merges within those approved tracks. No automatic maintenance, broader UI redesign, live spending or release is authorized.
 
-PR230–232 are merged through `ed1e3979` with seven supported main jobs passing and three optional Windows failures. PR233 refreshed-head Linux core testing failed; diagnostic log access was Forbidden. PR233/234 remain unmerged. These current facts supersede dated pre-merge labels without erasing their evidence.
+PR230–232 are merged through `ed1e3979` with seven supported main jobs passing and three optional Windows failures. PR233 previously failed Linux core testing and diagnostic log access was Forbidden. The refreshed head d06f6acb passed all six supported checks, with optional Windows failure, and merged at d67e7ad3; its resulting-main CI is pending. The original hosted failure remains unexplained; [cloud reproduction](../knowledge-triage-accessibility-ci/pr233-cloud-reproduction.md) retains local failures. PR234 remains unmerged pending refreshed-head qualification. These current facts supersede dated pre-merge labels without erasing their evidence.
 
 ## Start with these choices
 

@@ -1,0 +1,13 @@
+
+running 8 tests
+test threads_ui::documents_tests::documents_completion_uses_captured_settings_and_stored_provenance ... ok
+test threads_ui::documents_tests::documents_controls_persist_independently_and_do_not_rewrite_notes ... ok
+test threads_ui::documents_tests::documents_native_worker_runs_selected_helper_without_credentials ... ok
+test threads_ui::documents_tests::documents_useful_handoff_keeps_snapshot_and_settings_defer_while_working ... ok
+test threads_ui::documents_tests::documents_useful_scope_deleted_project_refuses ... ok
+test threads_ui::documents_tests::documents_useful_scope_general_to_project ... ok
+test threads_ui::documents_tests::documents_useful_scope_project_a_to_b ... ok
+test threads_ui::documents_tests::documents_useful_scope_project_to_general ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 370 filtered out; finished in 0.55s
+

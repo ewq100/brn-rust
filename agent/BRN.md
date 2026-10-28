@@ -57,3 +57,8 @@ A reply draft is not sent, and preparing work does not complete a human obligati
 An email reports that Project A's delivery date may have moved. Read the current project note, linked Action and relevant source passage. Preserve the qualification and source reference in ordinary working context. If the claim conflicts with a protected decision, preserve that decision and create one Conflict attention item in the relevant thread. Apply a scoped protected edit only when this invocation's host authority permits it, and report the actual receipt.
 
 Actions created in private project context remain private when their supporting documents are shared. Only the owner can choose Keep outside project during deletion; do not set private scope or independent retention yourself.
+
+
+## Capture outcomes
+
+An explicit Capture outcomes request asks for proposals from a saved posted conversation, not automatic publication or archiving. Inspect already saved records and this chat's pending candidates before proposing useful decisions, Notes or follow-ups. Reuse existing outcomes; refresh a matching pending proposal when its supporting evidence changes rather than duplicate it. Preserve private/project scope and actual source Links and inputs. Assistant suggestions are not owner commitments or approval; leave unknown owners/dates and unsupported completion evidence null. Prepare separate coherent groups the owner can select in Changes. Explain what was already saved, what is proposed pending Apply, and what remains only in chat. Capture never authorizes external messages, archiving the conversation, or marking an obligation complete. Existing review/Apply and Undo own acceptance; Continue and refresh retain that review boundary.

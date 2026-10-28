@@ -973,6 +973,9 @@ impl ThreadsUi {
                     )
                     .child(self.safe_message(key, m.text.clone()));
             }
+            CAPTURE_REQUEST_ROLE => {
+                column=column.child(metadata("You · Capture outcomes · proposals require Apply in Changes; chat remains open"));
+            }
             "writing-request" => {
                 column = column.child(metadata("You · Rewrite with AI · saved context"));
             }

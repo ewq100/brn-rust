@@ -42,6 +42,13 @@ impl ThreadsUi {
         let mut controls = vec![];
         if let ChatTarget::Thread(id) = &self.chat {
             let id = id.clone();
+            if !self.thread_resolved(&id) {
+                controls.push(pill("capture-outcomes", "Capture outcomes…")
+                    .disabled(self.worker.is_some())
+                    .tooltip("Propose useful notes, decisions and follow-ups for review; nothing is saved automatically")
+                    .on_click(cx.listener(|this,_,window,cx|this.capture_outcomes(window,cx)))
+                    .into_any_element());
+            }
             // An archived chat's only Unarchive is in the composer banner.
             controls.push(if self.thread_resolved(&id) {
                 components::status_chip("chat-archived", None, Some(IconName::Archive), "Archived")
@@ -226,7 +233,7 @@ impl ThreadsUi {
         };
         let queue = self.queue_state();
         let messages = self.workspace.messages(id).unwrap_or_default();
-        let path = continue_path(&queue, &messages, id);
+        let path = self.continue_chat_path(&messages, id);
         let recovering = self.shows_recovery_card(id, &thread.state, &path);
         // Rewrite proposals belong to the Note.
         let cards: Vec<(usize, &Attention, Option<&Prepared>)> = thread
@@ -391,7 +398,7 @@ impl ThreadsUi {
             return None;
         };
         let messages = self.workspace.messages(thread).unwrap_or_default();
-        let path = continue_path(&self.queue_state(), &messages, thread);
+        let path = self.continue_chat_path(&messages, thread);
         self.shows_recovery_card(thread, &data.state, &path)
             .then(|| self.saved_run_to_stop(thread))
             .flatten()
@@ -411,7 +418,7 @@ impl ThreadsUi {
             return false;
         };
         let messages = self.workspace.messages(thread).unwrap_or_default();
-        let path = continue_path(&self.queue_state(), &messages, thread);
+        let path = self.continue_chat_path(&messages, thread);
         !self.thread_resolved(thread) && self.shows_recovery_card(thread, &data.state, &path)
     }
     /// The recovery card: the recorded state and its reason in full, then
