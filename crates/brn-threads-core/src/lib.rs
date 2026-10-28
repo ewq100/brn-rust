@@ -14,7 +14,7 @@ pub use inspect::{CandidateRow, OperationInfo, OperationState, RECORD_KINDS};
 mod converge;
 pub use converge::{Converged, Unchanged};
 mod chat;
-pub use chat::{ChatCommand, ChatCommandOutcome};
+pub use chat::{ChatCommand, ChatCommandOutcome, KnowledgeDraftGuard};
 mod context;
 mod projects;
 pub use projects::{

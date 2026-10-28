@@ -55,7 +55,8 @@ pub use brn_retrieval::Error as RetrievalError;
 pub use export::ExportManifest;
 pub use intake::{SOURCE_INTAKE_INSTRUCTION, import_report, import_report_with_conversion};
 pub use knowledge::{
-    FINDINGS_PER_KIND, Finding, FindingKind, KnowledgeCheck, REVIEW_MESSAGE_BYTES,
+    FINDINGS_PER_KIND, Finding, FindingKind, KnowledgeCheck, KnowledgeSelection, KnowledgeTriage,
+    REVIEW_MESSAGE_BYTES,
 };
 pub use review_groups::{ReviewGroup, ReviewGroups};
 pub use topics::{TopicEntry, Topics};
