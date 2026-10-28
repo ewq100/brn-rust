@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make existing findings useful, close demonstrated keyboard/accessibility gaps and reduce repeated helper build work safely.
-**Owner attention:** PR233 supported test failure blocks the remaining prior merges. New work proceeds independently; new PRs require a separate merge decision.
+**Owner attention:** Lead merge authority covers the existing approved tracks after review and passing checks. PR233 requires refreshed exact-head qualification; original hosted failure remains unexplained. No live-provider spending, Mac access, release or new scope.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -98,9 +98,9 @@ Gates:
 ### Finish the approved prior merges
 
 Task ID: `baseline-reconciliation`
-Owner: Integration owner · State: **blocked** · Last observed: 2026-10-27T00:15:17.500876+00:00
-Activity: PR230–232 merged; current main CI passed seven supported jobs, three optional Windows failures. PR233 refreshed-head Linux core test failed; diagnostic log returned Forbidden and cause remains unknown. PR234 waits.
-Next: Obtain permitted diagnostic evidence; do not merge or rerun blindly.
+Owner: Integration owner · State: **blocked** · Last observed: 2026-10-28T06:47:09.531879+00:00
+Activity: PR235 merged to main cfe3f96c; parent reported seven supported CI jobs passing and three optional Windows failures. PR233 old-head cloud reproduction failed; refreshed merge 35bd84cb awaits exact-head CI.
+Next: Qualify refreshed PR233 at exact head and investigate remaining failures with permitted evidence before integration.
 
 <details>
 <summary>Gate status</summary>
@@ -108,8 +108,8 @@ Next: Obtain permitted diagnostic evidence; do not merge or rerun blindly.
 Gates:
 
 - **implementation:** pending
-- **checks:** failed: PR233 refreshed-head CI40422659424 five supported passes, Linux core test failure101, optional Windows failure; diagnostic log download denied
-- **integration:** pending; new draft publication only, no new merge authority
+- **checks:** failed: old head 7a71e660 local cloud suite; refreshed head 35bd84cb exact CI pending; hosted run 40422659424 cause unknown
+- **integration:** pending PR233 qualification; expanded lead merge authority covers approved tracks only
 - **native:** pending applicable Linux evidence; actual Mac acceptance separate
 - **owner acceptance:** pending
 
@@ -119,4 +119,4 @@ Gates:
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-10-27T00:21:38.912252+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-28T07:04:48.938331+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

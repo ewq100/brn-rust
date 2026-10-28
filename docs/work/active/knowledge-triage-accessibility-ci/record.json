@@ -10,28 +10,29 @@
     "holds": "No Mac access, release, user-store upgrades, credential/security changes or held feature expansion."
   },
   "work_view": {
-    "observed_at": "2026-10-27T00:21:38.912252+00:00",
+    "observed_at": "2026-10-28T07:04:48.938331+00:00",
     "goal": "Make existing findings useful, close demonstrated keyboard/accessibility gaps and reduce repeated helper build work safely.",
-    "owner_attention": "PR233 supported test failure blocks the remaining prior merges. New work proceeds independently; new PRs require a separate merge decision.",
+    "owner_attention": "Lead merge authority covers the existing approved tracks after review and passing checks. PR233 requires refreshed exact-head qualification; original hosted failure remains unexplained. No live-provider spending, Mac access, release or new scope.",
     "tasks": [
       {
         "id": "baseline-reconciliation",
         "title": "Finish the approved prior merges",
         "owner": "Integration owner",
         "state": "blocked",
-        "activity": "PR230\u2013232 merged; current main CI passed seven supported jobs, three optional Windows failures. PR233 refreshed-head Linux core test failed; diagnostic log returned Forbidden and cause remains unknown. PR234 waits.",
-        "observed_at": "2026-10-27T00:15:17.500876+00:00",
+        "activity": "PR235 merged to main cfe3f96c; parent reported seven supported CI jobs passing and three optional Windows failures. PR233 old-head cloud reproduction failed; refreshed merge 35bd84cb awaits exact-head CI.",
+        "observed_at": "2026-10-28T06:47:09.531879+00:00",
         "origin": "observed",
-        "next_action": "Obtain permitted diagnostic evidence; do not merge or rerun blindly.",
+        "next_action": "Qualify refreshed PR233 at exact head and investigate remaining failures with permitted evidence before integration.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md"
+          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md",
+          "docs/work/active/knowledge-triage-accessibility-ci/pr233-cloud-reproduction.md"
         ],
         "gates": {
           "implementation": "pending",
-          "checks": "failed: PR233 refreshed-head CI40422659424 five supported passes, Linux core test failure101, optional Windows failure; diagnostic log download denied",
-          "integration": "pending; new draft publication only, no new merge authority",
+          "checks": "failed: old head 7a71e660 local cloud suite; refreshed head 35bd84cb exact CI pending; hosted run 40422659424 cause unknown",
+          "integration": "pending PR233 qualification; expanded lead merge authority covers approved tracks only",
           "native": "pending applicable Linux evidence; actual Mac acceptance separate",
           "owner_acceptance": "pending"
         },
@@ -41,6 +42,13 @@
             "change": "No retry, alternate log route, assertion change or blind rerun. Hold PR233/234; continue independent new tracks.",
             "evidence": [
               "https://github.com/ewq100/brn-rust/actions/runs/40422659424"
+            ]
+          },
+          {
+            "outcome": "Old-head offline workspace suite: 1207 passed, 175 failed, 7 ignored, exit 101; 132 failures explicitly reported UnsafeCredentials. Focused unchanged process test also failed on PID disappearance; observed descendant became a zombie under PID 1.",
+            "change": "No production or test changes; refreshed PR233 by normal main merge for exact-head CI, without claiming a repaired cause.",
+            "evidence": [
+              "docs/work/active/knowledge-triage-accessibility-ci/pr233-cloud-reproduction.md"
             ]
           }
         ]
