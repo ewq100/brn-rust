@@ -2,8 +2,8 @@
 #[cfg(test)]
 use brn_threads_app::Comment;
 use brn_threads_app::{
-    ApplyOutcome, ChatControl, Prepared, Receipt, Record, RecordData, Run, RunState, SaveOutcome,
-    ThreadState, WorkspaceSettings,
+    ApplyOutcome, CAPTURE_REQUEST_ROLE, ChatControl, Prepared, Receipt, Record, RecordData, Run,
+    RunState, SaveOutcome, ThreadState, WorkspaceSettings,
 };
 #[cfg(test)]
 use brn_writing_ui::layout::Unlocated;
@@ -206,6 +206,8 @@ pub(super) enum ContinuePath {
     /// The newest request after the last owner message is a rewrite; the
     /// Note's Retry saved rewrite owns it, never the chat.
     RetryRewrite(String),
+    RetryCapture(String),
+    CaptureNeedsConfirmation,
     /// A fresh reply from the saved chat and current notes.
     FreshRun,
 }
@@ -230,6 +232,44 @@ pub(super) fn continue_path(
         }
     }
     ContinuePath::FreshRun
+}
+
+// Continue belongs to the latest durable Run, never merely to a newer marker.
+pub(super) fn capture_continuation(
+    path: ContinuePath,
+    messages: &[Record],
+    latest: Option<&Record>,
+) -> ContinuePath {
+    if matches!(
+        path,
+        ContinuePath::ResumeQueue | ContinuePath::RetryRewrite(_)
+    ) {
+        return path;
+    }
+    let after_owner = messages
+        .iter()
+        .rposition(|r| matches!(&r.data,RecordData::Message(m) if m.role=="owner"))
+        .map_or(0, |i| i + 1);
+    let captures = messages[after_owner..]
+        .iter()
+        .filter(|r| matches!(&r.data,RecordData::Message(m) if m.role==CAPTURE_REQUEST_ROLE))
+        .collect::<Vec<_>>();
+    if let Some(Record {
+        data: RecordData::Run(run),
+        ..
+    }) = latest
+        && let Some(record) = captures.iter().find(|r| {
+            run.instruction.as_ref() == Some(&r.id)
+                && matches!(&r.data,RecordData::Message(m) if m.thread==run.thread)
+        })
+    {
+        return ContinuePath::RetryCapture(record.id.clone());
+    }
+    if !captures.is_empty() {
+        ContinuePath::CaptureNeedsConfirmation
+    } else {
+        path
+    }
 }
 
 /// A recovery line's tone, ordered so the card takes the strongest.
@@ -370,6 +410,16 @@ pub(super) fn recovery(
                 "Resume queue",
             )
         }
+        ContinuePath::CaptureNeedsConfirmation => (
+            "Capture has no matching started Run. Use Capture outcomes to confirm a fresh request.".into(),
+            Severity::Neutral,
+            "Confirm Capture",
+        ),
+        ContinuePath::RetryCapture(_) => (
+            "Continue retries this saved Capture request; proposals still require Apply in Changes.".into(),
+            if still_running {Severity::Warning} else {Severity::Neutral},
+            "Continue Capture",
+        ),
         _ if still_running => (
             format!(
                 "{} may still be running elsewhere. Continue starts a fresh reply and replaces it.",
@@ -406,7 +456,7 @@ pub(super) fn recovery(
         next_severity,
         waiting,
         action,
-        available: true,
+        available: *path != ContinuePath::CaptureNeedsConfirmation,
     }
 }
 
@@ -543,6 +593,66 @@ pub(super) use brn_writing_ui::layout::sections;
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn capture_continue_binds_latest_run_not_newest_marker_and_later_owner_input_starts_fresh() {
+        fn message(id: &str, role: &str) -> Record {
+            Record {
+                id: id.into(),
+                version: 1,
+                archived: false,
+                data: RecordData::Message(brn_threads_app::Message {
+                    thread: "chat".into(),
+                    role: role.into(),
+                    text: "Synthetic".into(),
+                }),
+            }
+        }
+        let mut messages = vec![
+            message("owner", "owner"),
+            message("capture-old", CAPTURE_REQUEST_ROLE),
+            message("capture-new", CAPTURE_REQUEST_ROLE),
+        ];
+        let run = Record {
+            id: "run".into(),
+            version: 1,
+            archived: false,
+            data: RecordData::Run(Run {
+                instruction: Some("capture-old".into()),
+                queue_claim: None,
+                thread: "chat".into(),
+                provider: "Codex".into(),
+                model: "fixture".into(),
+                guide_identity: "fixture".into(),
+                budget: 4,
+                effort: "medium".into(),
+                loaded_skills: vec![],
+                loaded_skill_details: vec![],
+                fence: 1,
+                state: RunState::Interrupted,
+                progress: String::new(),
+                operations: vec![],
+                sources: vec![],
+            }),
+        };
+        assert_eq!(
+            capture_continuation(ContinuePath::FreshRun, &messages, Some(&run)),
+            ContinuePath::RetryCapture("capture-old".into())
+        );
+        assert_eq!(
+            capture_continuation(ContinuePath::FreshRun, &messages, None),
+            ContinuePath::CaptureNeedsConfirmation
+        );
+        assert_eq!(
+            capture_continuation(ContinuePath::ResumeQueue, &messages, Some(&run)),
+            ContinuePath::ResumeQueue
+        );
+        messages.push(message("new-owner", "owner"));
+        assert_eq!(
+            capture_continuation(ContinuePath::FreshRun, &messages, Some(&run)),
+            ContinuePath::FreshRun
+        );
+    }
+
     #[test]
     fn pending_display_does_not_infer_consent_from_legacy_maintenance_flags() {
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();

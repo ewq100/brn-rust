@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Make existing findings useful, close demonstrated keyboard/accessibility gaps and reduce repeated helper build work safely.
-**Owner attention:** Lead merge authority covers the existing approved tracks after review and passing checks. PR233 requires refreshed exact-head qualification; original hosted failure remains unexplained. No live-provider spending, Mac access, release or new scope.
+**Owner attention:** Lead merge authority covers the existing approved tracks after review and passing checks. PR233 is merged with resulting-main CI pending; PR234 requires refreshed exact-head qualification. Original failures remain recorded. No live-provider spending, Mac access, release or new scope is inferred.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -10,6 +10,26 @@ Ready eligibility is a conservative state/admission display derived from reporte
 Task details and full history: [selected work record](active/knowledge-triage-accessibility-ci/record.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.
 
 ## Working on
+
+### Finish the approved prior merges
+
+Task ID: `baseline-reconciliation`
+Owner: Integration owner · State: **active** · Last observed: 2026-10-28T07:41:23.562340+00:00
+Activity: PR233 refreshed head d06f6acb passed six supported jobs and merged normally at d67e7ad3. Optional Windows failed; prior hosted cause remains unknown. PR234 main refresh has documentation-only conflicts reconciled; exact-head qualification is next.
+Next: Independently verify the refreshed Capture production tree, publish normally, and qualify exact-head CI before the authorized merge.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** pending
+- **checks:** PR233 six supported exact-head jobs passed; main CI40651500949 pending. PR234 refreshed-head checks pending. Historical local and hosted failures retained.
+- **integration:** PR230–233 and PR235 merged; PR234 pending normal qualification and merge.
+- **native:** pending applicable Linux evidence; actual Mac acceptance separate
+- **owner acceptance:** pending
+
+</details>
 
 ### Inspect selected knowledge findings
 
@@ -95,28 +115,10 @@ Gates:
 
 ## Needs attention
 
-### Finish the approved prior merges
-
-Task ID: `baseline-reconciliation`
-Owner: Integration owner · State: **blocked** · Last observed: 2026-10-28T06:47:09.531879+00:00
-Activity: PR235 merged to main cfe3f96c; parent reported seven supported CI jobs passing and three optional Windows failures. PR233 old-head cloud reproduction failed; refreshed merge 35bd84cb awaits exact-head CI.
-Next: Qualify refreshed PR233 at exact head and investigate remaining failures with permitted evidence before integration.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** pending
-- **checks:** failed: old head 7a71e660 local cloud suite; refreshed head 35bd84cb exact CI pending; hosted run 40422659424 cause unknown
-- **integration:** pending PR233 qualification; expanded lead merge authority covers approved tracks only
-- **native:** pending applicable Linux evidence; actual Mac acceptance separate
-- **owner acceptance:** pending
-
-</details>
+None recorded.
 
 ## Completed
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-10-28T07:04:48.938331+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-28T07:41:23.562340+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

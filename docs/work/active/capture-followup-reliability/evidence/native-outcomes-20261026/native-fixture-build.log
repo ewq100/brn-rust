@@ -1,0 +1,27 @@
+   Compiling tracing-core v0.1.36
+   Compiling tracing v0.1.44
+   Compiling h2 v0.4.19
+   Compiling log v0.4.34
+   Compiling hyper v1.11.1
+   Compiling hyper-util v0.1.21
+   Compiling hyper-rustls v0.27.10
+   Compiling rustls-platform-verifier v0.7.1
+   Compiling reqwest v0.13.5
+   Compiling sharded-slab v0.1.7
+   Compiling rig-http v0.45.0
+   Compiling tracing-log v0.2.0
+   Compiling thread_local v1.1.10
+   Compiling nu-ansi-term v0.50.3
+   Compiling tracing-subscriber v0.3.23
+   Compiling rig-reqwest v0.45.0
+   Compiling rig-core v0.45.0
+   Compiling rmcp v3.5.0
+   Compiling tracing-futures v0.2.5
+   Compiling rig-memory v0.45.0
+   Compiling rig-agent v0.45.0
+   Compiling rig-rmcp v0.45.0
+   Compiling rig v0.45.0
+   Compiling brn-threads-core v0.1.0 (/workspace/brn-batch-integration/crates/brn-threads-core)
+   Compiling brn-ai v0.1.0 (/workspace/brn-batch-integration/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/workspace/brn-batch-integration/crates/brn-threads-app)
+    Finished `dev` profile [unoptimized] target(s) in 1m 21s

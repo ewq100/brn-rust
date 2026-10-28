@@ -10,19 +10,19 @@
     "holds": "No Mac access, release, user-store upgrades, credential/security changes or held feature expansion."
   },
   "work_view": {
-    "observed_at": "2026-10-28T07:04:48.938331+00:00",
+    "observed_at": "2026-10-28T07:41:23.562340+00:00",
     "goal": "Make existing findings useful, close demonstrated keyboard/accessibility gaps and reduce repeated helper build work safely.",
-    "owner_attention": "Lead merge authority covers the existing approved tracks after review and passing checks. PR233 requires refreshed exact-head qualification; original hosted failure remains unexplained. No live-provider spending, Mac access, release or new scope.",
+    "owner_attention": "Lead merge authority covers the existing approved tracks after review and passing checks. PR233 is merged with resulting-main CI pending; PR234 requires refreshed exact-head qualification. Original failures remain recorded. No live-provider spending, Mac access, release or new scope is inferred.",
     "tasks": [
       {
         "id": "baseline-reconciliation",
         "title": "Finish the approved prior merges",
         "owner": "Integration owner",
-        "state": "blocked",
-        "activity": "PR235 merged to main cfe3f96c; parent reported seven supported CI jobs passing and three optional Windows failures. PR233 old-head cloud reproduction failed; refreshed merge 35bd84cb awaits exact-head CI.",
-        "observed_at": "2026-10-28T06:47:09.531879+00:00",
+        "state": "active",
+        "activity": "PR233 refreshed head d06f6acb passed six supported jobs and merged normally at d67e7ad3. Optional Windows failed; prior hosted cause remains unknown. PR234 main refresh has documentation-only conflicts reconciled; exact-head qualification is next.",
+        "observed_at": "2026-10-28T07:41:23.562340+00:00",
         "origin": "observed",
-        "next_action": "Qualify refreshed PR233 at exact head and investigate remaining failures with permitted evidence before integration.",
+        "next_action": "Independently verify the refreshed Capture production tree, publish normally, and qualify exact-head CI before the authorized merge.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -31,8 +31,8 @@
         ],
         "gates": {
           "implementation": "pending",
-          "checks": "failed: old head 7a71e660 local cloud suite; refreshed head 35bd84cb exact CI pending; hosted run 40422659424 cause unknown",
-          "integration": "pending PR233 qualification; expanded lead merge authority covers approved tracks only",
+          "checks": "PR233 six supported exact-head jobs passed; main CI40651500949 pending. PR234 refreshed-head checks pending. Historical local and hosted failures retained.",
+          "integration": "PR230\u2013233 and PR235 merged; PR234 pending normal qualification and merge.",
           "native": "pending applicable Linux evidence; actual Mac acceptance separate",
           "owner_acceptance": "pending"
         },

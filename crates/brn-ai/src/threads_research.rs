@@ -593,6 +593,7 @@ fn child_scope(parent: &Scope, slot: Arc<ScoutSlot>, provider: Provider) -> Arc<
         source_ids: Vec::new(),
         owner_request: None,
         writing_snapshot: None,
+        capture_snapshot: None,
         decision_target: Mutex::new(None),
         reads: Mutex::default(),
         search: parent.search.clone(),

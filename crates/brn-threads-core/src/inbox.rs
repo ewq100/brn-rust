@@ -297,7 +297,7 @@ mod tests {
             drop(store);
             let before = std::fs::read(data.join(DATABASE_FILENAME)).unwrap();
             assert!(
-                matches!(Store::open_existing_without_upgrade(&data),Err(Error::UpgradeRequired{schema_found,schema_required:12}) if schema_found==version)
+                matches!(Store::open_existing_without_upgrade(&data),Err(Error::UpgradeRequired{schema_found,schema_required:13}) if schema_found==version)
             );
             assert_eq!(std::fs::read(data.join(DATABASE_FILENAME)).unwrap(), before);
             let backups = root.path().join("backups");

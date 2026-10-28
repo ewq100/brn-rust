@@ -324,6 +324,21 @@ impl Store {
             for (pos, body) in batch {
                 cursor = pos;
                 let record: Record = decode(&body)?;
+                if matches!(&record.data,RecordData::Message(m) if m.role==crate::CAPTURE_REQUEST_ROLE)
+                {
+                    if context.is_none() {
+                        context = Some(self.records()?);
+                    }
+                    if !crate::CaptureSnapshot::from_message(&record).is_ok_and(|snapshot| {
+                        crate::capture::visible(
+                            &snapshot,
+                            context.as_ref().expect("loaded scope"),
+                            Some(thread),
+                        )
+                    }) {
+                        continue;
+                    }
+                }
                 if matches!(&record.data, RecordData::Message(m) if m.role == WRITING_REQUEST_ROLE)
                 {
                     match WritingSnapshot::from_message(&record) {

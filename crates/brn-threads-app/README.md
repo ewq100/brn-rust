@@ -83,7 +83,8 @@ On Unix, export flushes the staged asset and snapshot directories before
 publication and the destination parent after rename. If the final parent flush
 fails, export reports the error while preserving the complete published snapshot.
 
-The core uses schema11. Supported schema3–10 workspaces upgrade only after a
+The core uses schema13, fencing older writers that cannot enforce Capture review
+and private-context semantics. Supported schema3–12 workspaces upgrade only after a
 verified external pre-upgrade backup; restoring an older backup upgrades only its
 unpublished copy and leaves the source snapshot unchanged. Foreign/unsupported
 formats remain refused. Save maps
@@ -105,8 +106,9 @@ only that typed destination; it never inherits the active private chat/project.
 Protected notes require checked edits, but protection is not a privacy boundary.
 No watcher, automatic scan, agent maintenance or chat-queue dispatch is started.
 
-`choose_inbox` and `scan_inbox` own the shared policy. The core's schema12
-`inbox_state` table stores bounded machine-local folder authorization and the latest
+`choose_inbox` and `scan_inbox` own the shared policy. The core's `inbox_state`
+table, introduced in schema12, stores bounded machine-local folder authorization
+and the latest
 pending/imported/failed ledger; it stores no original document bytes. Canonical
 full imports, versions, protection, assets, source hashes and receipts remain owned
 by the existing import service. Restore clears inbox authorization and ledger in

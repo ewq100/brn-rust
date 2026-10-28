@@ -17,7 +17,7 @@ pub const DATA_MARKER: &str = ".brn-threads-data";
 pub const DERIVED_DIRECTORY: &str = "derived";
 const IDENTITY: &str = "BRN Threads SQLite v1\n";
 pub(crate) const APPLICATION_ID: i64 = 0x42525448;
-pub(crate) const SCHEMA_VERSION: i64 = 12;
+pub(crate) const SCHEMA_VERSION: i64 = 13;
 /// Read-only canonical watermark, external commit version and exact pending keys.
 pub type ViewChangeToken = (u64, u64, Vec<(String, String)>);
 pub struct Store {
@@ -48,7 +48,7 @@ enum OpenMode {
 /// `Store::create` on a folder that already holds a workspace.
 pub(crate) const WORKSPACE_EXISTS: &str = "A test workspace needs a new data folder";
 impl Store {
-    /// Opens or creates the workspace. An existing schema 3, 4 or 5 database
+    /// Opens or creates the workspace. An existing supported older Threads database
     /// is upgraded first, after a verified backup into the remembered folder.
     pub fn open(directory: impl AsRef<Path>) -> Result<Self> {
         Self::open_with(directory.as_ref(), OpenMode::Upgrade)
@@ -490,6 +490,15 @@ impl Store {
                     }))
         {
             return Err(Error::Invalid("Writing candidate evidence and input bindings must survive replacement; Refresh creates a new request".into()));
+        }
+        for (marker, _) in crate::capture::markers(&original_prepared.request, |id, version| {
+            revision_on(&tx, id, version)
+        })? {
+            if !request.inputs.contains(&marker) {
+                return Err(Error::Invalid(
+                    "Capture review binding must survive replacement".into(),
+                ));
+            }
         }
         for marker in writing_markers_on(&tx, &original_prepared.request)? {
             if !request.inputs.contains(&marker) {
@@ -1438,7 +1447,7 @@ fn open_existing_database(database: &Path, upgrade: bool) -> Result<Connection> 
         }
     })?;
     let schema: i64 = conn.pragma_query_value(None, "user_version", |r| r.get(0))?;
-    if matches!(schema, 3..=11) {
+    if matches!(schema, 3..=12) {
         if !upgrade {
             let app: i64 = conn.pragma_query_value(None, "application_id", |r| r.get(0))?;
             if app == APPLICATION_ID {
@@ -1701,6 +1710,19 @@ pub(crate) fn apply_on(
         return Err(Error::Invalid("candidate retired".into()));
     }
     let prepared = prepared_on(tx, operation)?;
+    let capture_markers = crate::capture::markers(&prepared.request, |id, version| {
+        revision_on(tx, id, version)
+    })?;
+    if !capture_markers.is_empty() && !matches!(authority.scope, crate::types::Scope::Owner) {
+        return Ok(ApplyOutcome::NeedsReview {
+            denied: prepared
+                .request
+                .writes
+                .iter()
+                .map(|w| w.id.clone())
+                .collect(),
+        });
+    }
     let writing_markers = writing_markers_on(tx, &prepared.request)?;
     for required in &writing_markers {
         if !prepared.request.inputs.contains(required) {
@@ -1743,7 +1765,8 @@ pub(crate) fn apply_on(
             }
         }
     }
-    let needs_context = authority.chat_binding.is_some()
+    let needs_context = !capture_markers.is_empty()
+        || authority.chat_binding.is_some()
         || !writing_contexts.is_empty()
         || prepared
             .request
@@ -1855,6 +1878,14 @@ pub(crate) fn apply_on(
                 denied: denied_inputs,
             });
         }
+    }
+    for (_, snapshot) in &capture_markers {
+        crate::capture::validate_visibility(
+            &prepared.request,
+            snapshot,
+            &context_rows,
+            |id, version| revision_on(tx, id, version),
+        )?;
     }
     if !matches!(authority.scope, crate::types::Scope::Owner) && !writing_markers.is_empty() {
         return Ok(ApplyOutcome::NeedsReview {
@@ -3011,6 +3042,7 @@ pub(crate) fn prepare_on(
     owner_direct: bool,
 ) -> Result<Prepared> {
     validate_request(operation, request)?;
+    crate::capture::markers(request, |id, version| revision_on(tx, id, version))?;
     crate::writing::validate_candidate_evidence(request, |id, version| {
         revision_on(tx, id, version)
     })?;

@@ -30,6 +30,8 @@ use std::{
     time::Duration,
 };
 use tokio_util::sync::CancellationToken;
+#[path = "threads_capture.rs"]
+mod capture;
 #[path = "threads_chat.rs"]
 mod chat;
 #[path = "threads_run_activity.rs"]
@@ -2651,9 +2653,11 @@ impl ThreadsUi {
     }
     fn continue_run(&mut self, thread: String, cx: &mut Context<Self>) {
         let messages = self.workspace.messages(&thread).unwrap_or_default();
-        match continue_path(&self.queue_state(), &messages, &thread) {
+        match self.continue_chat_path(&messages, &thread) {
             ContinuePath::ResumeQueue => self.resume_chat_queue(cx),
             ContinuePath::RetryRewrite(request) => self.retry_rewrite(request, cx),
+            ContinuePath::RetryCapture(request) => self.retry_capture(request, cx),
+            ContinuePath::CaptureNeedsConfirmation => { self.warn("Use Capture outcomes to confirm a fresh request."); cx.notify(); },
             ContinuePath::FreshRun => self.start_run("Continue the work from the saved conversation, current linked notes and recorded outcomes. Recheck current versions and authority.".into(),thread,vec![],None,cx),
         }
     }
