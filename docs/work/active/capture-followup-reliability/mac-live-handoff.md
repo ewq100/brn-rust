@@ -95,19 +95,25 @@ absence of accepted Notes that would reject this case's legitimate protected
 seed. Preserve launch reservation before dispatch, timeout/deadline checks,
 helper-off configuration, actual returned terminal and durable observation.
 
-Before allowing the second intake, inspect `public_snapshot(snapshot(cli))`,
-run unchanged `action_checks` and `protection_preserved` plus existing
-`action_source_checks([0], after)` for the observed first-source prefix. After
-intake two run the full unchanged `structural_checks(case, before, after)`;
-the canonical fixture now declares `source_steps:[0,1]`, so both source links
-and exact Current inputs are enforced automatically. Do not run the two-source
-oracle prematurely before the second source exists. Do not weaken pending-versus-
-saved facts or `evidence:null` to obtain a pass. The preexisting protected Note
-must remain exact, not be mistaken for an unauthorized new accepted note. At
-each prefix gate compare accepted Action IDs/payloads against the before
-snapshot: no new accepted Action or unauthorized accepted-state mutation is
-permitted; reviewable pending proposals are evaluated separately. Do not use a
-blanket requirement that accepted records be empty.
+Before allowing the second intake, call the committed `meeting_prefix_checks(case,
+before, after, [0])` on complete public snapshots, including baseline and current
+records, receipts, candidates and lineage. Require every returned value to be
+exactly `True`; missing or failed evidence is not a pass. This reuses unchanged
+`action_checks`, `protection_preserved` and `action_source_checks` for the observed
+first source. A new saved Suggested Action is permitted only under the fixture's
+saved facts and null evidence; pending Open/Waiting proposals remain distinct
+from accepted commitments. Baseline Actions must remain unchanged and receipt
+history must not contain unauthorized accepted Action mutations, including
+transient ones. Links, Sources and review-attention writes are assessed through
+the existing oracles, not blanket record equality. Preserve complete receipt
+history; a partial snapshot cannot establish the receipt guard.
+
+After intake two call `meeting_prefix_checks(case, before, after, [0, 1])` and
+unchanged `structural_checks(case, before, after)`; require every check to be
+exactly `True`. The fixture requires both exact source links and Current inputs.
+Do not run the two-source oracle before the second source exists. The preexisting
+protected Note must remain exact. The gate is a structural supplement, not a
+substitute for independent semantic review.
 
 At each gate independently inspect actual text and bytes: the protected Mari
 commitment and 10 March delivery remain exact; an unapproved Leena/12 March

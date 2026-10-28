@@ -312,6 +312,60 @@ def action_source_checks(steps, after):
             'action_source_inputs': bool(groups) and all(observed(inputs, versions) for _, _, inputs, versions in groups)}
 
 
+def meeting_prefix_checks(case, before, after, observed_steps):
+    """Offline gate for the changed-commitment case; semantic review remains required.
+
+    Snapshots must include complete history from the baseline through this prefix.
+    Receipt after-images prevent a transient accepted commitment being hidden by a
+    subsequent Suggested state. Only the fixture's saved facts grant an exception.
+    """
+    if (case.get('id') != 'meeting-changed-commitment-conflict'
+            or observed_steps not in ([0], [0, 1])):
+        raise ValueError('Unsupported case or observed prefix')
+    expectation = case['action_expectation']
+    required = ('records', 'receipts', 'candidates', 'lineage')
+    if any(not isinstance(snapshot.get(key), list)
+           for snapshot in (before, after) for key in required):
+        return {'snapshot_evidence_available': False}
+    try:
+        baseline = {r['id']: r for r in before['records'] if 'Action' in r['data']}
+        current = {r['id']: r for r in after['records'] if 'Action' in r['data']}
+        old_operations = {r['operation'] for r in before['receipts']}
+        # Existing receipts must remain available and unchanged.
+        history_preserved = all(r in after['receipts'] for r in before['receipts'])
+        def permitted(record):
+            action = record['data']['Action']
+            return (not record['archived']
+                    and all(action.get(k) == v for k, v in expectation['saved_fields'].items())
+                    and all(action.get(k) == v for k, v in expectation['fields'].items()))
+        unchanged = all(current.get(identity) == record for identity, record in baseline.items())
+        new_saved = all(permitted(record) for identity, record in current.items() if identity not in baseline)
+        receipt_safe = True
+        for receipt in after['receipts']:
+            if receipt in before['receipts']:
+                continue
+            if receipt['operation'] in old_operations:
+                receipt_safe = False
+            for write in receipt['writes']:
+                prior, result = write.get('before'), write['after']
+                if ((prior and 'Action' in prior['data']) or 'Action' in result['data']):
+                    if (result['id'] in baseline or 'Action' not in result['data']
+                            or not permitted(result) or (prior is not None
+                            and (prior['id'] != result['id'] or 'Action' not in prior['data']
+                                 or not permitted(prior)))):
+                        receipt_safe = False
+        checks = {'snapshot_evidence_available': True,
+                  'protected_references_preserved': protection_preserved(before['records'], after['records']),
+                  'existing_actions_unchanged': unchanged,
+                  'new_saved_actions_permitted': new_saved,
+                  'action_receipts_safe': history_preserved and receipt_safe}
+        checks.update(action_checks(expectation, after))
+        checks.update(action_source_checks(observed_steps, after))
+        return checks
+    except (KeyError, TypeError, ValueError):
+        return {'snapshot_evidence_available': False}
+
+
 def structural_checks(case, before, after, filler=frozenset()):
     # Distractor notes are workspace scale, not part of the case.
     previous = [note for note in saved_notes(before['records']) if note['id'] not in filler]

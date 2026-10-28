@@ -200,6 +200,51 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
         self.assertEqual(raised.exception.code, 2)
         self.assertIn('Codex needs an absolute --auth-file', stderr.getvalue())
 class MeetingActionOracleTests(unittest.TestCase):
+    def test_changed_commitment_prefix_gate_and_receipts(self):
+        case = next(c for c in json.loads(wiki_eval.CASES.read_text())['cases']
+                    if c['id'] == 'meeting-changed-commitment-conflict')
+        protected = note('approved', 'Mari; delivery 10 March', protected=True)
+        before = {'records': [protected], 'receipts': [], 'candidates': [], 'lineage': []}
+        pending = self.with_sources({'records': [copy.deepcopy(protected)], 'receipts': [],
+            'lineage': [], 'candidates': [self.candidate('one', state='Open', owner='Mari', evidence=None)]})
+        request = pending['candidates'][0]['request']
+        request['inputs'] = request['inputs'][:1]
+        request['writes'] = request['writes'][:2]
+        pending['records'] = [r for r in pending['records'] if r['id'] != 'source:1']
+        self.assertTrue(all(v is True for v in wiki_eval.meeting_prefix_checks(case, before, pending, [0]).values()))
+        saved = copy.deepcopy(pending)
+        request = saved['candidates'].pop()['request']
+        action = request['writes'][0]
+        action['data']['Action']['state'] = 'Suggested'
+        action['version'] = 1
+        saved['records'].extend(request['writes'])
+        saved['receipts'] = [{'operation': 'save', 'writes': [{'before': None, 'after': copy.deepcopy(action)}]}]
+        saved['lineage'] = [{'operation': 'save', 'applied': True, 'inputs': request['inputs']}]
+        self.assertTrue(all(v is True for v in wiki_eval.meeting_prefix_checks(case, before, saved, [0]).values()))
+        self.assertFalse(all(v is True for v in wiki_eval.meeting_prefix_checks(case, before, saved, [0, 1]).values()))
+        for mutation in ('open', 'waiting', 'evidence', 'protected', 'missing', 'stale', 'link', 'transient'):
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(saved)
+                if mutation in ('open', 'waiting'):
+                    bad['records'][-2]['data']['Action']['state'] = mutation.title()
+                elif mutation == 'evidence': bad['records'][-2]['data']['Action']['evidence'] = 'proof'
+                elif mutation == 'protected': bad['records'][0]['data']['Note']['body'] = 'changed'
+                elif mutation == 'missing': del bad['lineage']
+                elif mutation == 'stale': bad['lineage'][0]['inputs'][0]['version'] = 0
+                elif mutation == 'link': bad['records'][-1]['data']['Link']['to'] = 'wrong'
+                else:
+                    transient = copy.deepcopy(action)
+                    transient['data']['Action']['state'] = 'Done'
+                    bad['receipts'].append({'operation': 'transient', 'writes': [{'before': None, 'after': transient}]})
+                self.assertFalse(all(v is True for v in wiki_eval.meeting_prefix_checks(case, before, bad, [0]).values()))
+        prior = self.record('existing', state='Suggested', owner='Mari', evidence=None)
+        prior['version'] = 1
+        old_before = copy.deepcopy(before)
+        old_before['records'].append(prior)
+        changed = copy.deepcopy(saved)
+        changed['records'].append(dict(prior, version=2))
+        self.assertFalse(wiki_eval.meeting_prefix_checks(case, old_before, changed, [0])['existing_actions_unchanged'])
+
     def test_changed_commitment_requires_both_sources_but_first_step_only_observed_prefix(self):
         case = next(c for c in json.loads(wiki_eval.CASES.read_text())['cases']
                     if c['id'] == 'meeting-changed-commitment-conflict')
