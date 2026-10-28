@@ -43,3 +43,33 @@ regression intentionally retains prior stamp 24). The focused CLI check is
 pending at this checkpoint. This fixes a demonstrated assertion mismatch, not
 a claim that every original hosted failure has been diagnosed. No denied log
 download or blind rerun was attempted; the corrected head requires fresh CI.
+
+## Mac failure diagnostic — 28 October 2026
+
+At `b2db293385b4b7192970d4f077929ba3277bfa66`, CI 40658350078 passed
+five supported jobs but failed Mac default-workspace tests with exit 101.
+The permitted annotation contained no test identity. Linux core passed. The
+focused local CLI fixture independently failed at `UnsafeCredentials` before
+its guide assertion; that is not evidence of the hosted Mac failure's cause.
+Restricted historical logs were not retrieved or accessed through another route.
+
+The next qualification adds bounded failed-test-name annotations to the existing
+workspace test step. It executes the identical Cargo command, streams its normal
+output, preserves its exit status (including signal failure), and publishes at
+most 50 ASCII Rust test identities. It does not publish assertion payloads as
+annotations, upload raw logs, skip tests, retry failures or alter credentials.
+Six deterministic subprocess tests cover status preservation, success, unknown
+failures, ANSI/duplicate/hostile names, the bound and exact command. This is a
+purposeful diagnostic run, not a demonstrated product repair. If it passes,
+the original Mac failure remains unexplained. PR240 stays draft and unmerged.
+
+The existing Mac relay reports monitoring paused. No independent Mac execution
+has been claimed or started; consumed live job001 is not reopened.
+
+Independent review cleared the diagnostic's command/status fidelity and bounded
+identity-only annotation contract. Local documentation/overview/whitespace checks
+passed. The broad local tooling invocation ran 226 tests: one process-group
+timeout assertion failed, six Xberg generator tests errored because that invocation
+had not loaded the configured Cargo archive location, and one test was skipped.
+These failures are retained in the local receipt; they are not identified as the
+unknown hosted Mac failure. No timeout assertion or credential guard was changed.
