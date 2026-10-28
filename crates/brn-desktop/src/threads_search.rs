@@ -14,40 +14,20 @@ pub(super) const PAGE: usize = 12;
 /// Chat Messages the launcher lists under "In chats".
 pub(super) const LAUNCH_MESSAGES: usize = 5;
 
-/// One paged lane of the owner search: note hits or chat Messages.
+#[path = "threads_search_state.rs"]
+mod state;
+use state::{Lanes, SearchState};
+
+/// GPUI effects stay outside the deterministic request/cursor owner.
 #[derive(Default)]
 struct Lane {
-    /// The request this lane is waiting for.
-    awaiting: Option<u64>,
-    /// Cursors of earlier pages, for Previous.
-    back: Vec<Option<String>>,
-    current: Option<String>,
     task: Option<Task<()>>,
     cancel: Option<CancelOnDrop>,
-}
-impl Lane {
-    fn pending(&self) -> bool {
-        self.awaiting.is_some()
-    }
-    /// Drops this lane's request and cursor history.
-    fn reset(&mut self) {
-        *self = Self::default();
-    }
-}
-
-/// Which lanes a request fills.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum Lanes {
-    /// A new query: both lanes' first page.
-    Both,
-    Notes,
-    Chats,
 }
 
 #[derive(Default)]
 pub(super) struct SearchView {
-    query: String,
-    requests: u64,
+    state: SearchState,
     /// The index is being brought up to date at startup.
     pub(super) preparing: bool,
     /// The note hits' page (`hits`, `total`, `cursor`).
@@ -58,9 +38,6 @@ pub(super) struct SearchView {
     pub(super) error: Option<String>,
     notes: Lane,
     messages: Lane,
-    /// A new query's request, which fills both lanes; until it answers no
-    /// earlier page shows. Paging a lane never sets it.
-    fresh: Option<u64>,
 }
 impl SearchView {
     /// The saved chat Messages on the shown page, best first.
@@ -153,9 +130,9 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        self.results.query = query;
-        self.results.notes.reset();
-        self.results.messages.reset();
+        self.results.state.change_query(query);
+        self.results.notes = Lane::default();
+        self.results.messages = Lane::default();
         self.run_search(None, Lanes::Both, window, cx);
     }
 
@@ -167,39 +144,31 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         let results = &mut self.results;
-        results.requests += 1;
-        let request = results.requests;
+        let request = results.state.begin(lanes, cursor.clone());
         results.error = None;
-        let notes = lanes != Lanes::Chats;
-        let chats = lanes != Lanes::Notes;
-        if lanes == Lanes::Both {
-            results.fresh = None;
-        }
+        let notes = lanes.notes();
+        let chats = lanes.chats();
         if notes {
-            let lane = &mut results.notes;
-            (lane.task, lane.cancel, lane.awaiting) = (None, None, None);
-            lane.current = cursor.clone();
+            results.notes = Lane::default();
             self.hits.clear();
         }
         if chats {
-            let lane = &mut results.messages;
-            (lane.task, lane.cancel, lane.awaiting) = (None, None, None);
-            lane.current = cursor.clone();
+            results.messages = Lane::default();
         }
-        if results.query.trim().is_empty() {
+        let Some(request) = request else {
             results.page = None;
             results.chats = None;
             return;
-        }
+        };
         let handle = match self.workspace.search_handle() {
             Ok(handle) => handle,
             Err(error) => {
-                self.results.error = Some(error.to_string());
+                self.search_answered(request, Err(error), cx);
                 return;
             }
         };
         let results = &mut self.results;
-        let ticket = handle.request_page(&results.query, None, PAGE, cursor.as_deref());
+        let ticket = handle.request_page(results.state.query(), None, PAGE, cursor.as_deref());
         let cancel = ticket.cancel_on_drop();
         let task = cx.spawn_in(window, async move |this, cx| {
             let answer = cx
@@ -219,15 +188,6 @@ impl ThreadsUi {
         };
         owner.task = Some(task);
         owner.cancel = Some(cancel);
-        if notes {
-            results.notes.awaiting = Some(request);
-        }
-        if chats {
-            results.messages.awaiting = Some(request);
-        }
-        if lanes == Lanes::Both {
-            results.fresh = Some(request);
-        }
     }
 
     fn search_answered(
@@ -237,20 +197,15 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         let results = &mut self.results;
-        let notes = results.notes.awaiting == Some(request);
-        let chats = results.messages.awaiting == Some(request);
-        if !notes && !chats {
+        let Some(lanes) = results.state.answered(request) else {
             return;
-        }
-        if results.fresh == Some(request) {
-            results.fresh = None;
-        }
+        };
+        let notes = lanes.notes();
+        let chats = lanes.chats();
         if notes {
-            results.notes.awaiting = None;
             results.notes.cancel = None;
         }
         if chats {
-            results.messages.awaiting = None;
             results.messages.cancel = None;
         }
         match answer {
@@ -284,13 +239,12 @@ impl ThreadsUi {
         let Some(next) = self.results.page.as_ref().and_then(|p| p.cursor.clone()) else {
             return;
         };
-        let current = self.results.notes.current.take();
-        self.results.notes.back.push(current);
+        self.results.state.next(Lanes::Notes);
         self.run_search(Some(next), Lanes::Notes, window, cx);
     }
 
     fn previous_search_page(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if let Some(previous) = self.results.notes.back.pop() {
+        if let Some(previous) = self.results.state.previous(Lanes::Notes) {
             self.run_search(previous, Lanes::Notes, window, cx);
         }
     }
@@ -304,13 +258,12 @@ impl ThreadsUi {
         else {
             return;
         };
-        let current = self.results.messages.current.take();
-        self.results.messages.back.push(current);
+        self.results.state.next(Lanes::Chats);
         self.run_search(Some(next), Lanes::Chats, window, cx);
     }
 
     fn previous_chats_page(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if let Some(previous) = self.results.messages.back.pop() {
+        if let Some(previous) = self.results.state.previous(Lanes::Chats) {
             self.run_search(previous, Lanes::Chats, window, cx);
         }
     }
@@ -382,21 +335,21 @@ impl ThreadsUi {
         let (id, has_previous, has_next, pending) = match lane {
             Lanes::Chats => (
                 "search-chats",
-                !results.messages.back.is_empty(),
+                results.state.has_previous(Lanes::Chats),
                 results
                     .chats
                     .as_ref()
                     .is_some_and(|page| page.message_cursor.is_some()),
-                results.messages.pending(),
+                results.state.pending(Lanes::Chats),
             ),
             _ => (
                 "search",
-                !results.notes.back.is_empty(),
+                results.state.has_previous(Lanes::Notes),
                 results
                     .page
                     .as_ref()
                     .is_some_and(|page| page.cursor.is_some()),
-                results.notes.pending(),
+                results.state.pending(Lanes::Notes),
             ),
         };
         let why = |has: bool, edge: &'static str| {
@@ -453,8 +406,8 @@ impl ThreadsUi {
     pub(super) fn search_results(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
         let results = &self.results;
-        let typing = results.fresh.is_some();
-        let notes_pending = results.notes.pending();
+        let typing = results.state.fresh();
+        let notes_pending = results.state.pending(Lanes::Notes);
         let mut block = div()
             .id("search-results")
             .flex()
@@ -602,7 +555,7 @@ impl ThreadsUi {
         if typing {
             return div().into_any_element();
         }
-        let paging = results.messages.pending();
+        let paging = results.state.pending(Lanes::Chats);
         let Some(page) = results
             .chats
             .as_ref()
@@ -675,7 +628,7 @@ impl ThreadsUi {
                     );
             }
         }
-        if page.message_total > page.messages.len() || !results.messages.back.is_empty() {
+        if page.message_total > page.messages.len() || results.state.has_previous(Lanes::Chats) {
             block = block.child(self.search_paging(Lanes::Chats, cx));
         }
         block.test_support().into_any_element()

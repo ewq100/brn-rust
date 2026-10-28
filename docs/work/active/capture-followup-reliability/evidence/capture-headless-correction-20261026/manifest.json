@@ -1,0 +1,8 @@
+{
+  "pr234-headless-capture-correction.log": "585e7ac5a570954caf39a6e8107fd41b73af4f2ba7c29917bb4532218040a64b",
+  "pr234-headless-clippy-correction.log": "9f47e3cb4c40c8390a2f292b68dca1ad8e03eebbaced731698b267be48c5d4fb",
+  "pr234-initial-ci.json": "83d236bdc0948c6a6373a28e520d468adb47678cc00170e2d6db0a68eeb03c17",
+  "pr234-initial-linux-lint.log": "9113078713e21c7bfb297a91a02fc909160ee7a0fe6090947cfabe7d68d038dd",
+  "pr234-native-capture-correction.log": "0241c54906aad4dd15181f559f8f8b1a2d44867f360b312b4ad94aacb46bd29b",
+  "pr234-native-clippy-correction.log": "fa31c4068b322ef6484dd4522421493f886c94bc3b8fe6e536896bb907e64c21"
+}

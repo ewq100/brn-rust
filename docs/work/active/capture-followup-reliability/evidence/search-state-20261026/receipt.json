@@ -1,0 +1,31 @@
+{
+  "baseline": "bc699c4164147354b96e433b6327e194275102b0",
+  "source_sha256": {
+    "crates/brn-desktop/src/threads_search.rs": "cf15029c8a05ccf8d6109ef6651309819c6f9fa5c43716eeedc620700fe22d41",
+    "crates/brn-desktop/src/threads_search_state.rs": "802bbc574616323e5e725c2850ebaac0c71914bff79f663240f42f9d20a0864f"
+  },
+  "command": "cargo test -p brn-desktop --features native-ui,native-test-support --bin brn-desktop search_ --locked --offline",
+  "environment": "saved Linux environment; CARGO_BUILD_JOBS=1; optimized test profile; serialized shared target; desktop explicitly recompiled both times",
+  "before": {
+    "passed": 7,
+    "compile_seconds": 100,
+    "test_seconds": 0.66,
+    "inventory": 365
+  },
+  "after": {
+    "passed": 13,
+    "compile_seconds": 98,
+    "test_seconds": 0.57,
+    "inventory": 371
+  },
+  "removed_tests": 0,
+  "added_pure_tests": 6,
+  "retained_selected_native_tests": 7,
+  "clippy": "cargo clippy -p brn-desktop --features native-ui,native-test-support --all-targets --locked --offline -- -D warnings: passed",
+  "limits": [
+    "single noisy before/after sample, not performance improvement evidence",
+    "full inventory listing does not mean full suite execution",
+    "no new Mac owner acceptance",
+    "immediate search_handle failure rendered cleanup not independently qualified"
+  ]
+}

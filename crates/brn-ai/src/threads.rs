@@ -30,6 +30,11 @@ mod argument_correction_tests;
 #[cfg(test)]
 #[path = "threads_budget_tests.rs"]
 mod budget_tests;
+#[path = "threads_capture.rs"]
+mod capture;
+#[cfg(test)]
+#[path = "threads_capture_tests.rs"]
+mod capture_tests;
 #[path = "threads_context_budget.rs"]
 mod context_budget;
 #[path = "threads_continuation.rs"]
@@ -134,6 +139,7 @@ mod writing_tests;
 #[derive(Clone, Debug, serde::Serialize)]
 #[serde(tag = "kind")]
 pub enum OwnerRequest {
+    CaptureOutcomes { request_message: String },
     EditNote { id: String, version: u64 },
     RecordDecision,
     RewriteNote { request_message: String },
@@ -308,6 +314,7 @@ struct Scope {
     source_ids: Vec<String>,
     owner_request: Option<OwnerRequest>,
     writing_snapshot: Option<WritingSnapshot>,
+    capture_snapshot: Option<CaptureSnapshot>,
     decision_target: Mutex<Option<String>>,
     reads: Mutex<reads::ReadLedger>,
     search: Option<Arc<dyn RunNoteSearch>>,
@@ -2089,7 +2096,7 @@ fn prepare_checked(
     op: &OperationId,
     input: PreparationInput,
 ) -> AiResult<std::result::Result<Prepared, Value>> {
-    let request = match input {
+    let mut request = match input {
         PreparationInput::Model(request) => {
             if scope.writing_snapshot.is_none()
                 && let Some(reason) = unread_replacement(scope, store, &request)?
@@ -2100,6 +2107,7 @@ fn prepare_checked(
         }
         PreparationInput::Exact(edit) => edit.into_request(),
     };
+    capture::bind_request(scope, &mut request);
     match store.prepare(op, &request) {
         Ok(prepared) => Ok(Ok(prepared)),
         Err(Error::Invalid(reason) | Error::Missing(reason)) => {
@@ -2130,6 +2138,10 @@ fn apply(scope: &Scope, args: ApplyArgs) -> AiResult<Value> {
         }
     }
     let authority = match &scope.owner_request {
+        Some(OwnerRequest::CaptureOutcomes { .. }) => bind(
+            scope,
+            HostAuthority::runtime("Capture outcomes requires owner review", &scope.run),
+        ),
         Some(OwnerRequest::EditNote { id, version }) => {
             if !replay
                 && prepared.request.writes.iter().any(|w| w.id == *id)
@@ -2871,7 +2883,10 @@ fn chat_messages<'a>(history: &[Receipt], records: &'a [Record], chat: &str) -> 
     let mut messages = records
         .iter()
         .filter(|r| !r.archived && matches!(&r.data, RecordData::Message(m) if m.thread == chat))
-        .filter(|r| !scoped_writing_request(r))
+        .filter(|r| {
+            !scoped_writing_request(r)
+                && !matches!(&r.data,RecordData::Message(m) if m.role==CAPTURE_REQUEST_ROLE)
+        })
         .collect::<Vec<_>>();
     messages.sort_by_key(|r| positions.get(r.id.as_str()).copied().unwrap_or_default());
     messages
@@ -3425,6 +3440,15 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         return Err(rejected());
     }
     let records = store.records().map_err(storage)?;
+    let capture_snapshot = match &request.owner_request {
+        Some(OwnerRequest::CaptureOutcomes { request_message }) => {
+            if !request.sources.is_empty() || request.queue_claim.is_some() {
+                return Err(rejected());
+            }
+            Some(capture::load(&store, request_message, &request.thread)?)
+        }
+        _ => None,
+    };
     let writing_snapshot = match &request.owner_request {
         Some(OwnerRequest::RewriteNote { request_message }) => {
             if !request.sources.is_empty() {
@@ -3572,10 +3596,13 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
     };
     let already_posted = request.request_message.is_some()
         || writing_snapshot.is_some()
+        || capture_snapshot.is_some()
         || last_is_prompt
         || reused_instruction.is_some();
     let instruction = if let Some(message) = &request.request_message {
         message.clone()
+    } else if let Some(snapshot) = &capture_snapshot {
+        snapshot.request_message.clone()
     } else if let Some(snapshot) = &writing_snapshot {
         snapshot.request_message.clone()
     } else if let Some(message) = reused_instruction {
@@ -3803,6 +3830,9 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
     let mut start_inputs = writing_snapshot
         .as_ref()
         .map_or_else(Vec::new, WritingSnapshot::current_inputs);
+    if let Some(snapshot) = &capture_snapshot {
+        start_inputs.extend(snapshot.current_inputs());
+    }
     if let Some(p) = brn_threads_core::project_for_chat(&records, &request.thread) {
         if p.archived {
             return Err(rejected());
@@ -3886,6 +3916,8 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
             snapshot.request_message,
             serde_json::to_string(&model_snapshot).map_err(storage)?,
         )
+    } else if let Some(snapshot) = &capture_snapshot {
+        capture::prompt(snapshot)?
     } else {
         format!(
             "Current Chat: {}\nTransient source references available now: {}\nOwner request: {}",
@@ -3939,7 +3971,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
     // Owner-chosen helpers serve chat runs; a writing Rewrite never gets one.
     let helper = settings
         .and_then(|(_, settings)| settings.helper.clone())
-        .filter(|_| writing_snapshot.is_none());
+        .filter(|_| writing_snapshot.is_none() && capture_snapshot.is_none());
     let scope = Arc::new(Scope {
         external: Mutex::new(None),
         skills,
@@ -3961,6 +3993,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         source_ids,
         owner_request: request.owner_request.clone(),
         writing_snapshot,
+        capture_snapshot,
         decision_target: Mutex::new(None),
         reads: Mutex::default(),
         search: request.search.clone(),

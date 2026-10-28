@@ -1,0 +1,2 @@
+Same filter as Store.message_page; no existing Message expression index, table scan with LIMIT1025 matching rows. No new index/schema migration.
+[(2, 0, 0, 'CO-ROUTINE (subquery-1)'), (5, 2, 216, 'SCAN records'), (22, 0, 116, 'SCAN (subquery-1)')]

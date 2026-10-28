@@ -11,6 +11,7 @@ use std::{
 mod actions;
 pub use actions::action_review_text;
 mod assets;
+mod capture;
 mod chat;
 mod converge;
 mod decisions;

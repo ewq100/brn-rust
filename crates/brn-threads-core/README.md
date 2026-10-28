@@ -12,6 +12,12 @@ and mismatched SQLite application/schema IDs. On macOS canonicalize OS aliases
 such as `/var` before choosing a synthetic test directory. The database filename
 is `threads.sqlite3`; marker `.brn-threads-data` identifies this directory.
 
+Current schema13 fences older writers from Capture review/private-context semantics.
+Supported schemas3–12 require the existing verified external backup-first upgrade;
+CLI read-only admission refuses them unchanged until explicit upgrade. Restore
+upgrades only its unpublished copy. This format gate preserves record, revision
+and prepared-request bytes; source rollback never downgrades a workspace.
+
 1. The trusted host calls `allocate_operation(stable_host_request_key)`. The
    allocation commits before returning. A restart using the same host key returns
    the same identity. `operation(id)` verifies an existing identity.

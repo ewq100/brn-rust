@@ -148,6 +148,10 @@ pub(crate) fn visible_with_scope(
                             .is_ok_and(|scope| scope == saved_scope)
                 })
             }
+            RecordData::Message(m) if m.role == crate::CAPTURE_REQUEST_ROLE => {
+                crate::CaptureSnapshot::from_message(r)
+                    .is_ok_and(|snapshot| crate::capture::visible(&snapshot, rows, chat))
+            }
             RecordData::Message(m) if m.role == WRITING_REQUEST_ROLE => {
                 scope_allowed(&m.thread, rows, chat)
                     && match WritingSnapshot::from_message(r) {

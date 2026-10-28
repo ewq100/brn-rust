@@ -1,0 +1,31 @@
+   Compiling h2 v0.4.19
+   Compiling hyper v1.11.1
+   Compiling hyper-util v0.1.21
+   Compiling rustls-platform-verifier v0.7.1
+   Compiling hyper-rustls v0.27.10
+   Compiling reqwest v0.13.5
+   Compiling rig-http v0.45.0
+   Compiling rig-reqwest v0.45.0
+   Compiling rig-core v0.45.0
+   Compiling rmcp v3.5.0
+   Compiling rig-memory v0.45.0
+   Compiling rig-agent v0.45.0
+   Compiling rig-rmcp v0.45.0
+   Compiling rig v0.45.0
+   Compiling brn-threads-core v0.1.0 (/workspace/brn-batch-integration/crates/brn-threads-core)
+   Compiling brn-retrieval v0.1.0 (/workspace/brn-batch-integration/crates/brn-retrieval)
+   Compiling brn-ai v0.1.0 (/workspace/brn-batch-integration/crates/brn-ai)
+   Compiling brn-threads-app v0.1.0 (/workspace/brn-batch-integration/crates/brn-threads-app)
+   Compiling axum v0.8.9
+   Compiling brn v0.0.0 (/workspace/brn-batch-integration/crates/brn)
+    Finished `test` profile [optimized] target(s) in 5m 10s
+     Running tests/agent_upgrade.rs (/workspace/brn-environment/target/debug/deps/agent_upgrade-d997c335d123d5bb)
+
+running 4 tests
+test a_read_on_a_schema_5_store_is_refused_and_leaves_it_byte_unchanged ... ok
+test a_write_on_a_schema_5_store_is_refused_and_changes_nothing ... ok
+test upgrade_backs_up_first_and_the_upgraded_store_works ... ok
+test upgrade_is_refused_while_a_schema_5_edit_is_open ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

@@ -1,0 +1,1 @@
+Pointer opened sole synthetic chat row at observed fixed-layout coordinates; AT name absent.

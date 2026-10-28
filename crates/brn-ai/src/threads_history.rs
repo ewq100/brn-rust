@@ -309,6 +309,7 @@ pub(super) fn refresh(scope: &Scope, mut args: RefreshArgs) -> AiResult<Value> {
         &scope.source_ids,
     )?;
     bind_project_inputs(scope, &store, &mut args.request)?;
+    capture::bind_request(scope, &mut args.request);
     if let Some(reason) = unread_replacement(scope, &store, &args.request)? {
         return Ok(json!({"outcome":"Invalid","reason":reason}));
     }
