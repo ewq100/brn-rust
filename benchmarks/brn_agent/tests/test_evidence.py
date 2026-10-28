@@ -29,6 +29,28 @@ class EvidenceTests(unittest.TestCase):
         (self.root / 'manifest.json').write_text('{"fixture_sha256": "synthetic-test-fixture"}')
         self.manifest = collect(self.root, self.suite)
 
+    def test_verified_packet_refuses_wrong_scenario_and_modified_records(self):
+        from evidence import verified_proof_packet
+        fixture_hash = proof.build()[1]['fixture_sha256']
+        self.suite.write_text(json.dumps({'fixture_sha256': fixture_hash}))
+        (self.root / 'manifest.json').write_text(json.dumps({'fixture_sha256': fixture_hash}))
+        manifest = collect(self.root, self.suite)
+        (self.root / 'agentbench-evidence.json').write_text(json.dumps(manifest))
+        checkpoint = self.folder / 'checkpoints/0'
+        packet = verified_proof_packet(checkpoint, scenario='F01', step=0)
+        self.assertEqual(packet['checkpoint_gold']['scenario'], 'F01')
+        with self.assertRaises(ValueError):
+            verified_proof_packet(checkpoint, scenario='F02', step=0)
+        import shutil
+        alternate = checkpoint.with_name('00')
+        shutil.copytree(checkpoint, alternate)
+        (alternate / 'records.json').write_text('[]')
+        with self.assertRaises(ValueError):
+            verified_proof_packet(alternate, wiki_records=[])
+        (checkpoint / 'records.json').write_text('[]')
+        with self.assertRaises(ValueError):
+            verified_proof_packet(checkpoint, scenario='F01', step=0)
+
     def test_metadata_cannot_relabel_failure_or_usage(self):
         verify_manifest(self.manifest, self.root)
         self.manifest['attempts'][0]['status'] = 'complete'
@@ -86,3 +108,35 @@ class EvidenceTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+class PacketAndIdentityTests(unittest.TestCase):
+    def test_wire_identity_cannot_be_inferred_from_configuration(self):
+        from evidence import identity_matches
+        self.assertFalse(identity_matches({'wire_requests': []}, 'm', 'low'))
+        trace = {'wire_requests': [{'model': 'm', 'effort': 'low'}], 'returned_models': ['m']}
+        self.assertTrue(identity_matches(trace, 'm', 'low'))
+        self.assertFalse(identity_matches(trace, 'm', 'high'))
+        trace['returned_models'] = ['substitute']
+        self.assertFalse(identity_matches(trace, 'm', 'low'))
+
+    def test_wiki_reader_does_not_get_raw_note_sources(self):
+        from evidence import grading_packet
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)
+            (path / 'records.json').write_text(json.dumps([
+                {'id':'source-note','version':1,'data':{'Note':{'markdown':'raw evidence'}}},
+                {'id':'wiki-note','version':2,'data':{'Note':{'markdown':'saved synthesis'}}}]))
+            with self.assertRaises(ValueError):
+                grading_packet(path, wiki_only=True)
+            packet = grading_packet(path, wiki_only=True, wiki_records=[{'id':'wiki-note','version':2}])
+            self.assertEqual([r['id'] for r in packet['records']], ['wiki-note'])
+            with self.assertRaises(ValueError):
+                grading_packet(path, wiki_only=True, wiki_records=[{'id':'wiki-note','version':1}])
+
+    def test_checkpoint_packet_gold_does_not_include_later_truth(self):
+        gold = proof.checkpoint_gold('J01', 1)
+        self.assertNotIn('2027-03-03', str(gold))
+        self.assertNotIn('March 10', str(gold))
+        self.assertIn('2027-03-03', str(proof.checkpoint_gold('J01', 2)))
+        with self.assertRaises(ValueError):
+            proof.checkpoint_gold('J01', 9)

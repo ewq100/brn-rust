@@ -1,0 +1,2 @@
+# Optional scoring/view adapter only; no production or candidate runtime dependency.
+inspect-ai==0.3.286

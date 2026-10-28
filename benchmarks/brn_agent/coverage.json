@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "scope": "offline proof; partial does not establish model behavior",
+  "scope": "offline mechanisms and proof; no observed model quality",
   "workflows": [
     {
       "workflow": "wiki-creation",
@@ -117,6 +117,30 @@
       "status": "unsupported",
       "host_operations": [],
       "scenario": null
+    },
+    {
+      "workflow": "controlled-owner-edit-stale-and-undo",
+      "status": "covered",
+      "host_operations": [
+        "begin-edit",
+        "update-buffer",
+        "save",
+        "discard",
+        "undo",
+        "thread-start"
+      ],
+      "scenario": "native synthetic unit witness",
+      "qualification": "host semantics only, not model decisions"
+    },
+    {
+      "workflow": "wire-identity-and-call-admission",
+      "status": "partial",
+      "host_operations": [
+        "ask",
+        "intake"
+      ],
+      "scenario": "in-memory transport and scheduler unit witnesses",
+      "qualification": "credential-backed route integration incomplete"
     }
   ]
 }

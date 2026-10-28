@@ -24,17 +24,36 @@ makes no model calls. Build the seeder with `cargo build --locked -p
 brn-threads-app --example wiki_eval_seed`. The normal evaluator remains the only
 scheduler and retry owner. Its existing `--live` switch requires separately
 approved model/account/spending choices; do not interpret these commands as
-permission for a live run. This proof does not implement spend caps or certify
-wire-observed model/effort identity, so it is not ready for a controlled model
-screen.
+permission for a live run. Checkpoint-enabled live cases require both
+`--model-call-limit` (per event) and `--max-total-model-calls` (experiment).
+The runtime atomically caps actual parent/helper/summary HTTP attempts, including
+retries, before dispatch. Persistent scheduler reservations include unfinished
+and in-flight work and never refund uncertain calls. Capped useful intake requires
+AI conversion off. Monetary `--max-spend` requests fail closed before work starts:
+subscription routes provide no enforceable charge bound; estimates cannot supply
+one. This remains a call-bounded runner, not a qualified monetary-bounded screen.
+
+```sh
+python3 benchmarks/brn_agent/bench.py plan --suite /absolute/planning/suite.json \
+  --max-calls 32 --calls-per-event 2
+```
+
+Trace identity records bounded model/effort fields from actual request bodies and
+returned model IDs when available, without headers or prompt bodies. Requested
+configuration alone never qualifies runtime identity. Unsupported identities and
+missing observations keep results unranked.
 
 `proof.py` deterministically renders eight focused cases and one eight-event
 Cedar renovation world from a small truth ledger. `fixture.json` contains native
 seeds and owner events; `gold.json` stays outside candidate state. The Rust seeder
 uses checked host operations. Historical events do not grant new authority.
 Gold labels and semantic rubrics are drafts requiring independent validation.
-The fixed-reader packet builder and semantic packet builder are interfaces only;
-neither invokes a model nor qualifies a grader.
+The fixed-reader and semantic packet builders export frozen, anonymous data;
+neither invokes a model nor qualifies a grader. `bench.py packet --checkpoint PATH
+--scenario J01 --step 1 --output FILE` supplies only gold knowable at event one.
+For a wiki-only reader, use `--wiki-records ALLOWLIST.json` instead of scenario/step;
+the allowlist contains exact `{id, version}` pairs and excludes raw source notes.
+Reader questions/results remain independently supplied diagnostics.
 
 New cases declare `authority` explicitly (`maintain` or `review-first`) and opt
 into `retain_checkpoints`. Legacy fixtures retain their old default policy.
@@ -91,6 +110,43 @@ measurements are nullable; output tokens are not inflated by separately adding
 reasoning tokens. Unknown cost stays null. The legacy evaluator's historical
 credit estimates are not imported as measured cost.
 
+## Controlled events and judgment adapters
+
+Native fixtures accept `owner-thread`, `owner-edit`, `owner-discard`, `owner-apply`,
+`owner-dismiss` and `owner-undo`. Edits bind a seeded note and exact text, with
+`base: current|seed`; stale edits traverse normal version guards. Other actions
+reference an actual preceding `from_step` and explicit `operation_index` (discard
+references its edit session). Receipts, refusals and recovery buffers are retained.
+No benchmark SQL writes or fabricated helper-validation labels are used.
+
+`bench.py calibration-prepare --pairs FILE --output FRESH_DIR` emits both anonymous
+answer orders plus a separate private key. Pair schema: `id`, `facts`, two `answers`,
+`expected` (`first`, `second`, `tie`, `both_unacceptable`) and two `defects` lists.
+`calibration-score --key FILE --judgments FILE --output FRESH_FILE` measures
+preference accuracy, absolute defect false positives/negatives and position
+consistency. Judgments contain packet `id`, `preference`, two `defects` lists and
+`evidence`. Missing judgments stay incomplete; a perfect screen never automatically
+qualifies a grader. Unit witnesses are newly synthetic tests, not the original pack.
+
+Optional `requirements-inspect.txt` pins Inspect AI 0.3.286 (MIT). `inspect_task.py`
+imports frozen outputs and reviewed 0–4 scores only; its solver never calls
+`generate`. The mock-provider parity test proves one imported sample, unchanged
+output and zero model usage. It creates no candidate scheduler or bridge.
+See [Inspect scoring workflow](https://inspect.aisi.org.uk/scoring-workflow.html).
+
+`adapt-longmemeval --input FILE --admission FILE --output FRESH_DIR` is a local-only
+transformation, not native execution or an official dataset score. It whitelists
+historical role/content, hides answer labels and original IDs, preserves all dates
+and turns, rejects oracle variants, and groups overlapping sessions before splits.
+Admission requires dataset/revision, raw canonical JSON hash, license-text hash,
+provenance, reviewer, access date, approved use and `variant: s|m`. No dataset is
+currently admitted. MIT card labels do not resolve all embedded upstream assets.
+The [upstream schema](https://github.com/xiaowu0162/longmemeval) and
+[cleaned card](https://huggingface.co/datasets/xiaowu0162/longmemeval-cleaned) were
+checked October 28; inspected revision is
+`98d7416c24c778c2fee6e6f3006e7a073259d48f`. Adapter output keeps gold and provenance
+separate from candidate data; only candidate data may enter an agent workspace.
+
 ## Verification
 
 ```sh
@@ -113,11 +169,16 @@ supported local transfer returned HTTP 401. They have not been reauthored or
 claimed as integrated. Controlled helper reports still need to traverse the real
 child read ledger and validator; live helpers remain separately authorized.
 
-Inspect integration is deferred until a parity probe proves it neither reroutes
-candidate requests nor duplicates scheduling. External dataset adapters and
-license/version admission are not implemented; no third-party corpus was
-redistributed. Missing host-event adapters include controlled edits/rejections,
-stale-input injection, interruption and resumption. Full semantic/link/retention
-mutation grading, fixed-reader execution, calibrated independent grading,
-verified wire identity and scheduling cost caps remain required before model
-selection. The broader 24-case/three-world suite is not implemented.
+The real child-ledger and helper-report validator are exercised by existing
+`brn-ai` scripted research tests; this does not integrate the unavailable original
+helper cases. Six credential-backed tests encountered `UnsafeCredentials` in this
+cloud environment; security checks remain unchanged. The in-memory transport cap
+witness and 31 scripted helper tests passed independently.
+
+Remaining implementation/qualification: original pack integration, controlled
+mid-request interruption/resumption scenarios, protected-edit and skills coverage,
+semantic grader qualification with independently reviewed held-out mutations,
+fixed-reader execution, native external-history intake mapping, and enforceable
+monetary bounds if a supported route exposes them. MemoryAgentBench conversion and
+the broader 24-case/three-world suite remain deferred. No live model or reader has
+run, and no model ranking is asserted.

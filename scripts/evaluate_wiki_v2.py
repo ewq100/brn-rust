@@ -52,6 +52,10 @@ def _load_v1():
     return module
 
 
+_limit_spec = importlib.util.spec_from_file_location('agentbench_limits', HERE.parent / 'benchmarks/brn_agent/limits.py')
+LIMITS = importlib.util.module_from_spec(_limit_spec)
+_limit_spec.loader.exec_module(LIMITS)
+
 V1 = _load_v1()
 CallFailed = V1.CallFailed
 public_snapshot = V1.public_snapshot
@@ -290,6 +294,26 @@ def validate_case(case):
     bound = set(threads)
     for index, step in enumerate(case['steps'], 1):
         kind = step.get('kind')
+        if kind == 'owner-thread':
+            if not step.get('title') or not step.get('as') or step['as'] in bound:
+                bad(f'step {index}: owner-thread needs title and a fresh symbolic binding')
+            else:
+                bound.add(step['as'])
+            continue
+        if kind == 'owner-edit':
+            if step.get('key') not in notes + distractors or not isinstance(step.get('text'), str):
+                bad(f'step {index}: owner-edit needs a known note and exact text')
+            if step.get('base', 'current') not in ('current', 'seed'):
+                bad(f'step {index}: owner-edit base must be current or seed')
+            continue
+        if kind in ('owner-apply', 'owner-dismiss', 'owner-undo', 'owner-discard'):
+            if type(step.get('from_step')) is not int or not 1 <= step['from_step'] < index:
+                bad(f'step {index}: owner operation needs a preceding from_step')
+            elif kind == 'owner-discard' and case['steps'][step['from_step'] - 1].get('kind') != 'owner-edit':
+                bad(f'step {index}: owner-discard must reference an owner-edit')
+            if kind != 'owner-discard' and (type(step.get('operation_index')) is not int or step['operation_index'] < 0):
+                bad(f'step {index}: owner operation needs an explicit nonnegative operation_index')
+            continue
         if kind == 'knowledge-review':
             bound.add(step.get('as', 'review'))
             continue
@@ -433,7 +457,7 @@ def resume_action(attempts):
     if not attempts:
         return 'run'
     last = attempts[-1]
-    if last.get('status') == 'complete' or len(attempts) >= 2:
+    if last.get('status') in ('complete', 'budget_refused') or len(attempts) >= 2:
         return 'skip'
     return 'rerun'
 
@@ -1435,7 +1459,7 @@ def capabilities(binary):
         text = subprocess.run([str(binary), '--help'], capture_output=True, text=True, timeout=20).stdout
     except (OSError, subprocess.TimeoutExpired):
         text = ''
-    return {'trace': '--trace' in text, 'knowledge-check': 'knowledge-check' in text,
+    return {'trace': '--trace' in text, 'model-call-limit': '--model-call-limit' in text, 'knowledge-check': 'knowledge-check' in text,
             'search': '\n  search ' in text or 'search --query' in text}
 
 
@@ -1552,6 +1576,9 @@ class Sample:
         self.persist()  # A `running` stub, so a crash is recognised on --resume.
         try:
             self.run()
+        except LIMITS.LimitReached as error:
+            self.result['status'] = 'budget_refused'
+            self.result['failure'] = str(error)
         except CallFailed as error:
             self.result['status'] = 'transport_failure' if self.result.get('stage') == 'steps' else 'setup_failure'
             self.result['failure'] = str(error)
@@ -1568,6 +1595,9 @@ class Sample:
             configuration.update(credential_options(self.arm['provider'], args.auth_file, args.credentials_dir))
             configuration.update(helper_configuration(self.arm))
             self.cli.call('configure', **configuration)
+        if case.get('retain_checkpoints') or getattr(args, 'model_call_limit', None):
+            # Core comparisons use preconverted text, never hidden conversion-model calls.
+            self.cli.call('document-conversion', converter='xberg', ai='off')
         if 'authority' in case or not self.cli.call('settings').get('delegation_chosen'):
             self.cli.call('delegation', choice=case.get('authority', 'maintain'))
         needed = needed_states(case)
@@ -1642,6 +1672,14 @@ class Sample:
                             'sent': budget if step['kind'] == 'ask' else None,
                             'observed': None}
         trace = {'trace': 'full'} if self.caps['trace'] else {}
+        call_limit = getattr(args, 'model_call_limit', None)
+        if step['kind'] in ('ask', 'intake') and call_limit:
+            identity = str(self.folder.relative_to(self.root)) + f'/event-{number}'
+            record['reservation'] = LIMITS.Reservations(
+                self.root / 'model-call-reservations.jsonl', args.max_total_model_calls).reserve(identity, call_limit)
+            trace['model_call_limit'] = call_limit
+        if step['kind'].startswith('owner-'):
+            return self.run_owner_event(number, step, threads, record)
         if step['kind'] == 'knowledge-review':
             out = cli.call('knowledge-check', seed_chat='yes')
             threads[step.get('as', 'review')] = out['review_chat']
@@ -1677,6 +1715,67 @@ class Sample:
         record['sources'] = list(details.get('sources', []))
         record['loaded_skills'] = list(details.get('loaded_skills', []))
         return out
+
+    def run_owner_event(self, number, step, threads, record):
+        """Scripted owner intent crosses the same checked CLI as manual work.
+
+        No direct database writes, no auto-approval, and no operation guessing.
+        Non-success envelopes are retained as outcomes rather than losing stale
+        or deferred evidence to a process exit code.
+        """
+        def observe(command, **options):
+            envelope = self.cli.envelope(command, **options)
+            record.setdefault('host_events', []).append({
+                key: public_snapshot(envelope.get(key)) for key in
+                ('command', 'status', 'outcome', 'operation', 'changed', 'conflict', 'error')})
+            operation = envelope.get('operation')
+            if operation and operation not in record['operations']:
+                record['operations'].append(operation)
+            record['terminal'] = 'Completed' if envelope.get('ok') else 'Outcome:' + envelope.get('status', 'unknown')
+            return envelope
+
+        kind = step['kind']
+        if kind == 'owner-thread':
+            envelope = observe('thread-start', title=step['title'], key=f'event-{number}')
+            if envelope.get('ok'):
+                threads[step['as']] = envelope['result']['id']
+            return envelope
+        if kind == 'owner-edit':
+            note = self.cli.call('read', id=self.seed['notes'][step['key']])
+            base = self.seed['versions'][step['key']] if step.get('base') == 'seed' else note['version']
+            folder = self.folder / 'owner-events'
+            folder.mkdir(exist_ok=True, mode=0o700)
+            token = folder / f'{number}.token'
+            envelope = observe('begin-edit', note=note['id'], base=base, token_out=token)
+            if not envelope.get('ok'):
+                return envelope
+            session = envelope['result']
+            generation = session['generation'] + 1
+            record['edit_session'] = {'id': session['id'], 'generation': generation,
+                                      'token_file': str(token.relative_to(self.folder))}
+            envelope = observe('update-buffer', session=session['id'], generation=generation,
+                               text=step['text'], token_file=token)
+            if not envelope.get('ok'):
+                return envelope
+            envelope = observe('save', session=session['id'], generation=generation, token_file=token)
+            if envelope.get('ok'):
+                token.unlink()
+            return envelope
+        previous = self.result['steps'][step['from_step'] - 1]
+        if kind == 'owner-discard':
+            session = previous.get('edit_session')
+            if session is None:
+                raise CallFailed('Scripted owner discard has no actual edit session')
+            token = self.folder / session['token_file']
+            envelope = observe('discard', session=session['id'], generation=session['generation'], token_file=token)
+            if envelope.get('ok'):
+                token.unlink()
+            return envelope
+        operations = previous['operations']
+        index = step['operation_index']
+        if index >= len(operations):
+            raise CallFailed('Scripted owner event names an operation that was not actually produced')
+        return observe(kind.removeprefix('owner-'), operation=operations[index])
 
     def run_undo(self, case, steps, receipts, raw_final):
         results = {}
@@ -1722,7 +1821,7 @@ class Sample:
                'private_ids': private_ids, 'private_threads': chats - {None}}
         per_step = [step_metrics(step['trace'], keys(case.get('targets', [])), keys(case.get('useful', [])),
                                  keys(case.get('traps', [])), private_ids, step['kind'], step['terminal'])
-                    for step in steps if step['kind'] != 'knowledge-review'
+                    for step in steps if step['kind'] in ('ask', 'intake')
                     and step.get('thread') not in ctx['private_threads']]
         result['metrics'] = run_metrics(per_step)
         result['checks'] = evaluate_checks(case, ctx)
@@ -1805,6 +1904,8 @@ def open_root(root):
 def manifest_for(args, arms, fixture_sha, cases):
     return {'format': 2, 'fixture_sha256': fixture_sha, 'seed': args.seed, 'live': args.live,
             'repetitions': args.repetitions, 'scale': args.scale,
+            'model_call_limit': getattr(args, 'model_call_limit', None),
+            'max_total_model_calls': getattr(args, 'max_total_model_calls', None),
             'cases': [case['id'] for case in cases],
             'arms': [{key: arm.get(key) for key in ARM_FIELDS} for arm in arms]}
 
@@ -1922,6 +2023,9 @@ def build_parser():
     parser.add_argument('--repetitions', type=int, choices=[1, 2, 3], help='override the cases\' repetitions')
     parser.add_argument('--root', type=Path, required=True, help='absolute fresh directory (or existing with --resume)')
     parser.add_argument('--resume', action='store_true', help='reuse --root: skip complete samples, rerun a transport failure once')
+    parser.add_argument('--model-call-limit', type=int, help='shared parent/helper/summary/resend call limit per event, 1..10000')
+    parser.add_argument('--max-total-model-calls', type=int, help='conservative experiment-wide call reservations, including incomplete attempts')
+    parser.add_argument('--max-spend', type=float, help='refused while supported routes have no enforceable monetary bound')
     parser.add_argument('--live', action='store_true', help='run the owner-selected provider; otherwise offline validation only')
     parser.add_argument('--report-only', action='store_true', help='re-render the report from --root and exit')
     parser.add_argument('--provider', choices=PROVIDERS)
@@ -1943,6 +2047,17 @@ def build_parser():
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
+    try:
+        LIMITS.check_spend_cap(args.max_spend)
+        if bool(args.model_call_limit) != bool(args.max_total_model_calls):
+            raise ValueError('Provide both --model-call-limit and --max-total-model-calls')
+        if args.model_call_limit is not None:
+            LIMITS.positive(args.model_call_limit, 'model-call-limit')
+            LIMITS.positive(args.max_total_model_calls, 'max-total-model-calls')
+            if args.model_call_limit > 10000:
+                raise ValueError('model-call-limit must be at most 10000')
+    except ValueError as error:
+        parser.error(str(error))
     if not args.root.is_absolute():
         parser.error('--root must be absolute')
     args.root = args.root.resolve()  # brn needs canonical paths (macOS /var -> /private/var)
@@ -1959,6 +2074,8 @@ def main(argv=None):
     cases = [case for case in fixture['cases'] if wanted is None or case['id'] in wanted]
     if wanted and {case['id'] for case in cases} != wanted:
         parser.error('Unknown case id in --cases')
+    if args.live and any(case.get('retain_checkpoints') for case in cases) and not args.model_call_limit:
+        parser.error('Checkpoint-enabled AgentBench runs require explicit model-call limits')
     if args.report_only:
         root = open_root(args.root)
         report = build_report(collect_results(root), cases)
@@ -1973,6 +2090,8 @@ def main(argv=None):
         if not case_arm_names(case, [a['name'] for a in arms]):
             parser.error(f'No arm matches case {case["id"]} (arms {case.get("arms")})')
     caps_by_arm = {arm['name']: capabilities(arm['binary']) for arm in arms}
+    if args.model_call_limit and any(not caps['model-call-limit'] for caps in caps_by_arm.values()):
+        parser.error('Selected binary does not expose the model-call-limit guard')
     live_missing = [name for name, caps in caps_by_arm.items()
                     if not (caps['knowledge-check'] or args.measure_bin) or not (caps['search'] or args.measure_bin)]
     if live_missing and args.live:
@@ -1982,6 +2101,8 @@ def main(argv=None):
     if args.resume:
         root = open_root(args.root)
         previous = read_json(root / 'manifest.json')
+        if any(previous.get(k) != manifest.get(k) for k in ('model_call_limit', 'max_total_model_calls')):
+            parser.error('--resume: model-call limits differ from the stored manifest')
         if {k: previous[k] for k in ('fixture_sha256', 'seed', 'arms', 'live')} != \
                 {k: manifest[k] for k in ('fixture_sha256', 'seed', 'arms', 'live')}:
             parser.error('--resume: fixture, seed, mode or arms differ from the stored manifest')

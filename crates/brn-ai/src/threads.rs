@@ -82,6 +82,9 @@ mod research;
 mod threads_text;
 #[path = "threads_trace.rs"]
 mod trace;
+#[path = "threads_wire_trace.rs"]
+mod wire_trace;
+
 pub use trace::{HelperTrace, RunTrace, SummaryTrace, TraceCall, TraceLevel, TraceUsage};
 #[path = "threads_sources.rs"]
 mod sources;
@@ -199,6 +202,22 @@ impl ExternalInputSnapshot {
     }
 }
 impl PreparedThreadRun {
+    /// Optional host-selected invocation cap, shared by helpers, summaries and resends.
+    /// Admission happens before each HTTP model request. No fallback or refund.
+    pub fn with_model_call_limit(self, limit: u64) -> AiResult<Self> {
+        if let Err(error) = self.scope.call_budget.set(limit) {
+            let _ = finish(
+                &self.scope,
+                &AiAnswer {
+                    text: String::new(),
+                    terminal: AiTerminal::Failed(error.clone()),
+                },
+            );
+            return Err(error);
+        }
+        Ok(self)
+    }
+
     pub fn run_id(&self) -> &str {
         &self.scope.run
     }
@@ -275,6 +294,7 @@ pub fn spawn_prepared(
         })
 }
 struct Scope {
+    call_budget: Arc<wire_trace::CallBudget>,
     external: Mutex<Option<Arc<mcp_runtime::Invocation>>>,
     skills: Arc<crate::thread_skills::Catalogue>,
     chat: String,
@@ -2677,6 +2697,9 @@ impl AgentHook for BatchHook {
         _: &HookContext,
         event: ModelTurnFinished<'_>,
     ) -> ModelTurnAction {
+        if let Some(trace) = &self.trace {
+            trace.returned_model(event.raw);
+        }
         let calls: Vec<_> = event
             .content
             .iter()
@@ -3078,7 +3101,11 @@ async fn run_prepared_over(
             trace.retry(detail);
         }
     });
-    let base_http = transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared()));
+    let base_http = wire_trace::wrap(
+        transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
+        &scope.trace,
+        &scope.call_budget,
+    );
     let mut summary_notice = None;
     let client = match context_budget::preflight(&scope, &input) {
         Err(error) => Err(error),
@@ -3199,6 +3226,9 @@ async fn run_prepared_over(
             },
         },
     };
+    if scope.call_budget.refused() {
+        answer.terminal = AiTerminal::Failed(AiError::new(AiErrorKind::ToolLimitReached));
+    }
     watcher.abort();
     // The watcher shares the Scope; waiting for it lets the lease end with the run.
     let _ = watcher.await;
@@ -3386,6 +3416,7 @@ fn finish_trace(scope: &Scope, answer: &AiAnswer) -> Option<RunTrace> {
         })
         .unwrap_or_else(|| scope.skills.identity.clone());
     let mut finished = trace.finish(&identity, scope.search.is_some(), scope.max_rounds);
+    finished.model_call_budget = scope.call_budget.snapshot();
     if let AiTerminal::Failed(error) = &answer.terminal {
         finished.failure = Some(error.clone());
     }
@@ -3949,6 +3980,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         .and_then(|(_, settings)| settings.helper.clone())
         .filter(|_| writing_snapshot.is_none() && capture_snapshot.is_none());
     let scope = Arc::new(Scope {
+        call_budget: Arc::new(wire_trace::CallBudget::default()),
         external: Mutex::new(None),
         skills,
         chat: request.thread.clone(),

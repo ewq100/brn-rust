@@ -50,6 +50,13 @@ pub struct TraceCall {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct WireRequest {
+    pub api: String,
+    pub model: Option<String>,
+    pub effort: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub struct RunTrace {
     pub format: u8,
     pub level: TraceLevel,
@@ -59,6 +66,12 @@ pub struct RunTrace {
     pub rounds: u16,
     pub max_rounds: u16,
     pub model_turns: usize,
+    /// Observed at the HTTP boundary, including resends; never inferred from settings.
+    pub wire_requests: Vec<WireRequest>,
+    pub wire_requests_dropped: usize,
+    pub model_call_budget: Option<Value>,
+    /// Provider-reported model per accepted turn, if exposed by Rig.
+    pub returned_models: Vec<Option<String>>,
     /// `budget`, `invalid_batch` or `cancelled`; `None` when the run ended normally.
     pub stopped: Option<String>,
     /// `None` when the provider reported no token counts.
@@ -142,6 +155,9 @@ struct State {
     usage: TraceUsage,
     turn_usage: Vec<TraceUsage>,
     usage_seen: bool,
+    wire_requests: Vec<WireRequest>,
+    wire_requests_dropped: usize,
+    returned_models: Vec<Option<String>>,
     model_turns: usize,
     rounds: u16,
     stopped: Option<String>,
@@ -185,6 +201,34 @@ fn field_ids(rows: Option<&Value>, path: &[&str]) -> Vec<String> {
 }
 
 impl TraceCollector {
+    pub(crate) fn wire_request(&self, api: &str, model: Option<&str>, effort: Option<&str>) {
+        if let Ok(mut state) = self.state.lock() {
+            if state.wire_requests.len() < 128 {
+                state.wire_requests.push(WireRequest {
+                    api: api.to_owned(),
+                    model: model.map(str::to_owned),
+                    effort: effort.map(str::to_owned),
+                });
+            } else {
+                state.wire_requests_dropped += 1;
+            }
+        }
+    }
+
+    pub(crate) fn returned_model(&self, raw: &Value) {
+        let model = raw
+            .get("model")
+            .or_else(|| raw.pointer("/response/model"))
+            .and_then(Value::as_str)
+            .filter(|s| crate::valid_model_id(s))
+            .map(str::to_owned);
+        if let Ok(mut state) = self.state.lock()
+            && state.returned_models.len() < 128
+        {
+            state.returned_models.push(model);
+        }
+    }
+
     pub(crate) fn level(&self) -> TraceLevel {
         self.level
     }
@@ -571,7 +615,22 @@ impl TraceCollector {
             provider_retries,
             summary,
         ) = state.unwrap_or_default();
+        let (wire_requests, wire_requests_dropped, returned_models) = self
+            .state
+            .lock()
+            .map(|s| {
+                (
+                    s.wire_requests.clone(),
+                    s.wire_requests_dropped,
+                    s.returned_models.clone(),
+                )
+            })
+            .unwrap_or_default();
         RunTrace {
+            wire_requests,
+            wire_requests_dropped,
+            model_call_budget: None,
+            returned_models,
             format: 1,
             level: self.level,
             guide: guide.to_owned(),

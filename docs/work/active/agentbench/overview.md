@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Build the recovered BRN-AgentBench using the native evaluator and checked CLI.
-**Owner attention:** Partial offline proof verified. Original helper/calibration fixture transfer blocked by Library HTTP401. Runtime identity, controlled event adapters and grader qualification remain outstanding; no model ranking.
+**Owner attention:** Offline runtime caps, actual wire identity, controlled owner events, frozen grading and diagnostic adapters implemented. Original judgment pack transfer remains blocked; live qualification unrun.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -22,9 +22,9 @@ None recorded.
 ### Preserve native evidence and prepare the benchmark proof
 
 Task ID: `agentbench-proof`
-Owner: Benchmark integration owner · State: **blocked** · Last observed: 2026-10-28T23:08:59.438716+00:00
-Activity: Implemented evidence preservation, checkpoint/Undo isolation, deterministic proof generation and frozen-output reports; nine native offline cases and 15 benchmark tests passed.
-Next: Restore supported access to the original planning ZIP, integrate its judgment cases without reauthoring, then finish the outstanding gates listed in the benchmark README.
+Owner: Benchmark integration owner · State: **blocked** · Last observed: 2026-10-28T23:35:09.824841+00:00
+Activity: Extended native runtime and evaluator; added offline calibration and Inspect parity, local LongMemEval transformation, explicit reader artifacts, conservative call reservations.
+Next: Integrate original judgment cases when supported Library transfer is restored; complete remaining protected/skill/interruption and grader/reader qualification gates. Publication remains pending.
 Resource waits: Library transfer tools/list returned HTTP401 before any bytes were downloaded; no retry or bypass attempted.
 
 <details>
@@ -32,8 +32,8 @@ Resource waits: Library transfer tools/list returned HTTP401 before any bytes we
 
 Gates:
 
-- **implementation:** partial: offline proof; original judgment fixtures, host-event adapters, runtime identity, spend caps and external/Inspect adapters outstanding
-- **checks:** passed: 101 existing evaluator tests, 15 benchmark tests including real native backup/Undo witness; 9 native seed/copy/open checks
+- **implementation:** partial: native evidence, runtime guard, owner events, scoring/calibration/reader interfaces and thin optional adapters implemented; original pack and remaining semantic/coverage gates open
+- **checks:** 101 evaluator tests; 29 benchmark tests including native/optional probes; Rust build and strict clippy; 31 helper tests passed, six credential-backed cases failed under UnsafeCredentials
 - **integration:** local isolated branch; publication authority for this new benchmark not established
 - **native:** CLI-only offline observed; Mac UI and live model quality unrun
 - **owner acceptance:** pending
@@ -48,4 +48,4 @@ Waiting:
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-10-28T23:08:59.438716+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-28T23:35:09.824841+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

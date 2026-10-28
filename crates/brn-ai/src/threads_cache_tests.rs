@@ -436,3 +436,53 @@ async fn re_sends_are_reported_without_a_trace() {
     assert_eq!(result.provider_resends.len(), 1);
     assert_eq!(result.provider_resends[0].status, Some(503));
 }
+
+#[tokio::test]
+async fn invocation_call_cap_stops_before_dispatch_and_records_actual_identity() {
+    let (_root, mut request, _) = tests::fixture();
+    request.trace = TraceLevel::Full;
+    let expected_model = request.selection.model.clone();
+    let expected_effort = request.effort.as_str().to_owned();
+    let prepared = prepare_run(request)
+        .unwrap()
+        .with_model_call_limit(1)
+        .unwrap();
+    let http = script();
+    // Synthetic in-memory provider transport. Authentication is not under test.
+    let observed = wire_trace::wrap(
+        DynHttpClient::new(http.clone()),
+        &prepared.scope.trace,
+        &prepared.scope.call_budget,
+    );
+    let client = rig::providers::openai::OpenAIConfig::with_key(
+        &rig::providers::chatgpt::DIALECT,
+        "synthetic-not-a-credential",
+    )
+    .connect(observed);
+    let answer = run_model(
+        client.responses(expected_model.clone()),
+        prepared.scope.clone(),
+        &prepared.input,
+        prepared.request.effort,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    assert_eq!(http.requests().len(), 1, "{:?}", answer.terminal);
+    assert!(matches!(answer.terminal, AiTerminal::Failed(_)));
+    let trace = finish_trace(&prepared.scope, &answer).unwrap();
+    assert_eq!(trace.wire_requests.len(), 1);
+    assert_eq!(
+        trace.wire_requests[0].model.as_deref(),
+        Some(expected_model.as_str())
+    );
+    assert_eq!(
+        trace.wire_requests[0].effort.as_deref(),
+        Some(expected_effort.as_str())
+    );
+    assert_eq!(trace.model_call_budget.as_ref().unwrap()["started"], 1);
+    assert_eq!(trace.model_call_budget.as_ref().unwrap()["refused"], true);
+    assert_eq!(trace.returned_models, [Some("gpt-6.1-sol".into())]);
+}
