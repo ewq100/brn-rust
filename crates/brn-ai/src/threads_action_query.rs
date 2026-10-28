@@ -177,11 +177,12 @@ mod tests {
     use super::*;
     #[test]
     fn scope_pagination_and_staleness() {
-        let (_root, request, _) = super::super::tests::fixture();
+        let (_root, mut request, _) = super::super::tests::fixture();
         let mut store = Store::open(&request.data_dir).unwrap();
         let op = store.allocate_operation("action-query-fixture").unwrap();
         let ids = (0..3).map(|i| op.creation_id(i)).collect::<Vec<_>>();
-        let writes = ids
+        let other_chat = op.creation_id(3);
+        let mut writes: Vec<Put> = ids
             .iter()
             .enumerate()
             .map(|(i, id)| Put {
@@ -202,6 +203,18 @@ mod tests {
                 }),
             })
             .collect();
+        writes.push(Put {
+            id: other_chat.clone(),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Thread(Thread {
+                private_context: false,
+                context_epoch: 0,
+                title: "Other chat".into(),
+                state: ThreadState::Open,
+                attention: vec![],
+            }),
+        });
         let owner = HostAuthority::owner("fixture");
         store
             .prepare_owner(
@@ -224,6 +237,15 @@ mod tests {
         next.cursor = first["cursor"].as_str().map(str::to_owned);
         let second = query(&scope, next.clone()).unwrap();
         assert_ne!(first["actions"][0]["id"], second["actions"][0]["id"]);
+        request.thread = other_chat;
+        let (other_scope, _) = begin(&request).unwrap();
+        // The same unscoped Actions are visible in both chats, so rejection
+        // checks the cursor's chat binding independently of its result set.
+        assert_eq!(
+            query(&other_scope, args.clone()).unwrap()["actions"][0]["id"],
+            first["actions"][0]["id"]
+        );
+        assert!(query(&other_scope, next.clone()).is_err());
         next.owner = Some("other".into());
         assert!(query(&scope, next).is_err());
         let exact = read_records(
@@ -284,6 +306,70 @@ mod tests {
         store.apply(&update, &owner).unwrap();
         drop(store);
         assert!(query(&scope, cursor).is_err());
+    }
+    #[test]
+    fn combined_due_and_follow_up_filters_use_both_dates() {
+        let (_root, request, _) = super::super::tests::fixture();
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let op = store.allocate_operation("date-filters").unwrap();
+        let dates = [
+            (Some("2026-03-01"), Some("2026-02-01")),
+            (Some("2026-03-01"), Some("2026-04-01")),
+            (Some("tomorrow"), Some("2026-02-01")),
+            (None, Some("2026-02-01")),
+            (Some("2026-03-01"), None),
+        ];
+        let ids = (0..dates.len())
+            .map(|i| op.creation_id(i))
+            .collect::<Vec<_>>();
+        let writes = dates
+            .into_iter()
+            .enumerate()
+            .map(|(i, (due, follow_up))| Put {
+                id: ids[i].clone(),
+                expected_version: None,
+                archived: false,
+                data: RecordData::Action(Action {
+                    chat: None,
+                    kept_outside_project: false,
+                    description: format!("dated {i}"),
+                    state: ActionState::Open,
+                    internal: false,
+                    evidence: None,
+                    due: due.map(str::to_owned),
+                    owner: None,
+                    waiting_on: None,
+                    follow_up: follow_up.map(str::to_owned),
+                }),
+            })
+            .collect();
+        let owner = HostAuthority::owner("fixture");
+        store
+            .prepare_owner(
+                &op,
+                &ChangeRequest {
+                    reason: "dates".into(),
+                    writes,
+                    inputs: vec![],
+                },
+                &owner,
+            )
+            .unwrap();
+        store.apply(&op, &owner).unwrap();
+        drop(store);
+        let (scope, _) = begin(&request).unwrap();
+        let mut args: Args = serde_json::from_value(json!({"state":null,"owner":null,"due":{"from":"2026-03-01","through":"2026-03-01","missing":false},"follow_up":{"from":"2026-01-01","through":"2026-02-28","missing":false},"query":null,"limit":100,"cursor":null})).unwrap();
+        let result = query(&scope, args.clone()).unwrap();
+        assert_eq!(result["actions"].as_array().unwrap().len(), 1);
+        assert_eq!(result["actions"][0]["id"], ids[0]);
+        args.due = Some(DateFilter {
+            from: None,
+            through: None,
+            missing: true,
+        });
+        let missing_due = query(&scope, args).unwrap();
+        assert_eq!(missing_due["actions"].as_array().unwrap().len(), 1);
+        assert_eq!(missing_due["actions"][0]["id"], ids[3]);
     }
     #[test]
     fn encoded_pages_shrink_and_oversized_single_action_fails() {

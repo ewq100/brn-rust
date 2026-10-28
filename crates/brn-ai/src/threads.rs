@@ -5504,6 +5504,11 @@ mod tests {
                 MockStreamEvent::text("Provisional plan. "),
                 MockStreamEvent::tool_call("r", "read_records", json!({"ids":[note],"query":null})),
                 MockStreamEvent::tool_call(
+                    "a",
+                    "query_actions",
+                    json!({"state":null,"owner":null,"due":null,"follow_up":null,"query":null,"limit":10,"cursor":null}),
+                ),
+                MockStreamEvent::tool_call(
                     "n",
                     "read_note",
                     json!({"id":note,"version":1,"start":0,"max_bytes":1024,"section":false}),
@@ -5560,6 +5565,7 @@ mod tests {
         assert_eq!(model.request_count(), 4);
         for name in [
             "read_records",
+            "query_actions",
             "read_note",
             "read_source",
             "read_skill",
@@ -5587,7 +5593,7 @@ mod tests {
                 |e| matches!(e, AiEvent::Activity(text) if text == &format!("< {name} · {outcome}"))
             ));
         }
-        assert_eq!(tool_names().len(), 13);
+        assert_eq!(tool_names().len(), 14);
         assert!(tool_names().contains(&"read_message"));
         assert!(tool_names().contains(&"withdraw_proposal"));
         for name in tool_names() {
