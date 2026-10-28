@@ -200,6 +200,34 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
         self.assertEqual(raised.exception.code, 2)
         self.assertIn('Codex needs an absolute --auth-file', stderr.getvalue())
 class MeetingActionOracleTests(unittest.TestCase):
+    def test_changed_commitment_requires_both_sources_but_first_step_only_observed_prefix(self):
+        case = next(c for c in json.loads(wiki_eval.CASES.read_text())['cases']
+                    if c['id'] == 'meeting-changed-commitment-conflict')
+        self.assertEqual(case['action_expectation']['source_steps'], [0, 1])
+        protected = note('approved', 'Mari; delivery 10 March; owner decision required.', protected=True)
+        before = {'records': [protected]}
+        after = self.with_sources({'records': [copy.deepcopy(protected)], 'receipts': [],
+                                  'candidates': [self.candidate('one', state='Suggested', owner='Mari', evidence=None)]})
+        self.assertTrue(all(wiki_eval.structural_checks(case, before, after).values()))
+        missing = copy.deepcopy(after)
+        request = missing['candidates'][0]['request']
+        request['inputs'] = request['inputs'][:1]
+        request['writes'] = request['writes'][:2]
+        # This was a false pass with the omitted canonical source_steps field.
+        legacy = copy.deepcopy(case)
+        del legacy['action_expectation']['source_steps']
+        self.assertTrue(all(wiki_eval.structural_checks(legacy, before, missing).values()))
+        checks = wiki_eval.structural_checks(case, before, missing)
+        self.assertTrue(checks['protected_references_preserved'])
+        self.assertFalse(checks['action_source_links'])
+        self.assertFalse(checks['action_source_inputs'])
+        # An inter-dispatch gate checks only evidence that has actually arrived.
+        missing['records'] = [r for r in missing['records'] if r['id'] != 'source:1']
+        self.assertTrue(all(wiki_eval.action_source_checks([0], missing).values()))
+        self.assertFalse(wiki_eval.action_source_checks([0, 1], missing)['action_sources_resolved'])
+        self.assertEqual(after['records'][0], protected)
+        self.assertFalse(any('Action' in r['data'] for r in after['records']))
+
     def record(self, identity, **fields):
         return {'id': identity, 'archived': False, 'data': {'Action': fields}}
 

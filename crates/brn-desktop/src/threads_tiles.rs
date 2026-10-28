@@ -1230,25 +1230,13 @@ impl ThreadsUi {
                 None,
             ));
         }
-        for (status, key, label, collapsible) in [
-            (ActionState::Suggested, "suggested", "Suggested", None),
-            (ActionState::Open, "open", "Open", None),
-            (ActionState::Waiting, "waiting", "Waiting", None),
-            (ActionState::Done, "done", "Done", Some("tasks-done")),
-            (
-                ActionState::Cancelled,
-                "cancelled",
-                "Cancelled",
-                Some("tasks-cancelled"),
-            ),
-        ] {
-            let records: Vec<_> = self
-                .records
-                .iter()
-                .filter(|r| {
-                    !r.archived && matches!(&r.data, RecordData::Action(a) if a.state == status)
-                })
-                .collect();
+        let today = lists::follow_up_today();
+        view = view.child(metadata(format!(
+            "Follow-ups as of {today}. Dates use your computer's local day (UTC if unavailable); due dates stay separate."
+        )));
+        for bucket in lists::FollowUpGroup::ALL {
+            let (key, label, collapsible) = bucket.presentation();
+            let records = lists::follow_up_records(&self.records, bucket, today);
             if records.is_empty() {
                 continue;
             }
@@ -1262,7 +1250,17 @@ impl ThreadsUi {
                 ));
             if shown {
                 for record in records {
-                    group = group.child(self.action_row(record, false, cx));
+                    group = group.child(self.action_row(
+                        record,
+                        matches!(
+                            bucket,
+                            lists::FollowUpGroup::Overdue
+                                | lists::FollowUpGroup::Today
+                                | lists::FollowUpGroup::Upcoming
+                                | lists::FollowUpGroup::CheckDate
+                        ),
+                        cx,
+                    ));
                 }
             }
             view = view.child(group.test_support());

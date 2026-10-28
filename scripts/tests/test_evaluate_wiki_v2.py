@@ -310,6 +310,35 @@ class MetricTests(unittest.TestCase):
 
 
 class AnswerAndWriteChecks(unittest.TestCase):
+    def test_missing_answer_cannot_pass_exclusion_but_observed_leak_still_fails(self):
+        check = {'type': 'answer_excludes', 'values': ['private marker']}
+        for steps in ([], [step(None)], [step(None, terminal='Failed:Interrupted')]):
+            result = run(check, ctx_for(CASE, BASE, BASE, steps))
+            self.assertIsNone(result['passed'])
+            self.assertTrue(result['unverified'])
+            self.assertFalse(v2.case_passed([result]))
+        mixed = ctx_for(CASE, BASE, BASE, [step('private marker'), step(None)])
+        self.assertFalse(run(check, mixed)['passed'])
+        missing_later = ctx_for(CASE, BASE, BASE, [step('safe answer')])
+        self.assertIsNone(run(dict(check, steps=[1, 2]), missing_later)['passed'])
+
+    def test_withdrawn_permission_requires_current_read_as_well_as_correct_words(self):
+        cases = json.loads((ROOT / 'scripts/fixtures/wiki-eval-cases-v2.json').read_text())['cases']
+        case = next(c for c in cases if c['id'] == 'DW13')
+        current = [note('permit-id', 'Gate C authorization was withdrawn.', version=2)]
+        answer = 'The permit was withdrawn; replacement time is unknown. Ask the coordinator.'
+        def evaluate(version, text=answer, traced=True):
+            evidence = trace([call(1, 1, 'read_note', {'id': 'permit-id', 'version': version}, {})]) if traced else None
+            ctx = ctx_for(case, current, current, [step(text, tr=evidence)],
+                          seed={'notes': {'permit': 'permit-id'}})
+            return v2.evaluate_checks(case, ctx)
+        self.assertTrue(v2.case_passed(evaluate(2)))
+        self.assertFalse(v2.case_passed(evaluate(1)))
+        self.assertFalse(v2.case_passed(evaluate(2, 'Access is authorized for 06:00.')))
+        unknown = evaluate(2, traced=False)
+        self.assertFalse(v2.case_passed(unknown))
+        self.assertTrue(any(c['type'] == 'read' and c['unverified'] for c in unknown))
+
     def test_answer_checks_normalise_text(self):
         ctx = ctx_for(CASE, BASE, BASE, [step('The tile is 12\u00a0mm   thick.')])
         self.assertTrue(run({'type': 'answer_contains_any', 'step': 1, 'values': ['nope', '12 MM thick']}, ctx)['passed'])

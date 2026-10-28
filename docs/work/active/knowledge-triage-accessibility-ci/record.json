@@ -1,0 +1,151 @@
+{
+  "baseline": {
+    "main": "ed1e3979645e062454d95073a366c9d04c99ac66",
+    "local_rehearsal": "f19538c161e13a77ef0ac9b9a329329ba8a822c7",
+    "note": "Rehearsal includes unmerged PR233/234; it is not remote main."
+  },
+  "authority": {
+    "approval": "Sentinel_e8a0b912f2808191801dc1475073b6f0",
+    "scope": "Knowledge triage, narrow keyboard/accessibility fixes, measured safe helper reuse. Reviewed draft PR publication; no automatic merges or live-model spending.",
+    "holds": "No Mac access, release, user-store upgrades, credential/security changes or held feature expansion."
+  },
+  "work_view": {
+    "observed_at": "2026-10-28T07:41:23.562340+00:00",
+    "goal": "Make existing findings useful, close demonstrated keyboard/accessibility gaps and reduce repeated helper build work safely.",
+    "owner_attention": "Lead merge authority covers the existing approved tracks after review and passing checks. PR233 is merged with resulting-main CI pending; PR234 requires refreshed exact-head qualification. Original failures remain recorded. No live-provider spending, Mac access, release or new scope is inferred.",
+    "tasks": [
+      {
+        "id": "baseline-reconciliation",
+        "title": "Finish the approved prior merges",
+        "owner": "Integration owner",
+        "state": "active",
+        "activity": "PR233 refreshed head d06f6acb passed six supported jobs and merged normally at d67e7ad3. Optional Windows failed; prior hosted cause remains unknown. PR234 main refresh has documentation-only conflicts reconciled; exact-head qualification is next.",
+        "observed_at": "2026-10-28T07:41:23.562340+00:00",
+        "origin": "observed",
+        "next_action": "Independently verify the refreshed Capture production tree, publish normally, and qualify exact-head CI before the authorized merge.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md",
+          "docs/work/active/knowledge-triage-accessibility-ci/pr233-cloud-reproduction.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "PR233 six supported exact-head jobs passed; main CI40651500949 pending. PR234 refreshed-head checks pending. Historical local and hosted failures retained.",
+          "integration": "PR230\u2013233 and PR235 merged; PR234 pending normal qualification and merge.",
+          "native": "pending applicable Linux evidence; actual Mac acceptance separate",
+          "owner_acceptance": "pending"
+        },
+        "attempts": [
+          {
+            "outcome": "Linux default workspace tests failed at7a71e660; terminal annotation provides exit101 only. Normal log retrieval redirected to blob endpoint and returned Forbidden.",
+            "change": "No retry, alternate log route, assertion change or blind rerun. Hold PR233/234; continue independent new tracks.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/40422659424"
+            ]
+          },
+          {
+            "outcome": "Old-head offline workspace suite: 1207 passed, 175 failed, 7 ignored, exit 101; 132 failures explicitly reported UnsafeCredentials. Focused unchanged process test also failed on PID disappearance; observed descendant became a zombie under PID 1.",
+            "change": "No production or test changes; refreshed PR233 by normal main merge for exact-head CI, without claiming a repaired cause.",
+            "evidence": [
+              "docs/work/active/knowledge-triage-accessibility-ci/pr233-cloud-reproduction.md"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "knowledge-triage",
+        "title": "Inspect selected knowledge findings",
+        "owner": "Knowledge lane",
+        "state": "active",
+        "activity": "Implementing bounded filters, record navigation, existing candidate review and an unsent selected follow-up draft.",
+        "observed_at": "2026-10-27T00:12:13.427495+00:00",
+        "origin": "reported",
+        "next_action": "Add exact snapshot/privacy checks to existing draft writer and qualify focused regressions.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "pending; measurements and source inspection are not complete qualification",
+          "integration": "pending; new draft publication only, no new merge authority",
+          "native": "pending applicable Linux evidence; actual Mac acceptance separate",
+          "owner_acceptance": "pending"
+        },
+        "attempts": []
+      },
+      {
+        "id": "linux-keyboard-accessibility",
+        "title": "Navigate chats and follow-ups accessibly",
+        "owner": "Accessibility lane",
+        "state": "active",
+        "activity": "Test-only candidate prepared; focused red widget tests running before production changes.",
+        "observed_at": "2026-10-27T00:12:13.427495+00:00",
+        "origin": "reported",
+        "next_action": "Verify observed failure, fix opt-in roles/focus and qualify keyboard paths.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "pending; measurements and source inspection are not complete qualification",
+          "integration": "pending; new draft publication only, no new merge authority",
+          "native": "pending applicable Linux evidence; actual Mac acceptance separate",
+          "owner_acceptance": "pending"
+        },
+        "attempts": []
+      },
+      {
+        "id": "ci-helper-reuse",
+        "title": "Reuse helper build work safely",
+        "owner": "Performance lane",
+        "state": "ready",
+        "activity": "Local reviewed commit22370d33 adds Linux helper dependency targets; fourteen focused Python checks pass. No executable cache fast path.",
+        "observed_at": "2026-10-27T00:21:38.912252+00:00",
+        "origin": "observed",
+        "next_action": "Publish reviewed independent draft from qualified main and monitor exact-head CI; hosted warm benefit remains unmeasured.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md",
+          "docs/work/active/knowledge-triage-accessibility-ci/helper-cache.md"
+        ],
+        "gates": {
+          "implementation": "implemented locally; independent source/security review clear",
+          "checks": "fourteen focused Python tests passed; old config fails two boundary checks; documentation links passed; hosted exact-head CI pending",
+          "integration": "pending; new draft publication only, no new merge authority",
+          "native": "inapplicable to CI-only work",
+          "owner_acceptance": "pending"
+        },
+        "attempts": []
+      },
+      {
+        "id": "integration",
+        "title": "Review and publish bounded draft PRs",
+        "owner": "Integration owner",
+        "state": "active",
+        "activity": "Independent source work uses reviewed combined rehearsal tree while previous merge diagnosis is blocked.",
+        "observed_at": "2026-10-27T00:12:13.427495+00:00",
+        "origin": "observed",
+        "next_action": "Transplant only new commits onto reconciled main, independently review and qualify exact published heads.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md"
+        ],
+        "gates": {
+          "implementation": "pending",
+          "checks": "pending; measurements and source inspection are not complete qualification",
+          "integration": "pending; new draft publication only, no new merge authority",
+          "native": "pending applicable Linux evidence; actual Mac acceptance separate",
+          "owner_acceptance": "pending"
+        },
+        "attempts": []
+      }
+    ]
+  }
+}
