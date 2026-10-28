@@ -1537,3 +1537,141 @@ fn chat_rows_are_named_controls_and_enter_space_select_without_run(cx: &mut Test
         });
     }
 }
+
+/// Discriminate the preserved Linux Tasks-menu/chat-focus mismatch. This uses
+/// the test platform's GPUI events, not AT-SPI or a native window acceptance run.
+#[gpui_kit::test]
+fn chat_focus_dispatch_with_tasks_panel_and_split_enter(cx: &mut TestAppContext) {
+    use gpui_kit::test::TestEventExt;
+    use std::{cell::RefCell, rc::Rc};
+
+    for redraw in [false, true] {
+        let mut chat = String::new();
+        let f = fixture(cx, 1250., 1000., |workspace| {
+            chat = workspace
+                .new_thread("Synthetic outcomes conversation")
+                .unwrap()
+                .id;
+            workspace
+                .post_message(&chat, "Synthetic posted context")
+                .unwrap();
+        });
+        update(cx, &f, |view, window, cx| {
+            view.show_tile(TileKind::Actions, window, cx);
+        });
+        let before = cx.read(|cx| f.view.read(cx).workspace.records().unwrap());
+        let history = cx.read(|cx| f.view.read(cx).workspace.history().unwrap());
+        let events = Rc::new(RefCell::new(Vec::new()));
+        let observed = events.clone();
+        let _observer = cx.update(|cx| {
+            cx.observe_keystrokes(move |event, window, cx| {
+                observed.borrow_mut().push((
+                    event.keystroke.key.clone(),
+                    event.action.as_ref().map(|action| action.name().to_owned()),
+                    format!("{:?}", event.context_stack),
+                    format!("{:?}", window.focused(cx)),
+                ));
+            })
+        });
+        on_window(cx, &f, |window, _| {
+            assert!(window.find("tile-menu-actions").visible());
+            assert!(window.find("chats-recent").visible());
+            eprintln!(
+                "diagnostic redraw={redraw}: a11y_active={}",
+                window.is_a11y_active()
+            );
+        });
+        // Native evidence first activated Recent through its accessible Click.
+        // TestWindowExt::click dispatches the equivalent pointer event pair;
+        // subsequent navigation uses keys only and never injects row focus.
+        click(cx, &f, "chats-recent");
+        let row = format!("thread-{chat}");
+        on_window(cx, &f, |window, cx| {
+            eprintln!("diagnostic after Recent: focus={:?}", window.focused(cx));
+        });
+        for target in ["chats-recent", "all-threads", "resolved-count"] {
+            press(cx, &f, "tab");
+            on_window(cx, &f, |window, cx| {
+                eprintln!(
+                    "diagnostic Tab target={target}: focused={:?}, handle={:?}",
+                    window.find(target.to_owned()).focused(),
+                    window.focused(cx)
+                );
+                assert_eq!(
+                    window.find(target.to_owned()).focused(),
+                    Some(true),
+                    "Tab target {target}"
+                );
+                assert!(window.try_find("popup-menu").is_none());
+            });
+        }
+        let archived = on_window(cx, &f, |window, cx| window.focused(cx).unwrap());
+        press(cx, &f, "tab");
+        let focused = on_window(cx, &f, |window, cx| window.focused(cx).unwrap());
+        // Kit cannot query the row's implicit focus binding. Observe GPUI's
+        // actual handle without replacing it; the expected selection on key-up
+        // below establishes which row receives activation.
+        on_window(cx, &f, |window, cx| {
+            assert!(!archived.is_focused(window));
+            assert!(focused.is_focused(window));
+            eprintln!(
+                "diagnostic after row Tab: focus={:?}, contexts={:?}, row={:?}",
+                window.focused(cx),
+                window.context_stack(),
+                window.find(row.clone())
+            );
+            assert!(!format!("{:?}", window.context_stack()).contains("Popover"));
+        });
+        if redraw {
+            on_window(cx, &f, |window, cx| window.render_frame(cx));
+        }
+        events.borrow_mut().clear();
+        on_window(cx, &f, |window, cx| {
+            assert!(focused.is_focused(window));
+            window.key_down("enter", false, cx);
+        });
+        eprintln!(
+            "diagnostic Enter down redraw={redraw}: {:?}",
+            events.borrow()
+        );
+        on_window(cx, &f, |window, _| {
+            assert!(focused.is_focused(window));
+            assert!(
+                window.try_find("popup-menu").is_none(),
+                "Enter down opened a menu"
+            );
+        });
+        cx.read(|cx| assert!(f.view.read(cx).chat_thread().is_none()));
+        let observed = events.borrow();
+        let enter = observed
+            .iter()
+            .find(|event| event.0 == "enter")
+            .expect("Enter observed");
+        assert!(enter.1.is_none(), "unexpected action: {enter:?}");
+        assert!(
+            !enter.2.contains("Popover"),
+            "unexpected popup ancestry: {enter:?}"
+        );
+        drop(observed);
+        on_window(cx, &f, |window, cx| window.key_up("enter", cx));
+        on_window(cx, &f, |window, _| {
+            assert!(
+                window.try_find("popup-menu").is_none(),
+                "Enter up opened a menu"
+            );
+            assert_eq!(window.find(row.clone()).selected(), Some(true));
+        });
+        cx.read(|cx| {
+            let ui = f.view.read(cx);
+            assert_eq!(ui.chat_thread(), Some(chat.as_str()));
+            assert_eq!(ui.workspace.records().unwrap(), before);
+            assert_eq!(ui.workspace.history().unwrap(), history);
+            assert!(
+                before
+                    .iter()
+                    .all(|record| !matches!(record.data, RecordData::Run(_)))
+            );
+            assert!(ui.worker.is_none());
+        });
+    }
+}
