@@ -1,6 +1,6 @@
 # Accessibility navigation qualification
 
-The source adds opt-in named, focusable chat rows, contextual follow-up groups and task controls, and focused Capture footer-button Enter handling. Deterministic checks pass. Actual Linux observation confirms named controls and groups, **but native keyboard selection and Capture navigation remain unqualified**. This is not Mac or owner acceptance. Current batch routing: [PR #235](https://github.com/ewq100/brn-rust/pull/235).
+The source adds opt-in named, focusable chat rows, contextual follow-up groups and task controls, and focused Capture footer-button Enter handling. Deterministic checks pass. Actual Linux observation confirms named controls and groups, **but native keyboard selection and Capture navigation remain unqualified**. This is not Mac or owner acceptance. Current batch routing: [selected work record](record.json).
 
 ## Source and scope
 
@@ -40,3 +40,12 @@ After both sessions exited, the qualified CLI reopened each fixture and proved u
 ## Remaining acceptance
 
 Diagnose the popup/focus dispatch mismatch before another bounded keyboard qualification. Demonstrate native chat selection and Capture Cancel/Escape with reliable observed focus, no pointer fallback and unchanged canonical state. Qualify static text through the appropriate accessibility interface. Actual Mac review, native focus/accessibility acceptance and owner acceptance remain separate, unrun gates.
+
+## Integration and discriminator, 28 October 2026
+
+Only the four slice commits were transplanted onto actual main `d2f03975`;
+the resulting production tree matches the qualified lane exactly. The additional
+[test-only dispatch discriminator](evidence/accessibility/dispatch-discriminator.md)
+passed both variants but did not reproduce the native mismatch. Its test adapter
+was inactive and its key helpers render frames; it does not close native keyboard,
+static-text or Mac acceptance gates. No speculative production change followed.
