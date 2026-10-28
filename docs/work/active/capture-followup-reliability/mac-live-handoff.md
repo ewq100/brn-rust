@@ -1,9 +1,17 @@
-# Proposed remaining Mac headless live qualification
+# Closed job 001 and offline qualification reference
 
-**Preparation only; separate owner approval required.** No Mac access, model calls,
-credential changes or native interaction occurred while preparing this handoff.
-The latest task approves offline reliability work, not this proposed execution.
-Do not infer permission from older campaign prompts or their former budgets.
+**Job `brn-live-qualification-001` is terminal FAILED and consumed.** Its first
+Run stopped on an adapter/plan gate mismatch; fourteen Runs are now cumulative.
+The remaining four planned Runs were not executed and confer no remaining
+allowance. The [sanitized report](https://github.com/ewq100/brn-rust/issues/236#issuecomment-6464788355)
+and [offline correction](meeting-gate-correction-20261028.md) preserve the result.
+No product defect or full changed-commitment pass is established by that stop.
+
+The original selection and command reference below are retained for review,
+not execution authority. Any new job requires a separately approved source,
+plan, budget and release. This correction does not reopen job 001, dispatch a
+retry, grant Mac access or authorize model calls. No Mac access or model calls
+occurred while preparing this offline correction.
 
 ## Already observed; do not repeat
 
@@ -20,7 +28,7 @@ Keep the earlier cloud **355 passed / 156 failed / 1 ignored** credential-bounda
 observation intact. Do not bypass those guards or reinterpret this narrower
 proposal as a full-suite pass.
 
-## Proposed bounded selection
+## Original bounded selection — closed job 001
 
 Use one normally offered Sol model at medium effort, helpers off, no matrix:
 
@@ -31,12 +39,13 @@ Use one normally offered Sol model at medium effort, helpers off, no matrix:
 | 3 | `DW9` existing-topic update | 1 | 12 |
 | 4 | `DW10` protected contradiction | 1 | 12 |
 
-Proposed ceiling: **five additional Run launches**, twenty minutes from first
+Original ceiling: **five additional Run launches**, twenty minutes from first
 live reservation through review, 180 seconds per live command. Failed and
-uncertain launches count. Historical thirteen plus this maximum would be
-eighteen, not five total. No retries, helper/diagnostic Runs, `--resume`, extra
+uncertain launches count. The original thirteen plus five would have been
+eighteen. The actual result was one new Run, fourteen cumulative; the job stopped
+and its unused four slots are not reusable permission. No retries, helper/diagnostic Runs, `--resume`, extra
 cases or automatic continuation after failure. New offline DW13/DW14 fixtures
-are not included in this live allowance.
+were not included in that closed allowance.
 
 Stop at the first semantic, structural, grounding, safety, transport, timeout,
 authentication or quota failure. Resolve an uncertain command by reading its
@@ -46,7 +55,7 @@ security/power changes, model download, Mac UI or native file picker.
 
 ## Freeze source and admission before launch
 
-After separate approval, choose the exact reviewed integrated commit, record
+For a separately authorized new job, choose the exact reviewed integrated commit, record
 `git rev-parse HEAD`, tree hash and clean/dirty state, and use a fresh isolated
 checkout. Do not use the historical hash above as the new build target. Read its
 AGENTS and current task instructions. Recheck normal installed login, supported

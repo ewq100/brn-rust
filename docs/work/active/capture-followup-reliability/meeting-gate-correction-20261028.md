@@ -23,3 +23,8 @@ binds each Run operation to its individually read state, requires matching uniqu
 applied receipts and lineage, and requires explicit write images. Synthetic
 regressions retain both failing witnesses. This covers Run-associated operations,
 not every operation in store history.
+
+Independent source/evaluator review cleared the corrected gate at `9fa0a56c`.
+The integration owner reran 36 focused wiki/helper Python tests successfully;
+documentation links and whitespace checks passed. These are synthetic offline
+results, not a replay of the unavailable Mac adapter or snapshots.
