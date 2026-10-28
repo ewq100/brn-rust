@@ -349,7 +349,7 @@ impl TraceCollector {
         let Some(value) = value else {
             return Value::Null;
         };
-        if tool.starts_with("mcp_") {
+        if tool.starts_with("mcp_") || tool == "web_search" {
             return json!({"source_identity":value.get("source_identity"),"coverage":value.get("coverage"),"untrusted":true});
         }
         match tool {

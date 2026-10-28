@@ -100,6 +100,14 @@ impl Workspace {
     }
 }
 impl PreparedWorkspaceRun {
+    /// One explicit reviewed search query; never configures or enables a provider.
+    pub fn with_web_search_input(self, tool: &str, query: &str) -> brn_ai::AiResult<Self> {
+        Ok(Self {
+            prepared: self.prepared.with_web_search_input(tool, query)?,
+            search_status: self.search_status,
+        })
+    }
+
     /// Consumes the one durable prepared run. On refusal the AI seam releases
     /// the same lease and terminalizes it; never prepare/retry behind the owner.
     pub fn with_external_input(

@@ -645,102 +645,107 @@ async fn project_without_brn_knowledge_hides_global_notes_from_helpers() {
 
 #[tokio::test]
 async fn helpers_are_read_only_and_cannot_spawn_helpers() {
-    let server = crate::mcp::http_tests::TestServer::start().await;
-    let (_root, request, plan) = setup();
-    let policy = server.policy(vec![McpAccess::General]).await;
-    let mut store = Store::open(&request.data_dir).unwrap();
-    let op = store.allocate_operation(&unique_host_key()).unwrap();
-    store
-        .change_mcp_policy(
-            &op,
-            Some(&policy),
-            &HostAuthority::owner("synthetic review"),
-        )
+    for web_mode in [false, true] {
+        let server = crate::mcp::http_tests::TestServer::start().await;
+        let (_root, request, plan) = setup();
+        let policy = server.policy(vec![McpAccess::General]).await;
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let op = store.allocate_operation(&unique_host_key()).unwrap();
+        store
+            .change_mcp_policy(
+                &op,
+                Some(&policy),
+                &HostAuthority::owner("synthetic review"),
+            )
+            .unwrap();
+        drop(store);
+        let prepared = prepare_run(request).unwrap();
+        let prepared = if web_mode {
+            prepared.with_web_search_input("public_read", "approved public helper test")
+        } else {
+            prepared.with_external_input(
+                "public_read",
+                &json!({"query":"approved public helper test"}),
+            )
+        }
         .unwrap();
-    drop(store);
-    let prepared = prepare_run(request)
-        .unwrap()
-        .with_external_input(
-            "public_read",
-            &json!({"query":"approved public helper test"}),
+        let scope = prepared.scope.clone();
+        let external = mcp_runtime::invocation(&scope).unwrap();
+        external.connect(&CancellationToken::new()).await.unwrap();
+        let write = MockCompletionModel::from_stream_turns(vec![vec![
+            MockStreamEvent::tool_call(
+                "w",
+                "prepare_changes",
+                json!({"request_key":"k","request":{"reason":"x","writes":[{"id":plan.id,"expected_version":plan.version,"archived":false,"data":{"Note":Note::working("Harbor plan","Erased")}}],"inputs":[]}}),
+            ),
+            tokens(10),
+        ]]);
+        let spawn = MockCompletionModel::from_stream_turns(vec![vec![
+            MockStreamEvent::tool_call("s", "research", json!({"questions":[question("again")]})),
+            tokens(10),
+        ]]);
+        let skill = MockCompletionModel::from_stream_turns(vec![vec![
+            MockStreamEvent::tool_call("k", "read_skill", json!({"id":"intake"})),
+            tokens(10),
+        ]]);
+        let mcp = MockCompletionModel::from_stream_turns(vec![vec![
+            MockStreamEvent::tool_call(
+                "m",
+                external.name(),
+                json!({"query":"approved public helper test"}),
+            ),
+            tokens(10),
+        ]]);
+        scripted(
+            &scope,
+            vec![Ok(write.clone()), Ok(spawn), Ok(skill), Ok(mcp.clone())],
+        );
+        let out = ask(
+            &scope,
+            vec![
+                question("one"),
+                question("two"),
+                question("three"),
+                question("four"),
+            ],
         )
-        .unwrap();
-    let scope = prepared.scope.clone();
-    let external = mcp_runtime::invocation(&scope).unwrap();
-    external.connect(&CancellationToken::new()).await.unwrap();
-    let write = MockCompletionModel::from_stream_turns(vec![vec![
-        MockStreamEvent::tool_call(
-            "w",
-            "prepare_changes",
-            json!({"request_key":"k","request":{"reason":"x","writes":[{"id":plan.id,"expected_version":plan.version,"archived":false,"data":{"Note":Note::working("Harbor plan","Erased")}}],"inputs":[]}}),
-        ),
-        tokens(10),
-    ]]);
-    let spawn = MockCompletionModel::from_stream_turns(vec![vec![
-        MockStreamEvent::tool_call("s", "research", json!({"questions":[question("again")]})),
-        tokens(10),
-    ]]);
-    let skill = MockCompletionModel::from_stream_turns(vec![vec![
-        MockStreamEvent::tool_call("k", "read_skill", json!({"id":"intake"})),
-        tokens(10),
-    ]]);
-    let mcp = MockCompletionModel::from_stream_turns(vec![vec![
-        MockStreamEvent::tool_call(
-            "m",
-            external.name(),
-            json!({"query":"approved public helper test"}),
-        ),
-        tokens(10),
-    ]]);
-    scripted(
-        &scope,
-        vec![Ok(write.clone()), Ok(spawn), Ok(skill), Ok(mcp.clone())],
-    );
-    let out = ask(
-        &scope,
-        vec![
-            question("one"),
-            question("two"),
-            question("three"),
-            question("four"),
-        ],
-    )
-    .await;
-    for report in out["reports"].as_array().unwrap() {
-        assert_eq!(report["outcome"], "failed", "{out}");
-    }
-    assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
-    assert_eq!(mcp.request_count(), 1);
-    assert!(
-        !mcp.requests()[0]
+        .await;
+        for report in out["reports"].as_array().unwrap() {
+            assert_eq!(report["outcome"], "failed", "{out}");
+        }
+        assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(mcp.request_count(), 1);
+        assert!(
+            !mcp.requests()[0]
+                .tools
+                .iter()
+                .any(|t| t.name.starts_with("mcp_") || t.name == "web_search")
+        );
+        mcp_runtime::cleanup(&scope).await;
+        server.stop().await;
+        let store = scope.store.lock().unwrap();
+        let current = store.record(&plan.id).unwrap().unwrap();
+        assert_eq!(current.version, plan.version);
+        assert!(store.candidates().unwrap().is_empty());
+        // Only read tools and submit_findings are offered to a helper.
+        let names: Vec<_> = write.requests()[0]
             .tools
             .iter()
-            .any(|t| t.name.starts_with("mcp_"))
-    );
-    mcp_runtime::cleanup(&scope).await;
-    server.stop().await;
-    let store = scope.store.lock().unwrap();
-    let current = store.record(&plan.id).unwrap().unwrap();
-    assert_eq!(current.version, plan.version);
-    assert!(store.candidates().unwrap().is_empty());
-    // Only read tools and submit_findings are offered to a helper.
-    let names: Vec<_> = write.requests()[0]
-        .tools
-        .iter()
-        .map(|t| t.name.to_string())
-        .collect();
-    let mut sorted = names.clone();
-    sorted.sort();
-    assert_eq!(
-        sorted,
-        [
-            "note_connections",
-            "read_note",
-            "read_records",
-            "search_notes",
-            "submit_findings"
-        ]
-    );
+            .map(|t| t.name.to_string())
+            .collect();
+        let mut sorted = names.clone();
+        sorted.sort();
+        assert_eq!(
+            sorted,
+            [
+                "note_connections",
+                "read_note",
+                "read_records",
+                "search_notes",
+                "submit_findings"
+            ]
+        );
+    }
 }
 
 #[tokio::test]

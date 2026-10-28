@@ -332,3 +332,81 @@ fn real_cli_sdk_discovery_reviewed_call_and_disable_preserve_local_work() {
     assert_eq!(stub.requests().len(), 4);
     assert!(!stub.requests()[3]["tools"].to_string().contains("mcp_"));
 }
+
+#[test]
+fn web_search_requires_explicit_purpose_and_exact_review_options() {
+    let root = Root::new();
+    let data = root.join("web-never-created");
+    for options in [
+        vec!["--mcp-purpose", "web-search"],
+        vec![
+            "--mcp-purpose",
+            "fetch",
+            "--mcp-tool",
+            "search",
+            "--mcp-input",
+            "{}",
+        ],
+    ] {
+        let mut args = vec!["ask", "--thread", "chat", "--prompt", "hello"];
+        args.extend(options);
+        let result = run(&root, true, &data, &args);
+        assert_eq!(result.code, 2, "{}", result.stdout);
+        assert_eq!(result.envelope()["status"], "usage");
+        assert!(!data.exists());
+    }
+    for input in [
+        "{}",
+        "{\"query\":\"\"}",
+        "{\"query\":\"public\",\"extra\":true}",
+        "{\"query\":\"   \"}",
+        "{\"query\":\"secret\\nline\"}",
+    ] {
+        let result = run(
+            &root,
+            true,
+            &data,
+            &[
+                "ask",
+                "--thread",
+                "chat",
+                "--prompt",
+                "hello",
+                "--mcp-purpose",
+                "web-search",
+                "--mcp-tool",
+                "search",
+                "--mcp-input",
+                input,
+            ],
+        );
+        assert_eq!(result.code, 2, "{}", result.stdout);
+        assert!(!data.exists());
+    }
+    for size in [2049, 8193] {
+        let input = serde_json::json!({"query":"x".repeat(size)}).to_string();
+        let result = run(
+            &root,
+            true,
+            &data,
+            &[
+                "ask",
+                "--thread",
+                "chat",
+                "--prompt",
+                "hello",
+                "--mcp-purpose",
+                "web-search",
+                "--mcp-tool",
+                "search",
+                "--mcp-input",
+                &input,
+            ],
+        );
+        assert_eq!(result.code, 2, "{}", result.stdout);
+        assert!(!data.exists());
+    }
+    let help = run(&root, true, &data, &["ask", "--help"]);
+    assert!(help.stdout.contains("mcp-purpose"));
+    assert!(!data.exists());
+}

@@ -234,227 +234,255 @@ async fn invalid_external_mixed_batches_reject_before_local_or_network_effect_an
 #[tokio::test]
 async fn changed_server_metadata_and_revoked_grants_fail_before_provider_or_reviewed_input_dispatch()
  {
-    for change in ["server_metadata", "disable", "stop", "project_move"] {
-        let server = TestServer::start().await;
-        let (_root, request, _) = tests::fixture();
-        let policy = server.policy(vec![McpAccess::General]).await;
-        configure(&request, &policy);
-        let prepared = prepare_run(request)
-            .unwrap()
-            .with_external_input("public_read", &json!({"query":"PRIVATE_REVIEWED_CANARY"}))
-            .unwrap();
-        let scope = prepared.scope.clone();
-        if change == "server_metadata" {
-            server.state.metadata.store(1, Ordering::SeqCst);
-        } else {
-            let mut store = Store::open(&prepared.request.data_dir).unwrap();
-            let op = store.allocate_operation(&unique_host_key()).unwrap();
-            if change == "disable" {
-                let mut disabled = policy.clone();
-                disabled.enabled = false;
-                store
-                    .change_mcp_policy(&op, Some(&disabled), &HostAuthority::owner("revoke"))
-                    .unwrap();
-            } else if change == "project_move" {
-                use sha2::Digest;
-                let create = ProjectCommand::Create {
-                    title: "Synthetic new private context".into(),
-                };
-                let binding = format!(
-                    "{:x}",
-                    sha2::Sha256::digest(serde_json::to_vec(&create).unwrap())
-                );
-                let created_op = store
-                    .allocate_bound_operation(&unique_host_key(), &binding)
-                    .unwrap();
-                let created = store
-                    .project_command(&created_op, &create, &HostAuthority::owner("context move"))
-                    .unwrap();
-                let project = created
-                    .writes
-                    .iter()
-                    .find(|w| matches!(w.after.data, RecordData::Project(_)))
-                    .unwrap()
-                    .after
-                    .id
-                    .clone();
-                let change = ProjectCommand::MoveChat {
-                    chat: scope.chat.clone(),
-                    project: Some(project),
-                };
-                let binding = format!(
-                    "{:x}",
-                    sha2::Sha256::digest(serde_json::to_vec(&change).unwrap())
-                );
-                let moved = store
-                    .allocate_bound_operation(&unique_host_key(), &binding)
-                    .unwrap();
-                store
-                    .project_command(&moved, &change, &HostAuthority::owner("context move"))
-                    .unwrap();
+    for web_mode in [false, true] {
+        for change in ["server_metadata", "disable", "stop", "project_move"] {
+            let server = TestServer::start().await;
+            let (_root, request, _) = tests::fixture();
+            let policy = server.policy(vec![McpAccess::General]).await;
+            configure(&request, &policy);
+            let prepared = prepare_run(request).unwrap();
+            let prepared = if web_mode {
+                prepared.with_web_search_input("public_read", "PRIVATE_REVIEWED_CANARY")
             } else {
-                store
-                    .stop_and_post(
-                        &op,
-                        &scope.run,
-                        &scope.chat,
-                        "fresh direction",
-                        &HostAuthority::owner("Stop"),
-                    )
-                    .unwrap();
+                prepared
+                    .with_external_input("public_read", &json!({"query":"PRIVATE_REVIEWED_CANARY"}))
             }
-        }
-        let model = MockCompletionModel::from_stream_turns([completed()]);
-        let result = run_prepared_scripted(prepared, model.clone())
-            .await
             .unwrap();
-        assert!(
-            matches!(&result.answer.terminal,AiTerminal::Failed(error) if error.mcp_unavailable_notice().is_some()),
-            "{change}: {:?}",
-            result.answer.terminal
-        );
-        assert_eq!(model.request_count(), 0);
-        assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
-        assert!(result.answer.text.is_empty());
-        assert!(scope.store.lock().unwrap().candidates().unwrap().is_empty());
-        server.stop().await;
+            let scope = prepared.scope.clone();
+            if change == "server_metadata" {
+                server.state.metadata.store(1, Ordering::SeqCst);
+            } else {
+                let mut store = Store::open(&prepared.request.data_dir).unwrap();
+                let op = store.allocate_operation(&unique_host_key()).unwrap();
+                if change == "disable" {
+                    let mut disabled = policy.clone();
+                    disabled.enabled = false;
+                    store
+                        .change_mcp_policy(&op, Some(&disabled), &HostAuthority::owner("revoke"))
+                        .unwrap();
+                } else if change == "project_move" {
+                    use sha2::Digest;
+                    let create = ProjectCommand::Create {
+                        title: "Synthetic new private context".into(),
+                    };
+                    let binding = format!(
+                        "{:x}",
+                        sha2::Sha256::digest(serde_json::to_vec(&create).unwrap())
+                    );
+                    let created_op = store
+                        .allocate_bound_operation(&unique_host_key(), &binding)
+                        .unwrap();
+                    let created = store
+                        .project_command(
+                            &created_op,
+                            &create,
+                            &HostAuthority::owner("context move"),
+                        )
+                        .unwrap();
+                    let project = created
+                        .writes
+                        .iter()
+                        .find(|w| matches!(w.after.data, RecordData::Project(_)))
+                        .unwrap()
+                        .after
+                        .id
+                        .clone();
+                    let change = ProjectCommand::MoveChat {
+                        chat: scope.chat.clone(),
+                        project: Some(project),
+                    };
+                    let binding = format!(
+                        "{:x}",
+                        sha2::Sha256::digest(serde_json::to_vec(&change).unwrap())
+                    );
+                    let moved = store
+                        .allocate_bound_operation(&unique_host_key(), &binding)
+                        .unwrap();
+                    store
+                        .project_command(&moved, &change, &HostAuthority::owner("context move"))
+                        .unwrap();
+                } else {
+                    store
+                        .stop_and_post(
+                            &op,
+                            &scope.run,
+                            &scope.chat,
+                            "fresh direction",
+                            &HostAuthority::owner("Stop"),
+                        )
+                        .unwrap();
+                }
+            }
+            let model = MockCompletionModel::from_stream_turns([completed()]);
+            let result = run_prepared_scripted(prepared, model.clone())
+                .await
+                .unwrap();
+            assert!(
+                matches!(&result.answer.terminal,AiTerminal::Failed(error) if error.mcp_unavailable_notice().is_some()),
+                "{change}: {:?}",
+                result.answer.terminal
+            );
+            assert_eq!(model.request_count(), 0);
+            assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
+            assert!(result.answer.text.is_empty());
+            assert!(scope.store.lock().unwrap().candidates().unwrap().is_empty());
+            server.stop().await;
+        }
     }
 }
 
 #[tokio::test]
 async fn repeated_external_call_is_not_an_implicit_second_owner_authorization() {
-    let server = TestServer::start().await;
-    let (_root, request, _) = tests::fixture();
-    let policy = server.policy(vec![McpAccess::General]).await;
-    configure(&request, &policy);
-    let name = external_name(&policy);
-    let args = json!({"query":"one public request"});
-    let prepared = prepare_run(request)
-        .unwrap()
-        .with_external_input("public_read", &args)
+    for web_mode in [false, true] {
+        let server = TestServer::start().await;
+        let (_root, request, _) = tests::fixture();
+        let policy = server.policy(vec![McpAccess::General]).await;
+        configure(&request, &policy);
+        let name = if web_mode {
+            "web_search".into()
+        } else {
+            external_name(&policy)
+        };
+        let args = json!({"query":if web_mode {"web_fixture"} else {"one public request"}});
+        let prepared = prepare_run(request).unwrap();
+        let prepared = if web_mode {
+            prepared.with_web_search_input("public_read", args["query"].as_str().unwrap())
+        } else {
+            prepared.with_external_input("public_read", &args)
+        }
         .unwrap();
-    let model = MockCompletionModel::from_stream_turns([
-        vec![
-            MockStreamEvent::tool_call("one", &name, args.clone()),
-            MockStreamEvent::final_response_with_total_tokens(1),
-        ],
-        vec![
-            MockStreamEvent::tool_call("two", &name, args),
-            MockStreamEvent::tool_call(
-                "local",
-                "retain_progress",
-                json!({"summary":"SECOND_BATCH_MUST_NOT_APPLY"}),
-            ),
-            MockStreamEvent::final_response_with_total_tokens(1),
-        ],
-    ]);
-    let scope = prepared.scope.clone();
-    let result = run_prepared_scripted(prepared, model.clone())
-        .await
-        .unwrap();
-    assert!(
-        matches!(result.answer.terminal,AiTerminal::Failed(ref e) if e.kind==AiErrorKind::InvalidToolUse)
-    );
-    assert_eq!(server.state.calls.load(Ordering::SeqCst), 1);
-    assert_eq!(model.request_count(), 2);
-    assert!(
-        !serde_json::to_string(&scope.store.lock().unwrap().record(&scope.run).unwrap())
-            .unwrap()
-            .contains("SECOND_BATCH_MUST_NOT_APPLY")
-    );
-    server.stop().await;
+        let model = MockCompletionModel::from_stream_turns([
+            vec![
+                MockStreamEvent::tool_call("one", &name, args.clone()),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+            vec![
+                MockStreamEvent::tool_call("two", &name, args),
+                MockStreamEvent::tool_call(
+                    "local",
+                    "retain_progress",
+                    json!({"summary":"SECOND_BATCH_MUST_NOT_APPLY"}),
+                ),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ],
+        ]);
+        let scope = prepared.scope.clone();
+        let result = run_prepared_scripted(prepared, model.clone())
+            .await
+            .unwrap();
+        assert!(
+            matches!(result.answer.terminal,AiTerminal::Failed(ref e) if e.kind==AiErrorKind::InvalidToolUse)
+        );
+        assert_eq!(server.state.calls.load(Ordering::SeqCst), 1);
+        assert_eq!(model.request_count(), 2);
+        assert!(
+            !serde_json::to_string(&scope.store.lock().unwrap().record(&scope.run).unwrap())
+                .unwrap()
+                .contains("SECOND_BATCH_MUST_NOT_APPLY")
+        );
+        server.stop().await;
+    }
 }
 
 #[tokio::test]
 async fn actual_inflight_remote_work_may_finish_but_stop_or_revoke_fences_late_acceptance_and_writes()
  {
-    for action in ["stop", "disable"] {
-        let server = TestServer::start().await;
-        let (_root, request, note) = tests::fixture();
-        let data = request.data_dir.clone();
-        let chat = request.thread.clone();
-        let policy = server.policy(vec![McpAccess::General]).await;
-        configure(&request, &policy);
-        let name = external_name(&policy);
-        let args = json!({"query":"blocked"});
-        let prepared = prepare_run(request)
-            .unwrap()
-            .with_external_input("public_read", &args)
+    for web_mode in [false, true] {
+        for action in ["stop", "disable"] {
+            let server = TestServer::start().await;
+            let (_root, request, note) = tests::fixture();
+            let data = request.data_dir.clone();
+            let chat = request.thread.clone();
+            let policy = server.policy(vec![McpAccess::General]).await;
+            configure(&request, &policy);
+            let name = if web_mode {
+                "web_search".into()
+            } else {
+                external_name(&policy)
+            };
+            let args = json!({"query":"blocked"});
+            let prepared = prepare_run(request).unwrap();
+            let prepared = if web_mode {
+                prepared.with_web_search_input("public_read", args["query"].as_str().unwrap())
+            } else {
+                prepared.with_external_input("public_read", &args)
+            }
             .unwrap();
-        let run_id = prepared.run_id().to_owned();
-        let model = MockCompletionModel::from_stream_turns([
-            vec![
-                MockStreamEvent::tool_call("remote", &name, args),
-                MockStreamEvent::final_response_with_total_tokens(1),
-            ],
-            vec![
-                MockStreamEvent::tool_call(
-                    "late",
-                    "retain_progress",
-                    json!({"summary":"MUST_NOT_RUN_AFTER_REVOCATION"}),
-                ),
-                MockStreamEvent::final_response_with_total_tokens(1),
-            ],
-        ]);
-        let sent = model.clone();
-        let task = tokio::spawn(async move { run_prepared_scripted(prepared, sent).await });
-        tokio::time::timeout(
-            std::time::Duration::from_secs(2),
-            server.state.started.notified(),
-        )
-        .await
-        .unwrap();
-        let mut store = Store::open(&data).unwrap();
-        let op = store.allocate_operation(&unique_host_key()).unwrap();
-        if action == "stop" {
-            store
-                .stop_and_post(
-                    &op,
-                    &run_id,
-                    &chat,
-                    "New owner direction",
-                    &HostAuthority::owner("Stop"),
-                )
-                .unwrap();
-        } else {
-            let mut disabled = policy.clone();
-            disabled.enabled = false;
-            store
-                .change_mcp_policy(&op, Some(&disabled), &HostAuthority::owner("revoke"))
-                .unwrap();
-        }
-        let after_revoke = store.records().unwrap();
-        let original = store.record(&note).unwrap();
-        server.state.release.notify_one();
-        let result = tokio::time::timeout(std::time::Duration::from_secs(3), task)
+            let run_id = prepared.run_id().to_owned();
+            let model = MockCompletionModel::from_stream_turns([
+                vec![
+                    MockStreamEvent::tool_call("remote", &name, args),
+                    MockStreamEvent::final_response_with_total_tokens(1),
+                ],
+                vec![
+                    MockStreamEvent::tool_call(
+                        "late",
+                        "retain_progress",
+                        json!({"summary":"MUST_NOT_RUN_AFTER_REVOCATION"}),
+                    ),
+                    MockStreamEvent::final_response_with_total_tokens(1),
+                ],
+            ]);
+            let sent = model.clone();
+            let task = tokio::spawn(async move { run_prepared_scripted(prepared, sent).await });
+            tokio::time::timeout(
+                std::time::Duration::from_secs(2),
+                server.state.started.notified(),
+            )
             .await
-            .unwrap()
-            .unwrap()
             .unwrap();
-        assert!(
-            matches!(result.answer.terminal, AiTerminal::Interrupted),
-            "{action}: {:?}",
-            result.answer.terminal
-        );
-        assert_eq!(
-            model.request_count(),
-            1,
-            "no next provider request after the revoked result"
-        );
-        assert_eq!(server.state.calls.load(Ordering::SeqCst), 1);
-        assert_eq!(
-            server.state.completed.load(Ordering::SeqCst),
-            1,
-            "revocation does not pretend remote Undo"
-        );
-        assert_eq!(store.records().unwrap(), after_revoke);
-        assert_eq!(store.record(&note).unwrap(), original);
-        assert!(store.candidates().unwrap().is_empty());
-        assert!(
-            result.terminal_run.is_none(),
-            "old callback cannot acknowledge this terminal transition"
-        );
-        server.stop().await;
+            let mut store = Store::open(&data).unwrap();
+            let op = store.allocate_operation(&unique_host_key()).unwrap();
+            if action == "stop" {
+                store
+                    .stop_and_post(
+                        &op,
+                        &run_id,
+                        &chat,
+                        "New owner direction",
+                        &HostAuthority::owner("Stop"),
+                    )
+                    .unwrap();
+            } else {
+                let mut disabled = policy.clone();
+                disabled.enabled = false;
+                store
+                    .change_mcp_policy(&op, Some(&disabled), &HostAuthority::owner("revoke"))
+                    .unwrap();
+            }
+            let after_revoke = store.records().unwrap();
+            let original = store.record(&note).unwrap();
+            server.state.release.notify_one();
+            let result = tokio::time::timeout(std::time::Duration::from_secs(3), task)
+                .await
+                .unwrap()
+                .unwrap()
+                .unwrap();
+            assert!(
+                matches!(result.answer.terminal, AiTerminal::Interrupted),
+                "{action}: {:?}",
+                result.answer.terminal
+            );
+            assert_eq!(
+                model.request_count(),
+                1,
+                "no next provider request after the revoked result"
+            );
+            assert_eq!(server.state.calls.load(Ordering::SeqCst), 1);
+            assert_eq!(
+                server.state.completed.load(Ordering::SeqCst),
+                1,
+                "revocation does not pretend remote Undo"
+            );
+            assert_eq!(store.records().unwrap(), after_revoke);
+            assert_eq!(store.record(&note).unwrap(), original);
+            assert!(store.candidates().unwrap().is_empty());
+            assert!(
+                result.terminal_run.is_none(),
+                "old callback cannot acknowledge this terminal transition"
+            );
+            server.stop().await;
+        }
     }
 }
 
@@ -989,4 +1017,180 @@ async fn eligible_local_argument_correction_skips_external_sibling_without_spend
         mcp_runtime::cleanup(&scope).await;
         server.stop().await;
     }
+}
+
+#[tokio::test]
+async fn web_search_requires_exact_review_and_retains_bounded_untrusted_citations() {
+    let server = TestServer::start().await;
+    let (_root, mut request, _) = tests::fixture();
+    request.trace = TraceLevel::Full;
+    let policy = server.policy(vec![McpAccess::General]).await;
+    configure(&request, &policy);
+    let data = request.data_dir.clone();
+    let prepared = prepare_run(request)
+        .unwrap()
+        .with_web_search_input("public_read", "web_fixture")
+        .unwrap();
+    let scope = prepared.scope.clone();
+    let invocation = mcp_runtime::invocation(&scope).unwrap();
+    assert_eq!(invocation.name(), "web_search");
+    assert!(!invocation.valid_call("web_search", &json!({"query":"private replacement"})));
+    assert!(!invocation.valid_call(
+        "web_search",
+        &json!({"query":"web_fixture","url":"http://localhost"})
+    ));
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call("web", "web_search", json!({"query":"web_fixture"})),
+            MockStreamEvent::final_response_with_total_tokens(2),
+        ],
+        completed(),
+    ]);
+    let result = run_prepared_scripted(prepared, model.clone())
+        .await
+        .unwrap();
+    assert!(
+        matches!(result.answer.terminal, AiTerminal::Completed),
+        "{:?}",
+        result.answer.terminal
+    );
+    assert_eq!(server.state.calls.load(Ordering::SeqCst), 1);
+    let requests = model.requests();
+    assert!(requests[0].tools.iter().any(|t| t.name == "web_search"));
+    assert!(!requests[0].tools.iter().any(|t| t.name.starts_with("mcp_")));
+    let delivered = serde_json::to_string(&requests[1].chat_history).unwrap();
+    assert!(delivered.contains("https://example.invalid/source"));
+    assert!(delivered.contains("WEB_UNTRUSTED_CANARY"));
+    assert!(delivered.contains("provider_reported_search_snippets_not_fetched_pages"));
+    assert!(!invocation.valid_call("web_search", &json!({"query":"web_fixture"})));
+    assert_eq!(
+        requests[0].system_instructions(),
+        requests[1].system_instructions()
+    );
+    let trace = serde_json::to_string(result.trace.as_ref().unwrap()).unwrap();
+    assert!(!trace.contains("WEB_UNTRUSTED_CANARY"));
+    assert!(!trace.contains("web_fixture"));
+    assert!(trace.contains("source_identity"));
+    let store = Store::open(&data).unwrap();
+    let records = serde_json::to_string(&store.records().unwrap()).unwrap();
+    assert!(!records.contains("WEB_UNTRUSTED_CANARY"));
+    assert!(!records.contains("https://example.invalid/source"));
+    server.stop().await;
+}
+
+#[tokio::test]
+async fn web_search_disabled_without_configuration_or_grant_and_never_inherited() {
+    let (_root, request, _) = tests::fixture();
+    assert!(
+        prepare_run(request)
+            .unwrap()
+            .with_web_search_input("unconfigured", "public query")
+            .is_err()
+    );
+    let server = TestServer::start().await;
+    let (_root, request, _) = tests::fixture();
+    let policy = server.policy(vec![McpAccess::General]).await;
+    configure(&request, &policy);
+    let before = server.state.requests.load(Ordering::SeqCst);
+    let model = MockCompletionModel::from_stream_turns([completed()]);
+    let result = run_prepared_scripted(prepare_run(request).unwrap(), model.clone())
+        .await
+        .unwrap();
+    assert!(matches!(result.answer.terminal, AiTerminal::Completed));
+    assert!(
+        !model.requests()[0]
+            .tools
+            .iter()
+            .any(|t| t.name == "web_search")
+    );
+    assert_eq!(server.state.requests.load(Ordering::SeqCst), before);
+    assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
+    server.stop().await;
+}
+
+#[tokio::test]
+async fn web_search_revoked_or_stale_review_never_dispatches_query() {
+    for delayed_review in [false, true] {
+        let server = TestServer::start().await;
+        let (_root, request, _) = tests::fixture();
+        let mut policy = server.policy(vec![McpAccess::General]).await;
+        configure(&request, &policy);
+        let snapshot = ExternalInputSnapshot::capture(
+            &Store::open(&request.data_dir).unwrap(),
+            &request.thread,
+        )
+        .unwrap();
+        let before = server.state.requests.load(Ordering::SeqCst);
+        let prepared = prepare_run(request).unwrap();
+        if delayed_review {
+            policy.enabled = false;
+            configure(&prepared.request, &policy);
+            assert!(
+                prepared
+                    .with_web_search_input_at_snapshot("public_read", "web_fixture", &snapshot)
+                    .is_err()
+            );
+        } else {
+            let prepared = prepared
+                .with_web_search_input("public_read", "web_fixture")
+                .unwrap();
+            policy.enabled = false;
+            configure(&prepared.request, &policy);
+            let model = MockCompletionModel::from_stream_turns([completed()]);
+            let _ = run_prepared_scripted(prepared, model.clone()).await;
+            assert_eq!(model.request_count(), 0);
+        }
+        assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
+        assert_eq!(server.state.requests.load(Ordering::SeqCst), before);
+        server.stop().await;
+    }
+}
+
+#[tokio::test]
+async fn web_search_invalid_results_are_errors_not_citations() {
+    let server = TestServer::start().await;
+    let (_root, mut request, _) = tests::fixture();
+    request.trace = TraceLevel::Full;
+    let policy = server.policy(vec![McpAccess::General]).await;
+    configure(&request, &policy);
+    let prepared = prepare_run(request)
+        .unwrap()
+        .with_web_search_input("public_read", "web_invalid")
+        .unwrap();
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call("bad_web", "web_search", json!({"query":"web_invalid"})),
+            MockStreamEvent::final_response_with_total_tokens(2),
+        ],
+        completed(),
+    ]);
+    let result = run_prepared_scripted(prepared, model.clone())
+        .await
+        .unwrap();
+    assert_eq!(server.state.calls.load(Ordering::SeqCst), 1);
+    assert_eq!(result.trace.as_ref().unwrap().calls[0].outcome, "error");
+    let requests = model.requests();
+    assert!(
+        !format!("{:?}", requests.last().unwrap().chat_history)
+            .contains("http://127.0.0.1/private")
+    );
+    server.stop().await;
+}
+
+#[tokio::test]
+async fn web_search_does_not_expand_writing_scope() {
+    let server = TestServer::start().await;
+    let (_root, request, _) = writing_tests::rewrite_fixture(false, 1);
+    let policy = server.policy(vec![McpAccess::General]).await;
+    configure(&request, &policy);
+    let before = server.state.requests.load(Ordering::SeqCst);
+    let prepared = prepare_run(request).unwrap();
+    assert!(
+        prepared
+            .with_web_search_input("public_read", "web_fixture")
+            .is_err()
+    );
+    assert_eq!(server.state.requests.load(Ordering::SeqCst), before);
+    assert_eq!(server.state.calls.load(Ordering::SeqCst), 0);
+    server.stop().await;
 }

@@ -77,6 +77,8 @@ mod research;
 mod threads_text;
 #[path = "threads_trace.rs"]
 mod trace;
+#[path = "threads_web_search.rs"]
+mod web_search;
 pub use trace::{HelperTrace, RunTrace, SummaryTrace, TraceCall, TraceLevel, TraceUsage};
 #[path = "threads_sources.rs"]
 mod sources;
@@ -192,6 +194,12 @@ impl ExternalInputSnapshot {
         mcp_runtime::snapshot(store, chat)
     }
 }
+/// Validate an owner-supplied web query without opening a store or creating a Run.
+/// This is input validation only and never grants external-data access.
+pub fn validate_web_search_input(input: &Value) -> bool {
+    web_search::validate_query(input).is_ok()
+}
+
 impl PreparedThreadRun {
     pub fn run_id(&self) -> &str {
         &self.scope.run
@@ -202,7 +210,7 @@ impl PreparedThreadRun {
     /// The consumed failure path ends/drops this same invocation and its lease;
     /// it never starts another Run or acknowledges a saved queue item.
     pub fn with_external_input(self, tool: &str, input: &Value) -> AiResult<Self> {
-        self.attach_external_input(tool, input, None)
+        self.attach_external_input(tool, input, None, false)
     }
     /// Attach an earlier exact review without refreshing its policy/context.
     pub fn with_external_input_at_snapshot(
@@ -211,19 +219,35 @@ impl PreparedThreadRun {
         input: &Value,
         expected: &ExternalInputSnapshot,
     ) -> AiResult<Self> {
-        self.attach_external_input(tool, input, Some(expected))
+        self.attach_external_input(tool, input, Some(expected), false)
+    }
+    /// Exact owner-reviewed query, through an already approved anonymous local
+    /// search adapter. No provider configuration or persistent grant is created.
+    pub fn with_web_search_input(self, tool: &str, query: &str) -> AiResult<Self> {
+        self.attach_external_input(tool, &json!({"query":query}), None, true)
+    }
+    /// A delayed owner UI must preserve its original scope/policy snapshot.
+    pub fn with_web_search_input_at_snapshot(
+        self,
+        tool: &str,
+        query: &str,
+        expected: &ExternalInputSnapshot,
+    ) -> AiResult<Self> {
+        self.attach_external_input(tool, &json!({"query":query}), Some(expected), true)
     }
     fn attach_external_input(
         mut self,
         tool: &str,
         input: &Value,
         expected: Option<&ExternalInputSnapshot>,
+        web_search: bool,
     ) -> AiResult<Self> {
         let attach = (|| {
             if self.scope.external.lock().map_err(storage)?.is_some() {
                 return Err(mcp_runtime::unavailable());
             }
-            let invocation = mcp_runtime::Invocation::prepare(&self.scope, tool, input, expected)?;
+            let invocation =
+                mcp_runtime::Invocation::prepare(&self.scope, tool, input, expected, web_search)?;
             self.input.push_str(&invocation.context());
             *self.scope.external.lock().map_err(storage)? = Some(invocation);
             context_budget::preflight(&self.scope, &self.input)

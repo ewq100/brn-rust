@@ -69,7 +69,7 @@ pub(crate) static TEXT: &[(&str, &str, &str)] = &[
     ("unarchive", "Unarchive a chat.", "brn --json --data-dir DIR unarchive --thread CHAT"),
     ("keep-in-brn", "Keep a private chat attachment as general knowledge.", "brn --json --data-dir DIR keep-in-brn --note N --base 1 --key k1"),
     ("queue", "Queue a message for a chat.", "brn --json --data-dir DIR queue --thread CHAT --text-file /abs/msg.md --key q1"),
-    ("ask", "Run one model turn in a chat. Optional --mcp-tool and --mcp-input explicitly authorize one exact transient input after the one durable prepare; they are never inherited on Continue.", "brn --json --data-dir DIR --timeout 600 ask --thread CHAT --prompt-file /abs/prompt.md"),
+    ("ask", "Run one model turn in a chat. Optional --mcp-tool and --mcp-input explicitly authorize one exact transient input after the one durable prepare; they are never inherited on Continue. Add --mcp-purpose web-search for a configured search adapter returning typed citation results; no pages are fetched.", "brn --json --data-dir DIR --timeout 600 ask --thread CHAT --prompt-file /abs/prompt.md"),
     ("intake", "Import a document: useful information, a full note, a chat or a project attachment.", "brn --json --data-dir DIR intake --source /abs/doc.md --intent full --title Doc --key i1"),
     ("configure", "Choose the provider, model, effort and credentials.", "brn --json --data-dir DIR configure --provider Codex --model ID --effort medium --auth-file /abs/auth.json"),
     ("export", "Export readable files to a fresh absolute folder.", "brn --json --data-dir DIR export --destination /abs/fresh-export"),
