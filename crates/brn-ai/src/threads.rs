@@ -46,6 +46,8 @@ mod summary;
 #[path = "threads_summary_tests.rs"]
 mod summary_tests;
 
+#[path = "threads_action_query.rs"]
+mod action_query;
 #[path = "threads_history.rs"]
 mod history;
 #[path = "threads_intake.rs"]
@@ -80,6 +82,7 @@ mod trace;
 pub use trace::{HelperTrace, RunTrace, SummaryTrace, TraceCall, TraceLevel, TraceUsage};
 #[path = "threads_sources.rs"]
 mod sources;
+use action_query::query as query_actions;
 use history::{CandidateArgs, HistoryArgs, RefreshArgs};
 use note_search::read_message;
 pub use note_search::{
@@ -561,6 +564,10 @@ fn validate_arguments(name: &str, args: &Value) -> std::result::Result<(), Argum
         ),
         "refresh_candidate" => return history::validate_refresh_arguments(args),
         "prepare_note_edit" => return note_edit::validate_arguments(args),
+        "query_actions" => (
+            action_query::validate(args),
+            "Supply the offered filters, limit and cursor with their bounds; all fields are required.",
+        ),
         "read_records" => (
             args.get("query").is_some()
                 && serde_json::from_value::<ReadArgs>(args.clone()).is_ok_and(|a| {
@@ -666,6 +673,7 @@ fn schema(name: &str) -> Value {
         "read_candidate" => history::candidate_schema(),
         "refresh_candidate" => history::refresh_schema(),
         "prepare_note_edit" => note_edit::schema(),
+        "query_actions" => action_query::schema(),
         "read_records" => object(
             json!({"ids":{"type":"array","items":{"type":"string","description":"Copy the complete opaque record ID verbatim from supplied or observed output, including any suffix such as :0; never shorten or reconstruct it."}},"query":{"type":["string","null"]}}),
             json!(["ids", "query"]),
@@ -739,6 +747,13 @@ tool!(
     ReadArgs,
     "Read current canonical records. Exact IDs return records with explicit continuation for long text. Empty IDs lists up to 100 current Note/Thread/Action/Source/Comment/Link records; when search_notes is offered, listed notes are compact rows (id, version, title, bytes, protected, imported) without Markdown, so read a note by exact ID or read_note. Optional literal query searches saved notes and relevant discussion in the current project; earlier owner/assistant Messages are discussion evidence, not adopted decisions. Message passages have exact ID/version/UTF-8 offsets; continue with read_message. Other message roles are host metadata and unavailable. Encoded result limits can shorten a Note prefix or omit visible records. note_read gives exact end/next_start/complete; omitted_records lists visible IDs and versions to retry. Long notes include bounded heading offsets and headings_truncated. Continue with read_note; never treat a partial prefix as the whole note. Assets are metadata only.",
     read_records
+);
+tool!(
+    QueryActions,
+    "query_actions",
+    action_query::Args,
+    "Find current Actions visible in this chat using optional state, exact owner, date and literal description filters. Date bounds are inclusive calendar dates; missing matches null only, and legacy non-date due values do not match ranges. Results are ordered by ID with exact versions; pass the cursor with unchanged filters and limit. Restart if stale. Use exact read_records for subsequent reads.",
+    query_actions
 );
 tool!(
     ReadMessage,
@@ -949,6 +964,7 @@ macro_rules! runtime_catalog {
 }
 runtime_catalog!(
     (ReadRecords, "Finding current notes and related work…"),
+    (QueryActions, "Finding actions…"),
     (ReadMessage, "Reading earlier discussion…"),
     (ReadNote, "Reading a note passage…"),
     (ReadSource, "Reading supplied source evidence…"),
