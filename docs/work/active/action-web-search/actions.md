@@ -31,3 +31,15 @@ recomputation/reuse regression passed. Strict AI library Clippy and formatting
 passed. The first query selector matched zero tests; that is not qualification.
 The corrected `action_query::tests` selection ran all eight tests. Logs are in
 `/workspace/brn-next-evidence/action-query-integrated/`. No live calls were made.
+
+## Hosted correction checkpoint
+
+At `a6cb06eb`, Linux default-workspace CI failed with exit 101; the permitted
+annotation did not identify individual tests. Source inspection found one missed
+CLI persistence assertion still expecting bundle 24 despite the intentional
+bundle-25 guidance change. It now expects 25, retaining every other assertion.
+Independent review found no other stale executable expectation (the summary
+regression intentionally retains prior stamp 24). The focused CLI check is
+pending at this checkpoint. This fixes a demonstrated assertion mismatch, not
+a claim that every original hosted failure has been diagnosed. No denied log
+download or blind rerun was attempted; the corrected head requires fresh CI.
