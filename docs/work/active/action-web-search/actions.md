@@ -19,3 +19,15 @@ Rows use stable ID order and carry exact current record versions. The encoded re
 Candidate commits `e95ed8aa` and `25d4bba4` contain the implementation and reviewed follow-up. Eight focused Action-query tests passed, covering filters, encoded bounds, stale and cross-chat cursors, private/project/archived visibility and writing/helper restrictions. The existing production catalog mock-model fixture passed with `query_actions` dispatch and activity checks; strict AI library Clippy passed.
 
 Independent review caught the old catalog-size assertion after adding the tool; the expected catalog and actual dispatch witness were updated without removing prior checks. The initial implementation compile also caught a macro handler-path issue, corrected before passing tests. No live provider or native Mac test was run. The dispatch fixture queries an empty Action set; nonempty filtering is qualified directly, not represented as live semantic quality. Publication and final integrated-head CI remain separate gates.
+
+## Integrated qualification
+
+Normal main refresh onto `d2f03975` preserved the reviewed query implementation.
+The shipped guide now distinguishes Action discovery from exact record reads;
+bundle identity advances from 24 to 25. Independent review cleared scope and
+cache invalidation. At this integrated source, eight query tests, the production
+catalog dispatch test, three packaged-guide tests and the prior-stamp summary
+recomputation/reuse regression passed. Strict AI library Clippy and formatting
+passed. The first query selector matched zero tests; that is not qualification.
+The corrected `action_query::tests` selection ran all eight tests. Logs are in
+`/workspace/brn-next-evidence/action-query-integrated/`. No live calls were made.
