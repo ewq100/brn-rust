@@ -1,6 +1,6 @@
 {
   "baseline": {
-    "main": "d2f03975f00eb85955ab2dc8811cb3bac2bf9076",
+    "main": "4a7b2c76287eac3e4fd8db1d114a4a81ee346274",
     "local_rehearsal": "f19538c161e13a77ef0ac9b9a329329ba8a822c7",
     "note": "PR230\u2013234 and PR235 are merged; rehearsal ancestry was not published for new slices."
   },
@@ -10,19 +10,19 @@
     "holds": "No Mac access, release, user-store upgrades, credential/security changes or held feature expansion."
   },
   "work_view": {
-    "observed_at": "2026-10-28T08:13:29.567469+00:00",
+    "observed_at": "2026-10-28T08:45:44.755630+00:00",
     "goal": "Make existing findings useful, close demonstrated keyboard/accessibility gaps and reduce repeated helper build work safely.",
-    "owner_attention": "PR230\u2013234 and PR235 merged. PR234 resulting-main CI40655104869 is pending. Knowledge source/review and focused checks passed; actual native keyboard mismatch and Mac acceptance remain open. New Action/web tools are local reviewed candidates, not activated services.",
+    "owner_attention": "PR230\u2013234 and PR235 passed supported main checks and are merged. Knowledge PR237 merged at4a7b2c76 with main CI pending. Accessibility PR238 refresh is under review; native keyboard mismatch remains open. Action PR240 and disabled-by-default web PR239 are staged drafts, not new merge or live-service authority.",
     "tasks": [
       {
         "id": "baseline-reconciliation",
         "title": "Finish the approved prior merges",
         "owner": "Integration owner",
-        "state": "active",
-        "activity": "PR233 merged at d67e7ad3; resulting-main seven supported jobs passed. PR234 refreshed head eae9fdbf passed six supported jobs and merged at d2f03975. Optional Windows failures and historical failures retained.",
-        "observed_at": "2026-10-28T08:13:29.567469+00:00",
+        "state": "complete",
+        "activity": "Ordered PR230\u2013234 integration complete; main d2f03975 CI40655104869 passed all seven supported jobs, with three optional Windows failures.",
+        "observed_at": "2026-10-28T08:45:44.755630+00:00",
         "origin": "observed",
-        "next_action": "Follow PR234 resulting-main CI40655104869 through terminal status.",
+        "next_action": "Preserve the terminal main receipt and remaining native/live acceptance gates.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -31,8 +31,8 @@
         ],
         "gates": {
           "implementation": "passed; reviewed production tree preserved",
-          "checks": "PR233 main seven supported passed; PR234 exact-head six supported passed; PR234 main pending",
-          "integration": "PR230\u2013234 and PR235 merged normally",
+          "checks": "passed: seven supported main jobs at d2f03975; three optional Windows failed",
+          "integration": "complete: PR230\u2013234 and PR235 merged normally",
           "native": "pending applicable Linux evidence; actual Mac acceptance separate",
           "owner_acceptance": "pending"
         },
@@ -57,11 +57,11 @@
         "id": "knowledge-triage",
         "title": "Inspect selected knowledge findings",
         "owner": "Knowledge lane",
-        "state": "ready",
-        "activity": "Reviewed f229b5d0 transplanted onto actual main as 7e0ae903; complete production tree identical to tested candidate.",
-        "observed_at": "2026-10-28T08:13:29.567469+00:00",
+        "state": "active",
+        "activity": "PR237 exact head a837ba55 passed six supported jobs and merged normally at4a7b2c76; resulting tree matches reviewed head.",
+        "observed_at": "2026-10-28T08:45:44.755630+00:00",
         "origin": "observed",
-        "next_action": "Publish draft and qualify exact-head CI before normal authorized merge.",
+        "next_action": "Monitor resulting-main CI40658953950 to terminal status.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -70,8 +70,8 @@
         ],
         "gates": {
           "implementation": "passed; independent source/privacy review clear",
-          "checks": "19 application and 4 native harness tests passed; strict affected Clippy passed; exact-head hosted CI pending",
-          "integration": "local transplant complete; draft publication pending",
+          "checks": "19 application/4 native harness tests and strict lint passed; six supported exact-head jobs passed; resulting-main CI pending",
+          "integration": "merged via PR237; no user store touched",
           "native": "Headless widget harness passed; actual Mac usability/owner acceptance unrun",
           "owner_acceptance": "pending"
         },
@@ -82,19 +82,20 @@
         "title": "Navigate chats and follow-ups accessibly",
         "owner": "Accessibility lane",
         "state": "active",
-        "activity": "Preserved named-row/group implementation and deterministic checks; actual Linux Enter selection mismatch remains. Additional test-only discriminator passed without reproducing native cause.",
-        "observed_at": "2026-10-28T08:13:29.567469+00:00",
+        "activity": "Reviewed draft PR238 published; normal Knowledge-main refresh has no source conflicts. Actual Linux keyboard mismatch remains despite passing test-platform discriminator.",
+        "observed_at": "2026-10-28T08:45:44.755630+00:00",
         "origin": "observed",
-        "next_action": "Review preserved test/evidence and transplant without claiming native mismatch resolved.",
+        "next_action": "Review the combined source, publish the refreshed head and qualify exact-head CI before any normal merge.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
-          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md"
+          "docs/work/active/knowledge-triage-accessibility-ci/baseline.md",
+          "docs/work/active/knowledge-triage-accessibility-ci/accessibility.md"
         ],
         "gates": {
           "implementation": "local candidate preserved",
           "checks": "23 page tests, 3 Capture tests and focused discriminator passed; earlier failed attempts preserved",
-          "integration": "unpublished",
+          "integration": "draft PR238; main refresh qualification pending",
           "native": "Linux names observed; keyboard selection mismatch unresolved; actual Mac acceptance unrun",
           "owner_acceptance": "pending"
         },
@@ -106,7 +107,7 @@
         "owner": "Performance lane",
         "state": "complete",
         "activity": "Parent merged PR235 at cfe3f96c; seven supported main jobs passed, three optional Windows jobs failed.",
-        "observed_at": "2026-10-28T08:13:29.567469+00:00",
+        "observed_at": "2026-10-28T08:45:44.755630+00:00",
         "origin": "observed",
         "next_action": "Retain measurements; hosted step durations vary and do not establish causal cache savings.",
         "depends_on": [],
@@ -129,10 +130,10 @@
         "title": "Review and publish bounded draft PRs",
         "owner": "Integration owner",
         "state": "active",
-        "activity": "Ordered merge sequence complete; new slices retain independent file ownership. Action and web candidates reviewed/tested locally; no live provider activated.",
-        "observed_at": "2026-10-28T08:13:29.567469+00:00",
+        "activity": "Knowledge merged; accessibility, Action query and web search published as separate reviewed drafts. Action first-head Linux failure exposed a stale CLI guide-version assertion, corrected under review.",
+        "observed_at": "2026-10-28T08:45:44.755630+00:00",
         "origin": "observed",
-        "next_action": "Publish reviewed Knowledge and staged tool slices on actual main; qualify exact-head CI. Keep native and live gates separate.",
+        "next_action": "Complete final-head CI; retain local UnsafeCredentials failure and native gaps. No live calls or relay release.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -141,9 +142,55 @@
         "gates": {
           "implementation": "pending",
           "checks": "Prior integrated supported checks passed; new slice exact-head CI pending",
-          "integration": "Knowledge transplant ready; Action/web local; accessibility preserved",
+          "integration": "PR237 merged; PR238/239/240 drafts",
           "native": "pending applicable Linux evidence; actual Mac acceptance separate",
           "owner_acceptance": "pending"
+        },
+        "attempts": []
+      },
+      {
+        "id": "action-discovery",
+        "title": "Find saved Actions in the current chat",
+        "owner": "Integration owner",
+        "state": "active",
+        "activity": "Draft PR240 adds bounded typed queries; first-head Linux default suite failed. Reviewed bundle25 CLI assertion correction b2db2933 is published; local CLI check failed earlier at UnsafeCredentials.",
+        "observed_at": "2026-10-28T08:45:44.755630+00:00",
+        "origin": "observed",
+        "next_action": "Follow corrected/final exact-head CI; keep staged for a separate new-tool merge decision.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "https://github.com/ewq100/brn-rust/pull/240"
+        ],
+        "gates": {
+          "implementation": "reviewed and published as draft",
+          "checks": "focused deterministic checks passed except disclosed Action CLI credential boundary; hosted final-head checks pending",
+          "integration": "unmerged staged draft",
+          "native": "not claimed; no Mac access",
+          "owner_acceptance": "live semantic quality unrun; web activation separate"
+        },
+        "attempts": []
+      },
+      {
+        "id": "web-search",
+        "title": "Search external sources with exact query consent",
+        "owner": "Integration owner",
+        "state": "active",
+        "activity": "Draft PR239 reuses existing loopback MCP with typed bounded citation metadata. No production provider activated, page fetching, paid API or live call.",
+        "observed_at": "2026-10-28T08:45:44.755630+00:00",
+        "origin": "observed",
+        "next_action": "Follow corrected/final exact-head CI; keep staged for a separate new-tool merge decision.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "https://github.com/ewq100/brn-rust/pull/239"
+        ],
+        "gates": {
+          "implementation": "reviewed and published as draft",
+          "checks": "focused deterministic checks passed except disclosed Action CLI credential boundary; hosted final-head checks pending",
+          "integration": "unmerged staged draft",
+          "native": "not claimed; no Mac access",
+          "owner_acceptance": "live semantic quality unrun; web activation separate"
         },
         "attempts": []
       }
