@@ -85,3 +85,11 @@ performed by this lane. Actual native usability/accessibility and Mac owner
 acceptance remain separate; no provider, Mac, credential or security workaround
 was attempted. Existing scoped proposals rejected by this conservative General
 entry point remain reviewable through their original scoped workflow.
+
+## Integration checkpoint, 28 October 2026
+
+Independent final source/privacy review found no blocker at `f229b5d0`. The slice
+was transplanted alone onto merged main `d2f03975` as `7e0ae903`; the complete
+production tree (`crates`, `agent`, workspace manifests/lockfile) is identical
+to the qualified candidate, so its unchanged focused checks are reused. Draft
+publication and exact-head hosted CI follow; no native or live acceptance is inferred.
