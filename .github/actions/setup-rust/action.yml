@@ -44,27 +44,22 @@ runs:
         }
         protoc --version
     # Windows checks still run without shared Rust caching; reserve cache storage for supported Linux/macOS lanes.
-    - name: Restore Rust dependencies and build cache
-      if: runner.os == 'Linux'
+    - name: Restore Rust and isolated helper dependency caches
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       with:
-        # Include build profiles: the virtual workspace root is otherwise omitted.
-        # Keep rust-cache compiler/host/toolchain/lockfile keys as well.
-        key: ${{ runner.os }}-${{ runner.arch }}-${{ inputs.lane }}-${{ hashFiles('Cargo.toml') }}
-        cache-bin: 'false'
-        cache-on-failure: 'true'
-        # PRs restore base/main caches without uploading large ref-only copies.
-        save-if: ${{ github.ref == 'refs/heads/main' }}
-    - name: Restore Rust and isolated helper dependency caches on macOS
-      if: runner.os == 'macOS'
-      uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
-      with:
-        # Include build profiles; preserve compiler, host, toolchain and lockfile dimensions.
-        key: ${{ runner.os }}-${{ runner.arch }}-${{ inputs.lane }}-${{ hashFiles('Cargo.toml', 'tools/xberg-intake-helper/adapted.Cargo.lock', 'tools/xberg-intake-helper/Cargo.toml', 'tools/xberg-intake-helper/build.rs', 'tools/xberg-intake-helper/build-identity.txt', 'scripts/build-document-helpers.sh', 'scripts/prepare-xberg-adapted.py', 'patches/xberg/1.3.10/0001-docx-table-grid-spans.patch', 'patches/xberg/1.3.10/source-manifest.json', 'patches/xberg/1.3.10/0003-docx-namespaces.patch', 'patches/xberg/1.3.10/0003-source-manifest.json', 'patches/xberg/1.3.10/0004-pptx-order-hidden.patch', 'patches/xberg/1.3.10/0004-source-manifest.json', 'patches/xberg/1.3.10/0005-docx-comment-references.patch', 'patches/xberg/1.3.10/0005-source-manifest.json') }}
+        # Root profiles and generated helper inputs supplement the action's
+        # compiler/host/toolchain/manifest/lockfile/config/environment identities.
+        # Globs cover new accepted patches without a second manually kept list.
+        key: ${{ runner.os }}-${{ runner.arch }}-${{ inputs.lane }}-${{ hashFiles('Cargo.toml', 'tools/xberg-intake-helper/Cargo.toml', 'tools/xberg-intake-helper/*Cargo.lock', 'tools/xberg-intake-helper/build.rs', 'tools/xberg-intake-helper/build-identity.txt', 'scripts/build-document-helpers.sh', 'scripts/prepare-xberg-adapted.py', 'patches/xberg/**/*.patch', 'patches/xberg/**/*.json') }}
         workspaces: |
           . -> target
           tools/xberg-intake-helper -> ../../.brn-ci-document-helpers/stock
           tools/xberg-intake-helper -> ../../.brn-ci-document-helpers/adapted
+        # Retain dependency-only cleanup. Local helper sources are checked by
+        # ordinary locked Cargo builds on hits and misses; never skip the build.
+        cache-workspace-crates: 'false'
+        cache-all-crates: 'false'
         cache-bin: 'false'
         cache-on-failure: 'true'
         # PRs restore base/main caches without uploading large ref-only copies.

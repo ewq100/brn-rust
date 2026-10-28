@@ -1,43 +1,22 @@
 # Development overview
 
-**Goal:** Capture useful outcomes and make follow-ups actionable; qualify reliability, measure performance and audit state/test coverage.
-**Owner attention:** Four bounded tracks approved. Reviewed draft PRs only; no merge or live-model spending. Calculator and other held work remain excluded.
+**Goal:** Make existing findings useful, close demonstrated keyboard/accessibility gaps and reduce repeated helper build work safely.
+**Owner attention:** PR233 supported test failure blocks the remaining prior merges. New work proceeds independently; new PRs require a separate merge decision.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
 Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.
 
-Task details and full history: [selected work record](active/capture-followup-reliability/record.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.
+Task details and full history: [selected work record](active/knowledge-triage-accessibility-ci/record.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.
 
 ## Working on
 
-### Capture useful chat outcomes
+### Inspect selected knowledge findings
 
-Task ID: `capture`
-Owner: Capture lane · State: **active** · Last reported: 2026-10-26T13:15:58.417771+00:00
-Activity: Implementing explicit capture-request with durable host review fence; existing Run lifecycle/review/Undo reused; separate archiving.
-Next: Complete bounded implementation or audit, obtain independent review and record proportionate checks.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** pending
-- **checks:** pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained
-- **integration:** pending; draft publication only, no merge
-- **native:** unrun for new changes; actual Mac acceptance separate
-- **owner acceptance:** pending; scope selected, delivered behavior not accepted
-
-</details>
-
-### See which follow-ups need attention
-
-Task ID: `followups`
-Owner: Follow-up views lane · State: **active** · Last reported: 2026-10-26T13:15:58.417771+00:00
-Activity: Pure grouping and Actions UI implemented; independent source review provisionally clear; focused Rust/native checks queued behind baseline.
-Next: Complete bounded implementation or audit, obtain independent review and record proportionate checks.
-Resource waits: Shared Rust build slot currently held by performance baseline.
+Task ID: `knowledge-triage`
+Owner: Knowledge lane · State: **active** · Last reported: 2026-10-27T00:12:13.427495+00:00
+Activity: Implementing bounded filters, record navigation, existing candidate review and an unsent selected follow-up draft.
+Next: Add exact snapshot/privacy checks to existing draft writer and qualify focused regressions.
 
 <details>
 <summary>Gate status</summary>
@@ -45,19 +24,19 @@ Resource waits: Shared Rust build slot currently held by performance baseline.
 Gates:
 
 - **implementation:** pending
-- **checks:** pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained
-- **integration:** pending; draft publication only, no merge
-- **native:** unrun for new changes; actual Mac acceptance separate
-- **owner acceptance:** pending; scope selected, delivered behavior not accepted
+- **checks:** pending; measurements and source inspection are not complete qualification
+- **integration:** pending; new draft publication only, no new merge authority
+- **native:** pending applicable Linux evidence; actual Mac acceptance separate
+- **owner acceptance:** pending
 
 </details>
 
-### Strengthen distinct daily workflow guarantees
+### Navigate chats and follow-ups accessibly
 
-Task ID: `reliability`
-Owner: Reliability lane · State: **active** · Last reported: 2026-10-26T13:15:58.417771+00:00
-Activity: Added distinct changed-commitment/interruption fixtures; tightening missing-answer exclusion result and exact-source changed-commitment oracle; Python checks underway.
-Next: Complete bounded implementation or audit, obtain independent review and record proportionate checks.
+Task ID: `linux-keyboard-accessibility`
+Owner: Accessibility lane · State: **active** · Last reported: 2026-10-27T00:12:13.427495+00:00
+Activity: Test-only candidate prepared; focused red widget tests running before production changes.
+Next: Verify observed failure, fix opt-in roles/focus and qualify keyboard paths.
 
 <details>
 <summary>Gate status</summary>
@@ -65,39 +44,19 @@ Next: Complete bounded implementation or audit, obtain independent review and re
 Gates:
 
 - **implementation:** pending
-- **checks:** pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained
-- **integration:** pending; draft publication only, no merge
-- **native:** unrun for new changes; actual Mac acceptance separate
-- **owner acceptance:** pending; scope selected, delivered behavior not accepted
+- **checks:** pending; measurements and source inspection are not complete qualification
+- **integration:** pending; new draft publication only, no new merge authority
+- **native:** pending applicable Linux evidence; actual Mac acceptance separate
+- **owner acceptance:** pending
 
 </details>
 
-### Audit and improve bounded state transitions and test value
-
-Task ID: `state-test-audit`
-Owner: Audit lane · State: **active** · Last reported: 2026-10-26T13:20:42.857029+00:00
-Activity: Baseline audit complete: helper preparation dominates measured CI time; no test deletion justified. Bounded Search request/cursor state extraction source-reviewed, tests queued.
-Next: Complete bounded implementation or audit, obtain independent review and record proportionate checks.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** pending
-- **checks:** pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained
-- **integration:** pending; draft publication only, no merge
-- **native:** unrun for new changes; actual Mac acceptance separate
-- **owner acceptance:** pending; scope selected, delivered behavior not accepted
-
-</details>
-
-### Review and integrate bounded slices
+### Review and publish bounded draft PRs
 
 Task ID: `integration`
-Owner: Integration owner · State: **active** · Last observed: 2026-10-26T13:15:58.417771+00:00
-Activity: Baseline and prior merged results reconciled; isolated lanes assigned; no new PR merge authority.
-Next: Complete bounded implementation or audit, obtain independent review and record proportionate checks.
+Owner: Integration owner · State: **active** · Last observed: 2026-10-27T00:12:13.427495+00:00
+Activity: Independent source work uses reviewed combined rehearsal tree while previous merge diagnosis is blocked.
+Next: Transplant only new commits onto reconciled main, independently review and qualify exact published heads.
 
 <details>
 <summary>Gate status</summary>
@@ -105,34 +64,59 @@ Next: Complete bounded implementation or audit, obtain independent review and re
 Gates:
 
 - **implementation:** pending
-- **checks:** pending; baseline resulting-main CI passed seven supported jobs, optional Windows failures retained
-- **integration:** pending; draft publication only, no merge
-- **native:** unrun for new changes; actual Mac acceptance separate
-- **owner acceptance:** pending; scope selected, delivered behavior not accepted
+- **checks:** pending; measurements and source inspection are not complete qualification
+- **integration:** pending; new draft publication only, no new merge authority
+- **native:** pending applicable Linux evidence; actual Mac acceptance separate
+- **owner acceptance:** pending
 
 </details>
 
 ## Next
 
-None recorded.
+### Reuse helper build work safely
+
+Task ID: `ci-helper-reuse`
+Owner: Performance lane · State: **ready** · Last observed: 2026-10-27T00:21:38.912252+00:00
+Activity: Local reviewed commit22370d33 adds Linux helper dependency targets; fourteen focused Python checks pass. No executable cache fast path.
+Next: Publish reviewed independent draft from qualified main and monitor exact-head CI; hosted warm benefit remains unmeasured.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** implemented locally; independent source/security review clear
+- **checks:** fourteen focused Python tests passed; old config fails two boundary checks; documentation links passed; hosted exact-head CI pending
+- **integration:** pending; new draft publication only, no new merge authority
+- **native:** inapplicable to CI-only work
+- **owner acceptance:** pending
+
+</details>
 
 ## Needs attention
 
-### See which follow-ups need attention
+### Finish the approved prior merges
 
-Task ID: `followups`
-Owner: Follow-up views lane
+Task ID: `baseline-reconciliation`
+Owner: Integration owner · State: **blocked** · Last observed: 2026-10-27T00:15:17.500876+00:00
+Activity: PR230–232 merged; current main CI passed seven supported jobs, three optional Windows failures. PR233 refreshed-head Linux core test failed; diagnostic log returned Forbidden and cause remains unknown. PR234 waits.
+Next: Obtain permitted diagnostic evidence; do not merge or rerun blindly.
 
-Waiting:
+<details>
+<summary>Gate status</summary>
 
-- resource: Shared Rust build slot currently held by performance baseline.
+Gates:
+
+- **implementation:** pending
+- **checks:** failed: PR233 refreshed-head CI40422659424 five supported passes, Linux core test failure101, optional Windows failure; diagnostic log download denied
+- **integration:** pending; new draft publication only, no new merge authority
+- **native:** pending applicable Linux evidence; actual Mac acceptance separate
+- **owner acceptance:** pending
+
+</details>
 
 ## Completed
 
-Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
+None recorded.
 
-1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
-
-- `performance` — Measure scale and recovery before optimizing
-
-Local page reflects the last saved observations in this record (2026-10-26T13:20:42.857029+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-27T00:21:38.912252+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
