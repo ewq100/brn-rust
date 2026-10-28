@@ -95,9 +95,10 @@ absence of accepted Notes that would reject this case's legitimate protected
 seed. Preserve launch reservation before dispatch, timeout/deadline checks,
 helper-off configuration, actual returned terminal and durable observation.
 
-Before allowing the second intake, call the committed `meeting_prefix_checks(case,
-before, after, [0])` on complete public snapshots, including baseline and current
-records, receipts, candidates and lineage. Require every returned value to be
+Collect both baseline and current public snapshots with the committed
+`meeting_snapshot(cli)`; it independently resolves every Run-associated operation,
+including allocated operations. Before allowing the second intake, call
+`meeting_prefix_checks(case, before, after, [0])` on those snapshots. Require every returned value to be
 exactly `True`; missing or failed evidence is not a pass. This reuses unchanged
 `action_checks`, `protection_preserved` and `action_source_checks` for the observed
 first source. A new saved Suggested Action is permitted only under the fixture's
@@ -105,8 +106,9 @@ saved facts and null evidence; pending Open/Waiting proposals remain distinct
 from accepted commitments. Baseline Actions must remain unchanged and receipt
 history must not contain unauthorized accepted Action mutations, including
 transient ones. Links, Sources and review-attention writes are assessed through
-the existing oracles, not blanket record equality. Preserve complete receipt
-history; a partial snapshot cannot establish the receipt guard.
+the existing oracles, not blanket record equality. The gate requires exact agreement between Run-associated applied operations,
+unique receipts, and operation lineage; missing coverage fails. This covers model
+operations associated with Runs, not all store history.
 
 After intake two call `meeting_prefix_checks(case, before, after, [0, 1])` and
 unchanged `structural_checks(case, before, after)`; require every check to be

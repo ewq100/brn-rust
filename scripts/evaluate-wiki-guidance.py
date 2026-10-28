@@ -183,6 +183,56 @@ def snapshot(cli):
                             'lineage': read_operation_inputs(cli, operations)})
 
 
+def meeting_snapshot(cli):
+    """Collect public state and independently resolve every Run operation."""
+    result = snapshot(cli)
+    operations = {operation for record in result['records']
+                  for operation in record.get('data', {}).get('Run', {}).get('operations', [])}
+    states = []
+    for identity in sorted(operations):
+        envelope = cli.envelope('operation', id=identity)
+        if envelope.get('status') != 'ok':
+            raise CallFailed('meeting operation unavailable')
+        info = envelope['result']
+        if info['operation'] != identity:
+            raise CallFailed('meeting operation identity mismatch')
+        if info['state'] not in ('allocated', 'prepared', 'retired', 'applied'):
+            raise CallFailed('meeting operation has unknown state')
+        if info['inputs_total'] != len(info['inputs']):
+            raise CallFailed('meeting operation inputs truncated')
+        states.append({'operation': identity, 'state': info['state'],
+                       'inputs': [{'record': item['record'], 'version': item['version'],
+                                   'expectation': item.get('expectation') or 'Current'}
+                                  for item in info['inputs']]})
+    result['operation_states'] = states
+    return result
+
+
+def meeting_coverage(snapshot):
+    """Require complete, consistent coverage of Run-associated operations."""
+    try:
+        operations = [op for r in snapshot['records'] for op in
+                      r.get('data', {}).get('Run', {}).get('operations', [])]
+        states = snapshot['operation_states']
+        ids = [s['operation'] for s in states]
+        receipts = [r['operation'] for r in snapshot['receipts']]
+        lineage = snapshot['lineage']
+        lineage_ids = [entry['operation'] for entry in lineage]
+        if (len(ids) != len(set(ids)) or set(ids) != set(operations)
+                or len(receipts) != len(set(receipts))
+                or len(lineage_ids) != len(set(lineage_ids))):
+            return False
+        if any(s['state'] not in ('allocated', 'prepared', 'retired', 'applied') for s in states):
+            return False
+        if set(receipts) != {s['operation'] for s in states if s['state'] == 'applied'}:
+            return False
+        expected = [{'operation': s['operation'], 'applied': s['state'] == 'applied',
+                     'inputs': s['inputs']} for s in states if s['state'] != 'allocated']
+        return len(lineage) == len(expected) and all(e in lineage for e in expected)
+    except (KeyError, TypeError):
+        return False
+
+
 FILLER_SUBJECTS = [
     ('Harbor crane maintenance', 'The harbor crane inspection found worn cables; delivery of spare parts is due in November.'),
     ('Harbor café menu', 'The harbor café serves soup and bread; supplier delivery arrives every Tuesday morning.'),
@@ -323,11 +373,13 @@ def meeting_prefix_checks(case, before, after, observed_steps):
             or observed_steps not in ([0], [0, 1])):
         raise ValueError('Unsupported case or observed prefix')
     expectation = case['action_expectation']
-    required = ('records', 'receipts', 'candidates', 'lineage')
+    required = ('records', 'receipts', 'candidates', 'lineage', 'operation_states')
     if any(not isinstance(snapshot.get(key), list)
            for snapshot in (before, after) for key in required):
         return {'snapshot_evidence_available': False}
     try:
+        if not meeting_coverage(before) or not meeting_coverage(after):
+            return {'operation_coverage': False}
         baseline = {r['id']: r for r in before['records'] if 'Action' in r['data']}
         current = {r['id']: r for r in after['records'] if 'Action' in r['data']}
         old_operations = {r['operation'] for r in before['receipts']}
@@ -347,7 +399,15 @@ def meeting_prefix_checks(case, before, after, observed_steps):
             if receipt['operation'] in old_operations:
                 receipt_safe = False
             for write in receipt['writes']:
-                prior, result = write.get('before'), write['after']
+                if 'before' not in write or 'after' not in write:
+                    receipt_safe = False
+                    continue
+                prior, result = write['before'], write['after']
+                if (not isinstance(result, dict) or not isinstance(result.get('data'), dict)
+                        or (prior is not None and (not isinstance(prior, dict)
+                            or not isinstance(prior.get('data'), dict)))):
+                    receipt_safe = False
+                    continue
                 if ((prior and 'Action' in prior['data']) or 'Action' in result['data']):
                     if (result['id'] in baseline or 'Action' not in result['data']
                             or not permitted(result) or (prior is not None
@@ -362,7 +422,7 @@ def meeting_prefix_checks(case, before, after, observed_steps):
         checks.update(action_checks(expectation, after))
         checks.update(action_source_checks(observed_steps, after))
         return checks
-    except (KeyError, TypeError, ValueError):
+    except (KeyError, TypeError, ValueError, AttributeError):
         return {'snapshot_evidence_available': False}
 
 
