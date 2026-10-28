@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "scope": "offline proof; partial does not establish model behavior",
+  "workflows": [
+    {
+      "workflow": "wiki-creation",
+      "status": "partial",
+      "host_operations": [
+        "note-create",
+        "ask"
+      ],
+      "scenario": "F01"
+    },
+    {
+      "workflow": "wiki-maintenance",
+      "status": "partial",
+      "host_operations": [
+        "ask"
+      ],
+      "scenario": "F02,J01"
+    },
+    {
+      "workflow": "research",
+      "status": "partial",
+      "host_operations": [
+        "ask"
+      ],
+      "scenario": "F03"
+    },
+    {
+      "workflow": "writing",
+      "status": "partial",
+      "host_operations": [
+        "ask"
+      ],
+      "scenario": "F04"
+    },
+    {
+      "workflow": "intake",
+      "status": "partial",
+      "host_operations": [
+        "intake"
+      ],
+      "scenario": "F05"
+    },
+    {
+      "workflow": "actions-and-drafts",
+      "status": "partial",
+      "host_operations": [
+        "ask"
+      ],
+      "scenario": "F06"
+    },
+    {
+      "workflow": "private-context",
+      "status": "partial",
+      "host_operations": [
+        "ask"
+      ],
+      "scenario": "F07"
+    },
+    {
+      "workflow": "truthful-reporting",
+      "status": "partial",
+      "host_operations": [
+        "ask"
+      ],
+      "scenario": "F08"
+    },
+    {
+      "workflow": "protection",
+      "status": "untested",
+      "host_operations": [],
+      "scenario": null
+    },
+    {
+      "workflow": "review-decisions",
+      "status": "untested",
+      "host_operations": [
+        "apply",
+        "dismiss"
+      ],
+      "scenario": null
+    },
+    {
+      "workflow": "skills",
+      "status": "untested",
+      "host_operations": [],
+      "scenario": null
+    },
+    {
+      "workflow": "interruption-recovery",
+      "status": "untested",
+      "host_operations": [],
+      "scenario": null
+    },
+    {
+      "workflow": "helper-judgment",
+      "status": "untested",
+      "host_operations": [],
+      "scenario": null
+    },
+    {
+      "workflow": "grader-calibration",
+      "status": "untested",
+      "host_operations": [],
+      "scenario": null
+    },
+    {
+      "workflow": "native-ui",
+      "status": "unsupported",
+      "host_operations": [],
+      "scenario": null
+    },
+    {
+      "workflow": "external-service-execution",
+      "status": "unsupported",
+      "host_operations": [],
+      "scenario": null
+    }
+  ]
+}

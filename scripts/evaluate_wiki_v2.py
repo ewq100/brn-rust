@@ -254,6 +254,9 @@ def validate_case(case):
     def bad(message):
         problems.append(f'{cid}: {message}')
 
+    if case.get('authority', 'maintain') not in ('maintain', 'review-first'):
+        bad('authority must be maintain or review-first')
+
     for field in ('id', 'steps', 'checks', 'seeds'):
         if field not in case:
             bad(f'missing {field}')
@@ -299,6 +302,8 @@ def validate_case(case):
             bad(f'step {index} has no {"prompt" if kind == "ask" else "text"}')
         if kind == 'intake' and step.get('intent', 'useful') not in ('useful', 'full', 'chat'):
             bad(f'step {index} has unknown intent')
+        if case.get('retain_checkpoints') and kind == 'intake' and 'budget' in step:
+            bad(f'step {index}: native intake does not support an explicit tool-round budget')
     scopes = case.get('scopes', {})
     for name, scope in scopes.items():
         for key in scope.get('keys', []):
@@ -419,8 +424,8 @@ def slot_folder(root, sample, attempt):
 
 
 def next_attempt(attempts):
-    """Attempt number for the next run of a slot; a crashed (`running`) attempt is discarded, not counted."""
-    return 2 if any(a.get('status') != 'running' for a in attempts) else 1
+    """Interrupted attempts consume an attempt; their evidence must survive."""
+    return len(attempts) + 1
 
 
 def resume_action(attempts):
@@ -428,8 +433,6 @@ def resume_action(attempts):
     if not attempts:
         return 'run'
     last = attempts[-1]
-    if last.get('status') == 'running':
-        return 'discard-and-run' if len(attempts) == 1 else 'discard-and-rerun'
     if last.get('status') == 'complete' or len(attempts) >= 2:
         return 'skip'
     return 'rerun'
@@ -1271,7 +1274,7 @@ def build_report(results, cases):
                                  repetition=result['repetition'], attempt=result['attempt'], label=result.get('label')))
     failures = [{'case': r['case'], 'scale': r['scale'], 'arm': r['arm'], 'repetition': r['repetition'],
                  'attempt': r['attempt'], 'status': r['status'], 'failure': r.get('failure')}
-                for r in results if r['status'] not in ('complete', 'running')]
+                for r in results if r['status'] != 'complete']
     # A check that cannot be verified on one arm is dropped for every arm of that case comparison, so all
     # arms are judged on the same checks; None is never counted as a pass.
     excluded = {}
@@ -1543,9 +1546,7 @@ class Sample:
         return ranks
 
     def go(self):
-        if self.folder.exists():
-            shutil.rmtree(self.folder)  # A crashed earlier attempt of this very slot, possibly without a result.
-        self.folder.mkdir(parents=True)
+        self.folder.mkdir(parents=True, exist_ok=False)
         data = self.folder / 'data'
         self.cli = make_cli(self.arm, self.arm['binary'], data, self.root, self.args)
         self.persist()  # A `running` stub, so a crash is recognised on --resume.
@@ -1567,8 +1568,8 @@ class Sample:
             configuration.update(credential_options(self.arm['provider'], args.auth_file, args.credentials_dir))
             configuration.update(helper_configuration(self.arm))
             self.cli.call('configure', **configuration)
-        if not self.cli.call('settings').get('delegation_chosen'):
-            self.cli.call('delegation', choice='maintain')
+        if 'authority' in case or not self.cli.call('settings').get('delegation_chosen'):
+            self.cli.call('delegation', choice=case.get('authority', 'maintain'))
         needed = needed_states(case)
         queries = {}
         for check in case['checks']:
@@ -1578,6 +1579,8 @@ class Sample:
         seed_ids = set(self.seed['notes'].values()) | {self.seed.get('topics')}
         baseline = filler_baseline(raw0, seed_ids)
         states = {0: {'records': condense_records(raw0, baseline), 'kc': self.capture_kc()}}
+        if case.get('retain_checkpoints'):
+            self.checkpoint(0)
         del raw0
         result['stage'] = 'steps'
         threads = dict(self.seed['threads'])
@@ -1591,6 +1594,8 @@ class Sample:
             outcome = self.run_step(number, step, threads, record)
             result['provider_resends'] = provider_resends(steps)
             self.persist()
+            if case.get('retain_checkpoints'):
+                self.checkpoint(number)
             if not evaluated(record['terminal']):
                 detail = failure_summary(record.get('failure'))
                 raise CallFailed(f'step {number} ended {record["terminal"]}' + (f' ({detail})' if detail else ''))
@@ -1612,11 +1617,30 @@ class Sample:
         undo = self.run_undo(case, steps, receipts, raw_final)
         self.finish(states, steps, lineage, undo)
 
+    def checkpoint(self, number):
+        """Freeze through the supported backup operation, outside continuing state.
+
+        Raw backups are private evidence. Sanitized records are a separate export;
+        neither is ever seeded into a candidate workspace.
+        """
+        folder = self.folder / 'checkpoints' / str(number)
+        folder.mkdir(parents=True, exist_ok=False, mode=0o700)
+        self.cli.call('backup', destination=folder / 'workspace.sqlite3')
+        records = public_snapshot(self.cli.call('records'))
+        (folder / 'records.json').write_text(json.dumps(records, ensure_ascii=False, indent=2) + '\n')
+        self.result.setdefault('checkpoints', []).append({
+            'step': number, 'backup_sha256': sha256_file(folder / 'workspace.sqlite3'),
+            'records_sha256': sha256_file(folder / 'records.json')})
+        self.persist()
+
     def run_step(self, number, step, threads, record):
         args, cli = self.args, self.cli
         budget = step.get('budget', 8)
         if self.sample.get('budget_step') == number:
             budget = self.sample['budget']
+        record['budget'] = {'requested': budget if step['kind'] == 'ask' or 'budget' in step else None,
+                            'sent': budget if step['kind'] == 'ask' else None,
+                            'observed': None}
         trace = {'trace': 'full'} if self.caps['trace'] else {}
         if step['kind'] == 'knowledge-review':
             out = cli.call('knowledge-check', seed_chat='yes')
@@ -1645,6 +1669,7 @@ class Sample:
             record['provider_resends'] = out['provider_resends']
         record['answer'] = out.get('answer')
         record['trace'] = out.get('trace')
+        record['budget']['observed'] = (out.get('trace') or {}).get('max_rounds')
         record['run'] = out.get('run')
         run = cli.call('read', id=out['run']) if out.get('run') else None
         details = ((run or {}).get('data') or {}).get('Run') or {}
@@ -1670,9 +1695,16 @@ class Sample:
                 results[number] = {'status': 'not_run', 'reason': 'No eligible current applied note group'}
                 continue
             receipt = sorted(eligible, key=lambda r: r['committed_at'])[-1]
-            before = self.cli.call('records')
-            outcome = self.cli.call('undo', operation=receipt['operation'])
-            after = self.cli.call('records')
+            probe = self.folder / 'undo-probes' / str(number)
+            probe.mkdir(parents=True, exist_ok=False)
+            backup = probe / 'before.sqlite3'
+            self.cli.call('backup', destination=backup)
+            cli = make_cli(self.arm, self.arm['binary'], probe / 'data', self.root, self.args)
+            cli.call('restore', source=backup)
+            before = cli.call('records')
+            outcome = cli.call('undo', operation=receipt['operation'])
+            after = cli.call('records')
+            self.cli.commands.extend(cli.commands)
             affected = {w['after']['id'] for w in receipt['writes']}
             results[number] = {'status': outcome['outcome'], 'operation': receipt['operation'],
                                'affected_restored': outcome['outcome'] == 'Applied' and verify_undo(receipt, after),
@@ -1731,13 +1763,32 @@ def slot_attempts(root, sample):
     for folder in (base, base.with_name(base.name + '-rerun')):
         if (folder / 'result.json').is_file():
             out.append(read_json(folder / 'result.json'))
+        elif folder.exists():
+            out.append({'status': 'running', 'attempt': len(out) + 1,
+                        'failure': 'Interrupted before result publication'})
     return out
 
 
 def collect_results(root):
     results = []
-    for path in sorted((root / 'runs').glob('*/*/result.json')) if (root / 'runs').is_dir() else []:
-        results.append(read_json(path))
+    for folder in sorted((root / 'runs').glob('*/*')) if (root / 'runs').is_dir() else []:
+        if not folder.is_dir():
+            continue
+        path = folder / 'result.json'
+        if path.is_file():
+            results.append(read_json(path))
+            continue
+        # A process can die after mkdir but before publishing its first stub.
+        match = re.fullmatch(r'(.+)-([rd])(\d+)(-rerun)?', folder.name)
+        case, sep, scale = folder.parent.name.rpartition('-')
+        if match and sep and scale.isdigit():
+            arm, kind, repetition, retry = match.groups()
+            results.append({'case': case, 'scale': int(scale), 'arm': arm,
+                            'slot': folder.name.removesuffix('-rerun'), 'repetition': int(repetition),
+                            'attempt': 2 if retry else 1, 'status': 'running',
+                            'label': 'diagnostic' if kind == 'd' else 'rerun' if retry else None,
+                            'failure': 'Interrupted before result publication', 'passed': None,
+                            'metrics': {}, 'checks': [], 'steps': [], 'safety': []})
     return results
 
 
@@ -1971,9 +2022,7 @@ def offline(args, root, cases, arms, caps_by_arm, log):
 def persist_outcome(root, sample, attempt, outcome):
     """Writes a result that never reached a Sample into its slot, so reports and --resume see it."""
     folder = slot_folder(root, sample, attempt)
-    if folder.exists():
-        shutil.rmtree(folder)
-    folder.mkdir(parents=True)
+    folder.mkdir(parents=True, exist_ok=False)
     (folder / 'result.json').write_text(json.dumps(public_snapshot(outcome), ensure_ascii=False, indent=2) + '\n')
 
 

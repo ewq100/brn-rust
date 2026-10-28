@@ -1,0 +1,63 @@
+{
+  "baseline": {
+    "main": "c3d64efa45a3671b6f91e94f1425fcda9fc87690",
+    "branch": "benchmark/agentbench-proof"
+  },
+  "scope": "Recovered October 15 BRN-AgentBench proposal: offline proof only in this checkpoint; not full implementation. No live runs, paid calls, user data, Mac access or changes to PR239\u2013241.",
+  "work_view": {
+    "observed_at": "2026-10-28T23:08:59.438716+00:00",
+    "goal": "Build the recovered BRN-AgentBench using the native evaluator and checked CLI.",
+    "owner_attention": "Partial offline proof verified. Original helper/calibration fixture transfer blocked by Library HTTP401. Runtime identity, controlled event adapters and grader qualification remain outstanding; no model ranking.",
+    "tasks": [
+      {
+        "id": "agentbench-proof",
+        "title": "Preserve native evidence and prepare the benchmark proof",
+        "owner": "Benchmark integration owner",
+        "state": "blocked",
+        "activity": "Implemented evidence preservation, checkpoint/Undo isolation, deterministic proof generation and frozen-output reports; nine native offline cases and 15 benchmark tests passed.",
+        "observed_at": "2026-10-28T23:08:59.438716+00:00",
+        "origin": "observed",
+        "next_action": "Restore supported access to the original planning ZIP, integrate its judgment cases without reauthoring, then finish the outstanding gates listed in the benchmark README.",
+        "depends_on": [],
+        "resource_waits": [
+          "Library transfer tools/list returned HTTP401 before any bytes were downloaded; no retry or bypass attempted."
+        ],
+        "evidence": [
+          "benchmarks/brn_agent/README.md",
+          "benchmarks/brn_agent/coverage.json",
+          "docs/work/active/agentbench/evidence.md"
+        ],
+        "gates": {
+          "implementation": "partial: offline proof; original judgment fixtures, host-event adapters, runtime identity, spend caps and external/Inspect adapters outstanding",
+          "checks": "passed: 101 existing evaluator tests, 15 benchmark tests including real native backup/Undo witness; 9 native seed/copy/open checks",
+          "integration": "local isolated branch; publication authority for this new benchmark not established",
+          "native": "CLI-only offline observed; Mac UI and live model quality unrun",
+          "owner_acceptance": "pending"
+        },
+        "attempts": [
+          {
+            "outcome": "Library transfer failed HTTP401; no files downloaded",
+            "change": "Stopped this transfer route; continued repository and synthetic offline work",
+            "evidence": [
+              "docs/work/active/agentbench/evidence.md"
+            ]
+          },
+          {
+            "outcome": "Initial offline build lacked pinned rig 0.45.0; explicit intake-budget rejection broke two legacy fixture cases",
+            "change": "Fetched locked build dependencies; kept legacy compatibility and made strict intake-budget rejection specific to checkpoint-enabled cases",
+            "evidence": [
+              "docs/work/active/agentbench/evidence.md"
+            ]
+          },
+          {
+            "outcome": "Independent review identified unqualified ranking, unbound metadata/checkpoints, omitted orphan attempts and fixture identity gaps",
+            "change": "Added explicit unranked gates, native metadata/hash/reference verification, orphan accounting, suite/fixture binding and regression tests",
+            "evidence": [
+              "docs/work/active/agentbench/evidence.md"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

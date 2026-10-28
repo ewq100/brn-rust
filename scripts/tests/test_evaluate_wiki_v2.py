@@ -149,7 +149,7 @@ class ResumeTests(unittest.TestCase):
         self.assertEqual(v2.resume_action([{'status': 'transport_failure'}]), 'rerun')
         self.assertEqual(v2.resume_action([{'status': 'setup_failure'}]), 'rerun')
         self.assertEqual(v2.resume_action([{'status': 'transport_failure'}, {'status': 'transport_failure'}]), 'skip')
-        self.assertEqual(v2.resume_action([{'status': 'running'}]), 'discard-and-run')
+        self.assertEqual(v2.resume_action([{'status': 'running'}]), 'rerun')
 
     def test_slot_attempts_read_persisted_results(self):
         with scratch() as directory:
@@ -1021,9 +1021,9 @@ class RootAndResumeTests(unittest.TestCase):
 
     def test_next_attempt_and_slot_folder(self):
         self.assertEqual(v2.next_attempt([]), 1)
-        self.assertEqual(v2.next_attempt([{'status': 'running'}]), 1)
+        self.assertEqual(v2.next_attempt([{'status': 'running'}]), 2)
         self.assertEqual(v2.next_attempt([{'status': 'transport_failure'}]), 2)
-        self.assertEqual(v2.next_attempt([{'status': 'transport_failure'}, {'status': 'running'}]), 2)
+        self.assertEqual(v2.next_attempt([{'status': 'transport_failure'}, {'status': 'running'}]), 3)
         sample = {'case': 'R1', 'scale': 1000, 'arm': 'A', 'repetition': 2, 'label': None}
         self.assertEqual(v2.slot_folder('/r', sample, 2), Path('/r/runs/R1-1000/A-r2-rerun'))
 
@@ -1123,17 +1123,25 @@ class PipelineWithStubBinary(unittest.TestCase):
             self.assertEqual(result['status'], 'transport_failure')
             self.assertEqual(result['checks'], [])
 
-    def test_stale_slot_without_result_is_replaced_and_crash_stub_is_running(self):
+    def test_stale_slot_without_result_is_preserved(self):
         with scratch() as directory:
             sample, root = self.setup_sample(Path(directory).resolve(), 'OK')
             stale = v2.slot_folder(root, {'case': 'T1', 'scale': 1000, 'arm': 'A', 'repetition': 1, 'label': None}, 1)
             stale.mkdir(parents=True)
             (stale / 'junk').write_text('left by a crash')
-            result = sample.go()
-            self.assertEqual(result['status'], 'complete')
-            self.assertFalse((stale / 'junk').exists())
+            with self.assertRaises(FileExistsError):
+                sample.go()
+            self.assertEqual((stale / 'junk').read_text(), 'left by a crash')
+            attempts = v2.slot_attempts(root, sample.sample)
+            self.assertEqual(v2.next_attempt(attempts), 2)
+            self.assertEqual(v2.resume_action(attempts), 'rerun')
+            collected = v2.collect_results(root)
+            self.assertEqual(len(collected), 1)
+            self.assertEqual(collected[0]['status'], 'running')
+            report = v2.build_report(collected, [sample.case])
+            self.assertEqual(len(report['transport_failures']), 1)
             stub = {'status': 'running'}
-            self.assertEqual(v2.resume_action([stub]), 'discard-and-run')
+            self.assertEqual(v2.resume_action([stub]), 'rerun')
 
     def test_setup_failure_is_persisted_and_reported(self):
         from types import SimpleNamespace as NS
