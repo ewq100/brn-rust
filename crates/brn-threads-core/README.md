@@ -81,6 +81,14 @@ zero) and refuses an occupied target under the SQLite writer lock. Target text
 and the source's empty generation tombstone commit together, so failed or stale
 handoffs preserve both destinations and delayed source saves remain fenced.
 
+`create_knowledge_draft` stores unsent composer recovery text for a selected
+knowledge finding. Its writer transaction rechecks exact observed records, known
+missing references, any bound pending candidate, and the destination’s current
+General-chat privacy before inserting. Existing drafts, including edited or empty
+ones, survive replay unchanged. This API posts no Message, starts no Run, and
+grants no semantic repair or Apply authority; the host separately checks complete
+candidate scope and historical evidence before presenting a selection.
+
 `undo(compensation_operation, original_operation, authority)` constructs an
 immutable atomic compensation from the original receipt's actual write set. It
 checks precisely the resulting versions of those records. A new unrelated link

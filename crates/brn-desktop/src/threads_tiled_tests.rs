@@ -1514,7 +1514,267 @@ fn connections_result_is_cleared_when_project_unlink_revokes_neighbor_visibility
 }
 
 #[gpui_kit::test]
-fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestAppContext) {
+fn knowledge_filter_pages_report_retained_and_total_findings(cx: &mut TestAppContext) {
+    let f = fixture(cx, false, 1400., 1100.);
+    update_returning(cx, &f, |view| {
+        owner_write(
+            view,
+            "many isolated notes",
+            (0..30)
+                .map(|i| {
+                    RecordData::Note(Note::working(
+                        format!("Distinct subject {i}"),
+                        format!("Different body {i}"),
+                    ))
+                })
+                .collect(),
+        );
+        view.refresh();
+    });
+    click(cx, &f, "home");
+    reveal(cx, &f, "home-content", "knowledge-run");
+    click(cx, &f, "knowledge-run");
+    reveal(cx, &f, "home-content", "knowledge-filter-Orphan");
+    click(cx, &f, "knowledge-filter-Orphan");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("knowledge-page-summary").label(),
+            Some("Showing 1–8 of 25 listed findings (30 total).")
+        );
+        assert_eq!(
+            window.find("knowledge-page-summary").role(),
+            Some(gpui_kit::Role::Label)
+        );
+    })
+    .unwrap();
+    reveal(cx, &f, "home-content", "knowledge-next");
+    click(cx, &f, "knowledge-next");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("knowledge-page-summary").label(),
+            Some("Showing 9–16 of 25 listed findings (30 total).")
+        );
+    })
+    .unwrap();
+    reveal(cx, &f, "home-content", "knowledge-filter-all");
+    click(cx, &f, "knowledge-filter-all");
+    cx.update_window(f.window, |_, window, _| {
+        assert!(
+            window
+                .find("knowledge-page-summary")
+                .label()
+                .unwrap()
+                .starts_with("Showing 1–8")
+        );
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn knowledge_pending_fix_opens_exact_review_and_rejects_retired_delivery(cx: &mut TestAppContext) {
+    let f = fixture(cx, true, 1400., 1100.);
+    let candidate = update_returning(cx, &f, |view| {
+        let target = view
+            .workspace
+            .new_note("Pending knowledge", "Original")
+            .unwrap();
+        let op = view
+            .workspace
+            .store
+            .allocate_operation("knowledge review witness")
+            .unwrap();
+        let candidate = view
+            .workspace
+            .store
+            .prepare(
+                &op,
+                &ChangeRequest {
+                    reason: "Existing proposed fix".into(),
+                    inputs: vec![],
+                    writes: vec![Put {
+                        id: target.id.clone(),
+                        expected_version: Some(target.version),
+                        archived: false,
+                        data: RecordData::Note(Note::working("Pending knowledge", "Proposed")),
+                    }],
+                },
+            )
+            .unwrap();
+        view.workspace
+            .owner_change(
+                "knowledge later edit",
+                &ChangeRequest {
+                    reason: "Owner edit makes proposal stale".into(),
+                    inputs: vec![],
+                    writes: vec![Put {
+                        id: target.id,
+                        expected_version: Some(target.version),
+                        archived: false,
+                        data: RecordData::Note(Note::working(
+                            "Pending knowledge",
+                            "Later owner text",
+                        )),
+                    }],
+                },
+            )
+            .unwrap();
+        view.refresh();
+        candidate
+    });
+    click(cx, &f, "home");
+    reveal(cx, &f, "home-content", "knowledge-run");
+    click(cx, &f, "knowledge-run");
+    reveal(cx, &f, "home-content", "knowledge-filter-StaleCandidate");
+    click(cx, &f, "knowledge-filter-StaleCandidate");
+    let index = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .knowledge
+            .result
+            .as_ref()
+            .unwrap()
+            .findings
+            .iter()
+            .position(|f| f.kind == FindingKind::StaleCandidate)
+            .unwrap()
+    });
+    reveal(
+        cx,
+        &f,
+        "home-content",
+        &format!("knowledge-inspect-{index}"),
+    );
+    click(cx, &f, format!("knowledge-inspect-{index}"));
+    let selection = cx.read(|cx| {
+        let workspace = &f.view.read(cx).workspace;
+        let snapshot = workspace.knowledge_triage().unwrap();
+        workspace
+            .select_knowledge_finding(&snapshot, index)
+            .unwrap()
+    });
+    reveal(cx, &f, "home-content", "knowledge-review-fix");
+    click(cx, &f, "knowledge-review-fix");
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            assert_eq!(view.writing.review.as_ref().unwrap().candidate, candidate);
+            assert!(
+                view.workspace
+                    .store
+                    .receipt(&candidate.operation)
+                    .unwrap()
+                    .is_none()
+            );
+            assert!(view.worker.is_none());
+            view.workspace.store.retire(&candidate.operation).unwrap();
+            assert!(
+                view.finish_knowledge_action(
+                    &selection,
+                    connections_view::KnowledgeAnswer::Review(candidate.clone()),
+                    window,
+                    cx
+                )
+                .is_err()
+            );
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn knowledge_delayed_results_preserve_visible_edits_and_recheck_records(cx: &mut TestAppContext) {
+    let f = fixture(cx, true, 1400., 1100.);
+    let (selection, chat, delivered) = update_returning(cx, &f, |view| {
+        owner_write(
+            view,
+            "knowledge race",
+            vec![
+                RecordData::Note(Note::working("Twin", "A")),
+                RecordData::Note(Note::working("Twins", "B")),
+            ],
+        );
+        let snapshot = view.workspace.knowledge_triage().unwrap();
+        let index = snapshot
+            .check
+            .findings
+            .iter()
+            .position(|f| f.kind == FindingKind::DuplicateTitle)
+            .unwrap();
+        let selection = view
+            .workspace
+            .select_knowledge_finding(&snapshot, index)
+            .unwrap();
+        let (chat, draft) = view
+            .workspace
+            .draft_knowledge_follow_up("delayed", &selection)
+            .unwrap();
+        (selection, chat, draft)
+    });
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_thread(&chat, window, cx);
+            view.composer
+                .update(cx, |e, cx| e.set_value("Newer owner edit", window, cx));
+            // Simulate background delivery after typing, before recovery events flush.
+            view.finish_knowledge_action(
+                &selection,
+                connections_view::KnowledgeAnswer::Draft(chat.clone(), delivered.clone()),
+                window,
+                cx,
+            )
+            .unwrap();
+            assert_eq!(view.composer.read(cx).value().as_ref(), "Newer owner edit");
+            view.composer
+                .update(cx, |e, cx| e.set_value("", window, cx));
+            view.finish_knowledge_action(
+                &selection,
+                connections_view::KnowledgeAnswer::Draft(chat.clone(), delivered.clone()),
+                window,
+                cx,
+            )
+            .unwrap();
+            assert!(view.composer.read(cx).value().is_empty());
+            let target = selection
+                .records
+                .iter()
+                .find(|r| matches!(r.data, RecordData::Note(_)))
+                .unwrap();
+            let mut changed = target.data.clone();
+            let RecordData::Note(note) = &mut changed else {
+                panic!()
+            };
+            note.markdown.push_str(" changed while response queued");
+            view.workspace
+                .owner_change(
+                    "knowledge callback race",
+                    &ChangeRequest {
+                        reason: "Concurrent edit".into(),
+                        inputs: vec![],
+                        writes: vec![Put {
+                            id: target.id.clone(),
+                            expected_version: Some(target.version),
+                            archived: false,
+                            data: changed,
+                        }],
+                    },
+                )
+                .unwrap();
+            assert!(
+                view.finish_knowledge_action(
+                    &selection,
+                    connections_view::KnowledgeAnswer::Open(target.id.clone()),
+                    window,
+                    cx
+                )
+                .is_err()
+            );
+            assert!(view.worker.is_none());
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn knowledge_check_filters_and_creates_only_an_unsent_selected_draft(cx: &mut TestAppContext) {
     let f = fixture(cx, true, 1400., 1100.);
     let (archived_id, remaining_id) = update_returning(cx, &f, |view| {
         let dupes = owner_write(
@@ -1533,16 +1793,40 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
     click(cx, &f, "knowledge-run");
     let check = cx.read(|cx| f.view.read(cx).knowledge.result.clone().unwrap());
     assert_eq!(check.counts.get(&FindingKind::DuplicateTitle), Some(&1));
-    reveal(cx, &f, "home-content", "knowledge-review");
-    click(cx, &f, "knowledge-review");
+    reveal(cx, &f, "home-content", "knowledge-filter-DuplicateTitle");
+    click(cx, &f, "knowledge-filter-DuplicateTitle");
+    let index = check
+        .findings
+        .iter()
+        .position(|f| f.kind == FindingKind::DuplicateTitle)
+        .unwrap();
+    reveal(
+        cx,
+        &f,
+        "home-content",
+        &format!("knowledge-inspect-{index}"),
+    );
+    click(cx, &f, format!("knowledge-inspect-{index}"));
+    reveal(cx, &f, "home-content", "knowledge-draft");
+    click(cx, &f, "knowledge-draft");
     cx.read(|cx| {
         let view = f.view.read(cx);
         let chat = view.chat_thread().unwrap().to_owned();
-        let messages = view.workspace.messages(&chat).unwrap();
         assert!(
-            matches!(&messages[0].data, RecordData::Message(m) if m.text.contains("DuplicateTitle"))
+            view.workspace.messages(&chat).unwrap().is_empty(),
+            "draft is not a posted owner request"
         );
-        assert!(view.worker.is_none(), "seeding a review starts no run");
+        assert!(view.composer.read(cx).value().contains("DuplicateTitle"));
+        let key = serde_json::to_string(&ComposerDestination::Thread(chat)).unwrap();
+        assert!(
+            view.workspace
+                .store
+                .chat_drafts()
+                .unwrap()
+                .iter()
+                .any(|d| d.destination == key && d.text == view.composer.read(cx).value().as_ref())
+        );
+        assert!(view.worker.is_none(), "drafting starts no run");
     });
 
     // Resolve the synthetic duplicate through the checked owner change, then
@@ -1572,7 +1856,7 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
     });
     cx.update_window(f.window, |_, window, _| {
         assert!(window.try_find("knowledge-summary").is_some());
-        assert!(window.try_find("knowledge-review").is_some());
+        assert!(window.try_find("knowledge-draft").is_some());
     })
     .unwrap();
     reveal(cx, &f, "home-content", "knowledge-run");
@@ -1584,7 +1868,7 @@ fn knowledge_check_runs_off_the_ui_thread_and_seeds_a_review_chat(cx: &mut TestA
             Some("Check knowledge, unavailable: a check is running")
         );
         assert!(window.try_find("knowledge-summary").is_none());
-        assert!(window.try_find("knowledge-review").is_none());
+        assert!(window.try_find("knowledge-draft").is_none());
     })
     .unwrap();
     cx.run_until_parked();
