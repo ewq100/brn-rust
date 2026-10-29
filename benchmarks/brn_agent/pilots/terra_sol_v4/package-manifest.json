@@ -1,0 +1,17 @@
+{
+  "version": 4,
+  "files": {
+    "README.md": "fbb1750763702d1186976d4189ac148eeb99958cede694a2853fb283f864ae4d",
+    "capability-receipt.json": "e4cd222c95ed6341a1e66042bd59040cc191581ff1185799509c3685e09ae251",
+    "deadline_guard.py": "516e7e114c40c824de72fa91faad69d70796ccc5873498259c3903ac892d1514",
+    "launch.py": "34c6f79505edd6cb251cc5a9d767d91e4c8a64db6e59089a7fb05d989e3d2a05",
+    "pilot-plan.json": "bf42172bbd2d3ee4f24b0a6a14dff3c4943ed1da67727138fd1ec5aa43a67374",
+    "planning/fixture.json": "5b076c1f19c901c71480a124992d70bb2833d749c2577b3d72c4ce344d516242",
+    "planning/gold.json": "3786b70dbd7d700781221304473ca72ba3b115cf557f1293de34e0cf6b07fd25",
+    "planning/suite.json": "f25cd5d91611a16b1e72d2187125e3fea771d8466dfa00bad4fcc78d5a6b22a6",
+    "prepare_mac.py": "4f691e986318944e1c43b2153bcd37b2d8d957bd5821479e8f89ea6c35675666",
+    "test_deadline.py": "1cbd13aa197b22635ea68dd03350de2320c0e0b0cd27e883e928604a15118a3f",
+    "test_setup.py": "98880946a7738c18cacb61226b7015039badec27463d481b8d44f8547393d9d9",
+    "verification.json": "2a712706a641893b51ad97c02197743d9b6c996494a2ea24b2e4e9611ff42439"
+  }
+}

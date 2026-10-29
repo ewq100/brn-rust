@@ -1,0 +1,136 @@
+{
+  "version": 4,
+  "status": "prepared_not_dispatched",
+  "source_commit": "24bec7e130e7fedd282445d316abe1498994c190",
+  "requested_configurations": [
+    {
+      "name": "terra61-medium",
+      "provider": "Codex",
+      "requested_model": "gpt-6.1-terra",
+      "effort": "medium",
+      "account_catalog_verified": true
+    },
+    {
+      "name": "sol61-medium",
+      "provider": "Codex",
+      "requested_model": "gpt-6.1-sol",
+      "effort": "medium",
+      "account_catalog_verified": true
+    }
+  ],
+  "cases": [
+    "F01",
+    "F10",
+    "F19",
+    "F04",
+    "F13",
+    "F22",
+    "F07",
+    "F16"
+  ],
+  "repetitions": 1,
+  "candidate_runs": 16,
+  "deterministic_owner_events": 6,
+  "helpers": "off",
+  "ai_conversion": "off",
+  "model_call_limit_per_event": 12,
+  "max_total_model_calls": 192,
+  "ask_tool_round_budget": 8,
+  "intake_tool_round_budget": null,
+  "command_timeout_seconds": 300,
+  "whole_experiment_deadline_enforced": true,
+  "automatic_resume": false,
+  "monetary_cap": null,
+  "cost": "unknown; no subscription dollar estimate",
+  "host_bindings_required": [
+    "BRN_REPO",
+    "BRN_BINARY",
+    "BRN_SEEDER",
+    "BRN_AUTH_FILE (existing owner-selected subscription file)",
+    "BRN_FRESH_OUTPUT"
+  ],
+  "gates": [
+    "authenticated one-attempt root release",
+    "offline pinned build and Mac supervisor acceptance",
+    "normal credential safety validation",
+    "human blind scoring or qualified separate semantic grader"
+  ],
+  "mac_relay": {
+    "dispatch": false,
+    "offlinejob002": "untouched",
+    "transfer_credentials": false,
+    "instruction": "Use an independently authorized relay job and host-local bindings; this JSON is a plan, not an executable relay job.",
+    "runner": "brn-mac-relay-01",
+    "identity": "existing Codex subscription; no account choice or credential transfer"
+  },
+  "evidence_sha256": {
+    "fixture.json": "5b076c1f19c901c71480a124992d70bb2833d749c2577b3d72c4ce344d516242",
+    "gold.json": "3786b70dbd7d700781221304473ca72ba3b115cf557f1293de34e0cf6b07fd25",
+    "suite.json": "f25cd5d91611a16b1e72d2187125e3fea771d8466dfa00bad4fcc78d5a6b22a6"
+  },
+  "arguments_template": [
+    "python3",
+    "${BRN_REPO}/scripts/evaluate_wiki_v2.py",
+    "--fixture",
+    "${PLANNING}/fixture.json",
+    "--truth",
+    "${PLANNING}/gold.json",
+    "--root",
+    "${BRN_FRESH_OUTPUT}",
+    "--arm",
+    "terra61-medium=${BRN_BINARY},provider=Codex,model=gpt-6.1-terra,effort=medium",
+    "--arm",
+    "sol61-medium=${BRN_BINARY},provider=Codex,model=gpt-6.1-sol,effort=medium",
+    "--seeder",
+    "${BRN_SEEDER}",
+    "--auth-file",
+    "${BRN_AUTH_FILE}",
+    "--cases",
+    "F01,F10,F19,F04,F13,F22,F07,F16",
+    "--repetitions",
+    "1",
+    "--timeout",
+    "300",
+    "--model-call-limit",
+    "12",
+    "--max-total-model-calls",
+    "192",
+    "--seed-timeout",
+    "300",
+    "--prewarm-timeout",
+    "300"
+  ],
+  "execution_switch": "launch.py adds --live only with exact release, capability receipt, bindings and package fingerprints; no release is included",
+  "reporting": "Use the full frozen suite; missing scenarios keep overall incomplete/unranked. Report paired pilot case grades only, separate latency/tool-round/token observations and all failures.",
+  "discovery": {
+    "cloud_status": "current observations: no secrets, runtime variables or outbound identities configured",
+    "account_catalog_request": "Verified supported app-server model/list on existing Mac subscription, 2026-10-29T04:20:33.066650+00:00",
+    "model_ids": "Both exact requested identifiers offered with medium explicitly supported",
+    "effort": "BRN accepts and sends medium; ModelOption catalog only retains id/live_qualified, so per-model medium support is not established",
+    "existing_probe": "provider_capabilities --live dispatches model calls; deliberately not invoked",
+    "credentials": "no credential files inspected, changed, copied or acquired; UnsafeCredentials remains a hard stop",
+    "evidence": "https://github.com/ewq100/brn-rust/issues/236#issuecomment-6487835954"
+  },
+  "comparison_limits": [
+    "one repetition, scheduler keeps fixed arm order: latency/cache comparison is preliminary; two repetitions rotate order and require 32 candidate Runs / 384 calls",
+    "no full-suite overall ranking; selected case scores require reviewed semantic judgments",
+    "no fixed-reader/helper/grader model budget included; all off",
+    "Whole-experiment watchdog includes preflight/setup. Stop preserves uncertain remote outcomes; no automatic replay."
+  ],
+  "measurement_policy": {
+    "quality": "blind human rubric adjudication first, or independently calibrated and frozen judge with separately authorized calls",
+    "latency": "retain per-attempt native elapsed time, including failures",
+    "tool_rounds": "retain native trace rounds and actual calls separately",
+    "tokens": "retain observed input/cached_input/output; derive uncached only when both input and cached values are valid; missing remains null",
+    "cost": "AgentBench exports null monetary cost on these routes; legacy evaluator price estimates must not be described as actual charge"
+  },
+  "whole_experiment_seconds": 3600,
+  "dispatch_cutoff_seconds": 3570,
+  "cleanup_reserve_seconds": 30,
+  "revision": "terra-sol-pilot-v4",
+  "previous_plan_sha256": "f360c43f47c85045af7b0b7e5211626655c7952614f7de4535ce1966c4f172f0",
+  "setup_budget": "One 3600-second budget from exclusive setup claim; launch accepts only remaining time; no build/reset extension",
+  "job": "brn-terra-sol-pilot-003",
+  "correction": "Pin evaluator lineage caller and sanitized exception capture fix; require writing-pipeline regressions before readiness.",
+  "start_before": "2026-10-31T00:00:00Z"
+}

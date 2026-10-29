@@ -1,0 +1,25 @@
+{
+  "status": "prepared_not_dispatched",
+  "source_commit": "24bec7e130e7fedd282445d316abe1498994c190",
+  "offline_tests": {
+    "platform": "Linux",
+    "passed": 13,
+    "failed_final": 0,
+    "command": "python3 -B -m unittest discover -s scripts/tests -p test_agentbench_pilot_v4.py -v",
+    "evaluator_tests_passed": 105,
+    "nested_acceptance": "11 supervisor tests and 3 writing regressions inside complete setup; original-lineage-bug mutation blocks readiness"
+  },
+  "independent_review": "review_agentbench: no blocking findings; source pin, fresh job, cutoff, unchanged supervisor, guarded writing regressions and negative readiness witness reviewed",
+  "retained_development_failure": "Earlier pilot001 and pilot002 terminal failures and receipts remain unchanged. The pilot002 source defect was reproduced and fixed in candidate24bec7e; original Mac exact traceback remains unavailable.",
+  "pending": [
+    "specific owner approval and fresh authenticated root release for pilot003",
+    "Mac real offline build, evaluator regression and enclosing supervisor acceptance",
+    "qualified semantic grading or blind human adjudication"
+  ],
+  "live_model_calls": 0,
+  "dispatch": false,
+  "existing_jobs_changed": false,
+  "revision": "terra-sol-pilot-v4",
+  "capability_discovery": "Both exact medium models verified via existing Mac subscription; issue236comment6487835954; zero model calls",
+  "correction": "New source pin includes corrected CLI lineage and private exception locations. Setup adds three deterministic writing-pipeline regressions."
+}
