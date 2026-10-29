@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Build the recovered BRN-AgentBench using the native evaluator and checked CLI.
-**Owner attention:** Newly authored judgment mini fixtures independently reviewed; original pack not needed for continued offline work. Live route/model qualification and publication remain gated.
+**Owner attention:** Full 24-focused/three-12-event authored bank and remaining offline execution/reporting adapters implemented and independently reviewed. Publication pending; live quality remains unqualified.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -29,4 +29,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `agentbench-proof` — Preserve native evidence and prepare the benchmark proof
 
-Local page reflects the last saved observations in this record (2026-10-29T00:22:44.041225+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-29T00:46:37.418150+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

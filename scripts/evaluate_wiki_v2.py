@@ -1901,8 +1901,43 @@ def open_root(root):
     return root
 
 
+def checkout_provenance():
+    """Hash benchmark/guidance sources without inspecting credentials or user data.
+
+    This identifies the harness checkout, not the source used to build an
+    arbitrary supplied binary. Binary identity is captured separately.
+    """
+    root = HERE.parent
+    paths = [HERE / 'evaluate_wiki_v2.py', HERE / 'evaluate-wiki-guidance.py', root / 'Cargo.lock']
+    paths += sorted((root / 'agent').rglob('*.md'))
+    paths += sorted((root / 'benchmarks/brn_agent').glob('*.py'))
+    paths += sorted((root / 'benchmarks/brn_agent/judgment_fixtures').glob('*.json'))
+    return {'kind': 'harness-checkout', 'binary_source_binding': 'unverified',
+            'files': {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},
+            'retrieval': 'arm model_dir and native configuration; retrieval asset bytes not attested'}
+
+
+def verify_resume_identity(previous, manifest):
+    """Resume may not mix changed execution or grading inputs into an experiment."""
+    if any(previous.get(k) != manifest.get(k) for k in ('model_call_limit', 'max_total_model_calls')):
+        raise ValueError('--resume: model-call limits differ from the stored manifest')
+    if previous.get('provenance') != manifest.get('provenance'):
+        raise ValueError('--resume: harness/guidance provenance changed or is unavailable; keep this experiment frozen')
+    if previous.get('gold_sha256') != manifest.get('gold_sha256'):
+        raise ValueError('--resume: grader truth differs from stored manifest')
+    if any(previous.get(k) != manifest.get(k) for k in ('fixture_sha256', 'seed', 'arms', 'live')):
+        raise ValueError('--resume: fixture, seed, mode or arms differ from the stored manifest')
+
+
 def manifest_for(args, arms, fixture_sha, cases):
+    truth = getattr(args, 'truth', None)
+    if truth:
+        gold = read_json(truth)
+        if gold.get('fixture_sha256') != fixture_sha:
+            raise ValueError('Grader-only truth belongs to another native fixture')
     return {'format': 2, 'fixture_sha256': fixture_sha, 'seed': args.seed, 'live': args.live,
+            'gold_sha256': hashlib.sha256(Path(truth).read_bytes()).hexdigest() if truth else None,
+            'provenance': checkout_provenance(),
             'repetitions': args.repetitions, 'scale': args.scale,
             'model_call_limit': getattr(args, 'model_call_limit', None),
             'max_total_model_calls': getattr(args, 'max_total_model_calls', None),
@@ -2017,6 +2052,7 @@ def build_parser():
     parser.add_argument('--arm', action='append', default=[], metavar='NAME=BINARY[,option=value]',
                         help='repeatable; options: model-dir, provider, model, effort')
     parser.add_argument('--seeder', type=Path, help='built wiki_eval_seed example binary')
+    parser.add_argument('--truth', type=Path, help='grader-only versioned truth file; hash bound to manifest, never seeded')
     parser.add_argument('--fixture', type=Path, default=DEFAULT_FIXTURE)
     parser.add_argument('--cases', help='comma-separated case IDs (default: all)')
     parser.add_argument('--scale', type=int, choices=[1000, 10000], help='only this filler scale')
@@ -2101,11 +2137,10 @@ def main(argv=None):
     if args.resume:
         root = open_root(args.root)
         previous = read_json(root / 'manifest.json')
-        if any(previous.get(k) != manifest.get(k) for k in ('model_call_limit', 'max_total_model_calls')):
-            parser.error('--resume: model-call limits differ from the stored manifest')
-        if {k: previous[k] for k in ('fixture_sha256', 'seed', 'arms', 'live')} != \
-                {k: manifest[k] for k in ('fixture_sha256', 'seed', 'arms', 'live')}:
-            parser.error('--resume: fixture, seed, mode or arms differ from the stored manifest')
+        try:
+            verify_resume_identity(previous, manifest)
+        except ValueError as error:
+            parser.error(str(error))
     else:
         create_root(args.root)
         root = args.root

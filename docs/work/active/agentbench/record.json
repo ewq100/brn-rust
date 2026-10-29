@@ -5,19 +5,19 @@
   },
   "scope": "Recovered BRN-AgentBench implementation, offline executor/evidence and adapter milestone. No live calls, spending, private data, Mac access or publication.",
   "work_view": {
-    "observed_at": "2026-10-29T00:22:44.041225+00:00",
+    "observed_at": "2026-10-29T00:46:37.418150+00:00",
     "goal": "Build the recovered BRN-AgentBench using the native evaluator and checked CLI.",
-    "owner_attention": "Newly authored judgment mini fixtures independently reviewed; original pack not needed for continued offline work. Live route/model qualification and publication remain gated.",
+    "owner_attention": "Full 24-focused/three-12-event authored bank and remaining offline execution/reporting adapters implemented and independently reviewed. Publication pending; live quality remains unqualified.",
     "tasks": [
       {
         "id": "agentbench-proof",
         "title": "Preserve native evidence and prepare the benchmark proof",
         "owner": "Benchmark integration owner",
         "state": "complete",
-        "activity": "Completed authored H01\u2013H12 mini fixtures, 12 calibration pairs plus four screening variants, native validator/read-ledger contracts, five native seed cases and independently reviewed labels.",
-        "observed_at": "2026-10-29T00:22:44.041225+00:00",
+        "activity": "Completed 27-scenario bank, all-candidate-checkpoint truth/grading, retained parent/helper decisions, bounded reader/grader fixtures, paired clustered comparisons, note diffs/provenance and synthetic external schema adapters.",
+        "observed_at": "2026-10-29T00:46:37.418150+00:00",
         "origin": "observed",
-        "next_action": "Local offline increment complete. Select authorized model/provider routes and call limits for future qualification; live semantic assessment and publication remain separate gates.",
+        "next_action": "Report exact local commit and offline coverage. Await publication decision; live qualification requires separately authorized provider/model routes and limits.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -26,10 +26,10 @@
           "docs/work/active/agentbench/evidence.md"
         ],
         "gates": {
-          "implementation": "offline mechanisms and newly authored judgment fixtures implemented; original pack inaccessible and not claimed as integrated",
-          "checks": "passed: 39 benchmark Python tests (zero skips), four native helper contracts, five native seed cases, strict brn-ai all-target Clippy, markdown/overview/diff checks, independent code and label review",
-          "integration": "local isolated branch; publication authority for this new benchmark not established",
-          "native": "controlled native report validation and other prior host paths observed; live parent judgment, natural helper comparisons and credential-backed routes remain unqualified",
+          "implementation": "full authored offline bank and audited execution/grading/reporting mechanisms implemented; original artifact parity, live quality and explicitly unsupported integrations are not claimed",
+          "checks": "passed: 74 benchmark tests zero skips, 101 evaluator tests, 27 native seed/open checks, reader/helper locked builds and strict Clippy, independent scenario/code review, markdown/diff checks",
+          "integration": "local isolated branch only; publication approval pending",
+          "native": "controlled helper good7/alternative7/bad0, native reader/recovery/stale-edit behavior checked; no live model/grader/helper qualification",
           "owner_acceptance": "pending"
         },
         "attempts": [
@@ -60,6 +60,14 @@
             "evidence": [
               "docs/work/active/agentbench/evidence.md",
               "benchmarks/brn_agent/README.md"
+            ]
+          },
+          {
+            "outcome": "Full-plan audit showed initial proof was incomplete; review found source-link/baseline, mixed-grader, provenance-resume, legacy-truth and latest-only grading gaps. First full run exposed obsolete reservation-test expectation; helper bound test detected missing guard.",
+            "change": "Expanded all27 scenarios, bound versioned truth and every candidate checkpoint, corrected evidence/statistical/provenance guards, retained provider fixtures and independent arithmetic tests; final74+101 tests pass.",
+            "evidence": [
+              "docs/work/active/agentbench/evidence.md",
+              "benchmarks/brn_agent/coverage.json"
             ]
           }
         ]

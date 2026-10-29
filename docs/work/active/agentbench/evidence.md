@@ -305,3 +305,101 @@ recorded in the task record. No credential-backed test, provider call, original
 pack transfer, push or PR was attempted in this increment.
 
 Final four native contracts passed on the corrected source in `/workspace/brn-agentbench-authored-host-reviewed/host-checks.json`, including the helper fixture SHA256. Strict all-target brn-ai Clippy passed after the single borrow fix. Final reviewed pack: `/workspace/brn-agentbench-authored-judgment-reviewed/`. No tests were ignored in this increment.
+
+## Full authored bank and offline execution increment — 2026-10-29
+
+The completion audit found that the earlier implementation stopped at the initial
+proof. Parent explicitly authorized continued offline implementation and bounded
+parallel work. This increment adds the full authored bank: 24 focused cases, three
+per category, plus Cedar/Atlas/Maple twelve-event journeys. There are 60 candidate
+events and three deterministic owner operations in F16. F24 is explicitly
+hypothetical uncertain-send reasoning, not a claim of external-service execution.
+Original ZIP bytes were neither needed nor retried.
+
+Each scenario has versioned checkpoint truth, typed scope exceptions, numerical
+derivations, superseded facts and predeclared grading checkpoints. Gold is outside
+native seeds. `--truth` binds its bytes to the experiment; explicit truth files and
+exact legacy fixture identities support frozen regrading after code revisions.
+All candidate checkpoints are graded with local truth/event prefixes. Criterion
+minimums produce one grade per attempt without weighting longer journeys more.
+Missing evidence remains incomplete; confirmed safety breaches are retained.
+Native evaluated tool failures continue through later events; missing later
+captures are uncertain evidence, never invented zeros for future model behavior.
+
+The invariant checker consumes explicitly controlled or independently reviewed
+claim annotations, exact note/version/quote references, real source links,
+baselines and native receipts. It checks known fact/status values, exceptions,
+stale assertions, missing source edges, duplicates, false completion and unrelated
+record preservation. It does not extract or certify prose meaning. Positive,
+negative and alternative-valid witnesses cover all 27 scenarios, including valid
+paraphrases and a correct no-change outcome.
+
+Retained H06–H12 native parent/helper execution now uses actual scripted BRN
+search/read/report validation and saved parent messages. Good and alternative
+witnesses each pass 7/7; deliberately bad witnesses pass 0/7. H10 performs a real
+inadequate search followed by parent recovery; H12's unauthorized private read is
+blocked. The assessor checks actual saved answers, current-version reads,
+checkpoints, receipts and fixture revision, not an answer supplied as an outcome
+label. Artifacts: `/workspace/brn-agentbench-parent-helper-bounded-good/`,
+`/workspace/brn-agentbench-parent-helper-bounded-alternative/`, and
+`/workspace/brn-agentbench-parent-helper-bounded-bad/`.
+
+Bounded semantic fixture execution retains requests, responses, failures and
+call/byte accounting over frozen packets without network calls. The reader uses
+native scoped queries and reads on clones, with call-limit refusal, injected
+provider failure and unchanged originals checked. All fixture answers and usage
+remain explicitly controlled; no grader or model competence is inferred.
+
+Reports now support paired comparisons clustered by world, a single frozen grader
+revision, incomplete-pair handling, all-attempt cost/latency denominators, failure
+classes and evidence-linked note diffs. Fewer than three independent worlds or
+cluster resamples losing an entire category withhold intervals. Three worlds are
+only a pilot. Checkout/guidance/adapter hashes are retained; source-to-binary and
+complete retrieval asset attestation remain explicitly unverified. Resume rejects
+changed harness/guidance/truth rather than attributing work to old provenance.
+
+Synthetic-only adapters cover MemoryAgentBench FactConsolidation/EventQA schemas
+and ClawArena choice rounds with explicitly normalized BRN text assets. Gold and
+split groups remain separate. No external corpus is admitted or redistributed;
+Claw directory/binary assets and executable shell checks remain unsupported.
+Primary schema documentation/code was checked by the adapter agent; upstream
+commit pinning is not claimed for these synthetic witnesses.
+
+Independent review (`review_agentbench`) challenged and verified corrections for:
+- mixed grader revisions hidden by a set comparison;
+- changed provenance on resume;
+- old proof regrading after the bank version changed;
+- source links with wrong relations or nonexistent targets;
+- absent baselines incorrectly treated as new saved work;
+- latest-only grading hiding intermediate defects.
+Final review found no must-fix issue in the offline increment. The reviewer ran
+selected Python checks; native tests were separately executed by implementation
+agents and the integrated root run. No qualification is claimed from review alone.
+
+Verification on final code:
+- 74 benchmark tests passed, zero skips, with all four explicit native binaries and
+  pinned Inspect: `/workspace/brn-agentbench-complete-python.log`.
+- 101 existing evaluator tests passed:
+  `/workspace/brn-agentbench-complete-evaluator.log`.
+- 27 native offline seed/open checks passed:
+  `/workspace/brn-agentbench-complete-native/offline.json`.
+- Reader and helper examples passed locked offline builds and strict Clippy.
+- Seven scenario checks include actual native stale-edit refusal and preservation
+  of the later owner qualification, without candidate provider calls.
+- Markdown: 687 files, 3274 local links, zero failures; diff hygiene passed.
+- Frozen no-model reporting correctly returns 27 planned scenarios, incomplete,
+  unranked, null overall: `/workspace/brn-agentbench-complete-report/report.html`.
+
+Preserved failed checks: the first combined run had 73 passes and one obsolete
+limits-test expectation (32 calls from the old proof versus 126 conservative
+reservations for the new bank); the arithmetic witness now uses an independent
+explicit fixture. A new oversized-helper-input test caught an intended file-size
+guard that had not inserted; the guard was fixed and retested. Earlier diagnostic
+artifacts were not overwritten. Final planning bundle:
+`/workspace/brn-agentbench-complete-planning/`.
+
+No live model/provider run, credential change, restricted-source retry, corpus
+admission/download, push or PR occurred. Publication remains pending. Live semantic
+qualification, credential-backed route acceptance, actual measured spending and
+separate native UI/external-service qualification remain gates; they are not
+substituted by these offline passes.

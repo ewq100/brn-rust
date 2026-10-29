@@ -47,7 +47,8 @@ class LimitTests(unittest.TestCase):
             dry_plan(proof.build()[1], 100, 2, spend_cap=0)
 
     def test_dry_plan_accounts_for_every_event(self):
-        suite = proof.build()[1]
+        suite = {'scenarios': [{'events': 3, 'repetitions': 3}, {'events': 7, 'repetitions': 1}]}
+        self.assertEqual(dry_plan(suite, 64, 2, configurations=2)['reserved_calls'], 64)
         self.assertFalse(dry_plan(suite, 31, 2)['admitted'])
         self.assertEqual(dry_plan(suite, 32, 2)['reserved_calls'], 32)
         self.assertTrue(dry_plan(suite, 32, 2)['admitted'])

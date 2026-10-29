@@ -1,6 +1,8 @@
-# BRN-AgentBench offline proof
+# BRN-AgentBench offline implementation
 
-This is a partial implementation of the recovered October 15 design. It extends
+This implements the recovered October 15 design’s offline scenario and evaluation
+mechanisms. Live qualification and explicitly unsupported integrations remain
+separate. It extends
 `scripts/evaluate_wiki_v2.py`; candidate calls still use the normal BRN CLI,
 provider route and tools. It adds no provider gateway or production dependency.
 No model has been evaluated, no judge has been calibrated, and no model ranking
@@ -14,18 +16,21 @@ From the repository root:
 python3 benchmarks/brn_agent/bench.py prepare --output /absolute/fresh/planning
 python3 scripts/evaluate_wiki_v2.py \
   --fixture /absolute/fresh/planning/fixture.json \
+  --truth /absolute/fresh/planning/gold.json \
   --root /absolute/fresh/experiment \
   --arm A=/absolute/built/brn \
   --seeder /absolute/built/wiki_eval_seed
 ```
 
-The second command seeds, copies, opens and checks all nine synthetic cases; it
+The second command seeds, copies, opens and checks all 27 synthetic scenarios; it
 makes no model calls. Build the seeder with `cargo build --locked -p
 brn-threads-app --example wiki_eval_seed`. The normal evaluator remains the only
 scheduler and retry owner. Its existing `--live` switch requires separately
 approved model/account/spending choices; do not interpret these commands as
 permission for a live run. Checkpoint-enabled live cases require both
 `--model-call-limit` (per event) and `--max-total-model-calls` (experiment).
+The dry plan conservatively includes every event (including deterministic owner
+events); dispatch reservations apply only to actual model invocations.
 The runtime atomically caps actual parent/helper/summary HTTP attempts, including
 retries, before dispatch. Persistent scheduler reservations include unfinished
 and in-flight work and never refund uncertain calls. Capped useful intake requires
@@ -35,7 +40,7 @@ one. This remains a call-bounded runner, not a qualified monetary-bounded screen
 
 ```sh
 python3 benchmarks/brn_agent/bench.py plan --suite /absolute/planning/suite.json \
-  --max-calls 32 --calls-per-event 2
+  --max-calls 126 --calls-per-event 2
 ```
 
 Trace identity records bounded model/effort fields from actual request bodies and
@@ -43,13 +48,19 @@ returned model IDs when available, without headers or prompt bodies. Requested
 configuration alone never qualifies runtime identity. Unsupported identities and
 missing observations keep results unranked.
 
-`proof.py` deterministically renders eight focused cases and one eight-event
-Cedar renovation world from a small truth ledger. `fixture.json` contains native
+`proof.py` renders 24 focused cases (three per category) and three 12-event
+worlds: Cedar renovation, Atlas technical procedures and Maple administration.
+The 27 scenarios contain 60 candidate events plus three deterministic owner
+events in F16. F24 is explicitly hypothetical external-send recovery reasoning;
+it does not claim actual external service execution. All numerical results derive
+from the typed world ledgers. `fixture.json` contains native
 seeds and owner events; `gold.json` stays outside candidate state. The Rust seeder
 uses checked host operations. Historical events do not grant new authority.
-Gold labels and semantic rubrics are drafts requiring independent validation.
-The fixed-reader and semantic packet builders export frozen, anonymous data;
-neither invokes a model nor qualifies a grader. `bench.py packet --checkpoint PATH
+Scenario facts, temporal transitions and draft rubrics received independent code
+and label review; live semantic grader competence remains unqualified.
+Fixed-reader and semantic packet builders export frozen anonymous data; the
+optional controlled execution paths use bounded offline provider fixtures and
+never qualify a grader. `bench.py packet --checkpoint PATH
 --scenario J01 --step 1 --output FILE` supplies only gold knowable at event one.
 For a wiki-only reader, use `--wiki-records ALLOWLIST.json` instead of scenario/step;
 the allowlist contains exact `{id, version}` pairs and excludes raw source notes.
@@ -98,12 +109,21 @@ still judges whether the cited evidence supports the claim.
 
 The report verifies both native metadata and bytes, checkpoint hashes, and
 record versions. Regrade to a fresh output directory; earlier evidence and grades
-remain readable. Outputs are `report.json`, `scores.csv`, and escaped static
+remain readable. Native `--truth` pins grader-only bytes in the experiment manifest;
+`packet` and semantic commands accept `--truth` to regrade old bank revisions.
+The exact legacy eight-case/eight-event fixture remains supported through
+`legacy_proof.py`. Version-one prepared grading packets must be regenerated from
+frozen outputs, not rerun candidates. Outputs are `report.json`, `scores.csv`, and escaped static
 `report.html`. Reports may include synthetic record text; do not share raw
 backups or use private owner workspaces.
 
-Scores average criteria, repetitions, scenarios and then the eight frozen
-category weights. Missing mandatory slots/categories make overall quality null;
+Scores aggregate checkpoint criteria by the predeclared minimum, then average
+criteria, repetitions, scenarios and the eight frozen category weights. Each
+scenario retains one weight regardless of its event count. Missing checkpoint
+verdicts do not become zeros; confirmed safety findings still survive. Native
+evaluated tool/model failures continue later events, so observed unmet criteria
+can receive zeros while retained facts earn credit. Absent later captures are
+uncertain evidence and remain incomplete, not invented model failures. Missing mandatory slots/categories make overall quality null;
 they are never silently dropped. A complete numerical score is still unranked
 while coverage, grader qualification or model/effort identity is unverified.
 Confirmed safety breaches remain disqualifying even after a replacement.
@@ -111,6 +131,32 @@ Completion and all-attempt operational counts remain separate. Token/cache
 measurements are nullable; output tokens are not inflated by separately adding
 reasoning tokens. Unknown cost stays null. The legacy evaluator's historical
 credit estimates are not imported as measured cost.
+
+`compare --suite FILE --reports A/report.json B/report.json --output FRESH_FILE`
+compares paired scenarios with a deterministic bootstrap clustered by independent
+world. It requires the same suite and one identical frozen grader revision.
+Missing pairs, fewer than three worlds, or resamples losing an entire category
+withhold the interval. Three worlds support only a pilot diagnostic; comparison
+never ranks or qualifies models. All-attempt costs/latency remain in operational
+denominators, with unknown measurements null.
+
+`export-diffs --root EXPERIMENT --evidence INDEX --output FRESH_DIR` verifies
+captured hashes and exports note diffs with record/version links and a local HTML
+index. These synthetic/local artifacts are not a blanket sanitizer for private
+workspaces. Experiment provenance hashes the harness, adapters and shipped guides;
+binary hashes are separate, and source-to-binary and retrieval asset attestation
+remain explicitly unverified. Resume refuses changed harness/guidance/truth.
+
+`check-claims --checkpoint PATH --scenario ID --step N --truth FILE
+--adjudication FILE --output FRESH_FILE` binds explicit independent or controlled
+claim annotations to native records, baseline checkpoint zero and operation
+receipts. The input contains `annotations`, `source_bindings`, `claimed_operations`
+and `adjudication_kind`. See `scenario_checks.py` for the exact schema. Typed values,
+status, source-link records, stale assertions, missing qualifiers, duplicate edges,
+false completion and unrelated-record preservation have good/bad/alternative
+witnesses. Missing baseline/source context remains unobserved. Exact quotations
+prove provenance, not semantic entailment; these checks do not extract meaning
+from arbitrary language or establish full task success alone.
 
 ## Controlled events and judgment adapters
 
@@ -156,6 +202,15 @@ checked October 28; inspected revision is
 `98d7416c24c778c2fee6e6f3006e7a073259d48f`. Adapter output keeps gold and provenance
 separate from candidate data; only candidate data may enter an agent workspace.
 
+`adapt-synthetic --adapter memoryagentbench|clawarena --input FILE
+--manifest FILE --output FRESH_DIR` translates authored schema witnesses only.
+MemoryAgentBench supports FactConsolidation/EventQA context/question/answer fields;
+ClawArena supports documented choice rounds with explicitly normalized BRN text
+assets. Shared histories stay grouped and gold/locks remain outside candidate data.
+Real corpus admission, shell-based checks, directory/binary asset parsing and
+original-leaderboard equivalence are refused or unsupported. The schema sources
+and limits are recorded in `external.py`; no external corpus was downloaded.
+
 ## Executable offline diagnostics
 
 Build the controlled examples with existing test-only Rig/BRN dependencies:
@@ -194,23 +249,30 @@ before invoking a fixed scripted provider fixture. Fixture keys are `mode`
 verified packet). It accepts at most 16 general notes, each at most 128 KiB;
 larger selections fail rather than truncate. Wiki-only mode uses a new private
 project linked only to those artifacts with global knowledge disabled.
-Normal-product mode uses general visibility. Both use fixed supplied reads,
-not model-selected retrieval. The only scripted tool is native `read_note`;
+Normal-product mode uses general visibility. Both use explicitly scoped reads and optional native `read_records` queries,
+not live model-selected retrieval. Optional `queries`, `max_calls` (at most 32)
+and `provider_error` exercise bounded retrieval and retained provider failures. The only scripted tool is native `read_note`;
 pre-existing clone records and the original checkpoint must remain unchanged.
 Each mode uses its own copy. Credential/helper/connector-configured snapshots
 are refused; the controlled probe never loads credentials or contacts providers.
 Its supplied answer and synthetic usage are explicitly unqualified diagnostics.
 
-`semantic-prepare --root ROOT --suite SUITE --evidence INDEX --output FRESH_DIR`
-exports anonymous final-captured-state packets separately from private bindings.
-It supplies checkpoint-scoped gold, the fixed 0–4 rubric, and actual event evidence.
-`semantic-controlled` takes the same arguments plus `--prepared PRIVATE_RESULT
---replies FILE --revision ID`; replies bind exact packet hashes and must contain
-all mandatory criteria, references, completion and safety flags, or an explicit
-grader error. Missing replies and grader outages remain incomplete. Imported
-`grades.json` can feed the normal report command; regrading never invokes a
-candidate. This validates the grading protocol, not semantic competence. Earlier
-checkpoint packets remain available through `packet` for temporal diagnostics.
+`semantic-prepare --root ROOT --suite SUITE --evidence INDEX --truth GOLD
+--output FRESH_DIR` emits one anonymous packet per declared candidate checkpoint,
+with only truth and events knowable then. Seed and host-only setup checkpoints
+remain evidence rather than extra scored samples. `semantic-controlled` imports
+bound replies using `--prepared PRIVATE_RESULT --replies FILE --revision ID`.
+Every verdict references exact records/events at or before its checkpoint.
+Per-criterion minimum, all-checkpoint completion and unioned safety findings
+produce one attempt grade, retaining all intermediate judgments and failures.
+
+`semantic-execute` takes the same root/suite/evidence/truth/output arguments plus
+`--fixture FILE`. It executes an offline fixture provider with explicit `revision`,
+`max_calls`, `max_request_bytes`, `max_response_bytes` and bound `calls`. Requests,
+responses, refusal/error receipts and frozen grades are retained. No arbitrary
+command, network provider, candidate rerun or retry is reachable from this path.
+Regrading uses fresh directories. Scripted responses test protocol behavior,
+not semantic competence.
 
 ## Verification
 
@@ -219,6 +281,7 @@ python3 -m unittest discover -s scripts/tests -p test_evaluate_wiki_v2.py
 BRN_AGENTBENCH_TEST_BINARY=/absolute/built/brn \
 BRN_AGENTBENCH_READER_BINARY=/absolute/built/examples/agentbench_reader \
 BRN_AGENTBENCH_RECOVERY_BINARY=/absolute/built/examples/agentbench_recovery \
+BRN_AGENTBENCH_HELPER_BINARY=/absolute/built/examples/agentbench_helpers \
   python3 -m unittest discover -s benchmarks/brn_agent/tests -v
 ```
 
@@ -249,8 +312,10 @@ candidate calls. When preparing the raw authored pair files directly, pass
 `helper-native.json` adapts H01–H05 to the existing evaluator. Run paired arms
 with the same parent settings, one with the owner-selected fixed helper and one
 with helpers off, only after live authorization. H06 unavailable-helper injection
-is a separate existing native scripted contract, not a fake live outage. H07–H12
-controlled reports are consumed directly by the native scripted test producer:
+and H07–H12 report assessment use `helpers-controlled --binary HELPER_EXAMPLE
+--witness good|bad|alternative --output FRESH_DIR`, a retained scripted parent
+and helper journey. `helpers-assess --root NATIVE_DIR --output FRESH_FILE` regrades
+the frozen structured results. No real provider outage is claimed:
 actual seeded note IDs/versions and UTF-8 citation offsets are resolved at runtime,
 real read_note handlers populate the child ledger, and submit_findings uses the
 production validator. Stale versions and untrusted report text remain visible;
@@ -258,8 +323,10 @@ exact quotations do not prove semantic entailment or correct parent assessment.
 
 `bench.py check-host --checks helper-authored-reports helper-parent-read
 helper-unavailable helper-read-only --output FRESH_DIR` retains these controlled
-host receipts. They are never model scores. H01–H06 natural routing, paired
-operational costs and H07–H12 live parent assessment remain unobserved.
+host receipts. They are never model scores. Retained parent runs bind structured decisions to
+saved assistant messages, actual reads/searches and native receipts. Good and
+alternative witnesses pass 7/7; bad witnesses pass 0/7. H01–H06 natural routing,
+paired operational costs and all live parent assessment remain unobserved.
 
 `bench.py helper-score --rows FILE --mode natural|controlled --output FRESH_FILE`
 aggregates independently reviewed 0–4 criteria using routing 25%, handoff 20%,
@@ -292,5 +359,6 @@ Remaining gates that need additional access or qualification:
   route; current monetary requests refuse before execution. Call caps are enforced.
 - Publication requires authorization. This branch remains local.
 
-The later 24-case/three-world expansion and native UI qualification are separate
-plan phases, not claims made by this initial offline implementation.
+The 24-case/three-world bank is implemented and tested offline. No live model
+has completed it. Larger stress lanes, native UI and real external-service
+qualification remain separate from these CLI benchmark mechanisms.

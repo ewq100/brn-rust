@@ -9,7 +9,7 @@ import subprocess
 from pathlib import Path
 import proof
 from limits import dry_plan
-from evidence import collect, verify_manifest, verify_grade_references, verified_proof_packet
+from evidence import collect, verify_manifest, verify_grade_references, verified_proof_packet, assess_checkpoint_claims
 import calibration
 import judgment
 import external
@@ -17,6 +17,8 @@ import diagnostics
 import host_checks
 import reader
 import semantic
+import reporting
+import helper_execution
 from score import assess, sha256, validate_suite, write_report
 
 
@@ -39,11 +41,19 @@ def main(argv=None):
     plan.add_argument('--calls-per-event', type=int, required=True)
     plan.add_argument('--configurations', type=int, default=1)
     plan.add_argument('--max-spend', type=float)
+    claims = sub.add_parser('check-claims', help='verify reviewed claim annotations against frozen native state')
+    claims.add_argument('--checkpoint', type=Path, required=True)
+    claims.add_argument('--scenario', required=True)
+    claims.add_argument('--step', type=int, required=True)
+    claims.add_argument('--truth', type=Path)
+    claims.add_argument('--adjudication', type=Path, required=True)
+    claims.add_argument('--output', type=Path, required=True)
     packet = sub.add_parser('packet', help='export a frozen anonymous grader/reader packet')
     packet.add_argument('--checkpoint', type=Path, required=True)
     packet.add_argument('--scenario', help='proof scenario for checkpoint-scoped semantic gold')
     packet.add_argument('--step', type=int, help='proof checkpoint number')
     packet.add_argument('--wiki-records', type=Path, help='explicit ID/version allowlist for wiki-only reading')
+    packet.add_argument('--truth', type=Path, help='experiment-pinned versioned truth file')
     packet.add_argument('--output', type=Path, required=True)
     mini = sub.add_parser('prepare-judgment', help='prepare newly authored mini fixtures, not the original pack')
     mini.add_argument('--output', type=Path, required=True)
@@ -59,6 +69,11 @@ def main(argv=None):
     screening.add_argument('--key', type=Path, required=True)
     screening.add_argument('--judgments', type=Path, required=True)
     screening.add_argument('--output', type=Path, required=True)
+    synthetic = sub.add_parser('adapt-synthetic', help='explicitly synthetic upstream-schema adapter witnesses; no corpus admission')
+    synthetic.add_argument('--adapter', choices=['memoryagentbench', 'clawarena'], required=True)
+    synthetic.add_argument('--input', type=Path, required=True)
+    synthetic.add_argument('--manifest', type=Path, required=True)
+    synthetic.add_argument('--output', type=Path, required=True)
     adapter = sub.add_parser('adapt-longmemeval', help='transform admitted local histories, no downloads')
     adapter.add_argument('--input', type=Path, required=True)
     adapter.add_argument('--admission', type=Path, required=True)
@@ -81,11 +96,30 @@ def main(argv=None):
     read.add_argument('--binary', type=Path, required=True)
     read.add_argument('--reader-binary', type=Path, required=True)
     read.add_argument('--output', type=Path, required=True)
+    helper_run = sub.add_parser('helpers-controlled', help='retained native parent/helper provider-fixture journey')
+    helper_run.add_argument('--binary', type=Path, required=True)
+    helper_run.add_argument('--cases', nargs='+')
+    helper_run.add_argument('--witness', choices=['good', 'bad', 'alternative'], default='good')
+    helper_run.add_argument('--output', type=Path, required=True)
+    helper_assess = sub.add_parser('helpers-assess', help='reassess frozen controlled helper outputs')
+    helper_assess.add_argument('--root', type=Path, required=True)
+    helper_assess.add_argument('--output', type=Path, required=True)
     recovery = sub.add_parser('recovery-controlled', help='retain a scripted native crash/recovery/review/Undo journey')
     recovery.add_argument('--recovery-binary', type=Path, required=True)
     recovery.add_argument('--output', type=Path, required=True)
-    for name in ('semantic-prepare', 'semantic-controlled'):
+    compare = sub.add_parser('compare', help='paired configuration differences clustered by independent world')
+    compare.add_argument('--suite', type=Path, required=True)
+    compare.add_argument('--reports', type=Path, nargs='+', required=True)
+    compare.add_argument('--output', type=Path, required=True)
+    diffs = sub.add_parser('export-diffs', help='verified frozen note diffs and evidence index')
+    diffs.add_argument('--root', type=Path, required=True)
+    diffs.add_argument('--evidence', type=Path, required=True)
+    diffs.add_argument('--output', type=Path, required=True)
+    for name in ('semantic-prepare', 'semantic-controlled', 'semantic-execute'):
         command = sub.add_parser(name, help='blind frozen grading protocol; no live calls')
+        command.add_argument('--truth', type=Path)
+        if name == 'semantic-execute':
+            command.add_argument('--fixture', type=Path, required=True)
         command.add_argument('--root', type=Path, required=True)
         command.add_argument('--suite', type=Path, required=True)
         command.add_argument('--evidence', type=Path, required=True)
@@ -102,7 +136,23 @@ def main(argv=None):
     report.add_argument('--output', type=Path, required=True)
     args = parser.parse_args(argv)
     try:
-        if args.command == 'prepare-judgment':
+        if args.command == 'check-claims':
+            result = assess_checkpoint_claims(args.checkpoint, args.scenario, args.step, load(args.adjudication), truth_path=args.truth)
+            with args.output.open('x') as stream:
+                json.dump(result, stream, indent=2)
+        elif args.command == 'compare':
+            result = reporting.compare(load(args.suite), [load(p) for p in args.reports])
+            with args.output.open('x') as stream:
+                json.dump(result, stream, indent=2)
+        elif args.command == 'export-diffs':
+            reporting.export_diffs(args.root, load(args.evidence), args.output)
+        elif args.command == 'adapt-synthetic':
+            adapt = external.memoryagentbench_native if args.adapter == 'memoryagentbench' else external.clawarena_native
+            fixture, gold, lock = adapt(load(args.input), load(args.manifest))
+            args.output.mkdir(parents=True, exist_ok=False)
+            for name, value in [('fixture', fixture), ('gold', gold), ('dataset-lock', lock)]:
+                (args.output / (name + '.json')).write_text(json.dumps(value, indent=2))
+        elif args.command == 'prepare-judgment':
             judgment.prepare(args.output)
         elif args.command == 'helper-score':
             result = judgment.assess(load(args.rows), args.mode)
@@ -117,6 +167,11 @@ def main(argv=None):
             return 0 if result['status'] == 'passed' else 2
         elif args.command == 'stage-history':
             external.stage_history(load(args.input), load(args.admission), args.case, args.binary, args.output)
+        elif args.command == 'helpers-controlled':
+            helper_execution.run(args.binary, args.output, args.cases, args.witness)
+        elif args.command == 'helpers-assess':
+            with args.output.open('x') as stream:
+                json.dump(helper_execution.assess(args.root), stream, indent=2)
         elif args.command == 'reader-controlled':
             reader.run(args.checkpoint, load(args.fixture), args.binary, args.reader_binary, args.output)
         elif args.command == 'recovery-controlled':
@@ -128,12 +183,15 @@ def main(argv=None):
             result = load(args.output / 'recovery-result.json')
             if result.get('status') != 'complete' or result.get('provider') != 'controlled-fixture':
                 raise ValueError('Recovery binary did not return completed controlled evidence')
+        elif args.command == 'semantic-execute':
+            result = semantic.execute_controlled(args.root, args.suite, args.evidence, load(args.fixture), args.output, truth_path=args.truth)
+            return 0 if result['status'] == 'complete' else 2
         elif args.command.startswith('semantic-'):
             if args.command == 'semantic-prepare':
-                result = semantic.prepare(args.root, args.suite, args.evidence)
+                result = semantic.prepare(args.root, args.suite, args.evidence, truth_path=args.truth)
             else:
                 result = semantic.import_controlled(args.root, args.suite, args.evidence,
-                                                     load(args.prepared), load(args.replies), args.revision)
+                                                     load(args.prepared), load(args.replies), args.revision, truth_path=args.truth)
             args.output.mkdir(parents=True, exist_ok=False)
             (args.output / 'private-result.json').write_text(json.dumps(result, indent=2))
             public = result['packets'] if args.command == 'semantic-prepare' else result['grades']
@@ -146,7 +204,7 @@ def main(argv=None):
             if args.wiki_records and args.scenario:
                 raise ValueError('Reader packets must not contain semantic gold')
             packet = verified_proof_packet(args.checkpoint, scenario=args.scenario, step=args.step,
-                                           wiki_records=load(args.wiki_records) if args.wiki_records else None)
+                                           wiki_records=load(args.wiki_records) if args.wiki_records else None, truth_path=args.truth)
             with args.output.open('x') as stream:
                 json.dump(packet, stream, indent=2)
         elif args.command == 'calibration-prepare':
@@ -195,6 +253,7 @@ def main(argv=None):
             result['suite_sha256'] = sha256(args.suite)
             result['evidence_sha256'] = sha256(args.evidence)
             result['grades_sha256'] = sha256(args.grades)
+            result['provenance'] = load(root / 'manifest.json').get('provenance', {'status': 'unavailable-legacy'})
             write_report(args.output, result)
     except (ValueError, KeyError, OSError) as error:
         parser.exit(2, f'{error}\n')

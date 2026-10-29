@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "scope": "initial offline benchmark mechanisms and native host diagnostics; live model quality unobserved",
+  "version": 2,
+  "scope": "full authored 24-focused/three-12-event bank and offline execution/grading mechanisms; all live quality unqualified",
   "workflows": [
     {
       "workflow": "wiki-creation",
@@ -9,7 +9,8 @@
         "note-create",
         "ask"
       ],
-      "scenario": "F01"
+      "scenario": "F01,F09,F17",
+      "qualification": "authored native fixtures and offline good/bad/alternative invariant witnesses; live model quality unobserved"
     },
     {
       "workflow": "wiki-maintenance",
@@ -17,7 +18,8 @@
       "host_operations": [
         "ask"
       ],
-      "scenario": "F02,J01"
+      "scenario": "F02,F10,F18; J01,J02,J03",
+      "qualification": "authored native fixtures and offline good/bad/alternative invariant witnesses; live model quality unobserved"
     },
     {
       "workflow": "research",
@@ -25,7 +27,8 @@
       "host_operations": [
         "ask"
       ],
-      "scenario": "F03"
+      "scenario": "F03,F11,F19",
+      "qualification": "authored native fixtures and offline good/bad/alternative invariant witnesses; live model quality unobserved"
     },
     {
       "workflow": "writing",
@@ -33,7 +36,8 @@
       "host_operations": [
         "ask"
       ],
-      "scenario": "F04"
+      "scenario": "F04,F12,F20",
+      "qualification": "authored native fixtures and offline good/bad/alternative invariant witnesses; live model quality unobserved"
     },
     {
       "workflow": "intake",
@@ -41,7 +45,8 @@
       "host_operations": [
         "intake"
       ],
-      "scenario": "F05"
+      "scenario": "F05,F13,F21",
+      "qualification": "authored native fixtures and offline good/bad/alternative invariant witnesses; live model quality unobserved"
     },
     {
       "workflow": "actions-and-drafts",
@@ -49,7 +54,8 @@
       "host_operations": [
         "ask"
       ],
-      "scenario": "F06"
+      "scenario": "F06,F14,F22",
+      "qualification": "authored native fixtures and offline good/bad/alternative invariant witnesses; live model quality unobserved"
     },
     {
       "workflow": "private-context",
@@ -57,7 +63,8 @@
       "host_operations": [
         "ask"
       ],
-      "scenario": "F07"
+      "scenario": "F07,F15,F23",
+      "qualification": "authored native fixtures and offline good/bad/alternative invariant witnesses; live model quality unobserved"
     },
     {
       "workflow": "truthful-reporting",
@@ -65,7 +72,8 @@
       "host_operations": [
         "ask"
       ],
-      "scenario": "F08"
+      "scenario": "F08,F16,F24",
+      "qualification": "authored native fixtures and offline good/bad/alternative invariant witnesses; live model quality unobserved"
     },
     {
       "workflow": "protection",
@@ -120,8 +128,8 @@
         "read_note",
         "submit_findings"
       ],
-      "scenario": "newly authored H01\u2013H12; native H01\u2013H05 fixture and controlled H06\u2013H12 contracts",
-      "qualification": "native validator/read ledger exercised; natural helper/no-helper and live parent judgments unobserved"
+      "scenario": "authored H01\u2013H12; native H01\u2013H05 fixtures, retained H06\u2013H12 scripted parent/helper execution",
+      "qualification": "good7/alternative7/bad0 controlled decisions; natural routing and live helper competence unobserved"
     },
     {
       "workflow": "grader-calibration",
@@ -176,7 +184,7 @@
         "read_note"
       ],
       "scenario": "controlled native reader",
-      "qualification": "wiki-only/raw-source separation and clone isolation verified; live reader unrun"
+      "qualification": "native scoped queries/read calls, call cap, failure retention and clone isolation verified with controlled provider; live reader unrun"
     },
     {
       "workflow": "external-history-intake",
@@ -185,8 +193,46 @@
         "intake",
         "backup"
       ],
-      "scenario": "synthetic LongMemEval adapter witness",
-      "qualification": "sequential full-history intake and label separation checked; external corpus not admitted"
+      "scenario": "LongMemEval adapter and synthetic MemoryAgentBench/ClawArena schema witnesses",
+      "qualification": "schema isolation/grouping and native intake checked; no real corpus admitted; Claw directory/binary/shell checks unsupported"
     }
+  ],
+  "implementation": {
+    "focused_cases": 24,
+    "focused_per_category": 3,
+    "native_journeys": 3,
+    "journey_events_each": 12,
+    "worlds": [
+      "cedar",
+      "atlas",
+      "maple"
+    ],
+    "candidate_events": 60,
+    "deterministic_owner_events": 3,
+    "helper_cases": 12,
+    "retained_controlled_parent_cases": 7,
+    "calibration_pairs": 12,
+    "calibration_ordered_packets": 24,
+    "additional_screening_pairs": 4,
+    "live_candidate_runs": 0,
+    "admitted_external_corpora": 0,
+    "original_pack_integrated": false
+  },
+  "offline_interfaces": [
+    "versioned experiment-bound checkpoint truth",
+    "all-candidate-checkpoint minimum grading with preserved partial safety",
+    "frozen claim annotations tied to native baselines/receipts",
+    "bounded retained reader/grader provider fixtures",
+    "paired world-cluster comparisons",
+    "verified note diffs and provenance",
+    "legacy proof regrading"
+  ],
+  "unsupported_or_unqualified": [
+    "native UI and real external-service execution",
+    "real corpus admission and published-leaderboard equivalence",
+    "live semantic entailment/model/grader/helper qualification",
+    "monetary bounds on subscription routes",
+    "binary-to-source and complete retrieval asset attestation",
+    "ClawArena directory/binary assets and shell-based checks"
   ]
 }

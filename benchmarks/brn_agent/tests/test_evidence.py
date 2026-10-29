@@ -139,4 +139,4 @@ class PacketAndIdentityTests(unittest.TestCase):
         self.assertNotIn('March 10', str(gold))
         self.assertIn('2027-03-03', str(proof.checkpoint_gold('J01', 2)))
         with self.assertRaises(ValueError):
-            proof.checkpoint_gold('J01', 9)
+            proof.checkpoint_gold('J01', 13)

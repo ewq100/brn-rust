@@ -15,7 +15,9 @@ def packet_hash(packet):
 
 def run(checkpoint, fixture, binary, reader_binary, output):
     """One controlled provider fixture, no arbitrary command or live-provider path."""
-    if set(fixture) != {'mode', 'question', 'records', 'controlled_answer', 'packet_sha256'}:
+    required = {'mode', 'question', 'records', 'controlled_answer', 'packet_sha256'}
+    optional = {'queries', 'max_calls', 'provider_error'}
+    if not required <= set(fixture) or set(fixture) - required - optional:
         raise ValueError('Controlled reader requires the exact fixed protocol')
     if fixture['mode'] not in ('wiki-only', 'normal-product'):
         raise ValueError('Unknown reader mode')
@@ -28,6 +30,16 @@ def run(checkpoint, fixture, binary, reader_binary, output):
         raise ValueError('Reader needs bounded exact record/version selections')
     if len({r['id'] for r in reads}) != len(reads):
         raise ValueError('Duplicate reader selection')
+    queries = fixture.get('queries', [])
+    max_calls = fixture.get('max_calls', 32)
+    if not isinstance(queries, list) or len(queries) > 4 or any(not isinstance(q, str) or not q or len(q) > 256 for q in queries):
+        raise ValueError('Reader queries must be at most four bounded strings')
+    if type(max_calls) is not int or not 1 <= max_calls <= 32:
+        raise ValueError('Reader max_calls must be 1–32')
+    if len(queries) + len(reads) + 1 > max_calls:
+        raise ValueError('Reader fixture exceeds the declared model-call budget')
+    if 'provider_error' in fixture and (not isinstance(fixture['provider_error'], str) or not fixture['provider_error'] or len(fixture['provider_error']) > 256):
+        raise ValueError('Controlled reader error must be bounded text')
     packet = verified_proof_packet(checkpoint, wiki_records=reads if fixture['mode'] == 'wiki-only' else None)
     if packet_hash(packet) != fixture['packet_sha256']:
         raise ValueError('Controlled response belongs to a different frozen packet')
@@ -45,7 +57,8 @@ def run(checkpoint, fixture, binary, reader_binary, output):
     result = {'format':1, 'status':'running', 'qualified':False, 'mode':fixture['mode'],
               'provider':'controlled-fixture', 'packet_sha256':fixture['packet_sha256'],
               'fixture_sha256':packet_hash(fixture), 'reader_binary_sha256':sha256(reader_binary),
-              'cli_binary_sha256':sha256(binary), 'backup_sha256':frozen, 'cost':None}
+              'cli_binary_sha256':sha256(binary), 'backup_sha256':frozen, 'cost':None, 'max_calls':max_calls,
+              'queries':queries, 'retrieval':'native read_records over the explicit scoped allowlist'}
     def persist():
         (output / 'reader-result.json').write_text(json.dumps(result, indent=2))
     persist()
@@ -55,6 +68,7 @@ def run(checkpoint, fixture, binary, reader_binary, output):
         cli.call('restore', source=backup)
         (output / 'AGENTBENCH-READER-CLONE').write_text(frozen + '\n')
         probe = {key:fixture[key] for key in ('mode','question','records','controlled_answer')}
+        probe.update(queries=queries, max_calls=max_calls, provider_error=fixture.get('provider_error'))
         probe['data_dir'] = str(output / 'data')
         request = output / 'controlled-probe.json'
         request.write_text(json.dumps(probe, indent=2))
@@ -67,6 +81,9 @@ def run(checkpoint, fixture, binary, reader_binary, output):
         observed = json.loads(process.stdout)
         if observed.get('provider') != 'controlled-fixture' or observed.get('qualified') is not False:
             raise ValueError('Reader binary did not return controlled diagnostic evidence')
+        result['observed'] = observed
+        if type(observed.get('request_count')) is not int or observed['request_count'] > max_calls:
+            raise ValueError('Controlled reader exceeded the fixed invocation budget')
         if observed.get('terminal') != 'Completed':
             raise ValueError('Controlled reader did not reach a completed terminal result')
         result.update(status='complete', observed=observed)

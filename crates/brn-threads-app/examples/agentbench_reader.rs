@@ -22,7 +22,17 @@ struct Probe {
     question: String,
     records: Vec<Read>,
     controlled_answer: String,
+    #[serde(default)]
+    queries: Vec<String>,
+    #[serde(default = "default_max_calls")]
+    max_calls: usize,
+    #[serde(default)]
+    provider_error: Option<String>,
 }
+fn default_max_calls() -> usize {
+    32
+}
+
 fn created(receipt: &Receipt, kind: &str) -> String {
     receipt
         .writes
@@ -45,6 +55,16 @@ async fn run(probe: Probe) -> std::result::Result<serde_json::Value, Box<dyn std
         || probe.records.is_empty()
         || probe.records.len() > 16
         || probe.question.is_empty()
+        || probe.question.len() > 262144
+        || probe.controlled_answer.len() > 262144
+        || probe.queries.len() > 4
+        || probe.queries.iter().any(|q| q.is_empty() || q.len() > 1024)
+        || !(1..=32).contains(&probe.max_calls)
+        || probe.queries.len() + probe.records.len() + 1 > probe.max_calls
+        || probe
+            .provider_error
+            .as_ref()
+            .is_some_and(|e| e.is_empty() || e.len() > 1024)
     {
         return Err("invalid bounded reader probe".into());
     }
@@ -125,7 +145,7 @@ async fn run(probe: Probe) -> std::result::Result<serde_json::Value, Box<dyn std
             model: "gpt-6.1-sol".into(),
         },
         effort: ReasoningEffort::Medium,
-        max_tool_rounds: 20,
+        max_tool_rounds: 24,
         auth_file: None,
         credentials_dir: None,
         sources: vec![],
@@ -134,7 +154,7 @@ async fn run(probe: Probe) -> std::result::Result<serde_json::Value, Box<dyn std
     })?;
     // Provider fixture has only fixed read calls and a supplied terminal response.
     // Arbitrary tools cannot enter this protocol, so it cannot request a write.
-    let mut turns = probe
+    let reads = probe
         .records
         .iter()
         .enumerate()
@@ -149,12 +169,40 @@ async fn run(probe: Probe) -> std::result::Result<serde_json::Value, Box<dyn std
             ]
         })
         .collect::<Vec<_>>();
-    turns.push(vec![
-        MockStreamEvent::text(&probe.controlled_answer),
-        MockStreamEvent::final_response_with_total_tokens(1),
-    ]);
+    let ids = probe
+        .records
+        .iter()
+        .map(|r| r.id.clone())
+        .collect::<Vec<_>>();
+    let mut turns = probe
+        .queries
+        .iter()
+        .enumerate()
+        .map(|(index, query)| {
+            vec![
+                MockStreamEvent::tool_call(
+                    format!("query-{index}"),
+                    "read_records",
+                    json!({"ids":ids,"query":query}),
+                ),
+                MockStreamEvent::final_response_with_total_tokens(1),
+            ]
+        })
+        .collect::<Vec<_>>();
+    turns.extend(reads);
+    turns.push(if let Some(error) = &probe.provider_error {
+        vec![MockStreamEvent::error(error)]
+    } else {
+        vec![
+            MockStreamEvent::text(&probe.controlled_answer),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ]
+    });
     let model = MockCompletionModel::from_stream_turns(turns);
     let result = run_prepared_scripted(prepared, model.clone()).await?;
+    if model.requests().len() > probe.max_calls {
+        return Err("controlled reader exceeded its invocation budget".into());
+    }
     let final_records = workspace.records()?;
     // Reader project links are new records; every pre-existing record is unchanged.
     if initial
@@ -167,6 +215,8 @@ async fn run(probe: Probe) -> std::result::Result<serde_json::Value, Box<dyn std
         json!({"format":1,"mode":probe.mode,"provider":"controlled-fixture", "qualified":false,
         "answer":result.answer.text,"terminal":format!("{:?}",result.answer.terminal),
         "run":result.run_id,"trace":result.trace,"request_count":model.requests().len(),
+        "max_calls":probe.max_calls,"queries":probe.queries,
+        "retrieval":"native read_records restricted to the explicit allowed IDs",
         "model_visible_history":model.requests().iter().map(|r| format!("{:?}",r.chat_history)).collect::<Vec<_>>(),
         "cost":null,"usage_kind":"synthetic fixture tokens, not measured model usage"}),
     )

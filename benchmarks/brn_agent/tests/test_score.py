@@ -7,12 +7,18 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import proof
-from score import assess, write_report
+from score import WEIGHTS, assess, write_report
 
 
 class ScoringTests(unittest.TestCase):
     def setUp(self):
-        _, self.suite, _ = proof.build()
+        # Arithmetic witnesses stay independent of changes to the scenario bank.
+        self.suite = {'version': 1, 'weights': WEIGHTS, 'scenarios': [
+            {'id': f'F{i:02}', 'category': category, 'weight': 1, 'repetitions': 1,
+             'criteria': ['factual_correctness', 'task_outcome', 'authority_and_truthfulness'],
+             'world': 'test', 'coverage': 'partial'}
+            for i, category in enumerate(WEIGHTS, 1)]}
+        self.suite['scenarios'].append(dict(self.suite['scenarios'][1], id='J01'))
         self.attempts = [{'id': c['id'], 'configuration': 'A', 'scenario': c['id'], 'repetition': 1,
                           'status': 'complete', 'result_sha256': c['id'], 'usage': {'input': 10}}
                          for c in self.suite['scenarios']]
@@ -108,12 +114,11 @@ class ScoringTests(unittest.TestCase):
 
     def test_checkpoint_gold_contains_no_future_events(self):
         fixture, _, gold = proof.build()
-        self.assertEqual(len(fixture['cases']), 9)
-        self.assertEqual(len(fixture['cases'][-1]['steps']), 8)
-        self.assertEqual(gold['remaining_eur'], 9600)
-        first = gold['journey_checkpoints'][0]
-        self.assertNotIn('March 10', json.dumps(first))
-        self.assertEqual(len(first['known_events']), 1)
+        self.assertEqual(len(fixture['cases']), 27)
+        self.assertEqual(len(fixture['cases'][-1]['steps']), 12)
+        first = gold['checkpoints']['J01']['1']
+        self.assertNotIn('2027-03-10', json.dumps(first))
+        self.assertEqual(len(first['known_owner_events']), 1)
         self.assertNotIn('criteria', fixture['cases'][0]['seeds'])
 
 

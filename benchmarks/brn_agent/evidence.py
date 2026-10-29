@@ -17,6 +17,25 @@ def identity_matches(trace, model, effort):
                for helper in trace.get('helpers', []) if helper.get('trace'))
 
 
+def classify_failure(raw):
+    """Separate observed native failure causes; unknowns never become model zeros."""
+    status = raw['status']
+    terminals = {step.get('terminal') for step in raw.get('steps', [])}
+    if status == 'setup_failure' or terminals & {'Failed:UnsafeCredentials', 'Failed:ReconnectNeeded', 'Failed:CodeExpired'}:
+        return 'setup_or_compatibility'
+    if terminals & {'Failed:Network', 'Failed:RateLimited'}:
+        return 'provider_transport'
+    if terminals & {'Failed:Storage', 'Failed:IndexStale'}:
+        return 'brn_runtime'
+    if terminals & {'Failed:ToolLimitReached', 'Failed:InvalidToolUse', 'Failed:ModelRefused'}:
+        return 'model_or_tool_use'
+    if status == 'budget_refused':
+        return 'scheduling_limit'
+    if status == 'complete':
+        return None
+    return 'unclassified_infrastructure'
+
+
 def native_attempt(path, root):
     path, root = Path(path), Path(root)
     raw = json.loads(path.read_text())
@@ -32,11 +51,11 @@ def native_attempt(path, root):
                  elapsed_ms=nullable_sum((trace or {}).get('elapsed_ms') for trace in traces), cost=None)
     identity = str(path.relative_to(root))
     status = raw['status']
-    if status == 'complete' and any(step.get('terminal', '').startswith('Failed:') for step in raw.get('steps', [])):
+    if status == 'complete' and classify_failure(raw) == 'model_or_tool_use':
         status = 'model_failure'
     attempt = {'id': identity, 'result': identity, 'result_sha256': sha256(path),
                'configuration': raw['arm'], 'scenario': raw['case'], 'repetition': raw['repetition'],
-               'status': status, 'usage': usage,
+               'status': status, 'failure_class': classify_failure(raw), 'usage': usage,
                'requested_identity': {key: raw.get(key) for key in ('provider', 'model', 'effort', 'helper', 'binary_sha256')},
                'runtime_identity_verified': bool(traces) and all(
                    identity_matches(trace, raw.get('model'), raw.get('effort')) for trace in traces),
@@ -56,10 +75,13 @@ def collect(root, suite_path):
     native_manifest = json.loads((root / 'manifest.json').read_text())
     if suite['fixture_sha256'] != native_manifest['fixture_sha256']:
         raise ValueError('Suite fixture does not match native experiment')
+    if native_manifest.get('gold_sha256') and native_manifest['gold_sha256'] != suite.get('gold_sha256'):
+        raise ValueError('Suite truth differs from native experiment')
     attempts = [native_attempt(path, root) for path in sorted((root / 'runs').glob('*/*/result.json'))]
     orphans = [str(path.relative_to(root)) for path in sorted((root / 'runs').glob('*/*'))
                if path.is_dir() and not (path / 'result.json').exists()]
     return {'version': 1, 'suite_sha256': sha256(suite_path), 'attempts': attempts,
+            'gold_sha256': native_manifest.get('gold_sha256'),
             'fixture_sha256': suite['fixture_sha256'], 'native_manifest_sha256': sha256(root / 'manifest.json'),
             'unindexed_attempts': orphans,
             'limitations': ['Requested identity is not wire-observed identity.',
@@ -73,6 +95,8 @@ def verify_manifest(manifest, root):
         raise ValueError('Native experiment manifest changed')
     if json.loads((root / 'manifest.json').read_text())['fixture_sha256'] != manifest['fixture_sha256']:
         raise ValueError('Native fixture identity mismatch')
+    if manifest.get('gold_sha256') != json.loads((root / 'manifest.json').read_text()).get('gold_sha256'):
+        raise ValueError('Grader truth identity differs from native manifest')
     actual_paths = {str(p.relative_to(root)) for p in (root / 'runs').glob('*/*/result.json')}
     if actual_paths != {a['result'] for a in manifest['attempts']}:
         raise ValueError('Evidence index omits or adds native attempts; collect a new index')
@@ -172,15 +196,35 @@ def verified_checkpoint(checkpoint, manifest_path=None):
     return raw, number, manifest
 
 
-def verified_proof_packet(checkpoint, *, scenario=None, step=None, wiki_records=None, manifest_path=None):
+def verified_proof_packet(checkpoint, *, scenario=None, step=None, wiki_records=None, manifest_path=None, truth_path=None):
     import proof
     raw, number, manifest = verified_checkpoint(checkpoint, manifest_path)
-    if scenario is not None and manifest['fixture_sha256'] != proof.build()[1]['fixture_sha256']:
-        raise ValueError('Checkpoint is not from this pinned proof fixture')
     if scenario is not None and (scenario != raw['case'] or step != number):
         raise ValueError('Requested gold does not match native scenario/checkpoint')
+    gold = None
+    if scenario is not None:
+        if truth_path is not None:
+            truth = json.loads(Path(truth_path).read_text())
+            if not manifest.get('gold_sha256') or sha256(truth_path) != manifest['gold_sha256']:
+                raise ValueError('Truth bytes are not pinned by this native experiment')
+            if truth.get('fixture_sha256') != manifest['fixture_sha256'] or truth.get('version') != 1:
+                raise ValueError('Unsupported or mismatched scenario truth')
+            try:
+                gold = truth['checkpoints'][scenario][str(number)]
+            except KeyError as error:
+                raise ValueError('No truth at the requested checkpoint') from error
+            if gold.get('scenario') != scenario or gold.get('step') != number:
+                raise ValueError('Truth checkpoint identity mismatch')
+        else:
+            revision = proof.fixture_revision(manifest['fixture_sha256'])
+            current = proof.build()[1] if revision == proof.REVISION else proof.legacy_proof.build()[1]
+            if manifest.get('gold_sha256') is not None and manifest['gold_sha256'] != current.get('gold_sha256'):
+                raise ValueError('Supply the pinned truth file for this fixture revision')
+            gold = proof.checkpoint_gold(raw['case'], number, revision=revision)
+    elif truth_path is not None:
+        raise ValueError('Reader packets must never receive semantic truth')
     packet = grading_packet(checkpoint, wiki_only=wiki_records is not None, wiki_records=wiki_records,
-                            known_gold=proof.checkpoint_gold(raw['case'], number) if scenario else None)
+                            known_gold=gold)
     return anonymize_local_paths(packet, Path(checkpoint).resolve().parents[4])
 
 
@@ -196,3 +240,33 @@ def anonymize_local_paths(value, root):
             return {k:visit(v) for k,v in item.items()}
         return item
     return visit(value)
+
+
+def assess_checkpoint_claims(checkpoint, scenario, step, adjudication, truth_path=None, manifest_path=None):
+    """Bind independent claim annotations to actual checkpoint/receipt evidence.
+
+    Semantic annotation remains a reviewer responsibility. Source aliases supplied
+    by that reviewer must resolve to real captured records; they are not authority.
+    """
+    import scenario_checks
+    if set(adjudication) != {'annotations', 'source_bindings', 'claimed_operations', 'adjudication_kind'}:
+        raise ValueError('Claim adjudication requires the exact evidence schema')
+    if not isinstance(adjudication['source_bindings'], dict):
+        raise ValueError('Source bindings must map aliases to captured records')
+    raw, number, _ = verified_checkpoint(checkpoint, manifest_path)
+    packet = verified_proof_packet(checkpoint, scenario=scenario, step=step,
+                                   truth_path=truth_path, manifest_path=manifest_path)
+    baseline = Path(checkpoint).parent / '0'
+    verified_checkpoint(baseline, manifest_path)
+    before = json.loads((baseline / 'records.json').read_text())
+    records = json.loads((Path(checkpoint) / 'records.json').read_text())
+    receipts = [receipt for event in raw.get('steps', [])[:number] for receipt in event.get('receipts', [])]
+    result = scenario_checks.assess(packet['checkpoint_gold'], records, adjudication['annotations'],
+                                    baseline=before, source_bindings=adjudication['source_bindings'],
+                                    receipts=receipts, claimed_operations=adjudication['claimed_operations'],
+                                    adjudication_kind=adjudication['adjudication_kind'])
+    result.update(records_sha256=sha256(Path(checkpoint) / 'records.json'),
+                  baseline_sha256=sha256(baseline / 'records.json'),
+                  result_sha256=sha256(Path(checkpoint).parent.parent / 'result.json'),
+                  scenario=scenario, step=step)
+    return result

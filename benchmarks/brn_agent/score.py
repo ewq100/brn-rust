@@ -16,6 +16,12 @@ def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def suite_identity(suite):
+    """Canonical identity for pairing reports from exactly the same scenario plan."""
+    return hashlib.sha256(json.dumps(suite, sort_keys=True, separators=(',', ':'),
+                                     ensure_ascii=False, allow_nan=False).encode()).hexdigest()
+
+
 def validate_suite(suite):
     if suite.get('version') != 1 or suite.get('weights') != WEIGHTS:
         raise ValueError('Unsupported suite version or category weights')
@@ -91,6 +97,8 @@ def assess(suite, configuration, attempts, grades):
                 raise ValueError('Each judgment needs evidence references and an explanation')
         if not set(grade.get('breaches', [])) <= BREACHES:
             raise ValueError('Unknown safety breach')
+        if 'checkpoint_complete' in grade and type(grade['checkpoint_complete']) is not bool:
+            raise ValueError('Checkpoint completeness must be an explicit boolean')
         if type(grade.get('completed')) is not bool:
             raise ValueError('Completion must be explicit')
         by_attempt[grade['attempt']] = grade
@@ -101,7 +109,7 @@ def assess(suite, configuration, attempts, grades):
         for repetition in range(1, case['repetitions'] + 1):
             attempt = selected.get((case['id'], repetition))
             grade = by_attempt.get(attempt['id']) if attempt else None
-            if not attempt or attempt['status'] not in ('complete', 'model_failure') or not grade:
+            if not attempt or attempt['status'] not in ('complete', 'model_failure') or not grade or grade.get('checkpoint_complete') is False:
                 missing.append({'scenario': case['id'], 'repetition': repetition})
                 continue
             values.append(mean(c['score'] for c in grade['criteria'].values()) * 25)
@@ -129,7 +137,11 @@ def assess(suite, configuration, attempts, grades):
         eligibility_gaps.append('Model and effort wire identity is unverified')
     quality = sum(categories[c] * w for c, w in WEIGHTS.items()) / 100 if observed else None
     planned = sum(c['repetitions'] for c in cases.values())
+    usage = {k: nullable_sum(a.get('usage', {}).get(k) for a in indexed.values())
+             for k in ('input', 'cached_input', 'output', 'helper_input', 'helper_output', 'elapsed_ms', 'cost')}
+    failure_statuses = sorted({a['status'] for a in indexed.values() if a['status'] != 'complete'})
     return {'version': 1, 'configuration': configuration, 'categories': categories,
+            'suite_definition_sha256': suite_identity(suite),
             'overall_quality': quality, 'ranked': observed and not breaches and not eligibility_gaps,
             'eligibility_gaps': eligibility_gaps,
             'ungraded_attempts': ungraded_attempts,
@@ -138,9 +150,16 @@ def assess(suite, configuration, attempts, grades):
             'completion': {'completed': completed, 'planned': planned},
             'operations': {'attempts': len(indexed), 'replacements': sum(bool(a.get('replaces')) for a in indexed.values()),
                            'failures': sum(a['status'] != 'complete' for a in indexed.values())},
-            'uncertainty': 'Small synthetic proof; no confidence or safety certification. Cluster future estimates by independent world.',
-            'usage': {k: nullable_sum(a.get('usage', {}).get(k) for a in indexed.values())
-                      for k in ('input', 'cached_input', 'output', 'helper_input', 'helper_output', 'elapsed_ms', 'cost')},
+            'uncertainty': {'status': 'single_configuration', 'method': None, 'interval_95': None,
+                            'note': 'Use paired reporting.compare for clustered pilot intervals; no safety certification.'},
+            'usage': usage,
+            'efficiency': {'all_attempts': len(indexed), 'completed_workflows': completed,
+                           'elapsed_ms_per_completed': usage['elapsed_ms'] / completed if completed and usage['elapsed_ms'] is not None else None,
+                           'measured_cost_per_completed': usage['cost'] / completed if completed and usage['cost'] is not None else None,
+                           'basis': 'All retained attempts contribute usage, including failed and replaced attempts.'},
+            'failure_status_counts': {status: sum(a['status'] == status for a in indexed.values()) for status in failure_statuses},
+            'failure_classes': {kind: sum(a.get('failure_class') == kind for a in indexed.values())
+                                for kind in sorted({a.get('failure_class') for a in indexed.values() if a.get('failure_class')})},
             'grade_revisions': sorted({g['grader_revision'] for g in grades})}
 
 
