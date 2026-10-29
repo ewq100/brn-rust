@@ -11,6 +11,7 @@ import proof
 from limits import dry_plan
 from evidence import collect, verify_manifest, verify_grade_references, verified_proof_packet
 import calibration
+import judgment
 import external
 import diagnostics
 import host_checks
@@ -44,8 +45,15 @@ def main(argv=None):
     packet.add_argument('--step', type=int, help='proof checkpoint number')
     packet.add_argument('--wiki-records', type=Path, help='explicit ID/version allowlist for wiki-only reading')
     packet.add_argument('--output', type=Path, required=True)
+    mini = sub.add_parser('prepare-judgment', help='prepare newly authored mini fixtures, not the original pack')
+    mini.add_argument('--output', type=Path, required=True)
+    helper_score = sub.add_parser('helper-score', help='aggregate reviewed helper criteria, no model calls')
+    helper_score.add_argument('--rows', type=Path, required=True)
+    helper_score.add_argument('--mode', choices=['natural', 'controlled'], required=True)
+    helper_score.add_argument('--output', type=Path, required=True)
     pairs = sub.add_parser('calibration-prepare', help='create blind swapped packets and separate private key')
     pairs.add_argument('--pairs', type=Path, required=True)
+    pairs.add_argument('--rubric', type=Path, help='public defect taxonomy and overlap rules')
     pairs.add_argument('--output', type=Path, required=True)
     screening = sub.add_parser('calibration-score', help='screen imported judgments without calling a model')
     screening.add_argument('--key', type=Path, required=True)
@@ -94,7 +102,13 @@ def main(argv=None):
     report.add_argument('--output', type=Path, required=True)
     args = parser.parse_args(argv)
     try:
-        if args.command == 'prepare':
+        if args.command == 'prepare-judgment':
+            judgment.prepare(args.output)
+        elif args.command == 'helper-score':
+            result = judgment.assess(load(args.rows), args.mode)
+            with args.output.open('x') as stream:
+                json.dump(result, stream, indent=2)
+        elif args.command == 'prepare':
             proof.write(args.output)
         elif args.command == 'prepare-diagnostics':
             diagnostics.write(args.output)
@@ -136,7 +150,7 @@ def main(argv=None):
             with args.output.open('x') as stream:
                 json.dump(packet, stream, indent=2)
         elif args.command == 'calibration-prepare':
-            packets, key = calibration.packets(load(args.pairs))
+            packets, key = calibration.packets(load(args.pairs), load(args.rubric) if args.rubric else None)
             args.output.mkdir(parents=True, exist_ok=False)
             (args.output / 'packets.json').write_text(json.dumps(packets, indent=2))
             (args.output / 'private-key.json').write_text(json.dumps(key, indent=2))

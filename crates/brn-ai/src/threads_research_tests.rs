@@ -2191,3 +2191,120 @@ async fn copilot_helper_provider_overflow_is_budget_without_unavailability_or_fa
             .contains("CANARY_COPILOT_HELPER")
     );
 }
+
+/// Newly authored AgentBench reports, not recovered original planning-pack bytes.
+/// The provider fixture reads actual seeded notes before submit_findings; only
+/// the production validator can attach verification labels and read receipts.
+#[tokio::test]
+async fn agentbench_authored_reports_use_native_read_ledger_and_validator() {
+    let cases: Value = serde_json::from_str(include_str!(
+        "../../../benchmarks/brn_agent/judgment_fixtures/helpers.json"
+    ))
+    .unwrap();
+    for case in cases.as_array().unwrap().iter().skip(6) {
+        let (_root, request, _) = setup();
+        let mut store = Store::open(&request.data_dir).unwrap();
+        let mut originals = std::collections::HashMap::new();
+        let mut current = Vec::new();
+        for note in case["notes"].as_array().unwrap() {
+            let text = note["text"].as_str().unwrap();
+            let record = saved(
+                &mut store,
+                RecordData::Note(Note::working(note["title"].as_str().unwrap(), text)),
+            );
+            originals.insert(note["key"].as_str().unwrap(), (record.clone(), text));
+            current.push(if let Some(update) = case["owner_update"].as_str() {
+                update_note(&mut store, &record, update)
+            } else {
+                record
+            });
+        }
+        if let Some(private) = case.get("private_note") {
+            let other = other_chat(&mut store);
+            let mut note = Note::working("Unrelated private", private["text"].as_str().unwrap());
+            note.chat = Some(other.id);
+            saved(&mut store, RecordData::Note(note));
+        }
+        drop(store);
+        let (scope, _) = begin(&request).unwrap();
+        let source = &case["controlled_report"];
+        let citations = source["quotes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .enumerate()
+            .map(|(i, quote)| {
+                let (record, text) = &originals[quote["note"].as_str().unwrap()];
+                citation(
+                    &format!("c{i}"),
+                    &record.id,
+                    record.version,
+                    text,
+                    quote["quote"].as_str().unwrap(),
+                )
+            })
+            .collect();
+        let mut report = findings(citations);
+        report["summary"] = source["summary"].clone();
+        report["status"] = source["status"].clone();
+        report["findings"][0]["claim"] = source["summary"].clone();
+        if source["status"] == "not_found" {
+            report["findings"] = json!([]);
+            report["searched"] = source["searched"].clone();
+            report["gaps"] = json!(["Only the wrong search term was tried."]);
+        }
+        let mut turns = Vec::new();
+        for (i, note) in current.iter().enumerate() {
+            turns.push(vec![MockStreamEvent::tool_call(
+                format!("read{i}"), "read_note",
+                json!({"id":note.id,"version":note.version,"start":0,"max_bytes":4096,"section":false}),
+            ), tokens(10)]);
+        }
+        turns.push(vec![
+            MockStreamEvent::tool_call("submit", "submit_findings", report),
+            tokens(10),
+        ]);
+        turns.push(vec![MockStreamEvent::text("done"), tokens(1)]);
+        scripted(
+            &scope,
+            vec![Ok(MockCompletionModel::from_stream_turns(turns))],
+        );
+        let out = ask(&scope, vec![question(case["prompt"].as_str().unwrap())]).await;
+        let report = &out["reports"][0];
+        assert_eq!(report["outcome"], source["status"], "{}: {out}", case["id"]);
+        assert_eq!(
+            report["read"].as_array().unwrap().len(),
+            current.len(),
+            "{out}"
+        );
+        assert!(
+            report["read"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|r| r["complete"] == true),
+            "{out}"
+        );
+        assert_eq!(
+            report["citations"].as_array().unwrap().len(),
+            source["quotes"].as_array().unwrap().len(),
+            "{out}"
+        );
+        assert_eq!(report["summary"], source["summary"], "{out}");
+        for cite in report["citations"].as_array().unwrap() {
+            assert_eq!(
+                cite["verified"],
+                if case["id"] == "H09" {
+                    "stale"
+                } else {
+                    "exact"
+                },
+                "{out}"
+            );
+        }
+        assert!(out["framing"].as_str().unwrap().contains("untrusted"));
+        assert!(!out.to_string().contains("SYNTHETIC-PRIVATE-LARCH-29"));
+        // Exact quotes establish provenance, not entailment or parent judgment.
+        // No assertion here claims H08/H10/H11/H12 was correctly assessed by a model.
+    }
+}

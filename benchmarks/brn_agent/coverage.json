@@ -114,16 +114,21 @@
     },
     {
       "workflow": "helper-judgment",
-      "status": "untested",
-      "host_operations": [],
-      "scenario": null
+      "status": "partial",
+      "host_operations": [
+        "research",
+        "read_note",
+        "submit_findings"
+      ],
+      "scenario": "newly authored H01\u2013H12; native H01\u2013H05 fixture and controlled H06\u2013H12 contracts",
+      "qualification": "native validator/read ledger exercised; natural helper/no-helper and live parent judgments unobserved"
     },
     {
       "workflow": "grader-calibration",
       "status": "partial",
       "host_operations": [],
-      "scenario": "calibration.py / semantic.py controlled protocol tests",
-      "qualification": "schema, blind order, failure accounting verified; original pairs inaccessible and semantic competence unqualified"
+      "scenario": "newly authored C01\u2013C12 plus four separate screening variants",
+      "qualification": "blind order and defect accounting tested; independent label review recorded; no live grader competence established"
     },
     {
       "workflow": "native-ui",

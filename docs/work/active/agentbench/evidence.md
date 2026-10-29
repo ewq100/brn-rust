@@ -259,3 +259,49 @@ The local implementation is reviewable. Mandatory original judgment-fixture
 integration remains blocked specifically on supported Library access. Credential
 route qualification, independent/live semantic qualification, any model spending,
 external corpus admission and publication remain separate explicit gates.
+
+## Newly authored judgment fixtures — 2026-10-29
+
+Parent authorized new, explicitly labeled fixtures from the recovered specification
+without retrying the failed Library transfer. Added H01–H12 helper scenarios,
+C01–C12 calibration pairs (24 anonymous order-swapped packets), four separate
+screening variants (8 packets), and a common public defect taxonomy. These are
+new synthetic work, not original ZIP contents. Public variants cannot establish
+secret/untouched qualification after tuning.
+
+H01–H05 export through the existing native evaluator; five offline seed checks
+passed in `/workspace/brn-agentbench-authored-seed/offline.json`. H06 uses the
+existing no-substitution/unavailable-helper scripted contract. The new H07–H12
+native test resolves real note IDs, versions and UTF-8 ranges, reads via actual
+child handlers, and submits through the production validator. It checks retained
+summaries, nonvacuous citation counts, exact/stale classification, complete scoped
+reads and untrusted framing. It does not score parent semantic judgment. Three
+other existing contracts check parent full-read ownership, unavailability and
+read-only helpers. No production helper policy changed.
+
+`helper-score` keeps natural and controlled evidence separate, uses declared
+25/20/40/15 groups, leaves missing/unobserved slots incomplete and disqualifies
+actual breaches. Imported reviewer references are not automatically authenticated;
+results remain unqualified and unranked. Costs stay unknown. H01–H06 paired natural
+runs and H07–H12 live parent report assessment remain unperformed; the latter's
+producer is currently a native test fixture, not a live CLI injection adapter.
+
+Independent reviewer `review_agentbench` approved all H01–H12 expectations and
+C01–C12/V01–V04 draft labels after two corrections: publish a full taxonomy with
+primary-defect overlap rules in every packet, and clarify V02 asks only the
+approved repair cost, making rejected-proposal detail optional. Reviewer reran
+four Python judgment tests, checked diff hygiene and found no remaining blocker.
+This is independent draft-label review, not live grader qualification.
+
+Verification: 39 complete benchmark Python tests passed with native binaries and
+Inspect (`/workspace/brn-agentbench-authored-python-final.log`, zero skips). Four
+native helper contracts passed (`/workspace/brn-agentbench-authored-host/`), and
+the strengthened report assertions passed again in `authored-host-final/`.
+Initial manually typed exact Cargo filter selected zero tests; it was not counted
+as a pass and was replaced by the fixed fully-qualified host runner. Strict Clippy
+initially rejected one needless borrow in the new test; the borrow was removed.
+Markdown links: 687 files, 3274 local links, zero failures. Final verification is
+recorded in the task record. No credential-backed test, provider call, original
+pack transfer, push or PR was attempted in this increment.
+
+Final four native contracts passed on the corrected source in `/workspace/brn-agentbench-authored-host-reviewed/host-checks.json`, including the helper fixture SHA256. Strict all-target brn-ai Clippy passed after the single borrow fix. Final reviewed pack: `/workspace/brn-agentbench-authored-judgment-reviewed/`. No tests were ignored in this increment.

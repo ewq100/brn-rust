@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Build the recovered BRN-AgentBench using the native evaluator and checked CLI.
-**Owner attention:** Offline protection/skills/recovery diagnostics, fixed controlled reader, native external-history staging and semantic grading protocol implemented. Original pack access and live/credential qualification remain gated.
+**Owner attention:** Newly authored judgment mini fixtures independently reviewed; original pack not needed for continued offline work. Live route/model qualification and publication remain gated.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -19,33 +19,14 @@ None recorded.
 
 ## Needs attention
 
-### Preserve native evidence and prepare the benchmark proof
-
-Task ID: `agentbench-proof`
-Owner: Benchmark integration owner · State: **blocked** · Last observed: 2026-10-29T00:07:55.546209+00:00
-Activity: Completed controlled reader with wiki-only native scope, seven-checkpoint recovery/review/Undo journey, native sequential history intake, anonymous bound semantic packets and separate host-contract runner.
-Next: Restore supported access to original judgment pack; qualify credential-backed routes in an accepted environment; obtain explicit live model/grader/reader budget and publication authorization.
-Resource waits: Library transfer tools/list returned HTTP401 before any bytes were downloaded; no retry or bypass attempted.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** offline requested mechanisms implemented; original helper/calibration fixture bytes remain inaccessible; later full-suite expansion is separate
-- **checks:** passed: 35 benchmark tests with native reader/recovery/intake and Inspect, 101 evaluator tests, 48 curated native host tests (one named manual UI-store export excluded), 2 boundary seed checks, strict example clippy, markdown and independent review
-- **integration:** local isolated branch; publication authority for this new benchmark not established
-- **native:** controlled CLI/runtime/host behavior observed; credential-backed routes and live semantic/model quality unqualified
-- **owner acceptance:** pending
-
-</details>
-
-Waiting:
-
-- resource: Library transfer tools/list returned HTTP401 before any bytes were downloaded; no retry or bypass attempted.
+None recorded.
 
 ## Completed
 
-None recorded.
+Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-Local page reflects the last saved observations in this record (2026-10-29T00:07:55.546209+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+
+- `agentbench-proof` — Preserve native evidence and prepare the benchmark proof
+
+Local page reflects the last saved observations in this record (2026-10-29T00:22:44.041225+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

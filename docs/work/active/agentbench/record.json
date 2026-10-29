@@ -5,33 +5,31 @@
   },
   "scope": "Recovered BRN-AgentBench implementation, offline executor/evidence and adapter milestone. No live calls, spending, private data, Mac access or publication.",
   "work_view": {
-    "observed_at": "2026-10-29T00:07:55.546209+00:00",
+    "observed_at": "2026-10-29T00:22:44.041225+00:00",
     "goal": "Build the recovered BRN-AgentBench using the native evaluator and checked CLI.",
-    "owner_attention": "Offline protection/skills/recovery diagnostics, fixed controlled reader, native external-history staging and semantic grading protocol implemented. Original pack access and live/credential qualification remain gated.",
+    "owner_attention": "Newly authored judgment mini fixtures independently reviewed; original pack not needed for continued offline work. Live route/model qualification and publication remain gated.",
     "tasks": [
       {
         "id": "agentbench-proof",
         "title": "Preserve native evidence and prepare the benchmark proof",
         "owner": "Benchmark integration owner",
-        "state": "blocked",
-        "activity": "Completed controlled reader with wiki-only native scope, seven-checkpoint recovery/review/Undo journey, native sequential history intake, anonymous bound semantic packets and separate host-contract runner.",
-        "observed_at": "2026-10-29T00:07:55.546209+00:00",
+        "state": "complete",
+        "activity": "Completed authored H01\u2013H12 mini fixtures, 12 calibration pairs plus four screening variants, native validator/read-ledger contracts, five native seed cases and independently reviewed labels.",
+        "observed_at": "2026-10-29T00:22:44.041225+00:00",
         "origin": "observed",
-        "next_action": "Restore supported access to original judgment pack; qualify credential-backed routes in an accepted environment; obtain explicit live model/grader/reader budget and publication authorization.",
+        "next_action": "Local offline increment complete. Select authorized model/provider routes and call limits for future qualification; live semantic assessment and publication remain separate gates.",
         "depends_on": [],
-        "resource_waits": [
-          "Library transfer tools/list returned HTTP401 before any bytes were downloaded; no retry or bypass attempted."
-        ],
+        "resource_waits": [],
         "evidence": [
           "benchmarks/brn_agent/README.md",
           "benchmarks/brn_agent/coverage.json",
           "docs/work/active/agentbench/evidence.md"
         ],
         "gates": {
-          "implementation": "offline requested mechanisms implemented; original helper/calibration fixture bytes remain inaccessible; later full-suite expansion is separate",
-          "checks": "passed: 35 benchmark tests with native reader/recovery/intake and Inspect, 101 evaluator tests, 48 curated native host tests (one named manual UI-store export excluded), 2 boundary seed checks, strict example clippy, markdown and independent review",
+          "implementation": "offline mechanisms and newly authored judgment fixtures implemented; original pack inaccessible and not claimed as integrated",
+          "checks": "passed: 39 benchmark Python tests (zero skips), four native helper contracts, five native seed cases, strict brn-ai all-target Clippy, markdown/overview/diff checks, independent code and label review",
           "integration": "local isolated branch; publication authority for this new benchmark not established",
-          "native": "controlled CLI/runtime/host behavior observed; credential-backed routes and live semantic/model quality unqualified",
+          "native": "controlled native report validation and other prior host paths observed; live parent judgment, natural helper comparisons and credential-backed routes remain unqualified",
           "owner_acceptance": "pending"
         },
         "attempts": [

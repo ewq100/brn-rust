@@ -8,6 +8,10 @@ from score import sha256
 
 # Fixed allowlist: no arbitrary fixture-supplied shell commands or test filters.
 CHECKS = {
+    'helper-authored-reports': ('brn-ai', None, 'threads::research_tests::agentbench_authored_reports_use_native_read_ledger_and_validator', True),
+    'helper-parent-read': ('brn-ai', None, 'threads::research_tests::helper_reads_never_count_toward_the_parent_full_read_guard', True),
+    'helper-unavailable': ('brn-ai', None, 'threads::research_tests::an_unavailable_helper_never_falls_back_and_the_parent_continues', True),
+    'helper-read-only': ('brn-ai', None, 'threads::research_tests::helpers_are_read_only_and_cannot_spawn_helpers', True),
     'protected-edit': ('brn-ai', None, 'threads::note_edit_tests::protected_local_edit_needs_exact_review_or_scoped_owner_instruction_and_undo_is_checked', True),
     'historical-authority': ('brn-ai', None, 'threads::budget_tests::historical_instruction_is_tool_evidence_and_cannot_grant_protected_apply_or_survive_stop', True),
     'skill-scope': ('brn-ai', None, 'threads::skills_tests::project_instruction_and_references_cannot_read_foreign_data_or_grant_protected_apply', True),
@@ -37,6 +41,7 @@ def run(output, selected=None):
               'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip(),
               'lock_sha256':sha256(root/'Cargo.lock'), 'checks':[]}
     source_files = subprocess.check_output(['git','ls-files','*.rs','Cargo.toml','Cargo.lock'],cwd=root,text=True).splitlines()
+    result['judgment_fixture_sha256'] = sha256(root/'benchmarks/brn_agent/judgment_fixtures/helpers.json')
     result['source_sha256'] = hashlib.sha256(json.dumps(
         {name:sha256(root/name) for name in source_files},sort_keys=True).encode()).hexdigest()
     def persist():

@@ -232,9 +232,44 @@ references and HTML content. None calls a provider.
 
 See `coverage.json` for partial and uncovered workflows. The original twelve
 helper cases and twelve calibration pairs were resolved in Library, but their
-supported local transfer returned HTTP 401. They have not been reauthored or
-claimed as integrated. Controlled helper reports still need to traverse the real
-child read ledger and validator; live helpers remain separately authorized.
+supported local transfer returned HTTP 401; no bytes were downloaded or retried.
+The new `judgment_fixtures/` pack is explicitly **newly authored from the recovered
+specification**, not a reconstruction of the unavailable original artifact.
+
+`bench.py prepare-judgment --output FRESH_DIR` exports twelve helper prompts with
+separate private rubrics, twelve development calibration pairs in both orders
+(24 packets), and four separate screening variants (8 packets). Public repository
+variants are not a secret test set; do not tune on them then claim held-out
+qualification. `manifest.json` records provenance and independent label review.
+Every packet carries the same full defect taxonomy and overlap rules; pair-specific
+labels stay private. The existing calibration commands score these packets without
+candidate calls. When preparing the raw authored pair files directly, pass
+`--rubric benchmarks/brn_agent/judgment_fixtures/defect-rubric.json`.
+
+`helper-native.json` adapts H01–H05 to the existing evaluator. Run paired arms
+with the same parent settings, one with the owner-selected fixed helper and one
+with helpers off, only after live authorization. H06 unavailable-helper injection
+is a separate existing native scripted contract, not a fake live outage. H07–H12
+controlled reports are consumed directly by the native scripted test producer:
+actual seeded note IDs/versions and UTF-8 citation offsets are resolved at runtime,
+real read_note handlers populate the child ledger, and submit_findings uses the
+production validator. Stale versions and untrusted report text remain visible;
+exact quotations do not prove semantic entailment or correct parent assessment.
+
+`bench.py check-host --checks helper-authored-reports helper-parent-read
+helper-unavailable helper-read-only --output FRESH_DIR` retains these controlled
+host receipts. They are never model scores. H01–H06 natural routing, paired
+operational costs and H07–H12 live parent assessment remain unobserved.
+
+`bench.py helper-score --rows FILE --mode natural|controlled --output FRESH_FILE`
+aggregates independently reviewed 0–4 criteria using routing 25%, handoff 20%,
+evidence 40%, recovery 15%. Each row supplies an ID, mode, applicable `scores`,
+nonempty evidence-reference list and boolean `breach`, `false_acceptance`,
+`false_rejection`. Missing or null criteria leave the overall unset. Controlled
+reports cannot establish natural routing, so their overall stays incomplete;
+group scores and false acceptance/rejection remain separate diagnostics. A safety
+breach disqualifies. Imported rows remain unqualified/unranked: this command does
+not itself verify arbitrary reviewer references against an attempt manifest.
 
 The real child-ledger and helper-report validator are exercised by existing
 `brn-ai` scripted research tests; this does not integrate the unavailable original
@@ -244,12 +279,12 @@ witness and 31 scripted helper tests passed independently.
 
 Remaining gates that need additional access or qualification:
 
-- Restore supported Library access to integrate the original twelve helper cases
-  and twelve calibration pairs; they have not been replaced with invented copies.
+- Original pack integration remains optional pending supported Library access;
+  the newly authored pack has its own provenance and cannot establish parity.
 - Credential-backed provider route tests require an environment accepted by the
   existing security checks. Controlled fixtures do not qualify those routes.
-- Independently reviewed original/held-out labels and explicitly authorized live
-  grader, reader, helper and candidate runs are needed for semantic qualification
+- Explicitly authorized live grader, reader, helper and candidate runs, plus
+  untouched independent screening cases, are needed for semantic qualification
   and any model comparison. No live quality result is present.
 - Real external datasets require explicit provenance/allowed-use admission; only
   synthetic adapter witnesses have run. No external corpus was redistributed.
