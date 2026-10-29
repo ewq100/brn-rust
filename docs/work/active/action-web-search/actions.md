@@ -73,3 +73,47 @@ timeout assertion failed, six Xberg generator tests errored because that invocat
 had not loaded the configured Cargo archive location, and one test was skipped.
 These failures are retained in the local receipt; they are not identified as the
 unknown hosted Mac failure. No timeout assertion or credential guard was changed.
+
+## Source-bound Mac reproduction and observer correction — 29 October 2026
+
+[Offline job002 receipt](https://github.com/ewq100/brn-rust/issues/236#issuecomment-6486716827)
+reports the pinned `4cdb94c80e5828208b648a951d37ed9946e95027` source on macOS
+27.0.1 arm64 / Rust 1.98.1: executable preflight, both helpers and workspace build
+passed; the unchanged suite returned 101 with 1,425 passed, one failed and eight
+ignored. The failure was
+`threads::int_d_tests::capture_runner::runner_observer_allows_reported_progress_but_fences_all_proposal_effects`,
+asserting `runtime catalogue changed: query_actions`. Zero live Runs occurred.
+This identifies a current reproducible assertion; it does not establish the cause
+of every historical hosted failure. Offline job001's PATH refusal and job002's
+terminal failure remain preserved; neither is reopened.
+
+The production Action query is read-only and keeps current chat/privacy/writing
+checks, but the older capture diagnostic deliberately has a narrower admission
+list. The correction keeps `permitted(name)` unchanged, classifies `query_actions`
+as a known fenced catalogue entry, and exercises its attempted dispatch through
+the real observer with the existing Stop, protected-record, proposal and receipt
+checks. Normal tool availability does not confer diagnostic admission. No runtime
+permission or proposal guard is expanded.
+
+The diagnostic wrapper's single progress-line regex missed the interleaved FAILED
+line. A bounded final-libtest-failure-list parser now requires the subsequent FAILED
+result before emitting names; incomplete panic sections are not copied into
+annotations. Command selection and exit behavior are unchanged. The interleaving
+regression failed before the parser change and passed afterward, alongside the
+existing six tests and a new incomplete-section privacy regression (eight total).
+
+The failing `capture_runner` module is gated by `target_os = "macos"`. The local
+Linux exact-name attempt compiled successfully but selected zero tests; it is not
+red/green qualification. This platform gate explains why passing Linux CI did not
+exercise that assertion. The Mac job002 receipt supplies the before-change failure;
+corrected Mac CI must supply the pass. The patch preserves that platform gate and
+all existing observer assertions, adding an explicit non-admission assertion and
+mocked `query_actions` dispatch that must leave Run.operations empty.
+
+Independent source review cleared the observer patch and parser. Eight local Action
+query tests passed with a fresh synthetic TMPDIR. An initial attempt returned two
+passed/six failed because the saved environment pointed to a missing temporary
+fixture directory after restart; failures occurred before fixture creation. That
+result is retained separately from the successful run. No permission guard was
+changed. Documentation/overview, whitespace and formatting checks passed. Strict
+AI library Clippy and exact-head hosted qualification are tracked separately.

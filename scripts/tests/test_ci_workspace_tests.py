@@ -45,3 +45,14 @@ class WorkspaceDiagnostics(unittest.TestCase):
 
     def test_original_command_is_unchanged(self):
         self.assertEqual(MODULE.COMMAND, ['cargo', 'test', '--workspace', '--no-fail-fast', '--locked', '--offline'])
+
+    def test_interleaved_failure_uses_final_failure_summary(self):
+        status, output = self.run_child("print('test one ... test two ... FAILED'); print('failures:'); print(''); print('---- module::case stdout ----'); print('    private_payload'); print('failures:'); print('    module::case'); print(''); print('test result: FAILED. 1 passed; 1 failed; 0 ignored'); raise SystemExit(101)")
+        self.assertEqual(status, 101)
+        self.assertEqual([line for line in output.splitlines() if line.startswith('::error')], ['::error title=Workspace test failed::module::case'])
+
+    def test_incomplete_failure_section_does_not_annotate_payload(self):
+        status, output = self.run_child("print('failures:'); print('    private_payload'); print('panic detail'); raise SystemExit(101)")
+        self.assertEqual(status, 101)
+        annotations = [line for line in output.splitlines() if line.startswith('::error')]
+        self.assertEqual(annotations, ['::error title=Workspace test failed::No Rust test identity captured; inspect build or process failure.'])
