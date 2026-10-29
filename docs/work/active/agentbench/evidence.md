@@ -412,3 +412,16 @@ the remote branch and [draft PR #242](https://github.com/ewq100/brn-rust/pull/24
 The base remained `c3d64efa45a3671b6f91e94f1425fcda9fc87690`. CI monitoring is
 pending; publication does not authorize merge, live models, spending or changes
 to credential/security settings.
+
+PR CI initially failed in Documentation and tooling, job `123219795601`, run
+`40804414933`: Python 3.12 nested unittest discovery changed the outer loader's
+root and raised `AssertionError: Path must be within the project`. AgentBench's
+`load_tests` now uses a separate `TestLoader`; independent review found no issue,
+and direct discovery retained the outer root while loading all 74 benchmark tests.
+The full local tooling command ran 294 tests with 11 explicit optional/native
+skips; its sole failure before and after the fix was the pre-existing process-group
+cleanup witness. This container retained killed `sleep` children as PID-1 zombies
+(observed `Z` state), so the unrelated test was not weakened or altered. Logs are
+retained as `/workspace/agentbench-ci-discovery-before.log` and
+`/workspace/agentbench-ci-discovery-after.log`. Exact-head remote CI remains the
+next verification gate; no all-green result is claimed.
