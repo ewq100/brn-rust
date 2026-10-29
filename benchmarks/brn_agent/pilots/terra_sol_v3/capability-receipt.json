@@ -1,0 +1,17 @@
+{
+  "runner": "brn-mac-relay-01",
+  "auth_route": "chatgpt_subscription",
+  "observed_at": "2026-10-29T04:20:33.066650+00:00",
+  "cli_version": "0.162.0-alpha.17.2",
+  "models": {
+    "gpt-6.1-terra": [
+      "medium"
+    ],
+    "gpt-6.1-sol": [
+      "medium"
+    ]
+  },
+  "evidence": "https://github.com/ewq100/brn-rust/issues/236#issuecomment-6487835954",
+  "model_calls": 0,
+  "discovery_server_stopped": true
+}

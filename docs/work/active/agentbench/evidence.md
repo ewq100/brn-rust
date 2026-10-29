@@ -450,3 +450,27 @@ also pass. Markdown links/diff checks pass. Mac build/supervisor acceptance rema
 an execution gate. Supporting publication is authorized; root owns review/posting
 of the authenticated release. No paid fallback, account changes, raw private
 logs or credential data are included. No model ranking is qualified.
+
+## Pilot001 setup failure and isolated v3 correction
+
+Mac evidence: issue236 comment6489550427. All eleven child supervisor tests passed,
+but enclosing setup exited1 with RuntimeError cleanup errors and a malformed
+seven-byte registry line. Pilot001 produced no readiness/bindings/live release,
+candidate invocation, HTTP attempt, reservation or live call; no owned processes
+remained. Its claim and corrupted evidence are preserved, not replayed.
+
+The same failure reproduced offline: child11pass, enclosing RuntimeError/exit1.
+The intentional partial-ledger test inherited and corrupted the authoritative
+parent registry. New immutable package `pilots/terra_sol_v3` injects corruption
+into a disposable snapshot instead, while preserving inherited process ownership.
+Its supervisor implementation is byte-identical to v2; all released v2 file hashes
+were reverified unchanged. No cleanup failure is suppressed.
+
+Twelve checks now pass: the eleven controls plus the actual preparation control
+flow with explicit synthetic build tools, fixed test clock and short test-only
+deadline. The latter checks clean outer terminal/exit0, no cleanup errors, valid
+session ledger with no active entries, readiness/bindings and zero model calls.
+It qualifies control flow, not a native Mac build. Independent review found no
+remaining issue after bounding the synthetic setup fixture's own cleanup time.
+CI discovery includes this enclosing regression. Root owns any fresh pilot002
+execution release; publication on existing draft PR242 does not dispatch it.

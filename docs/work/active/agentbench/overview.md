@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Build the recovered BRN-AgentBench using the native evaluator and checked CLI.
-**Owner attention:** Both exact models support medium on existing Mac subscription. Publishing reviewed pilot controls; root reviews/posts the one-attempt release. No model calls dispatched here.
+**Owner attention:** Pilot001 consumed: zero live calls; outer setup failed because fault test corrupted inherited registry. Publishing reviewed v3 correction; root owns a fresh job002 release.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -14,9 +14,9 @@ Task details and full history: [selected work record](record.json). Inspect one 
 ### Preserve native evidence and prepare the benchmark proof
 
 Task ID: `agentbench-proof`
-Owner: Benchmark integration owner · State: **active** · Last observed: 2026-10-29T04:29:46.951279+00:00
-Activity: Verified original package; prepared independently reviewed v2 with shared setup deadline, offline Mac build and scoped session controls. Eleven controls and101 evaluator tests passed; publishing supporting package.
-Next: Publish reviewed v2 supporting package and return exact source/package-pinned Mac release to root; do not dispatch.
+Owner: Benchmark integration owner · State: **active** · Last observed: 2026-10-29T06:32:31.080843+00:00
+Activity: Reproduced v2 child11pass/outerexit1. Corrected fault isolation in new v3 only; complete synthetic setup-control regression now reaches clean outer terminal and readiness.
+Next: Publish reviewed immutable v3 to existing draft PR242 and return next-attempt handoff to root; no replay or live dispatch.
 
 <details>
 <summary>Gate status</summary>
@@ -43,4 +43,4 @@ None recorded.
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-10-29T04:29:46.951279+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-29T06:32:31.080843+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

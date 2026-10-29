@@ -1,0 +1,23 @@
+{
+  "status": "prepared_not_dispatched",
+  "source_commit": "12251dfc78bc6ff9aa0eaf6809448886b0aa794c",
+  "offline_tests": {
+    "platform": "Linux",
+    "passed": 12,
+    "failed_final": 0,
+    "command": "python3 -B -m unittest discover -s scripts/tests -p test_agentbench_pilot.py -v"
+  },
+  "independent_review": "review_agentbench: no remaining findings after fault-copy isolation and bounded complete-setup fixture review",
+  "retained_development_failure": "v2 complete enclosing run reproduced child11pass/outerexit1 RuntimeError; original receipt and corrupted ledger retained in task-local evidence. Mac original receipts remain untouched.",
+  "pending": [
+    "fresh root release for pilot002",
+    "Mac real offline build and enclosing supervisor acceptance",
+    "qualified semantic grading or blind human adjudication"
+  ],
+  "live_model_calls": 0,
+  "dispatch": false,
+  "existing_jobs_changed": false,
+  "revision": "terra-sol-pilot-v3",
+  "capability_discovery": "Both exact medium models verified via existing Mac subscription; issue236comment6487835954; zero model calls",
+  "correction": "Fault injection uses disposable ledger snapshot; enclosing authoritative ledger remains valid. Actual setup control path covered with synthetic build tools."
+}
