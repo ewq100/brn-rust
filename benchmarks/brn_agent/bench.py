@@ -5,12 +5,17 @@ Native execution remains scripts/evaluate_wiki_v2.py. No model calls here.
 """
 import argparse
 import json
+import subprocess
 from pathlib import Path
 import proof
 from limits import dry_plan
 from evidence import collect, verify_manifest, verify_grade_references, verified_proof_packet
 import calibration
 import external
+import diagnostics
+import host_checks
+import reader
+import semantic
 from score import assess, sha256, validate_suite, write_report
 
 
@@ -50,6 +55,37 @@ def main(argv=None):
     adapter.add_argument('--input', type=Path, required=True)
     adapter.add_argument('--admission', type=Path, required=True)
     adapter.add_argument('--output', type=Path, required=True)
+    adapter.add_argument('--native', action='store_true', help='emit native BRN intake/ask fixture')
+    stage = sub.add_parser('stage-history', help='native offline intake of admitted dated histories only')
+    stage.add_argument('--input', type=Path, required=True)
+    stage.add_argument('--admission', type=Path, required=True)
+    stage.add_argument('--case', required=True)
+    stage.add_argument('--binary', type=Path, required=True)
+    stage.add_argument('--output', type=Path, required=True)
+    diagnostic = sub.add_parser('prepare-diagnostics', help='prepare separate protection/instruction boundary cases')
+    diagnostic.add_argument('--output', type=Path, required=True)
+    host = sub.add_parser('check-host', help='run fixed existing offline native contracts, never model scores')
+    host.add_argument('--checks', nargs='+', choices=sorted(host_checks.CHECKS))
+    host.add_argument('--output', type=Path, required=True)
+    read = sub.add_parser('reader-controlled', help='run a fixed provider fixture on a restored checkpoint clone')
+    read.add_argument('--checkpoint', type=Path, required=True)
+    read.add_argument('--fixture', type=Path, required=True)
+    read.add_argument('--binary', type=Path, required=True)
+    read.add_argument('--reader-binary', type=Path, required=True)
+    read.add_argument('--output', type=Path, required=True)
+    recovery = sub.add_parser('recovery-controlled', help='retain a scripted native crash/recovery/review/Undo journey')
+    recovery.add_argument('--recovery-binary', type=Path, required=True)
+    recovery.add_argument('--output', type=Path, required=True)
+    for name in ('semantic-prepare', 'semantic-controlled'):
+        command = sub.add_parser(name, help='blind frozen grading protocol; no live calls')
+        command.add_argument('--root', type=Path, required=True)
+        command.add_argument('--suite', type=Path, required=True)
+        command.add_argument('--evidence', type=Path, required=True)
+        command.add_argument('--output', type=Path, required=True)
+        if name == 'semantic-controlled':
+            command.add_argument('--prepared', type=Path, required=True)
+            command.add_argument('--replies', type=Path, required=True)
+            command.add_argument('--revision', required=True)
     report = sub.add_parser('report', help='grade frozen evidence; never rerun a candidate')
     report.add_argument('--suite', type=Path, required=True)
     report.add_argument('--evidence', type=Path, required=True)
@@ -60,6 +96,34 @@ def main(argv=None):
     try:
         if args.command == 'prepare':
             proof.write(args.output)
+        elif args.command == 'prepare-diagnostics':
+            diagnostics.write(args.output)
+        elif args.command == 'check-host':
+            result = host_checks.run(args.output, args.checks)
+            return 0 if result['status'] == 'passed' else 2
+        elif args.command == 'stage-history':
+            external.stage_history(load(args.input), load(args.admission), args.case, args.binary, args.output)
+        elif args.command == 'reader-controlled':
+            reader.run(args.checkpoint, load(args.fixture), args.binary, args.reader_binary, args.output)
+        elif args.command == 'recovery-controlled':
+            if args.output.exists() or not args.output.is_absolute():
+                raise ValueError('Recovery output must be a fresh absolute directory')
+            process = subprocess.run([str(args.recovery_binary.resolve()), str(args.output)], capture_output=True, text=True, timeout=60)
+            if process.returncode:
+                raise ValueError('Controlled recovery failed; retained evidence: ' + str(args.output))
+            result = load(args.output / 'recovery-result.json')
+            if result.get('status') != 'complete' or result.get('provider') != 'controlled-fixture':
+                raise ValueError('Recovery binary did not return completed controlled evidence')
+        elif args.command.startswith('semantic-'):
+            if args.command == 'semantic-prepare':
+                result = semantic.prepare(args.root, args.suite, args.evidence)
+            else:
+                result = semantic.import_controlled(args.root, args.suite, args.evidence,
+                                                     load(args.prepared), load(args.replies), args.revision)
+            args.output.mkdir(parents=True, exist_ok=False)
+            (args.output / 'private-result.json').write_text(json.dumps(result, indent=2))
+            public = result['packets'] if args.command == 'semantic-prepare' else result['grades']
+            (args.output / ('packets.json' if args.command == 'semantic-prepare' else 'grades.json')).write_text(json.dumps(public, indent=2))
         elif args.command == 'packet':
             if (args.scenario is None) != (args.step is None):
                 raise ValueError('Scenario and step must be supplied together')
@@ -81,9 +145,10 @@ def main(argv=None):
             with args.output.open('x') as stream:
                 json.dump(result, stream, indent=2)
         elif args.command == 'adapt-longmemeval':
-            public, gold, lock = external.transform(load(args.input), load(args.admission))
+            adapt = external.native_fixture if args.native else external.transform
+            public, gold, lock = adapt(load(args.input), load(args.admission))
             args.output.mkdir(parents=True, exist_ok=False)
-            for name, data in [('candidate', public), ('gold', gold), ('dataset-lock', lock)]:
+            for name, data in [('fixture' if args.native else 'candidate', public), ('gold', gold), ('dataset-lock', lock)]:
                 (args.output / (name + '.json')).write_text(json.dumps(data, indent=2))
         elif args.command == 'plan':
             result = dry_plan(load(args.suite), args.max_calls, args.calls_per_event, args.configurations, args.max_spend)

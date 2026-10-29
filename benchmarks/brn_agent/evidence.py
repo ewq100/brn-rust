@@ -1,5 +1,7 @@
 """Read-only adaptation of the existing native evaluator's retained evidence."""
 import json
+import hashlib
+import re
 from pathlib import Path
 from score import nullable_sum, sha256
 
@@ -149,16 +151,13 @@ def grading_packet(checkpoint, *, known_gold=None, wiki_only=False, wiki_records
     return packet
 
 
-def verified_proof_packet(checkpoint, *, scenario=None, step=None, wiki_records=None):
-    """Bind packet provenance to the collected native experiment before adding gold."""
-    import proof
+def verified_checkpoint(checkpoint, manifest_path=None):
+    """Verify immutable captured bytes and return their native owner and index."""
     checkpoint = Path(checkpoint).resolve()
     folder = checkpoint.parent.parent
     root = folder.parent.parent.parent
-    manifest = json.loads((root / 'agentbench-evidence.json').read_text())
+    manifest = json.loads(Path(manifest_path or root / 'agentbench-evidence.json').read_text())
     verify_manifest(manifest, root)
-    if manifest['fixture_sha256'] != proof.build()[1]['fixture_sha256']:
-        raise ValueError('Checkpoint is not from this pinned proof fixture')
     result_path = folder / 'result.json'
     if str(result_path.relative_to(root)) not in {a['result'] for a in manifest['attempts']}:
         raise ValueError('Checkpoint owner is absent from collected evidence')
@@ -170,7 +169,30 @@ def verified_proof_packet(checkpoint, *, scenario=None, step=None, wiki_records=
         raise ValueError('Checkpoint path must use its captured canonical step number')
     if number not in {c['step'] for c in raw.get('checkpoints', [])}:
         raise ValueError('Checkpoint was not captured in this attempt')
+    return raw, number, manifest
+
+
+def verified_proof_packet(checkpoint, *, scenario=None, step=None, wiki_records=None, manifest_path=None):
+    import proof
+    raw, number, manifest = verified_checkpoint(checkpoint, manifest_path)
+    if scenario is not None and manifest['fixture_sha256'] != proof.build()[1]['fixture_sha256']:
+        raise ValueError('Checkpoint is not from this pinned proof fixture')
     if scenario is not None and (scenario != raw['case'] or step != number):
         raise ValueError('Requested gold does not match native scenario/checkpoint')
-    return grading_packet(checkpoint, wiki_only=wiki_records is not None, wiki_records=wiki_records,
-                          known_gold=proof.checkpoint_gold(raw['case'], number) if scenario else None)
+    packet = grading_packet(checkpoint, wiki_only=wiki_records is not None, wiki_records=wiki_records,
+                            known_gold=proof.checkpoint_gold(raw['case'], number) if scenario else None)
+    return anonymize_local_paths(packet, Path(checkpoint).resolve().parents[4])
+
+
+def anonymize_local_paths(value, root):
+    """Hide configuration-bearing native paths, including quoted provenance."""
+    pattern = re.compile(re.escape(str(Path(root).resolve())) + r'''[^\s"<>]*''')
+    def visit(item):
+        if isinstance(item, str):
+            return pattern.sub(lambda match: 'artifact://sha256/' + hashlib.sha256(match[0].encode()).hexdigest(), item)
+        if isinstance(item, list):
+            return [visit(v) for v in item]
+        if isinstance(item, dict):
+            return {k:visit(v) for k,v in item.items()}
+        return item
+    return visit(value)

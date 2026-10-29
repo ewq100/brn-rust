@@ -14,6 +14,8 @@ def validate_defects(value):
 
 def packets(pairs):
     """Gold-free anonymous packets and a separate private answer key."""
+    if not isinstance(pairs, list) or not pairs:
+        raise ValueError('At least one independently supplied pair is required')
     public, key = [], {}
     seen = set()
     for pair in pairs:
@@ -37,6 +39,8 @@ def packets(pairs):
 
 
 def assess(key, judgments):
+    if not isinstance(key, dict) or not key:
+        raise ValueError('A nonempty private calibration key is required')
     for gold in key.values():
         validate_defects(gold['defects'])
         if gold['expected'] not in CHOICES or type(gold['swapped']) is not bool or not isinstance(gold['pair'], str):

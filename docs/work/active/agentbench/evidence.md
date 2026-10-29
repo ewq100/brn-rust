@@ -163,3 +163,99 @@ Final bounded independent re-review confirmed the canonical checkpoint guard and
 found no remaining findings in the reviewed surface. It reran 10 evidence tests;
 full native/Inspect and Rust validation above was performed by the implementation
 owner. This is not a statement that unimplemented coverage is qualified.
+
+
+## Final authorized offline scope (October 29)
+
+Added two native boundary fixtures (protected content and skill/source authority),
+a fixed host-contract runner, the controlled reader example, the retained recovery
+example, native LongMemEval history mapping/staging, and the bound semantic grading
+protocol. These remain diagnostic machinery and synthetic witnesses, not semantic
+model qualification. The original 12+12 planning-pack fixtures remain inaccessible;
+no replacement originals or live results were invented.
+
+The reader restores a hash-verified checkpoint into an exclusively owned directory.
+Wiki-only mode creates an isolated project, links the explicit general-note
+allowlist, and disables global knowledge for that project through normal checked
+services. The fixed script can only call native read_note; it cannot request writes.
+Normal-product visibility is tested separately on another copy. A raw-source canary
+is absent from wiki-only model-visible history and present when explicitly read in
+normal-product mode. All pre-existing records and original backup/record hashes
+must remain unchanged. The fixed supplied response and token counts are labelled
+synthetic; credential/helper/connector-configured snapshots are refused.
+
+The recovery example retains seven native checkpoints, each with records, backup,
+receipts and candidates plus hashes. It abandons a prepared edit before terminal
+persistence, saves a later owner qualification, recovers the Run exactly once,
+checks immutable candidate retention and stale refusal, dismisses the stale
+candidate, creates a distinct retry, and applies only through explicit review.
+Undo runs on a restored copy, preserving the later owner text and the continuing
+workspace. The real-process-kill tests remain a separate reused contract lane.
+Observed result: `/workspace/brn-agentbench-recovery-observed/recovery-result.json`.
+
+Native history staging imports all dated historical turns through normal full-note
+intake with conversion AI off. First checkpoint contains only the first session;
+second includes the later revision. Answer/oracle canaries never enter records.
+Selected dataset locks, admission provenance and gold are retained under
+`grader-only/`, outside candidate state. Successful synthetic receipt:
+`/workspace/brn-agentbench-history-observed/stage-result.json`.
+No real external history was admitted or redistributed.
+
+Grading preparation emits anonymous latest-captured-state packets separately from
+private attempt bindings. Actual events, exact references, checkpoint-scoped gold
+and the fixed rubric are included. Custom evidence indexes are honored. Local
+Source/import/citation paths are anonymized because native arm-directory paths can
+otherwise identify a candidate. Controlled replies bind exact packet hashes;
+wrong versions, changed packets, missing criteria, malformed scores and explicit
+grader outages are rejected or recorded incomplete. Earlier checkpoint packets
+remain separately available. Empty inputs never qualify a calibration/grading run.
+
+Failures encountered and retained:
+
+- Preinstalled document helpers failed native intake (initial missing-path IO,
+  then Protocol mismatch). Rebuilt both current helpers with the repository's
+  locked/offline script into `/workspace/brn-agentbench-document-helpers`, with
+  separate stock/adapted targets and receipts. Builds took 4m26s and 4m18s. Native
+  intake then passed. No helper protocol/security check was weakened.
+- The initial controlled reader used an incomplete read_records argument and did
+  not actually observe note text. Its witness failed. Replaced it with exact-version
+  native read_note and now assert both positive wiki text and negative raw canary.
+- Example builds caught a Result alias collision and non-serializable outcome;
+  corrected local example types/diagnostic serialization. Strict lint caught a
+  needless borrow, corrected without changing behavior.
+- Broad existing skills tests: 7 passed, 3 credential-backed tests failed (the
+  barrier case explicitly returned UnsafeCredentials). Steering: 5 passed, 1
+  credential-backed test failed with UnsafeCredentials. These failures remain
+  unqualified; no security checks or credentials were altered.
+- First curated host report marked the process-kill group failed despite 16 passing
+  tests because it contains one intentionally ignored manual UI-store exporter.
+  The runner now explicitly records only that named manual export as excluded;
+  unexpected skips and zero-test success still fail. The first report is preserved
+  at `/workspace/brn-agentbench-host-contracts/host-checks.json`.
+
+Independent review addressed source-path identity leakage, discarded admission
+provenance, and accidental use of the default evidence index. It source-reviewed
+the retained recovery example and found no remaining blocking issue after fixes.
+Explicit native execution is separate from that review. Final counts and lint are
+recorded in the task record once completed. No live calls, model spending, push,
+PR, merge, release, Mac access or original Library-transfer retry occurred.
+
+
+Final verification of the October 29 increment:
+
+- 35 benchmark tests passed, zero skipped, with explicit CLI, controlled reader,
+  controlled recovery and isolated pinned Inspect interpreter.
+- Existing evaluator suite: 101 passed. Both new boundary fixtures passed native
+  seed/copy/open/Knowledge checks without model calls.
+- 48 curated native tests passed across all 11 host-contract groups. Exactly one
+  named ignored manual UI-store exporter is recorded as excluded, not tested.
+  Final receipt: `/workspace/brn-agentbench-host-contracts-final/host-checks.json`.
+- Both controlled examples built under the locked offline toolchain and passed
+  strict Clippy. Markdown links and diff whitespace checks passed.
+- Final independent bounded review found no blocking issue; it checked the manual
+  export exclusion accounting and its regression. It did not run Cargo/live calls.
+
+The local implementation is reviewable. Mandatory original judgment-fixture
+integration remains blocked specifically on supported Library access. Credential
+route qualification, independent/live semantic qualification, any model spending,
+external corpus admission and publication remain separate explicit gates.

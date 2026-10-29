@@ -1673,7 +1673,7 @@ class Sample:
                             'observed': None}
         trace = {'trace': 'full'} if self.caps['trace'] else {}
         call_limit = getattr(args, 'model_call_limit', None)
-        if step['kind'] in ('ask', 'intake') and call_limit:
+        if (step['kind'] == 'ask' or (step['kind'] == 'intake' and step.get('intent', 'useful') == 'useful')) and call_limit:
             identity = str(self.folder.relative_to(self.root)) + f'/event-{number}'
             record['reservation'] = LIMITS.Reservations(
                 self.root / 'model-call-reservations.jsonl', args.max_total_model_calls).reserve(identity, call_limit)

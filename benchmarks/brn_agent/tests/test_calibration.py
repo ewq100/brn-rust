@@ -33,6 +33,10 @@ class CalibrationTests(unittest.TestCase):
             assess(key, judgments + judgments[:1])
 
     def test_malformed_defect_sets_are_refused(self):
+        with self.assertRaises(ValueError):
+            packets([])
+        with self.assertRaises(ValueError):
+            assess({}, [])
         pair = {'id': 'unit', 'facts': 'fact', 'answers': ['a', 'b'], 'expected': 'tie', 'defects': ['ab', 'cd']}
         with self.assertRaises(ValueError):
             packets([pair])

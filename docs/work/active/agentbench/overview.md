@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Build the recovered BRN-AgentBench using the native evaluator and checked CLI.
-**Owner attention:** Offline runtime caps, actual wire identity, controlled owner events, frozen grading and diagnostic adapters implemented. Original judgment pack transfer remains blocked; live qualification unrun.
+**Owner attention:** Offline protection/skills/recovery diagnostics, fixed controlled reader, native external-history staging and semantic grading protocol implemented. Original pack access and live/credential qualification remain gated.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -22,9 +22,9 @@ None recorded.
 ### Preserve native evidence and prepare the benchmark proof
 
 Task ID: `agentbench-proof`
-Owner: Benchmark integration owner · State: **blocked** · Last observed: 2026-10-28T23:35:09.824841+00:00
-Activity: Extended native runtime and evaluator; added offline calibration and Inspect parity, local LongMemEval transformation, explicit reader artifacts, conservative call reservations.
-Next: Integrate original judgment cases when supported Library transfer is restored; complete remaining protected/skill/interruption and grader/reader qualification gates. Publication remains pending.
+Owner: Benchmark integration owner · State: **blocked** · Last observed: 2026-10-29T00:07:55.546209+00:00
+Activity: Completed controlled reader with wiki-only native scope, seven-checkpoint recovery/review/Undo journey, native sequential history intake, anonymous bound semantic packets and separate host-contract runner.
+Next: Restore supported access to original judgment pack; qualify credential-backed routes in an accepted environment; obtain explicit live model/grader/reader budget and publication authorization.
 Resource waits: Library transfer tools/list returned HTTP401 before any bytes were downloaded; no retry or bypass attempted.
 
 <details>
@@ -32,10 +32,10 @@ Resource waits: Library transfer tools/list returned HTTP401 before any bytes we
 
 Gates:
 
-- **implementation:** partial: native evidence, runtime guard, owner events, scoring/calibration/reader interfaces and thin optional adapters implemented; original pack and remaining semantic/coverage gates open
-- **checks:** 101 evaluator tests; 29 benchmark tests including native/optional probes; Rust build and strict clippy; 31 helper tests passed, six credential-backed cases failed under UnsafeCredentials
+- **implementation:** offline requested mechanisms implemented; original helper/calibration fixture bytes remain inaccessible; later full-suite expansion is separate
+- **checks:** passed: 35 benchmark tests with native reader/recovery/intake and Inspect, 101 evaluator tests, 48 curated native host tests (one named manual UI-store export excluded), 2 boundary seed checks, strict example clippy, markdown and independent review
 - **integration:** local isolated branch; publication authority for this new benchmark not established
-- **native:** CLI-only offline observed; Mac UI and live model quality unrun
+- **native:** controlled CLI/runtime/host behavior observed; credential-backed routes and live semantic/model quality unqualified
 - **owner acceptance:** pending
 
 </details>
@@ -48,4 +48,4 @@ Waiting:
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-10-28T23:35:09.824841+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-29T00:07:55.546209+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

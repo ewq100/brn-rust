@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "scope": "offline mechanisms and proof; no observed model quality",
+  "scope": "initial offline benchmark mechanisms and native host diagnostics; live model quality unobserved",
   "workflows": [
     {
       "workflow": "wiki-creation",
@@ -69,30 +69,48 @@
     },
     {
       "workflow": "protection",
-      "status": "untested",
-      "host_operations": [],
-      "scenario": null
+      "status": "partial",
+      "host_operations": [
+        "prepare_note_edit",
+        "review_apply",
+        "undo"
+      ],
+      "scenario": "D-PROTECTED; host-check protected-edit",
+      "qualification": "native host contract passed; live candidate judgment unobserved"
     },
     {
       "workflow": "review-decisions",
-      "status": "untested",
+      "status": "partial",
       "host_operations": [
-        "apply",
-        "dismiss"
+        "review_apply",
+        "review_dismiss",
+        "undo"
       ],
-      "scenario": null
+      "scenario": "controlled recovery seven-checkpoint journey",
+      "qualification": "native operations checked; live decision quality unobserved"
     },
     {
       "workflow": "skills",
-      "status": "untested",
-      "host_operations": [],
-      "scenario": null
+      "status": "partial",
+      "host_operations": [
+        "read_skill",
+        "read_records",
+        "prepare_changes"
+      ],
+      "scenario": "D-SKILL-SCOPE; host-check skill-scope/skill-disable",
+      "qualification": "native scope/revocation contracts passed; live selection unobserved"
     },
     {
       "workflow": "interruption-recovery",
-      "status": "untested",
-      "host_operations": [],
-      "scenario": null
+      "status": "partial",
+      "host_operations": [
+        "recover_orphaned_runs",
+        "review_apply",
+        "review_dismiss",
+        "undo"
+      ],
+      "scenario": "agentbench_recovery; host-check continuation/process-kill/orphan-recovery",
+      "qualification": "retained scripted journey passed; live model recovery unobserved"
     },
     {
       "workflow": "helper-judgment",
@@ -102,9 +120,10 @@
     },
     {
       "workflow": "grader-calibration",
-      "status": "untested",
+      "status": "partial",
       "host_operations": [],
-      "scenario": null
+      "scenario": "calibration.py / semantic.py controlled protocol tests",
+      "qualification": "schema, blind order, failure accounting verified; original pairs inaccessible and semantic competence unqualified"
     },
     {
       "workflow": "native-ui",
@@ -141,6 +160,28 @@
       ],
       "scenario": "in-memory transport and scheduler unit witnesses",
       "qualification": "credential-backed route integration incomplete"
+    },
+    {
+      "workflow": "fixed-reader",
+      "status": "partial",
+      "host_operations": [
+        "restore",
+        "project-settings",
+        "project-link",
+        "read_note"
+      ],
+      "scenario": "controlled native reader",
+      "qualification": "wiki-only/raw-source separation and clone isolation verified; live reader unrun"
+    },
+    {
+      "workflow": "external-history-intake",
+      "status": "partial",
+      "host_operations": [
+        "intake",
+        "backup"
+      ],
+      "scenario": "synthetic LongMemEval adapter witness",
+      "qualification": "sequential full-history intake and label separation checked; external corpus not admitted"
     }
   ]
 }
