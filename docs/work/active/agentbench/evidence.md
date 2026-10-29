@@ -425,3 +425,28 @@ cleanup witness. This container retained killed `sleep` children as PID-1 zombie
 retained as `/workspace/agentbench-ci-discovery-before.log` and
 `/workspace/agentbench-ci-discovery-after.log`. Exact-head remote CI remains the
 next verification gate; no all-green result is claimed.
+
+## Terra/Sol pilot supporting publication (29 October 2026)
+
+Owner requested the existing-subscription Terra6.1-medium/Sol6.1-medium comparison.
+Mac read-only discovery confirmed both exact IDs and medium at
+2026-10-29T04:20:33.066650Z in issue236 comment6487835954; zero model calls.
+The candidate source remains12251dfc78bc6ff9aa0eaf6809448886b0aa794c, whose CI
+finished six Linux/macOS/tooling passes and one optional Windows compile failure
+in unchanged Unix credential code. No merge or live dispatch occurred here.
+
+The original local v1 package manifest15a39c16c6dabe790af1cb5fdf7c15f4ac0128e9ff34d42432a6cc19ac5ac5da
+was verified before preparing explicitly versioned supporting package
+`benchmarks/brn_agent/pilots/terra_sol_v2`. It retains the same cases/truth and adds
+an installed-toolchain, locked/offline isolated build and Mac supervisor gate.
+Launch time is deducted from one60-minute budget starting at the durable setup
+claim. The fixed one-attempt job has16 candidate invocations,12calls/event192total,
+300second command limits,59m30 dispatch stop and30second cleanup reserve.
+
+Independent review corrected nested-session cleanup and accounting failure paths.
+Eleven offline controls tests pass, including outer timeout during a nested
+supervisor and cleanup with a truncated ledger; the existing101 evaluator tests
+also pass. Markdown links/diff checks pass. Mac build/supervisor acceptance remains
+an execution gate. Supporting publication is authorized; root owns review/posting
+of the authenticated release. No paid fallback, account changes, raw private
+logs or credential data are included. No model ranking is qualified.

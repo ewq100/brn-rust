@@ -3,33 +3,34 @@
     "main": "c3d64efa45a3671b6f91e94f1425fcda9fc87690",
     "branch": "benchmark/agentbench-proof"
   },
-  "scope": "Recovered BRN-AgentBench implementation, offline executor/evidence and adapter milestone. No live calls, spending, private data, Mac access or publication.",
+  "scope": "BRN-AgentBench implementation and authorized supporting-package publication. Prepare bounded Terra/Sol subscription pilot; root owns authenticated Mac release and dispatch. No merge, paid API, purchases or account/security changes.",
   "work_view": {
-    "observed_at": "2026-10-29T02:07:35.815404+00:00",
+    "observed_at": "2026-10-29T04:29:46.951279+00:00",
     "goal": "Build the recovered BRN-AgentBench using the native evaluator and checked CLI.",
-    "owner_attention": "Publication approved; draft PR #242 is open. Monitoring exact-head CI; no merge or live model execution authorized.",
+    "owner_attention": "Both exact models support medium on existing Mac subscription. Publishing reviewed pilot controls; root reviews/posts the one-attempt release. No model calls dispatched here.",
     "tasks": [
       {
         "id": "agentbench-proof",
         "title": "Preserve native evidence and prepare the benchmark proof",
         "owner": "Benchmark integration owner",
         "state": "active",
-        "activity": "Pushed reviewed benchmark commit bbc86dde73ca80404e2e4253ea570183e749e4db and verified remote draft PR #242.",
-        "observed_at": "2026-10-29T02:07:35.815404+00:00",
+        "activity": "Verified original package; prepared independently reviewed v2 with shared setup deadline, offline Mac build and scoped session controls. Eleven controls and101 evaluator tests passed; publishing supporting package.",
+        "observed_at": "2026-10-29T04:29:46.951279+00:00",
         "origin": "observed",
-        "next_action": "Monitor draft PR CI, correct recoverable benchmark failures and report terminal results without merging.",
+        "next_action": "Publish reviewed v2 supporting package and return exact source/package-pinned Mac release to root; do not dispatch.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "benchmarks/brn_agent/README.md",
           "benchmarks/brn_agent/coverage.json",
-          "docs/work/active/agentbench/evidence.md"
+          "docs/work/active/agentbench/evidence.md",
+          "benchmarks/brn_agent/pilots/terra_sol_v2/README.md"
         ],
         "gates": {
           "implementation": "full authored offline bank and audited execution/grading/reporting mechanisms implemented; original artifact parity, live quality and explicitly unsupported integrations are not claimed",
           "checks": "passed: 74 benchmark tests zero skips, 101 evaluator tests, 27 native seed/open checks, reader/helper locked builds and strict Clippy, independent scenario/code review, markdown/diff checks",
-          "integration": "published as draft https://github.com/ewq100/brn-rust/pull/242; CI pending; merge unauthorized",
-          "native": "controlled helper good7/alternative7/bad0, native reader/recovery/stale-edit behavior checked; no live model/grader/helper qualification",
+          "integration": "Draft PR242; candidate12251dfc CI six pass/one optional Windows failure; supporting package publication underway; no merge",
+          "native": "Offline native benchmark checked. Mac read-only catalog confirmed both requested models medium, zero model calls. Mac package supervisor/build acceptance pending.",
           "owner_acceptance": "pending"
         },
         "attempts": [
