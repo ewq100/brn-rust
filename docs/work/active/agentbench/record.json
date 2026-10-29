@@ -5,19 +5,19 @@
   },
   "scope": "Recovered BRN-AgentBench implementation, offline executor/evidence and adapter milestone. No live calls, spending, private data, Mac access or publication.",
   "work_view": {
-    "observed_at": "2026-10-29T00:46:37.418150+00:00",
+    "observed_at": "2026-10-29T02:07:35.815404+00:00",
     "goal": "Build the recovered BRN-AgentBench using the native evaluator and checked CLI.",
-    "owner_attention": "Full 24-focused/three-12-event authored bank and remaining offline execution/reporting adapters implemented and independently reviewed. Publication pending; live quality remains unqualified.",
+    "owner_attention": "Publication approved; draft PR #242 is open. Monitoring exact-head CI; no merge or live model execution authorized.",
     "tasks": [
       {
         "id": "agentbench-proof",
         "title": "Preserve native evidence and prepare the benchmark proof",
         "owner": "Benchmark integration owner",
-        "state": "complete",
-        "activity": "Completed 27-scenario bank, all-candidate-checkpoint truth/grading, retained parent/helper decisions, bounded reader/grader fixtures, paired clustered comparisons, note diffs/provenance and synthetic external schema adapters.",
-        "observed_at": "2026-10-29T00:46:37.418150+00:00",
+        "state": "active",
+        "activity": "Pushed reviewed benchmark commit bbc86dde73ca80404e2e4253ea570183e749e4db and verified remote draft PR #242.",
+        "observed_at": "2026-10-29T02:07:35.815404+00:00",
         "origin": "observed",
-        "next_action": "Report exact local commit and offline coverage. Await publication decision; live qualification requires separately authorized provider/model routes and limits.",
+        "next_action": "Monitor draft PR CI, correct recoverable benchmark failures and report terminal results without merging.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -28,7 +28,7 @@
         "gates": {
           "implementation": "full authored offline bank and audited execution/grading/reporting mechanisms implemented; original artifact parity, live quality and explicitly unsupported integrations are not claimed",
           "checks": "passed: 74 benchmark tests zero skips, 101 evaluator tests, 27 native seed/open checks, reader/helper locked builds and strict Clippy, independent scenario/code review, markdown/diff checks",
-          "integration": "local isolated branch only; publication approval pending",
+          "integration": "published as draft https://github.com/ewq100/brn-rust/pull/242; CI pending; merge unauthorized",
           "native": "controlled helper good7/alternative7/bad0, native reader/recovery/stale-edit behavior checked; no live model/grader/helper qualification",
           "owner_acceptance": "pending"
         },

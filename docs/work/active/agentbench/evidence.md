@@ -403,3 +403,12 @@ admission/download, push or PR occurred. Publication remains pending. Live seman
 qualification, credential-backed route acceptance, actual measured spending and
 separate native UI/external-service qualification remain gates; they are not
 substituted by these offline passes.
+
+## Publication — 2026-10-29
+
+Evo approved pushing the reviewed branch and opening a draft PR. Reviewed commit
+`bbc86dde73ca80404e2e4253ea570183e749e4db` was pushed normally and verified against
+the remote branch and [draft PR #242](https://github.com/ewq100/brn-rust/pull/242).
+The base remained `c3d64efa45a3671b6f91e94f1425fcda9fc87690`. CI monitoring is
+pending; publication does not authorize merge, live models, spending or changes
+to credential/security settings.

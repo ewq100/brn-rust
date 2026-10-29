@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Build the recovered BRN-AgentBench using the native evaluator and checked CLI.
-**Owner attention:** Full 24-focused/three-12-event authored bank and remaining offline execution/reporting adapters implemented and independently reviewed. Publication pending; live quality remains unqualified.
+**Owner attention:** Publication approved; draft PR #242 is open. Monitoring exact-head CI; no merge or live model execution authorized.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,7 +11,25 @@ Task details and full history: [selected work record](record.json). Inspect one 
 
 ## Working on
 
-None recorded.
+### Preserve native evidence and prepare the benchmark proof
+
+Task ID: `agentbench-proof`
+Owner: Benchmark integration owner · State: **active** · Last observed: 2026-10-29T02:07:35.815404+00:00
+Activity: Pushed reviewed benchmark commit bbc86dde73ca80404e2e4253ea570183e749e4db and verified remote draft PR #242.
+Next: Monitor draft PR CI, correct recoverable benchmark failures and report terminal results without merging.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** full authored offline bank and audited execution/grading/reporting mechanisms implemented; original artifact parity, live quality and explicitly unsupported integrations are not claimed
+- **checks:** passed: 74 benchmark tests zero skips, 101 evaluator tests, 27 native seed/open checks, reader/helper locked builds and strict Clippy, independent scenario/code review, markdown/diff checks
+- **integration:** published as draft https://github.com/ewq100/brn-rust/pull/242; CI pending; merge unauthorized
+- **native:** controlled helper good7/alternative7/bad0, native reader/recovery/stale-edit behavior checked; no live model/grader/helper qualification
+- **owner acceptance:** pending
+
+</details>
 
 ## Next
 
@@ -23,10 +41,6 @@ None recorded.
 
 ## Completed
 
-Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
+None recorded.
 
-1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
-
-- `agentbench-proof` — Preserve native evidence and prepare the benchmark proof
-
-Local page reflects the last saved observations in this record (2026-10-29T00:46:37.418150+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-29T02:07:35.815404+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
