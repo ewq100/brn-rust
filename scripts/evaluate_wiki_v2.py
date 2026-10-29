@@ -1582,6 +1582,29 @@ class Sample:
         except CallFailed as error:
             self.result['status'] = 'transport_failure' if self.result.get('stage') == 'steps' else 'setup_failure'
             self.result['failure'] = str(error)
+        except Exception as error:
+            # Stop the scheduler, but retain the completed native work and the
+            # evaluator location. Messages, source lines and locals may contain
+            # owner text or credentials: never serialize them into diagnostics.
+            self.result['status'] = 'evaluator_failure'
+            self.result['failure'] = type(error).__name__
+            self.result['passed'] = None
+            frames, tb = [], error.__traceback__
+            while tb is not None:
+                filename = Path(tb.tb_frame.f_code.co_filename)
+                try:
+                    filename = str(filename.relative_to(HERE.parent))
+                except ValueError:
+                    filename = '<external>'
+                frames.append({'file': filename, 'line': tb.tb_lineno})
+                tb = tb.tb_next
+            diagnostic = {'exception_type': type(error).__name__, 'frames': frames,
+                          'message': '<omitted: may contain private data>'}
+            with open(self.folder / 'evaluator-error.json', 'x', opener=lambda path, flags: os.open(path, flags, 0o600)) as handle:
+                json.dump(diagnostic, handle, indent=2)
+                handle.write('\n')
+            self.persist()
+            raise
         self.persist()
         return self.result
 
@@ -1640,7 +1663,7 @@ class Sample:
         if any(item['operations'] for item in steps):
             operations = {op for item in steps for op in item['operations']}
             receipts = [r for r in self.cli.call('history') if r['operation'] in operations]
-            lineage = V1.read_operation_inputs(self.cli.data, operations)
+            lineage = V1.read_operation_inputs(self.cli, operations)
         for item in steps:
             ops = set(item['operations'])
             item['receipts'] = [condense_receipt(r) for r in receipts if r['operation'] in ops]
@@ -2224,5 +2247,15 @@ def live(args, root, cases, arms, caps_by_arm, log):
     return int(bool(report['safety_blockers']))
 
 
+def cli_main():
+    """Keep unexpected exception payloads out of console/relay logs too."""
+    try:
+        return main()
+    except Exception as error:
+        print(json.dumps({'status': 'evaluator_failure', 'exception_type': type(error).__name__,
+                          'detail': 'Execution stopped; inspect retained local failure evidence.'}), file=sys.stderr)
+        return 1
+
+
 if __name__ == '__main__':
-    raise SystemExit(main())
+    raise SystemExit(cli_main())
