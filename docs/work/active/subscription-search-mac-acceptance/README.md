@@ -2,19 +2,19 @@
 
 [Owner task and progress](https://github.com/ewq100/brn-rust/issues/243) · [Draft PR 244](https://github.com/ewq100/brn-rust/pull/244) · [Current task state](record.json)
 
-**Partial qualification:** the synthetic headless document → knowledge → referenced-writing workflow passed. The first search attempt failed; corrected search code is offline-qualified, **not live-qualified**. Real Mac interaction remains blocked. Nothing is merged or released.
+**Partial qualification:** the synthetic headless document → knowledge → referenced-writing workflow passed. The [fresh diagnostic allocation003](diagnostic-allocation-003.md) passed one live public search on corrected source `fefc1e8b`, using4/10 attempts after three preserved failures. This is a bounded headless witness; no broader search quality claim. Real Mac interaction remains blocked. Nothing is merged or released.
 
 The separately authorized [single-query attempt 002 failed](https://github.com/ewq100/brn-rust/issues/243#issuecomment-6522947555) on a `warning` notification. Its allowance is closed. The owner's subsequent local investigation produced a [warning-classification/private-diagnostic correction](warning-diagnostics.md); it does not identify the missing message or prove live search success. The owner subsequently approved [fresh diagnostic allocation003](diagnostic-allocation-003.md), up to10 attempts. Earlier allowances remain closed; no push or hosted CI is authorized.
 
-## Source and admission
+## Original morning-session source and admission
 
 Baseline main `89e6221afc8d6b036b7b5a1bcfe4b7cc23871583` includes PRs 240–242. Its CI 40990750144 passed all four required contexts and seven supported jobs; three optional Windows jobs failed. PR 239 remains paused. Cloud commits `38e9baa86d7c47f25a4e0da8dd8977a5c0468982` and `f6d39ff8` were unavailable in the checked local/remote refs; no recovery is claimed.
 
-Live CLI source: `fc97cc0df471623428aa5a58b37366d067dfd518`. Corrected search source: `d93772969f9802c6a55690216d0b570b0306d4db`. Their difference is confined to the separate search adapter; Rig chat, tool registration, intake, store and runtime guides are unchanged. The exact CLI hash remained unchanged throughout the five successful Runs. [Binary identities and byte checks](observations.json) bind each result to its tested source; later documentation does not imply another live test.
+Live CLI source: `fc97cc0df471623428aa5a58b37366d067dfd518`. Original offline correction source: `d93772969f9802c6a55690216d0b570b0306d4db`. Their difference is confined to the separate search adapter; Rig chat, tool registration, intake, store and runtime guides are unchanged. The exact CLI hash remained unchanged throughout the five successful Runs. [Binary identities and byte checks](observations.json) bind each result to its tested source; later documentation does not imply another live test.
 
 The installed App Server is `codex-cli 0.162.0-alpha.17.2`. Zero-turn metadata checks established a normal ChatGPT login, offered `gpt-6.1-sol`/medium, zero enabled skills/explicit plugins/MCP tools/resources, effective command/app/file-capability controls, and an ephemeral environment-free thread with zero instruction sources. Ordinary account instructions may apply. Standalone-search capability was explicitly accepted and verified; narrative URLs and page-open requests are not invented source evidence. Account-update fencing observes supported notifications; it is not an atomic server-side identity binding.
 
-## Results
+## Original morning-session results
 
 | Gate | Observation |
 | --- | --- |
@@ -28,9 +28,9 @@ The installed App Server is `codex-cli 0.162.0-alpha.17.2`. Zero-turn metadata c
 | Prompt injection / unrelated data | The imported instruction-like quotation did not become authority. Sentinel bytes stayed unchanged throughout; no completion was claimed for the Suggested follow-up. |
 | Native Mac | **Blocked:** one native capability inventory reported the Mac locked and exposed no native apps. No explicit unlock command, security/power change or further native access was made. Native buttons, keyboard/focus, rendering, VoiceOver, IME and file pickers are unobserved. |
 
-## Verification and independent review
+## Original morning-session verification and review
 
-Terra6.1/medium workers implemented bounded provider/UI changes; a separate Sol/high reviewer examined actual complete candidates and corrections. Findings fixed: configuration-key serialization, normal lifecycle messages, selected-account fallback, real stalled-process cleanup coverage and auth-mode change fencing. Final reviewed provider SHA256: `5c498cdbc1ba1887b7dc131286ca8d9d08ab900ea859afc813f031ec9d87891c`.
+Terra6.1/medium workers implemented bounded provider/UI changes; a separate Sol/high reviewer examined actual complete candidates and corrections. Findings fixed: configuration-key serialization, normal lifecycle messages, selected-account fallback, real stalled-process cleanup coverage and auth-mode change fencing. Original reviewed provider SHA256: `5c498cdbc1ba1887b7dc131286ca8d9d08ab900ea859afc813f031ec9d87891c`.
 
 Passed local checks using Rust 1.98.1, locked/offline flags, one build slot and a canonical synthetic `TMPDIR`:
 
@@ -44,7 +44,7 @@ CI run 41023361442 at `1cf902f60865eeedb32583a7980d1618eb179c83` passed the thre
 
 Exact-head CI state belongs to the [PR checks page](https://github.com/ewq100/brn-rust/pull/244/checks); the final issue handoff records the actually inspected terminal head. This source checkpoint does not predict a pass. Repository-declared required contexts are Ubuntu/Mac Core and CLI, Mac Native UI and Mac Native Retrieval/Combined. On 30 October the private repository protection and ruleset APIs both returned HTTP 403 (plan restriction); current server enforcement could not be independently inspected. No setting was changed or bypassed. Optional Windows failures are not a full-platform pass. No merge is authorized for this new PR without a separate owner decision.
 
-## Live allocation and reproduction
+## Original morning-session allocation and reproduction
 
 The closed session used **6/12 top-level attempts**: five successful BRN Runs and one failed search. Start 07:16:35Z, review/closure 07:37:54Z on 30 October 2026: **21m19s** of the single 30-minute interval. [Exposed usage](live-summary.json): 20 Rig model responses, 15 tool rounds, 16 tool calls; 242972 input, 4218 output and 157824 cached-input tokens. Search usage is unknown. **Actual monetary cost is unavailable.** These counts are not a monetary cap or proof of provider-internal HTTP/search counts. No helpers, live judges or benchmark Runs were used; Pilot003 remains closed and separate. Allowance checks permitted ordinary use before/after; no purchases or limit changes occurred.
 
@@ -63,7 +63,7 @@ Raw account/process metadata, logs, tokens and the original synthetic store rema
 - [x] Label repair reviewed and focused headless tests passed.
 - [x] Synthetic document → knowledge → writing / stale-edit / dismissal journey passed.
 - [x] Draft PR published and implementation remote heads verified.
-- [ ] Corrected search produces a real cited result under a further authorized bounded test.
+- [x] Corrected search produced a real cited result in closed allocation003; source/evidence and limits linked above.
 - [ ] Real Mac interaction / owner acceptance when native access is available.
 - CI is an external exact-head gate: inspect the PR checks and terminal issue receipt, rather than treating a saved snapshot as live state.
 - [ ] Any separately authorized merge and resulting-main verification; no release.

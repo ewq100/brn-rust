@@ -1,0 +1,169 @@
+{
+  "job": "search-qualification-003",
+  "status": "PASSED",
+  "scope": "one completed public SQLite query, headless production adapter; not native Mac UI or broad search qualification",
+  "max_attempts": 10,
+  "attempts_used": 4,
+  "passed": 1,
+  "failed": 3,
+  "unused_attempts_closed": 6,
+  "source": "fefc1e8b11a9d56a44ec5f56abc9bf4a1eb5ceae",
+  "provider_source_sha256": "d08ae9d15aef3906faed8b4a69efa0db2034433546caff3d6e1e6bda7d70a53a",
+  "binary_sha256": "db64fabecc924f06491005ba933b35e83c178e570ac1a745918c07ce7f49f14b",
+  "app_server_version": "codex-cli 0.162.0-alpha.17.2",
+  "app_server_sha256": "0d5ac7aae20c4eda6242428d5e218c55ba96d8763fda2a271088ff37104b9d28",
+  "provider": "chatgpt",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "model_evidence": "requested, offered and thread-start verified; model fallback disabled; backend per-response identity not independently exposed",
+  "query": "Find the official SQLite documentation explaining transactions. Briefly explain BEGIN, COMMIT and ROLLBACK, and cite the relevant official documentation.",
+  "attempts": [
+    {
+      "ordinal": 1,
+      "reserved_at": "2026-10-30T21:45:39.100438+00:00",
+      "status": "returned",
+      "outer_watchdog": false,
+      "exit_code": 1,
+      "elapsed_seconds": 0.936,
+      "ended_at": "2026-10-30T21:45:40.037702+00:00",
+      "owned_processes_remaining": 0,
+      "outcome": "FAILED",
+      "failure": "ProviderWarning: known under-development feature startup advisory",
+      "private_warning_saved": true,
+      "upstream_dispatch": "unknown",
+      "usage": null,
+      "cost": null,
+      "source": "fee97e09b6a0ac2b892f991fb38665a52e770c5b",
+      "binary_sha256": "62fa9688fc37159152a61791fd63aecba4c836ccceb857778075d1aaa54014d7"
+    },
+    {
+      "ordinal": 2,
+      "reserved_at": "2026-10-30T21:52:18.320156+00:00",
+      "status": "returned",
+      "source": "8c0ddb64d99d284e729690dc48280df555317d5f",
+      "binary_sha256": "9fc75e03bfb46ff5b5d53c7c590741673602e8a11d7b73fddcb07b77c08b3099",
+      "correction": "documented per-child startup advisory control, effective true check; all emitted warnings still stop",
+      "outer_watchdog": false,
+      "exit_code": 1,
+      "elapsed_seconds": 4.467,
+      "ended_at": "2026-10-30T21:52:22.788586+00:00",
+      "owned_processes_remaining": 0,
+      "outcome": "FAILED",
+      "failure": "UnexpectedNotification: turn/moderationMetadata",
+      "upstream_dispatch": "unknown",
+      "usage": null,
+      "cost": null
+    },
+    {
+      "ordinal": 3,
+      "reserved_at": "2026-10-30T22:00:18.252831+00:00",
+      "status": "returned",
+      "source": "ffcc0a49d3f3bcf3b2819b437055a3334340face",
+      "binary_sha256": "97214844befe301a99dac8aeda7d5ee876b7269611867ac41b2ea882d5a6bacd",
+      "correction": "Exact acknowledged correlated presentation metadata handler; terminal policy/errors/safety/unknown/citation stops preserved",
+      "outer_watchdog": false,
+      "exit_code": 1,
+      "elapsed_seconds": 5.614,
+      "ended_at": "2026-10-30T22:00:23.868161+00:00",
+      "owned_processes_remaining": 0,
+      "outcome": "FAILED",
+      "failure": "UnexpectedNotification: account/rateLimits/updated",
+      "upstream_dispatch": "unknown",
+      "usage": null,
+      "cost": null
+    },
+    {
+      "ordinal": 4,
+      "reserved_at": "2026-10-30T22:06:45.767758+00:00",
+      "status": "returned",
+      "source": "fefc1e8b11a9d56a44ec5f56abc9bf4a1eb5ceae",
+      "binary_sha256": "db64fabecc924f06491005ba933b35e83c178e570ac1a745918c07ce7f49f14b",
+      "correction": "Same-child explicit ordinary included permission and shared quota decision validation, no recovery or credit/reset inference",
+      "outer_watchdog": false,
+      "exit_code": 0,
+      "elapsed_seconds": 9.581,
+      "ended_at": "2026-10-30T22:06:55.349990+00:00",
+      "owned_processes_remaining": 0,
+      "outcome": "PASSED",
+      "native_source_count": 12,
+      "completed_answer_chars": 687,
+      "usage": "not captured by adapter",
+      "cost": null,
+      "upstream_cancellation": "not verified"
+    }
+  ],
+  "answer": "SQLite’s official [Transaction documentation](https://www.sqlite.org/lang_transaction.html) explains transaction control:\n\n- **`BEGIN`** starts an explicit transaction, grouping subsequent operations until `COMMIT` or `ROLLBACK`. The default is `BEGIN DEFERRED`, which delays starting the database transaction until the first database access.\n- **`COMMIT`** saves the transaction’s changes and ends it. `END TRANSACTION` is an alias.\n- **`ROLLBACK`** undoes the transaction’s uncommitted changes and ends it.\n\nSee also the official [Savepoints documentation](https://www.sqlite.org/lang_savepoint.html), which clarifies that plain `COMMIT` and `ROLLBACK` apply to the entire transaction.",
+  "native_sources": [
+    {
+      "url": "https://www.sqlite.org/lang_transaction.html",
+      "title": "Transaction"
+    },
+    {
+      "url": "https://system.data.sqlite.org/home/doc/0a3d6229a7425242/Doc/Extra/Core/lang_transaction.html",
+      "title": "SQLite Query Language: BEGIN TRANSACTION"
+    },
+    {
+      "url": "https://system.data.sqlite.org/home/doc/4deb290d232e5850/Doc/Extra/Core/lang_transaction.html",
+      "title": "SQLite Query Language: BEGIN TRANSACTION"
+    },
+    {
+      "url": "https://system.data.sqlite.org/home/raw/Doc/Extra/lang_transaction.html?name=124adce1a34b456ca46ca6839bf145ce55753b3a",
+      "title": "TRANSACTIONS"
+    },
+    {
+      "url": "https://a1.sqlite.org/lang_transaction.html",
+      "title": "Transaction"
+    },
+    {
+      "url": "https://www2.sqlite.org/matrix/lang_transaction.html",
+      "title": "Transaction"
+    },
+    {
+      "url": "https://system.data.sqlite.org/home/doc/8e13c43294410407/Doc/Extra/Core/lang_transaction.html",
+      "title": "SQLite Query Language: BEGIN TRANSACTION"
+    },
+    {
+      "url": "https://www2.sqlite.org/matrix/matrix_dlang_transaction.html",
+      "title": "SQLite Requirement Matrix: lang_transaction.html"
+    },
+    {
+      "url": "https://www3.sqlite.org/matrix/matrix_dlang_transaction.html",
+      "title": "SQLite Requirement Matrix: lang_transaction.html"
+    },
+    {
+      "url": "https://sqlite.org/lang_transaction.html?source=post_page---------------------------",
+      "title": "Transaction"
+    },
+    {
+      "url": "https://www.sqlite.org/lang_savepoint.html",
+      "title": "Savepoints"
+    },
+    {
+      "url": "https://www3.sqlite.org/matrix/lang_transaction.html",
+      "title": "Transaction"
+    }
+  ],
+  "citation_checks": [
+    {
+      "url": "https://www.sqlite.org/lang_transaction.html",
+      "native_result_present": true,
+      "sha256": "b65dc308fd9e0ce471844c97366a4f5ad3a1f42833a3b19486ad7d6555a8e24e",
+      "bytes": 27068,
+      "checked_at": "2026-10-30T22:08:49.895293+00:00"
+    },
+    {
+      "url": "https://www.sqlite.org/lang_savepoint.html",
+      "native_result_present": true,
+      "sha256": "989be778c28732deeb4475ee9e686612456592ff91b2653f6119a9d3c42093a9",
+      "bytes": 18660,
+      "checked_at": "2026-10-30T22:08:50.589431+00:00"
+    }
+  ],
+  "citation_verdict": "PASS: official transactions page supports BEGIN/deferred default/COMMIT alias, and Savepoints supports whole-transaction COMMIT/plain ROLLBACK; both answer links match actual native sources",
+  "token_cache_usage": null,
+  "usage_limitation": "Current adapter does not retain token/cache/tool-round counters; no raw provider trace is published. Native source count is not search-call count.",
+  "actual_monetary_cost": null,
+  "cost_limitation": "Not exposed; percentage changes are not a request-cost measure. Upstream charges/cancellation remain unverified.",
+  "no_push_ci_merge_release_ui": true,
+  "closed_at": "2026-10-30T22:07:42.398911+00:00"
+}

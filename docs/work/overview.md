@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Finish subscription search and Mac acceptance with source-bound evidence.
-**Owner attention:** 3/10 attempts consumed. Same-child explicit permission/quota-update correction reviewed and all affected offline gates pass; next bounded query pending. No live/native pass yet.
+**Owner attention:** Headless live search passed on attempt4/10 after three reviewed corrections; allocation closed, six unused. Local code/evidence unpushed; native Mac acceptance and authorized publication/CI remain outstanding.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,25 +11,7 @@ Task details and full history: [selected work record](active/subscription-search
 
 ## Working on
 
-### Qualify subscription-only search
-
-Task ID: `subscription-search`
-Owner: Existing Mac lead · State: **active** · Last observed: 2026-10-30T22:06:27.349506+00:00
-Activity: Quota decision handling independently reviewed;31provider+3private-file tests, strictaffectedlint/build/fmt pass. Production checks explicit ordinarypermission beforeturn.
-Next: Reserve fourth60-second query at committed reviewed quota correction; inspect actual cited result or stop on failure.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** reviewed startup advisory, exact presentation metadata and explicit ordinary-admission/quota decision handling
-- **checks:** 31provider+3private-file tests, strictaffectedlint/build/fmt pass; live search pending
-- **integration:** local correction unpushed; PR244 remains draft at2764b52f, not merged/released
-- **native:** dialog harness only; real Mac unobserved
-- **owner acceptance:** not claimed
-
-</details>
+None recorded.
 
 ## Next
 
@@ -60,10 +42,10 @@ Gates:
 ### Publish final evidence and inspect CI
 
 Task ID: `publication`
-Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T07:42:45.460648+00:00
-Activity: Draft PR244 exists and tracks the reviewed scoped candidate; no merge or release. Exact-head CI is externally authoritative at the PR checks page.
-Next: Inspect final exact-head checks and retain the draft until the outstanding search/native gates and any separate owner merge decision.
-Resource waits: successful live search qualification; native Mac access; separate owner publication/integration decision
+Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T22:09:34.860015+00:00
+Activity: Headless document workflow and bounded live search passed; newer reviewed code/evidence remains local/unpushed. Prior remote CI is not new-source coverage.
+Next: Await owner publication/hosted-CI authorization and native acceptance; preserve draft, no push/ready/merge.
+Resource waits: native Mac access; separate owner publication/CI/integration decision
 
 <details>
 <summary>Gate status</summary>
@@ -80,16 +62,16 @@ Gates:
 
 Waiting:
 
-- resource: successful live search qualification
 - resource: native Mac access
-- resource: separate owner publication/integration decision
+- resource: separate owner publication/CI/integration decision
 
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+2 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `subscription-search` — Qualify subscription-only search
 - `document-workflow` — Import knowledge and produce a referenced draft
 
-Local page reflects the last saved observations in this record (2026-10-30T22:06:27.349506+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-30T22:09:34.860015+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

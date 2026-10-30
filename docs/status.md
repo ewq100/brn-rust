@@ -2,7 +2,7 @@
 
 Open the [development overview](work/overview.md) for current work, next actions, attention items and a compact completed-task index. It is generated from the selected task record; detailed gates, evidence and attempts remain in that record and its linked receipts. A remote page shows the last published checkpoint, not live agent activity.
 
-Current assignment: [subscription search and Mac acceptance — issue 243](work/active/subscription-search-mac-acceptance/record.json), with [source-bound results and remaining gates](work/active/subscription-search-mac-acceptance/README.md). The overview projects that record. PR 244 is draft; the synthetic headless workflow passed, search remains live-unqualified after its failed initial attempt, and native access is blocked. Earlier batch records below are dated evidence, not current dispatch or permission.
+Current assignment: [subscription search and Mac acceptance — issue 243](work/active/subscription-search-mac-acceptance/record.json), with [source-bound results and remaining gates](work/active/subscription-search-mac-acceptance/README.md). The overview projects that record. PR 244 is draft; the synthetic headless workflow and a bounded real-model public search passed. Newer reviewed search corrections/evidence remain local and unpushed; native access is blocked. Earlier batch records below are dated evidence, not current dispatch or permission.
 
 The previous [Knowledge/accessibility/CI batch](work/active/knowledge-triage-accessibility-ci/record.json) is retained unchanged as history.
 

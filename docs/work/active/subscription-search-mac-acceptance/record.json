@@ -4,34 +4,35 @@
   },
   "authority": {
     "source": "Direct owner request to execute issue243; issue defines bounds.",
-    "limits": "Owner directly approved up to10 new diagnostic query attempts after reviewed fee97e09. No CI/push/ready/merge/release/UI. Earlier sessions and002 remain closed.60s per query, Solmedium, no automatic retry, stop quota/auth/safety/uncertain execution; further attempt needs concrete correction or distinct useful purpose."
+    "limits": "Fresh diagnostic003 allocation closed at4/10 (3fail,1pass); six unused not banked. No more live calls, CI/push/ready/merge/release/UI under this completed allocation. Historical sessions/002 remain closed."
   },
   "work_view": {
-    "observed_at": "2026-10-30T22:06:27.349506+00:00",
+    "observed_at": "2026-10-30T22:09:34.860015+00:00",
     "goal": "Finish subscription search and Mac acceptance with source-bound evidence.",
-    "owner_attention": "3/10 attempts consumed. Same-child explicit permission/quota-update correction reviewed and all affected offline gates pass; next bounded query pending. No live/native pass yet.",
+    "owner_attention": "Headless live search passed on attempt4/10 after three reviewed corrections; allocation closed, six unused. Local code/evidence unpushed; native Mac acceptance and authorized publication/CI remain outstanding.",
     "tasks": [
       {
         "id": "subscription-search",
         "title": "Qualify subscription-only search",
         "owner": "Existing Mac lead",
-        "state": "active",
-        "activity": "Quota decision handling independently reviewed;31provider+3private-file tests, strictaffectedlint/build/fmt pass. Production checks explicit ordinarypermission beforeturn.",
-        "observed_at": "2026-10-30T22:06:27.349506+00:00",
+        "state": "complete",
+        "activity": "Attempt4 completed in9.581s on fefc1e8b with actual native sources; two official citations manually verified.4/10used, allocation closed;31provider+3private-file tests/strictlint/build pass.",
+        "observed_at": "2026-10-30T22:09:34.860015+00:00",
         "origin": "observed",
-        "next_action": "Reserve fourth60-second query at committed reviewed quota correction; inspect actual cited result or stop on failure.",
+        "next_action": "Preserve closed qualification and unpushed reviewed code/evidence; no more live calls. Native and publication remain separate gates.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/subscription-search-mac-acceptance/README.md",
           "https://github.com/ewq100/brn-rust/pull/244",
           "docs/work/active/subscription-search-mac-acceptance/warning-diagnostics.md",
-          "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
+          "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md",
+          "docs/work/active/subscription-search-mac-acceptance/diagnostic-003-result.json"
         ],
         "gates": {
           "implementation": "reviewed startup advisory, exact presentation metadata and explicit ordinary-admission/quota decision handling",
-          "checks": "31provider+3private-file tests, strictaffectedlint/build/fmt pass; live search pending",
-          "integration": "local correction unpushed; PR244 remains draft at2764b52f, not merged/released",
+          "checks": "PASS:31provider+3private-file tests, strictaffectedlint/build/fmt; single live cited SQLite query on fefc1e8b",
+          "integration": "local corrections/evidence unpushed; remote PR244 draft2764b52f only has prior CI; no merge",
           "native": "dialog harness only; real Mac unobserved",
           "owner_acceptance": "not claimed"
         },
@@ -71,6 +72,13 @@
             "change": "Require backend ordinaryUsageAllowed true on same child before dispatch; validate quota stops on all exact rolling updates, no recovery/credit/reset inference.",
             "evidence": [
               "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
+            ]
+          },
+          {
+            "outcome": "003attempt4 PASSED9.581s on fefc1e8b; completed answer plus12native sources, two official citations verified read-only.4/10used; allocation closed.",
+            "change": "Stop live work after sufficient bounded witness; preserve failed attempts, no CI/push/merge or native claims.",
+            "evidence": [
+              "docs/work/active/subscription-search-mac-acceptance/diagnostic-003-result.json"
             ]
           }
         ]
@@ -128,15 +136,14 @@
         "title": "Publish final evidence and inspect CI",
         "owner": "Existing Mac lead",
         "state": "blocked",
-        "activity": "Draft PR244 exists and tracks the reviewed scoped candidate; no merge or release. Exact-head CI is externally authoritative at the PR checks page.",
-        "observed_at": "2026-10-30T07:42:45.460648+00:00",
+        "activity": "Headless document workflow and bounded live search passed; newer reviewed code/evidence remains local/unpushed. Prior remote CI is not new-source coverage.",
+        "observed_at": "2026-10-30T22:09:34.860015+00:00",
         "origin": "observed",
-        "next_action": "Inspect final exact-head checks and retain the draft until the outstanding search/native gates and any separate owner merge decision.",
+        "next_action": "Await owner publication/hosted-CI authorization and native acceptance; preserve draft, no push/ready/merge.",
         "depends_on": [],
         "resource_waits": [
-          "successful live search qualification",
           "native Mac access",
-          "separate owner publication/integration decision"
+          "separate owner publication/CI/integration decision"
         ],
         "evidence": [
           "docs/work/active/subscription-search-mac-acceptance/README.md",
