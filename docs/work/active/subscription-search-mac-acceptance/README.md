@@ -4,7 +4,7 @@
 
 **Partial qualification:** the synthetic headless document → knowledge → referenced-writing workflow passed. The first search attempt failed; corrected search code is offline-qualified, **not live-qualified**. Real Mac interaction remains blocked. Nothing is merged or released.
 
-The separately authorized [single-query attempt 002 failed](https://github.com/ewq100/brn-rust/issues/243#issuecomment-6522947555) on a `warning` notification. Its allowance is closed. The owner's subsequent local investigation produced a [warning-classification/private-diagnostic correction](warning-diagnostics.md); it does not identify the missing message or prove live search success. No further live query, push or hosted CI follows from that correction.
+The separately authorized [single-query attempt 002 failed](https://github.com/ewq100/brn-rust/issues/243#issuecomment-6522947555) on a `warning` notification. Its allowance is closed. The owner's subsequent local investigation produced a [warning-classification/private-diagnostic correction](warning-diagnostics.md); it does not identify the missing message or prove live search success. The owner subsequently approved [fresh diagnostic allocation003](diagnostic-allocation-003.md), up to10 attempts. Earlier allowances remain closed; no push or hosted CI is authorized.
 
 ## Source and admission
 

@@ -39,3 +39,5 @@ One read-only independent reviewer examines the complete provider/example candid
 - Independent review found no actionable findings. Reviewed provider SHA256: `a392328d349c0ef4c4194c158e6f6faf34771f3360054ceeaa5fbf1919291ef5`; example SHA256: `2400b15a0951df44e4795ef5edd9bc036330f3f2c717e74706522ec5e4637a9c`.
 
 These results cover the local diagnostic correction only. No new live request or hosted check ran; no push, merge or release occurred. The next technical evidence needed is an actual warning message under a new expressly bounded diagnostic allocation, not a retry of the closed allocation.
+
+The later [fresh allocation003](diagnostic-allocation-003.md) captures a startup advisory on this correction and records the separately diagnosed per-child setting. This does not recover002's missing message or rewrite its failed result.

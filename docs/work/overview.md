@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Finish subscription search and Mac acceptance with source-bound evidence.
-**Owner attention:** Document workflow passed. Search002 failed on an unknown warning; a local diagnostic correction is reviewed/offline-verified, not live-qualified or pushed. Native gate remains blocked.
+**Owner attention:** Diagnostic allocation003 used1/10; captured unstable-feature startup advisory. Local per-child configuration correction under offline checks and independent review; no live success or native acceptance yet.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,33 +11,31 @@ Task details and full history: [selected work record](active/subscription-search
 
 ## Working on
 
-None recorded.
-
-## Next
-
-None recorded.
-
-## Needs attention
-
 ### Qualify subscription-only search
 
 Task ID: `subscription-search`
-Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T21:37:19.423432+00:00
-Activity: Local fail-closed warning classification/private diagnostics reviewed;22 provider +3 private-file tests and strict affected lint pass. Actual002 warning content/cause remains unknown.
-Next: Preserve local candidate; a fresh explicit diagnostic allocation is needed before another live query. No CI or push.
+Owner: Existing Mac lead · State: **active** · Last observed: 2026-10-30T21:51:23.383069+00:00
+Activity: Diagnosed003 startup advisory; per-child correction independently reviewed.23provider+3private-file tests, affected strictlint/build and zero-turn isolation check pass.1/10attempts used.
+Next: Reserve one further60-second query at committed reviewed correction; inspect actual answer/native sources and retain failed attempt1.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** local reviewed warning-diagnostic correction after published PR244 head
-- **checks:** 22 provider +3 diagnostic tests; strict affected lint/build; no new hosted or live qualification
+- **implementation:** reviewed per-child startup-advisory control; every emitted warning still stops
+- **checks:** 23provider+3private-file tests, affected strictlint/build/metadata pass; next live gate pending
 - **integration:** local correction unpushed; PR244 remains draft at2764b52f, not merged/released
 - **native:** dialog harness only; real Mac unobserved
 - **owner acceptance:** not claimed
 
 </details>
+
+## Next
+
+None recorded.
+
+## Needs attention
 
 ### Observe actual Mac controls
 
@@ -93,4 +91,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `document-workflow` — Import knowledge and produce a referenced draft
 
-Local page reflects the last saved observations in this record (2026-10-30T21:37:19.423432+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-30T21:51:23.383069+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

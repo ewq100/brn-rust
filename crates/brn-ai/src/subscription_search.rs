@@ -238,6 +238,10 @@ fn run(
 }
 
 const CONTROLS: &[&str] = &[
+    // The qualified version emits a startup advisory for the two intentional
+    // experimental controls below. Suppress only that documented category in
+    // these child processes; every warning still received remains a hard stop.
+    "suppress_unstable_features_warning=true",
     "features.shell_tool=false",
     "features.standalone_web_search=true",
     "features.apps=false",
@@ -364,6 +368,7 @@ fn verify(config: &Value, skills: &Value, mcp: &Value) -> Result<(), SearchError
         || c.pointer("/plugins/_default/enabled") != Some(&json!(false))
         || c.get("web_search") != Some(&json!("live"))
         || c.get("project_doc_max_bytes") != Some(&json!(0))
+        || c.get("suppress_unstable_features_warning") != Some(&json!(true))
     {
         return Err(SearchError::CapabilityBoundaryUnverified);
     }
@@ -1095,6 +1100,46 @@ mod tests {
             verify_standalone(json!({}).as_object().unwrap()),
             Err(SearchError::CapabilityBoundaryUnverified)
         );
+    }
+    #[test]
+    fn startup_advisory_is_child_config_not_a_warning_allowlist() {
+        assert!(CONTROLS.contains(&"suppress_unstable_features_warning=true"));
+        let mut config = json!({"config":{
+            "features":{"standalone_web_search":true,"skip_host_skill_discovery":true,"code_mode":{"enabled":false}},
+            "skills":{"bundled":{"enabled":false},"include_instructions":false},
+            "plugins":{"_default":{"enabled":false}},"mcp_servers":{},
+            "web_search":"live","project_doc_max_bytes":0,
+            "suppress_unstable_features_warning":true
+        }});
+        for key in [
+            "shell_tool",
+            "apps",
+            "computer_use",
+            "image_generation",
+            "multi_agent",
+            "view_image",
+            "skill_search",
+            "skill_mcp_dependency_install",
+            "memories",
+            "remote_plugin",
+            "tool_suggest",
+        ] {
+            config["config"]["features"][key] = json!(false);
+        }
+        let skills = json!({"data":[{"skills":[],"errors":[]}]});
+        let mcp = json!({"data":[]});
+        assert_eq!(verify(&config, &skills, &mcp), Ok(()));
+        for value in [Value::Null, json!(false), json!("true")] {
+            config["config"]["suppress_unstable_features_warning"] = value;
+            assert_eq!(
+                verify(&config, &skills, &mcp),
+                Err(SearchError::CapabilityBoundaryUnverified)
+            );
+        }
+        // Even the known advisory still stops if the server emits it. No text
+        // matching or category guessing is added to notification handling.
+        let error = validate_notification(&json!({"method":"warning","params":{"message":"Under-development features enabled: skip_host_skill_discovery, standalone_web_search."}}), None).unwrap_err();
+        assert!(matches!(error, SearchError::ProviderWarning(_)));
     }
     #[test]
     fn account_updates_require_managed_chatgpt_mode() {
