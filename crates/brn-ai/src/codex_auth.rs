@@ -1,15 +1,19 @@
 //! Read the explicitly selected normal Codex subscription account in memory.
 //! No credential copy, account discovery, API-key fallback, or persistence.
+#[cfg(unix)]
 use crate::auth::{OwnedClient, pinned_session_http, validate_ancestors, validate_file};
+#[cfg(unix)]
 use crate::error::map_auth;
 use crate::{AiError, AiErrorKind, AiResult, Provider, ProviderClient, Selection};
 use rig::http_client::DynHttpClient;
+#[cfg(unix)]
 use rig::providers::{chatgpt, openai};
+use std::path::Path;
+#[cfg(unix)]
 use std::{
     fs::OpenOptions,
     io::Read,
     os::unix::fs::{MetadataExt, OpenOptionsExt},
-    path::Path,
 };
 use tokio_util::sync::CancellationToken;
 
@@ -30,6 +34,7 @@ pub async fn codex_client(
 
 /// `codex_client` over `http`, with every request's `session-id` fixed to
 /// `session` when given.
+#[cfg(unix)]
 pub(crate) async fn codex_client_pinned(
     auth_file: &Path,
     selection: &Selection,
@@ -120,7 +125,56 @@ pub(crate) async fn codex_client_pinned(
     })
 }
 
-#[cfg(test)]
+#[cfg(not(unix))]
+pub(crate) async fn codex_client_pinned(
+    auth_file: &Path,
+    selection: &Selection,
+    _session: Option<&str>,
+    _http: DynHttpClient,
+    _cancel: CancellationToken,
+) -> AiResult<ProviderClient> {
+    selection.validate()?;
+    if selection.provider != Provider::Chatgpt || !auth_file.is_absolute() {
+        return Err(AiError::new(AiErrorKind::ToolRejected));
+    }
+    Err(crate::auth::unsupported_credentials())
+}
+
+#[cfg(all(test, not(unix)))]
+mod platform_tests {
+    use super::*;
+    #[tokio::test]
+    async fn unsupported_selected_account_never_reads_or_sends_credentials() {
+        let root = tempfile::tempdir().unwrap();
+        let file = root.path().join("auth.json");
+        let bytes = br#"{"auth_mode":"chatgpt","tokens":{"access_token":"SYNTHETIC_SECRET"}}"#;
+        std::fs::write(&file, bytes).unwrap();
+        let selection = Selection {
+            provider: Provider::Chatgpt,
+            model: "gpt-6.1-sol".into(),
+        };
+        let http = rig::test_utils::SequencedHttpClient::new([]);
+        let error = codex_client_pinned(
+            &file,
+            &selection,
+            None,
+            DynHttpClient::new(http.clone()),
+            CancellationToken::new(),
+        )
+        .await
+        .err()
+        .unwrap();
+        assert_eq!(
+            error.to_string(),
+            "Secure credential storage is unavailable on this platform."
+        );
+        assert!(http.requests().is_empty());
+        assert_eq!(std::fs::read(&file).unwrap(), bytes);
+        assert!(!format!("{error:?}").contains("SYNTHETIC_SECRET"));
+    }
+}
+
+#[cfg(all(test, unix))]
 mod tests {
     use super::*;
     use std::os::unix::fs::PermissionsExt;

@@ -130,6 +130,14 @@ impl std::fmt::Display for AiError {
         if let Some(notice) = self.mcp_unavailable_notice() {
             return f.write_str(notice);
         }
+        if self.kind == AiErrorKind::UnsafeCredentials
+            && self.detail.as_ref().is_some_and(|detail| {
+                detail.origin == "credential_storage"
+                    && detail.code.as_deref() == Some("unsupported_platform")
+            })
+        {
+            return f.write_str("Secure credential storage is unavailable on this platform.");
+        }
         let text = match self.kind {
             AiErrorKind::QuoteNotFound => "The quotation was not found in the saved note body.",
             AiErrorKind::QuoteAmbiguous => {

@@ -2,13 +2,16 @@ use crate::ConversionError;
 use std::{
     fs,
     path::{Path, PathBuf},
-    time::{Duration, SystemTime},
 };
+
+#[cfg(unix)]
+use std::time::{Duration, SystemTime};
 
 pub(crate) struct TransientDir {
     pub path: PathBuf,
 }
 impl TransientDir {
+    #[cfg(unix)]
     pub fn create(root: &Path) -> Result<Self, ConversionError> {
         if !root.is_absolute() {
             return Err(ConversionError::Invalid);
@@ -22,21 +25,18 @@ impl TransientDir {
         }
         cleanup_expired(root)?;
         let path = root.join(format!("threads-intake-{}", uuid::Uuid::new_v4()));
-        #[cfg(unix)]
-        {
-            use std::os::unix::fs::DirBuilderExt;
-            fs::DirBuilder::new()
-                .mode(0o700)
-                .create(&path)
-                .map_err(|_| ConversionError::Io)?;
-        }
-        #[cfg(not(unix))]
-        {
-            return Err(ConversionError::Unavailable);
-        }
+        use std::os::unix::fs::DirBuilderExt;
+        fs::DirBuilder::new()
+            .mode(0o700)
+            .create(&path)
+            .map_err(|_| ConversionError::Io)?;
         Ok(Self {
             path: fs::canonicalize(&path).map_err(|_| ConversionError::Io)?,
         })
+    }
+    #[cfg(not(unix))]
+    pub fn create(_: &Path) -> Result<Self, ConversionError> {
+        Err(ConversionError::Unavailable)
     }
     pub fn check_budget(&self, limit: usize) -> Result<(), ConversionError> {
         let mut bytes = 0u64;
@@ -77,6 +77,7 @@ impl Drop for TransientDir {
     }
 }
 
+#[cfg(unix)]
 pub(crate) fn cleanup_expired(root: &Path) -> Result<usize, ConversionError> {
     if !root.exists() {
         return Ok(0);
@@ -120,11 +121,13 @@ pub(crate) fn cleanup_expired(root: &Path) -> Result<usize, ConversionError> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(unix)]
     use std::sync::{
         Arc, Barrier,
         atomic::{AtomicBool, Ordering},
     };
 
+    #[cfg(unix)]
     #[test]
     fn missing_scratch_root_and_excess_entries_still_fail() {
         let root = tempfile::tempdir().unwrap();
@@ -137,6 +140,27 @@ mod tests {
         assert_eq!(temp.check_budget(4096), Err(ConversionError::Io));
     }
 
+    #[cfg(not(unix))]
+    #[test]
+    fn unavailable_scratch_does_not_create_or_cleanup_files() {
+        let root = tempfile::tempdir().unwrap();
+        let missing = root.path().join("missing");
+        assert!(matches!(
+            TransientDir::create(&missing),
+            Err(ConversionError::Unavailable)
+        ));
+        assert!(!missing.exists());
+        let expired = root
+            .path()
+            .join(format!("threads-intake-{}", uuid::Uuid::new_v4()));
+        fs::create_dir(&expired).unwrap();
+        fs::write(expired.join("sentinel"), b"preserved").unwrap();
+        assert!(matches!(
+            TransientDir::create(root.path()),
+            Err(ConversionError::Unavailable)
+        ));
+        assert_eq!(fs::read(expired.join("sentinel")).unwrap(), b"preserved");
+    }
     #[cfg(unix)]
     #[test]
     fn existing_symlinks_and_non_regular_entries_still_fail() {
@@ -154,6 +178,7 @@ mod tests {
         assert_eq!(fs::read(target).unwrap(), [0u8; 16]);
     }
 
+    #[cfg(unix)]
     #[test]
     fn concurrent_cache_renames_do_not_fail_scratch_budget_monitoring() {
         let root = tempfile::tempdir().unwrap();

@@ -597,6 +597,7 @@ async fn next_request_checks_actual_growing_tools_and_results_without_rewriting_
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn provider_context_exceeded_and_local_limit_share_display_attention_and_terminal_path() {
     let (root, mut request, _) = tests::fixture();
     request.auth_file = Some(cache_tests::codex_file(&root));
@@ -1650,6 +1651,7 @@ async fn medium_note_batch_omits_only_visible_ids_and_never_grants_unshown_full_
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn sanitized_provider_cannot_spoof_a_local_brn_estimate_notice() {
     let (root, mut request, _) = tests::fixture();
     request.auth_file = Some(cache_tests::codex_file(&root));

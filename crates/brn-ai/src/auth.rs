@@ -6,10 +6,17 @@ use rig::http_client::{DynHttpClient, HttpClientExt, HttpMiddleware, NoBody, Req
 use rig::providers::{chatgpt, copilot, openai};
 use rig::wire::{Mode, Wire};
 use std::collections::HashSet;
-use std::fs::{File, Metadata, OpenOptions};
-use std::io::{Read, Write};
+use std::fs::File;
+#[cfg(unix)]
+use std::fs::{Metadata, OpenOptions};
+use std::io::Read;
+#[cfg(unix)]
+use std::io::Write;
+#[cfg(unix)]
 use std::os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt, PermissionsExt};
-use std::path::{Component, Path, PathBuf};
+#[cfg(unix)]
+use std::path::Component;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;
@@ -122,10 +129,7 @@ impl Auth {
         }
         validate_ancestors(credentials_dir)?;
         if !credentials_dir.try_exists().map_err(storage)? {
-            std::fs::DirBuilder::new()
-                .mode(0o700)
-                .create(credentials_dir)
-                .map_err(storage)?;
+            create_credentials_dir(credentials_dir)?;
         }
         let auth = Self {
             dir: credentials_dir.to_owned(),
@@ -399,11 +403,7 @@ impl Auth {
     }
 
     fn check_removal(&self, name: &str) -> AiResult<()> {
-        match std::fs::symlink_metadata(self.dir.join(name)) {
-            Ok(meta) => validate_removal(meta.is_file(), meta.file_type().is_symlink(), meta.uid()),
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
-            Err(e) => Err(storage(e)),
-        }
+        check_removal_in(&self.dir, name)
     }
 
     pub async fn models(
@@ -560,14 +560,7 @@ impl Auth {
     fn save_name(&self, provider: Provider, name: Option<&str>) -> AiResult<()> {
         let bytes = serde_json::to_vec(&serde_json::json!({ "name": name }))
             .map_err(|_| AiError::new(AiErrorKind::Storage))?;
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create_new(true)
-            .mode(0o600)
-            .custom_flags(libc::O_NOFOLLOW)
-            .open(self.dir.join(provider.name_file()))
-            .map_err(storage)?;
-        file.write_all(&bytes).map_err(storage)
+        write_name_in(&self.dir, provider.name_file(), &bytes)
     }
 }
 
@@ -695,6 +688,7 @@ impl chatgpt::auth::TokenStore for LegacyTokenStore {
     // covers this short-lived adapter and the complete refresh/login operation.
 }
 
+#[cfg(unix)]
 fn write_record_in(dir: &Path, name: &str, bytes: &[u8]) -> AiResult<()> {
     validate_dir_in(dir)?;
     let previous = checked_file_in(dir, name, false)?;
@@ -733,6 +727,7 @@ fn delete_record_in(dir: &Path, name: &str) -> AiResult<()> {
     }
 }
 
+#[cfg(unix)]
 fn validate_dir_in(dir: &Path) -> AiResult<()> {
     validate_ancestors(dir)?;
     let meta = std::fs::symlink_metadata(dir).map_err(storage)?;
@@ -746,6 +741,7 @@ fn validate_dir_in(dir: &Path) -> AiResult<()> {
     )
 }
 
+#[cfg(unix)]
 fn checked_file_in(dir: &Path, name: &str, tighten: bool) -> AiResult<Option<File>> {
     let path = dir.join(name);
     let meta = match std::fs::symlink_metadata(&path) {
@@ -770,6 +766,74 @@ fn checked_file_in(dir: &Path, name: &str, tighten: bool) -> AiResult<Option<Fil
         validate_file(&file.metadata().map_err(|_| unsafe_credentials())?, false)?;
     }
     Ok(Some(file))
+}
+
+#[cfg(unix)]
+fn create_credentials_dir(path: &Path) -> AiResult<()> {
+    std::fs::DirBuilder::new()
+        .mode(0o700)
+        .create(path)
+        .map_err(storage)
+}
+
+#[cfg(unix)]
+fn check_removal_in(dir: &Path, name: &str) -> AiResult<()> {
+    match std::fs::symlink_metadata(dir.join(name)) {
+        Ok(meta) => validate_removal(meta.is_file(), meta.file_type().is_symlink(), meta.uid()),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(e) => Err(storage(e)),
+    }
+}
+
+#[cfg(unix)]
+fn write_name_in(dir: &Path, name: &str, bytes: &[u8]) -> AiResult<()> {
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .mode(0o600)
+        .custom_flags(libc::O_NOFOLLOW)
+        .open(dir.join(name))
+        .map_err(storage)?;
+    file.write_all(bytes).map_err(storage)
+}
+
+// Unix ownership/mode checks cannot be translated to Windows read-only flags.
+// Refuse before filesystem or provider effects until an ACL/handle adapter is qualified.
+#[cfg(not(unix))]
+pub(crate) fn unsupported_credentials() -> AiError {
+    AiError::new(AiErrorKind::UnsafeCredentials).with_detail(crate::AiFailureDetail {
+        origin: "credential_storage".into(),
+        code: Some("unsupported_platform".into()),
+        ..Default::default()
+    })
+}
+#[cfg(not(unix))]
+fn create_credentials_dir(_: &Path) -> AiResult<()> {
+    Err(unsupported_credentials())
+}
+#[cfg(not(unix))]
+pub(crate) fn validate_ancestors(_: &Path) -> AiResult<()> {
+    Err(unsupported_credentials())
+}
+#[cfg(not(unix))]
+fn validate_dir_in(_: &Path) -> AiResult<()> {
+    Err(unsupported_credentials())
+}
+#[cfg(not(unix))]
+fn checked_file_in(_: &Path, _: &str, _: bool) -> AiResult<Option<File>> {
+    Err(unsupported_credentials())
+}
+#[cfg(not(unix))]
+fn write_record_in(_: &Path, _: &str, _: &[u8]) -> AiResult<()> {
+    Err(unsupported_credentials())
+}
+#[cfg(not(unix))]
+fn write_name_in(_: &Path, _: &str, _: &[u8]) -> AiResult<()> {
+    Err(unsupported_credentials())
+}
+#[cfg(not(unix))]
+fn check_removal_in(_: &Path, _: &str) -> AiResult<()> {
+    Err(unsupported_credentials())
 }
 
 fn read_in(dir: &Path, name: &str) -> AiResult<Option<Vec<u8>>> {
@@ -898,11 +962,13 @@ fn record_error(name: &str) -> AiError {
         AiErrorKind::ReconnectNeeded
     })
 }
+#[cfg(unix)]
 fn current_uid() -> u32 {
     // SAFETY: geteuid has no preconditions.
     unsafe { libc::geteuid() }
 }
 
+#[cfg(unix)]
 fn validate_metadata(
     file: bool,
     dir: bool,
@@ -924,6 +990,7 @@ fn validate_metadata(
     }
 }
 
+#[cfg(unix)]
 pub(crate) fn validate_file(meta: &Metadata, tighten: bool) -> AiResult<()> {
     if tighten {
         if !meta.is_file() || meta.nlink() != 1 || meta.uid() != current_uid() {
@@ -942,6 +1009,7 @@ pub(crate) fn validate_file(meta: &Metadata, tighten: bool) -> AiResult<()> {
     }
 }
 
+#[cfg(unix)]
 fn validate_removal(file: bool, symlink: bool, uid: u32) -> AiResult<()> {
     // Unlink the owned directory entry, not its content or any symlink target.
     if uid != current_uid() || !(file || symlink) {
@@ -950,6 +1018,7 @@ fn validate_removal(file: bool, symlink: bool, uid: u32) -> AiResult<()> {
     Ok(())
 }
 
+#[cfg(unix)]
 pub(crate) fn validate_ancestors(path: &Path) -> AiResult<()> {
     let mut current = PathBuf::new();
     for component in path.components() {
@@ -1029,7 +1098,7 @@ fn email_claim(token: &str) -> Option<String> {
     claims.get("email")?.as_str().and_then(display_name)
 }
 
-#[cfg(test)]
+#[cfg(all(test, unix))]
 mod tests {
     use super::*;
     use rig::http_client::StatusCode;
@@ -2156,5 +2225,32 @@ mod tests {
                 }
             }
         }
+    }
+}
+
+#[cfg(all(test, not(unix)))]
+mod platform_tests {
+    use super::*;
+    #[test]
+    fn unsupported_credentials_leave_new_and_existing_storage_untouched() {
+        let root = tempfile::tempdir().unwrap();
+        let dir = root.path().join("credentials");
+        let error = Auth::open(&dir).err().unwrap();
+        assert_eq!(error.kind, AiErrorKind::UnsafeCredentials);
+        assert_eq!(
+            error.to_string(),
+            "Secure credential storage is unavailable on this platform."
+        );
+        assert!(!dir.exists());
+        std::fs::create_dir(&dir).unwrap();
+        let file = dir.join("chatgpt.json");
+        std::fs::write(&file, b"SYNTHETIC_SECRET").unwrap();
+        assert!(Auth::open(&dir).is_err());
+        assert!(write_record_in(&dir, "chatgpt.json", b"replacement").is_err());
+        assert!(write_name_in(&dir, "chatgpt-name.json", b"name").is_err());
+        assert!(checked_file_in(&dir, "chatgpt.json", true).is_err());
+        assert!(delete_record_in(&dir, "chatgpt.json").is_err());
+        assert_eq!(std::fs::read(&file).unwrap(), b"SYNTHETIC_SECRET");
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 1);
     }
 }

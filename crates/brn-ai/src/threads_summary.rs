@@ -401,10 +401,14 @@ impl Cache {
             // replacing a newer generation; every later use revalidates too.
             fresh()?;
             fs::rename(&stage, &self.path).map_err(storage)?;
+            // Match canonical backup/restore: std directory handles can be
+            // flushed on Unix. Windows std File::open cannot open directories.
+            #[cfg(unix)]
             File::open(self.path.parent().ok_or_else(rejected)?)
                 .map_err(storage)?
                 .sync_all()
-                .map_err(storage)
+                .map_err(storage)?;
+            Ok(())
         })();
         let _ = fs::remove_file(stage);
         result

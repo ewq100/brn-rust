@@ -6,6 +6,7 @@ use rig::http_client::{
 use rig::test_utils::{CapturedHttpRequest, MockHttpResponse, SequencedHttpClient};
 use serde_json::{Value, json};
 use std::collections::VecDeque;
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 use std::sync::{
     Arc, Mutex,
@@ -1628,6 +1629,7 @@ pub(crate) async fn client(
     client_replies(provider, model, streams.into_iter().map(Ok).collect()).await
 }
 
+#[cfg(unix)]
 async fn client_replies(
     provider: Provider,
     model: &str,
@@ -1696,6 +1698,96 @@ async fn client_replies(
         .await
         .unwrap();
     (root, client, http)
+}
+
+#[cfg(not(unix))]
+async fn client_replies(
+    provider: Provider,
+    model: &str,
+    streams: Vec<http_client::Result<MockHttpResponse>>,
+) -> (tempfile::TempDir, ProviderClient, ScriptHttp) {
+    memory_client_replies(provider, model, streams).await
+}
+
+// Provider wire fixtures need in-memory synthetic tokens, not platform credential
+// storage. Exercise this fixture on Unix too, independently of the auth adapter.
+async fn memory_client_replies(
+    provider: Provider,
+    model: &str,
+    streams: Vec<http_client::Result<MockHttpResponse>>,
+) -> (tempfile::TempDir, ProviderClient, ScriptHttp) {
+    use rig::{
+        http_client::DynHttpClient,
+        providers::{chatgpt, copilot, openai},
+    };
+    let root = tempfile::tempdir().unwrap();
+    let (dialect, base, key) = match provider {
+        Provider::Chatgpt => (
+            &chatgpt::DIALECT,
+            "https://chatgpt.com/backend-api/codex",
+            "SYNTHETIC_ACCESS",
+        ),
+        Provider::Copilot => (
+            &copilot::wire::DIALECT,
+            "https://example.invalid",
+            "SYNTHETIC_SESSION",
+        ),
+    };
+    let route = if provider == Provider::Chatgpt || model.contains("codex") {
+        "responses"
+    } else {
+        "chat/completions"
+    };
+    let url = format!("{base}/{route}");
+    let http = ScriptHttp::new(
+        vec![],
+        streams.into_iter().map(|s| (url.clone(), s)).collect(),
+    );
+    let mut config = openai::OpenAIConfig::with_key(dialect, key.to_owned()).with_base_url(base);
+    if provider == Provider::Chatgpt {
+        config.account_id = Some("synthetic-account".into());
+    }
+    let inner = Box::new(config.connect(DynHttpClient::new(http.clone())));
+    let inner = match provider {
+        Provider::Chatgpt => crate::auth::OwnedClient::Chatgpt(inner),
+        Provider::Copilot => crate::auth::OwnedClient::Copilot(inner),
+    };
+    (
+        root,
+        ProviderClient {
+            inner,
+            selection: Selection {
+                provider,
+                model: model.into(),
+            },
+        },
+        http,
+    )
+}
+
+#[tokio::test]
+async fn in_memory_subscription_routes_work_without_credential_storage() {
+    for (provider, model, responses) in [
+        (Provider::Chatgpt, "gpt-5.5", true),
+        (Provider::Copilot, "gpt-4o", false),
+        (Provider::Copilot, "gpt-5.3-codex", true),
+    ] {
+        let (root, client, http) = memory_client_replies(
+            provider,
+            model,
+            vec![Ok(success(text_sse(responses, "synthetic answer")))],
+        )
+        .await;
+        let (answer, _) = run(client, Arc::new(Notes::default()), CancellationToken::new()).await;
+        assert!(
+            matches!(answer.terminal, AiTerminal::Completed),
+            "{answer:?}"
+        );
+        assert_eq!(answer.text, "synthetic answer");
+        assert_eq!(http.bodies()[0]["model"], model);
+        http.assert_consumed();
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
+    }
 }
 
 pub(crate) fn success(sse: String) -> MockHttpResponse {
@@ -2762,6 +2854,7 @@ async fn actual_subscription_formats_continue_tools_and_text_only_history() {
             a.text
         );
         http.assert_consumed();
+        #[cfg(unix)]
         if provider == Provider::Chatgpt {
             assert!(
                 String::from_utf8_lossy(&http.unary.requests()[0].body)
@@ -3880,6 +3973,7 @@ mod capability_probe_formats {
     }
 }
 
+#[cfg(unix)]
 mod subscription_catalog_tests {
     use super::*;
     use base64::Engine;

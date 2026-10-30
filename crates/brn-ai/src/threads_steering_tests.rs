@@ -277,11 +277,27 @@ async fn copilot_run_uses_credentials_folder_even_when_codex_file_is_configured(
     let result = run_prepared(prepared, CancellationToken::new(), Arc::new(|_| {}))
         .await
         .unwrap();
-    // An empty folder means no Copilot account yet, not a rejected Codex route.
-    assert!(
-        matches!(&result.answer.terminal, AiTerminal::Failed(e) if e.kind == AiErrorKind::ReconnectNeeded),
-        "{:?}",
-        result.answer.terminal
-    );
-    assert!(dir.is_dir());
+    #[cfg(unix)]
+    {
+        // An empty folder means no Copilot account yet, not a rejected Codex route.
+        assert!(
+            matches!(&result.answer.terminal, AiTerminal::Failed(e) if e.kind == AiErrorKind::ReconnectNeeded),
+            "{:?}",
+            result.answer.terminal
+        );
+        assert!(dir.is_dir());
+    }
+    #[cfg(not(unix))]
+    {
+        let AiTerminal::Failed(error) = &result.answer.terminal else {
+            panic!("{:?}", result.answer.terminal);
+        };
+        assert_eq!(error.kind, AiErrorKind::UnsafeCredentials);
+        assert_eq!(
+            error.to_string(),
+            "Secure credential storage is unavailable on this platform."
+        );
+        assert!(!dir.exists());
+    }
+    assert!(!codex.exists());
 }

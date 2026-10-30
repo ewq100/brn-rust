@@ -1,10 +1,14 @@
-use super::download::{self, Asset, DigestPin, HttpSource, ModelInstallError, install_with};
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+use super::download::HttpSource;
+use super::download::{self, Asset, DigestPin, ModelInstallError, install_with};
 use crate::Error;
 use sha2::{Digest, Sha256};
+use std::sync::atomic::AtomicBool;
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 use std::{
     io::{Cursor, Read, Write},
     net::TcpListener,
-    sync::atomic::{AtomicBool, Ordering},
+    sync::atomic::Ordering,
 };
 
 const BYTES: [&[u8]; 5] = [b"fake onnx", b"tokenizer", b"{}", b"special", b"config"];
@@ -39,6 +43,7 @@ fn manifest() -> Vec<Asset> {
     .collect()
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn source(asset: &Asset) -> crate::Result<Box<dyn Read>> {
     let i = manifest()
         .iter()
@@ -90,6 +95,7 @@ fn loaded_git_blob_pin_requires_the_git_header_not_a_raw_content_digest() {
 }
 
 #[test]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn synthetic_five_assets_install_exclusively_and_verified_reuse_has_no_fetch() {
     let data = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let target = data.path().join("model");
@@ -137,6 +143,7 @@ fn synthetic_five_assets_install_exclusively_and_verified_reuse_has_no_fetch() {
 }
 
 #[test]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn synthetic_corruption_truncation_oversize_http_error_and_cancel_clean_only_owned_stage() {
     for case in 0..5 {
         let data = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
@@ -181,6 +188,7 @@ fn synthetic_corruption_truncation_oversize_http_error_and_cancel_clean_only_own
 }
 
 #[test]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn concurrent_destination_creation_cannot_be_overwritten_by_install() {
     let data = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let target = data.path().join("model");
@@ -209,6 +217,7 @@ fn concurrent_destination_creation_cannot_be_overwritten_by_install() {
 }
 
 #[test]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn concurrently_created_empty_destination_is_preserved_and_stage_is_removed() {
     use std::os::unix::fs::MetadataExt;
 
@@ -240,6 +249,7 @@ fn concurrently_created_empty_destination_is_preserved_and_stage_is_removed() {
 }
 
 #[test]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn competing_installers_publish_one_complete_model_and_remove_losing_stage() {
     let data = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let target = data.path().join("model");
@@ -284,6 +294,7 @@ fn competing_installers_publish_one_complete_model_and_remove_losing_stage() {
 }
 
 #[test]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn private_http_seam_uses_synthetic_manifest_and_local_server_only() {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let base = format!("http://{}/", listener.local_addr().unwrap());
@@ -457,6 +468,7 @@ fn previous_minilm_manifest_stays_recognised_exactly() {
 }
 
 #[test]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn http_failure_has_safe_typed_error_and_cleans_the_exclusive_stage() {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let base = format!("http://{}/", listener.local_addr().unwrap());
@@ -489,6 +501,7 @@ fn http_failure_has_safe_typed_error_and_cleans_the_exclusive_stage() {
 }
 
 #[test]
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn cancellation_between_chunks_cleans_a_partial_file_without_installing() {
     let data = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let bytes = vec![42; 131_072];
@@ -515,4 +528,40 @@ fn cancellation_between_chunks_cleans_a_partial_file_without_installing() {
     assert!(matches!(error, Error::Cancelled));
     assert_eq!(received, 65_536);
     assert_eq!(std::fs::read_dir(data.path()).unwrap().count(), 0);
+}
+
+#[cfg(not(any(target_os = "macos", target_os = "linux")))]
+#[test]
+fn unsupported_install_refuses_before_fetch_progress_or_filesystem_changes() {
+    let data = tempfile::tempdir().unwrap();
+    let existing = data.path().join("occupied");
+    std::fs::create_dir(&existing).unwrap();
+    std::fs::write(existing.join("sentinel"), b"keep").unwrap();
+    for target in [data.path().join("absent-parent/model"), existing.clone()] {
+        let error = install_with(
+            &target,
+            &AtomicBool::new(false),
+            |_, _| panic!("unsupported install must not report progress"),
+            &manifest(),
+            |_| panic!("unsupported install must not fetch"),
+        )
+        .unwrap_err();
+        assert!(matches!(
+            error,
+            Error::ModelInstall(ModelInstallError::ExclusiveInstallUnavailable)
+        ));
+    }
+    assert_eq!(std::fs::read(existing.join("sentinel")).unwrap(), b"keep");
+    assert_eq!(std::fs::read_dir(&existing).unwrap().count(), 1);
+    assert_eq!(std::fs::read_dir(data.path()).unwrap().count(), 1);
+    assert!(matches!(
+        install_with(
+            &existing,
+            &AtomicBool::new(true),
+            |_, _| panic!("cancelled install progress"),
+            &manifest(),
+            |_| panic!("cancelled install fetch"),
+        ),
+        Err(Error::Cancelled)
+    ));
 }
