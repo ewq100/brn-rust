@@ -45,7 +45,10 @@ main/manual CI schedules all three Windows jobs.
   summary 16). Shared mock-model/runtime tests and four portable summary tests
   remain enabled. New non-Unix tests assert explicit refusal, untouched files,
   no HTTP/progress callbacks and cancellation precedence. These non-Unix tests
-  still require execution on Windows.
+  still require execution on Windows. The complete newly gated test inventory and
+  per-file justification are in [gated tests](gated-tests.md). Two pure auth tests
+  (route selection and provider wire values) remain portable; a new portable
+  Codex test checks invalid provider/relative-path refusal before authentication.
 
 No workflow checks were deleted or weakened. Linux/macOS behavior and Windows
 UI feature parity are separate gates.
@@ -59,7 +62,7 @@ Pinned compiler: Rust 1.98.1. Only `x86_64-unknown-linux-gnu` is installed.
 | `cargo fetch --locked --target x86_64-unknown-linux-gnu` | Passed; refreshed the older saved dependency cache. |
 | `cargo build --workspace --locked --offline` | Passed. |
 | `cargo clippy -p brn-ai -p brn-threads-intake --all-targets --locked --offline -- -D warnings` | Passed on final Rust source. |
-| `cargo test -p brn-ai --lib --locked --offline` | 528 passed, 1 ignored. |
+| `cargo test -p brn-ai --lib --locked --offline` | Initially 528 passed, 1 ignored; final narrowed-gate source 529 passed, 1 ignored. |
 | `python3 /workspace/brn-environment/run-with-reaping.py cargo test -p brn-threads-intake --lib --locked --offline` | 4 passed, 1 ignored. |
 | `cargo fmt --all -- --check`; `git diff --check` | Passed. |
 | `cargo test -p brn-retrieval --features native --lib --test model_download --locked --offline` | Blocked before retrieval compilation by `ort-sys 2.0.0-rc.13` native runtime binary download: `UnknownIssuer`. System-CA curl to the same pinned URL returned HTTP403. TLS checks were retained; no alternate source or model assets fetched. |
@@ -76,7 +79,9 @@ the existing environment subreaper wrapper resolved that failure without source
 or assertion changes. One test compilation was interrupted to correct fixture
 environment selection.
 
-Local full logs: `/tmp/brn-windows-ai-test-unsandboxed.log`,
+Local full logs: `/tmp/brn-windows-clarification-test.log`,
+`/tmp/brn-windows-clarification-clippy-final.log`,
+`/tmp/brn-windows-ai-test-unsandboxed.log`,
 `/tmp/brn-windows-clippy-final.log`, `/tmp/brn-windows-workspace-build.log`,
 `/tmp/brn-windows-intake-test-reaped.log`,
 `/tmp/brn-windows-retrieval-test.log`. Earlier failures remain in the sibling
@@ -108,10 +113,51 @@ The lead independently reviewed the retrieval and test-gating edits.
    Newly reachable failures must be diagnosed; static review is not a green run.
 4. No changed file overlaps PR244's current changed-file list, so no direct text
    conflict is expected. Its separate `subscription_search.rs` two Windows cfg
-   warnings remain outside this main-based patch and can fail main/manual strict
+   warnings are exactly `crates/brn-ai/src/subscription_search.rs:500:17`
+   (`unused_mut`, the scratch `DirBuilder`) and `:524:12` (`unused_variables`,
+   parameter `command` in `grouped`). They remain outside this main-based patch
+   and can fail main/manual strict
    lint after integration; its owner must fix/qualify them on the combined source.
    No Mac unpushed branch or commit was accessed or changed.
 
 Windows secure credentials and exclusive model installation remain clearly
 unsupported rather than silently using unsafe portable fallbacks. Restore those
 features only with qualified platform adapters and real Windows security tests.
+
+## Root clarification: capability regression and CI expectations
+
+This candidate intentionally exposes Windows authentication as unavailable:
+ChatGPT/Copilot Connect, cached-account status/model discovery, refresh, disconnect
+through `Auth::open`, selected Codex account-file authentication, provider-backed
+main/research-helper runs, and AI conversion requiring those accounts cannot
+complete. No raw-token or weaker-permission fallback was introduced. Ordinary
+offline storage/UI operations do not call `Auth::open` at startup. Model loading
+from separately supplied assets is unchanged; explicit model installation is
+unavailable. Restricted document conversion was already unavailable on Windows.
+
+Compared with the examined main baseline, no previously working Windows
+capability was demonstrated or removed: baseline Windows authentication and native
+retrieval did not compile; model publication already returned an unsupported
+error outside Linux/macOS, and scratch creation already returned unavailable on
+non-Unix. Scratch refusal now happens before formerly attempted cleanup/root
+creation, and model-install refusal happens before formerly attempted asset
+inspection/staging. Historical Windows releases were not audited, so this is not
+a claim about every prior release's behavior.
+
+The test gates distinguish actual platform-specific integration from portable
+behavior. Their test bodies and assertions remain unchanged for Unix/Linux/Mac.
+Portable transport, validation, mock-runner, pure pin and summary tests remain
+enabled. The first review caught an overbroad whole-provider-format gate; it was
+replaced with the portable memory fixture. Root's closer gate audit caught two
+pure auth tests inside a Unix-only module; those were moved back to an all-platform
+module, and a portable pre-authentication rejection test was added. Treat the
+additional test-gating commit as part of this candidate.
+
+The final bounded static audit found no remaining Windows-enabled tests explicitly
+expecting successful protected-file authentication, model installation or restricted
+document conversion. Windows native UI CI does not enable `native-test-support`,
+so Unix native widget fixtures are not in that lane. Retrieval retains pure
+pin/loader checks and explicit unsupported-install tests. This audit cannot promise
+that Windows compilation, lint, headless startup or runtime tests will pass: no
+Windows execution was available, and additional platform failures may only appear
+once the original compile blockers are removed.

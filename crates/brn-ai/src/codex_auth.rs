@@ -140,6 +140,39 @@ pub(crate) async fn codex_client_pinned(
     Err(crate::auth::unsupported_credentials())
 }
 
+#[cfg(test)]
+mod portable_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn invalid_provider_or_relative_account_path_is_rejected_before_authentication() {
+        let root = tempfile::tempdir().unwrap();
+        for (path, provider) in [
+            (std::path::PathBuf::from("relative"), Provider::Chatgpt),
+            (root.path().join("unread-account.json"), Provider::Copilot),
+        ] {
+            let selection = Selection {
+                provider,
+                model: "gpt-6.1-sol".into(),
+            };
+            let http = rig::test_utils::SequencedHttpClient::new([]);
+            let error = codex_client_pinned(
+                &path,
+                &selection,
+                None,
+                DynHttpClient::new(http.clone()),
+                CancellationToken::new(),
+            )
+            .await
+            .err()
+            .unwrap();
+            assert_eq!(error.kind, AiErrorKind::ToolRejected);
+            assert!(http.requests().is_empty());
+        }
+        assert_eq!(std::fs::read_dir(root.path()).unwrap().count(), 0);
+    }
+}
+
 #[cfg(all(test, not(unix)))]
 mod platform_tests {
     use super::*;

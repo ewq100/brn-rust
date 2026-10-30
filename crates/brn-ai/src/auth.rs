@@ -1098,16 +1098,9 @@ fn email_claim(token: &str) -> Option<String> {
     claims.get("email")?.as_str().and_then(display_name)
 }
 
-#[cfg(all(test, unix))]
-mod tests {
+#[cfg(test)]
+mod portable_tests {
     use super::*;
-    use rig::http_client::StatusCode;
-    use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
-    use std::os::unix::fs::{PermissionsExt, symlink};
-
-    fn test_root() -> tempfile::TempDir {
-        tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
-    }
 
     #[test]
     fn copilot_completion_uses_rig_route_unless_responses_is_forced() {
@@ -1122,6 +1115,84 @@ mod tests {
         assert!(!route("gpt-5.6-terra", false));
         assert!(route("gpt-5.6-terra", true));
         assert!(route("gpt-5.3-codex", false));
+    }
+
+    #[test]
+    fn selection_and_provider_wire_values_are_explicit_and_validated() {
+        assert_eq!(
+            serde_json::to_value(Selection {
+                provider: Provider::Chatgpt,
+                model: "gpt-5.5".into()
+            })
+            .unwrap(),
+            serde_json::json!({"provider":"chatgpt","model":"gpt-5.5"})
+        );
+        assert!(serde_json::from_str::<Provider>(r#""unknown""#).is_err());
+        for provider in [Provider::Chatgpt, Provider::Copilot] {
+            for model in [
+                "",
+                " gpt-5.5",
+                "gpt-5.5\n",
+                "bad model",
+                "SYNTHETIC_SECRET🚫",
+            ] {
+                assert!(
+                    Selection {
+                        provider,
+                        model: model.into()
+                    }
+                    .validate()
+                    .is_err()
+                );
+            }
+            assert!(
+                Selection {
+                    provider,
+                    model: "a".repeat(129)
+                }
+                .validate()
+                .is_err()
+            );
+            for model in [
+                "gpt-5.4",
+                "gpt-6-sol",
+                "gpt-6-astra",
+                "gpt-6-luna",
+                "unknown.future:model/1",
+                "a",
+            ] {
+                let selected = Selection {
+                    provider,
+                    model: model.into(),
+                };
+                assert!(selected.validate().is_ok());
+                assert_eq!(
+                    serde_json::from_value::<Selection>(serde_json::to_value(&selected).unwrap())
+                        .unwrap(),
+                    selected
+                );
+            }
+            assert!(
+                Selection {
+                    provider,
+                    model: "a".repeat(128)
+                }
+                .validate()
+                .is_ok()
+            );
+        }
+    }
+}
+
+#[cfg(all(test, unix))]
+mod tests {
+    use super::*;
+    use rig::http_client::StatusCode;
+    use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
+    use std::os::unix::fs::{PermissionsExt, symlink};
+
+    fn test_root() -> tempfile::TempDir {
+        tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap()
     }
 
     fn fixture() -> (tempfile::TempDir, Auth) {
@@ -2013,68 +2084,6 @@ mod tests {
             );
             assert_eq!(http.requests().len(), 2);
             assert_eq!(http.remaining_responses(), 0);
-        }
-    }
-
-    #[test]
-    fn selection_and_provider_wire_values_are_explicit_and_validated() {
-        assert_eq!(
-            serde_json::to_value(selection(Provider::Chatgpt)).unwrap(),
-            serde_json::json!({"provider":"chatgpt","model":"gpt-5.5"})
-        );
-        assert!(serde_json::from_str::<Provider>(r#""unknown""#).is_err());
-        for provider in [Provider::Chatgpt, Provider::Copilot] {
-            for model in [
-                "",
-                " gpt-5.5",
-                "gpt-5.5\n",
-                "bad model",
-                "SYNTHETIC_SECRET🚫",
-            ] {
-                assert!(
-                    Selection {
-                        provider,
-                        model: model.into()
-                    }
-                    .validate()
-                    .is_err()
-                );
-            }
-            assert!(
-                Selection {
-                    provider,
-                    model: "a".repeat(129)
-                }
-                .validate()
-                .is_err()
-            );
-            for model in [
-                "gpt-5.4",
-                "gpt-6-sol",
-                "gpt-6-astra",
-                "gpt-6-luna",
-                "unknown.future:model/1",
-                "a",
-            ] {
-                let selected = Selection {
-                    provider,
-                    model: model.into(),
-                };
-                assert!(selected.validate().is_ok());
-                assert_eq!(
-                    serde_json::from_value::<Selection>(serde_json::to_value(&selected).unwrap())
-                        .unwrap(),
-                    selected
-                );
-            }
-            assert!(
-                Selection {
-                    provider,
-                    model: "a".repeat(128)
-                }
-                .validate()
-                .is_ok()
-            );
         }
     }
 
