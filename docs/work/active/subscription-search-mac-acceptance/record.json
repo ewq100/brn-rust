@@ -1,0 +1,124 @@
+{
+  "baseline": {
+    "main": "89e6221afc8d6b036b7b5a1bcfe4b7cc23871583"
+  },
+  "authority": {
+    "source": "Direct owner request to execute issue243; issue defines bounds.",
+    "limits": "No new merge/release; closed6/12live session; no old campaign/pilot resumption."
+  },
+  "work_view": {
+    "observed_at": "2026-10-30T07:42:45.460648+00:00",
+    "goal": "Finish subscription search and Mac acceptance with source-bound evidence.",
+    "owner_attention": "Document workflow passed. Search failed initially and corrected source remains live-unqualified. Native Mac gate blocked. PR244 is draft, not merged.",
+    "tasks": [
+      {
+        "id": "subscription-search",
+        "title": "Qualify subscription-only search",
+        "owner": "Existing Mac lead",
+        "state": "blocked",
+        "activity": "Initial query failed; corrected adapter passes18 offline tests, not live-qualified.",
+        "observed_at": "2026-10-30T07:42:45.460648+00:00",
+        "origin": "observed",
+        "next_action": "Owner review and a fresh explicit bound before another search attempt.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/subscription-search-mac-acceptance/README.md",
+          "https://github.com/ewq100/brn-rust/pull/244"
+        ],
+        "gates": {
+          "implementation": "reviewed scoped candidate",
+          "checks": "effective zero-turn isolation; strict lint; initial failure preserved",
+          "integration": "draft PR244; not merged or released",
+          "native": "dialog harness only; real Mac unobserved",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Initial search stopped with UnsafeToolUse; original triggering event unknown. One attempt consumed.",
+            "change": "Stop dependent live search, fix diagnosed offline protocol/account handling, retain unqualified verdict.",
+            "evidence": [
+              "docs/work/active/subscription-search-mac-acceptance/README.md",
+              "https://github.com/ewq100/brn-rust/pull/244"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "native-mac",
+        "title": "Observe actual Mac controls",
+        "owner": "Existing Mac lead",
+        "state": "blocked",
+        "activity": "Label repair and page/Capture/dialog harness checks pass; native inventory reported locked.",
+        "observed_at": "2026-10-30T07:42:45.460648+00:00",
+        "origin": "observed",
+        "next_action": "Run one bounded synthetic native session only when owner makes native access available.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/subscription-search-mac-acceptance/README.md",
+          "https://github.com/ewq100/brn-rust/pull/244"
+        ],
+        "gates": {
+          "implementation": "reviewed scoped candidate",
+          "checks": "24 page +3 Capture +3 search harness tests",
+          "integration": "draft PR244; not merged or released",
+          "native": "blocked; no native apps exposed",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "document-workflow",
+        "title": "Import knowledge and produce a referenced draft",
+        "owner": "Existing Mac lead",
+        "state": "complete",
+        "activity": "Five Sol-medium BRN Runs passed; repeat intake nonduplicates, exact edit candidate and later-owner stale refusal/dismissal verified.",
+        "observed_at": "2026-10-30T07:42:45.460648+00:00",
+        "origin": "observed",
+        "next_action": "Preserve sanitized receipts and existing synthetic data; no repeat model call.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/subscription-search-mac-acceptance/README.md",
+          "https://github.com/ewq100/brn-rust/pull/244"
+        ],
+        "gates": {
+          "implementation": "reviewed scoped candidate",
+          "checks": "exact candidate and fresh-process byte checks;6/12 total attempts including failed search",
+          "integration": "draft PR244; not merged or released",
+          "native": "headless only",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "publication",
+        "title": "Publish final evidence and inspect CI",
+        "owner": "Existing Mac lead",
+        "state": "blocked",
+        "activity": "Draft PR244 exists and tracks the reviewed scoped candidate; no merge or release. Exact-head CI is externally authoritative at the PR checks page.",
+        "observed_at": "2026-10-30T07:42:45.460648+00:00",
+        "origin": "observed",
+        "next_action": "Inspect final exact-head checks and retain the draft until the outstanding search/native gates and any separate owner merge decision.",
+        "depends_on": [],
+        "resource_waits": [
+          "search safety hold / fresh explicit test bound",
+          "native Mac access"
+        ],
+        "evidence": [
+          "docs/work/active/subscription-search-mac-acceptance/README.md",
+          "https://github.com/ewq100/brn-rust/pull/244"
+        ],
+        "gates": {
+          "implementation": "reviewed scoped candidate",
+          "checks": "offline focused tests and strict lint passed; inspect exact-head CI at PR244",
+          "integration": "draft PR244; not merged or released",
+          "native": "native gate separate",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      }
+    ]
+  }
+}
