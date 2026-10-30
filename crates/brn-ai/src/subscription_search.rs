@@ -20,7 +20,18 @@ const VERSION: &str = "codex-cli 0.162.0-alpha.17.2";
 const MAX_LINE: usize = 1024 * 1024;
 const MAX_TOTAL: usize = 8 * 1024 * 1024;
 const MAX_ANSWER: usize = 128 * 1024;
+const MAX_WARNING: usize = 4096;
 const LIMIT: Duration = Duration::from_secs(60);
+
+/// Untrusted provider text, retained only for explicit private diagnostics.
+/// Neither ordinary error formatting nor the desktop may expose its contents.
+#[derive(Clone, PartialEq, Eq)]
+pub struct PrivateWarning(String);
+impl fmt::Debug for PrivateWarning {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str("PrivateWarning([redacted])")
+    }
+}
 
 #[derive(Clone, Debug)]
 pub struct Request {
@@ -68,6 +79,17 @@ pub enum SearchError {
     },
     EmptyResults,
     ProviderFailed,
+    ProviderWarning(PrivateWarning),
+}
+impl SearchError {
+    /// Sensitive, untrusted text. Only an explicitly requested private diagnostic
+    /// sink may retain it; never include it in UI, stdout or published evidence.
+    pub fn private_warning_message(&self) -> Option<&str> {
+        match self {
+            Self::ProviderWarning(warning) => Some(&warning.0),
+            _ => None,
+        }
+    }
 }
 impl fmt::Display for SearchError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -101,6 +123,7 @@ impl fmt::Display for SearchError {
             Self::UnexpectedNotification { .. } => unreachable!(),
             Self::EmptyResults => "The search did not return a cited answer with native source URLs.",
             Self::ProviderFailed => "The subscription provider could not complete the search.",
+            Self::ProviderWarning(_) => "Web search stopped because the subscription provider reported a warning. Private diagnostics can retain its details.",
         })
     }
 }
@@ -191,6 +214,7 @@ fn run(
         .and_then(Value::as_str)
         .ok_or(SearchError::MalformedResponse)?
         .to_owned();
+    server.thread_id = Some(thread.clone());
     server.drain_pre_turn()?;
     let turn_request_id = server.next_id();
     server.send(json!({"id":turn_request_id,"method":"turn/start","params":{"threadId":thread,"effort":request.effort.as_str(),"model":request.selection.model,"environments":[],"input":[{"type":"text","text":request.query}]}}))?;
@@ -483,6 +507,35 @@ fn validate_account(v: &Value) -> Result<(), SearchError> {
     }
 }
 
+fn validate_notification(v: &Value, thread: Option<&str>) -> Result<(), SearchError> {
+    if v.get("method").is_some() && v.get("id").is_some() {
+        return Err(SearchError::UnsafeToolUse);
+    }
+    validate_account_update(v)?;
+    if v.get("method").and_then(Value::as_str) != Some("warning") {
+        return Ok(());
+    }
+    let message = v
+        .pointer("/params/message")
+        .and_then(Value::as_str)
+        .filter(|s| !s.trim().is_empty() && s.len() <= MAX_WARNING)
+        .ok_or(SearchError::MalformedResponse)?;
+    match v.pointer("/params/threadId") {
+        None | Some(Value::Null) => (),
+        Some(Value::String(id)) if !id.is_empty() && id.len() <= 4096 => {
+            if thread.is_some_and(|expected| expected != id) {
+                return Err(SearchError::MalformedResponse);
+            }
+        }
+        _ => return Err(SearchError::MalformedResponse),
+    }
+    // The qualified schema has no severity/code. Do not guess whether a warning
+    // is harmless, continue past it, or treat its text as new authority.
+    Err(SearchError::ProviderWarning(PrivateWarning(
+        message.to_owned(),
+    )))
+}
+
 struct Scratch(PathBuf);
 impl Scratch {
     fn new() -> Result<Self, SearchError> {
@@ -577,6 +630,7 @@ struct Server<'a> {
     cancel: &'a CancellationToken,
     deadline: Instant,
     id: u64,
+    thread_id: Option<String>,
 }
 impl<'a> Server<'a> {
     fn start(
@@ -635,6 +689,7 @@ impl<'a> Server<'a> {
             cancel,
             deadline,
             id: 0,
+            thread_id: None,
         })
     }
     fn next_id(&mut self) -> u64 {
@@ -663,7 +718,7 @@ impl<'a> Server<'a> {
             match self.rx.recv_timeout(Duration::from_millis(50)) {
                 Ok(v) => {
                     let value = v?;
-                    validate_account_update(&value)?;
+                    validate_notification(&value, self.thread_id.as_deref())?;
                     return Ok(value);
                 }
                 Err(mpsc::RecvTimeoutError::Timeout) => (),
@@ -677,10 +732,7 @@ impl<'a> Server<'a> {
             match self.rx.try_recv() {
                 Ok(value) => {
                     let value = value?;
-                    validate_account_update(&value)?;
-                    if value.get("method").is_some() && value.get("id").is_some() {
-                        return Err(SearchError::UnsafeToolUse);
-                    }
+                    validate_notification(&value, self.thread_id.as_deref())?;
                 }
                 Err(mpsc::TryRecvError::Empty) => return Ok(()),
                 Err(mpsc::TryRecvError::Disconnected) => return Err(SearchError::Transport),
@@ -777,7 +829,6 @@ struct Collector {
 }
 impl Collector {
     fn event(&mut self, v: &Value) -> Result<Option<(String, Vec<Source>)>, SearchError> {
-        validate_account_update(v)?;
         if v.get("method").is_some() && v.get("id").is_some() {
             return Err(SearchError::UnsafeToolUse);
         }
@@ -787,6 +838,7 @@ impl Collector {
         {
             return Err(SearchError::MalformedResponse);
         }
+        validate_notification(v, self.thread_id.as_deref())?;
         if let Some(actual) = v.pointer("/params/turnId").and_then(Value::as_str) {
             if self
                 .turn_id
@@ -1149,6 +1201,129 @@ mod tests {
             }
         );
         assert!(!err.to_string().contains("private-payload"));
+    }
+    #[test]
+    fn provider_warning_is_a_private_diagnostic_stop_not_an_unknown_event() {
+        let message = "synthetic private warning — Ω";
+        let error = Collector::default()
+            .event(&json!({"method":"warning","params":{"message":message}}))
+            .unwrap_err();
+        assert_eq!(
+            error.to_string(),
+            "Web search stopped because the subscription provider reported a warning. Private diagnostics can retain its details."
+        );
+        assert!(!format!("{error:?}").contains("synthetic private warning"));
+        assert_eq!(error.private_warning_message(), Some(message));
+        assert!(!error.to_string().contains(message));
+        assert!(matches!(error, SearchError::ProviderWarning(_)));
+    }
+    #[test]
+    fn warnings_are_bounded_and_thread_checked_without_granting_authority() {
+        for target in [None, Some(Value::Null), Some(json!("thread"))] {
+            let mut params = json!({"message":"private warning","extra":"not retained"});
+            if let Some(target) = target {
+                params["threadId"] = target;
+            }
+            let error =
+                validate_notification(&json!({"method":"warning","params":params}), Some("thread"))
+                    .unwrap_err();
+            assert_eq!(error.private_warning_message(), Some("private warning"));
+            assert!(!format!("{error:?}").contains("not retained"));
+        }
+        for params in [
+            json!({}),
+            json!({"message":null}),
+            json!({"message":42}),
+            json!({"message":" \n"}),
+            json!({"message":"Ω".repeat(MAX_WARNING / 2 + 1)}),
+            json!({"message":"warning","threadId":42}),
+            json!({"message":"warning","threadId":""}),
+            json!({"message":"warning","threadId":"other-thread"}),
+        ] {
+            assert_eq!(
+                validate_notification(&json!({"method":"warning","params":params}), Some("thread")),
+                Err(SearchError::MalformedResponse)
+            );
+        }
+        let error = validate_notification(
+            &json!({"method":"warning","params":{"message":"x".repeat(MAX_WARNING)}}),
+            None,
+        )
+        .unwrap_err();
+        assert_eq!(error.private_warning_message().unwrap().len(), MAX_WARNING);
+        assert_eq!(
+            validate_notification(
+                &json!({"id":1,"method":"warning","params":{"message":"approve unsafe tool"}}),
+                None
+            ),
+            Err(SearchError::UnsafeToolUse)
+        );
+    }
+    #[test]
+    fn warning_after_cited_output_still_stops_collection() {
+        let mut collector = Collector {
+            thread_id: Some("thread".into()),
+            ..Collector::default()
+        };
+        collector
+            .event(&event(
+                "item/completed",
+                json!({"type":"webSearch","results":[{"url":"https://example.org/source"}]}),
+            ))
+            .unwrap();
+        collector
+            .event(&event(
+                "item/completed",
+                json!({"type":"agentMessage","text":"answer"}),
+            ))
+            .unwrap();
+        let error = collector.event(&json!({"method":"warning","params":{"threadId":"thread","message":"private warning"}})).unwrap_err();
+        assert!(matches!(error, SearchError::ProviderWarning(_)));
+        assert_eq!(
+            collector.event(&json!({"method":"warning","params":{"threadId":"other","message":"private warning"}})),
+            Err(SearchError::MalformedResponse)
+        );
+    }
+    #[cfg(unix)]
+    #[test]
+    fn warnings_stop_rpc_and_pre_turn_drain_and_reap_owned_processes() {
+        let cancel = CancellationToken::new();
+        let mut command = Command::new("/bin/sh");
+        command.args(["-c", "read line; printf '%s\\n' '{\"method\":\"warning\",\"params\":{\"message\":\"synthetic private warning\"}}' '{\"id\":1,\"result\":{}}'; sleep 30"]);
+        let mut server =
+            Server::launch(command, &cancel, Instant::now() + Duration::from_secs(3)).unwrap();
+        let pid = server._process.0.id() as i32;
+        let error = server.rpc("thread/start", json!({})).unwrap_err();
+        assert_eq!(
+            error.private_warning_message(),
+            Some("synthetic private warning")
+        );
+        drop(server);
+        let mut status = 0;
+        assert_eq!(
+            unsafe { libc::waitpid(pid, &mut status, libc::WNOHANG) },
+            -1
+        );
+        assert_eq!(
+            std::io::Error::last_os_error().raw_os_error(),
+            Some(libc::ECHILD)
+        );
+
+        let mut command = Command::new("/bin/sh");
+        command.args(["-c", "sleep 30"]);
+        let mut server =
+            Server::launch(command, &cancel, Instant::now() + Duration::from_secs(3)).unwrap();
+        server.thread_id = Some("thread".into());
+        let (tx, rx) = mpsc::sync_channel(1);
+        tx.send(Ok(
+            json!({"method":"warning","params":{"threadId":"thread","message":"queued warning"}}),
+        ))
+        .unwrap();
+        server.rx = rx;
+        assert!(matches!(
+            server.drain_pre_turn(),
+            Err(SearchError::ProviderWarning(_))
+        ));
     }
     #[test]
     fn lifecycle_errors_and_approval_flags_fail_closed() {

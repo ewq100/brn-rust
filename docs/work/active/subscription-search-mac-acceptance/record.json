@@ -4,32 +4,33 @@
   },
   "authority": {
     "source": "Direct owner request to execute issue243; issue defines bounds.",
-    "limits": "No new merge/release; closed6/12live session; no old campaign/pilot resumption."
+    "limits": "No CI/push/ready/merge/release. Original six-attempt session and search-qualification-002 are closed. Latest owner request authorizes local diagnosis/fix, not another live query."
   },
   "work_view": {
-    "observed_at": "2026-10-30T07:42:45.460648+00:00",
+    "observed_at": "2026-10-30T21:37:19.423432+00:00",
     "goal": "Finish subscription search and Mac acceptance with source-bound evidence.",
-    "owner_attention": "Document workflow passed. Search failed initially and corrected source remains live-unqualified. Native Mac gate blocked. PR244 is draft, not merged.",
+    "owner_attention": "Document workflow passed. Search002 failed on an unknown warning; a local diagnostic correction is reviewed/offline-verified, not live-qualified or pushed. Native gate remains blocked.",
     "tasks": [
       {
         "id": "subscription-search",
         "title": "Qualify subscription-only search",
         "owner": "Existing Mac lead",
         "state": "blocked",
-        "activity": "Initial query failed; corrected adapter passes18 offline tests, not live-qualified.",
-        "observed_at": "2026-10-30T07:42:45.460648+00:00",
+        "activity": "Local fail-closed warning classification/private diagnostics reviewed;22 provider +3 private-file tests and strict affected lint pass. Actual002 warning content/cause remains unknown.",
+        "observed_at": "2026-10-30T21:37:19.423432+00:00",
         "origin": "observed",
-        "next_action": "Owner review and a fresh explicit bound before another search attempt.",
+        "next_action": "Preserve local candidate; a fresh explicit diagnostic allocation is needed before another live query. No CI or push.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/subscription-search-mac-acceptance/README.md",
-          "https://github.com/ewq100/brn-rust/pull/244"
+          "https://github.com/ewq100/brn-rust/pull/244",
+          "docs/work/active/subscription-search-mac-acceptance/warning-diagnostics.md"
         ],
         "gates": {
-          "implementation": "reviewed scoped candidate",
-          "checks": "effective zero-turn isolation; strict lint; initial failure preserved",
-          "integration": "draft PR244; not merged or released",
+          "implementation": "local reviewed warning-diagnostic correction after published PR244 head",
+          "checks": "22 provider +3 diagnostic tests; strict affected lint/build; no new hosted or live qualification",
+          "integration": "local correction unpushed; PR244 remains draft at2764b52f, not merged/released",
           "native": "dialog harness only; real Mac unobserved",
           "owner_acceptance": "not claimed"
         },
@@ -40,6 +41,14 @@
             "evidence": [
               "docs/work/active/subscription-search-mac-acceptance/README.md",
               "https://github.com/ewq100/brn-rust/pull/244"
+            ]
+          },
+          {
+            "outcome": "search-qualification-002 failed after1.406s on warning; single attempt consumed and closed.",
+            "change": "Owner requested local diagnosis/fix; preserve failed receipt and stop warnings with private opt-in diagnostics.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/issues/243#issuecomment-6522947555",
+              "docs/work/active/subscription-search-mac-acceptance/warning-diagnostics.md"
             ]
           }
         ]

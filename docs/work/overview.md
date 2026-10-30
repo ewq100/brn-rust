@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Finish subscription search and Mac acceptance with source-bound evidence.
-**Owner attention:** Document workflow passed. Search failed initially and corrected source remains live-unqualified. Native Mac gate blocked. PR244 is draft, not merged.
+**Owner attention:** Document workflow passed. Search002 failed on an unknown warning; a local diagnostic correction is reviewed/offline-verified, not live-qualified or pushed. Native gate remains blocked.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -22,18 +22,18 @@ None recorded.
 ### Qualify subscription-only search
 
 Task ID: `subscription-search`
-Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T07:42:45.460648+00:00
-Activity: Initial query failed; corrected adapter passes18 offline tests, not live-qualified.
-Next: Owner review and a fresh explicit bound before another search attempt.
+Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T21:37:19.423432+00:00
+Activity: Local fail-closed warning classification/private diagnostics reviewed;22 provider +3 private-file tests and strict affected lint pass. Actual002 warning content/cause remains unknown.
+Next: Preserve local candidate; a fresh explicit diagnostic allocation is needed before another live query. No CI or push.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** reviewed scoped candidate
-- **checks:** effective zero-turn isolation; strict lint; initial failure preserved
-- **integration:** draft PR244; not merged or released
+- **implementation:** local reviewed warning-diagnostic correction after published PR244 head
+- **checks:** 22 provider +3 diagnostic tests; strict affected lint/build; no new hosted or live qualification
+- **integration:** local correction unpushed; PR244 remains draft at2764b52f, not merged/released
 - **native:** dialog harness only; real Mac unobserved
 - **owner acceptance:** not claimed
 
@@ -93,4 +93,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `document-workflow` — Import knowledge and produce a referenced draft
 
-Local page reflects the last saved observations in this record (2026-10-30T07:42:45.460648+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-30T21:37:19.423432+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

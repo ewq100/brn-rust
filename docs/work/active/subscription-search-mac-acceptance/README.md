@@ -4,6 +4,8 @@
 
 **Partial qualification:** the synthetic headless document → knowledge → referenced-writing workflow passed. The first search attempt failed; corrected search code is offline-qualified, **not live-qualified**. Real Mac interaction remains blocked. Nothing is merged or released.
 
+The separately authorized [single-query attempt 002 failed](https://github.com/ewq100/brn-rust/issues/243#issuecomment-6522947555) on a `warning` notification. Its allowance is closed. The owner's subsequent local investigation produced a [warning-classification/private-diagnostic correction](warning-diagnostics.md); it does not identify the missing message or prove live search success. No further live query, push or hosted CI follows from that correction.
+
 ## Source and admission
 
 Baseline main `89e6221afc8d6b036b7b5a1bcfe4b7cc23871583` includes PRs 240–242. Its CI 40990750144 passed all four required contexts and seven supported jobs; three optional Windows jobs failed. PR 239 remains paused. Cloud commits `38e9baa86d7c47f25a4e0da8dd8977a5c0468982` and `f6d39ff8` were unavailable in the checked local/remote refs; no recovery is claimed.
