@@ -1,0 +1,564 @@
+{
+  "version": 1,
+  "revision": "authored-full-v2",
+  "fixture_sha256": "5b076c1f19c901c71480a124992d70bb2833d749c2577b3d72c4ce344d516242",
+  "weights": {
+    "creation": 20,
+    "maintenance": 25,
+    "research": 15,
+    "writing": 10,
+    "intake": 10,
+    "actions": 10,
+    "context": 5,
+    "recovery": 5
+  },
+  "scenarios": [
+    {
+      "id": "F01",
+      "category": "creation",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F02",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F03",
+      "category": "research",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F04",
+      "category": "writing",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F05",
+      "category": "intake",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F06",
+      "category": "actions",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F07",
+      "category": "context",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F08",
+      "category": "recovery",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F09",
+      "category": "creation",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "atlas",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F10",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "atlas",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F11",
+      "category": "research",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "atlas",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F12",
+      "category": "writing",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "atlas",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F13",
+      "category": "intake",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "atlas",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F14",
+      "category": "actions",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "atlas",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F15",
+      "category": "context",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "atlas",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F16",
+      "category": "recovery",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "atlas",
+      "events": 4,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        4
+      ]
+    },
+    {
+      "id": "F17",
+      "category": "creation",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "maple",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F18",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "maple",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F19",
+      "category": "research",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "maple",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F20",
+      "category": "writing",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "maple",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F21",
+      "category": "intake",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "maple",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F22",
+      "category": "actions",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "maple",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F23",
+      "category": "context",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "maple",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F24",
+      "category": "recovery",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "maple",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "J01",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 12,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "id": "J02",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "atlas",
+      "events": 12,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    },
+    {
+      "id": "J03",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "maple",
+      "events": 12,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ]
+    }
+  ],
+  "gold_sha256": "3786b70dbd7d700781221304473ca72ba3b115cf557f1293de34e0cf6b07fd25"
+}

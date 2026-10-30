@@ -1,0 +1,86 @@
+{
+  "baseline": {
+    "main": "c3d64efa45a3671b6f91e94f1425fcda9fc87690",
+    "branch": "benchmark/agentbench-proof"
+  },
+  "scope": "BRN-AgentBench implementation and authorized supporting-package publication. Prepare bounded Terra/Sol subscription pilot; root owns authenticated Mac release and dispatch. No merge, paid API, purchases or account/security changes.",
+  "work_view": {
+    "observed_at": "2026-10-29T09:38:45.996800+00:00",
+    "goal": "Build the recovered BRN-AgentBench using the native evaluator and checked CLI.",
+    "owner_attention": "Pilot002 consumed FAILED after one completed Terra Run; all Sol cases unrun. Offline evaluator caller mismatch reproduced and corrected locally; no push or new release pending root integration coordination.",
+    "tasks": [
+      {
+        "id": "agentbench-proof",
+        "title": "Preserve native evidence and prepare the benchmark proof",
+        "owner": "Benchmark integration owner",
+        "state": "ready",
+        "activity": "Reproduced post-write AttributeError using full deterministic Sample pipeline; corrected Path-versus-CLI lineage argument and added sanitized retained exception locations.",
+        "observed_at": "2026-10-29T09:38:45.996800+00:00",
+        "origin": "observed",
+        "next_action": "Return reviewed local correction commit to root for PR242 integration coordination; no push, new live release or replay.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "benchmarks/brn_agent/README.md",
+          "benchmarks/brn_agent/coverage.json",
+          "docs/work/active/agentbench/evidence.md",
+          "benchmarks/brn_agent/pilots/terra_sol_v2/README.md",
+          "benchmarks/brn_agent/pilots/terra_sol_v3/README.md"
+        ],
+        "gates": {
+          "implementation": "full authored offline bank and audited execution/grading/reporting mechanisms implemented; original artifact parity, live quality and explicitly unsupported integrations are not claimed",
+          "checks": "Passed: 105 evaluator, 32 guidance, 10 evidence and 7 reporting tests; independent review no remaining findings; markdown and diff checks pass. Earlier native/full-suite evidence retained.",
+          "integration": "Local corrective continuation from344d432f; no push. That published head CI six successes/known Windows failure, draft PR242. Root coordinates any integration.",
+          "native": "Reported pilot002: setup fully passed; one Terra F01 Run Completed (5 HTTP attempts), evaluator AttributeError; zero completed cases, all Sol unrun. Exact Mac exception site unavailable; no new live execution.",
+          "owner_acceptance": "pending"
+        },
+        "attempts": [
+          {
+            "outcome": "Library transfer failed HTTP401; no files downloaded",
+            "change": "Stopped this transfer route; continued repository and synthetic offline work",
+            "evidence": [
+              "docs/work/active/agentbench/evidence.md"
+            ]
+          },
+          {
+            "outcome": "Initial offline build lacked pinned rig 0.45.0; explicit intake-budget rejection broke two legacy fixture cases",
+            "change": "Fetched locked build dependencies; kept legacy compatibility and made strict intake-budget rejection specific to checkpoint-enabled cases",
+            "evidence": [
+              "docs/work/active/agentbench/evidence.md"
+            ]
+          },
+          {
+            "outcome": "Independent review identified unqualified ranking, unbound metadata/checkpoints, omitted orphan attempts and fixture identity gaps",
+            "change": "Added explicit unranked gates, native metadata/hash/reference verification, orphan accounting, suite/fixture binding and regression tests",
+            "evidence": [
+              "docs/work/active/agentbench/evidence.md"
+            ]
+          },
+          {
+            "outcome": "Preinstalled document helper protocol mismatch; incomplete scripted reader read; source-path identity leak and admission/index provenance gaps found in review",
+            "change": "Rebuilt both locked helpers in isolated targets; reader uses exact native read_note; bound semantic packets anonymize local paths and honor selected index; staged locks/gold stay outside candidate data; retained native recovery and regression tests pass",
+            "evidence": [
+              "docs/work/active/agentbench/evidence.md",
+              "benchmarks/brn_agent/README.md"
+            ]
+          },
+          {
+            "outcome": "Full-plan audit showed initial proof was incomplete; review found source-link/baseline, mixed-grader, provenance-resume, legacy-truth and latest-only grading gaps. First full run exposed obsolete reservation-test expectation; helper bound test detected missing guard.",
+            "change": "Expanded all27 scenarios, bound versioned truth and every candidate checkpoint, corrected evidence/statistical/provenance guards, retained provider fixtures and independent arithmetic tests; final74+101 tests pass.",
+            "evidence": [
+              "docs/work/active/agentbench/evidence.md",
+              "benchmarks/brn_agent/coverage.json"
+            ]
+          },
+          {
+            "outcome": "Pilot002 FAILED after one completed native Terra Run; exact evaluator site absent from class-only receipt. Offline writing pipeline reproduced PosixPath missing envelope at lineage collection.",
+            "change": "Pass Cli to existing checked operation reader; retain evaluator_failure and sanitized local traceback locations, rethrow to stop. Preserve old jobs/packages and evidence.",
+            "evidence": [
+              "docs/work/active/agentbench/evidence.md"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

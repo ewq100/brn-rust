@@ -386,6 +386,8 @@ pub(crate) static VALUES: &[(&str, &str, Grammar)] = &[
     ("connections", "hops", HOPS),
     ("search", "limit", integer("--limit must be an integer")),
     ("ask", "budget", BUDGET),
+    ("ask", "model-call-limit", Grammar::Int(1, 10000)),
+    ("intake", "model-call-limit", Grammar::Int(1, 10000)),
     (
         "projects",
         "trash",
@@ -1062,6 +1064,7 @@ pub(crate) static COMMANDS: &[Spec] = &[
             "thread",
             "prompt",
             "budget",
+            "model-call-limit",
             "edit-note",
             "base",
             "record-decision",
@@ -1107,6 +1110,7 @@ pub(crate) static COMMANDS: &[Spec] = &[
             &[
                 "source",
                 "intent",
+                "model-call-limit",
                 "title",
                 "thread",
                 "project",

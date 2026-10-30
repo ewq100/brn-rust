@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "origin": "newly-authored-from-recovered-specification",
+  "original_pack": false,
+  "source_session": "https://chatgpt.com/c/6ad12ca2-07c0-83eb-828a-af5eaba01d45?messageId=8f00c2fa-8ea3-4f12-85e1-fb5410f1eb34",
+  "qualified": false,
+  "weights": {
+    "routing": 25,
+    "handoff": 20,
+    "evidence": 40,
+    "recovery": 15
+  },
+  "label_review": "independently reviewed by review_agentbench: H01\u2013H12, C01\u2013C12 and V01\u2013V04 defensible under supplied facts/rubric; not semantic qualification",
+  "held_out_policy": "Separate screening variants; never tune on these and subsequently claim held-out qualification. Public repository fixtures are not secret.",
+  "limitations": [
+    "No original ZIP bytes available.",
+    "Scripted replies validate plumbing, not candidate or grader competence.",
+    "H01-H06 natural helper/no-helper comparisons and all live parent judgments require authorized execution."
+  ]
+}

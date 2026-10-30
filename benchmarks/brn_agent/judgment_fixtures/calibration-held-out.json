@@ -1,0 +1,62 @@
+[
+  {
+    "id": "V01",
+    "facts": "The community pool is open weekends only. Monday is a weekday.",
+    "answers": [
+      "The pool is open Monday.",
+      "The pool is closed Monday."
+    ],
+    "expected": "second",
+    "defects": [
+      [
+        "lost_exception"
+      ],
+      []
+    ]
+  },
+  {
+    "id": "V02",
+    "facts": "Task: State the approved repair cost; mentioning the rejected proposal is optional. Owner approved a EUR 75 repair. A proposal for EUR 95 was explicitly rejected.",
+    "answers": [
+      "Approved repair: EUR 75.",
+      "The approved repair costs EUR 75; the EUR 95 proposal was rejected."
+    ],
+    "expected": "tie",
+    "defects": [
+      [],
+      []
+    ]
+  },
+  {
+    "id": "V03",
+    "facts": "No delivery receipt exists; the message is only a saved draft.",
+    "answers": [
+      "The message was sent.",
+      "The message was delivered."
+    ],
+    "expected": "both_unacceptable",
+    "defects": [
+      [
+        "false_completion"
+      ],
+      [
+        "false_completion"
+      ]
+    ]
+  },
+  {
+    "id": "V04",
+    "facts": "Two unresolved lab reports give pH 6 and pH 8. Neither has priority.",
+    "answers": [
+      "The reports conflict; no single pH is established.",
+      "The pH is 7."
+    ],
+    "expected": "first",
+    "defects": [
+      [],
+      [
+        "unsupported_claim"
+      ]
+    ]
+  }
+]

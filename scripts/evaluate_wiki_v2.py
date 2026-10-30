@@ -52,6 +52,10 @@ def _load_v1():
     return module
 
 
+_limit_spec = importlib.util.spec_from_file_location('agentbench_limits', HERE.parent / 'benchmarks/brn_agent/limits.py')
+LIMITS = importlib.util.module_from_spec(_limit_spec)
+_limit_spec.loader.exec_module(LIMITS)
+
 V1 = _load_v1()
 CallFailed = V1.CallFailed
 public_snapshot = V1.public_snapshot
@@ -254,6 +258,9 @@ def validate_case(case):
     def bad(message):
         problems.append(f'{cid}: {message}')
 
+    if case.get('authority', 'maintain') not in ('maintain', 'review-first'):
+        bad('authority must be maintain or review-first')
+
     for field in ('id', 'steps', 'checks', 'seeds'):
         if field not in case:
             bad(f'missing {field}')
@@ -287,6 +294,26 @@ def validate_case(case):
     bound = set(threads)
     for index, step in enumerate(case['steps'], 1):
         kind = step.get('kind')
+        if kind == 'owner-thread':
+            if not step.get('title') or not step.get('as') or step['as'] in bound:
+                bad(f'step {index}: owner-thread needs title and a fresh symbolic binding')
+            else:
+                bound.add(step['as'])
+            continue
+        if kind == 'owner-edit':
+            if step.get('key') not in notes + distractors or not isinstance(step.get('text'), str):
+                bad(f'step {index}: owner-edit needs a known note and exact text')
+            if step.get('base', 'current') not in ('current', 'seed'):
+                bad(f'step {index}: owner-edit base must be current or seed')
+            continue
+        if kind in ('owner-apply', 'owner-dismiss', 'owner-undo', 'owner-discard'):
+            if type(step.get('from_step')) is not int or not 1 <= step['from_step'] < index:
+                bad(f'step {index}: owner operation needs a preceding from_step')
+            elif kind == 'owner-discard' and case['steps'][step['from_step'] - 1].get('kind') != 'owner-edit':
+                bad(f'step {index}: owner-discard must reference an owner-edit')
+            if kind != 'owner-discard' and (type(step.get('operation_index')) is not int or step['operation_index'] < 0):
+                bad(f'step {index}: owner operation needs an explicit nonnegative operation_index')
+            continue
         if kind == 'knowledge-review':
             bound.add(step.get('as', 'review'))
             continue
@@ -299,6 +326,8 @@ def validate_case(case):
             bad(f'step {index} has no {"prompt" if kind == "ask" else "text"}')
         if kind == 'intake' and step.get('intent', 'useful') not in ('useful', 'full', 'chat'):
             bad(f'step {index} has unknown intent')
+        if case.get('retain_checkpoints') and kind == 'intake' and 'budget' in step:
+            bad(f'step {index}: native intake does not support an explicit tool-round budget')
     scopes = case.get('scopes', {})
     for name, scope in scopes.items():
         for key in scope.get('keys', []):
@@ -419,8 +448,8 @@ def slot_folder(root, sample, attempt):
 
 
 def next_attempt(attempts):
-    """Attempt number for the next run of a slot; a crashed (`running`) attempt is discarded, not counted."""
-    return 2 if any(a.get('status') != 'running' for a in attempts) else 1
+    """Interrupted attempts consume an attempt; their evidence must survive."""
+    return len(attempts) + 1
 
 
 def resume_action(attempts):
@@ -428,9 +457,7 @@ def resume_action(attempts):
     if not attempts:
         return 'run'
     last = attempts[-1]
-    if last.get('status') == 'running':
-        return 'discard-and-run' if len(attempts) == 1 else 'discard-and-rerun'
-    if last.get('status') == 'complete' or len(attempts) >= 2:
+    if last.get('status') in ('complete', 'budget_refused') or len(attempts) >= 2:
         return 'skip'
     return 'rerun'
 
@@ -1271,7 +1298,7 @@ def build_report(results, cases):
                                  repetition=result['repetition'], attempt=result['attempt'], label=result.get('label')))
     failures = [{'case': r['case'], 'scale': r['scale'], 'arm': r['arm'], 'repetition': r['repetition'],
                  'attempt': r['attempt'], 'status': r['status'], 'failure': r.get('failure')}
-                for r in results if r['status'] not in ('complete', 'running')]
+                for r in results if r['status'] != 'complete']
     # A check that cannot be verified on one arm is dropped for every arm of that case comparison, so all
     # arms are judged on the same checks; None is never counted as a pass.
     excluded = {}
@@ -1432,7 +1459,7 @@ def capabilities(binary):
         text = subprocess.run([str(binary), '--help'], capture_output=True, text=True, timeout=20).stdout
     except (OSError, subprocess.TimeoutExpired):
         text = ''
-    return {'trace': '--trace' in text, 'knowledge-check': 'knowledge-check' in text,
+    return {'trace': '--trace' in text, 'model-call-limit': '--model-call-limit' in text, 'knowledge-check': 'knowledge-check' in text,
             'search': '\n  search ' in text or 'search --query' in text}
 
 
@@ -1543,17 +1570,41 @@ class Sample:
         return ranks
 
     def go(self):
-        if self.folder.exists():
-            shutil.rmtree(self.folder)  # A crashed earlier attempt of this very slot, possibly without a result.
-        self.folder.mkdir(parents=True)
+        self.folder.mkdir(parents=True, exist_ok=False)
         data = self.folder / 'data'
         self.cli = make_cli(self.arm, self.arm['binary'], data, self.root, self.args)
         self.persist()  # A `running` stub, so a crash is recognised on --resume.
         try:
             self.run()
+        except LIMITS.LimitReached as error:
+            self.result['status'] = 'budget_refused'
+            self.result['failure'] = str(error)
         except CallFailed as error:
             self.result['status'] = 'transport_failure' if self.result.get('stage') == 'steps' else 'setup_failure'
             self.result['failure'] = str(error)
+        except Exception as error:
+            # Stop the scheduler, but retain the completed native work and the
+            # evaluator location. Messages, source lines and locals may contain
+            # owner text or credentials: never serialize them into diagnostics.
+            self.result['status'] = 'evaluator_failure'
+            self.result['failure'] = type(error).__name__
+            self.result['passed'] = None
+            frames, tb = [], error.__traceback__
+            while tb is not None:
+                filename = Path(tb.tb_frame.f_code.co_filename)
+                try:
+                    filename = str(filename.relative_to(HERE.parent))
+                except ValueError:
+                    filename = '<external>'
+                frames.append({'file': filename, 'line': tb.tb_lineno})
+                tb = tb.tb_next
+            diagnostic = {'exception_type': type(error).__name__, 'frames': frames,
+                          'message': '<omitted: may contain private data>'}
+            with open(self.folder / 'evaluator-error.json', 'x', opener=lambda path, flags: os.open(path, flags, 0o600)) as handle:
+                json.dump(diagnostic, handle, indent=2)
+                handle.write('\n')
+            self.persist()
+            raise
         self.persist()
         return self.result
 
@@ -1567,8 +1618,11 @@ class Sample:
             configuration.update(credential_options(self.arm['provider'], args.auth_file, args.credentials_dir))
             configuration.update(helper_configuration(self.arm))
             self.cli.call('configure', **configuration)
-        if not self.cli.call('settings').get('delegation_chosen'):
-            self.cli.call('delegation', choice='maintain')
+        if case.get('retain_checkpoints') or getattr(args, 'model_call_limit', None):
+            # Core comparisons use preconverted text, never hidden conversion-model calls.
+            self.cli.call('document-conversion', converter='xberg', ai='off')
+        if 'authority' in case or not self.cli.call('settings').get('delegation_chosen'):
+            self.cli.call('delegation', choice=case.get('authority', 'maintain'))
         needed = needed_states(case)
         queries = {}
         for check in case['checks']:
@@ -1578,6 +1632,8 @@ class Sample:
         seed_ids = set(self.seed['notes'].values()) | {self.seed.get('topics')}
         baseline = filler_baseline(raw0, seed_ids)
         states = {0: {'records': condense_records(raw0, baseline), 'kc': self.capture_kc()}}
+        if case.get('retain_checkpoints'):
+            self.checkpoint(0)
         del raw0
         result['stage'] = 'steps'
         threads = dict(self.seed['threads'])
@@ -1591,6 +1647,8 @@ class Sample:
             outcome = self.run_step(number, step, threads, record)
             result['provider_resends'] = provider_resends(steps)
             self.persist()
+            if case.get('retain_checkpoints'):
+                self.checkpoint(number)
             if not evaluated(record['terminal']):
                 detail = failure_summary(record.get('failure'))
                 raise CallFailed(f'step {number} ended {record["terminal"]}' + (f' ({detail})' if detail else ''))
@@ -1605,19 +1663,46 @@ class Sample:
         if any(item['operations'] for item in steps):
             operations = {op for item in steps for op in item['operations']}
             receipts = [r for r in self.cli.call('history') if r['operation'] in operations]
-            lineage = V1.read_operation_inputs(self.cli.data, operations)
+            lineage = V1.read_operation_inputs(self.cli, operations)
         for item in steps:
             ops = set(item['operations'])
             item['receipts'] = [condense_receipt(r) for r in receipts if r['operation'] in ops]
         undo = self.run_undo(case, steps, receipts, raw_final)
         self.finish(states, steps, lineage, undo)
 
+    def checkpoint(self, number):
+        """Freeze through the supported backup operation, outside continuing state.
+
+        Raw backups are private evidence. Sanitized records are a separate export;
+        neither is ever seeded into a candidate workspace.
+        """
+        folder = self.folder / 'checkpoints' / str(number)
+        folder.mkdir(parents=True, exist_ok=False, mode=0o700)
+        self.cli.call('backup', destination=folder / 'workspace.sqlite3')
+        records = public_snapshot(self.cli.call('records'))
+        (folder / 'records.json').write_text(json.dumps(records, ensure_ascii=False, indent=2) + '\n')
+        self.result.setdefault('checkpoints', []).append({
+            'step': number, 'backup_sha256': sha256_file(folder / 'workspace.sqlite3'),
+            'records_sha256': sha256_file(folder / 'records.json')})
+        self.persist()
+
     def run_step(self, number, step, threads, record):
         args, cli = self.args, self.cli
         budget = step.get('budget', 8)
         if self.sample.get('budget_step') == number:
             budget = self.sample['budget']
+        record['budget'] = {'requested': budget if step['kind'] == 'ask' or 'budget' in step else None,
+                            'sent': budget if step['kind'] == 'ask' else None,
+                            'observed': None}
         trace = {'trace': 'full'} if self.caps['trace'] else {}
+        call_limit = getattr(args, 'model_call_limit', None)
+        if (step['kind'] == 'ask' or (step['kind'] == 'intake' and step.get('intent', 'useful') == 'useful')) and call_limit:
+            identity = str(self.folder.relative_to(self.root)) + f'/event-{number}'
+            record['reservation'] = LIMITS.Reservations(
+                self.root / 'model-call-reservations.jsonl', args.max_total_model_calls).reserve(identity, call_limit)
+            trace['model_call_limit'] = call_limit
+        if step['kind'].startswith('owner-'):
+            return self.run_owner_event(number, step, threads, record)
         if step['kind'] == 'knowledge-review':
             out = cli.call('knowledge-check', seed_chat='yes')
             threads[step.get('as', 'review')] = out['review_chat']
@@ -1645,6 +1730,7 @@ class Sample:
             record['provider_resends'] = out['provider_resends']
         record['answer'] = out.get('answer')
         record['trace'] = out.get('trace')
+        record['budget']['observed'] = (out.get('trace') or {}).get('max_rounds')
         record['run'] = out.get('run')
         run = cli.call('read', id=out['run']) if out.get('run') else None
         details = ((run or {}).get('data') or {}).get('Run') or {}
@@ -1652,6 +1738,67 @@ class Sample:
         record['sources'] = list(details.get('sources', []))
         record['loaded_skills'] = list(details.get('loaded_skills', []))
         return out
+
+    def run_owner_event(self, number, step, threads, record):
+        """Scripted owner intent crosses the same checked CLI as manual work.
+
+        No direct database writes, no auto-approval, and no operation guessing.
+        Non-success envelopes are retained as outcomes rather than losing stale
+        or deferred evidence to a process exit code.
+        """
+        def observe(command, **options):
+            envelope = self.cli.envelope(command, **options)
+            record.setdefault('host_events', []).append({
+                key: public_snapshot(envelope.get(key)) for key in
+                ('command', 'status', 'outcome', 'operation', 'changed', 'conflict', 'error')})
+            operation = envelope.get('operation')
+            if operation and operation not in record['operations']:
+                record['operations'].append(operation)
+            record['terminal'] = 'Completed' if envelope.get('ok') else 'Outcome:' + envelope.get('status', 'unknown')
+            return envelope
+
+        kind = step['kind']
+        if kind == 'owner-thread':
+            envelope = observe('thread-start', title=step['title'], key=f'event-{number}')
+            if envelope.get('ok'):
+                threads[step['as']] = envelope['result']['id']
+            return envelope
+        if kind == 'owner-edit':
+            note = self.cli.call('read', id=self.seed['notes'][step['key']])
+            base = self.seed['versions'][step['key']] if step.get('base') == 'seed' else note['version']
+            folder = self.folder / 'owner-events'
+            folder.mkdir(exist_ok=True, mode=0o700)
+            token = folder / f'{number}.token'
+            envelope = observe('begin-edit', note=note['id'], base=base, token_out=token)
+            if not envelope.get('ok'):
+                return envelope
+            session = envelope['result']
+            generation = session['generation'] + 1
+            record['edit_session'] = {'id': session['id'], 'generation': generation,
+                                      'token_file': str(token.relative_to(self.folder))}
+            envelope = observe('update-buffer', session=session['id'], generation=generation,
+                               text=step['text'], token_file=token)
+            if not envelope.get('ok'):
+                return envelope
+            envelope = observe('save', session=session['id'], generation=generation, token_file=token)
+            if envelope.get('ok'):
+                token.unlink()
+            return envelope
+        previous = self.result['steps'][step['from_step'] - 1]
+        if kind == 'owner-discard':
+            session = previous.get('edit_session')
+            if session is None:
+                raise CallFailed('Scripted owner discard has no actual edit session')
+            token = self.folder / session['token_file']
+            envelope = observe('discard', session=session['id'], generation=session['generation'], token_file=token)
+            if envelope.get('ok'):
+                token.unlink()
+            return envelope
+        operations = previous['operations']
+        index = step['operation_index']
+        if index >= len(operations):
+            raise CallFailed('Scripted owner event names an operation that was not actually produced')
+        return observe(kind.removeprefix('owner-'), operation=operations[index])
 
     def run_undo(self, case, steps, receipts, raw_final):
         results = {}
@@ -1670,9 +1817,16 @@ class Sample:
                 results[number] = {'status': 'not_run', 'reason': 'No eligible current applied note group'}
                 continue
             receipt = sorted(eligible, key=lambda r: r['committed_at'])[-1]
-            before = self.cli.call('records')
-            outcome = self.cli.call('undo', operation=receipt['operation'])
-            after = self.cli.call('records')
+            probe = self.folder / 'undo-probes' / str(number)
+            probe.mkdir(parents=True, exist_ok=False)
+            backup = probe / 'before.sqlite3'
+            self.cli.call('backup', destination=backup)
+            cli = make_cli(self.arm, self.arm['binary'], probe / 'data', self.root, self.args)
+            cli.call('restore', source=backup)
+            before = cli.call('records')
+            outcome = cli.call('undo', operation=receipt['operation'])
+            after = cli.call('records')
+            self.cli.commands.extend(cli.commands)
             affected = {w['after']['id'] for w in receipt['writes']}
             results[number] = {'status': outcome['outcome'], 'operation': receipt['operation'],
                                'affected_restored': outcome['outcome'] == 'Applied' and verify_undo(receipt, after),
@@ -1690,7 +1844,7 @@ class Sample:
                'private_ids': private_ids, 'private_threads': chats - {None}}
         per_step = [step_metrics(step['trace'], keys(case.get('targets', [])), keys(case.get('useful', [])),
                                  keys(case.get('traps', [])), private_ids, step['kind'], step['terminal'])
-                    for step in steps if step['kind'] != 'knowledge-review'
+                    for step in steps if step['kind'] in ('ask', 'intake')
                     and step.get('thread') not in ctx['private_threads']]
         result['metrics'] = run_metrics(per_step)
         result['checks'] = evaluate_checks(case, ctx)
@@ -1731,13 +1885,32 @@ def slot_attempts(root, sample):
     for folder in (base, base.with_name(base.name + '-rerun')):
         if (folder / 'result.json').is_file():
             out.append(read_json(folder / 'result.json'))
+        elif folder.exists():
+            out.append({'status': 'running', 'attempt': len(out) + 1,
+                        'failure': 'Interrupted before result publication'})
     return out
 
 
 def collect_results(root):
     results = []
-    for path in sorted((root / 'runs').glob('*/*/result.json')) if (root / 'runs').is_dir() else []:
-        results.append(read_json(path))
+    for folder in sorted((root / 'runs').glob('*/*')) if (root / 'runs').is_dir() else []:
+        if not folder.is_dir():
+            continue
+        path = folder / 'result.json'
+        if path.is_file():
+            results.append(read_json(path))
+            continue
+        # A process can die after mkdir but before publishing its first stub.
+        match = re.fullmatch(r'(.+)-([rd])(\d+)(-rerun)?', folder.name)
+        case, sep, scale = folder.parent.name.rpartition('-')
+        if match and sep and scale.isdigit():
+            arm, kind, repetition, retry = match.groups()
+            results.append({'case': case, 'scale': int(scale), 'arm': arm,
+                            'slot': folder.name.removesuffix('-rerun'), 'repetition': int(repetition),
+                            'attempt': 2 if retry else 1, 'status': 'running',
+                            'label': 'diagnostic' if kind == 'd' else 'rerun' if retry else None,
+                            'failure': 'Interrupted before result publication', 'passed': None,
+                            'metrics': {}, 'checks': [], 'steps': [], 'safety': []})
     return results
 
 
@@ -1751,9 +1924,46 @@ def open_root(root):
     return root
 
 
+def checkout_provenance():
+    """Hash benchmark/guidance sources without inspecting credentials or user data.
+
+    This identifies the harness checkout, not the source used to build an
+    arbitrary supplied binary. Binary identity is captured separately.
+    """
+    root = HERE.parent
+    paths = [HERE / 'evaluate_wiki_v2.py', HERE / 'evaluate-wiki-guidance.py', root / 'Cargo.lock']
+    paths += sorted((root / 'agent').rglob('*.md'))
+    paths += sorted((root / 'benchmarks/brn_agent').glob('*.py'))
+    paths += sorted((root / 'benchmarks/brn_agent/judgment_fixtures').glob('*.json'))
+    return {'kind': 'harness-checkout', 'binary_source_binding': 'unverified',
+            'files': {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in paths},
+            'retrieval': 'arm model_dir and native configuration; retrieval asset bytes not attested'}
+
+
+def verify_resume_identity(previous, manifest):
+    """Resume may not mix changed execution or grading inputs into an experiment."""
+    if any(previous.get(k) != manifest.get(k) for k in ('model_call_limit', 'max_total_model_calls')):
+        raise ValueError('--resume: model-call limits differ from the stored manifest')
+    if previous.get('provenance') != manifest.get('provenance'):
+        raise ValueError('--resume: harness/guidance provenance changed or is unavailable; keep this experiment frozen')
+    if previous.get('gold_sha256') != manifest.get('gold_sha256'):
+        raise ValueError('--resume: grader truth differs from stored manifest')
+    if any(previous.get(k) != manifest.get(k) for k in ('fixture_sha256', 'seed', 'arms', 'live')):
+        raise ValueError('--resume: fixture, seed, mode or arms differ from the stored manifest')
+
+
 def manifest_for(args, arms, fixture_sha, cases):
+    truth = getattr(args, 'truth', None)
+    if truth:
+        gold = read_json(truth)
+        if gold.get('fixture_sha256') != fixture_sha:
+            raise ValueError('Grader-only truth belongs to another native fixture')
     return {'format': 2, 'fixture_sha256': fixture_sha, 'seed': args.seed, 'live': args.live,
+            'gold_sha256': hashlib.sha256(Path(truth).read_bytes()).hexdigest() if truth else None,
+            'provenance': checkout_provenance(),
             'repetitions': args.repetitions, 'scale': args.scale,
+            'model_call_limit': getattr(args, 'model_call_limit', None),
+            'max_total_model_calls': getattr(args, 'max_total_model_calls', None),
             'cases': [case['id'] for case in cases],
             'arms': [{key: arm.get(key) for key in ARM_FIELDS} for arm in arms]}
 
@@ -1865,12 +2075,16 @@ def build_parser():
     parser.add_argument('--arm', action='append', default=[], metavar='NAME=BINARY[,option=value]',
                         help='repeatable; options: model-dir, provider, model, effort')
     parser.add_argument('--seeder', type=Path, help='built wiki_eval_seed example binary')
+    parser.add_argument('--truth', type=Path, help='grader-only versioned truth file; hash bound to manifest, never seeded')
     parser.add_argument('--fixture', type=Path, default=DEFAULT_FIXTURE)
     parser.add_argument('--cases', help='comma-separated case IDs (default: all)')
     parser.add_argument('--scale', type=int, choices=[1000, 10000], help='only this filler scale')
     parser.add_argument('--repetitions', type=int, choices=[1, 2, 3], help='override the cases\' repetitions')
     parser.add_argument('--root', type=Path, required=True, help='absolute fresh directory (or existing with --resume)')
     parser.add_argument('--resume', action='store_true', help='reuse --root: skip complete samples, rerun a transport failure once')
+    parser.add_argument('--model-call-limit', type=int, help='shared parent/helper/summary/resend call limit per event, 1..10000')
+    parser.add_argument('--max-total-model-calls', type=int, help='conservative experiment-wide call reservations, including incomplete attempts')
+    parser.add_argument('--max-spend', type=float, help='refused while supported routes have no enforceable monetary bound')
     parser.add_argument('--live', action='store_true', help='run the owner-selected provider; otherwise offline validation only')
     parser.add_argument('--report-only', action='store_true', help='re-render the report from --root and exit')
     parser.add_argument('--provider', choices=PROVIDERS)
@@ -1892,6 +2106,17 @@ def build_parser():
 def main(argv=None):
     parser = build_parser()
     args = parser.parse_args(argv)
+    try:
+        LIMITS.check_spend_cap(args.max_spend)
+        if bool(args.model_call_limit) != bool(args.max_total_model_calls):
+            raise ValueError('Provide both --model-call-limit and --max-total-model-calls')
+        if args.model_call_limit is not None:
+            LIMITS.positive(args.model_call_limit, 'model-call-limit')
+            LIMITS.positive(args.max_total_model_calls, 'max-total-model-calls')
+            if args.model_call_limit > 10000:
+                raise ValueError('model-call-limit must be at most 10000')
+    except ValueError as error:
+        parser.error(str(error))
     if not args.root.is_absolute():
         parser.error('--root must be absolute')
     args.root = args.root.resolve()  # brn needs canonical paths (macOS /var -> /private/var)
@@ -1908,6 +2133,8 @@ def main(argv=None):
     cases = [case for case in fixture['cases'] if wanted is None or case['id'] in wanted]
     if wanted and {case['id'] for case in cases} != wanted:
         parser.error('Unknown case id in --cases')
+    if args.live and any(case.get('retain_checkpoints') for case in cases) and not args.model_call_limit:
+        parser.error('Checkpoint-enabled AgentBench runs require explicit model-call limits')
     if args.report_only:
         root = open_root(args.root)
         report = build_report(collect_results(root), cases)
@@ -1922,6 +2149,8 @@ def main(argv=None):
         if not case_arm_names(case, [a['name'] for a in arms]):
             parser.error(f'No arm matches case {case["id"]} (arms {case.get("arms")})')
     caps_by_arm = {arm['name']: capabilities(arm['binary']) for arm in arms}
+    if args.model_call_limit and any(not caps['model-call-limit'] for caps in caps_by_arm.values()):
+        parser.error('Selected binary does not expose the model-call-limit guard')
     live_missing = [name for name, caps in caps_by_arm.items()
                     if not (caps['knowledge-check'] or args.measure_bin) or not (caps['search'] or args.measure_bin)]
     if live_missing and args.live:
@@ -1931,9 +2160,10 @@ def main(argv=None):
     if args.resume:
         root = open_root(args.root)
         previous = read_json(root / 'manifest.json')
-        if {k: previous[k] for k in ('fixture_sha256', 'seed', 'arms', 'live')} != \
-                {k: manifest[k] for k in ('fixture_sha256', 'seed', 'arms', 'live')}:
-            parser.error('--resume: fixture, seed, mode or arms differ from the stored manifest')
+        try:
+            verify_resume_identity(previous, manifest)
+        except ValueError as error:
+            parser.error(str(error))
     else:
         create_root(args.root)
         root = args.root
@@ -1971,9 +2201,7 @@ def offline(args, root, cases, arms, caps_by_arm, log):
 def persist_outcome(root, sample, attempt, outcome):
     """Writes a result that never reached a Sample into its slot, so reports and --resume see it."""
     folder = slot_folder(root, sample, attempt)
-    if folder.exists():
-        shutil.rmtree(folder)
-    folder.mkdir(parents=True)
+    folder.mkdir(parents=True, exist_ok=False)
     (folder / 'result.json').write_text(json.dumps(public_snapshot(outcome), ensure_ascii=False, indent=2) + '\n')
 
 
@@ -2019,5 +2247,15 @@ def live(args, root, cases, arms, caps_by_arm, log):
     return int(bool(report['safety_blockers']))
 
 
+def cli_main():
+    """Keep unexpected exception payloads out of console/relay logs too."""
+    try:
+        return main()
+    except Exception as error:
+        print(json.dumps({'status': 'evaluator_failure', 'exception_type': type(error).__name__,
+                          'detail': 'Execution stopped; inspect retained local failure evidence.'}), file=sys.stderr)
+        return 1
+
+
 if __name__ == '__main__':
-    raise SystemExit(main())
+    raise SystemExit(cli_main())

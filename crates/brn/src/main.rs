@@ -36,7 +36,7 @@ const HELP: &str = "BRN Threads\n\nUsage: brn --data-dir ABSOLUTE_DIRECTORY COMM
   ask ... --mcp-tool EXACT_APPROVED_NAME --mcp-input JSON (one transient reviewed call)
   Anonymous local HTTP only; remote/authenticated servers unsupported. Enablement is not an external-data grant.
   Installed skills are excluded from current BRN backups/exports; preserve originals for reinstall.
-  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION [--token-out ABSOLUTE_NEW_FILE] (prints the session token once)\n  update-buffer --session ID --generation N --text MARKDOWN --token-file ABSOLUTE_FILE|-\n  save|discard --session ID --generation N --token-file ABSOLUTE_FILE|-; recovery\n  reclaim-edit --session ID [--token-out ABSOLUTE_NEW_FILE] (test workspaces only)\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--edit-note ID --base VERSION | --record-decision yes] [--trace summary|full]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat|project [--title TITLE] [--thread ID] [--project ID] [--trace summary|full]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n    [--helper off | --helper-provider Codex|Copilot --helper-model ID --helper-effort low|medium|high\n     [--helper-auth-file FILE|--helper-credentials-dir DIR]] (read-only research helper, off by default.\n     Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower)\n  document-conversion --converter xberg|xberg-brn --ai off|on\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
+  note-create --title TITLE --text MARKDOWN\n  thread-start --title TITLE\n  read --id RECORD\n  search --query TEXT [--limit 1..50] [--cursor NEXT] [--thread CHAT]\n  connections --note ID [--hops 1|2] [--sources yes] [--thread CHAT]\n  topics; topics-create; topics-choose --note ID\n  knowledge-check [--seed-chat yes]\n  model-install --destination ABSOLUTE_FRESH_FOLDER (native builds; downloads the pinned model)\n  Semantic search uses the model folder named by BRN_EMBEDDING_MODEL_DIR.\n  begin-edit --note ID --base VERSION [--token-out ABSOLUTE_NEW_FILE] (prints the session token once)\n  update-buffer --session ID --generation N --text MARKDOWN --token-file ABSOLUTE_FILE|-\n  save|discard --session ID --generation N --token-file ABSOLUTE_FILE|-; recovery\n  reclaim-edit --session ID [--token-out ABSOLUTE_NEW_FILE] (test workspaces only)\n  apply|dismiss --operation ID; undo --operation ID; archive|unarchive --thread ID\n  queue --thread ID --text TEXT; keep-in-brn --note ID --base VERSION\n  ask --thread ID --prompt TEXT [--budget 1..32] [--model-call-limit 1..10000] [--edit-note ID --base VERSION | --record-decision yes] [--trace summary|full]\n  intake --source ABSOLUTE_FILE --intent useful|full|chat|project [--title TITLE] [--thread ID] [--project ID] [--trace summary|full] [--model-call-limit 1..10000]\n  configure --provider Codex|Copilot --model ID --effort low|medium|high\n    [--helper off | --helper-provider Codex|Copilot --helper-model ID --helper-effort low|medium|high\n     [--helper-auth-file FILE|--helper-credentials-dir DIR]] (read-only research helper, off by default.\n     Experimental: helper sub-agents are tested only with gpt-6-luna at high effort; other models may give unreliable results. Best for long-document digests; runs that delegate are slower)\n  document-conversion --converter xberg|xberg-brn --ai off|on\n  delegation --choice maintain|review-first\n  pause; resume; export|backup --destination ABSOLUTE_FRESH_PATH\n  restore --source ABSOLUTE_BACKUP\n  upgrade --backup-directory ABSOLUTE_EXTERNAL_FOLDER\n\nChoose delegation before resuming maintenance. Manual work remains available while pending.\nFresh explicit data only. Originals remain external; no external messages are sent.\nReview apply and Undo are concrete owner actions. Continue uses ask on the same Thread.";
 /// Printed after `HELP` by `--help`.
 const AGENT_HELP: &str = "
 Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelope on stdout.
@@ -896,7 +896,15 @@ async fn ask(
             tokio::time::sleep(std::time::Duration::from_millis(50)).await;
         }
     });
-    let result = brn_ai::threads::run_prepared(prepared.prepared, cancel, Arc::new(|_| {})).await;
+    let prepared_run = if inv.args.contains_key("model-call-limit") {
+        prepared
+            .prepared
+            .with_model_call_limit(inv.number("model-call-limit")?)
+            .map_err(contract::run_error)?
+    } else {
+        prepared.prepared
+    };
+    let result = brn_ai::threads::run_prepared(prepared_run, cancel, Arc::new(|_| {})).await;
     watcher.abort();
     let result = result.map_err(contract::run_error)?;
     let failure = match &result.answer.terminal {
@@ -1460,6 +1468,14 @@ async fn execute_document_transport(
         "intake" => {
             let settings = workspace.settings()?;
             let captured = settings.document_conversion.clone();
+            if inv.args.contains_key("model-call-limit")
+                && (inv.arg("intent")? != "useful" || captured.ai)
+            {
+                return Err(CliError::invalid_value(
+                    "model-call-limit",
+                    "Capped intake requires useful intent and document conversion AI off",
+                ));
+            }
             let source = Path::new(inv.arg("source")?);
             if !source.is_absolute() {
                 return Err(CliError::invalid_value(

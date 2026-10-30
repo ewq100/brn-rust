@@ -3,7 +3,10 @@ import importlib.util
 import json
 from pathlib import Path
 import tempfile
+import subprocess
+import sys
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location('wiki_v2', ROOT / 'scripts/evaluate_wiki_v2.py')
@@ -149,7 +152,7 @@ class ResumeTests(unittest.TestCase):
         self.assertEqual(v2.resume_action([{'status': 'transport_failure'}]), 'rerun')
         self.assertEqual(v2.resume_action([{'status': 'setup_failure'}]), 'rerun')
         self.assertEqual(v2.resume_action([{'status': 'transport_failure'}, {'status': 'transport_failure'}]), 'skip')
-        self.assertEqual(v2.resume_action([{'status': 'running'}]), 'discard-and-run')
+        self.assertEqual(v2.resume_action([{'status': 'running'}]), 'rerun')
 
     def test_slot_attempts_read_persisted_results(self):
         with scratch() as directory:
@@ -1021,9 +1024,9 @@ class RootAndResumeTests(unittest.TestCase):
 
     def test_next_attempt_and_slot_folder(self):
         self.assertEqual(v2.next_attempt([]), 1)
-        self.assertEqual(v2.next_attempt([{'status': 'running'}]), 1)
+        self.assertEqual(v2.next_attempt([{'status': 'running'}]), 2)
         self.assertEqual(v2.next_attempt([{'status': 'transport_failure'}]), 2)
-        self.assertEqual(v2.next_attempt([{'status': 'transport_failure'}, {'status': 'running'}]), 2)
+        self.assertEqual(v2.next_attempt([{'status': 'transport_failure'}, {'status': 'running'}]), 3)
         sample = {'case': 'R1', 'scale': 1000, 'arm': 'A', 'repetition': 2, 'label': None}
         self.assertEqual(v2.slot_folder('/r', sample, 2), Path('/r/runs/R1-1000/A-r2-rerun'))
 
@@ -1087,6 +1090,117 @@ class PipelineWithStubBinary(unittest.TestCase):
         caps = {'trace': True, 'knowledge-check': True, 'search': True}
         return v2.Sample(args, root, case, 1000, sample, arm, template, seed, caps), root
 
+    def writing_sample(self, base):
+        sample, root = self.setup_sample(base, 'WRITE')
+        sample.case['retain_checkpoints'] = True
+        sample.case['checks'] = [{'type': 'input_lineage', 'step': 1, 'keys': ['a']},
+                                 {'type': 'new_case_notes', 'min': 1, 'max': 1}]
+        sample.args.model_call_limit = 12
+        sample.args.max_total_model_calls = 192
+        source = note('n1', 'Bathroom needs membrane; dry rooms need primer.')
+        created = note('n2', 'Bathroom: membrane. Dry rooms: primer.', title='Renovation summary')
+        receipt = {'operation': 'op1', 'writes': [{'before': None, 'after': created}],
+                   'undo_of': None}
+        # Source-compatible CLI envelopes, with one applied write and actual lineage.
+        # The child is a deterministic JSON producer, never a provider client.
+        script = FAKE_PIPELINE_BRN.replace('import json, sys', 'import json, sys\nfrom pathlib import Path')
+        script = script.replace("command = a[2]", "a = a[1:] if a[0] == '--json' else a\ncommand = a[2]")
+        script = script.replace("if command in ('configure', 'delegation'):",
+                                "if command in ('configure', 'delegation', 'document-conversion'):")
+        script = script.replace("elif command == 'records':\n    print(json.dumps([]))",
+            "elif command == 'records':\n    print(json.dumps(" + repr([source]) +
+            " + (" + repr([created]) + " if Path(sys.argv[0] + '.asked').exists() else [])))")
+        script = script.replace("elif command == 'history':\n    print(json.dumps([]))",
+                                "elif command == 'history':\n    print(json.dumps(" + repr([receipt]) + "))")
+        script = script.replace("'operations': []", "'operations': ['op1']")
+        script = script.replace("    prompt = opts['--prompt']", "    Path(sys.argv[0] + '.asked').write_text('once')\n    prompt = opts['--prompt']")
+        script = script.replace("else:\n    sys.exit('unexpected ' + command)", """elif command == 'backup':
+    Path(opts['--destination']).write_bytes(b'synthetic-checkpoint')
+    print('{}')
+elif command == 'operation':
+    print(json.dumps({'status': 'ok', 'result': {'state': 'applied', 'inputs_total': 1,
+        'inputs': [{'record': 'n1', 'version': 1, 'expectation': 'Current'}]}}))
+else:
+    sys.exit('unexpected ' + command)
+""")
+        Path(sample.arm['binary']).write_text(script)
+        return sample, root
+
+    def test_completed_write_collects_lineage_and_checkpoints_through_cli(self):
+        with scratch() as directory:
+            sample, root = self.writing_sample(Path(directory).resolve())
+            result = sample.go()
+            self.assertEqual(result['status'], 'complete')
+            self.assertTrue(result['passed'])
+            self.assertEqual(result['steps'][0]['receipts'][0]['writes'][0]['id'], 'n2')
+            self.assertEqual([item['step'] for item in result['checkpoints']], [0, 1])
+            self.assertEqual(sum(c['command'] == 'ask' for c in result['commands']), 1)
+            self.assertEqual(sum(c['command'] == 'operation' for c in result['commands']), 1)
+            self.assertTrue((root / 'model-call-reservations.jsonl').is_file())
+            self.assertEqual(v2.collect_results(root)[0]['status'], 'complete')
+
+    def test_write_with_wrong_lineage_finishes_but_does_not_pass(self):
+        with scratch() as directory:
+            sample, _ = self.writing_sample(Path(directory).resolve())
+            binary = Path(sample.arm['binary'])
+            binary.write_text(binary.read_text().replace("'record': 'n1'", "'record': 'unrelated'"))
+            result = sample.go()
+            self.assertEqual(result['status'], 'complete')
+            self.assertFalse(result['passed'])
+            self.assertFalse(result['checks'][0]['passed'])
+
+    def test_evaluator_exception_retains_completed_run_and_redacted_location(self):
+        with scratch() as directory:
+            sample, root = self.writing_sample(Path(directory).resolve())
+            secret = 'synthetic-secret-and-private-prompt'
+            with patch.object(v2.V1.Cli, 'envelope', side_effect=AttributeError(secret)):
+                with self.assertRaisesRegex(AttributeError, secret):
+                    sample.go()
+            result = json.loads((sample.folder / 'result.json').read_text())
+            self.assertEqual(result['status'], 'evaluator_failure')
+            self.assertIsNone(result['passed'])
+            self.assertEqual(result['steps'][0]['terminal'], 'Completed')
+            self.assertEqual(result['steps'][0]['operations'], ['op1'])
+            self.assertEqual([c['step'] for c in result['checkpoints']], [0, 1])
+            self.assertEqual(sum(c['command'] == 'ask' for c in result['commands']), 1)
+            self.assertTrue((root / 'model-call-reservations.jsonl').is_file())
+            path = sample.folder / 'evaluator-error.json'
+            diagnostic = json.loads(path.read_text())
+            self.assertEqual(diagnostic['exception_type'], 'AttributeError')
+            self.assertTrue(any(f['file'] == 'scripts/evaluate-wiki-guidance.py' for f in diagnostic['frames']))
+            self.assertTrue(all(isinstance(f['line'], int) for f in diagnostic['frames']))
+            self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+            for artifact in (path, sample.folder / 'result.json'):
+                self.assertNotIn(secret, artifact.read_text())
+            self.assertNotIn(str(ROOT), path.read_text())
+            report = v2.build_report(v2.collect_results(root), [sample.case])
+            self.assertNotIn(secret, json.dumps(report))
+            self.assertEqual(len(report['transport_failures']), 1)
+
+    def test_cli_failure_does_not_print_private_exception(self):
+        with scratch() as directory:
+            # Exercise the same boundary used by __main__ in a fresh process;
+            # the failing full sample is the only replacement for argument parsing.
+            code = '''
+import sys
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import test_evaluate_wiki_v2 as fixture
+sample, _ = fixture.PipelineWithStubBinary().writing_sample(Path(sys.argv[2]))
+def broken(*args, **kwargs):
+    raise AttributeError('synthetic-secret-and-private-prompt')
+fixture.v2.V1.Cli.envelope = broken
+fixture.v2.main = sample.go
+raise SystemExit(fixture.v2.cli_main())
+'''
+            process = subprocess.run([sys.executable, '-c', code, str(Path(__file__).parent),
+                                      str(Path(directory).resolve())], capture_output=True, text=True, timeout=20)
+            self.assertEqual(process.returncode, 1)
+            self.assertEqual(json.loads(process.stderr)['exception_type'], 'AttributeError')
+            self.assertNotIn('synthetic-secret', process.stdout + process.stderr)
+            self.assertNotIn(str(ROOT), process.stdout + process.stderr)
+            self.assertNotIn('Traceback', process.stderr)
+
     def test_tool_limit_terminal_is_evaluated_not_a_transport_failure(self):
         with scratch() as directory:
             sample, root = self.setup_sample(Path(directory).resolve(), 'LIMIT')
@@ -1123,17 +1237,25 @@ class PipelineWithStubBinary(unittest.TestCase):
             self.assertEqual(result['status'], 'transport_failure')
             self.assertEqual(result['checks'], [])
 
-    def test_stale_slot_without_result_is_replaced_and_crash_stub_is_running(self):
+    def test_stale_slot_without_result_is_preserved(self):
         with scratch() as directory:
             sample, root = self.setup_sample(Path(directory).resolve(), 'OK')
             stale = v2.slot_folder(root, {'case': 'T1', 'scale': 1000, 'arm': 'A', 'repetition': 1, 'label': None}, 1)
             stale.mkdir(parents=True)
             (stale / 'junk').write_text('left by a crash')
-            result = sample.go()
-            self.assertEqual(result['status'], 'complete')
-            self.assertFalse((stale / 'junk').exists())
+            with self.assertRaises(FileExistsError):
+                sample.go()
+            self.assertEqual((stale / 'junk').read_text(), 'left by a crash')
+            attempts = v2.slot_attempts(root, sample.sample)
+            self.assertEqual(v2.next_attempt(attempts), 2)
+            self.assertEqual(v2.resume_action(attempts), 'rerun')
+            collected = v2.collect_results(root)
+            self.assertEqual(len(collected), 1)
+            self.assertEqual(collected[0]['status'], 'running')
+            report = v2.build_report(collected, [sample.case])
+            self.assertEqual(len(report['transport_failures']), 1)
             stub = {'status': 'running'}
-            self.assertEqual(v2.resume_action([stub]), 'discard-and-run')
+            self.assertEqual(v2.resume_action([stub]), 'rerun')
 
     def test_setup_failure_is_persisted_and_reported(self):
         from types import SimpleNamespace as NS

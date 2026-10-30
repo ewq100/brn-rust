@@ -578,6 +578,7 @@ fn child_scope(parent: &Scope, slot: Arc<ScoutSlot>, provider: Provider) -> Arc<
         .and_then(|trace| trace::TraceCollector::new(trace.level()))
         .map(Arc::new);
     Arc::new(Scope {
+        call_budget: parent.call_budget.clone(),
         external: Mutex::new(None),
         skills: parent.skills.clone(),
         chat: parent.chat.clone(),
@@ -729,7 +730,11 @@ fn run_helper<'a>(
                     choice.auth_file.as_deref(),
                     choice.credentials_dir.as_deref(),
                     child.cache_key.as_deref(),
-                    transport,
+                    Some(wire_trace::wrap(
+                        transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
+                        &child.trace,
+                        &child.call_budget,
+                    )),
                     on_resend,
                     &cancel,
                 )

@@ -1,0 +1,22 @@
+{
+  "status": "prepared_not_dispatched",
+  "source_commit": "12251dfc78bc6ff9aa0eaf6809448886b0aa794c",
+  "offline_tests": {
+    "platform": "Linux",
+    "passed": 11,
+    "failed_final": 0,
+    "command": "python3 -B test_deadline.py -v"
+  },
+  "independent_review": "review_agentbench: no remaining blocker after scoped nested-session and corrupt-ledger cleanup corrections",
+  "retained_development_failure": "Short synthetic hard timer initially raced cleanup; corrected lead time and regression suite passed. Original failure retained in task tool history.",
+  "pending": [
+    "Mac local offline toolchain/build/supervisor acceptance",
+    "root authenticated one-attempt release",
+    "qualified semantic grading or blind human adjudication"
+  ],
+  "live_model_calls": 0,
+  "dispatch": false,
+  "existing_jobs_changed": false,
+  "revision": "terra-sol-pilot-v2",
+  "capability_discovery": "Both exact medium models verified via existing Mac subscription; issue236comment6487835954; zero model calls"
+}
