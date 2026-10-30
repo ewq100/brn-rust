@@ -1545,6 +1545,10 @@ fn knowledge_filter_pages_report_retained_and_total_findings(cx: &mut TestAppCon
             window.find("knowledge-page-summary").role(),
             Some(gpui_kit::Role::Label)
         );
+        assert_eq!(
+            window.find("knowledge-page-summary").value(),
+            Some("Showing 1–8 of 25 listed findings (30 total).")
+        );
     })
     .unwrap();
     reveal(cx, &f, "home-content", "knowledge-next");
@@ -1552,6 +1556,10 @@ fn knowledge_filter_pages_report_retained_and_total_findings(cx: &mut TestAppCon
     cx.update_window(f.window, |_, window, _| {
         assert_eq!(
             window.find("knowledge-page-summary").label(),
+            Some("Showing 9–16 of 25 listed findings (30 total).")
+        );
+        assert_eq!(
+            window.find("knowledge-page-summary").value(),
             Some("Showing 9–16 of 25 listed findings (30 total).")
         );
     })
