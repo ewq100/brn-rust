@@ -98,22 +98,21 @@ impl ThreadsUi {
         cx.notify();
     }
     pub(super) fn poll_web_search(&mut self, cx: &mut Context<Self>) {
-        if let Some(expected) = &self.web_search.selection {
-            if self
+        if let Some(expected) = &self.web_search.selection
+            && self
                 .workspace
                 .settings()
                 .map(|s| selection(&s))
                 .ok()
                 .as_ref()
                 != Some(expected)
-            {
-                self.stop_web_search();
-                self.web_search.result = Some(Err(
-                    "Search stopped because the selected settings changed.".into(),
-                ));
-                cx.notify();
-                return;
-            }
+        {
+            self.stop_web_search();
+            self.web_search.result = Some(Err(
+                "Search stopped because the selected settings changed.".into(),
+            ));
+            cx.notify();
+            return;
         }
         let received = self
             .web_search
@@ -126,13 +125,13 @@ impl ThreadsUi {
                     Some((self.web_search.generation, Err(SearchError::Transport)))
                 }
             });
-        if let Some((generation, result)) = received {
-            if generation == self.web_search.generation {
-                self.web_search.receiver = None;
-                self.web_search.cancel = None;
-                self.web_search.result = Some(result.map_err(|e| e.to_string()));
-                cx.notify();
-            }
+        if let Some((generation, result)) = received
+            && generation == self.web_search.generation
+        {
+            self.web_search.receiver = None;
+            self.web_search.cancel = None;
+            self.web_search.result = Some(result.map_err(|e| e.to_string()));
+            cx.notify();
         }
     }
     pub(super) fn open_web_search(&mut self, window: &mut Window, cx: &mut Context<Self>) {
