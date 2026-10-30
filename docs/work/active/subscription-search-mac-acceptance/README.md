@@ -38,6 +38,8 @@ Passed local checks using Rust 1.98.1, locked/offline flags, one build slot and 
 
 Original failures remain in local evidence: initial invalid `--lib` desktop invocation, Capture fixture refusal of the macOS `/var` symlink, and five collapsible-condition lint findings. Corrected commands/settings did not weaken production guards or checks. Helpers were reused only after source equivalence and binary-hash verification; no model assets were downloaded.
 
+CI run 41023361442 at `1cf902f60865eeedb32583a7980d1618eb179c83` passed the three declared Mac contexts, Ubuntu native and documentation checks. Ubuntu Core/CLI hit its 30-minute job limit while compiling adapted-helper lint dependencies after workspace tests passed; the cache was cold and PRs do not save it. The supported Linux lane now receives the same bounded 60 minutes as Mac/native lanes, with every check unchanged; no timeout was turned into a passing result. A fresh exact-head run is required. Optional Windows failed in unchanged Unix-specific auth code.
+
 Exact-head CI state belongs to the [PR checks page](https://github.com/ewq100/brn-rust/pull/244/checks); the final issue handoff records the actually inspected terminal head. This source checkpoint does not predict a pass. Repository-declared required contexts are Ubuntu/Mac Core and CLI, Mac Native UI and Mac Native Retrieval/Combined. On 30 October the private repository protection and ruleset APIs both returned HTTP 403 (plan restriction); current server enforcement could not be independently inspected. No setting was changed or bypassed. Optional Windows failures are not a full-platform pass. No merge is authorized for this new PR without a separate owner decision.
 
 ## Live allocation and reproduction
