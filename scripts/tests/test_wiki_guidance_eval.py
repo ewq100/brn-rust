@@ -112,6 +112,26 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
             wiki_eval.read_operation_inputs(StubCli(), ['op'])
         self.assertIn('inputs truncated (64/65)', str(raised.exception))
 
+    def test_meeting_collector_resolves_allocated_and_applied_run_operations(self):
+        class StubCli:
+            def call(self, command):
+                return {'records': [{'id': 'run', 'data': {'Run': {'operations': ['a', 'b']}}}],
+                        'history': [{'operation': 'a', 'writes': []}], 'candidates': []}[command]
+            def envelope(self, command, **options):
+                identity = options['id']
+                return {'status': 'ok', 'result': {'operation': identity,
+                    'state': 'applied' if identity == 'a' else 'allocated',
+                    'inputs': [], 'inputs_total': 0}}
+        collected = wiki_eval.meeting_snapshot(StubCli())
+        self.assertTrue(wiki_eval.meeting_coverage(collected))
+        self.assertEqual([s['state'] for s in collected['operation_states']], ['applied', 'allocated'])
+        for mutation in ('receipt', 'state', 'lineage'):
+            bad = copy.deepcopy(collected)
+            if mutation == 'receipt': bad['receipts'] = []
+            elif mutation == 'state': bad['operation_states'].pop()
+            else: bad['lineage'][0]['applied'] = False
+            self.assertFalse(wiki_eval.meeting_coverage(bad))
+
     def test_evaluator_does_not_import_sqlite3(self):
         tree = ast.parse(SCRIPT.read_text())
         imported = {alias.name for node in ast.walk(tree) if isinstance(node, (ast.Import, ast.ImportFrom))
@@ -200,6 +220,64 @@ class WikiGuidanceEvaluationTests(unittest.TestCase):
         self.assertEqual(raised.exception.code, 2)
         self.assertIn('Codex needs an absolute --auth-file', stderr.getvalue())
 class MeetingActionOracleTests(unittest.TestCase):
+    def test_changed_commitment_prefix_gate_and_receipts(self):
+        case = next(c for c in json.loads(wiki_eval.CASES.read_text())['cases']
+                    if c['id'] == 'meeting-changed-commitment-conflict')
+        protected = note('approved', 'Mari; delivery 10 March', protected=True)
+        before = {'records': [protected], 'receipts': [], 'candidates': [], 'lineage': [], 'operation_states': []}
+        pending = self.with_sources({'records': [copy.deepcopy(protected)], 'receipts': [],
+            'lineage': [], 'operation_states': [], 'candidates': [self.candidate('one', state='Open', owner='Mari', evidence=None)]})
+        request = pending['candidates'][0]['request']
+        request['inputs'] = request['inputs'][:1]
+        request['writes'] = request['writes'][:2]
+        pending['records'] = [r for r in pending['records'] if r['id'] != 'source:1']
+        self.assertTrue(all(v is True for v in wiki_eval.meeting_prefix_checks(case, before, pending, [0]).values()))
+        saved = copy.deepcopy(pending)
+        request = saved['candidates'].pop()['request']
+        action = request['writes'][0]
+        action['data']['Action']['state'] = 'Suggested'
+        action['version'] = 1
+        saved['records'].extend(request['writes'])
+        saved['receipts'] = [{'operation': 'save', 'writes': [{'before': None, 'after': copy.deepcopy(action)}]}]
+        saved['lineage'] = [{'operation': 'save', 'applied': True, 'inputs': request['inputs']}]
+        saved['records'].append({'id': 'run', 'archived': False, 'data': {'Run': {'operations': ['save']}}})
+        saved['operation_states'] = [{'operation': 'save', 'state': 'applied', 'inputs': request['inputs']}]
+        self.assertTrue(all(v is True for v in wiki_eval.meeting_prefix_checks(case, before, saved, [0]).values()))
+        self.assertFalse(all(v is True for v in wiki_eval.meeting_prefix_checks(case, before, saved, [0, 1]).values()))
+        for mutation in ('open', 'waiting', 'evidence', 'protected', 'missing', 'stale', 'link', 'transient'):
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(saved)
+                if mutation in ('open', 'waiting'):
+                    next(r for r in bad['records'] if r['id'] == 'one')['data']['Action']['state'] = mutation.title()
+                elif mutation == 'evidence': next(r for r in bad['records'] if r['id'] == 'one')['data']['Action']['evidence'] = 'proof'
+                elif mutation == 'protected': bad['records'][0]['data']['Note']['body'] = 'changed'
+                elif mutation == 'missing': del bad['lineage']
+                elif mutation == 'stale': bad['lineage'][0]['inputs'][0]['version'] = 0
+                elif mutation == 'link': next(r for r in bad['records'] if r['id'] == 'link:0')['data']['Link']['to'] = 'wrong'
+                else:
+                    transient = copy.deepcopy(action)
+                    transient['data']['Action']['state'] = 'Done'
+                    bad['receipts'].append({'operation': 'transient', 'writes': [{'before': None, 'after': transient}]})
+                    bad['records'][-1]['data']['Run']['operations'].append('transient')
+                    bad['operation_states'].append({'operation': 'transient', 'state': 'applied', 'inputs': []})
+                    bad['lineage'].append({'operation': 'transient', 'applied': True, 'inputs': []})
+                self.assertFalse(all(v is True for v in wiki_eval.meeting_prefix_checks(case, before, bad, [0]).values()))
+        omitted = copy.deepcopy(saved)
+        omitted['records'][-1]['data']['Run']['operations'].append('transient')
+        omitted['operation_states'].append({'operation': 'transient', 'state': 'applied', 'inputs': []})
+        omitted['lineage'].append({'operation': 'transient', 'applied': True, 'inputs': []})
+        self.assertFalse(wiki_eval.meeting_prefix_checks(case, before, omitted, [0])['operation_coverage'])
+        missing_before = copy.deepcopy(saved)
+        del missing_before['receipts'][0]['writes'][0]['before']
+        self.assertFalse(wiki_eval.meeting_prefix_checks(case, before, missing_before, [0])['action_receipts_safe'])
+        prior = self.record('existing', state='Suggested', owner='Mari', evidence=None)
+        prior['version'] = 1
+        old_before = copy.deepcopy(before)
+        old_before['records'].append(prior)
+        changed = copy.deepcopy(saved)
+        changed['records'].append(dict(prior, version=2))
+        self.assertFalse(wiki_eval.meeting_prefix_checks(case, old_before, changed, [0])['existing_actions_unchanged'])
+
     def test_changed_commitment_requires_both_sources_but_first_step_only_observed_prefix(self):
         case = next(c for c in json.loads(wiki_eval.CASES.read_text())['cases']
                     if c['id'] == 'meeting-changed-commitment-conflict')
