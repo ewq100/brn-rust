@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Finish subscription search and Mac acceptance with source-bound evidence.
-**Owner attention:** Headless live search passed on attempt4/10 after three reviewed corrections; allocation closed, six unused. Local code/evidence unpushed; native Mac acceptance and authorized publication/CI remain outstanding.
+**Goal:** Integrate the reviewed subscription-search fixes and preserve separate native acceptance gaps.
+**Owner attention:** PR244 merge is requested. The pre-turn correction is committed and independently reviewed;35 provider tests,3 private-file tests and strict affected lint/build pass. Push starts CI. Confirm included Actions capacity or a paid CI bound to resolve the earlier exhausted-minutes hold. Native acceptance stays pending.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -39,31 +39,30 @@ Gates:
 
 </details>
 
-### Publish final evidence and inspect CI
+### Integrate reviewed fixes through required CI
 
 Task ID: `publication`
-Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T22:09:34.860015+00:00
-Activity: Headless document workflow and bounded live search passed; newer reviewed code/evidence remains local/unpushed. Prior remote CI is not new-source coverage.
-Next: Await owner publication/hosted-CI authorization and native acceptance; preserve draft, no push/ready/merge.
-Resource waits: native Mac access; separate owner publication/CI/integration decision
+Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T23:32:00.866195+00:00
+Activity: Pre-turn discard defect reproduced, fixed at 22f3860e and independently reviewed. All affected offline gates pass. No push or new hosted CI; budget clarification pending.
+Next: After owner confirms included Actions capacity or a paid CI bound, push the reviewed local commits to existing PR244, verify exact-head required CI, mark ready, merge normally and verify resulting main.
+Resource waits: Actions capacity or bounded paid-CI authorization
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** reviewed scoped candidate
-- **checks:** offline focused tests and strict lint passed; inspect exact-head CI at PR244
-- **integration:** draft PR244; not merged or released
-- **native:** native gate separate
+- **implementation:** PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.
+- **checks:** PASS:35 provider+3 private-file tests, strict AI/application/desktop lint, example build, formatting and docs checks. Required exact-head hosted CI pending.
+- **integration:** Owner-requested normal merge pending; all corrections/evidence remain local. Actions budget clarification required before push; no release.
+- **native:** Known Mac UI gap remains pending; integration request does not establish native acceptance.
 - **owner acceptance:** not claimed
 
 </details>
 
 Waiting:
 
-- resource: native Mac access
-- resource: separate owner publication/CI/integration decision
+- resource: Actions capacity or bounded paid-CI authorization
 
 ## Completed
 
@@ -74,4 +73,4 @@ Completion here means the selected task scope is complete; it does not establish
 - `subscription-search` — Qualify subscription-only search
 - `document-workflow` — Import knowledge and produce a referenced draft
 
-Local page reflects the last saved observations in this record (2026-10-30T22:09:34.860015+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-30T23:32:00.866195+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

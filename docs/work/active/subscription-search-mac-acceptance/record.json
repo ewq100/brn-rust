@@ -3,13 +3,13 @@
     "main": "89e6221afc8d6b036b7b5a1bcfe4b7cc23871583"
   },
   "authority": {
-    "source": "Direct owner request to execute issue243; issue defines bounds.",
-    "limits": "Fresh diagnostic003 allocation closed at4/10 (3fail,1pass); six unused not banked. No more live calls, CI/push/ready/merge/release/UI under this completed allocation. Historical sessions/002 remain closed."
+    "source": "Direct owner31October request to PR and merge244 after successful diagnostic qualification; prior issue243 scope and disclosed native gap retained.",
+    "limits": "Normal PR publication and merge requested after required exact-head and resulting-main checks. Earlier explicit CI/billing hold needs confirmation of included capacity or bounded paid CI before push starts Actions. No more model calls, UI interaction or release; all live allocations remain closed."
   },
   "work_view": {
-    "observed_at": "2026-10-30T22:09:34.860015+00:00",
-    "goal": "Finish subscription search and Mac acceptance with source-bound evidence.",
-    "owner_attention": "Headless live search passed on attempt4/10 after three reviewed corrections; allocation closed, six unused. Local code/evidence unpushed; native Mac acceptance and authorized publication/CI remain outstanding.",
+    "observed_at": "2026-10-30T23:32:00.866195+00:00",
+    "goal": "Integrate the reviewed subscription-search fixes and preserve separate native acceptance gaps.",
+    "owner_attention": "PR244 merge is requested. The pre-turn correction is committed and independently reviewed;35 provider tests,3 private-file tests and strict affected lint/build pass. Push starts CI. Confirm included Actions capacity or a paid CI bound to resolve the earlier exhausted-minutes hold. Native acceptance stays pending.",
     "tasks": [
       {
         "id": "subscription-search",
@@ -133,27 +133,28 @@
       },
       {
         "id": "publication",
-        "title": "Publish final evidence and inspect CI",
+        "title": "Integrate reviewed fixes through required CI",
         "owner": "Existing Mac lead",
         "state": "blocked",
-        "activity": "Headless document workflow and bounded live search passed; newer reviewed code/evidence remains local/unpushed. Prior remote CI is not new-source coverage.",
-        "observed_at": "2026-10-30T22:09:34.860015+00:00",
+        "activity": "Pre-turn discard defect reproduced, fixed at 22f3860e and independently reviewed. All affected offline gates pass. No push or new hosted CI; budget clarification pending.",
+        "observed_at": "2026-10-30T23:32:00.866195+00:00",
         "origin": "observed",
-        "next_action": "Await owner publication/hosted-CI authorization and native acceptance; preserve draft, no push/ready/merge.",
+        "next_action": "After owner confirms included Actions capacity or a paid CI bound, push the reviewed local commits to existing PR244, verify exact-head required CI, mark ready, merge normally and verify resulting main.",
         "depends_on": [],
         "resource_waits": [
-          "native Mac access",
-          "separate owner publication/CI/integration decision"
+          "Actions capacity or bounded paid-CI authorization"
         ],
         "evidence": [
           "docs/work/active/subscription-search-mac-acceptance/README.md",
-          "https://github.com/ewq100/brn-rust/pull/244"
+          "https://github.com/ewq100/brn-rust/pull/244",
+          "docs/work/active/subscription-search-mac-acceptance/integration.md",
+          "docs/work/active/subscription-search-mac-acceptance/integration-offline-result.json"
         ],
         "gates": {
-          "implementation": "reviewed scoped candidate",
-          "checks": "offline focused tests and strict lint passed; inspect exact-head CI at PR244",
-          "integration": "draft PR244; not merged or released",
-          "native": "native gate separate",
+          "implementation": "PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.",
+          "checks": "PASS:35 provider+3 private-file tests, strict AI/application/desktop lint, example build, formatting and docs checks. Required exact-head hosted CI pending.",
+          "integration": "Owner-requested normal merge pending; all corrections/evidence remain local. Actions budget clarification required before push; no release.",
+          "native": "Known Mac UI gap remains pending; integration request does not establish native acceptance.",
           "owner_acceptance": "not claimed"
         },
         "attempts": []
