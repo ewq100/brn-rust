@@ -40,6 +40,11 @@ impl ThreadsUi {
     pub(super) fn chat_controls(&self, cx: &mut Context<Self>) -> Vec<gpui_kit::AnyElement> {
         let this = cx.entity().downgrade();
         let mut controls = vec![];
+        controls.push(
+            pill("search-web", "Search web…")
+                .on_click(cx.listener(|this, _, window, cx| this.open_web_search(window, cx)))
+                .into_any_element(),
+        );
         if let ChatTarget::Thread(id) = &self.chat {
             let id = id.clone();
             if !self.thread_resolved(&id) {

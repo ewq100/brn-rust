@@ -20,9 +20,9 @@ mod provider_fixture_runtime;
 mod provider_formats_tests;
 mod resend;
 pub mod run_lease;
-pub mod subscription_search;
 #[cfg(any(target_os = "macos", target_os = "linux"))]
 pub mod skill_packages;
+pub mod subscription_search;
 pub mod threads;
 pub mod threads_guides;
 #[cfg(any(test, feature = "capability-spike"))]
