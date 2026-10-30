@@ -554,6 +554,61 @@ fn validate_notification(v: &Value, thread: Option<&str>) -> Result<(), SearchEr
     )))
 }
 
+fn validate_pre_turn_notification(
+    v: &Value,
+    thread: Option<&str>,
+    creating_thread: bool,
+) -> Result<(), SearchError> {
+    validate_notification(v, thread)?;
+    let method = v
+        .get("method")
+        .and_then(Value::as_str)
+        .ok_or(SearchError::MalformedResponse)?;
+    match method {
+        "remoteControl/status/changed" | "account/updated" | "account/rateLimits/updated" => Ok(()),
+        "error" => Err(SearchError::ProviderFailed),
+        "thread/started" | "thread/status/changed" if creating_thread || thread.is_some() => {
+            let (identity, status) = if method == "thread/started" {
+                let started = v
+                    .pointer("/params/thread")
+                    .ok_or(SearchError::MalformedResponse)?;
+                if started.get("ephemeral") != Some(&json!(true))
+                    || started.get("turns") != Some(&json!([]))
+                {
+                    return Err(SearchError::UnsafeToolUse);
+                }
+                (started.get("id"), started.get("status"))
+            } else {
+                (v.pointer("/params/threadId"), v.pointer("/params/status"))
+            };
+            let identity = identity
+                .and_then(Value::as_str)
+                .filter(|id| !id.is_empty() && id.len() <= 4096)
+                .ok_or(SearchError::MalformedResponse)?;
+            if thread.is_some_and(|expected| expected != identity) {
+                return Err(SearchError::MalformedResponse);
+            }
+            // Creation notices grant no identity or authority. The verified
+            // thread/start response remains the sole source of our thread ID.
+            match status.and_then(|s| s.get("type")).and_then(Value::as_str) {
+                Some("idle") => Ok(()),
+                Some("active") => Err(SearchError::UnsafeToolUse),
+                Some("systemError" | "notLoaded") => Err(SearchError::ProviderFailed),
+                _ => Err(SearchError::MalformedResponse),
+            }
+        }
+        // No item or turn activity is legitimate before our own turn/start.
+        _ if method.starts_with("item/") || method.starts_with("turn/") => {
+            if method == MODERATION_METADATA {
+                Err(unexpected_notification(method, None))
+            } else {
+                Err(SearchError::UnsafeToolUse)
+            }
+        }
+        _ => Err(unexpected_notification(method, None)),
+    }
+}
+
 fn validate_allowance(v: &Value) -> Result<(), SearchError> {
     // Only the backend's active-account permission admits a new turn. Neither
     // an elapsed reset time nor a low percentage grants or restores permission.
@@ -815,10 +870,7 @@ impl<'a> Server<'a> {
             match self.rx.try_recv() {
                 Ok(value) => {
                     let value = value?;
-                    validate_notification(&value, self.thread_id.as_deref())?;
-                    if value.get("method").and_then(Value::as_str) == Some(MODERATION_METADATA) {
-                        return Err(unexpected_notification(MODERATION_METADATA, None));
-                    }
+                    validate_pre_turn_notification(&value, self.thread_id.as_deref(), false)?;
                 }
                 Err(mpsc::TryRecvError::Empty) => return Ok(()),
                 Err(mpsc::TryRecvError::Disconnected) => return Err(SearchError::Transport),
@@ -830,11 +882,13 @@ impl<'a> Server<'a> {
         self.send(json!({"id":id,"method":method,"params":params}))?;
         loop {
             let v = self.receive()?;
-            if v.get("method").and_then(Value::as_str) == Some(MODERATION_METADATA) {
-                return Err(unexpected_notification(MODERATION_METADATA, None));
-            }
-            if v.get("method").is_some() && v.get("id").is_some() {
-                return Err(SearchError::UnsafeToolUse);
+            if v.get("method").is_some() {
+                validate_pre_turn_notification(
+                    &v,
+                    self.thread_id.as_deref(),
+                    method == "thread/start",
+                )?;
+                continue;
             }
             if v.get("id").and_then(Value::as_u64) == Some(id) {
                 if v.get("error").is_some() {
@@ -845,6 +899,7 @@ impl<'a> Server<'a> {
                     .cloned()
                     .ok_or(SearchError::MalformedResponse);
             }
+            return Err(SearchError::MalformedResponse);
         }
     }
     fn initialize(&mut self) -> Result<(), SearchError> {
@@ -1492,6 +1547,175 @@ mod tests {
             server.rpc("account/rateLimits/read", json!({})),
             Err(SearchError::AllowanceLimited)
         );
+    }
+    #[cfg(unix)]
+    #[test]
+    fn pre_turn_rpc_never_discards_errors_unsafe_items_or_unknown_notifications() {
+        for (notification, expected) in [
+            (
+                json!({"method":"error","params":{"error":{"message":"synthetic refusal"}}}),
+                SearchError::ProviderFailed,
+            ),
+            (
+                event(
+                    "item/started",
+                    json!({"type":"commandExecution","command":"never run"}),
+                ),
+                SearchError::UnsafeToolUse,
+            ),
+            (
+                json!({"method":"future/event","params":{"private":"never-log"}}),
+                unexpected_notification("future/event", None),
+            ),
+        ] {
+            let cancel = CancellationToken::new();
+            let payload = serde_json::to_string(&notification).unwrap();
+            let mut command = Command::new("/bin/sh");
+            command.args([
+                "-c",
+                "read line; printf '%s\\n' \"$1\" '{\"id\":1,\"result\":{}}'",
+                "fake-server",
+                &payload,
+            ]);
+            let mut server =
+                Server::launch(command, &cancel, Instant::now() + Duration::from_secs(3)).unwrap();
+            // A successful RPC would let run() reach turn/start. The first
+            // stop must win even when a successful response follows it.
+            assert_eq!(server.rpc("model/list", json!({})), Err(expected));
+        }
+    }
+    #[test]
+    fn pre_turn_lifecycle_is_idle_ephemeral_and_phase_bound() {
+        let started = json!({"method":"thread/started","params":{"thread":{"id":"thread","status":{"type":"idle"},"ephemeral":true,"turns":[]}}});
+        let idle = json!({"method":"thread/status/changed","params":{"threadId":"thread","status":{"type":"idle"}}});
+        for notification in [&started, &idle] {
+            assert_eq!(
+                validate_pre_turn_notification(notification, None, true),
+                Ok(())
+            );
+            assert_eq!(
+                validate_pre_turn_notification(notification, Some("thread"), false),
+                Ok(())
+            );
+            assert!(validate_pre_turn_notification(notification, None, false).is_err());
+            assert_eq!(
+                validate_pre_turn_notification(notification, Some("other"), false),
+                Err(SearchError::MalformedResponse)
+            );
+        }
+        for (field, value) in [
+            ("id", json!("")),
+            ("id", json!("x".repeat(4097))),
+            ("id", Value::Null),
+            ("status", Value::Null),
+            ("status", json!({"type":"active","activeFlags":[]})),
+            ("status", json!({"type":"systemError"})),
+            ("ephemeral", json!(false)),
+            ("turns", json!([{"id":"previous"}])),
+        ] {
+            let mut invalid = started.clone();
+            invalid["params"]["thread"][field] = value;
+            assert!(
+                validate_pre_turn_notification(&invalid, None, true).is_err(),
+                "accepted {field}"
+            );
+        }
+        for status in [
+            Value::Null,
+            json!({"type":"active","activeFlags":[]}),
+            json!({"type":"notLoaded"}),
+            json!({"type":"future"}),
+        ] {
+            let mut invalid = idle.clone();
+            invalid["params"]["status"] = status;
+            assert!(validate_pre_turn_notification(&invalid, Some("thread"), false).is_err());
+        }
+    }
+    #[cfg(unix)]
+    #[test]
+    fn pre_turn_drain_stops_on_unrequested_activity_and_invalid_envelopes() {
+        for (notification, expected) in [
+            (json!({"method":"error"}), SearchError::ProviderFailed),
+            (
+                event("item/completed", json!({"type":"webSearch","results":[]})),
+                SearchError::UnsafeToolUse,
+            ),
+            (json!({"method":"turn/started"}), SearchError::UnsafeToolUse),
+            (
+                moderation(Value::Null),
+                unexpected_notification(MODERATION_METADATA, None),
+            ),
+            (
+                json!({"method":"future/event","params":{"private":"never-log"}}),
+                unexpected_notification("future/event", None),
+            ),
+            (json!({"id":1,"result":{}}), SearchError::MalformedResponse),
+            (json!({"method":null}), SearchError::MalformedResponse),
+            (json!({"method":42}), SearchError::MalformedResponse),
+            (Value::Null, SearchError::MalformedResponse),
+            (
+                json!({"id":1,"method":"account/updated","params":{"authMode":"chatgpt"}}),
+                SearchError::UnsafeToolUse,
+            ),
+            (
+                json!({"method":"account/updated","params":{"authMode":null}}),
+                SearchError::NoLogin,
+            ),
+            (
+                json!({"method":"account/rateLimits/updated","params":{"rateLimits":{"spendControlReached":true}}}),
+                SearchError::AllowanceLimited,
+            ),
+        ] {
+            let cancel = CancellationToken::new();
+            let mut command = Command::new("/bin/sh");
+            command.args(["-c", "read line"]);
+            let mut server =
+                Server::launch(command, &cancel, Instant::now() + Duration::from_secs(3)).unwrap();
+            // Preload the queue without a timing race against the reader thread.
+            let (tx, rx) = mpsc::sync_channel(2);
+            tx.send(Ok(notification)).unwrap();
+            tx.send(Ok(
+                json!({"method":"account/rateLimits/updated","params":{"rateLimits":{}}}),
+            ))
+            .unwrap();
+            server.rx = rx;
+            server.thread_id = Some("thread".into());
+            assert_eq!(server.drain_pre_turn(), Err(expected));
+        }
+    }
+    #[cfg(unix)]
+    #[test]
+    fn pre_turn_rpc_and_drain_allow_supported_startup_without_learning_identity() {
+        let notifications = [
+            json!({"method":"remoteControl/status/changed","params":{"status":"disabled"}}),
+            json!({"method":"account/updated","params":{"authMode":"chatgpt"}}),
+            json!({"method":"account/rateLimits/updated","params":{"rateLimits":{"spendControlReached":false}}}),
+            json!({"method":"thread/started","params":{"thread":{"id":"thread","status":{"type":"idle"},"ephemeral":true,"turns":[]}}}),
+            json!({"method":"thread/status/changed","params":{"threadId":"thread","status":{"type":"idle"}}}),
+        ];
+        let cancel = CancellationToken::new();
+        let mut command = Command::new("/bin/sh");
+        let payload = notifications
+            .iter()
+            .map(Value::to_string)
+            .collect::<Vec<_>>()
+            .join("\n");
+        command.args(["-c", "read line; printf '%s\\n' \"$1\" '{\"id\":1,\"result\":{\"thread\":{\"id\":\"authoritative\"}}}'", "fake-server", &payload]);
+        let mut server =
+            Server::launch(command, &cancel, Instant::now() + Duration::from_secs(3)).unwrap();
+        assert_eq!(
+            server.rpc("thread/start", json!({})).unwrap()["thread"]["id"],
+            "authoritative"
+        );
+        assert!(server.thread_id.is_none());
+        let (tx, rx) = mpsc::sync_channel(notifications.len());
+        for notification in notifications {
+            tx.send(Ok(notification)).unwrap();
+        }
+        server.rx = rx;
+        server.thread_id = Some("thread".into());
+        assert_eq!(server.drain_pre_turn(), Ok(()));
+        assert_eq!(server.thread_id.as_deref(), Some("thread"));
     }
     fn active_collector() -> Collector {
         Collector {
