@@ -337,6 +337,7 @@ impl ThreadsUi {
             }
             list = list.child(
                 entry
+                    .actionable()
                     .build()
                     .on_click(
                         cx.listener(move |this, _, window, cx| this.open_thread(&id, window, cx)),
@@ -416,16 +417,17 @@ impl ThreadsUi {
                 ""
             };
             list = list.child(
-                row(
-                    format!("thread-{id}"),
-                    row_data.title.clone(),
-                    meta,
-                    self.chat_thread() == Some(id.as_str()),
-                )
-                .on_click(cx.listener(move |this, _, window, cx| this.open_thread(&id, window, cx)))
-                .context_menu(move |menu, _, _| {
-                    thread_menu(menu, &this, menu_id.clone(), resolved, note.clone())
-                }),
+                components::ListRow::new(format!("thread-{id}"), row_data.title.clone())
+                    .meta(meta)
+                    .selected(self.chat_thread() == Some(id.as_str()))
+                    .actionable()
+                    .build()
+                    .on_click(
+                        cx.listener(move |this, _, window, cx| this.open_thread(&id, window, cx)),
+                    )
+                    .context_menu(move |menu, _, _| {
+                        thread_menu(menu, &this, menu_id.clone(), resolved, note.clone())
+                    }),
             );
         }
         div()
@@ -545,18 +547,19 @@ impl ThreadsUi {
                     ""
                 };
                 list = list.child(
-                    row(
-                        format!("all-thread-{id}"),
-                        row_data.title.clone(),
-                        meta,
-                        self.chat_thread() == Some(id.as_str()),
-                    )
-                    .on_click(
-                        cx.listener(move |this, _, window, cx| this.open_thread(&id, window, cx)),
-                    )
-                    .context_menu(move |menu, _, _| {
-                        thread_menu(menu, &this, menu_id.clone(), resolved, note.clone())
-                    }),
+                    components::ListRow::new(format!("all-thread-{id}"), row_data.title.clone())
+                        .meta(meta)
+                        .selected(self.chat_thread() == Some(id.as_str()))
+                        .actionable()
+                        .build()
+                        .on_click(
+                            cx.listener(move |this, _, window, cx| {
+                                this.open_thread(&id, window, cx)
+                            }),
+                        )
+                        .context_menu(move |menu, _, _| {
+                            thread_menu(menu, &this, menu_id.clone(), resolved, note.clone())
+                        }),
                 );
             }
         }
@@ -807,7 +810,7 @@ impl ThreadsUi {
                     Self::protected_chip(format!("{row_id}-protected"), false),
                 );
             }
-            queue = queue.child(entry.build().on_click(
+            queue = queue.child(entry.actionable().build().on_click(
                 cx.listener(move |this, _, window, cx| this.open_thread(&id, window, cx)),
             ));
         }
@@ -1101,6 +1104,7 @@ impl ThreadsUi {
             controls = controls.child(
                 button(control)
                     .label(step.label())
+                    .accessibility_label(format!("{}: {}", step.label(), action.description))
                     .outline()
                     .compact()
                     .h(components::tokens::COMPACT_CONTROL)
@@ -1117,36 +1121,39 @@ impl ThreadsUi {
                 .map(|step| (step, record.clone(), next(step)))
                 .collect();
             controls = controls.child(
-                components::overflow_menu(format!("task-menu-{id}"), "Task actions")
-                    .accessible_dropdown_menu(move |mut menu, _, _| {
-                        let details = details.clone();
+                components::overflow_menu(
+                    format!("task-menu-{id}"),
+                    format!("Task actions: {}", action.description),
+                )
+                .accessible_dropdown_menu(move |mut menu, _, _| {
+                    let details = details.clone();
+                    menu = menu.item(item(
+                        &this,
+                        "Edit details",
+                        None,
+                        false,
+                        false,
+                        move |view, window, cx| {
+                            view.action_details_dialog(details.clone(), window, cx);
+                        },
+                    ));
+                    for (step, record, data) in items.clone() {
+                        if step == lists::TaskStep::Cancel {
+                            menu = menu.separator();
+                        }
                         menu = menu.item(item(
                             &this,
-                            "Edit details",
+                            step.label(),
                             None,
                             false,
                             false,
-                            move |view, window, cx| {
-                                view.action_details_dialog(details.clone(), window, cx);
+                            move |view, _, cx| {
+                                view.change(step.reason(), record.clone(), data.clone(), cx)
                             },
                         ));
-                        for (step, record, data) in items.clone() {
-                            if step == lists::TaskStep::Cancel {
-                                menu = menu.separator();
-                            }
-                            menu = menu.item(item(
-                                &this,
-                                step.label(),
-                                None,
-                                false,
-                                false,
-                                move |view, _, cx| {
-                                    view.change(step.reason(), record.clone(), data.clone(), cx)
-                                },
-                            ));
-                        }
-                        menu
-                    }),
+                    }
+                    menu
+                }),
             );
         }
         div()
@@ -1172,6 +1179,7 @@ impl ThreadsUi {
                     .child(
                         div()
                             .id(format!("action-description-{id}"))
+                            .role(gpui_kit::Role::Label)
                             .aria_label(action.description.clone())
                             .font_weight(gpui_kit::FontWeight::MEDIUM)
                             .text_color(rgb(p.ink))
@@ -1179,7 +1187,14 @@ impl ThreadsUi {
                             .test_support(),
                     )
                     .when(!facts.is_empty(), |text| {
-                        text.child(metadata(facts.join(" · ")))
+                        let facts = facts.join(" · ");
+                        text.child(
+                            metadata(facts.clone())
+                                .id(format!("action-facts-{id}"))
+                                .role(gpui_kit::Role::Label)
+                                .aria_label(facts)
+                                .test_support(),
+                        )
                     }),
             )
             .child(controls)
@@ -1242,8 +1257,10 @@ impl ThreadsUi {
             }
             // Done and Cancelled start collapsed, with their counts.
             let shown = collapsible.is_none_or(|key| self.open_sections.contains(key));
-            let mut group =
-                group(format!("actions-group-{key}")).child(components::section_header(
+            let mut group = group(format!("actions-group-{key}"))
+                .role(gpui_kit::Role::Group)
+                .aria_label(format!("{label} · {}", records.len()))
+                .child(components::section_header(
                     label,
                     Some(records.len()),
                     collapsible.map(|toggle| self.disclosure(toggle, records.len(), cx)),

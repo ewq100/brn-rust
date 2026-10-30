@@ -1520,7 +1520,7 @@ pub(crate) fn receipt_on(conn: &Connection, operation: &OperationId) -> Result<O
     body.map(|body| Ok(serde_json::from_str(&body)?))
         .transpose()
 }
-fn prepared_on(conn: &Connection, operation: &OperationId) -> Result<Prepared> {
+pub(crate) fn prepared_on(conn: &Connection, operation: &OperationId) -> Result<Prepared> {
     let (hash, body): (Option<String>, Option<String>) = conn
         .query_row(
             "SELECT hash,request FROM operations WHERE id=?1",

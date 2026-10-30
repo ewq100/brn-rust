@@ -134,6 +134,7 @@ pub(super) struct ListRow {
     chip: Option<(SharedString, AnyElement)>,
     tooltip: Option<SharedString>,
     selected: bool,
+    actionable: bool,
 }
 impl ListRow {
     pub(super) fn new(id: impl Into<SharedString>, title: impl Into<SharedString>) -> Self {
@@ -145,6 +146,7 @@ impl ListRow {
             chip: None,
             tooltip: None,
             selected: false,
+            actionable: false,
         }
     }
     /// A second line saying why the row needs attention.
@@ -174,6 +176,12 @@ impl ListRow {
         self.selected = selected;
         self
     }
+    /// Opt in only when the caller supplies an activation handler. Static rows
+    /// retain their existing semantics and do not become keyboard focus stops.
+    pub(super) fn actionable(mut self) -> Self {
+        self.actionable = true;
+        self
+    }
     pub(super) fn build(
         self,
     ) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
@@ -185,6 +193,7 @@ impl ListRow {
             chip,
             tooltip,
             selected,
+            actionable,
         } = self;
         let empty = SharedString::default();
         let announced = chip.as_ref().map_or(&empty, |(announced, _)| announced);
@@ -192,7 +201,17 @@ impl ListRow {
             &title,
             &[reason.as_ref().unwrap_or(&empty), &meta, announced],
         );
-        let frame = row_frame(id.clone(), full.clone(), tooltip.unwrap_or(full), selected);
+        let frame = row_frame(id.clone(), full.clone(), tooltip.unwrap_or(full), selected).when(
+            actionable,
+            |row| {
+                row.role(gpui_kit::Role::Button)
+                    .tab_index(0)
+                    // Reserve the border in both states: focus must not shift text.
+                    .border_1()
+                    .border_color(gpui_kit::rgba(0))
+                    .focus_visible(|style| style.border_color(rgb(pal().accent)))
+            },
+        );
         let first = div()
             .flex()
             .items_center()

@@ -55,6 +55,211 @@ pub struct KnowledgeCheck {
     pub findings: Vec<Finding>,
 }
 
+/// Read-only check-time evidence. Private fields prevent callers constructing
+/// an apparently validated selection from arbitrary prose/record IDs.
+#[derive(Clone)]
+pub struct KnowledgeTriage {
+    pub check: KnowledgeCheck,
+    records: BTreeMap<String, Record>,
+    candidates: Vec<Prepared>,
+}
+#[derive(Clone)]
+pub struct KnowledgeSelection {
+    pub finding: Finding,
+    pub records: Vec<Record>,
+    pub candidate: Option<Prepared>,
+    guard: KnowledgeDraftGuard,
+}
+impl Workspace {
+    pub fn knowledge_triage(&self) -> AppResult<KnowledgeTriage> {
+        let records = self.store.records()?;
+        let candidates = self.candidates()?;
+        let check = self.knowledge_check()?;
+        if records != self.store.records()? || candidates != self.candidates()? {
+            return Err(AppError::Invalid(
+                "Knowledge changed during the check. Check again.".into(),
+            ));
+        }
+        Ok(KnowledgeTriage {
+            check,
+            records: records.into_iter().map(|r| (r.id.clone(), r)).collect(),
+            candidates,
+        })
+    }
+    pub fn select_knowledge_finding(
+        &self,
+        snapshot: &KnowledgeTriage,
+        index: usize,
+    ) -> AppResult<KnowledgeSelection> {
+        let finding = snapshot
+            .check
+            .findings
+            .get(index)
+            .cloned()
+            .ok_or_else(|| AppError::Invalid("Select a listed finding".into()))?;
+        let candidate = if finding.kind == FindingKind::StaleCandidate {
+            Some(
+                snapshot
+                    .candidates
+                    .iter()
+                    .find(|p| {
+                        finding
+                            .records
+                            .first()
+                            .is_some_and(|id| p.operation.as_str() == id)
+                    })
+                    .cloned()
+                    .ok_or_else(|| {
+                        AppError::Invalid("Pending fix is unavailable. Check again.".into())
+                    })?,
+            )
+        } else {
+            None
+        };
+        let mut ids: BTreeSet<String> = finding
+            .records
+            .iter()
+            .filter(|id| {
+                candidate
+                    .as_ref()
+                    .is_none_or(|p| p.operation.as_str() != id.as_str())
+            })
+            .cloned()
+            .collect();
+        if let Some(p) = &candidate {
+            for input in &p.request.inputs {
+                ids.insert(input.record.clone());
+            }
+            for write in &p.request.writes {
+                if write.expected_version.is_some() {
+                    ids.insert(write.id.clone());
+                }
+                match &write.data {
+                    RecordData::Note(n) if n.chat.is_none() && managed_asset_ids(&n.markdown).next().is_none() => {
+                        if let Some(import) = &n.import { ids.insert(import.source.clone()); }
+                        if let Some(id) = &n.superseded_by { ids.insert(id.clone()); }
+                    }
+                    RecordData::Action(a) if a.chat.is_none() => {}
+                    RecordData::Source(source) if source.chat.is_none() => {}
+                    RecordData::Link(l) => { ids.extend([l.from.clone(), l.to.clone()]); }
+                    _ => return Err(AppError::Invalid("This proposal needs its original scoped review. Open Changes from that chat.".into())),
+                }
+            }
+        }
+        // Include visible Link endpoints for navigation and exact action-time guards.
+        let initial = ids.clone();
+        for id in initial {
+            if let Some(Record {
+                data: RecordData::Link(link),
+                ..
+            }) = snapshot.records.get(&id)
+            {
+                ids.extend([link.from.clone(), link.to.clone()]);
+            }
+        }
+        let mut records = vec![];
+        let mut missing = vec![];
+        for id in ids {
+            match snapshot.records.get(&id) {
+                Some(record) => records.push(record.clone()),
+                None => missing.push(id),
+            }
+        }
+        let guard = KnowledgeDraftGuard {
+            records: records.clone(),
+            missing,
+            candidate: candidate.clone(),
+        };
+        let selection = KnowledgeSelection {
+            finding,
+            records,
+            candidate,
+            guard,
+        };
+        self.validate_knowledge_selection(&selection)?;
+        Ok(selection)
+    }
+    pub fn validate_knowledge_selection(&self, selection: &KnowledgeSelection) -> AppResult<()> {
+        if selection.records != selection.guard.records
+            || selection.candidate != selection.guard.candidate
+        {
+            return Err(AppError::Invalid(
+                "Knowledge selection differs from its captured evidence".into(),
+            ));
+        }
+        self.store.validate_knowledge_draft(&selection.guard)?;
+        if !self
+            .knowledge_check()?
+            .findings
+            .contains(&selection.finding)
+        {
+            return Err(AppError::Invalid(
+                "This finding changed. Check knowledge again.".into(),
+            ));
+        }
+        if let Some(candidate) = &selection.candidate {
+            // Current visibility alone cannot certify old/private revision bytes.
+            for (id, version) in candidate
+                .request
+                .inputs
+                .iter()
+                .map(|i| (&i.record, i.version))
+                .chain(
+                    candidate
+                        .request
+                        .writes
+                        .iter()
+                        .filter_map(|w| w.expected_version.map(|v| (&w.id, v))),
+                )
+            {
+                let historical = self
+                    .store
+                    .revision(id, version)?
+                    .ok_or_else(|| AppError::Invalid("Proposal evidence is unavailable".into()))?;
+                let allowed = match &historical.data {
+                    RecordData::Note(_)
+                    | RecordData::Source(_)
+                    | RecordData::Action(_)
+                    | RecordData::Link(_) => {
+                        self.store.revision_visible_in_chat(id, version, None)?
+                    }
+                    _ => false,
+                };
+                if !allowed {
+                    return Err(AppError::Invalid(
+                        "Proposal has evidence outside General. Use its original scoped review."
+                            .into(),
+                    ));
+                }
+            }
+        }
+        Ok(())
+    }
+    /// Creates only a chat and an unsent composer draft. No Message or Run.
+    pub fn draft_knowledge_follow_up(
+        &mut self,
+        key: &str,
+        selection: &KnowledgeSelection,
+    ) -> AppResult<(String, ChatDraft)> {
+        self.validate_knowledge_selection(selection)?;
+        let text = format!(
+            "Review this Knowledge Check finding using current records and the maintain-notes guidance. It is a mechanical lead, not proof that a repair is needed. Explain the evidence and suggest what, if anything, should change.\n\n{:?}: {}\nAffected records: {}",
+            selection.finding.kind,
+            selection.finding.detail,
+            selection.finding.records.join(", ")
+        );
+        let receipt = self.new_thread_with_key(
+            &format!("knowledge-draft:{key}"),
+            "Knowledge follow-up draft",
+        )?;
+        let thread = &receipt.writes[0].after;
+        let draft = self
+            .store
+            .create_knowledge_draft(thread, &selection.guard, &text)?;
+        Ok((thread.id.clone(), draft))
+    }
+}
+
 fn words(text: &str) -> String {
     text.split(|c: char| !c.is_alphanumeric())
         .filter(|w| !w.is_empty())
