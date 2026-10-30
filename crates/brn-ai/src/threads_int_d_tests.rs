@@ -2926,6 +2926,7 @@ mod capture_runner {
                     || matches!(
                         name,
                         "read_candidate"
+                            | "query_actions"
                             | "apply_changes"
                             | "withdraw_proposal"
                             | "refresh_candidate"
@@ -2935,7 +2936,11 @@ mod capture_runner {
             );
             assert!(tool_activity(name).is_some());
         }
+        // Normal catalogue membership does not expand this diagnostic's
+        // frozen admission list, even for a read-only discovery tool.
+        assert!(!permitted("query_actions"));
         for mode in [
+            "query_actions",
             "prepare-success",
             "prepare-failure",
             "apply_changes",
@@ -3003,6 +3008,11 @@ mod capture_runner {
             }
             let effects_before = scope.store.lock().unwrap().receipts().unwrap();
             let effect = match mode {
+                "query_actions" => MockStreamEvent::tool_call(
+                    "query",
+                    mode,
+                    json!({"state":null,"owner":null,"due":null,"follow_up":null,"query":null,"limit":10,"cursor":null}),
+                ),
                 "apply_changes" | "withdraw_proposal" => {
                     MockStreamEvent::tool_call("effect", mode, json!({"operation":op.as_str()}))
                 }
@@ -3111,10 +3121,10 @@ mod capture_runner {
                 panic!()
             };
             assert_eq!(run.state, RunState::Interrupted);
-            if mode == "prepare_note_edit" {
+            if matches!(mode, "prepare_note_edit" | "query_actions") {
                 assert!(
                     run.operations.is_empty(),
-                    "diagnostic observer must stop the local edit before preparation"
+                    "diagnostic observer must stop unadmitted tools before any proposal is prepared"
                 );
             }
             if !matches!(mode, "missing-correlation" | "event-overflow") {
