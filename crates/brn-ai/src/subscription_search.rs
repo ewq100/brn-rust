@@ -46,7 +46,7 @@ pub struct SearchResult {
     pub sources: Vec<Source>,
     pub provenance: Provenance,
 }
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum SearchError {
     Cancelled,
     Timeout,
@@ -62,11 +62,27 @@ pub enum SearchError {
     Transport,
     MalformedResponse,
     UnsafeToolUse,
+    UnexpectedNotification {
+        method: String,
+        item_type: Option<String>,
+    },
     EmptyResults,
     ProviderFailed,
 }
 impl fmt::Display for SearchError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Self::UnexpectedNotification { method, item_type } = self {
+            return match item_type {
+                Some(kind) => write!(
+                    f,
+                    "Web search stopped on an unrecognized protocol notification ({method}, item type {kind})."
+                ),
+                None => write!(
+                    f,
+                    "Web search stopped on an unrecognized protocol notification ({method})."
+                ),
+            };
+        }
         f.write_str(match self {
             Self::Cancelled => "Web search was cancelled.",
             Self::Timeout => "Web search timed out after 60 seconds.",
@@ -82,6 +98,7 @@ impl fmt::Display for SearchError {
             Self::Transport => "The Codex App Server could not be started or disconnected.",
             Self::MalformedResponse => "The Codex App Server returned an invalid or oversized response.",
             Self::UnsafeToolUse => "Search stopped because the provider requested an unavailable capability.",
+            Self::UnexpectedNotification { .. } => unreachable!(),
             Self::EmptyResults => "The search did not return a cited answer with native source URLs.",
             Self::ProviderFailed => "The subscription provider could not complete the search.",
         })
@@ -174,6 +191,7 @@ fn run(
         .and_then(Value::as_str)
         .ok_or(SearchError::MalformedResponse)?
         .to_owned();
+    server.drain_pre_turn()?;
     let turn_request_id = server.next_id();
     server.send(json!({"id":turn_request_id,"method":"turn/start","params":{"threadId":thread,"effort":request.effort.as_str(),"model":request.selection.model,"environments":[],"input":[{"type":"text","text":request.query}]}}))?;
     let mut collector = Collector {
@@ -443,6 +461,17 @@ fn validate_model_page(
     }
     Ok(None)
 }
+fn validate_account_update(v: &Value) -> Result<(), SearchError> {
+    if v.get("method").and_then(Value::as_str) != Some("account/updated") {
+        return Ok(());
+    }
+    match v.pointer("/params/authMode") {
+        Some(Value::Null) => Err(SearchError::NoLogin),
+        Some(Value::String(mode)) if mode == "chatgpt" => Ok(()),
+        Some(Value::String(mode)) if !mode.is_empty() => Err(SearchError::WrongAccount),
+        _ => Err(SearchError::MalformedResponse),
+    }
+}
 fn validate_account(v: &Value) -> Result<(), SearchError> {
     match v.get("account") {
         None | Some(Value::Null) => Err(SearchError::NoLogin),
@@ -632,9 +661,29 @@ impl<'a> Server<'a> {
         loop {
             check(self.cancel, self.deadline)?;
             match self.rx.recv_timeout(Duration::from_millis(50)) {
-                Ok(v) => return v,
+                Ok(v) => {
+                    let value = v?;
+                    validate_account_update(&value)?;
+                    return Ok(value);
+                }
                 Err(mpsc::RecvTimeoutError::Timeout) => (),
                 Err(_) => return Err(SearchError::Transport),
+            }
+        }
+    }
+    fn drain_pre_turn(&mut self) -> Result<(), SearchError> {
+        loop {
+            check(self.cancel, self.deadline)?;
+            match self.rx.try_recv() {
+                Ok(value) => {
+                    let value = value?;
+                    validate_account_update(&value)?;
+                    if value.get("method").is_some() && value.get("id").is_some() {
+                        return Err(SearchError::UnsafeToolUse);
+                    }
+                }
+                Err(mpsc::TryRecvError::Empty) => return Ok(()),
+                Err(mpsc::TryRecvError::Disconnected) => return Err(SearchError::Transport),
             }
         }
     }
@@ -698,6 +747,25 @@ fn read_lines(stdout: impl Read, tx: SyncSender<Result<Value, SearchError>>) {
     }
 }
 
+// Only protocol labels are retained, never event parameters or payloads.
+fn bounded_label(value: &str) -> String {
+    if !value.is_empty()
+        && value.len() <= 64
+        && value
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"_/-".contains(&b))
+    {
+        value.to_owned()
+    } else {
+        "invalid-label".to_owned()
+    }
+}
+fn unexpected_notification(method: &str, item_type: Option<&str>) -> SearchError {
+    SearchError::UnexpectedNotification {
+        method: bounded_label(method),
+        item_type: item_type.map(bounded_label),
+    }
+}
 #[derive(Default)]
 struct Collector {
     answer: Option<String>,
@@ -709,6 +777,7 @@ struct Collector {
 }
 impl Collector {
     fn event(&mut self, v: &Value) -> Result<Option<(String, Vec<Source>)>, SearchError> {
+        validate_account_update(v)?;
         if v.get("method").is_some() && v.get("id").is_some() {
             return Err(SearchError::UnsafeToolUse);
         }
@@ -802,7 +871,20 @@ impl Collector {
                             }
                         }
                     }
-                    Some(_) => return Err(SearchError::UnsafeToolUse),
+                    Some(
+                        "commandExecution"
+                        | "fileChange"
+                        | "mcpToolCall"
+                        | "dynamicToolCall"
+                        | "collabAgentToolCall"
+                        | "subAgentActivity"
+                        | "imageView"
+                        | "imageGeneration"
+                        | "sleep"
+                        | "hookPrompt"
+                        | "functionCallOutput",
+                    ) => return Err(SearchError::UnsafeToolUse),
+                    Some(kind) => return Err(unexpected_notification(method, Some(kind))),
                     None => return Err(SearchError::MalformedResponse),
                 }
             }
@@ -830,14 +912,16 @@ impl Collector {
                 }
                 return Ok(Some((answer, std::mem::take(&mut self.sources))));
             }
-            "turn/started"
+            "remoteControl/status/changed"
+            | "account/updated"
+            | "turn/started"
             | "thread/started"
             | "thread/tokenUsage/updated"
             | "item/agentMessage/delta"
             | "item/reasoning/summaryTextDelta"
             | "item/reasoning/textDelta"
             | "item/reasoning/summaryPartAdded" => (),
-            _ => return Err(SearchError::UnsafeToolUse),
+            _ => return Err(unexpected_notification(method, None)),
         }
         Ok(None)
     }
@@ -961,6 +1045,39 @@ mod tests {
         );
     }
     #[test]
+    fn account_updates_require_managed_chatgpt_mode() {
+        for (mode, expected) in [
+            (json!("chatgpt"), Ok(())),
+            (json!("apikey"), Err(SearchError::WrongAccount)),
+            (Value::Null, Err(SearchError::NoLogin)),
+            (json!(42), Err(SearchError::MalformedResponse)),
+        ] {
+            let notification =
+                json!({"method":"account/updated","params":{"authMode":mode,"secret":"never-log"}});
+            assert_eq!(validate_account_update(&notification), expected.clone());
+            assert_eq!(
+                Collector::default().event(&notification),
+                expected.map(|_| None)
+            );
+        }
+        assert_eq!(
+            validate_account_update(&json!({"method":"account/updated","params":{}})),
+            Err(SearchError::MalformedResponse)
+        );
+    }
+    #[cfg(unix)]
+    #[test]
+    fn rpc_refuses_account_switch_before_response() {
+        let cancel = CancellationToken::new();
+        let mut command = Command::new("/bin/sh");
+        command.args(["-c", "read line; printf '%s\\n' '{\"method\":\"account/updated\",\"params\":{\"authMode\":\"apikey\",\"secret\":\"never-log\"}}' '{\"id\":1,\"result\":{}}'"]);
+        let mut server =
+            Server::launch(command, &cancel, Instant::now() + Duration::from_secs(3)).unwrap();
+        let error = server.rpc("thread/start", json!({})).unwrap_err();
+        assert_eq!(error, SearchError::WrongAccount);
+        assert!(!error.to_string().contains("never-log"));
+    }
+    #[test]
     fn account_requires_managed_chatgpt() {
         assert_eq!(
             validate_account(&json!({"account":null})),
@@ -983,6 +1100,8 @@ mod tests {
             ..Collector::default()
         };
         let stream = [
+            json!({"method":"remoteControl/status/changed","params":{"private":"ignored"}}),
+            json!({"method":"account/updated","params":{"authMode":"chatgpt","private":"ignored"}}),
             json!({"method":"thread/status/changed","params":{"threadId":"thread","status":{"type":"active","activeFlags":[]}}}),
             json!({"id":9,"result":{"turn":{"id":"turn"}}}),
             json!({"method":"turn/started","params":{"threadId":"thread","turn":{"id":"turn"}}}),
@@ -998,6 +1117,38 @@ mod tests {
             c.event(&complete).unwrap().unwrap().1[0].url,
             "https://example.org/source"
         );
+    }
+    #[test]
+    fn unknown_protocol_labels_are_bounded_and_do_not_include_payloads() {
+        let mut c = Collector::default();
+        assert_eq!(
+            c.event(&json!({"method":"future/event","params":{"secret":"private-payload"}})),
+            Err(SearchError::UnexpectedNotification {
+                method: "future/event".into(),
+                item_type: None
+            })
+        );
+        assert_eq!(
+            c.event(&event(
+                "item/completed",
+                json!({"type":"futureItem","secret":"private-payload"})
+            )),
+            Err(SearchError::UnexpectedNotification {
+                method: "item/completed".into(),
+                item_type: Some("futureItem".into())
+            })
+        );
+        let err = c
+            .event(&json!({"method":"x".repeat(100),"params":{"secret":"private-payload"}}))
+            .unwrap_err();
+        assert_eq!(
+            err,
+            SearchError::UnexpectedNotification {
+                method: "invalid-label".into(),
+                item_type: None
+            }
+        );
+        assert!(!err.to_string().contains("private-payload"));
     }
     #[test]
     fn lifecycle_errors_and_approval_flags_fail_closed() {
