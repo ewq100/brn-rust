@@ -7,19 +7,19 @@
     "limits": "Owner directly approved up to10 new diagnostic query attempts after reviewed fee97e09. No CI/push/ready/merge/release/UI. Earlier sessions and002 remain closed.60s per query, Solmedium, no automatic retry, stop quota/auth/safety/uncertain execution; further attempt needs concrete correction or distinct useful purpose."
   },
   "work_view": {
-    "observed_at": "2026-10-30T21:51:23.383069+00:00",
+    "observed_at": "2026-10-30T21:59:55.291699+00:00",
     "goal": "Finish subscription search and Mac acceptance with source-bound evidence.",
-    "owner_attention": "Diagnostic allocation003 used1/10; captured unstable-feature startup advisory. Local per-child configuration correction under offline checks and independent review; no live success or native acceptance yet.",
+    "owner_attention": "2/10 diagnostic attempts consumed; diagnosed startup and metadata corrections reviewed/offline-verified. Third bounded query pending; no live success or native acceptance.",
     "tasks": [
       {
         "id": "subscription-search",
         "title": "Qualify subscription-only search",
         "owner": "Existing Mac lead",
         "state": "active",
-        "activity": "Diagnosed003 startup advisory; per-child correction independently reviewed.23provider+3private-file tests, affected strictlint/build and zero-turn isolation check pass.1/10attempts used.",
-        "observed_at": "2026-10-30T21:51:23.383069+00:00",
+        "activity": "Exact acknowledged-turn metadata handler reviewed;27provider+3diagnostic tests, strictaffectedlint/build pass. Earlier failures preserved;2/10used.",
+        "observed_at": "2026-10-30T21:59:55.291699+00:00",
         "origin": "observed",
-        "next_action": "Reserve one further60-second query at committed reviewed correction; inspect actual answer/native sources and retain failed attempt1.",
+        "next_action": "Reserve third60-second query at committed reviewed handler, then inspect actual answer and native official sources; stop on failure.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -29,8 +29,8 @@
           "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
         ],
         "gates": {
-          "implementation": "reviewed per-child startup-advisory control; every emitted warning still stops",
-          "checks": "23provider+3private-file tests, affected strictlint/build/metadata pass; next live gate pending",
+          "implementation": "reviewed per-child advisory control and exact correlated presentation-metadata handler; actual policy/error/unsafe stops unchanged",
+          "checks": "27provider+3private-file tests, strictaffectedlint/build/fmt pass; live success pending",
           "integration": "local correction unpushed; PR244 remains draft at2764b52f, not merged/released",
           "native": "dialog harness only; real Mac unobserved",
           "owner_acceptance": "not claimed"
@@ -55,6 +55,13 @@
           {
             "outcome": "003attempt1 failed after0.936s; typed warning with private capture identifies unstable-feature startup advisory.1/10 consumed.",
             "change": "Per-child documented advisory control, effective-config verification; no emitted warning allowlist. Zero-turn boundary probe passed; offline checks/review precede any next launch.",
+            "evidence": [
+              "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
+            ]
+          },
+          {
+            "outcome": "003attempt2 failed after4.467s on turn/moderationMetadata; actual payload/dispatch/usage unknown.2/10 consumed.",
+            "change": "Exact-method acknowledged-turn handler follows installed envelope and upstream ephemeral presentation behavior; preserves actual terminal refusals and all other stops.",
             "evidence": [
               "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
             ]
@@ -120,8 +127,9 @@
         "next_action": "Inspect final exact-head checks and retain the draft until the outstanding search/native gates and any separate owner merge decision.",
         "depends_on": [],
         "resource_waits": [
-          "search safety hold / fresh explicit test bound",
-          "native Mac access"
+          "successful live search qualification",
+          "native Mac access",
+          "separate owner publication/integration decision"
         ],
         "evidence": [
           "docs/work/active/subscription-search-mac-acceptance/README.md",

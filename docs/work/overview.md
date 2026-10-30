@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Finish subscription search and Mac acceptance with source-bound evidence.
-**Owner attention:** Diagnostic allocation003 used1/10; captured unstable-feature startup advisory. Local per-child configuration correction under offline checks and independent review; no live success or native acceptance yet.
+**Owner attention:** 2/10 diagnostic attempts consumed; diagnosed startup and metadata corrections reviewed/offline-verified. Third bounded query pending; no live success or native acceptance.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -14,17 +14,17 @@ Task details and full history: [selected work record](active/subscription-search
 ### Qualify subscription-only search
 
 Task ID: `subscription-search`
-Owner: Existing Mac lead · State: **active** · Last observed: 2026-10-30T21:51:23.383069+00:00
-Activity: Diagnosed003 startup advisory; per-child correction independently reviewed.23provider+3private-file tests, affected strictlint/build and zero-turn isolation check pass.1/10attempts used.
-Next: Reserve one further60-second query at committed reviewed correction; inspect actual answer/native sources and retain failed attempt1.
+Owner: Existing Mac lead · State: **active** · Last observed: 2026-10-30T21:59:55.291699+00:00
+Activity: Exact acknowledged-turn metadata handler reviewed;27provider+3diagnostic tests, strictaffectedlint/build pass. Earlier failures preserved;2/10used.
+Next: Reserve third60-second query at committed reviewed handler, then inspect actual answer and native official sources; stop on failure.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** reviewed per-child startup-advisory control; every emitted warning still stops
-- **checks:** 23provider+3private-file tests, affected strictlint/build/metadata pass; next live gate pending
+- **implementation:** reviewed per-child advisory control and exact correlated presentation-metadata handler; actual policy/error/unsafe stops unchanged
+- **checks:** 27provider+3private-file tests, strictaffectedlint/build/fmt pass; live success pending
 - **integration:** local correction unpushed; PR244 remains draft at2764b52f, not merged/released
 - **native:** dialog harness only; real Mac unobserved
 - **owner acceptance:** not claimed
@@ -63,7 +63,7 @@ Task ID: `publication`
 Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T07:42:45.460648+00:00
 Activity: Draft PR244 exists and tracks the reviewed scoped candidate; no merge or release. Exact-head CI is externally authoritative at the PR checks page.
 Next: Inspect final exact-head checks and retain the draft until the outstanding search/native gates and any separate owner merge decision.
-Resource waits: search safety hold / fresh explicit test bound; native Mac access
+Resource waits: successful live search qualification; native Mac access; separate owner publication/integration decision
 
 <details>
 <summary>Gate status</summary>
@@ -80,8 +80,9 @@ Gates:
 
 Waiting:
 
-- resource: search safety hold / fresh explicit test bound
+- resource: successful live search qualification
 - resource: native Mac access
+- resource: separate owner publication/integration decision
 
 ## Completed
 
@@ -91,4 +92,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `document-workflow` — Import knowledge and produce a referenced draft
 
-Local page reflects the last saved observations in this record (2026-10-30T21:51:23.383069+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-30T21:59:55.291699+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

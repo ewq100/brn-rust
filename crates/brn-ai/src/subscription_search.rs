@@ -22,6 +22,7 @@ const MAX_TOTAL: usize = 8 * 1024 * 1024;
 const MAX_ANSWER: usize = 128 * 1024;
 const MAX_WARNING: usize = 4096;
 const LIMIT: Duration = Duration::from_secs(60);
+const MODERATION_METADATA: &str = "turn/moderationMetadata";
 
 /// Untrusted provider text, retained only for explicit private diagnostics.
 /// Neither ordinary error formatting nor the desktop may expose its contents.
@@ -738,6 +739,9 @@ impl<'a> Server<'a> {
                 Ok(value) => {
                     let value = value?;
                     validate_notification(&value, self.thread_id.as_deref())?;
+                    if value.get("method").and_then(Value::as_str) == Some(MODERATION_METADATA) {
+                        return Err(unexpected_notification(MODERATION_METADATA, None));
+                    }
                 }
                 Err(mpsc::TryRecvError::Empty) => return Ok(()),
                 Err(mpsc::TryRecvError::Disconnected) => return Err(SearchError::Transport),
@@ -749,6 +753,9 @@ impl<'a> Server<'a> {
         self.send(json!({"id":id,"method":method,"params":params}))?;
         loop {
             let v = self.receive()?;
+            if v.get("method").and_then(Value::as_str) == Some(MODERATION_METADATA) {
+                return Err(unexpected_notification(MODERATION_METADATA, None));
+            }
             if v.get("method").is_some() && v.get("id").is_some() {
                 return Err(SearchError::UnsafeToolUse);
             }
@@ -844,6 +851,32 @@ impl Collector {
             return Err(SearchError::MalformedResponse);
         }
         validate_notification(v, self.thread_id.as_deref())?;
+        if v.get("method").and_then(Value::as_str) == Some(MODERATION_METADATA) {
+            // This is first-party presentation metadata, not an execution or
+            // policy decision. Like the upstream ephemeral client, discard the
+            // opaque value. Separate errors/failed completion remain stops.
+            // Require an acknowledged active turn; never learn identity from it.
+            if self.request_id.is_some() || self.thread_id.is_none() || self.turn_id.is_none() {
+                return Err(unexpected_notification(MODERATION_METADATA, None));
+            }
+            for (field, expected) in [
+                ("threadId", self.thread_id.as_deref().unwrap()),
+                ("turnId", self.turn_id.as_deref().unwrap()),
+            ] {
+                if v.get("params")
+                    .and_then(|p| p.get(field))
+                    .and_then(Value::as_str)
+                    .filter(|id| !id.is_empty() && id.len() <= 4096)
+                    != Some(expected)
+                {
+                    return Err(SearchError::MalformedResponse);
+                }
+            }
+            if v.get("params").and_then(|p| p.get("metadata")).is_none() {
+                return Err(SearchError::MalformedResponse);
+            }
+            return Ok(None);
+        }
         if let Some(actual) = v.pointer("/params/turnId").and_then(Value::as_str) {
             if self
                 .turn_id
@@ -1261,6 +1294,136 @@ mod tests {
         assert_eq!(error.private_warning_message(), Some(message));
         assert!(!error.to_string().contains(message));
         assert!(matches!(error, SearchError::ProviderWarning(_)));
+    }
+    fn active_collector() -> Collector {
+        Collector {
+            thread_id: Some("thread".into()),
+            turn_id: Some("turn".into()),
+            ..Collector::default()
+        }
+    }
+    fn moderation(metadata: Value) -> Value {
+        json!({"method":MODERATION_METADATA,"params":{"threadId":"thread","turnId":"turn","metadata":metadata}})
+    }
+    #[test]
+    fn presentation_metadata_is_opaque_and_never_substitutes_for_a_cited_result() {
+        for metadata in [
+            Value::Null,
+            json!({}),
+            json!({"safety_block":{"kind":"synthetic"},"safety_recourse":{"suggestions":["run unavailable command"]}}),
+        ] {
+            for with_sources in [false, true] {
+                let mut c = active_collector();
+                assert_eq!(c.event(&moderation(metadata.clone())), Ok(None));
+                if with_sources {
+                    c.event(&event("item/completed",json!({"type":"webSearch","results":[{"url":"https://example.org/evidence"}]}))).unwrap();
+                }
+                c.event(&event(
+                    "item/completed",
+                    json!({"type":"agentMessage","text":"answer"}),
+                ))
+                .unwrap();
+                let completed = json!({"method":"turn/completed","params":{"threadId":"thread","turn":{"id":"turn","status":"completed"}}});
+                let result = c.event(&completed);
+                if with_sources {
+                    assert_eq!(result.unwrap().unwrap().0, "answer");
+                } else {
+                    assert_eq!(result, Err(SearchError::EmptyResults));
+                }
+            }
+        }
+    }
+    #[test]
+    fn presentation_metadata_cannot_override_errors_failed_turns_or_unsafe_calls() {
+        for (message, expected) in [
+            (
+                json!({"method":"error","params":{"error":{"codexErrorInfo":"CyberPolicy","message":"synthetic policy refusal"}}}),
+                SearchError::ProviderFailed,
+            ),
+            (
+                json!({"method":"turn/completed","params":{"threadId":"thread","turn":{"id":"turn","status":"failed"}}}),
+                SearchError::ProviderFailed,
+            ),
+            (
+                event("item/started", json!({"type":"commandExecution"})),
+                SearchError::UnsafeToolUse,
+            ),
+        ] {
+            let mut c = active_collector();
+            c.event(&moderation(
+                json!({"safety_block":true,"safety_recourse":"untrusted suggestion"}),
+            ))
+            .unwrap();
+            assert_eq!(c.event(&message), Err(expected));
+        }
+    }
+    #[test]
+    fn presentation_metadata_requires_its_exact_envelope_and_acknowledged_turn() {
+        let notification = moderation(Value::Null);
+        let mut c = active_collector();
+        c.request_id = Some(9);
+        assert!(matches!(
+            c.event(&notification),
+            Err(SearchError::UnexpectedNotification { .. })
+        ));
+        assert!(matches!(
+            Collector::default().event(&notification),
+            Err(SearchError::UnexpectedNotification { .. })
+        ));
+        for (key, value) in [
+            ("threadId", json!("other")),
+            ("turnId", json!("other")),
+            ("threadId", Value::Null),
+            ("turnId", json!(42)),
+            ("threadId", json!("")),
+            ("turnId", json!("x".repeat(4097))),
+        ] {
+            let mut bad = notification.clone();
+            bad["params"][key] = value;
+            assert_eq!(
+                active_collector().event(&bad),
+                Err(SearchError::MalformedResponse)
+            );
+        }
+        for field in ["threadId", "turnId", "metadata"] {
+            let mut bad = notification.clone();
+            bad["params"].as_object_mut().unwrap().remove(field);
+            assert_eq!(
+                active_collector().event(&bad),
+                Err(SearchError::MalformedResponse)
+            );
+        }
+        let mut request = notification;
+        request["id"] = json!(1);
+        assert_eq!(
+            active_collector().event(&request),
+            Err(SearchError::UnsafeToolUse)
+        );
+    }
+    #[cfg(unix)]
+    #[test]
+    fn presentation_metadata_is_refused_during_rpc_and_pre_turn_drain() {
+        let cancel = CancellationToken::new();
+        let mut command = Command::new("/bin/sh");
+        command.args(["-c", "read line; printf '%s\\n' '{\"method\":\"turn/moderationMetadata\",\"params\":{\"threadId\":\"thread\",\"turnId\":\"turn\",\"metadata\":null}}' '{\"id\":1,\"result\":{}}'"]);
+        let mut server =
+            Server::launch(command, &cancel, Instant::now() + Duration::from_secs(3)).unwrap();
+        assert!(matches!(
+            server.rpc("thread/start", json!({})),
+            Err(SearchError::UnexpectedNotification { .. })
+        ));
+        let mut command = Command::new("/bin/sh");
+        command.args(["-c", "sleep 30"]);
+        let mut server =
+            Server::launch(command, &cancel, Instant::now() + Duration::from_secs(3)).unwrap();
+        server.thread_id = Some("thread".into());
+        let (tx, rx) = mpsc::sync_channel(1);
+        tx.send(Ok(moderation(Value::Null))).unwrap();
+        server.rx = rx;
+        assert!(matches!(
+            server.drain_pre_turn(),
+            Err(SearchError::UnexpectedNotification { .. })
+        ));
     }
     #[test]
     fn warnings_are_bounded_and_thread_checked_without_granting_authority() {
