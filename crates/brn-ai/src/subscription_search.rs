@@ -712,12 +712,11 @@ impl Collector {
         if v.get("method").is_some() && v.get("id").is_some() {
             return Err(SearchError::UnsafeToolUse);
         }
-        if let Some(expected) = &self.thread_id {
-            if let Some(actual) = v.pointer("/params/threadId").and_then(Value::as_str) {
-                if actual != expected {
-                    return Err(SearchError::MalformedResponse);
-                }
-            }
+        if let Some(expected) = &self.thread_id
+            && let Some(actual) = v.pointer("/params/threadId").and_then(Value::as_str)
+            && actual != expected
+        {
+            return Err(SearchError::MalformedResponse);
         }
         if let Some(actual) = v.pointer("/params/turnId").and_then(Value::as_str) {
             if self
@@ -812,12 +811,11 @@ impl Collector {
                 {
                     return Err(SearchError::MalformedResponse);
                 }
-                if let Some(expected) = &self.turn_id {
-                    if v.pointer("/params/turn/id").and_then(Value::as_str)
+                if let Some(expected) = &self.turn_id
+                    && v.pointer("/params/turn/id").and_then(Value::as_str)
                         != Some(expected.as_str())
-                    {
-                        return Err(SearchError::MalformedResponse);
-                    }
+                {
+                    return Err(SearchError::MalformedResponse);
                 }
                 if v.pointer("/params/turn/status").and_then(Value::as_str) != Some("completed") {
                     return Err(SearchError::ProviderFailed);
