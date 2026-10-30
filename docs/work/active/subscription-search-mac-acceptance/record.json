@@ -7,19 +7,19 @@
     "limits": "Owner directly approved up to10 new diagnostic query attempts after reviewed fee97e09. No CI/push/ready/merge/release/UI. Earlier sessions and002 remain closed.60s per query, Solmedium, no automatic retry, stop quota/auth/safety/uncertain execution; further attempt needs concrete correction or distinct useful purpose."
   },
   "work_view": {
-    "observed_at": "2026-10-30T21:59:55.291699+00:00",
+    "observed_at": "2026-10-30T22:06:27.349506+00:00",
     "goal": "Finish subscription search and Mac acceptance with source-bound evidence.",
-    "owner_attention": "2/10 diagnostic attempts consumed; diagnosed startup and metadata corrections reviewed/offline-verified. Third bounded query pending; no live success or native acceptance.",
+    "owner_attention": "3/10 attempts consumed. Same-child explicit permission/quota-update correction reviewed and all affected offline gates pass; next bounded query pending. No live/native pass yet.",
     "tasks": [
       {
         "id": "subscription-search",
         "title": "Qualify subscription-only search",
         "owner": "Existing Mac lead",
         "state": "active",
-        "activity": "Exact acknowledged-turn metadata handler reviewed;27provider+3diagnostic tests, strictaffectedlint/build pass. Earlier failures preserved;2/10used.",
-        "observed_at": "2026-10-30T21:59:55.291699+00:00",
+        "activity": "Quota decision handling independently reviewed;31provider+3private-file tests, strictaffectedlint/build/fmt pass. Production checks explicit ordinarypermission beforeturn.",
+        "observed_at": "2026-10-30T22:06:27.349506+00:00",
         "origin": "observed",
-        "next_action": "Reserve third60-second query at committed reviewed handler, then inspect actual answer and native official sources; stop on failure.",
+        "next_action": "Reserve fourth60-second query at committed reviewed quota correction; inspect actual cited result or stop on failure.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -29,8 +29,8 @@
           "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
         ],
         "gates": {
-          "implementation": "reviewed per-child advisory control and exact correlated presentation-metadata handler; actual policy/error/unsafe stops unchanged",
-          "checks": "27provider+3private-file tests, strictaffectedlint/build/fmt pass; live success pending",
+          "implementation": "reviewed startup advisory, exact presentation metadata and explicit ordinary-admission/quota decision handling",
+          "checks": "31provider+3private-file tests, strictaffectedlint/build/fmt pass; live search pending",
           "integration": "local correction unpushed; PR244 remains draft at2764b52f, not merged/released",
           "native": "dialog harness only; real Mac unobserved",
           "owner_acceptance": "not claimed"
@@ -62,6 +62,13 @@
           {
             "outcome": "003attempt2 failed after4.467s on turn/moderationMetadata; actual payload/dispatch/usage unknown.2/10 consumed.",
             "change": "Exact-method acknowledged-turn handler follows installed envelope and upstream ephemeral presentation behavior; preserves actual terminal refusals and all other stops.",
+            "evidence": [
+              "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
+            ]
+          },
+          {
+            "outcome": "003attempt3 failed after5.614s on account/rateLimits/updated; actual snapshot/dispatch/usage unknown.3/10 consumed.",
+            "change": "Require backend ordinaryUsageAllowed true on same child before dispatch; validate quota stops on all exact rolling updates, no recovery/credit/reset inference.",
             "evidence": [
               "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
             ]

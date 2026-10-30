@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Finish subscription search and Mac acceptance with source-bound evidence.
-**Owner attention:** 2/10 diagnostic attempts consumed; diagnosed startup and metadata corrections reviewed/offline-verified. Third bounded query pending; no live success or native acceptance.
+**Owner attention:** 3/10 attempts consumed. Same-child explicit permission/quota-update correction reviewed and all affected offline gates pass; next bounded query pending. No live/native pass yet.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -14,17 +14,17 @@ Task details and full history: [selected work record](active/subscription-search
 ### Qualify subscription-only search
 
 Task ID: `subscription-search`
-Owner: Existing Mac lead · State: **active** · Last observed: 2026-10-30T21:59:55.291699+00:00
-Activity: Exact acknowledged-turn metadata handler reviewed;27provider+3diagnostic tests, strictaffectedlint/build pass. Earlier failures preserved;2/10used.
-Next: Reserve third60-second query at committed reviewed handler, then inspect actual answer and native official sources; stop on failure.
+Owner: Existing Mac lead · State: **active** · Last observed: 2026-10-30T22:06:27.349506+00:00
+Activity: Quota decision handling independently reviewed;31provider+3private-file tests, strictaffectedlint/build/fmt pass. Production checks explicit ordinarypermission beforeturn.
+Next: Reserve fourth60-second query at committed reviewed quota correction; inspect actual cited result or stop on failure.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** reviewed per-child advisory control and exact correlated presentation-metadata handler; actual policy/error/unsafe stops unchanged
-- **checks:** 27provider+3private-file tests, strictaffectedlint/build/fmt pass; live success pending
+- **implementation:** reviewed startup advisory, exact presentation metadata and explicit ordinary-admission/quota decision handling
+- **checks:** 31provider+3private-file tests, strictaffectedlint/build/fmt pass; live search pending
 - **integration:** local correction unpushed; PR244 remains draft at2764b52f, not merged/released
 - **native:** dialog harness only; real Mac unobserved
 - **owner acceptance:** not claimed
@@ -92,4 +92,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `document-workflow` — Import knowledge and produce a referenced draft
 
-Local page reflects the last saved observations in this record (2026-10-30T21:59:55.291699+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-30T22:06:27.349506+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
