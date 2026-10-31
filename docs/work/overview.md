@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Integrate the reviewed subscription-search fixes and preserve separate native acceptance gaps.
-**Owner attention:** PR244 merge is requested. The pre-turn correction is committed and independently reviewed;35 provider tests,3 private-file tests and strict affected lint/build pass. Push starts CI. Confirm included Actions capacity or a paid CI bound to resolve the earlier exhausted-minutes hold. Native acceptance stays pending.
+**Owner attention:** Owner approved required CI and normal PR244 integration. Offline gates and independent review pass; publication/exact-head checks are next. Native Mac acceptance remains pending; no owner action is currently required.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,7 +11,25 @@ Task details and full history: [selected work record](active/subscription-search
 
 ## Working on
 
-None recorded.
+### Integrate reviewed fixes through required CI
+
+Task ID: `publication`
+Owner: Existing Mac lead · State: **active** · Last observed: 2026-10-31T03:16:12.194215+00:00
+Activity: Owner cleared the Actions hold. Reviewed product22f3860e and final evidencec7c6c96a are unchanged; normal PR244 push/CI/integration now proceeding.
+Next: Push the approved reviewed candidate to existing PR244, verify remote identity and all four exact-head required CI results, mark ready and merge normally only after pass; then verify resulting main.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.
+- **checks:** PASS:35 provider+3 private-file tests, strict AI/application/desktop lint, example build, formatting and docs checks. Required exact-head hosted CI pending.
+- **integration:** Owner-approved publication/CI/merge; exact-head CI and normal merge pending. No release.
+- **native:** Known Mac UI gap remains pending; integration request does not establish native acceptance.
+- **owner acceptance:** not claimed
+
+</details>
 
 ## Next
 
@@ -39,31 +57,6 @@ Gates:
 
 </details>
 
-### Integrate reviewed fixes through required CI
-
-Task ID: `publication`
-Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T23:32:00.866195+00:00
-Activity: Pre-turn discard defect reproduced, fixed at 22f3860e and independently reviewed. All affected offline gates pass. No push or new hosted CI; budget clarification pending.
-Next: After owner confirms included Actions capacity or a paid CI bound, push the reviewed local commits to existing PR244, verify exact-head required CI, mark ready, merge normally and verify resulting main.
-Resource waits: Actions capacity or bounded paid-CI authorization
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.
-- **checks:** PASS:35 provider+3 private-file tests, strict AI/application/desktop lint, example build, formatting and docs checks. Required exact-head hosted CI pending.
-- **integration:** Owner-requested normal merge pending; all corrections/evidence remain local. Actions budget clarification required before push; no release.
-- **native:** Known Mac UI gap remains pending; integration request does not establish native acceptance.
-- **owner acceptance:** not claimed
-
-</details>
-
-Waiting:
-
-- resource: Actions capacity or bounded paid-CI authorization
-
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
@@ -73,4 +66,4 @@ Completion here means the selected task scope is complete; it does not establish
 - `subscription-search` — Qualify subscription-only search
 - `document-workflow` — Import knowledge and produce a referenced draft
 
-Local page reflects the last saved observations in this record (2026-10-30T23:32:00.866195+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-31T03:16:12.194215+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

@@ -3,13 +3,13 @@
     "main": "89e6221afc8d6b036b7b5a1bcfe4b7cc23871583"
   },
   "authority": {
-    "source": "Direct owner31October request to PR and merge244 after successful diagnostic qualification; prior issue243 scope and disclosed native gap retained.",
-    "limits": "Normal PR publication and merge requested after required exact-head and resulting-main checks. Earlier explicit CI/billing hold needs confirmation of included capacity or bounded paid CI before push starts Actions. No more model calls, UI interaction or release; all live allocations remain closed."
+    "source": "Direct owner31October PR-and-merge request for244, then Approved to the explicit required-CI/publication budget clarification.",
+    "limits": "Normal PR244 publication, required exact-head CI, normal merge after pass and resulting-main verification approved. No billing-setting changes, purchases, check bypass, release, UI or additional model calls; closed live allocations remain closed."
   },
   "work_view": {
-    "observed_at": "2026-10-30T23:32:00.866195+00:00",
+    "observed_at": "2026-10-31T03:16:12.194215+00:00",
     "goal": "Integrate the reviewed subscription-search fixes and preserve separate native acceptance gaps.",
-    "owner_attention": "PR244 merge is requested. The pre-turn correction is committed and independently reviewed;35 provider tests,3 private-file tests and strict affected lint/build pass. Push starts CI. Confirm included Actions capacity or a paid CI bound to resolve the earlier exhausted-minutes hold. Native acceptance stays pending.",
+    "owner_attention": "Owner approved required CI and normal PR244 integration. Offline gates and independent review pass; publication/exact-head checks are next. Native Mac acceptance remains pending; no owner action is currently required.",
     "tasks": [
       {
         "id": "subscription-search",
@@ -135,15 +135,13 @@
         "id": "publication",
         "title": "Integrate reviewed fixes through required CI",
         "owner": "Existing Mac lead",
-        "state": "blocked",
-        "activity": "Pre-turn discard defect reproduced, fixed at 22f3860e and independently reviewed. All affected offline gates pass. No push or new hosted CI; budget clarification pending.",
-        "observed_at": "2026-10-30T23:32:00.866195+00:00",
+        "state": "active",
+        "activity": "Owner cleared the Actions hold. Reviewed product22f3860e and final evidencec7c6c96a are unchanged; normal PR244 push/CI/integration now proceeding.",
+        "observed_at": "2026-10-31T03:16:12.194215+00:00",
         "origin": "observed",
-        "next_action": "After owner confirms included Actions capacity or a paid CI bound, push the reviewed local commits to existing PR244, verify exact-head required CI, mark ready, merge normally and verify resulting main.",
+        "next_action": "Push the approved reviewed candidate to existing PR244, verify remote identity and all four exact-head required CI results, mark ready and merge normally only after pass; then verify resulting main.",
         "depends_on": [],
-        "resource_waits": [
-          "Actions capacity or bounded paid-CI authorization"
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/subscription-search-mac-acceptance/README.md",
           "https://github.com/ewq100/brn-rust/pull/244",
@@ -153,7 +151,7 @@
         "gates": {
           "implementation": "PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.",
           "checks": "PASS:35 provider+3 private-file tests, strict AI/application/desktop lint, example build, formatting and docs checks. Required exact-head hosted CI pending.",
-          "integration": "Owner-requested normal merge pending; all corrections/evidence remain local. Actions budget clarification required before push; no release.",
+          "integration": "Owner-approved publication/CI/merge; exact-head CI and normal merge pending. No release.",
           "native": "Known Mac UI gap remains pending; integration request does not establish native acceptance.",
           "owner_acceptance": "not claimed"
         },
