@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Integrate the reviewed subscription-search fixes and preserve separate native acceptance gaps.
-**Owner attention:** Owner approved required CI and normal PR244 integration. Offline gates and independent review pass; publication/exact-head checks are next. Native Mac acceptance remains pending; no owner action is currently required.
+**Owner attention:** PR244 head8094dcf2 is published. GitHub blocked all CI jobs before execution with an account payment/spending-limit restriction. Resolve GitHub billing admission; no settings changed or merge attempted. Native acceptance remains pending.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,25 +11,7 @@ Task details and full history: [selected work record](active/subscription-search
 
 ## Working on
 
-### Integrate reviewed fixes through required CI
-
-Task ID: `publication`
-Owner: Existing Mac lead · State: **active** · Last observed: 2026-10-31T03:16:12.194215+00:00
-Activity: Owner cleared the Actions hold. Reviewed product22f3860e and final evidencec7c6c96a are unchanged; normal PR244 push/CI/integration now proceeding.
-Next: Push the approved reviewed candidate to existing PR244, verify remote identity and all four exact-head required CI results, mark ready and merge normally only after pass; then verify resulting main.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.
-- **checks:** PASS:35 provider+3 private-file tests, strict AI/application/desktop lint, example build, formatting and docs checks. Required exact-head hosted CI pending.
-- **integration:** Owner-approved publication/CI/merge; exact-head CI and normal merge pending. No release.
-- **native:** Known Mac UI gap remains pending; integration request does not establish native acceptance.
-- **owner acceptance:** not claimed
-
-</details>
+None recorded.
 
 ## Next
 
@@ -51,11 +33,36 @@ Gates:
 
 - **implementation:** reviewed scoped candidate
 - **checks:** 24 page +3 Capture +3 search harness tests
-- **integration:** draft PR244; not merged or released
+- **integration:** PR244 published at8094dcf2; current required CI blocked before execution by GitHub billing; not merged or released.
 - **native:** blocked; no native apps exposed
 - **owner acceptance:** not claimed
 
 </details>
+
+### Integrate reviewed fixes through required CI
+
+Task ID: `publication`
+Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-31T03:17:19.108074+00:00
+Activity: Published and remote-verified8094dcf2. CI41163642499 terminal failure: seven jobs, zero executed steps; payment/spending-limit annotations. No rerun, ready transition or merge.
+Next: After owner resolves GitHub account billing admission, publish this docs-only checkpoint once, verify the resulting exact head required CI, mark ready and merge normally after pass; then verify main. Existing integration approval remains valid.
+Resource waits: GitHub account billing admission for required Actions jobs
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.
+- **checks:** PASS:35 provider+3 private-file tests, strict affected lint/build/fmt/docs. Hosted exact-headCI41163642499 BLOCKED before execution, not passed.
+- **integration:** PUBLISHED:8094dcf2 remote verified. Draft PR244 unmerged; all four required hosted checks unsatisfied because GitHub billing admission failed.
+- **native:** Known Mac UI gap remains pending; integration request does not establish native acceptance.
+- **owner acceptance:** not claimed
+
+</details>
+
+Waiting:
+
+- resource: GitHub account billing admission for required Actions jobs
 
 ## Completed
 
@@ -66,4 +73,4 @@ Completion here means the selected task scope is complete; it does not establish
 - `subscription-search` — Qualify subscription-only search
 - `document-workflow` — Import knowledge and produce a referenced draft
 
-Local page reflects the last saved observations in this record (2026-10-31T03:16:12.194215+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-10-31T03:17:19.108074+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
