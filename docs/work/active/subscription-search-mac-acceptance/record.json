@@ -1,0 +1,164 @@
+{
+  "baseline": {
+    "main": "89e6221afc8d6b036b7b5a1bcfe4b7cc23871583"
+  },
+  "authority": {
+    "source": "Owner PR-and-merge request, Approved for required CI and normal integration, then4November should be ok now after the observed GitHub billing execution block.",
+    "limits": "Normal PR244 publication, required exact-head CI, normal merge after pass and resulting-main verification approved. No billing-setting changes, purchases, check bypass, release, UI or additional model calls; closed live allocations remain closed."
+  },
+  "work_view": {
+    "observed_at": "2026-11-04T08:55:43.945878+00:00",
+    "goal": "Integrate the reviewed subscription-search fixes and preserve separate native acceptance gaps.",
+    "owner_attention": "Owner reports GitHub admission should now work. PR244/main/source reconciled unchanged; normal final-head CI is being resumed. Native acceptance remains pending; no further model calls or settings changes.",
+    "tasks": [
+      {
+        "id": "subscription-search",
+        "title": "Qualify subscription-only search",
+        "owner": "Existing Mac lead",
+        "state": "complete",
+        "activity": "Attempt4 completed in9.581s on fefc1e8b with actual native sources; two official citations manually verified.4/10used, allocation closed;31provider+3private-file tests/strictlint/build pass.",
+        "observed_at": "2026-10-30T22:09:34.860015+00:00",
+        "origin": "observed",
+        "next_action": "Preserve the closed live qualification and reviewed production source; no further model call. Native acceptance and integration remain separate gates.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/subscription-search-mac-acceptance/README.md",
+          "https://github.com/ewq100/brn-rust/pull/244",
+          "docs/work/active/subscription-search-mac-acceptance/warning-diagnostics.md",
+          "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md",
+          "docs/work/active/subscription-search-mac-acceptance/diagnostic-003-result.json"
+        ],
+        "gates": {
+          "implementation": "reviewed startup advisory, exact presentation metadata and explicit ordinary-admission/quota decision handling",
+          "checks": "PASS:31provider+3private-file tests, strictaffectedlint/build/fmt; single live cited SQLite query on fefc1e8b",
+          "integration": "PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.",
+          "native": "dialog harness only; real Mac unobserved",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": [
+          {
+            "outcome": "Initial search stopped with UnsafeToolUse; original triggering event unknown. One attempt consumed.",
+            "change": "Stop dependent live search, fix diagnosed offline protocol/account handling, retain unqualified verdict.",
+            "evidence": [
+              "docs/work/active/subscription-search-mac-acceptance/README.md",
+              "https://github.com/ewq100/brn-rust/pull/244"
+            ]
+          },
+          {
+            "outcome": "search-qualification-002 failed after1.406s on warning; single attempt consumed and closed.",
+            "change": "Owner requested local diagnosis/fix; preserve failed receipt and stop warnings with private opt-in diagnostics.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/issues/243#issuecomment-6522947555",
+              "docs/work/active/subscription-search-mac-acceptance/warning-diagnostics.md"
+            ]
+          },
+          {
+            "outcome": "003attempt1 failed after0.936s; typed warning with private capture identifies unstable-feature startup advisory.1/10 consumed.",
+            "change": "Per-child documented advisory control, effective-config verification; no emitted warning allowlist. Zero-turn boundary probe passed; offline checks/review precede any next launch.",
+            "evidence": [
+              "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
+            ]
+          },
+          {
+            "outcome": "003attempt2 failed after4.467s on turn/moderationMetadata; actual payload/dispatch/usage unknown.2/10 consumed.",
+            "change": "Exact-method acknowledged-turn handler follows installed envelope and upstream ephemeral presentation behavior; preserves actual terminal refusals and all other stops.",
+            "evidence": [
+              "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
+            ]
+          },
+          {
+            "outcome": "003attempt3 failed after5.614s on account/rateLimits/updated; actual snapshot/dispatch/usage unknown.3/10 consumed.",
+            "change": "Require backend ordinaryUsageAllowed true on same child before dispatch; validate quota stops on all exact rolling updates, no recovery/credit/reset inference.",
+            "evidence": [
+              "docs/work/active/subscription-search-mac-acceptance/diagnostic-allocation-003.md"
+            ]
+          },
+          {
+            "outcome": "003attempt4 PASSED9.581s on fefc1e8b; completed answer plus12native sources, two official citations verified read-only.4/10used; allocation closed.",
+            "change": "Stop live work after sufficient bounded witness; preserve failed attempts, no CI/push/merge or native claims.",
+            "evidence": [
+              "docs/work/active/subscription-search-mac-acceptance/diagnostic-003-result.json"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "native-mac",
+        "title": "Observe actual Mac controls",
+        "owner": "Existing Mac lead",
+        "state": "blocked",
+        "activity": "Label repair and page/Capture/dialog harness checks pass; native inventory reported locked.",
+        "observed_at": "2026-10-30T07:42:45.460648+00:00",
+        "origin": "observed",
+        "next_action": "Run one bounded synthetic native session only when owner makes native access available.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/subscription-search-mac-acceptance/README.md",
+          "https://github.com/ewq100/brn-rust/pull/244"
+        ],
+        "gates": {
+          "implementation": "reviewed scoped candidate",
+          "checks": "24 page +3 Capture +3 search harness tests",
+          "integration": "PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.",
+          "native": "blocked; no native apps exposed",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "document-workflow",
+        "title": "Import knowledge and produce a referenced draft",
+        "owner": "Existing Mac lead",
+        "state": "complete",
+        "activity": "Five Sol-medium BRN Runs passed; repeat intake nonduplicates, exact edit candidate and later-owner stale refusal/dismissal verified.",
+        "observed_at": "2026-10-30T07:42:45.460648+00:00",
+        "origin": "observed",
+        "next_action": "Preserve sanitized receipts and existing synthetic data; no repeat model call.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/subscription-search-mac-acceptance/README.md",
+          "https://github.com/ewq100/brn-rust/pull/244"
+        ],
+        "gates": {
+          "implementation": "reviewed scoped candidate",
+          "checks": "exact candidate and fresh-process byte checks;6/12 total attempts including failed search",
+          "integration": "PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.",
+          "native": "headless only",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      },
+      {
+        "id": "publication",
+        "title": "Integrate reviewed fixes through required CI",
+        "owner": "Existing Mac lead",
+        "state": "active",
+        "activity": "Resumed after owner report. Preserved the prior zero-step billing failure; publishing docs-only checkpoint and resumption before normal exact-head CI. Product source remains reviewed22f3860e.",
+        "observed_at": "2026-11-04T08:55:43.945878+00:00",
+        "origin": "observed",
+        "next_action": "Verify the new remote head and hosted job execution. Wait for all four required exact-head contexts, mark ready and merge normally after pass, then verify integrated main and resulting-main CI.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/subscription-search-mac-acceptance/README.md",
+          "https://github.com/ewq100/brn-rust/pull/244",
+          "docs/work/active/subscription-search-mac-acceptance/integration.md",
+          "docs/work/active/subscription-search-mac-acceptance/integration-offline-result.json",
+          "docs/work/active/subscription-search-mac-acceptance/integration-ci-result.json",
+          "https://github.com/ewq100/brn-rust/actions/runs/41163642499"
+        ],
+        "gates": {
+          "implementation": "PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.",
+          "checks": "Local35 provider+3 private-file tests, strict affected lint/build/fmt/docs passed on unchanged product. Fresh exact-head hosted CI pending; prior billing-blocked failure retained.",
+          "integration": "Owner-approved normal PR244 integration resumed; no merge until required exact-head checks pass.",
+          "native": "Known Mac UI gap remains pending; integration request does not establish native acceptance.",
+          "owner_acceptance": "not claimed"
+        },
+        "attempts": []
+      }
+    ]
+  }
+}

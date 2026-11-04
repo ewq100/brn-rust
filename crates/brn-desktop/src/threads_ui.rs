@@ -36,6 +36,8 @@ mod capture;
 mod chat;
 #[path = "threads_run_activity.rs"]
 mod run_activity;
+#[path = "threads_web_search.rs"]
+mod web_search;
 use run_activity::{Event as RunActivityEvent, RunActivity};
 #[path = "threads_components.rs"]
 mod components;
@@ -475,6 +477,7 @@ struct ThreadsUi {
     refresh_names: BTreeMap<String, String>,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
     worker: Option<Worker>,
+    web_search: web_search::WebSearch,
     stream: String,
     progress: String,
     run_activity: RunActivity,
@@ -745,6 +748,7 @@ impl ThreadsUi {
             refresh_names: BTreeMap::new(),
             assets: Arc::new(BTreeMap::new()),
             worker: None,
+            web_search: web_search::WebSearch::default(),
             stream: String::new(),
             progress: String::new(),
             run_activity: RunActivity::default(),
@@ -842,6 +846,7 @@ impl ThreadsUi {
             self.candidates = self.workspace.candidates()?;
             self.buffers = self.workspace.store.recovery_buffers()?;
             let settings = self.workspace.settings()?;
+            self.reconcile_web_settings(&settings);
             self.provider_form = ProviderForm::from_settings(&settings);
             self.settings = settings;
             self.topics = self.workspace.topics()?;
@@ -2746,6 +2751,7 @@ impl ThreadsUi {
             .map(|_| self.stream.as_str())
     }
     fn poll_worker(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.poll_web_search(cx);
         let Some(worker) = &self.worker else {
             return;
         };
@@ -2836,6 +2842,7 @@ impl ThreadsUi {
                     if let Err(error) = self.workspace.configure(settings.clone()) {
                         self.fail(error.to_string());
                     } else {
+                        self.reconcile_web_settings(&settings);
                         self.settings = settings;
                     }
                 }

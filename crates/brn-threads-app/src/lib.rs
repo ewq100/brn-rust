@@ -41,6 +41,7 @@ mod review_groups;
 pub mod search;
 mod settings;
 mod skills;
+pub mod subscription_search;
 pub use settings::HELPER_TESTED_NOTE;
 pub use skills::LoadedSkillDetails;
 #[cfg(any(target_os = "macos", target_os = "linux"))]

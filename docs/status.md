@@ -2,7 +2,12 @@
 
 Open the [development overview](work/overview.md) for current work, next actions, attention items and a compact completed-task index. It is generated from the selected task record; detailed gates, evidence and attempts remain in that record and its linked receipts. A remote page shows the last published checkpoint, not live agent activity.
 
-Current assignment: [Knowledge triage, accessibility and CI helper reuse](work/active/knowledge-triage-accessibility-ci/record.json), projected into the overview. Its [baseline and scope](work/active/knowledge-triage-accessibility-ci/baseline.md) records three bounded tracks and the unresolved prior merge gate. New publication is draft-only. The renderer defaults to this selected record.
+Current assignment: [subscription search and Mac acceptance — issue 243](work/active/subscription-search-mac-acceptance/record.json), with [source-bound results and remaining gates](work/active/subscription-search-mac-acceptance/README.md). The overview projects that record. PR 244 is draft; the synthetic headless workflow and a bounded real-model public search passed. Reviewed search corrections/evidence are published at PR244 head `8094dcf2`. The owner approved normal integration and on4November reported that CI admission should work again; required exact-head checks are being resumed. The earlier zero-step billing failure is preserved. The [integration checkpoint](work/active/subscription-search-mac-acceptance/integration.md) records passing offline gates and the exact hosted failure. Native access is blocked; no merge or release. Earlier batch records below are dated evidence, not current dispatch or permission.
+
+The previous [Knowledge/accessibility/CI batch](work/active/knowledge-triage-accessibility-ci/record.json) is retained unchanged as history.
+
+<details>
+<summary>Earlier status snapshot — superseded by the current task record</summary>
 
 PR230–232 are merged through `ed1e3979`; [resulting-main CI](https://github.com/ewq100/brn-rust/actions/runs/40422473703) passed seven supported jobs, with three optional Windows failures. PR233 remains blocked by its refreshed-head Linux core test failure; PR234 waits unmerged. The [prior Capture/follow-up record](work/active/capture-followup-reliability/record.json) preserves dated implementation and qualification history; its old pending labels are not live state.
 
@@ -11,6 +16,8 @@ PR227–229 are merged through `bc699c41`. The earlier [follow-ups/inbox/Restore
 The [prior daily-use batch](work/active/daily-use-reliability/record.json) was merged in PR226 as `f60c5a2f`; its saved pre-merge labels remain dated observations. The current record owns the remaining resulting-main CI reconciliation. The canonical decision backlog stays at its existing location; no second backlog is created.
 
 The earlier [vacation campaign](work/active/vacation-campaign/campaign.json) and its remote owner Page are historical projections, not live execution or this batch's tracker. Their source-bound receipts remain evidence. The [documentation index](README.md) routes product and architecture questions.
+
+</details>
 
 Useful result routes:
 
