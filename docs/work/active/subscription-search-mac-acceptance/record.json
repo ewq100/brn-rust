@@ -3,13 +3,13 @@
     "main": "89e6221afc8d6b036b7b5a1bcfe4b7cc23871583"
   },
   "authority": {
-    "source": "Direct owner31October PR-and-merge request for244, then Approved to the explicit required-CI/publication budget clarification.",
+    "source": "Owner PR-and-merge request, Approved for required CI and normal integration, then4November should be ok now after the observed GitHub billing execution block.",
     "limits": "Normal PR244 publication, required exact-head CI, normal merge after pass and resulting-main verification approved. No billing-setting changes, purchases, check bypass, release, UI or additional model calls; closed live allocations remain closed."
   },
   "work_view": {
-    "observed_at": "2026-10-31T03:17:19.108074+00:00",
+    "observed_at": "2026-11-04T08:55:43.945878+00:00",
     "goal": "Integrate the reviewed subscription-search fixes and preserve separate native acceptance gaps.",
-    "owner_attention": "PR244 head8094dcf2 is published. GitHub blocked all CI jobs before execution with an account payment/spending-limit restriction. Resolve GitHub billing admission; no settings changed or merge attempted. Native acceptance remains pending.",
+    "owner_attention": "Owner reports GitHub admission should now work. PR244/main/source reconciled unchanged; normal final-head CI is being resumed. Native acceptance remains pending; no further model calls or settings changes.",
     "tasks": [
       {
         "id": "subscription-search",
@@ -19,7 +19,7 @@
         "activity": "Attempt4 completed in9.581s on fefc1e8b with actual native sources; two official citations manually verified.4/10used, allocation closed;31provider+3private-file tests/strictlint/build pass.",
         "observed_at": "2026-10-30T22:09:34.860015+00:00",
         "origin": "observed",
-        "next_action": "Preserve closed qualification and unpushed reviewed code/evidence; no more live calls. Native and publication remain separate gates.",
+        "next_action": "Preserve the closed live qualification and reviewed production source; no further model call. Native acceptance and integration remain separate gates.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -32,7 +32,7 @@
         "gates": {
           "implementation": "reviewed startup advisory, exact presentation metadata and explicit ordinary-admission/quota decision handling",
           "checks": "PASS:31provider+3private-file tests, strictaffectedlint/build/fmt; single live cited SQLite query on fefc1e8b",
-          "integration": "PR244 published at8094dcf2; current required CI blocked before execution by GitHub billing; not merged or released.",
+          "integration": "PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.",
           "native": "dialog harness only; real Mac unobserved",
           "owner_acceptance": "not claimed"
         },
@@ -101,7 +101,7 @@
         "gates": {
           "implementation": "reviewed scoped candidate",
           "checks": "24 page +3 Capture +3 search harness tests",
-          "integration": "PR244 published at8094dcf2; current required CI blocked before execution by GitHub billing; not merged or released.",
+          "integration": "PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.",
           "native": "blocked; no native apps exposed",
           "owner_acceptance": "not claimed"
         },
@@ -125,7 +125,7 @@
         "gates": {
           "implementation": "reviewed scoped candidate",
           "checks": "exact candidate and fresh-process byte checks;6/12 total attempts including failed search",
-          "integration": "PR244 published at8094dcf2; current required CI blocked before execution by GitHub billing; not merged or released.",
+          "integration": "PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.",
           "native": "headless only",
           "owner_acceptance": "not claimed"
         },
@@ -135,15 +135,13 @@
         "id": "publication",
         "title": "Integrate reviewed fixes through required CI",
         "owner": "Existing Mac lead",
-        "state": "blocked",
-        "activity": "Published and remote-verified8094dcf2. CI41163642499 terminal failure: seven jobs, zero executed steps; payment/spending-limit annotations. No rerun, ready transition or merge.",
-        "observed_at": "2026-10-31T03:17:19.108074+00:00",
+        "state": "active",
+        "activity": "Resumed after owner report. Preserved the prior zero-step billing failure; publishing docs-only checkpoint and resumption before normal exact-head CI. Product source remains reviewed22f3860e.",
+        "observed_at": "2026-11-04T08:55:43.945878+00:00",
         "origin": "observed",
-        "next_action": "After owner resolves GitHub account billing admission, publish this docs-only checkpoint once, verify the resulting exact head required CI, mark ready and merge normally after pass; then verify main. Existing integration approval remains valid.",
+        "next_action": "Verify the new remote head and hosted job execution. Wait for all four required exact-head contexts, mark ready and merge normally after pass, then verify integrated main and resulting-main CI.",
         "depends_on": [],
-        "resource_waits": [
-          "GitHub account billing admission for required Actions jobs"
-        ],
+        "resource_waits": [],
         "evidence": [
           "docs/work/active/subscription-search-mac-acceptance/README.md",
           "https://github.com/ewq100/brn-rust/pull/244",
@@ -154,8 +152,8 @@
         ],
         "gates": {
           "implementation": "PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.",
-          "checks": "PASS:35 provider+3 private-file tests, strict affected lint/build/fmt/docs. Hosted exact-headCI41163642499 BLOCKED before execution, not passed.",
-          "integration": "PUBLISHED:8094dcf2 remote verified. Draft PR244 unmerged; all four required hosted checks unsatisfied because GitHub billing admission failed.",
+          "checks": "Local35 provider+3 private-file tests, strict affected lint/build/fmt/docs passed on unchanged product. Fresh exact-head hosted CI pending; prior billing-blocked failure retained.",
+          "integration": "Owner-approved normal PR244 integration resumed; no merge until required exact-head checks pass.",
           "native": "Known Mac UI gap remains pending; integration request does not establish native acceptance.",
           "owner_acceptance": "not claimed"
         },

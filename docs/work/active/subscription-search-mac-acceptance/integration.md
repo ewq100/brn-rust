@@ -52,3 +52,12 @@ After the owner’s direct approval, the reviewed commits and approval checkpoin
 [CI41163642499](https://github.com/ewq100/brn-rust/actions/runs/41163642499) is terminal **failure before execution**. All seven jobs have zero steps. Their failure annotations say the account has a payment or spending-limit restriction. This is not a compiled/tested product failure and not a passing check. The separate macOS-capacity notices do not explain the shared blocking failure. The [sanitized hosted receipt](integration-ci-result.json) retains exact head, job IDs, timestamps and failure annotations.
 
 All four required contexts remain unsatisfied. No blind rerun, billing/security/protection change, ready transition, merge or release is attempted. The owner needs to resolve GitHub account billing admission; the existing approval already covers continuing normal required CI/integration afterward. Actual charges are not exposed and are not inferred from the zero-step result. This local checkpoint is not pushed while admission remains blocked, avoiding another futile CI trigger; the PR and issue carry the remotely visible status.
+
+
+## 4 November resumption
+
+The owner reports admission “should be ok now.” Actual Git reconciliation still finds main89e6221a and remote PR244 head8094dcf2; the saved91390dcf checkpoint is docs-only. The provider source still matches the independently reviewed/offline-qualified SHA2564c66c42960e4bc0e0d8761e929b525cb5439d9532928acfbfdeb0ce076263524. No production change, new model request or UI interaction is needed.
+
+Repository metadata now reports public; the Mac lead did not change visibility. Only reviewed code and sanitized technical receipts are published. Raw account metadata, warning payloads, identity keys, credentials and private stores remain local. Main’s classic protection read reports404/“Branch not protected”; branch rules and repository rulesets are checked separately. The four repository-declared required contexts remain manual integration gates regardless of hosting enforcement. No gate is bypassed.
+
+Publish the saved failure receipt and this resumption checkpoint once. Fresh actual job execution must establish CI admission; the owner’s report is not itself a passing check. Keep the old billing-blocked run as historical evidence. Follow the PR’s exact-head results, then normal merge and separate resulting-main checks; no release.
