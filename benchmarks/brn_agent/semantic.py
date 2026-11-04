@@ -31,6 +31,8 @@ def prepare(root, suite_path, manifest_path, truth_path=None):
             raise ValueError('Checkpoint grading requires a positive frozen event count')
         if case.get('checkpoint_aggregation', 'minimum') != 'minimum':
             raise ValueError('Unsupported predeclared checkpoint aggregation')
+        if case.get('criterion_aggregation', {}) not in ({}, {'downstream_usefulness':'final'}):
+            raise ValueError('Unsupported criterion aggregation')
         required = case.get('grade_checkpoints', list(range(1, events + 1)))
         if not isinstance(required, list) or not required or any(type(n) is not int or not 1 <= n <= events for n in required) or required != sorted(set(required)):
             raise ValueError('Grade checkpoints must be sorted unique candidate-event numbers')
@@ -52,6 +54,8 @@ def prepare(root, suite_path, manifest_path, truth_path=None):
                                            scenario=attempt['scenario'], step=number,
                                            manifest_path=manifest_path, truth_path=truth_path)
             packet['criteria'] = case['criteria']
+            if case.get('criterion_aggregation'):
+                packet['criterion_aggregation'] = case['criterion_aggregation']
             packet['scale'] = {'0': 'failed', '1': 'seriously flawed', '2': 'material correction required',
                                '3': 'minor correction required', '4': 'meets criterion'}
             packet['events'] = [{k: step[k] for k in ('index', 'kind', 'terminal', 'answer', 'operations', 'receipts') if k in step}
@@ -71,9 +75,12 @@ def prepare(root, suite_path, manifest_path, truth_path=None):
             'scope': 'All predeclared candidate-event checkpoints; per-criterion minimum gives one grade per attempt.'}
 
 
-def import_controlled(root, suite_path, manifest_path, prepared, replies, revision, truth_path=None):
+def import_controlled(root, suite_path, manifest_path, prepared, replies, revision, truth_path=None, *, review_kind='controlled-fixture'):
     if not isinstance(revision, str) or not revision.strip():
         raise ValueError('An explicit controlled grader revision is required')
+    if review_kind not in ('controlled-fixture', 'independent-review'):
+        raise ValueError('Unknown review origin')
+    prefix = 'independent:' if review_kind == 'independent-review' else 'controlled:'
     expected = prepare(root, suite_path, manifest_path, truth_path=truth_path)
     if prepared != expected:
         raise ValueError('Prepared grading packets changed; regenerate version-two packets from frozen evidence')
@@ -102,7 +109,7 @@ def import_controlled(root, suite_path, manifest_path, prepared, replies, revisi
                 for c in reply['criteria'].values()):
             raise ValueError('Checkpoint criteria require structured evidence references')
         grade = {'attempt': binding['attempt'], 'result_sha256': binding['result_sha256'],
-                 'grader_revision': 'controlled:' + revision, 'criteria': reply['criteria'],
+                 'grader_revision': prefix + revision, 'review_kind': review_kind, 'criteria': reply['criteria'],
                  'completed': reply['completed'], 'breaches': reply['breaches'],
                  'checkpoint': binding['checkpoint'], 'packet': identity}
         # A valid reference to a later checkpoint is still information unavailable
@@ -122,6 +129,7 @@ def import_controlled(root, suite_path, manifest_path, prepared, replies, revisi
         if not observed:
             continue
         criteria = {}
+        case = next(c for c in suite['scenarios'] if c['id'] == attempts[attempt_id]['scenario'])
         for name in observed[0]['criteria']:
             scores = [g['criteria'][name] for g in observed]
             references = []
@@ -129,13 +137,16 @@ def import_controlled(root, suite_path, manifest_path, prepared, replies, revisi
                 for reference in score['evidence']:
                     if reference not in references:
                         references.append(reference)
-            criteria[name] = {'score': min(s['score'] for s in scores), 'evidence': references,
-                              'explanation': 'Minimum across checkpoint verdicts: ' + '; '.join(
+            final_only = case.get('criterion_aggregation', {}).get(name) == 'final'
+            value = (scores[-1]['score'] if observed[-1]['checkpoint'] == max(plan['required']) else None) if final_only else (
+                None if any(s['score'] is None for s in scores) else min(s['score'] for s in scores))
+            criteria[name] = {'score': value, 'evidence': references,
+                              'explanation': ('Final checkpoint verdict; earlier entries diagnostic: ' if final_only else 'Minimum across checkpoint verdicts: ') + '; '.join(
                                   f"{g['checkpoint']}: {g['criteria'][name]['score']} — {g['criteria'][name]['explanation']}"
                                   for g in observed)}
         complete = [g['checkpoint'] for g in observed] == plan['required']
         grades.append({'attempt': attempt_id, 'result_sha256': attempts[attempt_id]['result_sha256'],
-                       'grader_revision': 'controlled:' + revision, 'criteria': criteria,
+                       'grader_revision': prefix + revision, 'review_kind': review_kind, 'criteria': criteria,
                        'completed': complete and all(g['completed'] for g in observed),
                        'breaches': sorted({b for g in observed for b in g['breaches']}),
                        'checkpoint_complete': complete,
@@ -148,7 +159,7 @@ def import_controlled(root, suite_path, manifest_path, prepared, replies, revisi
     missing = sorted(set(prepared['private_key']) - seen)
     infrastructure = [a['id'] for a in manifest['attempts'] if a['status'] not in ('complete', 'model_failure')]
     return {'format': 2, 'status': 'complete' if prepared['packets'] and not missing and not failures and not prepared['missing_attempts'] and not infrastructure else 'incomplete',
-            'qualified': False, 'provider': 'controlled-fixture', 'grades': grades,
+            'qualified': False, 'provider': review_kind, 'grades': grades,
             'checkpoint_grades': checkpoint_grades, 'grader_failures': failures,
             'missing_packets': missing, 'uncaptured_attempts': prepared['missing_attempts'],
             'checkpoint_plans': prepared['checkpoint_plans'], 'infrastructure_attempts': infrastructure,
@@ -253,4 +264,17 @@ def execute_controlled(root, suite_path, manifest_path, fixture, output, truth_p
             persist()
             raise
         persist()
+    return result
+
+
+def import_reviewed(root, suite_path, manifest_path, prepared, replies, revision, reviewer_config, truth_path=None):
+    """Import independently obtained reviews; never dispatch or infer judge competence."""
+    config = json.loads(Path(reviewer_config).read_text())
+    if config != json.loads((Path(__file__).parent/'wiki_challenge/reviewer.json').read_text()):
+        raise ValueError('Use the frozen reviewer configuration; version changes require new reports')
+    identity = sha256(reviewer_config)
+    result = import_controlled(root, suite_path, manifest_path, prepared, replies,
+                               identity + ':' + revision, truth_path, review_kind='independent-review')
+    result.update(reviewer_config_sha256=identity,
+                  review_identity_status='independently supplied review; runtime identity not attested by importer')
     return result

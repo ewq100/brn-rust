@@ -4,6 +4,7 @@ import hashlib
 import re
 from pathlib import Path
 from score import nullable_sum, sha256
+from check_status import summarize
 
 
 def identity_matches(trace, model, effort):
@@ -48,14 +49,25 @@ def native_attempt(path, root):
     no_helpers = raw.get('helper') is None or (bool(traces) and all(t is not None for t in traces) and not helpers)
     usage.update(helper_input=total(helpers, 'input') if helpers else 0 if no_helpers else None,
                  helper_output=total(helpers, 'output') if helpers else 0 if no_helpers else None,
-                 elapsed_ms=nullable_sum((trace or {}).get('elapsed_ms') for trace in traces), cost=None)
+                 elapsed_ms=nullable_sum((trace or {}).get('elapsed_ms') for trace in traces), cost=None,
+                 model_calls=nullable_sum(len(t['wire_requests']) if t and t.get('wire_requests') is not None
+                                         and not t.get('wire_requests_dropped') else None for t in traces + helpers) if no_helpers or helpers else None,
+                 tool_calls=nullable_sum(len(t['calls']) if t and isinstance(t.get('calls'), list) and not t.get('dropped_calls') else None for t in traces + helpers) if no_helpers or helpers else None,
+                 tool_rounds=nullable_sum(t.get('rounds') if t else None for t in traces + helpers) if no_helpers or helpers else None)
+    usage['uncached_input'] = (usage['input'] - usage['cached_input']
+                               if usage['input'] is not None and usage['cached_input'] is not None else None)
+    if usage['uncached_input'] is not None and usage['uncached_input'] < 0:
+        raise ValueError('Cached input exceeds observed input')
     identity = str(path.relative_to(root))
     status = raw['status']
     if status == 'complete' and classify_failure(raw) == 'model_or_tool_use':
         status = 'model_failure'
     attempt = {'id': identity, 'result': identity, 'result_sha256': sha256(path),
                'configuration': raw['arm'], 'scenario': raw['case'], 'repetition': raw['repetition'],
-               'status': status, 'failure_class': classify_failure(raw), 'usage': usage,
+               'status': status, 'execution': {'status': raw['status'], 'terminals': [s.get('terminal') for s in raw.get('steps', [])]},
+               'automatic_checks': summarize(raw.get('checks', [])),
+               'native_safety_findings': raw.get('safety', []),
+               'failure_class': classify_failure(raw), 'usage': usage,
                'requested_identity': {key: raw.get(key) for key in ('provider', 'model', 'effort', 'helper', 'binary_sha256')},
                'runtime_identity_verified': bool(traces) and all(
                    identity_matches(trace, raw.get('model'), raw.get('effort')) for trace in traces),
@@ -109,7 +121,8 @@ def verify_manifest(manifest, root):
         if not path.is_relative_to(root) or not path.is_file():
             raise ValueError('Result must be a file beneath the evidence root')
         actual = native_attempt(path, root)
-        if attempt != actual:
+        if any(actual.get(k) != v for k, v in attempt.items() if k != 'usage') or any(
+                actual['usage'].get(k) != v for k, v in attempt.get('usage', {}).items()):
             raise ValueError('Evidence metadata or hash differs from native result')
         raw = json.loads(path.read_text())
         for checkpoint in raw.get('checkpoints', []):
@@ -140,6 +153,9 @@ def verify_grade_references(manifest, grades, root):
                 if set(ref) == {'step'}:
                     if type(ref['step']) is not int or not 1 <= ref['step'] <= len(raw.get('steps', [])):
                         raise ValueError('Unknown result step')
+                elif set(ref) == {'reader_sha256'}:
+                    if not grade.get('reader_review_binding') or ref['reader_sha256'] not in {r['sha256'] for r in grade.get('reader_evidence', [])}:
+                        raise ValueError('Reader reference is not bound to an independently reviewed answer')
                 elif set(ref) == {'checkpoint', 'record', 'version'}:
                     if type(ref['checkpoint']) is not int or ref['checkpoint'] not in checkpoints:
                         raise ValueError('Unknown checkpoint')
@@ -230,7 +246,10 @@ def verified_proof_packet(checkpoint, *, scenario=None, step=None, wiki_records=
 
 def anonymize_local_paths(value, root):
     """Hide configuration-bearing native paths, including quoted provenance."""
-    pattern = re.compile(re.escape(str(Path(root).resolve())) + r'''[^\s"<>]*''')
+    roots = {str(Path(root)), str(Path(root).resolve())}
+    # macOS exposes /var and /tmp through /private; retained locators may use either.
+    roots.update(p.removeprefix('/private') for p in list(roots) if p.startswith('/private/'))
+    pattern = re.compile('(?:' + '|'.join(re.escape(p) for p in sorted(roots, key=len, reverse=True)) + r''')[^\s"<>]*''')
     def visit(item):
         if isinstance(item, str):
             return pattern.sub(lambda match: 'artifact://sha256/' + hashlib.sha256(match[0].encode()).hexdigest(), item)

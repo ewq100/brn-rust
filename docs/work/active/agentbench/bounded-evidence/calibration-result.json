@@ -1,0 +1,26 @@
+{
+  "status": "complete",
+  "qualified": false,
+  "limitation": "Screening only; independent gold review and held-out mutations required.",
+  "expected_judgments": 34,
+  "observed_judgments": 34,
+  "preference_accuracy": 1.0,
+  "defects": {
+    "true_positive": 30,
+    "false_positive": 0,
+    "false_negative": 0
+  },
+  "position_consistency": 1.0,
+  "cost": null,
+  "reviewer": "independent Sol 6.1 native child /root/plan_and_pilot_review, high inherited",
+  "reviewer_config_sha256": "d0a6175428e1c606bb4f7172d86c570231031ae514d5dd210cfc424cc79a8e86",
+  "labels_sha256": "a85a3c1761dff461f3b13578505450e8e55b72912497bd50688466d081b1f3e0",
+  "observation_kind": "independent judgments against labels frozen before review; paired transcript compacted by lead",
+  "limitations": [
+    "Visible short examples, not unseen acceptance.",
+    "17 pairs, 34 position-swapped observations are 17 independent items, not 34.",
+    "Injection witness has identical answers and weak discrimination.",
+    "No judgment competence established for long maintained articles.",
+    "Independent labels are prior fixture author/lead labels; reviewer was withheld labels, not OS-isolated."
+  ]
+}

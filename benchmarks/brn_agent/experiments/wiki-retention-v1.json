@@ -1,0 +1,13 @@
+{
+  "revision": "wiki-retention-v1",
+  "status": "separately built; no live runs",
+  "target": "retained_information on W03 and W05",
+  "hypothesis": "A single pre-write comparison of existing useful facts with incoming facts reduces loss of qualifiers during overlapping-source consolidation.",
+  "source_file": "agent/skills/maintain-notes/SKILL.md",
+  "source_sha256": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020",
+  "patch_sha256": "0f02d5b5f37c9f7ae8595b68860613d845462d7a825470310df0305a6ec307d9",
+  "production_changes_applied": false,
+  "candidate_cli_sha256": "0f11238b10ec8fe90ce9f1909175f0c57af9760384d5f4f86b07d1029bc7be12",
+  "baseline_cli_sha256": "b0a6f0ca13b5da71ddcafc76a6eb57ec051918559718351073e3497ebbbbefbe",
+  "experimental_checkout": "/Users/evokessler/repos/brn-agentbench-retention-candidate"
+}
