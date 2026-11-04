@@ -27,7 +27,7 @@ fn recipe_commands() -> Vec<String> {
         .collect()
 }
 
-/// `begin-edit --token-out`: the session ID and its token file.
+/// Real CLI issuance plus the session ID and a retained synthetic token input.
 fn begin(root: &Root, data: &Path, note: &str, base: u64) -> (String, String) {
     let (session, token) = begin_edit(root, data, note, base);
     (id(&session), token)
@@ -231,6 +231,13 @@ fn tokens_arrive_once_by_result_or_owner_only_file_and_are_read_from_a_file_or_s
         ],
     );
     assert_eq!(saved["outcome"], "Saved", "{saved}");
+}
+
+#[cfg(unix)]
+#[test]
+fn token_out_creates_a_new_owner_only_file() {
+    let root = Root::new();
+    let data = root.workspace("data");
     // With --token-out the token goes to a new 0600 file.
     let note_b = note(&root, &data, "B", "beta");
     let (session, token_file) = begin_edit(&root, &data, &note_b, 1);
@@ -242,7 +249,9 @@ fn tokens_arrive_once_by_result_or_owner_only_file_and_are_read_from_a_file_or_s
 }
 
 /// `^brnet1_[0-9a-f]{64}$`.
+#[cfg(unix)]
 struct EditTokenLike;
+#[cfg(unix)]
 impl EditTokenLike {
     fn matches(text: &str) -> bool {
         text.strip_prefix("brnet1_").is_some_and(|hex| {
@@ -482,6 +491,7 @@ fn reclaim_rotates_the_token_in_test_workspaces_only() {
     let note = note(&root, &data, "N", "one");
     let (session, old) = begin(&root, &data, &note, 1);
     let new = root.join("new.token");
+    #[cfg(unix)]
     let reclaimed = call(
         &root,
         &data,
@@ -493,6 +503,16 @@ fn reclaim_rotates_the_token_in_test_workspaces_only() {
             new.to_str().unwrap(),
         ],
     );
+    #[cfg(not(unix))]
+    let reclaimed = {
+        let result = call(&root, &data, &["reclaim-edit", "--session", &session]);
+        let issued = result["result"]["token"]
+            .as_str()
+            .expect("inline CLI token");
+        assert_eq!(result["result"]["token_file"], Value::Null);
+        std::fs::write(&new, format!("{issued}\n")).unwrap();
+        result
+    };
     assert_eq!(reclaimed["status"], "ok", "{reclaimed}");
     assert_eq!(reclaimed["retry"], "converge");
     assert_eq!(reclaimed["result"]["id"], session.as_str());
@@ -648,4 +668,60 @@ fn the_token_never_leaks_into_outputs_exports_backups_or_the_database() {
             );
         }
     }
+}
+
+#[cfg(not(unix))]
+#[test]
+fn unsupported_token_out_refuses_before_creation_or_reclaim_and_inline_tokens_work() {
+    let root = Root::new();
+    let data = root.join("not-created");
+    let destination = root.join("not-created.token");
+    let refused = call(
+        &root,
+        &data,
+        &[
+            "begin-edit",
+            "--note",
+            "absent",
+            "--base",
+            "1",
+            "--token-out",
+            destination.to_str().unwrap(),
+        ],
+    );
+    assert_error(&refused, "rejected", "invalid_request");
+    assert_eq!(
+        refused["error"]["details"],
+        json!({"option":"token-out", "reason":"unsupported_platform"})
+    );
+    assert!(!data.exists());
+    assert!(!destination.exists());
+
+    let data = root.workspace("data");
+    let note = note(&root, &data, "N", "one");
+    let (session, token) = begin(&root, &data, &note, 1);
+    let before = ok(&root, &data, &["recovery"]);
+    let refused = call(
+        &root,
+        &data,
+        &[
+            "reclaim-edit",
+            "--session",
+            &session,
+            "--token-out",
+            destination.to_str().unwrap(),
+        ],
+    );
+    assert_error(&refused, "rejected", "invalid_request");
+    assert_eq!(
+        refused["error"]["details"],
+        json!({"option":"token-out", "reason":"unsupported_platform"})
+    );
+    assert!(!destination.exists());
+    assert_eq!(ok(&root, &data, &["recovery"]), before);
+    buffer(&root, &data, &(session.clone(), token.clone()), "two");
+    assert_eq!(
+        save(&root, &data, &(session, token), "1")["outcome"],
+        "Saved"
+    );
 }

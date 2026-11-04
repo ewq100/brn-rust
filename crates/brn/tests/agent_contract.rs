@@ -149,10 +149,11 @@ fn workspace(root: &Root, name: &str) -> PathBuf {
     assert_eq!(run.code, 0, "init --purpose test: {}", run.stdout);
     data
 }
-/// `begin-edit … --token-out FILE`: the envelope and the token file.
+/// Real CLI issuance: the authentic envelope and a synthetic token input file.
 fn begin(root: &Root, data: &Path, note: &str, base: &str) -> (Value, String) {
     let token = root.join(&format!("token-{note}-{base}-{}", next()));
     let token = token.to_str().unwrap().to_owned();
+    #[cfg(unix)]
     let envelope = call(
         root,
         data,
@@ -166,6 +167,16 @@ fn begin(root: &Root, data: &Path, note: &str, base: &str) -> (Value, String) {
             &token,
         ],
     );
+    #[cfg(not(unix))]
+    let envelope = {
+        let envelope = call(root, data, &["begin-edit", "--note", note, "--base", base]);
+        let issued = envelope["result"]["token"]
+            .as_str()
+            .expect("inline CLI token");
+        assert_eq!(envelope["result"]["token_file"], Value::Null);
+        std::fs::write(&token, format!("{issued}\n")).unwrap();
+        envelope
+    };
     (envelope, token)
 }
 fn next() -> u64 {

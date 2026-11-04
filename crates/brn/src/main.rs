@@ -59,7 +59,7 @@ Agents and scripts: brn --json --data-dir DIR COMMAND ... prints one JSON envelo
   replay on retry. resolve is an alias of archive. A keyed full/chat/project intake replays when bytes,
   path, scope, title and captured converter/AI/bundle match a committed import, without converting or sending the document again;
   if that import found the bytes already imported, the retry converts again and records only an observation.
-  Edit writes need the session token: begin-edit --token-out FILE, then --token-file FILE (never argv).
+  Edit writes need the session token: Unix begin-edit --token-out FILE, then --token-file FILE (never argv).\n  On Windows omit --token-out; receive result.token once and supply it through file/stdin.
   Stale save (exit 3): keep result.session.markdown; discard your session (--token-file OLD); begin-edit --base
   <conflict[0].version> --token-out NEW; reapply; update-buffer --generation 1 --text-file merged.md --token-file NEW;
   save --generation 1 --token-file NEW.
@@ -557,7 +557,24 @@ fn token_out_free(path: &Path) -> Result<()> {
         .with("option", "token-out")
         .with("reason", "parent_missing"));
     }
-    Ok(())
+    #[cfg(unix)]
+    {
+        Ok(())
+    }
+    #[cfg(not(unix))]
+    {
+        Err(token_out_unavailable())
+    }
+}
+
+#[cfg(not(unix))]
+fn token_out_unavailable() -> CliError {
+    CliError::new(
+        Code::InvalidRequest,
+        "Secure --token-out file creation is unavailable on this platform; omit --token-out to receive the token once in result.token",
+    )
+    .with("option", "token-out")
+    .with("reason", "unsupported_platform")
 }
 /// `--timeout SECONDS`: an integer 1..86400.
 fn timeout_seconds(value: &str) -> Result<u64> {
@@ -607,6 +624,7 @@ impl Invocation {
 }
 /// The `--token-out` file, created empty and owner-only before the service
 /// call: `create_new` refuses an existing path or symlink.
+#[cfg(unix)]
 fn token_file(inv: &Invocation) -> Result<Option<(PathBuf, std::fs::File)>> {
     let Some(path) = inv.args.get("token-out").map(PathBuf::from) else {
         return Ok(None);
@@ -632,6 +650,14 @@ fn token_file(inv: &Invocation) -> Result<Option<(PathBuf, std::fs::File)>> {
         .with("option", "token-out")
         .with("reason", "parent_missing")),
         Err(error) => Err(error.into()),
+    }
+}
+#[cfg(not(unix))]
+fn token_file(inv: &Invocation) -> Result<Option<(PathBuf, std::fs::File)>> {
+    if inv.args.contains_key("token-out") {
+        Err(token_out_unavailable())
+    } else {
+        Ok(None)
     }
 }
 fn discard_token_file(out: &Option<(PathBuf, std::fs::File)>) {

@@ -248,10 +248,12 @@ pub fn chat_attachment_fixture(
     ));
     id
 }
-/// `begin-edit --token-out FILE`: the session and the token file's path.
+/// Opens a real CLI session; returns its result and a synthetic token input file.
+/// Unix exercises production --token-out; other platforms issue inline.
 pub fn begin_edit(root: &Root, data: &Path, note: &str, base: u64) -> (Value, String) {
     let token = root.join(&format!("token-{}", uuid_like()));
     let token = token.to_str().unwrap().to_owned();
+    #[cfg(unix)]
     let session = ok(
         root,
         data,
@@ -265,6 +267,19 @@ pub fn begin_edit(root: &Root, data: &Path, note: &str, base: u64) -> (Value, St
             &token,
         ],
     );
+    #[cfg(not(unix))]
+    let session = {
+        let session = ok(
+            root,
+            data,
+            &["begin-edit", "--note", note, "--base", &base.to_string()],
+        );
+        let issued = session["token"].as_str().expect("inline CLI token");
+        assert_eq!(session["token_file"], Value::Null);
+        std::fs::write(&token, format!("{issued}\n")).unwrap();
+        session
+    };
+    #[cfg(unix)]
     assert_eq!(session["token"], Value::Null, "{session}");
     assert_eq!(session["holder"], "caller", "{session}");
     (session, token)

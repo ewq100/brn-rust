@@ -7,7 +7,7 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-04T15:56:15.474343+02:00",
+    "observed_at": "2026-11-04T16:29:18.639547+02:00",
     "goal": "Complete Windows CI compatibility and merge through the normal checked PR path.",
     "owner_attention": "The owner explicitly authorized continuing until fixed and then merging. Current main PR244 is integrated; no live providers, account settings, check bypass or release is authorized.",
     "tasks": [
@@ -16,10 +16,10 @@
         "title": "Qualify and integrate Windows compatibility",
         "owner": "Windows compatibility lead",
         "state": "active",
-        "activity": "Integrated main098dc556; preserved portable directory protection and writing/reopen tests, joined the explicitly owned test worker before index deletion, and corrected PR244 Windows cfg lint.",
-        "observed_at": "2026-11-04T15:56:15.474343+02:00",
+        "activity": "PR245 e468175b passed Mac/Linux supported checks and Windows native UI; Windows Core exposed two unused Unix-only locator helpers and an unguarded POSIX permission fixture. Corrected those and closed unqualified Windows token-output privacy fallback; focused CLI70 tests and strict lint passed.",
+        "observed_at": "2026-11-04T16:29:18.639547+02:00",
         "origin": "observed",
-        "next_action": "Publish the reviewed combined candidate; require full Windows core/UI/retrieval and normal PR checks before merge, then inspect resulting-main CI.",
+        "next_action": "Publish the reviewed fixture/security correction; require normal PR checks and all three Windows lanes on the exact head, then normal merge and resulting-main verification.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -28,11 +28,11 @@
           "https://github.com/ewq100/brn-rust/actions/runs/41828286144"
         ],
         "gates": {
-          "implementation": "Reviewed platform boundaries retain Unix security; portable foreign-data and writing metadata/reopen assertions retained.",
-          "checks": "Focused storage/index/writing tests and integrated workspace strict lint passed locally; new exact-head hosted qualification remains required.",
+          "implementation": "Reviewed corrections preserve Unix protections and portable edit/reopen/privacy coverage; Windows token-out now refuses before effects while authentic inline issuance remains supported.",
+          "checks": "Integrated workspace strict lint, writing22/subscription35/focusedCLI70 and tooling320 passed locally; exact-head hosted Windows qualification is still required.",
           "integration": "Normal PR merge explicitly authorized after passing checks; GitHub PR/merge state owns the integration result. No bypass.",
           "native": "Windows native UI job passed on7c01e10d and Linux/Mac supported jobs passed onf3fd36f8; no new real UI interaction or feature parity claim.",
-          "owner_acceptance": "No new product acceptance claim; secure credentials and exclusive model installation remain explicitly unsupported on Windows."
+          "owner_acceptance": "No native interaction or feature parity claim; secure credentials, exclusive model installation and owner-only token-output files remain explicitly unavailable on Windows."
         },
         "attempts": [
           {
@@ -42,6 +42,16 @@
               "docs/work/active/windows-ci-portability/handoff.md",
               "docs/work/active/windows-ci-portability/retry-20261104.md",
               "https://github.com/ewq100/brn-rust/actions/runs/41828286144"
+            ]
+          },
+          {
+            "outcome": "PR245 e468175b Windows Core failed on locator helper dead code and provider stderr POSIX permission code. Static audit also found a Unix-only token permission assertion and Windows token output relying on inherited ACLs despite the owner-only promise.",
+            "change": "Gate only platform-specific fixture operations/helpers; refuse unsupported Windows token-out before workspace/session effects, preserve inline issuance and portable privacy/edit tests with real CLI tokens as synthetic input fixtures.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/41843507159",
+              "https://github.com/ewq100/brn-rust/actions/runs/41843506966",
+              "crates/brn/tests/agent_edits.rs",
+              "docs/work/active/windows-ci-portability/retry-20261104.md"
             ]
           }
         ]
