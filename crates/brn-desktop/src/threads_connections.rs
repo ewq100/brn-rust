@@ -636,7 +636,8 @@ impl ThreadsUi {
                 metadata(page_summary.clone())
                     .id("knowledge-page-summary")
                     .role(gpui_kit::Role::Label)
-                    .aria_label(page_summary)
+                    .aria_label(page_summary.clone())
+                    .aria_value(page_summary)
                     .test_support(),
             );
             if count > listed.len() {

@@ -15,6 +15,11 @@ name = "provider-capabilities"
 path = "examples/provider_capabilities.rs"
 required-features = ["capability-spike"]
 
+[[example]]
+name = "subscription-search"
+path = "examples/subscription_search.rs"
+required-features = ["capability-spike"]
+
 [dependencies]
 brn-threads-core = { path = "../brn-threads-core" }
 brn-intake = { path = "../brn-intake" }

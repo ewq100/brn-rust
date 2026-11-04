@@ -1181,6 +1181,7 @@ impl ThreadsUi {
                             .id(format!("action-description-{id}"))
                             .role(gpui_kit::Role::Label)
                             .aria_label(action.description.clone())
+                            .aria_value(action.description.clone())
                             .font_weight(gpui_kit::FontWeight::MEDIUM)
                             .text_color(rgb(p.ink))
                             .child(action.description.clone())
@@ -1192,7 +1193,8 @@ impl ThreadsUi {
                             metadata(facts.clone())
                                 .id(format!("action-facts-{id}"))
                                 .role(gpui_kit::Role::Label)
-                                .aria_label(facts)
+                                .aria_label(facts.clone())
+                                .aria_value(facts)
                                 .test_support(),
                         )
                     }),

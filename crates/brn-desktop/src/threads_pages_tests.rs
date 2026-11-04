@@ -663,6 +663,7 @@ fn follow_up_views_show_dates_without_changing_task_state_or_due(cx: &mut TestAp
             let description = window.find(format!("action-description-{id}"));
             assert_eq!(description.role(), Some(gpui_kit::Role::Label));
             let text = description.label().unwrap().to_owned();
+            assert_eq!(description.value(), Some(text.as_str()));
             assert_eq!(
                 label(window, format!("task-menu-{id}")),
                 format!("Task actions: {text}")
@@ -674,6 +675,7 @@ fn follow_up_views_show_dates_without_changing_task_state_or_due(cx: &mut TestAp
             let facts = window.find(format!("action-facts-{id}"));
             assert_eq!(facts.role(), Some(gpui_kit::Role::Label));
             assert!(facts.label().unwrap().contains("Due"));
+            assert_eq!(facts.value(), facts.label());
         }
     });
     update(cx, &f, |view, _, _| {
