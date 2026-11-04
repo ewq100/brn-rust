@@ -61,3 +61,34 @@ The owner reports admission “should be ok now.” Actual Git reconciliation st
 Repository metadata now reports public; the Mac lead did not change visibility. Only reviewed code and sanitized technical receipts are published. Raw account metadata, warning payloads, identity keys, credentials and private stores remain local. Main’s classic protection read reports404/“Branch not protected”; branch rules and repository rulesets are checked separately. The four repository-declared required contexts remain manual integration gates regardless of hosting enforcement. No gate is bypassed.
 
 Publish the saved failure receipt and this resumption checkpoint once. Fresh actual job execution must establish CI admission; the owner’s report is not itself a passing check. Keep the old billing-blocked run as historical evidence. Follow the PR’s exact-head results, then normal merge and separate resulting-main checks; no release.
+
+
+## Normal merge and resulting-main checks —4November
+
+All four required contexts passed on exact PR head `3d6bb18d710849f16286d745fa7703df2f89930d` in [CI41803294242](https://github.com/ewq100/brn-rust/actions/runs/41803294242). Six supported jobs passed; optional Windows Core/CLI failed with33 Unix-specific errors in unchanged auth/codex_auth source (two new adapter cfg warnings retained). No all-platform pass is claimed. Ready transition and normal merge followed those gates, without admin/bypass flags or changed protections.
+
+PR244 merged at `098dc5563b27f04a1527bf61c83317a787d0cab1` at09:42:23UTC on4November. Its complete tree exactly matches tested PR head3d6bb18d; there was no conflict resolution or newer main change. On the actual merge commit,35 provider+3 private-file tests passed again with Rust1.98.1, locked/offline flags and the existing isolated target/canonical temporary directory. Documentation links/overview and whitespace checks passed. No additional live-model request.
+
+At merge time, separate [main CI41809417663](https://github.com/ewq100/brn-rust/actions/runs/41809417663) was executing; its terminal result is recorded below. The final docs-only receipt is maintained on a dedicated evidence branch so recording post-merge facts does not rewrite the qualified product commit or trigger repeated main CI.
+
+GitHub auto-closed issue243 from negative wording containing a closure keyword. The PR wording was corrected and the issue reopened, preserving the unobserved native Mac acceptance gap. The original failed billing run and prior failed live attempts remain unchanged. The preview-release approval manifest is unchanged; no release, settings change or new model allocation is authorized.
+
+
+## Final result — merged and resulting-main verified
+
+**PR244 is merged at `098dc5563b27f04a1527bf61c83317a787d0cab1`.** All four required contexts passed both on exact PR head3d6bb18d and actual resulting main. [PR CI41803294242](https://github.com/ewq100/brn-rust/actions/runs/41803294242) passed six supported jobs with one optional Windows failure; [main CI41809417663](https://github.com/ewq100/brn-rust/actions/runs/41809417663) passed seven supported jobs with three optional Windows failures. The overall workflows report failure because of those Windows jobs; neither is an all-platform pass.
+
+| Required context | PR head | Resulting main |
+| --- | --- | --- |
+| Core and CLI — Ubuntu24.04 | PASS | PASS |
+| Core and CLI — macOS15 | PASS | PASS |
+| Native UI build and state — macOS15 | PASS | PASS |
+| Native retrieval and combined build — macOS15 | PASS | PASS |
+
+The [sanitized final receipt](integration-final-result.json) binds source/hash, exact job IDs/times, original and repeated offline commands, and limitations. Main still identifies the merge commit. Independent source review was retained because product bytes were unchanged after22f3860e; the integrated tree exactly equals the tested PR tree. On that main,35 provider and three private-file tests passed again, none failed or ignored. Earlier strict lint/build and documentation gates remain source-bound; final docs/overview validation is checked on the evidence branch.
+
+Windows Core/UI fail in unchanged Unix-specific auth code (33 errors and two retained adapter cfg warnings); Windows retrieval fails with14 errors in unchanged retrieval code. No Windows rewrite or suppression was undertaken. Raw logs remain local.
+
+The automatic [preview gate41814082482](https://github.com/ewq100/brn-rust/actions/runs/41814082482) explicitly reported no approved manifest change. Package/upload/publication steps were skipped: **no new release**. No new BRN live request, native UI interaction, account/security/power/billing change or purchase. Actual monetary cost is unavailable.
+
+The docs-only evidence branch `codex/issue244-integration-evidence-20261104` records post-merge observations without another product merge or main-CI cycle. Its publication identity is recorded in the final issue receipt. The merged source is immutable evidence; this branch does not claim its new documentation was part of that merge. Issue243 remains open solely for remaining native/owner acceptance, not for an unperformed merge. The earlier billing failure and all failed/closed live allocations remain preserved. No further dispatch is selected.

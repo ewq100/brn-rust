@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Integrate the reviewed subscription-search fixes and preserve separate native acceptance gaps.
-**Owner attention:** Owner reports GitHub admission should now work. PR244/main/source reconciled unchanged; normal final-head CI is being resumed. Native acceptance remains pending; no further model calls or settings changes.
+**Goal:** Subscription-search changes integrated; preserve the separate native Mac acceptance gate.
+**Owner attention:** PR244 merged at098dc556. All four required PR and resulting-main checks passed; repeated35+3 offline checks passed. No owner action needed for this integration. Native Mac acceptance remains open; no release.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -11,25 +11,7 @@ Task details and full history: [selected work record](active/subscription-search
 
 ## Working on
 
-### Integrate reviewed fixes through required CI
-
-Task ID: `publication`
-Owner: Existing Mac lead · State: **active** · Last observed: 2026-11-04T08:55:43.945878+00:00
-Activity: Resumed after owner report. Preserved the prior zero-step billing failure; publishing docs-only checkpoint and resumption before normal exact-head CI. Product source remains reviewed22f3860e.
-Next: Verify the new remote head and hosted job execution. Wait for all four required exact-head contexts, mark ready and merge normally after pass, then verify integrated main and resulting-main CI.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.
-- **checks:** Local35 provider+3 private-file tests, strict affected lint/build/fmt/docs passed on unchanged product. Fresh exact-head hosted CI pending; prior billing-blocked failure retained.
-- **integration:** Owner-approved normal PR244 integration resumed; no merge until required exact-head checks pass.
-- **native:** Known Mac UI gap remains pending; integration request does not establish native acceptance.
-- **owner acceptance:** not claimed
-
-</details>
+None recorded.
 
 ## Next
 
@@ -40,9 +22,9 @@ None recorded.
 ### Observe actual Mac controls
 
 Task ID: `native-mac`
-Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T07:42:45.460648+00:00
-Activity: Label repair and page/Capture/dialog harness checks pass; native inventory reported locked.
-Next: Run one bounded synthetic native session only when owner makes native access available.
+Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-11-04T10:27:42.844068+00:00
+Activity: No new native observation. Original30October inventory reported locked; merged Label/search code has headless/CI evidence only.
+Next: A separate owner-selected native qualification can address this gate. No UI/unlocking is part of the completed headless integration.
 
 <details>
 <summary>Gate status</summary>
@@ -51,8 +33,8 @@ Gates:
 
 - **implementation:** reviewed scoped candidate
 - **checks:** 24 page +3 Capture +3 search harness tests
-- **integration:** PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.
-- **native:** blocked; no native apps exposed
+- **integration:** MERGED: PR244 at098dc556; exact PR and resulting-main required contexts PASS. No release.
+- **native:** UNOBSERVED: actual Mac buttons/focus/rendering/accessibility/IME/pickers and owner acceptance remain separate.
 - **owner acceptance:** not claimed
 
 </details>
@@ -61,9 +43,10 @@ Gates:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-2 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+3 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
-- `subscription-search` — Qualify subscription-only search
 - `document-workflow` — Import knowledge and produce a referenced draft
+- `publication` — Integrate reviewed fixes through required CI
+- `subscription-search` — Qualify subscription-only search
 
-Local page reflects the last saved observations in this record (2026-11-04T08:55:43.945878+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-04T10:27:42.844068+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

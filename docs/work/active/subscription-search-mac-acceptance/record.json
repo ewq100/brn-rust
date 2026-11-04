@@ -7,19 +7,19 @@
     "limits": "Normal PR244 publication, required exact-head CI, normal merge after pass and resulting-main verification approved. No billing-setting changes, purchases, check bypass, release, UI or additional model calls; closed live allocations remain closed."
   },
   "work_view": {
-    "observed_at": "2026-11-04T08:55:43.945878+00:00",
-    "goal": "Integrate the reviewed subscription-search fixes and preserve separate native acceptance gaps.",
-    "owner_attention": "Owner reports GitHub admission should now work. PR244/main/source reconciled unchanged; normal final-head CI is being resumed. Native acceptance remains pending; no further model calls or settings changes.",
+    "observed_at": "2026-11-04T10:27:42.844068+00:00",
+    "goal": "Subscription-search changes integrated; preserve the separate native Mac acceptance gate.",
+    "owner_attention": "PR244 merged at098dc556. All four required PR and resulting-main checks passed; repeated35+3 offline checks passed. No owner action needed for this integration. Native Mac acceptance remains open; no release.",
     "tasks": [
       {
         "id": "subscription-search",
         "title": "Qualify subscription-only search",
         "owner": "Existing Mac lead",
         "state": "complete",
-        "activity": "Attempt4 completed in9.581s on fefc1e8b with actual native sources; two official citations manually verified.4/10used, allocation closed;31provider+3private-file tests/strictlint/build pass.",
-        "observed_at": "2026-10-30T22:09:34.860015+00:00",
+        "activity": "Original fefc live witness retained and closed. Later pre-turn guard independently reviewed/offline-qualified; merged098dc556 with all required PR/main gates passed. No new live request.",
+        "observed_at": "2026-11-04T10:27:42.844068+00:00",
         "origin": "observed",
-        "next_action": "Preserve the closed live qualification and reviewed production source; no further model call. Native acceptance and integration remain separate gates.",
+        "next_action": "Preserve source-bound qualification limits and closed allocation; any additional live test needs a new explicit bound.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -31,8 +31,8 @@
         ],
         "gates": {
           "implementation": "reviewed startup advisory, exact presentation metadata and explicit ordinary-admission/quota decision handling",
-          "checks": "PASS:31provider+3private-file tests, strictaffectedlint/build/fmt; single live cited SQLite query on fefc1e8b",
-          "integration": "PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.",
+          "checks": "PASS: bounded original live search onfefc;35 provider+3 private-file offline checks on later guard/main, strict affected lint/build and all required PR/main CI. Later guard has no new live test.",
+          "integration": "MERGED: PR244 at098dc556; exact PR and resulting-main required contexts PASS. No release.",
           "native": "dialog harness only; real Mac unobserved",
           "owner_acceptance": "not claimed"
         },
@@ -88,10 +88,10 @@
         "title": "Observe actual Mac controls",
         "owner": "Existing Mac lead",
         "state": "blocked",
-        "activity": "Label repair and page/Capture/dialog harness checks pass; native inventory reported locked.",
-        "observed_at": "2026-10-30T07:42:45.460648+00:00",
+        "activity": "No new native observation. Original30October inventory reported locked; merged Label/search code has headless/CI evidence only.",
+        "observed_at": "2026-11-04T10:27:42.844068+00:00",
         "origin": "observed",
-        "next_action": "Run one bounded synthetic native session only when owner makes native access available.",
+        "next_action": "A separate owner-selected native qualification can address this gate. No UI/unlocking is part of the completed headless integration.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -101,8 +101,8 @@
         "gates": {
           "implementation": "reviewed scoped candidate",
           "checks": "24 page +3 Capture +3 search harness tests",
-          "integration": "PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.",
-          "native": "blocked; no native apps exposed",
+          "integration": "MERGED: PR244 at098dc556; exact PR and resulting-main required contexts PASS. No release.",
+          "native": "UNOBSERVED: actual Mac buttons/focus/rendering/accessibility/IME/pickers and owner acceptance remain separate.",
           "owner_acceptance": "not claimed"
         },
         "attempts": []
@@ -112,8 +112,8 @@
         "title": "Import knowledge and produce a referenced draft",
         "owner": "Existing Mac lead",
         "state": "complete",
-        "activity": "Five Sol-medium BRN Runs passed; repeat intake nonduplicates, exact edit candidate and later-owner stale refusal/dismissal verified.",
-        "observed_at": "2026-10-30T07:42:45.460648+00:00",
+        "activity": "Original five successful Sol-medium Runs and exact-data/stale-edit evidence preserved. Shared Rig/store journey unchanged by search guard; integration required checks passed.",
+        "observed_at": "2026-11-04T10:27:42.844068+00:00",
         "origin": "observed",
         "next_action": "Preserve sanitized receipts and existing synthetic data; no repeat model call.",
         "depends_on": [],
@@ -125,7 +125,7 @@
         "gates": {
           "implementation": "reviewed scoped candidate",
           "checks": "exact candidate and fresh-process byte checks;6/12 total attempts including failed search",
-          "integration": "PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.",
+          "integration": "MERGED: PR244 at098dc556; exact PR and resulting-main required contexts PASS. No release.",
           "native": "headless only",
           "owner_acceptance": "not claimed"
         },
@@ -135,11 +135,11 @@
         "id": "publication",
         "title": "Integrate reviewed fixes through required CI",
         "owner": "Existing Mac lead",
-        "state": "active",
-        "activity": "Resumed after owner report. Preserved the prior zero-step billing failure; publishing docs-only checkpoint and resumption before normal exact-head CI. Product source remains reviewed22f3860e.",
-        "observed_at": "2026-11-04T08:55:43.945878+00:00",
+        "state": "complete",
+        "activity": "Normal merge098dc556 verified with identical tested tree. PRCI41803294242:6 supported pass/1 optional Windows fail. MainCI41809417663:7 supported pass/3 optional Windows fail. Offline35+3 pass. Preview gate skipped release.",
+        "observed_at": "2026-11-04T10:27:42.844068+00:00",
         "origin": "observed",
-        "next_action": "Verify the new remote head and hosted job execution. Wait for all four required exact-head contexts, mark ready and merge normally after pass, then verify integrated main and resulting-main CI.",
+        "next_action": "Preserve the final receipt and issue243 native acceptance gap; no further dispatch, live model call or release under this completed integration.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -148,12 +148,14 @@
           "docs/work/active/subscription-search-mac-acceptance/integration.md",
           "docs/work/active/subscription-search-mac-acceptance/integration-offline-result.json",
           "docs/work/active/subscription-search-mac-acceptance/integration-ci-result.json",
-          "https://github.com/ewq100/brn-rust/actions/runs/41163642499"
+          "https://github.com/ewq100/brn-rust/actions/runs/41163642499",
+          "docs/work/active/subscription-search-mac-acceptance/integration-final-result.json",
+          "https://github.com/ewq100/brn-rust/actions/runs/41809417663"
         ],
         "gates": {
           "implementation": "PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.",
-          "checks": "Local35 provider+3 private-file tests, strict affected lint/build/fmt/docs passed on unchanged product. Fresh exact-head hosted CI pending; prior billing-blocked failure retained.",
-          "integration": "Owner-approved normal PR244 integration resumed; no merge until required exact-head checks pass.",
+          "checks": "PASS: all four required exact-head PR and resulting-main contexts, repeated35 provider+3 private-file offline checks, strict affected lint/build and docs. Optional Windows failures retained.",
+          "integration": "MERGED: PR244 at098dc556; exact PR and resulting-main required contexts PASS. No release.",
           "native": "Known Mac UI gap remains pending; integration request does not establish native acceptance.",
           "owner_acceptance": "not claimed"
         },

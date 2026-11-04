@@ -1,0 +1,233 @@
+{
+  "observed_at": "2026-11-04T10:26:34.145964+00:00",
+  "outcome": "MERGED; four required exact-head PR and resulting-main contexts PASS. Separate native acceptance remains open.",
+  "pr": 244,
+  "pr_head": "3d6bb18d710849f16286d745fa7703df2f89930d",
+  "merge_commit": "098dc5563b27f04a1527bf61c83317a787d0cab1",
+  "tree_identical_to_tested_pr": true,
+  "provider_source_sha256": "4c66c42960e4bc0e0d8761e929b525cb5439d9532928acfbfdeb0ce076263524",
+  "evidence_branch": "codex/issue244-integration-evidence-20261104; docs-only post-merge receipt, not an additional product merge.",
+  "hosted_runs": [
+    {
+      "id": 41803294242,
+      "head": "3d6bb18d710849f16286d745fa7703df2f89930d",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/41803294242",
+      "required_results": {
+        "Core and CLI (ubuntu-24.04)": "PASS",
+        "Core and CLI (macos-15)": "PASS",
+        "Native UI build and state (macos-15)": "PASS",
+        "Native retrieval and combined build (macos-15)": "PASS"
+      },
+      "job_results": [
+        {
+          "name": "Documentation and tooling",
+          "id": 126484064682,
+          "conclusion": "success",
+          "started_at": "2026-11-04T08:55:54Z",
+          "completed_at": "2026-11-04T08:57:03Z"
+        },
+        {
+          "name": "Core and CLI (macos-15)",
+          "id": 126484064897,
+          "conclusion": "success",
+          "started_at": "2026-11-04T08:55:55Z",
+          "completed_at": "2026-11-04T09:32:51Z"
+        },
+        {
+          "name": "Native UI build and state (ubuntu-24.04)",
+          "id": 126484064940,
+          "conclusion": "success",
+          "started_at": "2026-11-04T08:55:54Z",
+          "completed_at": "2026-11-04T09:02:11Z"
+        },
+        {
+          "name": "Core and CLI (ubuntu-24.04)",
+          "id": 126484064947,
+          "conclusion": "success",
+          "started_at": "2026-11-04T08:55:54Z",
+          "completed_at": "2026-11-04T09:19:40Z"
+        },
+        {
+          "name": "Native UI build and state (macos-15)",
+          "id": 126484064982,
+          "conclusion": "success",
+          "started_at": "2026-11-04T08:55:54Z",
+          "completed_at": "2026-11-04T09:00:31Z"
+        },
+        {
+          "name": "Native retrieval and combined build (macos-15)",
+          "id": 126484065010,
+          "conclusion": "success",
+          "started_at": "2026-11-04T09:00:33Z",
+          "completed_at": "2026-11-04T09:40:12Z"
+        },
+        {
+          "name": "Core and CLI (windows-2025)",
+          "id": 126484065088,
+          "conclusion": "failure",
+          "started_at": "2026-11-04T08:55:56Z",
+          "completed_at": "2026-11-04T09:00:18Z"
+        }
+      ]
+    },
+    {
+      "id": 41809417663,
+      "head": "098dc5563b27f04a1527bf61c83317a787d0cab1",
+      "event": "push",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/ewq100/brn-rust/actions/runs/41809417663",
+      "required_results": {
+        "Core and CLI (ubuntu-24.04)": "PASS",
+        "Core and CLI (macos-15)": "PASS",
+        "Native UI build and state (macos-15)": "PASS",
+        "Native retrieval and combined build (macos-15)": "PASS"
+      },
+      "job_results": [
+        {
+          "name": "Native retrieval and combined build (windows-2025)",
+          "id": 126504614288,
+          "conclusion": "failure",
+          "started_at": "2026-11-04T09:42:28Z",
+          "completed_at": "2026-11-04T09:46:10Z"
+        },
+        {
+          "name": "Core and CLI (windows-2025)",
+          "id": 126504614902,
+          "conclusion": "failure",
+          "started_at": "2026-11-04T09:42:29Z",
+          "completed_at": "2026-11-04T09:45:31Z"
+        },
+        {
+          "name": "Native UI build and state (windows-2025)",
+          "id": 126504614916,
+          "conclusion": "failure",
+          "started_at": "2026-11-04T09:42:29Z",
+          "completed_at": "2026-11-04T09:48:58Z"
+        },
+        {
+          "name": "Native UI build and state (ubuntu-24.04)",
+          "id": 126504615188,
+          "conclusion": "success",
+          "started_at": "2026-11-04T09:42:29Z",
+          "completed_at": "2026-11-04T09:48:43Z"
+        },
+        {
+          "name": "Native UI build and state (macos-15)",
+          "id": 126504616079,
+          "conclusion": "success",
+          "started_at": "2026-11-04T09:42:30Z",
+          "completed_at": "2026-11-04T09:50:34Z"
+        },
+        {
+          "name": "Core and CLI (ubuntu-24.04)",
+          "id": 126504616123,
+          "conclusion": "success",
+          "started_at": "2026-11-04T09:42:29Z",
+          "completed_at": "2026-11-04T10:01:51Z"
+        },
+        {
+          "name": "Core and CLI (macos-15)",
+          "id": 126504616230,
+          "conclusion": "success",
+          "started_at": "2026-11-04T09:42:30Z",
+          "completed_at": "2026-11-04T10:19:18Z"
+        },
+        {
+          "name": "Documentation and tooling",
+          "id": 126504616304,
+          "conclusion": "success",
+          "started_at": "2026-11-04T09:42:29Z",
+          "completed_at": "2026-11-04T09:43:31Z"
+        },
+        {
+          "name": "Native retrieval and combined build (ubuntu-24.04)",
+          "id": 126504632817,
+          "conclusion": "success",
+          "started_at": "2026-11-04T09:42:35Z",
+          "completed_at": "2026-11-04T09:50:04Z"
+        },
+        {
+          "name": "Native retrieval and combined build (macos-15)",
+          "id": 126504659107,
+          "conclusion": "success",
+          "started_at": "2026-11-04T09:42:55Z",
+          "completed_at": "2026-11-04T10:25:22Z"
+        }
+      ]
+    }
+  ],
+  "integrated_main_offline": {
+    "provider_tests": {
+      "passed": 35,
+      "failed": 0,
+      "ignored": 0
+    },
+    "private_file_tests": {
+      "passed": 3,
+      "failed": 0,
+      "ignored": 0
+    },
+    "commands": [
+      {
+        "command": [
+          "cargo",
+          "+1.98.1",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "subscription_search"
+        ],
+        "exit_code": 0,
+        "ended_at": "2026-11-04T09:42:37.828404+00:00"
+      },
+      {
+        "command": [
+          "cargo",
+          "+1.98.1",
+          "test",
+          "--locked",
+          "--offline",
+          "-p",
+          "brn-ai",
+          "--features",
+          "capability-spike",
+          "--example",
+          "subscription-search"
+        ],
+        "exit_code": 0,
+        "ended_at": "2026-11-04T09:42:38.097160+00:00"
+      }
+    ]
+  },
+  "review": "Complete product candidate/pre-turn correction independently reviewed before integration; unchanged product bytes.",
+  "source_limits": {
+    "live_predecessor": "fefc1e8b11a9d56a44ec5f56abc9bf4a1eb5ceae",
+    "new_guard": "Offline-qualified only; no new live repeat or broad search-quality claim.",
+    "new_live_model_requests": 0,
+    "closed_allocation003": "4/10 used; closed, unchanged.",
+    "native_mac": "Buttons,focus,accessibility,IME,pickers and owner acceptance remain unobserved.",
+    "actual_monetary_cost": "Unavailable; neither billing denial nor public repository visibility proves a dollar amount.",
+    "release": "No new release. Automatic preview gate41814082482 reported no changed approval manifest; package/upload/publish steps skipped."
+  },
+  "previous_failures": [
+    "CI41163642499 zero-step account billing/spend restriction retained in integration-ci-result.json.",
+    "Original failed live attempts and old zero-unknown payloads retained.",
+    "PR optional Windows Core/CLI and main three optional Windows jobs remain failed/unqualified."
+  ],
+  "preview_gate": {
+    "run": 41814082482,
+    "outcome": "No approved preview manifest change in this commit",
+    "publish_step": "skipped"
+  },
+  "windows_limits": {
+    "pr": "1 optional Windows job failed:33 existing auth compile errors;2 adapter cfg warnings retained.",
+    "main": "3 optional Windows jobs failed:33 auth errors in Core/UI and14 retrieval errors; all Windows paths remain unqualified.",
+    "error_sources_unchanged_from_baseline": true
+  }
+}
