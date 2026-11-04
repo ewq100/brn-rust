@@ -1,6 +1,6 @@
 # Exact newly platform-gated tests
 
-Audit of main `89e6221a` versus this local candidate. Test bodies and assertions remain intact on supported platforms. These are capability boundaries, not Windows success evidence. No workflow job was removed.
+Audit of main `89e6221a` versus the initial `dd34b748` candidate. Test bodies and assertions remain intact on supported platforms. These are capability boundaries, not Windows success evidence. No workflow job was removed. Later hosted corrections are recorded in [the November retry](retry-20261104.md).
 
 ## crates/brn-ai/src/auth.rs
 

@@ -370,7 +370,7 @@ fn outdated_damaged_or_interrupted_indexes_are_rebuilt_in_place() {
 }
 
 #[test]
-fn foreign_files_and_symlinks_are_refused_without_change() {
+fn foreign_files_and_databases_are_refused_without_change() {
     let (_root, dir) = derived();
     let file = dir.join(FILE_NAME);
     std::fs::write(&file, b"not a database at all, but someone's text file").unwrap();
@@ -394,7 +394,13 @@ fn foreign_files_and_symlinks_are_refused_without_change() {
     );
     drop(conn);
     std::fs::remove_file(&file).unwrap();
+}
 
+#[cfg(unix)]
+#[test]
+fn dangling_symlink_is_refused_without_creating_target() {
+    let (_root, dir) = derived();
+    let file = dir.join(FILE_NAME);
     let elsewhere = dir.parent().unwrap().join("elsewhere.sqlite");
     std::os::unix::fs::symlink(&elsewhere, &file).unwrap();
     assert!(SearchIndex::open(&dir).is_err());
