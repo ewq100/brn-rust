@@ -18,7 +18,7 @@ from reader import run, packet_hash
 class ReaderProviderTests(unittest.TestCase):
     def test_scoped_native_queries_alternative_answers_and_provider_failure(self):
         with tempfile.TemporaryDirectory() as temp:
-            root = Path(temp)/'experiment'
+            root = Path(temp).resolve()/'experiment'
             v2.create_root(root)
             binary = os.environ['BRN_AGENTBENCH_TEST_BINARY']
             arm = {'name': 'A', 'binary': binary, 'model_dir': None, 'provider': None,
@@ -46,7 +46,7 @@ class ReaderProviderTests(unittest.TestCase):
             for index, answer in enumerate(['Target: May 1. Inspection: April 12.',
                                             'The roof inspection is April 12; the target is May 1.']):
                 fixture['controlled_answer'] = answer
-                result = run(checkpoint, fixture, binary, os.environ['BRN_AGENTBENCH_READER_BINARY'], Path(temp)/f'reader{index}')
+                result = run(checkpoint, fixture, binary, os.environ['BRN_AGENTBENCH_READER_BINARY'], Path(temp).resolve()/f'reader{index}')
                 observed = result['observed']
                 self.assertEqual(observed['request_count'], 5)
                 self.assertEqual(observed['answer'], answer)
@@ -57,7 +57,7 @@ class ReaderProviderTests(unittest.TestCase):
                 self.assertNotIn('Raw private diagnostic', history)
                 self.assertEqual(sample.cli.call('records'), initial)
             failed = dict(fixture, provider_error='controlled transport outage')
-            output = Path(temp)/'outage'
+            output = Path(temp).resolve()/'outage'
             with self.assertRaises(ValueError):
                 run(checkpoint, failed, binary, os.environ['BRN_AGENTBENCH_READER_BINARY'], output)
             receipt = json.loads((output/'reader-result.json').read_text())
@@ -68,5 +68,5 @@ class ReaderProviderTests(unittest.TestCase):
             self.assertEqual(sample.cli.call('records'), initial)
             with self.assertRaises(ValueError):
                 run(checkpoint, dict(fixture, max_calls=4), binary,
-                    os.environ['BRN_AGENTBENCH_READER_BINARY'], Path(temp)/'budget')
-            self.assertFalse((Path(temp)/'budget').exists())
+                    os.environ['BRN_AGENTBENCH_READER_BINARY'], Path(temp).resolve()/'budget')
+            self.assertFalse((Path(temp).resolve()/'budget').exists())

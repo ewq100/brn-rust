@@ -5,8 +5,52 @@ mechanisms. Live qualification and explicitly unsupported integrations remain
 separate. It extends
 `scripts/evaluate_wiki_v2.py`; candidate calls still use the normal BRN CLI,
 provider route and tools. It adds no provider gateway or production dependency.
-No model has been evaluated, no judge has been calibrated, and no model ranking
-is qualified by this change.
+The original implementation below describes offline proof machinery. Later
+pilot003 completed 16 candidate runs; execution did not establish output quality.
+The [current readiness record](../../docs/work/active/agentbench/bounded-readiness.md)
+reconciles those results, all 16 retained anonymous packet reviews, observed short
+reviewer screening and remaining qualification gaps. No model ranking is qualified.
+
+## Bounded wiki development screen
+
+The baseline bank is unchanged. `prepare --suite-kind wiki-challenge --output
+FRESH_DIR` adds a separate six-case/17-event `wiki-consolidation-v1` screen.
+`--suite-kind visible-screening` prepares two additional whole mini-worlds, explicitly
+visible to this agent. No genuinely unseen evaluation isolation is claimed.
+`prepare --cases W03,W05 --repetitions 2 --suite-kind wiki-challenge` predeclares a
+focused suite; it keeps the native fixture and truth bytes intact. Existing runner
+`--cases`/`--repetitions` must match that plan.
+
+Reports version execution/checks/quality/safety/usage separately. Zero applicable
+checks display **not evaluated**; unknown checks cannot become pass by exclusion.
+Old reports remain intact. `report` re-derives new fields from frozen native bytes,
+and `compare` refuses mixed scoring revisions. Challenge results never enter the
+baseline overall score. Missing real reader evidence leaves usefulness/composite
+null while separately reviewed article dimensions remain visible.
+
+`reader-measured` adds one fixed native reader invocation on an exclusive restored
+clone, reusing existing dispatch/reservations, with real BRN search. Wiki-only and
+normal-product modes remain distinct. It accepts no scripted answer.
+`reader-review-prepare` exports anonymous question/expectation/actual-answer packets;
+`reader-review-import` binds independent judgments to their hashes. `report
+--reader-grades FILE` regenerates that artifact before joining usefulness; receipt
+attachments alone cannot supply answer quality. Native Run/owner Message binding
+prevents relabelling a receipt as a different question. `reader-controlled`
+remains an offline protocol diagnostic. Both a completed real answer and independent
+answer grading are needed for downstream quality.
+
+`semantic-reviewed` imports independently obtained packet-bound reviews with the
+frozen `--reviewer-config`; runtime reviewer identity remains separately unverified.
+`freeze --spec FILE --output FRESH_FILE` and `verify-freeze --spec FILE --receipt
+FILE` bind explicit app/build/data/prompt/model/retrieval inputs plus automatically
+hashed evaluator sources and configurations. `report --freeze-spec FILE
+--freeze-receipt FILE` attaches the verified evaluator identity; challenge comparison
+requires it to match. Include all retrieval asset files; directory labels are not
+asset attestation. No credential bytes belong in receipts.
+
+See [six expected outcomes and limits](../../docs/work/active/agentbench/bounded-readiness.md)
+and [exact capped first-experiment commands](../../docs/work/active/agentbench/first-experiment.md).
+No new live experiment budget has been supplied; old pilots are consumed.
 
 ## Prepare and check
 
@@ -352,12 +396,12 @@ Remaining gates that need additional access or qualification:
   existing security checks. Controlled fixtures do not qualify those routes.
 - Explicitly authorized live grader, reader, helper and candidate runs, plus
   untouched independent screening cases, are needed for semantic qualification
-  and any model comparison. No live quality result is present.
+  and any qualified model comparison. Pilot003 has an independent packet-only screen; native bindings and broad live semantic qualification remain missing.
 - Real external datasets require explicit provenance/allowed-use admission; only
   synthetic adapter witnesses have run. No external corpus was redistributed.
 - Monetary scheduling requires an enforceable charge bound from a supported
   route; current monetary requests refuse before execution. Call caps are enforced.
-- Publication requires authorization. This branch remains local.
+- Current delivery authority permits a reviewable branch/PR; merge, release and new live allocations remain separate.
 
 The 24-case/three-world bank is implemented and tested offline. No live model
 has completed it. Larger stress lanes, native UI and real external-service

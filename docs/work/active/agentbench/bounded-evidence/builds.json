@@ -1,0 +1,21 @@
+{
+  "app_source_revision": "098dc5563b27f04a1527bf61c83317a787d0cab1",
+  "baseline_build_command": "cargo build --locked -p brn --bin brn -p brn-threads-app --example wiki_eval_seed --jobs 4 --target-dir /tmp/brn-agentbench-bounded-build",
+  "candidate_build_command": "cargo build --locked --offline -p brn --bin brn --jobs 4 --target-dir /tmp/brn-agentbench-retention-build",
+  "compiler": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "features": "default; no native-retrieval feature requested",
+  "lock_sha256": "40b64f8e830388a4db213d0a81123073032888107d46f1f02cfc3a0e3c5e9d22",
+  "baseline_cli_sha256": "b0a6f0ca13b5da71ddcafc76a6eb57ec051918559718351073e3497ebbbbefbe",
+  "candidate_cli_sha256": "0f11238b10ec8fe90ce9f1909175f0c57af9760384d5f4f86b07d1029bc7be12",
+  "seeder_sha256": "74399e42516534695966a38d62d3e07cc880f0463249a65eb837b08ac7468071",
+  "baseline_guide_sha256": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020",
+  "candidate_guide_sha256": "d4b0d6e48b2570d010d570e8b30d6be6467ed71e67f8118052ba54974528348b",
+  "patch_sha256": "0f02d5b5f37c9f7ae8595b68860613d845462d7a825470310df0305a6ec307d9",
+  "source_build_binding": "lead-observed isolated locked builds; no independent reproducible-build attestation",
+  "candidate_diff": "only agent/skills/maintain-notes/SKILL.md plus the exact recorded patch in separate experimental checkout",
+  "candidate_instruction_bytes_in_binary": true,
+  "baseline_instruction_bytes_in_binary": false,
+  "limitations": [
+    "Build success and embedded instruction bytes do not prove runtime guide delivery, native desktop usability or semantic improvement."
+  ]
+}

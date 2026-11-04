@@ -1,69 +1,46 @@
 # Development overview
 
-**Goal:** Integrate the reviewed subscription-search fixes and preserve separate native acceptance gaps.
-**Owner attention:** Owner reports GitHub admission should now work. PR244/main/source reconciled unchanged; normal final-head CI is being resumed. Native acceptance remains pending; no further model calls or settings changes.
+**Goal:** Reliable bounded wiki-maintenance experiments using retained native AgentBench evidence.
+**Owner attention:** First experiment prepared; no new live allocation. Genuine unseen evaluation ownership unavailable; visible screens are not acceptance.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
 Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.
 
-Task details and full history: [selected work record](active/subscription-search-mac-acceptance/record.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.
+Task details and full history: [selected work record](active/agentbench/bounded-record.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.
 
 ## Working on
 
-### Integrate reviewed fixes through required CI
-
-Task ID: `publication`
-Owner: Existing Mac lead · State: **active** · Last observed: 2026-11-04T08:55:43.945878+00:00
-Activity: Resumed after owner report. Preserved the prior zero-step billing failure; publishing docs-only checkpoint and resumption before normal exact-head CI. Product source remains reviewed22f3860e.
-Next: Verify the new remote head and hosted job execution. Wait for all four required exact-head contexts, mark ready and merge normally after pass, then verify integrated main and resulting-main CI.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** PASS: complete candidate and pre-turn guard independently reviewed; new guard has offline evidence only.
-- **checks:** Local35 provider+3 private-file tests, strict affected lint/build/fmt/docs passed on unchanged product. Fresh exact-head hosted CI pending; prior billing-blocked failure retained.
-- **integration:** Owner-approved normal PR244 integration resumed; no merge until required exact-head checks pass.
-- **native:** Known Mac UI gap remains pending; integration request does not establish native acceptance.
-- **owner acceptance:** not claimed
-
-</details>
+None recorded.
 
 ## Next
 
-None recorded.
+### Harden AgentBench and prepare the first wiki experiment
 
-## Needs attention
-
-### Observe actual Mac controls
-
-Task ID: `native-mac`
-Owner: Existing Mac lead · State: **blocked** · Last observed: 2026-10-30T07:42:45.460648+00:00
-Activity: Label repair and page/Capture/dialog harness checks pass; native inventory reported locked.
-Next: Run one bounded synthetic native session only when owner makes native access available.
+Task ID: `bounded-agentbench`
+Owner: Sol 6.1 benchmark lead · State: **ready** · Last observed: 2026-11-04T14:41:48.630093+00:00
+Activity: All implementation complete. Three independent Sol review rounds resolved all findings; final score9.0/10. Reviewed native88 and tooling334 passed, with explicit optional skips.
+Next: Commit and publish a draft PR; new live experiment requires its concrete allocation and separate unseen evaluation ownership.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** reviewed scoped candidate
-- **checks:** 24 page +3 Capture +3 search harness tests
-- **integration:** PR244 integration resumed after owner report; required exact-head CI pending. Not merged or released.
-- **native:** blocked; no native apps exposed
-- **owner acceptance:** not claimed
+- **implementation:** passed: all3 independent-review findings corrected; final review no substantiated remaining defects (Sol9.0/10)
+- **checks:** passed: native88 (1 optional Inspect skip), tooling334 (11 opt-in skips), six-case/two-arm and two-world native offline, baseline byte identity, markdown/diff/overview; earlier failures preserved.
+- **integration:** reviewable branch ready; draft PR publication next. No merge or release authorized.
+- **native:** Headless checked seeding/restore/Undo and native BM25 scope retrieval observed; real reader answer quality, dense engine and desktop unverified.
+- **owner acceptance:** not claimed; no new live allocation or genuinely unseen evaluation owner available
 
 </details>
 
+## Needs attention
+
+None recorded.
+
 ## Completed
 
-Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
+None recorded.
 
-2 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
-
-- `subscription-search` — Qualify subscription-only search
-- `document-workflow` — Import knowledge and produce a referenced draft
-
-Local page reflects the last saved observations in this record (2026-11-04T08:55:43.945878+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-04T14:41:48.630093+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

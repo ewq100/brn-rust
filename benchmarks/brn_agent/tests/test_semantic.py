@@ -61,3 +61,20 @@ class SemanticProtocolTests(unittest.TestCase):
         prepared['packets'][0]['packet']['records']=[]
         with self.assertRaises(ValueError):
             semantic.import_controlled(self.root,self.suite,self.manifest,prepared,[reply],'unit-v1')
+
+    def test_independent_import_preserves_origin_and_frozen_configuration(self):
+        prepared = semantic.prepare(self.root,self.suite,self.manifest)
+        packet=prepared['packets'][0]
+        reply=dict(id=packet['id'],packet_sha256=packet['packet_sha256'],completed=True,breaches=[],
+                   criteria={name:dict(score=4,explanation='Independent schema witness only',evidence=[{'step':1}])
+                             for name in packet['packet']['criteria']})
+        config=Path(__file__).resolve().parents[1]/'wiki_challenge/reviewer.json'
+        result=semantic.import_reviewed(self.root,self.suite,self.manifest,prepared,[reply],'test',config)
+        self.assertEqual(result['provider'],'independent-review')
+        self.assertEqual(result['grades'][0]['review_kind'],'independent-review')
+        self.assertTrue(result['grades'][0]['grader_revision'].startswith('independent:'+sha256(config)))
+        self.assertFalse(result['qualified'])
+        changed=self.root/'reviewer.json'
+        changed.write_text('{"model":"different"}')
+        with self.assertRaisesRegex(ValueError,'frozen reviewer'):
+            semantic.import_reviewed(self.root,self.suite,self.manifest,prepared,[reply],'test',changed)

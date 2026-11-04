@@ -8,14 +8,17 @@ import json
 import subprocess
 from pathlib import Path
 import proof
+import freeze
+import wiki_challenge
 from limits import dry_plan
-from evidence import collect, verify_manifest, verify_grade_references, verified_proof_packet, assess_checkpoint_claims
+from evidence import native_attempt, collect, verify_manifest, verify_grade_references, verified_proof_packet, assess_checkpoint_claims
 import calibration
 import judgment
 import external
 import diagnostics
 import host_checks
 import reader
+import reader_grading
 import semantic
 import reporting
 import helper_execution
@@ -30,7 +33,16 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
     prepare = sub.add_parser('prepare', help='write deterministic synthetic fixture, suite and separate gold')
+    prepare.add_argument('--suite-kind', choices=['baseline', 'wiki-challenge', 'visible-screening'], default='baseline')
+    prepare.add_argument('--cases', help='predeclare a focused suite subset; native fixture and truth stay intact')
+    prepare.add_argument('--repetitions', type=int, choices=[1,2,3])
     prepare.add_argument('--output', type=Path, required=True)
+    frozen = sub.add_parser('freeze', help='hash explicit evaluator/build/data/prompt/model/retrieval inputs')
+    frozen.add_argument('--spec', type=Path, required=True)
+    frozen.add_argument('--output', type=Path, required=True)
+    verify_frozen = sub.add_parser('verify-freeze', help='refuse changed experiment inputs before execution')
+    verify_frozen.add_argument('--spec', type=Path, required=True)
+    verify_frozen.add_argument('--receipt', type=Path, required=True)
     collector = sub.add_parser('collect', help='freeze a native evaluator result index without model calls')
     collector.add_argument('--root', type=Path, required=True)
     collector.add_argument('--suite', type=Path, required=True)
@@ -96,6 +108,28 @@ def main(argv=None):
     read.add_argument('--binary', type=Path, required=True)
     read.add_argument('--reader-binary', type=Path, required=True)
     read.add_argument('--output', type=Path, required=True)
+    measured = sub.add_parser('reader-measured', help='fixed native retrieval/model reader; requires new live allocation')
+    measured.add_argument('--checkpoint', type=Path, required=True)
+    measured.add_argument('--question', required=True)
+    measured.add_argument('--wiki-records', type=Path, required=True)
+    measured.add_argument('--mode', choices=['wiki-only', 'normal-product'], required=True)
+    measured.add_argument('--binary', type=Path, required=True)
+    measured.add_argument('--model-dir', type=Path)
+    measured.add_argument('--auth-file', type=Path, required=True)
+    measured.add_argument('--output', type=Path, required=True)
+    measured.add_argument('--live', action='store_true')
+    for name in ('reader-review-prepare', 'reader-review-import'):
+        command = sub.add_parser(name, help='bound anonymous independent reviews of measured reader answers; no calls')
+        command.add_argument('--root', type=Path, required=True)
+        command.add_argument('--suite', type=Path, required=True)
+        command.add_argument('--evidence', type=Path, required=True)
+        command.add_argument('--truth', type=Path, required=True)
+        command.add_argument('--index', type=Path, required=True)
+        command.add_argument('--output', type=Path, required=True)
+        if name == 'reader-review-import':
+            command.add_argument('--prepared', type=Path, required=True)
+            command.add_argument('--replies', type=Path, required=True)
+            command.add_argument('--revision', required=True)
     helper_run = sub.add_parser('helpers-controlled', help='retained native parent/helper provider-fixture journey')
     helper_run.add_argument('--binary', type=Path, required=True)
     helper_run.add_argument('--cases', nargs='+')
@@ -115,7 +149,7 @@ def main(argv=None):
     diffs.add_argument('--root', type=Path, required=True)
     diffs.add_argument('--evidence', type=Path, required=True)
     diffs.add_argument('--output', type=Path, required=True)
-    for name in ('semantic-prepare', 'semantic-controlled', 'semantic-execute'):
+    for name in ('semantic-prepare', 'semantic-controlled', 'semantic-execute', 'semantic-reviewed'):
         command = sub.add_parser(name, help='blind frozen grading protocol; no live calls')
         command.add_argument('--truth', type=Path)
         if name == 'semantic-execute':
@@ -124,19 +158,30 @@ def main(argv=None):
         command.add_argument('--suite', type=Path, required=True)
         command.add_argument('--evidence', type=Path, required=True)
         command.add_argument('--output', type=Path, required=True)
-        if name == 'semantic-controlled':
+        if name == 'semantic-reviewed':
+            command.add_argument('--reviewer-config', type=Path, required=True)
+        if name in ('semantic-controlled', 'semantic-reviewed'):
             command.add_argument('--prepared', type=Path, required=True)
             command.add_argument('--replies', type=Path, required=True)
             command.add_argument('--revision', required=True)
     report = sub.add_parser('report', help='grade frozen evidence; never rerun a candidate')
+    report.add_argument('--truth', type=Path)
+    report.add_argument('--freeze-spec', type=Path)
+    report.add_argument('--freeze-receipt', type=Path)
     report.add_argument('--suite', type=Path, required=True)
     report.add_argument('--evidence', type=Path, required=True)
+    report.add_argument('--reader-grades', type=Path)
     report.add_argument('--grades', type=Path, required=True)
     report.add_argument('--configuration', required=True)
     report.add_argument('--output', type=Path, required=True)
     args = parser.parse_args(argv)
     try:
-        if args.command == 'check-claims':
+        if args.command == 'freeze':
+            with args.output.open('x') as stream:
+                json.dump(freeze.freeze(load(args.spec)), stream, indent=2)
+        elif args.command == 'verify-freeze':
+            print(json.dumps(freeze.verify(load(args.spec), load(args.receipt))))
+        elif args.command == 'check-claims':
             result = assess_checkpoint_claims(args.checkpoint, args.scenario, args.step, load(args.adjudication), truth_path=args.truth)
             with args.output.open('x') as stream:
                 json.dump(result, stream, indent=2)
@@ -159,7 +204,22 @@ def main(argv=None):
             with args.output.open('x') as stream:
                 json.dump(result, stream, indent=2)
         elif args.command == 'prepare':
-            proof.write(args.output)
+            if args.suite_kind == 'baseline':
+                proof.write(args.output)
+            else:
+                wiki_challenge.write(args.output, screening=args.suite_kind == 'visible-screening')
+            if args.cases or args.repetitions:
+                suite = load(args.output/'suite.json')
+                if args.cases:
+                    requested = args.cases.split(',')
+                    if len(set(requested)) != len(requested) or not set(requested) <= {c['id'] for c in suite['scenarios']}:
+                        raise ValueError('Subset needs unique known cases; partial preparation retained')
+                    suite['scenarios'] = [c for c in suite['scenarios'] if c['id'] in requested]
+                    suite['revision'] += ':screen:' + ','.join(c['id'] for c in suite['scenarios'])
+                if args.repetitions:
+                    for case in suite['scenarios']:
+                        case['repetitions'] = args.repetitions
+                (args.output/'suite.json').write_text(json.dumps(suite, ensure_ascii=False, indent=2)+'\n')
         elif args.command == 'prepare-diagnostics':
             diagnostics.write(args.output)
         elif args.command == 'check-host':
@@ -172,6 +232,20 @@ def main(argv=None):
         elif args.command == 'helpers-assess':
             with args.output.open('x') as stream:
                 json.dump(helper_execution.assess(args.root), stream, indent=2)
+        elif args.command.startswith('reader-review-'):
+            index = load(args.index)
+            if args.command == 'reader-review-prepare':
+                result = reader_grading.prepare(args.root,args.suite,args.evidence,args.truth,index)
+            else:
+                result = reader_grading.assess(args.root,args.suite,args.evidence,args.truth,index,
+                                               load(args.prepared),load(args.replies),args.revision)
+            args.output.mkdir(parents=True,exist_ok=False)
+            (args.output/'private-result.json').write_text(json.dumps(result,indent=2)+'\n')
+            public = result['packets'] if args.command == 'reader-review-prepare' else result['grades']
+            (args.output/('packets.json' if args.command == 'reader-review-prepare' else 'reader-grades.json')).write_text(json.dumps(public,indent=2)+'\n')
+        elif args.command == 'reader-measured':
+            reader.measured(args.checkpoint, args.question, load(args.wiki_records), args.mode, args.binary, args.output,
+                            auth_file=args.auth_file, model_dir=args.model_dir, live=args.live)
         elif args.command == 'reader-controlled':
             reader.run(args.checkpoint, load(args.fixture), args.binary, args.reader_binary, args.output)
         elif args.command == 'recovery-controlled':
@@ -189,6 +263,9 @@ def main(argv=None):
         elif args.command.startswith('semantic-'):
             if args.command == 'semantic-prepare':
                 result = semantic.prepare(args.root, args.suite, args.evidence, truth_path=args.truth)
+            elif args.command == 'semantic-reviewed':
+                result = semantic.import_reviewed(args.root, args.suite, args.evidence, load(args.prepared),
+                                                  load(args.replies), args.revision, args.reviewer_config, truth_path=args.truth)
             else:
                 result = semantic.import_controlled(args.root, args.suite, args.evidence,
                                                      load(args.prepared), load(args.replies), args.revision, truth_path=args.truth)
@@ -243,7 +320,32 @@ def main(argv=None):
             verify_manifest(evidence, root)
             grades = load(args.grades)
             verify_grade_references(evidence, grades, root)
-            result = assess(suite, args.configuration, evidence['attempts'], grades)
+            attempts = [native_attempt(root / a['result'], root) for a in evidence['attempts']]
+            reader_artifact = None
+            if suite.get('score_family') == wiki_challenge.REVISION:
+                # Candidate-only grades cannot establish measured reader answer quality.
+                for grade in grades:
+                    grade.pop('reader_evidence_verified',None)
+                    grade.pop('reader_evidence',None)
+                    grade['criteria']['downstream_usefulness'] = dict(score=None,
+                        explanation='No complete bound independent reader review',evidence=[{'step':1}])
+                if args.reader_grades:
+                    if not args.truth:
+                        raise ValueError('Bound reader review requires the pinned --truth file')
+                    reader_artifact = load(args.reader_grades)
+                    grades = reader_grading.merge(root,args.suite,args.evidence,args.truth,reader_artifact,grades)
+                    verify_grade_references(evidence,grades,root)
+            result = assess(suite, args.configuration, attempts, grades)
+            if reader_artifact:
+                # Known reader safety findings survive incomplete/ungraded candidate slots.
+                ids = {a['id'] for a in attempts if a['configuration'] == args.configuration}
+                findings = [f for f in reader_artifact['safety_findings'] if f['attempt'] in ids]
+                result['safety_and_authority']['reader_findings'] = findings
+                for finding in findings:
+                    if finding not in result['safety_breaches']:
+                        result['safety_breaches'].append(finding)
+                if findings:
+                    result.update(status='disqualified', ranked=False)
             result['unindexed_attempts'] = evidence.get('unindexed_attempts', [])
             if result['unindexed_attempts']:
                 result['ranked'] = False
@@ -253,7 +355,15 @@ def main(argv=None):
             result['suite_sha256'] = sha256(args.suite)
             result['evidence_sha256'] = sha256(args.evidence)
             result['grades_sha256'] = sha256(args.grades)
+            result['reader_grades_sha256'] = sha256(args.reader_grades) if args.reader_grades else None
             result['provenance'] = load(root / 'manifest.json').get('provenance', {'status': 'unavailable-legacy'})
+            if bool(args.freeze_spec) != bool(args.freeze_receipt):
+                raise ValueError('Supply both freeze spec and receipt')
+            if args.freeze_spec:
+                receipt = load(args.freeze_receipt)
+                freeze.verify(load(args.freeze_spec), receipt)
+                result['evaluation_identity'] = receipt['evaluation_identity']
+                result['experiment_freeze_sha256'] = sha256(args.freeze_receipt)
             write_report(args.output, result)
     except (ValueError, KeyError, OSError) as error:
         parser.exit(2, f'{error}\n')

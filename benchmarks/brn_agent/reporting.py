@@ -10,7 +10,7 @@ import json
 import math
 from pathlib import Path
 import random
-from score import WEIGHTS, sha256, suite_identity, validate_suite
+from score import WEIGHTS, sha256, suite_identity, validate_suite, CHALLENGE_FAMILY
 
 
 def canonical_hash(value):
@@ -35,6 +35,12 @@ def provenance(files, labels=None):
 
 
 def _weighted(suite, values, multiplicity=None):
+    if suite.get('score_family') == CHALLENGE_FAMILY:
+        members = [(c, (multiplicity or {}).get(c.get('world'), 1)) for c in suite['scenarios']]
+        members = [(c, n) for c, n in members if n]
+        if not members or any(values.get(c['id']) is None for c, _ in members):
+            return None
+        return sum(values[c['id']] * c['weight'] * n for c, n in members) / sum(c['weight'] * n for c, n in members)
     categories = {}
     for category, weight in WEIGHTS.items():
         members = [(case, (multiplicity or {}).get(case.get('world'), 1))
@@ -82,10 +88,15 @@ def compare(suite, reports, bootstrap_samples=2000, seed=0):
             if value is not None and (type(value) not in (int, float) or not math.isfinite(value) or not 0 <= value <= 100):
                 raise ValueError('Scenario scores must be finite 0–100 or null')
         computed = _weighted(suite, report['scenarios'])
-        actual = report.get('overall_quality')
+        actual = report.get('challenge_quality') if suite.get('score_family') == CHALLENGE_FAMILY else report.get('overall_quality')
         if (computed is None) != (actual is None) or (computed is not None and
                 (type(actual) not in (int, float) or not math.isfinite(actual) or not math.isclose(computed, actual))):
             raise ValueError('Report overall does not match its frozen scenario scores')
+    if len({r.get('scoring_revision', 'legacy-v1') for r in reports}) != 1:
+        raise ValueError('Paired comparison requires identical scoring revisions; regrade frozen outputs')
+    if suite.get('score_family') == CHALLENGE_FAMILY and (not reports[0].get('evaluation_identity') or
+            len({r.get('evaluation_identity') for r in reports}) != 1):
+        raise ValueError('Challenge comparison requires identical frozen evaluator identities')
     baseline = reports[0]
     revisions = baseline.get('grade_revisions')
     if (not isinstance(revisions, list) or len(revisions) != 1 or
@@ -117,6 +128,7 @@ def compare(suite, reports, bootstrap_samples=2000, seed=0):
             else:
                 interval = [_quantile(draws, .025), _quantile(draws, .975)]
         comparisons.append({'baseline': baseline['configuration'], 'candidate': candidate['configuration'],
+                            'score_family': suite.get('score_family', 'baseline'),
                             'direction': 'candidate minus baseline, percentage points',
                             'scenario_deltas': values, 'overall_delta': _weighted(suite, values),
                             'missing_pairs': missing, 'clusters': len(worlds),

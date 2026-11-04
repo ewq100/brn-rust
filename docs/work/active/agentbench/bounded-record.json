@@ -1,0 +1,87 @@
+{
+  "baseline": {
+    "branch": "codex/agentbench-bounded",
+    "commit": "098dc5563b27f04a1527bf61c83317a787d0cab1"
+  },
+  "scope": "Implement and verify bounded AgentBench; reviewable branch/PR; prepare but do not dispatch a new live experiment. No merge/release.",
+  "plan": "docs/work/active/agentbench/bounded-plan.md",
+  "work_view": {
+    "observed_at": "2026-11-04T14:41:48.630093+00:00",
+    "goal": "Reliable bounded wiki-maintenance experiments using retained native AgentBench evidence.",
+    "owner_attention": "First experiment prepared; no new live allocation. Genuine unseen evaluation ownership unavailable; visible screens are not acceptance.",
+    "tasks": [
+      {
+        "id": "bounded-agentbench",
+        "title": "Harden AgentBench and prepare the first wiki experiment",
+        "owner": "Sol 6.1 benchmark lead",
+        "state": "ready",
+        "activity": "All implementation complete. Three independent Sol review rounds resolved all findings; final score9.0/10. Reviewed native88 and tooling334 passed, with explicit optional skips.",
+        "observed_at": "2026-11-04T14:41:48.630093+00:00",
+        "origin": "observed",
+        "next_action": "Commit and publish a draft PR; new live experiment requires its concrete allocation and separate unseen evaluation ownership.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/agentbench/bounded-readiness.md",
+          "docs/work/active/agentbench/first-experiment.md",
+          "docs/work/active/agentbench/bounded-evidence/pilot003-review.json",
+          "docs/work/active/agentbench/bounded-evidence/calibration-result.json",
+          "docs/work/active/agentbench/bounded-evidence/verification.json",
+          "docs/work/active/agentbench/bounded-evidence/reviews.json"
+        ],
+        "gates": {
+          "implementation": "passed: all3 independent-review findings corrected; final review no substantiated remaining defects (Sol9.0/10)",
+          "checks": "passed: native88 (1 optional Inspect skip), tooling334 (11 opt-in skips), six-case/two-arm and two-world native offline, baseline byte identity, markdown/diff/overview; earlier failures preserved.",
+          "integration": "reviewable branch ready; draft PR publication next. No merge or release authorized.",
+          "native": "Headless checked seeding/restore/Undo and native BM25 scope retrieval observed; real reader answer quality, dense engine and desktop unverified.",
+          "owner_acceptance": "not claimed; no new live allocation or genuinely unseen evaluation owner available"
+        },
+        "attempts": [
+          {
+            "outcome": "Initial six-case native seed failed: unsupported protected field.",
+            "change": "Used existing protected-import seed schema; all six seeded offline.",
+            "evidence": [
+              "docs/work/active/agentbench/bounded-readiness.md"
+            ]
+          },
+          {
+            "outcome": "Saved CLI caused three native test errors; fresh CLI resolved two. Current isolated offline build initially lacked cached rig 0.45.0.",
+            "change": "Built unchanged current source with locked dependency fetch; document helpers building to close intake gap. No lockfile or security change.",
+            "evidence": [
+              "docs/work/active/agentbench/bounded-readiness.md"
+            ]
+          },
+          {
+            "outcome": "Anonymous packet test exposed macOS /private/var versus /var identity leak.",
+            "change": "Anonymized both aliases; regression test passes.",
+            "evidence": [
+              "benchmarks/brn_agent/tests/test_bounded.py"
+            ]
+          },
+          {
+            "outcome": "Three native tests used /var temporary aliases refused by current storage symlink protection.",
+            "change": "Canonicalized only test fixture paths; native reader/recovery tests pass. Production guard unchanged.",
+            "evidence": [
+              "docs/work/active/agentbench/bounded-evidence/verification.json"
+            ]
+          },
+          {
+            "outcome": "Broad tooling run hit existing pilot setup20s synthetic deadline during builds.",
+            "change": "Unchanged isolated test passed after builds finished; original failure retained; no released package modified.",
+            "evidence": [
+              "docs/work/active/agentbench/bounded-evidence/verification.json"
+            ]
+          },
+          {
+            "outcome": "Independent review found reader question relabelling and candidate-only usefulness grading could falsely complete coverage.",
+            "change": "Bound actual native Run/owner Message; add anonymous reader answer review packets/import and verified report merge. Preserve incomplete reader safety findings; new protocol/CLI tests pass.",
+            "evidence": [
+              "docs/work/active/agentbench/bounded-evidence/reviews.json",
+              "benchmarks/brn_agent/tests/test_reader_grading.py"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -56,6 +56,10 @@ _limit_spec = importlib.util.spec_from_file_location('agentbench_limits', HERE.p
 LIMITS = importlib.util.module_from_spec(_limit_spec)
 _limit_spec.loader.exec_module(LIMITS)
 
+_check_spec = importlib.util.spec_from_file_location('agentbench_check_status', HERE.parent / 'benchmarks/brn_agent/check_status.py')
+CHECK_STATUS = importlib.util.module_from_spec(_check_spec)
+_check_spec.loader.exec_module(CHECK_STATUS)
+
 V1 = _load_v1()
 CallFailed = V1.CallFailed
 public_snapshot = V1.public_snapshot
@@ -1211,7 +1215,7 @@ def case_passed(results, excluded=()):
     in `excluded` (unverifiable on some arm of the comparison) or the sample does not pass."""
     counted = [item for item in results if item['applicable'] and not item['report_only']
                and item['index'] not in excluded]
-    return all(item['passed'] is True for item in counted)
+    return all(item['passed'] is True for item in counted) if counted else None
 
 
 def unverified_checks(results):
@@ -1299,8 +1303,8 @@ def build_report(results, cases):
     failures = [{'case': r['case'], 'scale': r['scale'], 'arm': r['arm'], 'repetition': r['repetition'],
                  'attempt': r['attempt'], 'status': r['status'], 'failure': r.get('failure')}
                 for r in results if r['status'] != 'complete']
-    # A check that cannot be verified on one arm is dropped for every arm of that case comparison, so all
-    # arms are judged on the same checks; None is never counted as a pass.
+    # Retain legacy comparability exclusions as diagnostics. They never erase a
+    # failed or unverified check from the automatic-check verdict.
     excluded = {}
     for result in main:
         if result['status'] != 'complete':
@@ -1311,8 +1315,7 @@ def build_report(results, cases):
     effective = {}
     for result in main:
         if result['status'] == 'complete':
-            skip = set(excluded.get((result['case'], result['scale']), {}))
-            effective[(result['case'], result['scale'], result['arm'], result['slot'])] = case_passed(result['checks'], skip)
+            effective[(result['case'], result['scale'], result['arm'], result['slot'])] = case_passed(result['checks'])
     passed_of = lambda r: effective.get((r['case'], r['scale'], r['arm'], r['slot']), False)
     unverified_safety = [{'case': r['case'], 'scale': r['scale'], 'arm': r['arm'], 'repetition': r['repetition'],
                           'kind': item['type'], 'detail': item['detail']}
@@ -1329,7 +1332,9 @@ def build_report(results, cases):
         done = [r for r in items if r['status'] == 'complete']
         passes = sum(1 for r in done if passed_of(r))
         rows.append({'case': case_id, 'scale': scale, 'arm': arm, 'passes': passes, 'completed': len(done),
-                     'planned': planned, 'case_passed': passes * 2 > planned,
+                     'planned': planned, 'case_passed': (passes * 2 > planned) if any(
+                         CHECK_STATUS.summarize(r['checks'])['applicable'] for r in done) else None,
+                     'automatic_checks': CHECK_STATUS.summarize([check for r in done for check in r['checks']]),
                      'dimensions': dimension_counts([check for r in done for check in r['checks']]),
                      'excluded': sorted(excluded.get((case_id, scale), {}).values(), key=lambda e: (e['step'] or 0, e['type'])),
                      'metrics': {name: median_range([metric(r, name) for r in done]) for name in REPORT_METRICS}})
@@ -1341,7 +1346,7 @@ def build_report(results, cases):
         matrix[arm] = {
             'provider': sample.get('provider'), 'model': sample.get('model'), 'effort': sample.get('effort'),
             'helper': helper_label(sample.get('helper')),
-            'binary_sha256': sample.get('binary_sha256'), 'cases_passed': sum(row['case_passed'] for row in arm_rows),
+            'binary_sha256': sample.get('binary_sha256'), 'cases_passed': sum(row['case_passed'] is True for row in arm_rows),
             'cases': len(arm_rows), 'samples_passed': sum(1 for r in done if passed_of(r)), 'samples': len(done),
             'transport_failures': sum(1 for f in failures if f['arm'] == arm),
             'safety_blockers': sum(1 for b in blockers if b['arm'] == arm),
@@ -1356,7 +1361,7 @@ def build_report(results, cases):
     diagnostics = [{'case': r['case'], 'arm': r['arm'], 'repetition': r['repetition'], 'status': r['status'],
                     'passed': r.get('passed'), 'budget_exhausted': (r.get('metrics') or {}).get('budget_exhausted')}
                    for r in finals.values() if r.get('label') == 'diagnostic']
-    return {'safety_blockers': blockers, 'unverified_safety': unverified_safety, 'transport_failures': failures, 'cases': rows, 'matrix': matrix,
+    return {'scoring_revision': CHECK_STATUS.REVISION, 'safety_blockers': blockers, 'unverified_safety': unverified_safety, 'transport_failures': failures, 'cases': rows, 'matrix': matrix,
             'cost_ratios': cost_ratios(rows), 'prices': PRICES, 'diagnostics': diagnostics,
             'note': 'Small N: report passes out of repetitions and medians with ranges; no p-values are claimed.'}
 
@@ -1382,7 +1387,7 @@ def format_report(report):
         metrics = row['metrics']
         median = lambda name: (metrics[name] or {}).get('median')
         lines.append(f"  {row['case']}@{row['scale']} {row['arm']}: {row['passes']}/{row['planned']}"
-                     f"{' PASS' if row['case_passed'] else ' fail'} first_read={median('first_target_read_round')}"
+                     f" {row['automatic_checks']['display']} first_read={median('first_target_read_round')}"
                      f" searches={median('searches')} bytes={median('bytes_read')} rounds={median('rounds')}"
                      f" cost={credits(median('cost'))} (parent {credits(median('parent_cost'))},"
                      f" helper {credits(median('helper_cost'))}) tokens={median('tokens')}"

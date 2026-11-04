@@ -36,6 +36,9 @@ def assess(gold, records, annotations, *, baseline=None, source_bindings=None, r
         text=record['data'].get('Note',{}).get('markdown')
         if not isinstance(text,str) or not isinstance(claim['quote'],str) or not claim['quote'].strip() or claim['quote'] not in text:
             raise ValueError('Claim evidence must be an exact nonempty quotation from a saved note')
+        if gold['task_contract'].get('exclude_raw_sources_from_artifacts') and claim['record'] in source_bindings.values():
+            unsupported.append(claim['fact_id'])
+            continue
         truth=expected.get(claim['fact_id'])
         correct=truth is not None and type(claim['value']) is type(truth['value']) and claim['value']==truth['value'] and claim['status']==truth['status']
         if not correct:
