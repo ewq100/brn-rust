@@ -222,6 +222,7 @@ fn locator(record: &Record) -> &str {
 
 /// Supplying `first`, then `second` (two spellings of the file at
 /// `canonical`) reuses one chat and records one Source at its real path.
+#[cfg(unix)]
 async fn one_chat_and_one_source(
     w: &mut Workspace,
     data: &std::path::Path,
@@ -286,6 +287,7 @@ async fn a_different_file_with_the_same_name_gets_its_own_chat_and_source() {
 /// What an older build recorded for a useful intake of the file at `locator`
 /// (a non-canonical spelling): a chat, its Source and a Failed Run naming it,
 /// through a checked owner change. Returns the chat and Source IDs.
+#[cfg(unix)]
 fn seed_older_useful_intake(w: &mut Workspace, locator: &str) -> (String, String) {
     let chat = w.new_thread(TITLE).unwrap().id;
     let op = w.store.allocate_operation("older-spelling").unwrap();
@@ -418,6 +420,7 @@ async fn a_supply_with_a_coverage_report_reuses_a_source_saved_under_an_older_sp
     assert_eq!(locator(&earlier), alias);
 }
 
+#[cfg(unix)]
 fn full_note(reference: &str) -> brn_threads_intake::ConversionResult {
     brn_threads_intake::ConversionResult {
         intent: brn_threads_intake::ImportIntent::FullNote,
@@ -464,6 +467,7 @@ fn full_import_of_one_file_through_two_spellings_observes_one_source() {
 /// `locators`: a global Source under that spelling, its protected full note
 /// and their full-import link, in one checked owner change. Returns the
 /// Source IDs, which sort in the given order.
+#[cfg(unix)]
 fn seed_older_full_imports(w: &mut Workspace, key: &str, locators: &[&str]) -> Vec<String> {
     let converted = full_note("unused");
     let version: String = converted
@@ -539,6 +543,7 @@ fn seed_older_full_imports(w: &mut Workspace, key: &str, locators: &[&str]) -> V
 }
 
 /// A useful note derived from the current revision of `source`.
+#[cfg(unix)]
 fn derive_note(w: &mut Workspace, source: &str) -> String {
     let version = w.store.record(source).unwrap().unwrap().version;
     let op = w.store.allocate_operation("derived-note").unwrap();
@@ -613,6 +618,7 @@ fn full_import_reuses_a_source_an_older_build_saved_under_another_spelling() {
     );
 }
 
+#[cfg(unix)]
 fn full_note_with_figure(reference: &str) -> brn_threads_intake::ConversionResult {
     use sha2::{Digest, Sha256};
     let bytes = vec![1, 2, 3];
@@ -631,6 +637,7 @@ fn full_note_with_figure(reference: &str) -> brn_threads_intake::ConversionResul
 
 /// A chat attachment of `reference` with a figure, and a chat note that shows
 /// that figure. Returns each one's ID and version.
+#[cfg(unix)]
 fn attachment_and_figure_note(w: &mut Workspace, reference: &str) -> [(String, u64); 2] {
     let chat = w.new_thread("Crane chat").unwrap().id;
     let ApplyOutcome::Applied(attached) = w
@@ -680,6 +687,7 @@ fn attachment_and_figure_note(w: &mut Workspace, reference: &str) -> [(String, u
     ]
 }
 
+#[cfg(unix)]
 fn global_sources(w: &Workspace) -> Vec<String> {
     sources(w)
         .into_iter()
@@ -690,6 +698,7 @@ fn global_sources(w: &Workspace) -> Vec<String> {
 
 /// Keeps the figure note, then the attachment, and returns the global Source
 /// each one's figure copy and note now point to.
+#[cfg(unix)]
 fn keep_both(w: &mut Workspace, [attachment, finding]: [(String, u64); 2]) -> [String; 2] {
     assert!(matches!(
         w.keep_in_brn("keep-finding", &finding.0, finding.1)
