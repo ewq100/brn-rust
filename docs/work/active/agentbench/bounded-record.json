@@ -6,7 +6,7 @@
   "scope": "Implement and verify bounded AgentBench; reviewable branch/PR; prepare but do not dispatch a new live experiment. No merge/release.",
   "plan": "docs/work/active/agentbench/bounded-plan.md",
   "work_view": {
-    "observed_at": "2026-11-04T14:41:48.630093+00:00",
+    "observed_at": "2026-11-04T14:43:53.999444+00:00",
     "goal": "Reliable bounded wiki-maintenance experiments using retained native AgentBench evidence.",
     "owner_attention": "First experiment prepared; no new live allocation. Genuine unseen evaluation ownership unavailable; visible screens are not acceptance.",
     "tasks": [
@@ -14,11 +14,11 @@
         "id": "bounded-agentbench",
         "title": "Harden AgentBench and prepare the first wiki experiment",
         "owner": "Sol 6.1 benchmark lead",
-        "state": "ready",
-        "activity": "All implementation complete. Three independent Sol review rounds resolved all findings; final score9.0/10. Reviewed native88 and tooling334 passed, with explicit optional skips.",
-        "observed_at": "2026-11-04T14:41:48.630093+00:00",
+        "state": "complete",
+        "activity": "Published draft PR246 from reviewed code80cdbd46; all requested implementation/offline verification and capped experiment preparation delivered. Hosted exact-head checks remain separate.",
+        "observed_at": "2026-11-04T14:43:53.999444+00:00",
         "origin": "observed",
-        "next_action": "Commit and publish a draft PR; new live experiment requires its concrete allocation and separate unseen evaluation ownership.",
+        "next_action": "Owner can review PR246. A new live allocation and separately owned genuinely unseen evaluation are required before accepting an optimization.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -32,7 +32,7 @@
         "gates": {
           "implementation": "passed: all3 independent-review findings corrected; final review no substantiated remaining defects (Sol9.0/10)",
           "checks": "passed: native88 (1 optional Inspect skip), tooling334 (11 opt-in skips), six-case/two-arm and two-world native offline, baseline byte identity, markdown/diff/overview; earlier failures preserved.",
-          "integration": "reviewable branch ready; draft PR publication next. No merge or release authorized.",
+          "integration": "draft PR246 published; exact-head hosted checks pending/unverified. No merge or release.",
           "native": "Headless checked seeding/restore/Undo and native BM25 scope retrieval observed; real reader answer quality, dense engine and desktop unverified.",
           "owner_acceptance": "not claimed; no new live allocation or genuinely unseen evaluation owner available"
         },
@@ -83,5 +83,11 @@
         ]
       }
     ]
+  },
+  "publication": {
+    "pr": "https://github.com/ewq100/brn-rust/pull/246",
+    "code_commit": "80cdbd46873f6ef09580b37a3ed2597457fc8c09",
+    "draft": true,
+    "hosted_checks": "pending/unverified; no merge requested"
   }
 }

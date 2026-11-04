@@ -15,25 +15,7 @@ None recorded.
 
 ## Next
 
-### Harden AgentBench and prepare the first wiki experiment
-
-Task ID: `bounded-agentbench`
-Owner: Sol 6.1 benchmark lead · State: **ready** · Last observed: 2026-11-04T14:41:48.630093+00:00
-Activity: All implementation complete. Three independent Sol review rounds resolved all findings; final score9.0/10. Reviewed native88 and tooling334 passed, with explicit optional skips.
-Next: Commit and publish a draft PR; new live experiment requires its concrete allocation and separate unseen evaluation ownership.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** passed: all3 independent-review findings corrected; final review no substantiated remaining defects (Sol9.0/10)
-- **checks:** passed: native88 (1 optional Inspect skip), tooling334 (11 opt-in skips), six-case/two-arm and two-world native offline, baseline byte identity, markdown/diff/overview; earlier failures preserved.
-- **integration:** reviewable branch ready; draft PR publication next. No merge or release authorized.
-- **native:** Headless checked seeding/restore/Undo and native BM25 scope retrieval observed; real reader answer quality, dense engine and desktop unverified.
-- **owner acceptance:** not claimed; no new live allocation or genuinely unseen evaluation owner available
-
-</details>
+None recorded.
 
 ## Needs attention
 
@@ -41,6 +23,10 @@ None recorded.
 
 ## Completed
 
-None recorded.
+Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-Local page reflects the last saved observations in this record (2026-11-04T14:41:48.630093+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+
+- `bounded-agentbench` — Harden AgentBench and prepare the first wiki experiment
+
+Local page reflects the last saved observations in this record (2026-11-04T14:43:53.999444+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
