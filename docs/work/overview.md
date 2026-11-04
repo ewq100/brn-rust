@@ -14,8 +14,8 @@ Task details and full history: [selected work record](active/windows-ci-portabil
 ### Qualify and integrate Windows compatibility
 
 Task ID: `windows-ci`
-Owner: Windows compatibility lead · State: **active** · Last observed: 2026-11-04T16:38:58.252032+02:00
-Activity: Published90cb7427; independent CLI audit found remaining Unix child/symlink helpers and Unix-shaped absolute fixture paths. Reviewed portable child ownership/kill/reap, retained portable file refusal, and fixed fixture paths. Focused72CLI tests and strict lint passed under the synthetic offline qualifier.
+Owner: Windows compatibility lead · State: **active** · Last observed: 2026-11-04T17:11:11.221486+02:00
+Activity: Reviewed eight-runtime-failure correction is ready:45focused local tests passed (input4, CLI23+search2, backup5, intake1, resend7, guides3), strict affected CLI/core/intake all-target lint passed, and synthetic autocrlf checkout verified9 embedded files. Windows native UI passed on701d63cf; new exact-head qualification follows publication.
 Next: Publish the reviewed fixture/security correction; require normal PR checks and all three Windows lanes on the exact head, then normal merge and resulting-main verification.
 
 <details>
@@ -23,8 +23,8 @@ Next: Publish the reviewed fixture/security correction; require normal PR checks
 
 Gates:
 
-- **implementation:** Reviewed corrections preserve Unix protections and portable edit/reopen/privacy coverage; Windows token-out now refuses before effects while authentic inline issuance remains supported.
-- **checks:** Prior candidate Windows UI/retrieval and supported Mac/Linux passed. Latest helper correction passes72focusedCLI tests and strict CLI all-target lint locally; exact-head full hosted qualification remains pending.
+- **implementation:** Independently reviewed portability/security changes preserve shared Unix workflows and exact byte/replay protections; no production retry broadening or portable test removal.
+- **checks:** 45focused runtime tests and affected all-target strict lint passed; formatting, docs and synthetic autocrlf checkout passed. Earlier72CLI/helper tests remain evidence. New exact-head PR plus Windows3 hosted results still pending.
 - **integration:** Normal PR merge explicitly authorized after passing checks; GitHub PR/merge state owns the integration result. No bypass.
 - **native:** Windows native UI job passed on7c01e10d and Linux/Mac supported jobs passed onf3fd36f8; no new real UI interaction or feature parity claim.
 - **owner acceptance:** No native interaction or feature parity claim; secure credentials, exclusive model installation and owner-only token-output files remain explicitly unavailable on Windows.
@@ -43,4 +43,4 @@ None recorded.
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-11-04T16:38:58.252032+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-04T17:11:11.221486+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.

@@ -7,7 +7,7 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-04T16:38:58.252032+02:00",
+    "observed_at": "2026-11-04T17:11:11.221486+02:00",
     "goal": "Complete Windows CI compatibility and merge through the normal checked PR path.",
     "owner_attention": "The owner explicitly authorized continuing until fixed and then merging. Current main PR244 is integrated; no live providers, account settings, check bypass or release is authorized.",
     "tasks": [
@@ -16,8 +16,8 @@
         "title": "Qualify and integrate Windows compatibility",
         "owner": "Windows compatibility lead",
         "state": "active",
-        "activity": "Published90cb7427; independent CLI audit found remaining Unix child/symlink helpers and Unix-shaped absolute fixture paths. Reviewed portable child ownership/kill/reap, retained portable file refusal, and fixed fixture paths. Focused72CLI tests and strict lint passed under the synthetic offline qualifier.",
-        "observed_at": "2026-11-04T16:38:58.252032+02:00",
+        "activity": "Reviewed eight-runtime-failure correction is ready:45focused local tests passed (input4, CLI23+search2, backup5, intake1, resend7, guides3), strict affected CLI/core/intake all-target lint passed, and synthetic autocrlf checkout verified9 embedded files. Windows native UI passed on701d63cf; new exact-head qualification follows publication.",
+        "observed_at": "2026-11-04T17:11:11.221486+02:00",
         "origin": "observed",
         "next_action": "Publish the reviewed fixture/security correction; require normal PR checks and all three Windows lanes on the exact head, then normal merge and resulting-main verification.",
         "depends_on": [],
@@ -28,8 +28,8 @@
           "https://github.com/ewq100/brn-rust/actions/runs/41828286144"
         ],
         "gates": {
-          "implementation": "Reviewed corrections preserve Unix protections and portable edit/reopen/privacy coverage; Windows token-out now refuses before effects while authentic inline issuance remains supported.",
-          "checks": "Prior candidate Windows UI/retrieval and supported Mac/Linux passed. Latest helper correction passes72focusedCLI tests and strict CLI all-target lint locally; exact-head full hosted qualification remains pending.",
+          "implementation": "Independently reviewed portability/security changes preserve shared Unix workflows and exact byte/replay protections; no production retry broadening or portable test removal.",
+          "checks": "45focused runtime tests and affected all-target strict lint passed; formatting, docs and synthetic autocrlf checkout passed. Earlier72CLI/helper tests remain evidence. New exact-head PR plus Windows3 hosted results still pending.",
           "integration": "Normal PR merge explicitly authorized after passing checks; GitHub PR/merge state owns the integration result. No bypass.",
           "native": "Windows native UI job passed on7c01e10d and Linux/Mac supported jobs passed onf3fd36f8; no new real UI interaction or feature parity claim.",
           "owner_acceptance": "No native interaction or feature parity claim; secure credentials, exclusive model installation and owner-only token-output files remain explicitly unavailable on Windows."
@@ -61,6 +61,16 @@
               "crates/brn/tests/support/mod.rs",
               "crates/brn/tests/agent_contract.rs",
               "crates/brn/tests/agent_discovery.rs",
+              "docs/work/active/windows-ci-portability/retry-20261104.md"
+            ]
+          },
+          {
+            "outcome": "701d63cf Windows Core runtime failures: input content/parse, README contract extraction, search-message credential expectation, refused-connect deadline, packaged skill frontmatter, raw backup intent spelling and directory source input. Both PR and manual runs reproduced the same eight failures. Mac retrieval runner never acquired (hosted arm64 capacity).",
+            "change": "Retain all portable assertions; fix platform fixtures and scoped LF checkout, preserve distinct raw intent using OsString, classify non-files consistently before opening while retaining handle checks, and separate connect-refusal test deadline from read-timeout fixture without broadening production retries.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/41850613329/job/126645897340",
+              "https://github.com/ewq100/brn-rust/actions/runs/41850620468/job/126645899830",
+              "https://github.com/ewq100/brn-rust/actions/runs/41850620468/job/126645899972",
               "docs/work/active/windows-ci-portability/retry-20261104.md"
             ]
           }

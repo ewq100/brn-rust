@@ -695,7 +695,7 @@ fn caller_input_mistakes_after_open_are_usage_or_rejected_not_internal() {
 fn text_input_refusals_create_nothing() {
     let root = Root::new();
     let data = root.join("absent");
-    let nul = root.file("nul.md", b"a\0b");
+    let nul = root.file("contains-nul.md", b"a\0b");
     let latin1 = root.file("latin1.md", b"caf\xe9");
     let large = root.file("large.md", &vec![b'a'; 16 * 1024 * 1024 + 1]);
     let dir = root.join("folder");
