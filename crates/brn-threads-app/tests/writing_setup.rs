@@ -617,7 +617,19 @@ fn ordered_reference_versions_and_purposes_survive_reopen_and_derived_regenerati
             .len(),
         2
     );
-    app.search("Original").unwrap();
+    // Own the preparatory worker so the index is closed before deletion on
+    // every platform; Workspace's ordinary worker exits asynchronously.
+    let (search, worker) = brn_threads_app::search::SearchHandle::spawn(&app.store).unwrap();
+    assert_eq!(
+        search
+            .search("Original", None, SEARCH_LIMIT)
+            .unwrap()
+            .matches
+            .len(),
+        1
+    );
+    drop(search);
+    worker.join().unwrap();
     let derived = app.store.derived_directory().unwrap();
     drop(app);
     std::fs::remove_dir_all(&derived).unwrap();

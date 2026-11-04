@@ -1,0 +1,51 @@
+{
+  "baseline": {
+    "main": "098dc556"
+  },
+  "authority": {
+    "source": "Owner: keep working until all is fixed and then merge it.",
+    "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
+  },
+  "work_view": {
+    "observed_at": "2026-11-04T15:56:15.474343+02:00",
+    "goal": "Complete Windows CI compatibility and merge through the normal checked PR path.",
+    "owner_attention": "The owner explicitly authorized continuing until fixed and then merging. Current main PR244 is integrated; no live providers, account settings, check bypass or release is authorized.",
+    "tasks": [
+      {
+        "id": "windows-ci",
+        "title": "Qualify and integrate Windows compatibility",
+        "owner": "Windows compatibility lead",
+        "state": "active",
+        "activity": "Integrated main098dc556; preserved portable directory protection and writing/reopen tests, joined the explicitly owned test worker before index deletion, and corrected PR244 Windows cfg lint.",
+        "observed_at": "2026-11-04T15:56:15.474343+02:00",
+        "origin": "observed",
+        "next_action": "Publish the reviewed combined candidate; require full Windows core/UI/retrieval and normal PR checks before merge, then inspect resulting-main CI.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/windows-ci-portability/handoff.md",
+          "docs/work/active/windows-ci-portability/retry-20261104.md",
+          "https://github.com/ewq100/brn-rust/actions/runs/41828286144"
+        ],
+        "gates": {
+          "implementation": "Reviewed platform boundaries retain Unix security; portable foreign-data and writing metadata/reopen assertions retained.",
+          "checks": "Focused storage/index/writing tests and integrated workspace strict lint passed locally; new exact-head hosted qualification remains required.",
+          "integration": "Normal PR merge explicitly authorized after passing checks; GitHub PR/merge state owns the integration result. No bypass.",
+          "native": "Windows native UI job passed on7c01e10d and Linux/Mac supported jobs passed onf3fd36f8; no new real UI interaction or feature parity claim.",
+          "owner_acceptance": "No new product acceptance claim; secure credentials and exclusive model installation remain explicitly unsupported on Windows."
+        },
+        "attempts": [
+          {
+            "outcome": "f3fd36f8 hosted run: Windows Core test compilation failed on Unix-only chat_storage symlinks; Windows retrieval writing fixture raced asynchronous worker shutdown; Ubuntu native runner failed before steps with no disk space.",
+            "change": "Split only Unix symlink fixture, retain portable directory protection, explicitly join preparatory writing-test worker, and qualify on fresh hosted runners.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/handoff.md",
+              "docs/work/active/windows-ci-portability/retry-20261104.md",
+              "https://github.com/ewq100/brn-rust/actions/runs/41828286144"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
