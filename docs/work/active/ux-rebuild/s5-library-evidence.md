@@ -216,7 +216,7 @@ Two gaps outside S5's files were fixed by the lead while merging. Both are cover
 
 ## Lead fixes after independent review
 
-The Sol review found one Major and two Minor issues. All three were fixed by the lead and covered by `launcher_project_scope_follows_the_visible_route` (`threads_projects_tests.rs`) plus the launcher label unit test. The scope fix and the unshared wording were rechecked natively in Light at 1280×900 on 5 November (shots in `brn-ux-rebuild-artifacts/shots/review-fixes/`; copies in [evidence/final](evidence/final/)):
+The Sol review found one Major and two Minor issues. All three were fixed by the lead and covered by `launcher_project_scope_follows_the_visible_route` (`threads_projects_tests.rs`) plus the launcher label unit test. The scope fix and the unshared wording were rechecked natively in Light and Dark at 1280×900 on 5 November (shots in `brn-ux-rebuild-artifacts/shots/review-fixes/`; copies in [evidence/final](evidence/final/)):
 
 - Projects → Harbour festival shows Run sheet as "Only in this project".
 - With Run sheet open, ⌘K "run" lists Run sheet under "This project · Project documents · not in Library".
