@@ -423,6 +423,14 @@ impl Layout {
             false
         }
     }
+    /// Called with the drawn arrangement: while the pane is docked the
+    /// compact sheet has nothing to show, so a later narrowing starts with
+    /// the document dominant and the sheet closed.
+    pub(super) fn settle(&mut self, arranged: &Arrangement) {
+        if arranged.support_docked() {
+            self.sheet_open = false;
+        }
+    }
     pub(super) fn set_support_width(&mut self, width: f32) {
         if width.is_finite() {
             self.support_width = width.clamp(metrics::ASSISTANT_MIN, metrics::ASSISTANT_MAX);
@@ -714,6 +722,20 @@ mod tests {
         assert!(!layout.arrange(WIDE).support_visible());
         layout.toggle_support(WIDE);
         assert!(layout.arrange(WIDE).support_docked());
+    }
+
+    #[test]
+    fn narrowing_from_a_docked_assistant_starts_with_the_sheet_closed() {
+        let mut layout = note_with_assistant();
+        layout.open(TileKind::Chat); // an explicit request also asks for the sheet
+        let wide = layout.arrange(WIDE);
+        assert!(wide.support_docked());
+        layout.settle(&wide);
+        let small = layout.arrange(SMALL);
+        assert!(matches!(small.support, Support::Sheet { open: false, .. }));
+        layout.settle(&small);
+        assert!(!layout.arrange(SMALL).support_visible());
+        assert!(layout.arrange(WIDE).support_docked(), "preference kept");
     }
 
     #[test]

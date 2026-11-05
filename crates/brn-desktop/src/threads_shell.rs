@@ -432,7 +432,7 @@ impl ThreadsUi {
             .accessibility_label(label.clone())
             .tooltip(label.clone())
             .selected(selected)
-            .when(selected, |row| row.bg(rgb(p.selection)))
+            .when(selected, |row| row.bg(rgb(p.active)))
             .child(
                 div()
                     .flex()
@@ -630,6 +630,8 @@ impl ThreadsUi {
             .flex_1()
             .h(px(theme::metrics::SIDEBAR_ROW))
             .text_size(px(theme::metrics::TEXT_SIDEBAR))
+            // The quiet selected row, as for the destinations above.
+            .when(selected, |row| row.bg(rgb(p.active)))
             .on_click(cx.listener(move |view, _, window, cx| view.open_thread(&open, window, cx)));
         div()
             .id(SharedString::from(format!("{row_id}-row")))
@@ -901,7 +903,7 @@ impl ThreadsUi {
             components::icon_button(id, icon, label.clone())
                 .tooltip(label)
                 .selected(selected)
-                .when(selected, |button| button.bg(rgb(pal().selection)))
+                .when(selected, |button| button.bg(rgb(pal().active)))
         };
         let inbox =
             div()
@@ -1260,7 +1262,7 @@ impl ThreadsUi {
         let inset = if self.arrangement.sidebar_expanded {
             tokens::SPACE_6
         } else {
-            px(TRAFFIC_LIGHTS - theme::metrics::SIDEBAR_RAIL)
+            px(TRAFFIC_LIGHTS - theme::metrics::SIDEBAR_RAIL) + tokens::SPACE_4
         };
         let title = self.window_drag(
             div()
@@ -1920,6 +1922,7 @@ impl Render for ThreadsUi {
         // The pane policy runs on every frame from the usable width; it
         // reads the stored preferences and never writes them back.
         self.arrangement = self.layout.arrange(Self::usable_width(window));
+        self.layout.settle(&self.arrangement);
         // A supporting pane that is not drawn cannot hold the keyboard region.
         // When the window narrows under it, focus returns to the document.
         if self.layout.pane() == layout::Pane::Assistant && !self.arrangement.support_visible() {
