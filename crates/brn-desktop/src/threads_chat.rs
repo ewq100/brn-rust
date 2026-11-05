@@ -699,6 +699,14 @@ impl ThreadsUi {
                     short(&q.text)
                 )
             };
+            let reorder_slot = || {
+                div()
+                    .flex()
+                    .flex_shrink_0()
+                    .justify_center()
+                    .items_center()
+                    .w(components::tokens::ICON_CONTROL)
+            };
             let reorder = |id: String, direction: &'static str, before: Option<String>| {
                 let item = q.id.clone();
                 components::icon_button(
@@ -783,12 +791,13 @@ impl ThreadsUi {
                                 cx.notify();
                             })),
                     )
-                    .when_some(up, |row, before| {
-                        row.child(reorder(format!("queue-up-{index}"), "up", Some(before)))
-                    })
-                    .when_some(down, |row, before| {
-                        row.child(reorder(format!("queue-down-{index}"), "down", before))
-                    })
+                    // Fixed slots keep Edit and Remove aligned on the first and last rows.
+                    .child(reorder_slot().when_some(up, |slot, before| {
+                        slot.child(reorder(format!("queue-up-{index}"), "up", Some(before)))
+                    }))
+                    .child(reorder_slot().when_some(down, |slot, before| {
+                        slot.child(reorder(format!("queue-down-{index}"), "down", before))
+                    }))
                     .test_support(),
             );
         }

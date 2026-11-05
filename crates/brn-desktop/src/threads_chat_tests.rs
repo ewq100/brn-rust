@@ -1646,6 +1646,11 @@ fn queue_items_move_down_and_up_and_editing_keeps_the_composer_draft(cx: &mut Te
         assert_eq!(label(window, "queue-down-0"), "Move down");
         assert!(window.try_find("queue-up-0").is_none());
         assert!(window.try_find("queue-down-2").is_none());
+        // Edge rows keep empty reorder slots, so the row actions line up.
+        let edits: Vec<_> = (0..3)
+            .map(|i| window.find(format!("queue-edit-{i}")).bounds().origin.x)
+            .collect();
+        assert!(edits.iter().all(|x| *x == edits[0]), "{edits:?}");
     });
     click(cx, &f, "queue-down-0");
     assert_eq!(order(cx), ["Bravo", "Alpha", "Charlie"]);
