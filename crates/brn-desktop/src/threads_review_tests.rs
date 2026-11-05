@@ -66,6 +66,12 @@ fn commented(cx: &mut TestAppContext, f: &Fixture, protected: bool) -> String {
         view.refresh();
         view.open_note(&note.id, None, window, cx);
         view.select_writing_thread(note.id.clone(), thread.clone(), window, cx);
+        // Choosing the chat shows it; in a compact window that is the
+        // assistant sheet over the note. Return to the note, as Escape does.
+        let width = f32::from(window.viewport_size().width);
+        view.relayout(window, cx, |layout| {
+            layout.close_sheet(width);
+        });
         thread
     })
 }
@@ -402,10 +408,10 @@ fn proposal_shapes_name_the_label_primary_and_exact_footer() {
 /// review bar, opens the stacked section between the review text and the
 /// footer, and Escape closes it again with focus back on the review text.
 #[gpui_kit::test]
-fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x600(
+fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_620x600(
     cx: &mut TestAppContext,
 ) {
-    let f = fixture(cx, 900., 600., TEXT);
+    let f = fixture(cx, 620., 600., TEXT);
     cx.update(|cx| cx.bind_keys(bindings()));
     let thread = commented(cx, &f, true);
     let comments = comment_ids(cx, &f);
@@ -491,12 +497,14 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_900x6
         assert_in(window, "note-bar", window.find("tile-note").bounds());
         assert_eq!(window.find("note-bar").label(), Some(PROTECTED_FOOTER));
         // Comments never render in Chat.
-        let chat = window.within("tile-chat");
-        assert!(
-            comments
-                .iter()
-                .all(|id| chat.try_find(format!("comment-card-{id}")).is_none())
-        );
+        // The chat is not drawn when the compact assistant sheet is closed.
+        let mut chat = window
+            .try_find("tile-chat")
+            .map(|_| window.within("tile-chat"));
+        assert!(comments.iter().all(|id| {
+            chat.as_mut()
+                .is_none_or(|chat| chat.try_find(format!("comment-card-{id}")).is_none())
+        }));
     });
 
     // A kept draft has focus inside the section; Escape collapses it, keeps
@@ -734,14 +742,14 @@ fn assert_shared_height(window: &Window, comments: &[String], case: &str) {
     assert!(section.bottom() <= footer.top(), "{case}");
 }
 
-/// The footer never moves: at 900×600 and 850×600, with Inputs, long
+/// The footer never moves: at 620×600 and 580×600, with Inputs, long
 /// overall feedback and the stacked comments open, the details give way
 /// first, so the exact-text footer stays whole for a several-notes
 /// protected review and while editing the final text.
 #[gpui_kit::test]
 fn review_footer_stays_whole_with_inputs_and_comments_open_at_600_tall(cx: &mut TestAppContext) {
     let feedback = "Tighten the opening, keep the pilot's dates and owners exactly as written, name the venue once, and say who confirms the booking and by when. ".repeat(3);
-    for width in [900., 850.] {
+    for width in [620., 580.] {
         // Several notes, one of them protected, every group included.
         let f = fixture(cx, width, 600., TEXT);
         let thread = commented(cx, &f, true);
@@ -832,12 +840,12 @@ fn review_footer_stays_whole_with_inputs_and_comments_open_at_600_tall(cx: &mut 
     }
 }
 
-/// At 1100×760 and 1250×860 the review shows the comments beside the text,
+/// At 1150×760 and 1250×860 the review shows the comments beside the text,
 /// and the same toggle in the review bar hides and shows them.
 #[gpui_kit::test]
 fn review_comments_render_beside_the_text_at_1250x860(cx: &mut TestAppContext) {
     for (width, height, mode, fit) in [
-        (1100., 760., MarginMode::Narrow, ReviewFit::Icons),
+        (1150., 760., MarginMode::Narrow, ReviewFit::Icons),
         (1250., 860., MarginMode::Wide, ReviewFit::Compact),
     ] {
         let f = fixture(cx, width, height, TEXT);
@@ -1167,10 +1175,15 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
 /// otherwise; they never render in Chat.
 #[gpui_kit::test]
 fn comment_placement_follows_the_note_width(cx: &mut TestAppContext) {
+    // The pane policy decides the Note's width: dominant alone at 900
+    // (assistant as a closed sheet), docked beside the assistant from about
+    // 940, and below about 640 the comments stack.
     for (width, height, mode) in [
-        (900., 600., MarginMode::Stacked),
-        (1050., 700., MarginMode::Stacked),
-        (1100., 760., MarginMode::Narrow),
+        (620., 600., MarginMode::Stacked),
+        (900., 600., MarginMode::Wide),
+        (960., 700., MarginMode::Narrow),
+        (1050., 700., MarginMode::Wide),
+        (1150., 760., MarginMode::Narrow),
         (1250., 860., MarginMode::Wide),
     ] {
         let f = fixture(cx, width, height, TEXT);
@@ -1179,11 +1192,14 @@ fn comment_placement_follows_the_note_width(cx: &mut TestAppContext) {
         let case = format!("{width}x{height}");
         on_window(cx, &f, |window, cx| {
             assert_eq!(f.view.read(cx).writing.margin_mode, mode, "{case}");
-            let chat = window.within("tile-chat");
+            // The chat is not drawn when the compact assistant sheet is closed.
+            let mut chat = window
+                .try_find("tile-chat")
+                .map(|_| window.within("tile-chat"));
             assert!(
-                comments
-                    .iter()
-                    .all(|id| chat.try_find(format!("comment-card-{id}")).is_none()),
+                comments.iter().all(|id| chat
+                    .as_mut()
+                    .is_none_or(|chat| chat.try_find(format!("comment-card-{id}")).is_none())),
                 "{case}: no card in Chat"
             );
             if mode == MarginMode::Stacked {
@@ -1218,20 +1234,20 @@ fn comment_placement_follows_the_note_width(cx: &mut TestAppContext) {
                 assert!(section.bottom() <= window.find("note-bar").bounds().top());
                 assert_cards_in(window, &comments, section);
                 assert!(
-                    window
-                        .within("tile-chat")
-                        .try_find("comments-section")
-                        .is_none()
+                    window.try_find("tile-chat").is_none()
+                        || window
+                            .within("tile-chat")
+                            .try_find("comments-section")
+                            .is_none()
                 );
             });
         }
     }
-    // Solo gives the Note the whole row, so comments go beside the text.
+    // The document alone has the whole workspace, so comments go beside the text.
     let f = fixture(cx, 900., 600., TEXT);
     commented(cx, &f, false);
     update(cx, &f, |view, window, cx| {
-        view.layout.set_focus(TileKind::Note);
-        view.apply_layout(Preset::Solo, window, cx);
+        view.relayout(window, cx, |layout| layout.show_alone(TileKind::Note));
     });
     on_window(cx, &f, |window, cx| {
         assert_eq!(f.view.read(cx).writing.margin_mode, MarginMode::Wide);
@@ -1255,8 +1271,8 @@ fn comment_placement_follows_the_note_width(cx: &mut TestAppContext) {
 /// and Retry saved rewrite as its primary. The draft keeps its whole input;
 /// the text gives way to its few lines, never under 48 px.
 #[gpui_kit::test]
-fn an_open_stacked_draft_keeps_the_whole_writing_bar_at_900x600(cx: &mut TestAppContext) {
-    let f = fixture(cx, 900., 600., TEXT);
+fn an_open_stacked_draft_keeps_the_whole_writing_bar_at_620x600(cx: &mut TestAppContext) {
+    let f = fixture(cx, 620., 600., TEXT);
     cx.update(|cx| cx.bind_keys(bindings()));
     commented(cx, &f, false);
     // Offline the request is saved and no AI starts: Retry saved rewrite
@@ -1294,7 +1310,7 @@ fn an_open_stacked_draft_keeps_the_whole_writing_bar_at_900x600(cx: &mut TestApp
 /// Every comment capability works in the stacked section at 900×600.
 #[gpui_kit::test]
 fn stacked_comments_keep_every_comment_capability(cx: &mut TestAppContext) {
-    let f = fixture(cx, 900., 600., TEXT);
+    let f = fixture(cx, 620., 600., TEXT);
     cx.update(|cx| cx.bind_keys(bindings()));
     commented(cx, &f, false);
     let quick = comment_on(cx, &f, "quick");
@@ -1579,8 +1595,8 @@ fn failed_rewrite(cx: &mut TestAppContext, f: &Fixture, thread: &str, reason: &s
 /// saved inputs give way first (they used to sit inside the bar and push
 /// it out of the Note), and the writing bar stays whole.
 #[gpui_kit::test]
-fn the_busiest_note_keeps_its_text_and_whole_bar_at_900x600(cx: &mut TestAppContext) {
-    let f = fixture(cx, 900., 600., TEXT);
+fn the_busiest_note_keeps_its_text_and_whole_bar_at_620x600(cx: &mut TestAppContext) {
+    let f = fixture(cx, 620., 600., TEXT);
     commented(cx, &f, false);
     update(cx, &f, |view, window, cx| view.rewrite_note(window, cx));
     on_window(cx, &f, |window, cx| window.click("dismiss-notice", cx));
@@ -1625,8 +1641,8 @@ fn the_busiest_note_keeps_its_text_and_whole_bar_at_900x600(cx: &mut TestAppCont
 /// N3: below the text come the comments, the run's status and reply, then
 /// the writing bar; the text keeps 120 px and the section gives way first.
 #[gpui_kit::test]
-fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut TestAppContext) {
-    let f = fixture(cx, 900., 600., TEXT);
+fn a_failed_run_and_open_comments_leave_the_text_120_px_at_620x600(cx: &mut TestAppContext) {
+    let f = fixture(cx, 620., 600., TEXT);
     let thread = commented(cx, &f, false);
     update(cx, &f, |view, window, cx| view.rewrite_note(window, cx));
     let reason = "Run failed: Synthetic provider stopped before finishing the rewrite.";
@@ -1726,9 +1742,9 @@ fn a_failed_run_and_open_comments_leave_the_text_120_px_at_900x600(cx: &mut Test
 /// takes all the rest (83.5 px) above its 48 px floor (plan.md N3, pending
 /// owner acceptance).
 #[gpui_kit::test]
-fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppContext) {
+fn the_banner_stack_keeps_its_budget_above_the_text_at_620x600(cx: &mut TestAppContext) {
     // The stale banner, open comments and a dirty bar: the text keeps 120 px.
-    let f = fixture(cx, 900., 600., TEXT);
+    let f = fixture(cx, 620., 600., TEXT);
     commented(cx, &f, false);
     // Saved elsewhere first, then edited here: the edit's base is behind.
     change_saved(cx, &f, |note| {
@@ -1764,8 +1780,9 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
         assert!(section.bottom() <= window.find("note-bar").bounds().top() + px(0.5));
     });
     // The busiest stale state: the failed run's reason and its partial
-    // reply join the rows that never hide.
-    let f = fixture(cx, 900., 600., TEXT);
+    // reply join the rows that never hide. The shell's chrome is shorter
+    // than the old tiles', so 490 pt gives the Note a comparably tight height.
+    let f = fixture(cx, 620., 490., TEXT);
     let thread = commented(cx, &f, false);
     update(cx, &f, |view, window, cx| view.rewrite_note(window, cx));
     failed_rewrite(
@@ -1850,7 +1867,7 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_900x600(cx: &mut TestAppC
     });
     // With the bars at rest (no failed run), the same stale edit shows the
     // whole banner and the saved version.
-    let f = fixture(cx, 900., 600., TEXT);
+    let f = fixture(cx, 620., 600., TEXT);
     change_saved(cx, &f, |note| {
         note.markdown = format!("{TEXT}\n\nChanged elsewhere.")
     });

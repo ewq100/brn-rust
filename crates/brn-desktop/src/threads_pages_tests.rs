@@ -229,20 +229,35 @@ fn a_needs_you_title_stays_beside_a_long_reason_one_line_each(cx: &mut TestAppCo
     });
     let row = format!("attention-{thread}");
     on_window(cx, &f, |window, _| {
-        // The full text is the row's accessible label (and its tooltip).
+        // The sidebar row is one line; its full text (title and reason) is
+        // its accessible name and tooltip.
         assert_eq!(label(window, &row), format!("Delivery update · {FAILURE}"));
         let frame = window.find(row.clone()).bounds();
         let title = window.find(format!("{row}-title")).bounds();
-        let reason = window.find(format!("{row}-reason")).bounds();
-        assert!(
-            frame.size.width <= px(200.),
-            "the 170 pt Chats list: {frame:?}"
-        );
+        assert!(frame.size.width <= px(224.), "the sidebar row: {frame:?}");
         assert!(
             title.size.width > px(60.),
             "the title keeps its room: {title:?}"
         );
-        // One line each: two lines would be at least twice as tall.
+        assert!(title.size.height < px(28.), "one title line: {title:?}");
+        assert!(frame.size.height <= px(36.5), "a 36 pt row: {frame:?}");
+        // A long chat title stays on one line too.
+        let chat = format!("thread-{long}");
+        assert!(window.find(format!("{chat}-title")).bounds().size.height < px(28.));
+        assert!(label(window, &chat).starts_with("A very long chat title"));
+        assert_eq!(label(window, "nav-inbox"), "Inbox, 1 needs you");
+    });
+    // The Inbox names the chat above its reason, one line each.
+    click(cx, &f, "nav-inbox");
+    let inbox = format!("home-attention-{thread}");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, &inbox),
+            format!("Delivery update · {FAILURE}")
+        );
+        let frame = window.find(inbox.clone()).bounds();
+        let title = window.find(format!("{inbox}-title")).bounds();
+        let reason = window.find(format!("{inbox}-reason")).bounds();
         assert!(title.size.height < px(28.), "one title line: {title:?}");
         assert!(reason.size.height < px(24.), "one reason line: {reason:?}");
         assert!(reason.origin.y >= title.origin.y + title.size.height - px(1.));
@@ -250,42 +265,10 @@ fn a_needs_you_title_stays_beside_a_long_reason_one_line_each(cx: &mut TestAppCo
             assert!(line.origin.x + line.size.width <= frame.origin.x + frame.size.width + px(1.));
         }
         assert!(frame.size.height <= px(45.), "two lines high: {frame:?}");
-        // A long chat title stays on one line too.
-        let chat = format!("thread-{long}");
-        assert!(window.find(format!("{chat}-title")).bounds().size.height < px(28.));
-        assert!(label(window, &chat).starts_with("A very long chat title"));
     });
-    // The needs-you menu names the chat and its reason on one line.
-    click(cx, &f, "needs-badge");
-    on_window(cx, &f, |window, _| {
-        let item = window
-            .within("popup-menu")
-            .find(format!("needs-item-{thread}"));
-        assert_eq!(
-            item.label(),
-            Some(format!("Delivery update · {FAILURE}").as_str())
-        );
-        assert_eq!(item.role(), Some(gpui_kit::Role::Label));
-        assert_eq!(
-            item.value(),
-            Some(format!("Delivery update · {FAILURE}").as_str())
-        );
-        assert!(
-            item.bounds().size.height < px(28.),
-            "one line: {:?}",
-            item.bounds()
-        );
-        // The line truncates inside the menu instead of widening it.
-        let menu = window.within("popup-menu").find(1usize).bounds();
-        let line = item.bounds();
-        assert!(
-            line.origin.x + line.size.width <= menu.origin.x + menu.size.width,
-            "{line:?} in {menu:?}"
-        );
-    });
-    choose_needs(cx, &f, &thread);
+    click(cx, &f, inbox.clone());
     cx.read(|cx| assert_eq!(f.view.read(cx).chat_thread(), Some(thread.as_str())));
-    // The open chat's row reports its selection.
+    // The open chat's sidebar row reports its selection.
     on_window(cx, &f, |window, _| {
         assert_eq!(window.find(row.clone()).selected(), Some(true));
         assert_ne!(window.find(format!("thread-{long}")).selected(), Some(true));
@@ -296,7 +279,7 @@ fn a_needs_you_title_stays_beside_a_long_reason_one_line_each(cx: &mut TestAppCo
 #[gpui_kit::test]
 fn delegation_and_maintenance_notices_never_show_a_receipt_reason(cx: &mut TestAppContext) {
     let f = fixture(cx, 1250., 860., |_| {});
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     click(cx, &f, "delegation-review-first");
     let receipts = |cx: &mut TestAppContext| {
         cx.read(|cx| {
@@ -333,7 +316,7 @@ fn delegation_and_maintenance_notices_never_show_a_receipt_reason(cx: &mut TestA
 /// A protected note's row in the 170 pt Notes list shows the Lock whole
 /// rather than "Protect…"; it is announced as Protected.
 #[gpui_kit::test]
-fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppContext) {
+fn the_library_list_marks_protected_notes_with_the_lock(cx: &mut TestAppContext) {
     let mut note = String::new();
     let f = fixture(cx, 900., 600., |workspace| {
         let record = workspace
@@ -361,7 +344,7 @@ fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppConte
         note = record.id;
     });
     update(cx, &f, |view, window, cx| {
-        view.apply_layout(Preset::Write, window, cx);
+        view.relayout(window, cx, Layout::document_with_assistant);
         view.show_tile(TileKind::Notes, window, cx);
         view.search.clone().update(cx, |input, cx| {
             input.set_value("A protected decision with a long title", window, cx);
@@ -373,7 +356,6 @@ fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppConte
         let row = format!("note-{note}");
         let frame = window.find(row.clone()).bounds();
         let lock = window.find(format!("{row}-protected")).bounds();
-        assert!(frame.size.width < px(200.), "the narrow list: {frame:?}");
         assert!(lock.size.width > px(8.) && lock.right() <= frame.right() + px(0.5));
         assert!(label(window, &row).starts_with("A protected decision with a long title"));
         assert!(
@@ -394,9 +376,9 @@ fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppConte
     cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), Some(note.as_str())));
 }
 
-/// U7: a chat that needs you leaves Recent chats, and in each Needs-you
-/// list (the Chats panel and Home) its row keeps the chat title on its first
-/// line with the reason under it; the title-bar menu leads with the title.
+/// U7: a chat that needs you is listed once in Recent chats, marked, with
+/// the title first; the Inbox row keeps the chat title on its first line
+/// with the reason under it.
 /// The reason is seeded here, not the service's wording.
 #[gpui_kit::test]
 fn needs_you_rows_keep_the_chat_title_above_the_reason_in_every_list(cx: &mut TestAppContext) {
@@ -423,30 +405,17 @@ fn needs_you_rows_keep_the_chat_title_above_the_reason_in_every_list(cx: &mut Te
     on_window(cx, &f, |window, _| {
         assert!(
             window.try_find(format!("thread-{thread}")).is_none(),
-            "it left Recent chats"
+            "it is listed once, as needing you"
         );
-        two_lines(window, &format!("attention-{thread}"));
+        // The sidebar row is one line that leads with the title; its
+        // accessible name carries the reason.
+        let row = format!("attention-{thread}");
+        assert_eq!(label(window, &row), format!("Venue booking · {reason}"));
+        assert!(window.find(format!("{row}-title")).bounds().size.width > px(60.));
     });
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
         two_lines(window, &format!("home-attention-{thread}"))
-    });
-    click(cx, &f, "needs-badge");
-    on_window(cx, &f, |window, _| {
-        let item = window
-            .within("popup-menu")
-            .find(format!("needs-item-{thread}"));
-        assert!(
-            item.label().unwrap().starts_with("Venue booking · "),
-            "{:?}",
-            item.label()
-        );
-    });
-}
-fn choose_needs(cx: &mut TestAppContext, f: &Fixture, thread: &str) {
-    let id = format!("needs-item-{thread}");
-    on_window(cx, f, |window, cx| {
-        window.within("popup-menu").click(id, cx)
     });
 }
 
@@ -523,18 +492,14 @@ fn review_rows_name_their_target_notes_and_mark_a_protected_one(cx: &mut TestApp
     });
     let expected = "Review changes to Delivery decision: 22 November and Survey";
     on_window(cx, &f, |window, _| {
-        for row in [
-            format!("candidate-{operation}"),
-            format!("attention-{thread}"),
-        ] {
-            let text = label(window, &row);
-            assert!(text.contains(expected), "{row}: {text}");
-            assert!(text.ends_with("· Protected"), "{row}: {text}");
-            assert!(!text.contains("Review · Review prepared changes"), "{text}");
-            assert_eq!(label(window, format!("{row}-protected")), "Protected");
-        }
+        // The sidebar's one-line row names the target notes and Protected.
+        let row = format!("attention-{thread}");
+        let text = label(window, &row);
+        assert!(text.contains(expected), "{row}: {text}");
+        assert!(text.ends_with("· Protected"), "{row}: {text}");
+        assert!(!text.contains("Review · Review prepared changes"), "{text}");
     });
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
         for row in [
             format!("home-candidate-{operation}"),
@@ -548,17 +513,6 @@ fn review_rows_name_their_target_notes_and_mark_a_protected_one(cx: &mut TestApp
             assert!(window.find(format!("{row}-protected")).visible());
         }
     });
-    click(cx, &f, "needs-badge");
-    on_window(cx, &f, |window, _| {
-        assert_eq!(
-            window
-                .within("popup-menu")
-                .find(format!("needs-item-{thread}"))
-                .label(),
-            Some(format!("Delivery chat · {expected} · Protected").as_str())
-        );
-    });
-    close_menu(cx, &f);
     cx.read(|cx| {
         let view = f.view.read(cx);
         let RecordData::Thread(data) = &view.workspace.store.record(&thread).unwrap().unwrap().data
@@ -584,25 +538,23 @@ fn kept_edits_read_recover_edit_with_an_unsaved_chip(cx: &mut TestAppContext) {
             .unwrap();
         note = saved.id;
     });
+    // Kept edits are recovered from the Inbox.
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
         // R4: the note's title leads, "Recover edit" is the reason line, and
-        // the narrow list shows the Unsaved marker as its icon, announced
-        // and in the tooltip.
+        // the Unsaved marker follows, announced and in the tooltip.
         assert_eq!(
-            label(window, "recover-0"),
+            label(window, "home-recover-0"),
             "Pilot proposal · Recover edit · Unsaved"
         );
-        assert_eq!(label(window, "recover-0-unsaved"), "Unsaved");
-        let title = window.find("recover-0-title").bounds();
-        let chip = window.find("recover-0-unsaved").bounds();
-        assert!(chip.size.width <= px(36.), "icon form, no text: {chip:?}");
-        // The title keeps most of the 170 pt row (94 px in the test text
-        // system); the marker beside it is the icon alone.
+        assert_eq!(label(window, "home-recover-0-unsaved"), "Unsaved");
+        let title = window.find("home-recover-0-title").bounds();
+        let chip = window.find("home-recover-0-unsaved").bounds();
         assert!(title.size.width >= px(90.), "{title:?} {chip:?}");
         assert!(title.right() <= chip.left(), "{title:?} {chip:?}");
-        assert!(window.find("recover-0-reason").visible());
+        assert!(window.find("home-recover-0-reason").visible());
     });
-    click(cx, &f, "recover-0");
+    click(cx, &f, "home-recover-0");
     cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), Some(note.as_str())));
 }
 
@@ -976,7 +928,7 @@ fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &m
         assert!(!view.queue_state().quiet);
     });
     // Home leaves bookkeeping out and marks the change that needs refresh.
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
         assert!(window.try_find(format!("home-change-{quiet}")).is_none());
         assert_eq!(
@@ -990,7 +942,7 @@ fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &m
 #[gpui_kit::test]
 fn home_shows_the_intro_only_on_first_run(cx: &mut TestAppContext) {
     let first = fixture(cx, 1250., 860., |_| {});
-    click(cx, &first, "home");
+    click(cx, &first, "nav-inbox");
     on_window(cx, &first, |window, _| {
         assert!(window.find("home-intro").visible());
         assert!(window.find("delegation-pending").visible());
@@ -1002,7 +954,7 @@ fn home_shows_the_intro_only_on_first_run(cx: &mut TestAppContext) {
             .unwrap()
             .id;
     });
-    click(cx, &seeded, "home");
+    click(cx, &seeded, "nav-inbox");
     on_window(cx, &seeded, |window, _| {
         assert!(window.try_find("home-intro").is_none());
         // The pending choice is independent of first run.
@@ -1068,8 +1020,9 @@ fn first_run_empty_states_name_the_next_step(cx: &mut TestAppContext) {
 fn the_delegation_card_keeps_its_text_inside_a_narrow_chat(cx: &mut TestAppContext) {
     let f = fixture(cx, 900., 600., |_| {});
     update(cx, &f, |view, window, cx| {
-        view.apply_layout(Preset::Write, window, cx);
+        // New chat fills the workspace; then show it as the narrow assistant.
         view.new_thread(window, cx);
+        view.relayout(window, cx, Layout::narrow_assistant);
     });
     on_window(cx, &f, |window, cx| {
         assert!(f.view.read(cx).chat_narrow);
@@ -1104,7 +1057,7 @@ fn delegation_is_two_radios_and_a_switch_in_settings_and_two_quiet_buttons_on_ho
     cx: &mut TestAppContext,
 ) {
     let f = fixture(cx, 1250., 860., |_| {});
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
         for (id, text) in [
             (
@@ -1337,8 +1290,9 @@ fn recent_chats_with_only_archived_chats_points_to_archived(cx: &mut TestAppCont
     });
     assert_eq!(
         recent_empty(cx, &f),
-        "No open chats · Archived chats are under Archived."
+        "No open chats · Archived chats are in All chats."
     );
+    click(cx, &f, "nav-all-chats");
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "resolved-count"), "Archived · 1");
     });
@@ -1374,10 +1328,10 @@ fn tab_to(cx: &mut TestAppContext, f: &Fixture, id: &str) -> bool {
     })
 }
 
-/// Home's rows are not Tab stops, so every Home item keeps a
-/// keyboard route: a note and its kept edit through ⌘K, a review through
-/// the needs-you badge to its chat and then Tab into the chat's review
-/// card, and a change through ⌘K Changes and its Undo buttons.
+/// Every Inbox item keeps a keyboard route: a note and its kept edit
+/// through ⌘K, a review through its sidebar chat row and then Tab
+/// into the chat's review card, and a change through ⌘K Recent changes and
+/// its Undo buttons.
 #[gpui_kit::test]
 fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
     let (mut kept, mut thread, mut operation) = (String::new(), String::new(), String::new());
@@ -1423,7 +1377,7 @@ fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
             Some(operation.clone()),
         );
     });
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
         assert!(window.find("home-recover-0").visible());
         assert!(window.find(format!("home-candidate-{operation}")).visible());
@@ -1444,23 +1398,16 @@ fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
         );
         assert_eq!(view.writing.note_editor.read(cx).value(), "Kept text");
     });
-    // The review: the needs-you badge opens from the keyboard, ↓ ↵ opens
-    // its chat, and Tab reaches the card's Show in note.
+    // The review: the chat that needs you leads Recent chats in the
+    // sidebar; Tab past Projects reaches its row and ↵ opens the chat.
     update(cx, &f, |view, window, cx| view.focus_root(window, cx));
-    assert!(
-        tab_to(cx, &f, "needs-badge"),
-        "Tab reaches the needs-you badge"
-    );
-    press(cx, &f, "enter");
-    // Kit's first ↓ lands on the menu's "Needs you" heading, the next on
-    // the first chat.
-    press(cx, &f, "down");
-    press(cx, &f, "down");
+    assert!(tab_to(cx, &f, "nav-projects"), "Tab reaches Projects");
+    press(cx, &f, "tab");
     press(cx, &f, "enter");
     cx.read(|cx| assert_eq!(f.view.read(cx).chat_thread(), Some(thread.as_str())));
-    // The composer takes Tab for indentation, so ⌘0 moves to Home, beside
-    // the chat, and Tab continues from Home into the chat's review card.
-    press(cx, &f, "cmd-0");
+    // The composer takes Tab for indentation, so continue from the
+    // workspace into the chat's review card.
+    update(cx, &f, |view, window, cx| view.focus_root(window, cx));
     on_window(cx, &f, |window, cx| {
         window.simulate_next_frame(cx);
     });
@@ -1509,7 +1456,6 @@ fn chat_rows_are_named_controls_and_enter_space_select_without_run(cx: &mut Test
             }
         });
         let before = cx.read(|cx| f.view.read(cx).workspace.records().unwrap());
-        click(cx, &f, "chats-recent");
         let row = format!("{}-{chat}", if attention { "attention" } else { "thread" });
         on_window(cx, &f, |window, _| {
             let row = window.find(row.clone());
@@ -1517,9 +1463,9 @@ fn chat_rows_are_named_controls_and_enter_space_select_without_run(cx: &mut Test
             assert!(row.label().unwrap().starts_with("Keyboard chat Ω"));
             assert_eq!(row.selected(), Some(false));
         });
-        // Locate the preceding navigation control by actual keyboard traversal;
-        // panel focus landing need not be the clicked Recent button.
-        assert!(tab_to(cx, &f, "resolved-count"));
+        // Locate the preceding sidebar control by actual keyboard traversal.
+        update(cx, &f, |view, window, cx| view.focus_root(window, cx));
+        assert!(tab_to(cx, &f, "nav-projects"));
         press(cx, &f, "tab");
         press(cx, &f, key);
         cx.read(|cx| {
@@ -1531,7 +1477,7 @@ fn chat_rows_are_named_controls_and_enter_space_select_without_run(cx: &mut Test
         on_window(cx, &f, |window, _| {
             assert_eq!(window.find(row).selected(), Some(true))
         });
-        click(cx, &f, "all-threads");
+        click(cx, &f, "nav-all-chats");
         on_window(cx, &f, |window, _| {
             let row = window.find(format!("all-thread-{chat}"));
             assert_eq!(row.role(), Some(gpui_kit::Role::Button));
@@ -1576,37 +1522,21 @@ fn chat_focus_dispatch_with_tasks_panel_and_split_enter(cx: &mut TestAppContext)
             })
         });
         on_window(cx, &f, |window, _| {
-            assert!(window.find("tile-menu-actions").visible());
-            assert!(window.find("chats-recent").visible());
+            assert!(window.find("inbox-tasks").visible());
+            assert!(window.find("nav-projects").visible());
             eprintln!(
                 "diagnostic redraw={redraw}: a11y_active={}",
                 window.is_a11y_active()
             );
         });
-        // Native evidence first activated Recent through its accessible Click.
-        // TestWindowExt::click dispatches the equivalent pointer event pair;
-        // subsequent navigation uses keys only and never injects row focus.
-        click(cx, &f, "chats-recent");
+        // Keys only from the workspace root to the sidebar control before the
+        // chat row; navigation never injects row focus.
+        update(cx, &f, |view, window, cx| view.focus_root(window, cx));
         let row = format!("thread-{chat}");
-        on_window(cx, &f, |window, cx| {
-            eprintln!("diagnostic after Recent: focus={:?}", window.focused(cx));
+        assert!(tab_to(cx, &f, "nav-projects"), "Tab reaches Projects");
+        on_window(cx, &f, |window, _| {
+            assert!(window.try_find("popup-menu").is_none());
         });
-        for target in ["chats-recent", "all-threads", "resolved-count"] {
-            press(cx, &f, "tab");
-            on_window(cx, &f, |window, cx| {
-                eprintln!(
-                    "diagnostic Tab target={target}: focused={:?}, handle={:?}",
-                    window.find(target.to_owned()).focused(),
-                    window.focused(cx)
-                );
-                assert_eq!(
-                    window.find(target.to_owned()).focused(),
-                    Some(true),
-                    "Tab target {target}"
-                );
-                assert!(window.try_find("popup-menu").is_none());
-            });
-        }
         let archived = on_window(cx, &f, |window, cx| window.focused(cx).unwrap());
         press(cx, &f, "tab");
         let focused = on_window(cx, &f, |window, cx| window.focused(cx).unwrap());

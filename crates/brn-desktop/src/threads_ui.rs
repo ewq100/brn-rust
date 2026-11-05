@@ -92,7 +92,7 @@ mod worker;
 #[path = "threads_writing.rs"]
 mod writing;
 use components::{IconName, Tone};
-use layout::{Layout, Preset, TileKind};
+use layout::{Layout, TileKind};
 use lists::{Activity, NoteRow, ThreadFilter, ThreadRow};
 use state::{
     ComposerDestination, ComposerDrafts, ContinuePath, ProviderForm, Severity, WorkerKind,
@@ -182,14 +182,10 @@ gpui_kit::actions!(
         CloseLauncher,
         LauncherNext,
         LauncherPrevious,
-        ToggleThreads,
-        FocusPreviousTile,
-        FocusNextTile,
-        MaximizeTile,
+        ToggleSidebar,
+        FocusPreviousPane,
+        FocusNextPane,
         OpenSettings,
-        LayoutWrite,
-        LayoutChat,
-        LayoutSolo,
         ShowKeys
     ]
 );
@@ -265,11 +261,13 @@ fn default_copilot_credentials_dir() -> std::io::Result<PathBuf> {
         .create(&parent)?;
     Ok(parent.join("copilot"))
 }
-const TOP_BAR_HEIGHT: gpui_kit::Pixels = components::tokens::TITLE_BAR;
+/// The workspace header and the sidebar top share this height; the macOS
+/// traffic lights centre in it.
+const TOP_BAR_HEIGHT: gpui_kit::Pixels = px(theme::metrics::HEADER);
 fn top_bar_window_options() -> WindowOptions {
     let mut options = TitleBar::window_options();
     if let Some(titlebar) = options.titlebar.as_mut() {
-        // Centre the 16px macOS traffic lights inside the 38px top bar.
+        // Centre the 16px macOS traffic lights inside the 56px header.
         titlebar.traffic_light_position = Some(point(px(12.), (TOP_BAR_HEIGHT - px(16.)) / 2.));
     }
     options
@@ -395,9 +393,12 @@ struct ThreadsUi {
     /// The archived chat's banner, where focus lands instead of the
     /// composer; its Unarchive is the first control inside.
     archived_banner: gpui_kit::FocusHandle,
+    /// Shell route and pane preferences; see `threads_layout.rs`.
     layout: Layout,
-    tile_scroll: gpui_kit::ScrollHandle,
-    tile_reveal: Option<(Vec<TileKind>, Option<TileKind>)>,
+    /// What the last frame drew at the window's usable width.
+    arrangement: layout::Arrangement,
+    /// A press in the window-drag region may start moving the window.
+    titlebar_drag: bool,
     chat: ChatTarget,
     /// The owner's appearance preference (System/Light/Dark/legacy).
     appearance: Appearance,
@@ -456,8 +457,9 @@ struct ThreadsUi {
     /// Uncommitted Models-section segments, kept apart from runtime settings.
     provider_form: ProviderForm,
     settings: WorkspaceSettings,
-    /// The Chat panel is below 420 pt: the model control also names the
-    /// effort, and the effort control folds into its menu.
+    /// The Chat pane is below 420 pt (the assistant beside a document): the
+    /// model control also names the effort, and the effort control folds
+    /// into its menu.
     chat_narrow: bool,
     /// The window is below 700 pt tall: the chat queue collapses to one row.
     short_window: bool,
@@ -696,8 +698,8 @@ impl ThreadsUi {
             focus_first: None,
             archived_banner: cx.focus_handle(),
             layout: Layout::default(),
-            tile_scroll: gpui_kit::ScrollHandle::new(),
-            tile_reveal: None,
+            arrangement: Layout::default().arrange(1280.),
+            titlebar_drag: false,
             chat: ChatTarget::New,
             appearance,
             theme,
@@ -951,12 +953,7 @@ impl ThreadsUi {
         self.writing.recovery_blocked(&self.buffers)
     }
     fn note_tile_visible(&self) -> bool {
-        !self.layout.settings_open()
-            && self
-                .layout
-                .visible()
-                .iter()
-                .any(|tile| tile.kind == TileKind::Note)
+        self.layout.primary() == TileKind::Note
     }
     fn note_editor_visible(&self) -> bool {
         self.writing
@@ -973,7 +970,6 @@ impl ThreadsUi {
         self.root_focus.focus(window, cx);
     }
     fn focus_visible_editor(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.tile_reveal = None;
         self.focus_root(window, cx);
         if self.writing.review.is_editing()
             && self.note_tile_visible()
@@ -1003,7 +999,6 @@ impl ThreadsUi {
         }
     }
     fn focus_composer(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.tile_reveal = None;
         self.layout.open(TileKind::Chat);
         // An archived chat's composer can't send: ⌘L and quoting into the
         // chat land on its banner's Unarchive, as opening the chat does (U11).
@@ -1045,20 +1040,25 @@ impl ThreadsUi {
     fn report_outcome(&mut self, outcome: &ApplyOutcome) {
         self.set_notice(apply_tone(outcome), outcome_message(outcome));
     }
+    /// The navigation entry point: route `kind` into the shell (primary
+    /// view, assistant beside a document, the sidebar or Settings), then
+    /// focus its visible content.
     fn show_tile(&mut self, kind: TileKind, window: &mut Window, cx: &mut Context<Self>) {
         self.preserve_visible_note_input(cx);
+        let connections = self.layout.contains(TileKind::Connections);
         self.layout.open(kind);
         self.focus_tile_contents(window, cx);
         self.refresh();
-        if kind == TileKind::Connections {
+        // Connections asks for the neighbourhood whenever it comes back
+        // into view, also beside a document the owner returns to.
+        if kind == TileKind::Connections
+            || (!connections && self.layout.contains(TileKind::Connections))
+        {
             self.refresh_connections(cx);
         }
         cx.notify();
     }
-    fn apply_layout(&mut self, preset: Preset, window: &mut Window, cx: &mut Context<Self>) {
-        self.relayout(window, cx, |layout| layout.apply(preset));
-    }
-    /// Change the arrangement, then keep keyboard focus in a visible tile.
+    /// Change the arrangement, then keep keyboard focus in a visible pane.
     fn relayout(
         &mut self,
         window: &mut Window,
@@ -1069,9 +1069,19 @@ impl ThreadsUi {
         change(&mut self.layout);
         self.focus_tile_contents(window, cx);
     }
+    /// The usable client width the pane policy works from.
+    fn usable_width(window: &Window) -> f32 {
+        f32::from(window.viewport_size().width)
+    }
+    /// A content kind is laid out primary and alone, or as a conversation:
+    /// its column centres rather than sitting left of a neighbour.
+    pub(super) fn centered(&self, kind: TileKind) -> bool {
+        self.layout.primary() == kind
+            && (kind == TileKind::Chat || !self.arrangement.support_docked())
+    }
     /// The first-use delegation choice renders in exactly one visible tile.
     fn delegation_host(&self) -> Option<TileKind> {
-        let visible: Vec<TileKind> = self.layout.visible().iter().map(|tile| tile.kind).collect();
+        let visible = self.layout.visible();
         if self.layout.settings_open() && self.settings_section == SettingsSection::Delegation {
             Some(TileKind::Settings)
         } else if self.settings.delegation_chosen {
@@ -1311,23 +1321,32 @@ impl ThreadsUi {
             Err(e) => self.fail(e.to_string()),
         }
     }
-    /// Show a thread in the chat tile; a thread linked to a note also brings
-    /// that note into the note tile when one is open.
+    /// Show a chat. A chat about the open document joins it as its
+    /// assistant (bringing that note in when another one is open); any
+    /// other chat fills the workspace as the conversation.
     fn open_thread(&mut self, id: &str, window: &mut Window, cx: &mut Context<Self>) {
-        if let Some(note) = self.thread_note(id)
+        let note = self.thread_note(id);
+        if let Some(note) = &note
             && self.layout.contains(TileKind::Note)
             && self.open_note_id() != Some(note.as_str())
         {
-            self.open_note_in_context(&note, None, Some(id), window, cx);
+            self.open_note_in_context(note, None, Some(id), window, cx);
         }
         self.set_chat(ChatTarget::Thread(id.into()), window, cx);
-        self.layout.open(TileKind::Chat);
+        if self.layout.primary() == TileKind::Note && note.is_some() {
+            self.layout.open(TileKind::Chat);
+        } else {
+            self.layout.open_primary(TileKind::Chat);
+        }
         self.refresh();
         self.focus_tile_contents(window, cx);
         cx.notify();
     }
+    /// New chat fills the workspace and starts outside the open document.
     fn new_thread(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.preserve_visible_note_input(cx);
         self.set_chat(ChatTarget::New, window, cx);
+        self.layout.open_primary(TileKind::Chat);
         self.focus_composer(window, cx);
     }
     /// Persistent comment highlights on the exact saved text. With a recovered
@@ -2677,7 +2696,12 @@ impl ThreadsUi {
         self.close_launcher(window, cx);
         match item {
             lists::LaunchItem::Thread { id, .. } => self.open_thread(&id, window, cx),
-            lists::LaunchItem::Note { id, .. } => self.open_note(&id, None, window, cx),
+            lists::LaunchItem::Note { id, .. } => {
+                // A found article opens for reading, assistant closed.
+                self.preserve_visible_note_input(cx);
+                self.layout.open_article();
+                self.open_note(&id, None, window, cx)
+            }
             lists::LaunchItem::Message { chat, message, .. } => {
                 self.open_chat_message(&chat, &message, window, cx)
             }
@@ -2695,7 +2719,6 @@ impl ThreadsUi {
             lists::Command::NewNote => self.new_note(window, cx),
             lists::Command::Rewrite => self.rewrite_note(window, cx),
             lists::Command::Save => self.save(window, cx),
-            lists::Command::Layout(preset) => self.apply_layout(preset, window, cx),
             lists::Command::Theme(appearance) => self.choose_appearance(appearance, window, cx),
             lists::Command::OpenTile(kind) => {
                 self.show_tile(kind, window, cx);
@@ -3897,7 +3920,6 @@ impl ThreadsUi {
                 .as_ref()
                 .is_some_and(|review| review.note.is_some())
         {
-            self.tile_reveal = None;
             self.focus_root(window, cx);
             if self.writing.review.is_reading() {
                 self.writing
@@ -4506,7 +4528,7 @@ impl ThreadsUi {
                 run_id: worker.run_identity().map(|run| run.run_id.as_str()),
             }),
             progress: &self.progress,
-            centered: self.layout.maximized() == Some(TileKind::Note),
+            centered: self.centered(TileKind::Note),
             edit_note_blocked: Self::edit_note_blocked,
             chat_card_stop: Self::chat_card_stop,
             assets_in_chat: Self::assets_in_chat,
@@ -4736,6 +4758,7 @@ impl ThreadsUi {
     pub(super) fn comments_open(&self) -> bool {
         self.writing_view().comments_open()
     }
+    #[cfg(all(test, feature = "native-test-support"))]
     pub(super) fn comments_beside(&self) -> bool {
         self.writing_view().comments_beside()
     }
@@ -4851,22 +4874,19 @@ fn bindings() -> Vec<KeyBinding> {
         KeyBinding::new("cmd-l", FocusAsk, None),
         KeyBinding::new("cmd-n", NewNote, None),
         KeyBinding::new("cmd-t", NewThread, None),
+        // ⌘0 opens New chat; Home is retired as a destination.
         KeyBinding::new("cmd-0", Home, None),
         KeyBinding::new("cmd-/", CommentSelection, None),
         KeyBinding::new("cmd-shift-r", Rewrite, None),
-        KeyBinding::new("cmd-\\", ToggleThreads, None),
-        KeyBinding::new("cmd-shift-enter", MaximizeTile, None),
+        KeyBinding::new("cmd-\\", ToggleSidebar, None),
         KeyBinding::new("cmd-,", OpenSettings, None),
-        KeyBinding::new("alt-1", LayoutWrite, None),
-        KeyBinding::new("alt-2", LayoutChat, None),
-        KeyBinding::new("alt-3", LayoutSolo, None),
         KeyBinding::new("cmd-q", Quit, None),
     ];
     // Text inputs bind these keys to indent/outdent and code actions. Binding
     // the same keys in the input context later gives BRN's meaning precedence.
     for context in [None, Some("Input")] {
-        bindings.push(KeyBinding::new("cmd-[", FocusPreviousTile, context));
-        bindings.push(KeyBinding::new("cmd-]", FocusNextTile, context));
+        bindings.push(KeyBinding::new("cmd-[", FocusPreviousPane, context));
+        bindings.push(KeyBinding::new("cmd-]", FocusNextPane, context));
         bindings.push(KeyBinding::new("cmd-.", Cancel, context));
     }
     bindings
@@ -4877,6 +4897,8 @@ gpui_kit::assets::icon_assets!(
     BrnIcons,
     [
         MessageSquare,
+        SquarePen,
+        ChevronsLeftRight,
         Lock,
         House,
         ListTodo,

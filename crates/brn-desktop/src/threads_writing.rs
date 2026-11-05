@@ -309,10 +309,10 @@ impl ThreadsUi {
             .test_support()
             .into_any_element()
     }
-    /// The transcript centers in a maximized chat (and Solo), otherwise it
-    /// sits left like the note.
+    /// The transcript centers when the conversation is the primary view;
+    /// as the assistant beside a document it sits left like the note.
     fn transcript_centered(&self) -> bool {
-        self.layout.maximized() == Some(TileKind::Chat)
+        self.centered(TileKind::Chat)
     }
     /// A needs-you card. A question (or a review whose proposal is gone) is a
     /// warning with the recorded reason; a review names its target notes.
@@ -390,14 +390,8 @@ impl ThreadsUi {
     /// The run whose Stop… the visible Chat tile's recovery card renders, so
     /// the Note bar leaves that one control to the card (IDs stay unique).
     pub(super) fn chat_card_stop(&self) -> Option<String> {
-        if !self
-            .layout
-            .visible()
-            .iter()
-            .any(|tile| tile.kind == TileKind::Chat)
-        {
-            return None;
-        }
+        // Only a drawn Chat pane renders that card.
+        self.panel_width(TileKind::Chat)?;
         let thread = self.chat_thread()?;
         let RecordData::Thread(data) = &self.records.iter().find(|r| r.id == thread)?.data else {
             return None;

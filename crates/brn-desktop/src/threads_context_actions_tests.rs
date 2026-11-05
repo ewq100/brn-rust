@@ -370,7 +370,8 @@ fn a_paused_queue_blocks_edit_note_with_a_reason_the_status_bar_shares(cx: &mut 
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, _| {
         assert_eq!(window.find("edit-note-context").label(), Some("Edit note"));
-        assert_eq!(window.find("idle-status").label(), Some("Idle"));
+        // Nothing runs or waits: the header carries no permanent "Idle".
+        assert!(window.try_find("idle-status").is_none());
     })
     .unwrap();
     cx.update_window(f.window, |_, _, cx| {

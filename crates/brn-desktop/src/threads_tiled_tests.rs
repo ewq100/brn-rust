@@ -192,14 +192,25 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
         });
     });
     let editor = cx.read(|cx| f.view.read(cx).writing.note_editor.clone());
+    // Sidebar destinations, the Inbox's Tasks view and the workspace menu.
     for (button, kind, tile) in [
-        ("home", TileKind::Overview, "home-needs-you"),
-        ("actions", TileKind::Actions, "actions-content"),
-        ("history", TileKind::History, "history-content"),
-        ("settings", TileKind::Settings, "settings-general"),
-        ("open-notes", TileKind::Notes, "notes-list"),
+        ("nav-inbox", TileKind::Overview, "home-needs-you"),
+        ("inbox-tasks", TileKind::Actions, "actions-content"),
+        ("Recent changes", TileKind::History, "history-content"),
+        ("Settings", TileKind::Settings, "settings-general"),
+        ("nav-library", TileKind::Notes, "notes-list"),
     ] {
-        click(cx, &f, button);
+        match button {
+            "inbox-tasks" => {
+                click(cx, &f, "nav-inbox");
+                click(cx, &f, button);
+            }
+            "Recent changes" | "Settings" => {
+                click(cx, &f, "workspace-menu");
+                choose(cx, &f, button);
+            }
+            _ => click(cx, &f, button),
+        }
         cx.update_window(f.window, |_, window, cx| {
             assert!(window.try_find(tile).is_some(), "{tile}");
             let view = f.view.read(cx);
@@ -230,7 +241,7 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
             "Standalone unsent draft"
         )
     });
-    click(cx, &f, "open-notes");
+    click(cx, &f, "nav-library");
     click(cx, &f, format!("note-{}", note.id));
     cx.read(|cx| {
         let view = f.view.read(cx);
@@ -256,13 +267,15 @@ fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
 ) {
     let f = fixture(cx, true, 1400., 1100.);
     let note = f.note.as_ref().unwrap();
-    click(cx, &f, "open-notes");
+    click(cx, &f, "nav-library");
     click(cx, &f, format!("note-{}", note.id));
     update(cx, &f, |view, window, cx| {
         view.writing.note_editor.update(cx, |editor, cx| {
             editor.set_value("Unsaved scratchneedle", window, cx)
         });
     });
+    // Back to the Library to search; the note stays open and dirty.
+    click(cx, &f, "nav-library");
     query(cx, &f, "scratchneedle");
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("search-empty").visible());
@@ -279,6 +292,8 @@ fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
     })
     .unwrap();
     click(cx, &f, "hit-0");
+    cx.read(|cx| assert_eq!(f.view.read(cx).layout.primary(), TileKind::Note));
+    click(cx, &f, "nav-library");
     query(cx, &f, "");
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.try_find("search-results").is_none());
@@ -294,7 +309,7 @@ fn search_tiles_open_saved_hits_exclude_dirty_text_and_clear_to_navigation(
         assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), *note);
     })
     .unwrap();
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     cx.read(|cx| assert_eq!(f.view.read(cx).layout.focus(), Some(TileKind::Overview)));
 }
 
@@ -545,8 +560,9 @@ fn empty_tiles_explain_home_search_actions_and_history_without_starting_work(
     cx: &mut TestAppContext,
 ) {
     let f = fixture(cx, false, 1260., 1100.);
+    // First use opens New chat: no empty document placeholder beside it.
     cx.update_window(f.window, |_, window, _| {
-        assert!(window.find("note-empty").visible());
+        assert!(window.try_find("note-empty").is_none());
         assert!(window.find("threads-empty").visible());
         assert!(
             window.find("delegation-pending").visible(),
@@ -554,7 +570,14 @@ fn empty_tiles_explain_home_search_actions_and_history_without_starting_work(
         );
     })
     .unwrap();
-    click(cx, &f, "home");
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Note, window, cx)
+    });
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("note-empty").visible());
+    })
+    .unwrap();
+    click(cx, &f, "nav-inbox");
     cx.update_window(f.window, |_, window, _| {
         assert!(window.find("home-needs-you").visible());
         assert!(window.try_find("home-notes").is_some());
@@ -636,22 +659,26 @@ fn ask_owner(view: &mut ThreadsUi, title: &str) {
 }
 
 #[gpui_kit::test]
-fn compact_chrome_shortens_the_needs_badge_and_keeps_its_full_name(cx: &mut TestAppContext) {
-    let mut widths = vec![];
-    for width in [1260., 900.] {
-        let f = fixture(cx, false, width, 700.);
-        update(cx, &f, |view, _, cx| {
+fn the_inbox_count_and_search_keep_their_full_names_in_the_sidebar_and_rail(
+    cx: &mut TestAppContext,
+) {
+    for rail in [false, true] {
+        let f = fixture(cx, false, if rail { 900. } else { 1260. }, 700.);
+        update(cx, &f, |view, window, cx| {
             ask_owner(view, "Needs a decision");
+            if rail {
+                view.relayout(window, cx, |layout| layout.close(TileKind::Threads));
+            }
             cx.notify();
         });
         cx.update_window(f.window, |_, window, _| {
-            let badge = window.find("needs-badge");
-            assert_eq!(badge.label(), Some("1 needs you"), "{width}");
-            assert_in_window(window, &f, "needs-badge");
-            widths.push(badge.bounds().size.width);
+            let inbox = window.find("nav-inbox");
+            assert_eq!(inbox.label(), Some("Inbox, 1 needs you"), "rail {rail}");
+            assert_in_window(window, &f, "nav-inbox");
+            assert_in_window(window, &f, "nav-inbox-count");
             let search = window.find("launcher");
             assert_eq!(search.label(), Some("Search notes, chats and commands"));
-            if width < 1000. {
+            if rail {
                 assert!(
                     search.bounds().size.width <= px(32.),
                     "{:?}",
@@ -667,49 +694,34 @@ fn compact_chrome_shortens_the_needs_badge_and_keeps_its_full_name(cx: &mut Test
         })
         .unwrap();
     }
-    assert!(widths[1] < widths[0], "Compact reads ● 1: {widths:?}");
 }
 
 #[gpui_kit::test]
-fn narrow_settings_and_global_controls_remain_reachable_by_scrolling(cx: &mut TestAppContext) {
+fn narrow_settings_and_shell_controls_remain_reachable(cx: &mut TestAppContext) {
     let f = fixture(cx, false, 850., 600.);
     cx.update_window(f.window, |_, window, _| {
         for id in [
+            "toggle-sidebar",
+            "nav-new-chat",
             "launcher",
-            "layout-write",
-            "layout-chat",
-            "layout-solo",
-            "threads-new",
-            "home",
-            "actions",
-            "history",
-            "settings",
-            "status-layout",
-            "status-keys",
-            "open-beside",
+            "nav-library",
+            "nav-inbox",
+            "nav-projects",
+            "nav-all-chats",
+            "workspace-menu",
+            "composer-add",
         ] {
             assert_in_window(window, &f, id);
         }
-        // Compact chrome: icon controls keep their full accessible names.
         assert!(window.try_find("status-theme").is_none());
-        let search = window.find("launcher");
-        assert_eq!(search.label(), Some("Search notes, chats and commands"));
-        assert!(
-            search.bounds().size.width <= px(32.),
-            "{:?}",
-            search.bounds()
-        );
-        let beside = window.find("open-beside");
-        assert_eq!(beside.label(), Some("Open beside"));
-        assert!(
-            beside.bounds().size.width <= px(32.),
-            "{:?}",
-            beside.bounds()
+        assert_eq!(
+            window.find("launcher").label(),
+            Some("Search notes, chats and commands")
         );
     })
     .unwrap();
-    reveal(cx, &f, "tile-row", "composer-add");
-    click(cx, &f, "settings");
+    click(cx, &f, "workspace-menu");
+    choose(cx, &f, "Settings");
     click(cx, &f, "settings-section-models");
     reveal(cx, &f, "settings-content", "connect-copilot");
     reveal(cx, &f, "settings-content", "save-settings");
@@ -781,7 +793,7 @@ fn search_pages_show_exact_counts_context_and_ignore_superseded_queries(cx: &mut
         view.workspace.new_note("Kestrel", "Kestrel only.").unwrap();
         view.refresh();
     });
-    click(cx, &f, "open-notes");
+    click(cx, &f, "nav-library");
     // Two queries before any answer: only the newer one may be shown.
     update(cx, &f, |view, window, cx| {
         view.search
@@ -860,7 +872,7 @@ fn notes_search_lists_saved_chat_messages_and_opens_their_chat(cx: &mut TestAppC
         message = message_id(view, &chat, berth);
         view.refresh();
     });
-    click(cx, &f, "open-notes");
+    click(cx, &f, "nav-library");
     query(cx, &f, "berth");
     cx.update_window(f.window, |_, window, cx| {
         let view = f.view.read(cx);
@@ -922,7 +934,7 @@ fn note_hits_and_chat_messages_page_independently(cx: &mut TestAppContext) {
         }
         view.refresh();
     });
-    click(cx, &f, "open-notes");
+    click(cx, &f, "nav-library");
     query(cx, &f, "curlew");
     let pages = |cx: &mut TestAppContext| {
         cx.read(|cx| {
@@ -1014,7 +1026,7 @@ fn an_archived_chats_note_hit_reads_archived_like_its_messages(cx: &mut TestAppC
             .unwrap();
         view.refresh();
     });
-    click(cx, &f, "open-notes");
+    click(cx, &f, "nav-library");
     query(cx, &f, "curlew");
     cx.update_window(f.window, |_, window, _| {
         assert_eq!(window.find("hit-0").label(), Some("Curlew attachment"));
@@ -1079,7 +1091,7 @@ fn link_data(from: &str, to: &str, relation: &str) -> RecordData {
 #[gpui_kit::test]
 fn topics_section_creates_the_topics_note_and_lists_linked_topic_pages(cx: &mut TestAppContext) {
     let f = fixture(cx, true, 1400., 1100.);
-    click(cx, &f, "open-notes");
+    click(cx, &f, "nav-library");
     reveal(cx, &f, "notes-list", "create-topics");
     click(cx, &f, "create-topics");
     let topics = cx.read(|cx| f.view.read(cx).topics.clone().unwrap());
@@ -1102,7 +1114,7 @@ fn topics_section_creates_the_topics_note_and_lists_linked_topic_pages(cx: &mut 
         view.refresh();
         page
     });
-    click(cx, &f, "open-notes");
+    click(cx, &f, "nav-library");
     reveal(cx, &f, "notes-list", &format!("topic-{}", page.id));
     click(cx, &f, format!("topic-{}", page.id));
     cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), Some(page.id.as_str())));
@@ -1348,19 +1360,18 @@ fn connections_result_is_cleared_when_project_unlink_revokes_neighbor_visibility
     })
     .unwrap();
 
-    // Ordinary navigation replaced the Projects pane with the Note pane.
-    // Open Projects beside the completed graph through its public menu so the
-    // later unlink click is actually reachable without reopening the Note.
-    click(cx, &f, "open-beside");
-    choose(cx, &f, "Projects");
+    // The document and its Connections fill the workspace; go back to the
+    // Project (the sidebar's Projects route) so the unlink control is
+    // reachable. The note stays open with Connections beside it.
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Projects, window, cx);
+    });
     cx.update_window(f.window, |_, window, cx| {
         window.render_frame(cx);
         assert_in_window(window, &f, &unlink_id);
         assert!(window.find(unlink_id.clone()).visible());
         f.view.read_with(cx, |view, _| {
-            for kind in [TileKind::Note, TileKind::Connections, TileKind::Projects] {
-                assert!(view.layout.visible().iter().any(|tile| tile.kind == kind));
-            }
+            assert_eq!(view.layout.visible(), [TileKind::Projects]);
             assert_eq!(view.open_note_id(), Some(centre.as_str()));
             assert_eq!(view.note_project.as_deref(), Some(shared_project.as_str()));
             assert_eq!(
@@ -1411,12 +1422,6 @@ fn connections_result_is_cleared_when_project_unlink_revokes_neighbor_visibility
             assert_eq!(view.open_note_id(), Some(centre.as_str()));
             assert_eq!(view.note_project.as_deref(), Some(shared_project.as_str()));
             assert!(
-                view.layout
-                    .visible()
-                    .iter()
-                    .any(|tile| tile.kind == TileKind::Connections)
-            );
-            assert!(
                 !view.graph.result.as_ref().is_some_and(|result| result
                     .hops
                     .iter()
@@ -1425,6 +1430,16 @@ fn connections_result_is_cleared_when_project_unlink_revokes_neighbor_visibility
                 "Connections graph must discard the revoked Note"
             );
         });
+    });
+    // Returning to the document shows Connections beside it again.
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Note, window, cx);
+    });
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).layout.visible(),
+            [TileKind::Note, TileKind::Connections]
+        )
     });
     cx.update_window(f.window, |_, window, cx| {
         window.render_frame(cx);
@@ -1457,8 +1472,8 @@ fn connections_result_is_cleared_when_project_unlink_revokes_neighbor_visibility
     })
     .unwrap();
 
-    // Undo the exact unlink through the public Changes row while keeping the
-    // Connections pane in the layout.
+    // Undo the exact unlink through the public Recent changes row, then
+    // return to the document with Connections beside it.
     let unlink_operation = cx.read(|cx| {
         let view = f.view.read(cx);
         let receipt = view
@@ -1477,10 +1492,16 @@ fn connections_result_is_cleared_when_project_unlink_revokes_neighbor_visibility
             .expect("the checked unlink receipt is present");
         receipt.operation.as_str().to_owned()
     });
-    click(cx, &f, "history");
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::History, window, cx);
+    });
     let undo_id = format!("undo-{unlink_operation}");
     reveal(cx, &f, "history-content", &undo_id);
     click(cx, &f, undo_id.clone());
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Note, window, cx);
+    });
+    cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         window.render_frame(cx);
         assert!(window.find("connections-content").visible());
@@ -1531,7 +1552,7 @@ fn knowledge_filter_pages_report_retained_and_total_findings(cx: &mut TestAppCon
         );
         view.refresh();
     });
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     reveal(cx, &f, "home-content", "knowledge-run");
     click(cx, &f, "knowledge-run");
     reveal(cx, &f, "home-content", "knowledge-filter-Orphan");
@@ -1629,7 +1650,7 @@ fn knowledge_pending_fix_opens_exact_review_and_rejects_retired_delivery(cx: &mu
         view.refresh();
         candidate
     });
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     reveal(cx, &f, "home-content", "knowledge-run");
     click(cx, &f, "knowledge-run");
     reveal(cx, &f, "home-content", "knowledge-filter-StaleCandidate");
@@ -1796,7 +1817,7 @@ fn knowledge_check_filters_and_creates_only_an_unsent_selected_draft(cx: &mut Te
         view.refresh();
         (dupes[0].id.clone(), dupes[1].id.clone())
     });
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     reveal(cx, &f, "home-content", "knowledge-run");
     click(cx, &f, "knowledge-run");
     let check = cx.read(|cx| f.view.read(cx).knowledge.result.clone().unwrap());
@@ -1840,7 +1861,7 @@ fn knowledge_check_filters_and_creates_only_an_unsent_selected_draft(cx: &mut Te
     // Resolve the synthetic duplicate through the checked owner change, then
     // dispatch the replacement from the real control. Inspect its immediate
     // frame before the background read can publish the fresh check.
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     let before_archive = update_returning(cx, &f, |view| {
         let before = view.workspace.store.records().unwrap();
         let note = view.workspace.store.note(&archived_id).unwrap().unwrap();

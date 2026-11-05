@@ -1629,7 +1629,7 @@ fn archived_writing_chat_preserves_feedback_and_requires_explicit_unarchive(
 }
 
 #[gpui_kit::test]
-fn narrow_workbench_scrolls_tiles_to_usable_chat_and_keeps_one_editor(cx: &mut TestAppContext) {
+fn narrow_workbench_shows_the_chat_as_a_sheet_and_keeps_one_editor(cx: &mut TestAppContext) {
     let f = fixture_size(cx, 760., 820.);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
@@ -1648,11 +1648,10 @@ fn narrow_workbench_scrolls_tiles_to_usable_chat_and_keeps_one_editor(cx: &mut T
     let editor = cx.read(|cx| f.view.read(cx).writing.note_editor.clone());
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("note-body").bounds().size.width > px(200.));
-        window.scroll(
-            "tile-row",
-            gpui_kit::ScrollDelta::Pixels(point(px(-2000.), px(0.))),
-            cx,
-        );
+        // Too narrow to dock: the chat is the assistant sheet over the note.
+        if window.try_find("assistant-pane").is_none() {
+            window.click("toggle-assistant", cx);
+        }
     })
     .unwrap();
     cx.run_until_parked();
@@ -1726,7 +1725,9 @@ fn browsing_notes_keeps_selected_chat_and_replacing_main_preserves_review_text(
 }
 
 #[gpui_kit::test]
-fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mut TestAppContext) {
+fn reopening_current_review_from_a_lone_chat_removes_hidden_composer_focus(
+    cx: &mut TestAppContext,
+) {
     let f = fixture(cx);
     let mut operation = String::new();
     cx.update_window(f.window, |_, window, cx| {
@@ -1742,7 +1743,7 @@ fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mu
                 editor.set_value("Unsubmitted reviewed text", window, cx)
             });
             view.show_tile(TileKind::Chat, window, cx);
-            view.apply_layout(Preset::Solo, window, cx);
+            view.relayout(window, cx, |layout| layout.show_alone(TileKind::Chat));
             assert!(view.composer.focus_handle(cx).is_focused(window));
         });
     })
@@ -1763,7 +1764,7 @@ fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mu
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         let view = f.view.read(cx);
-        assert_eq!(view.layout.maximized(), Some(TileKind::Note));
+        assert_eq!(view.layout.primary(), TileKind::Note);
         assert!(!view.composer.focus_handle(cx).is_focused(window));
         assert!(
             view.writing

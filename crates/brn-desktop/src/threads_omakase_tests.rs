@@ -92,15 +92,7 @@ fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
     });
 }
 fn kinds(cx: &mut TestAppContext, f: &Fixture) -> Vec<TileKind> {
-    cx.read(|cx| {
-        f.view
-            .read(cx)
-            .layout
-            .visible()
-            .iter()
-            .map(|tile| tile.kind)
-            .collect()
-    })
+    cx.read(|cx| f.view.read(cx).layout.visible())
 }
 fn thread_state(view: &ThreadsUi, id: &str) -> ThreadState {
     match view.workspace.store.record(id).unwrap().unwrap().data {
@@ -149,122 +141,91 @@ fn record_run(workspace: &mut Workspace, thread: &str, state: RunState) -> Strin
     run
 }
 
+/// The shell replaces the tile row: one primary view, the assistant beside
+/// a document, a collapsible sidebar and ⌘[ ⌘] between the three regions,
+/// by mouse and keys. No tile chrome remains.
 #[gpui_kit::test]
-fn layouts_resize_swap_maximize_and_tile_menu_work_by_mouse_and_keys(cx: &mut TestAppContext) {
-    let f = fixture(cx, |_| {});
-    assert_eq!(
-        kinds(cx, &f),
-        [TileKind::Threads, TileKind::Note, TileKind::Chat]
-    );
-    on_window(cx, &f, |window, _| {
-        assert!(window.find("layout-write").visible());
+fn shell_sidebar_assistant_and_focus_work_by_mouse_and_keys(cx: &mut TestAppContext) {
+    let mut note = String::new();
+    let f = fixture(cx, |workspace| {
+        note = workspace
+            .new_note("Shell witness", "Saved text")
+            .unwrap()
+            .id;
     });
-    assert_eq!(
-        cx.read(|cx| f.view.read(cx).layout.preset()),
-        Some(Preset::Write)
-    );
-    click(cx, &f, "layout-chat");
-    assert_eq!(
-        kinds(cx, &f),
-        [TileKind::Threads, TileKind::Chat, TileKind::Linked]
-    );
-    press(cx, &f, "alt-1");
-    assert_eq!(
-        kinds(cx, &f),
-        [TileKind::Threads, TileKind::Note, TileKind::Chat]
-    );
-
-    // Drag the first gap to the right: the threads tile grows, others keep order.
-    let before = cx.read(|cx| f.view.read(cx).layout.visible()[0].weight);
-    on_window(cx, &f, |window, cx| {
-        let gap = window.find("split-0").bounds();
-        let from = gap.center();
-        window.drag(from, point(from.x + px(220.), from.y), cx);
-    });
-    let after = cx.read(|cx| f.view.read(cx).layout.visible()[0].weight);
-    assert!(after > before, "{before} -> {after}");
-    assert_eq!(
-        cx.read(|cx| f.view.read(cx).layout.preset()),
-        Some(Preset::Write)
-    );
-
-    // Drag a header onto another tile to swap them.
-    on_window(cx, &f, |window, cx| {
-        window.drag_to("tile-header-threads", "tile-chat", cx)
-    });
-    assert_eq!(
-        kinds(cx, &f),
-        [TileKind::Chat, TileKind::Note, TileKind::Threads]
-    );
-
-    // Double-click maximizes and restores.
-    on_window(cx, &f, |window, cx| {
-        window.double_click("tile-header-note", cx)
-    });
-    assert_eq!(kinds(cx, &f), [TileKind::Note]);
-    on_window(cx, &f, |window, _| {
-        assert_eq!(
-            window.find("status-layout").label(),
-            Some("Maximized · Note")
-        );
-    });
-    on_window(cx, &f, |window, cx| {
-        window.double_click("tile-header-note", cx)
-    });
-    assert_eq!(kinds(cx, &f).len(), 3);
-    on_window(cx, &f, |window, _| {
-        assert_eq!(window.find("status-layout").label(), Some("Layout"));
-    });
-    click(cx, &f, "tile-max-chat");
+    // First use opens New chat alone, with the sidebar and no tile chrome.
     assert_eq!(kinds(cx, &f), [TileKind::Chat]);
     on_window(cx, &f, |window, _| {
+        for id in [
+            "nav-new-chat",
+            "launcher",
+            "nav-library",
+            "nav-inbox",
+            "nav-projects",
+        ] {
+            assert!(window.find(id).visible(), "{id}");
+        }
+        for retired in [
+            "layout-write",
+            "status-bar",
+            "status-layout",
+            "workspace-navigation",
+            "open-beside",
+            "tile-header-chat",
+            "tile-max-chat",
+            "split-0",
+        ] {
+            assert!(window.try_find(retired).is_none(), "{retired} retired");
+        }
         assert_eq!(
-            window.find("status-layout").label(),
-            Some("Maximized · Chat")
+            window.find("tile-title-chat").label(),
+            Some("Chat: New chat")
         );
     });
-    press(cx, &f, "cmd-shift-enter");
-    assert_eq!(kinds(cx, &f).len(), 3);
+    // A document opened from the conversation keeps it as the assistant.
+    update(cx, &f, |view, window, cx| {
+        view.open_note(&note, None, window, cx)
+    });
+    assert_eq!(kinds(cx, &f), [TileKind::Note, TileKind::Chat]);
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("assistant-pane").visible());
+        assert!(window.find("tile-body-chat").visible());
+    });
+    click(cx, &f, "toggle-assistant");
+    assert_eq!(kinds(cx, &f), [TileKind::Note]);
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("assistant-pane").is_none());
+    });
+    click(cx, &f, "toggle-assistant");
+    assert_eq!(kinds(cx, &f), [TileKind::Note, TileKind::Chat]);
 
-    // Right-click menu: move and close; reopen through the layout menu.
+    // Drag the assistant's edge left: it widens within its range.
     on_window(cx, &f, |window, cx| {
-        window.right_click("tile-header-threads", cx)
+        let edge = window.find("assistant-resize").bounds().center();
+        window.drag(edge, point(edge.x - px(60.), edge.y), cx);
     });
-    choose(cx, &f, "Move left");
-    assert_eq!(
-        kinds(cx, &f),
-        [TileKind::Chat, TileKind::Threads, TileKind::Note]
-    );
-    on_window(cx, &f, |window, cx| {
-        window.right_click("tile-header-threads", cx)
-    });
-    choose(cx, &f, "Close");
-    assert!(!kinds(cx, &f).contains(&TileKind::Threads));
+    let width = cx.read(|cx| f.view.read(cx).layout.support_width());
+    assert!((width - 380.).abs() < 2., "{width}");
+    // The width menu is the keyboard alternative.
+    click(cx, &f, "assistant-width");
+    choose(cx, &f, "Standard");
+    assert_eq!(cx.read(|cx| f.view.read(cx).layout.support_width()), 320.);
+
+    // ⌘\ collapses the sidebar to its rail and expands it again.
     press(cx, &f, "cmd-\\");
-    assert!(kinds(cx, &f).contains(&TileKind::Threads));
-    click(cx, &f, "tile-close-threads");
-    click(cx, &f, "status-layout");
-    choose(cx, &f, "Chats");
-    assert!(kinds(cx, &f).contains(&TileKind::Threads));
-    click(cx, &f, "settings");
-    assert_eq!(
-        cx.read(|cx| f.view.read(cx).layout.focus()),
-        Some(TileKind::Settings)
-    );
-    press(cx, &f, "escape");
-    let arrangement = kinds(cx, &f);
-    press(cx, &f, "alt-3");
-    assert_eq!(kinds(cx, &f).len(), 1);
-    press(cx, &f, "alt-3");
-    assert_eq!(kinds(cx, &f), arrangement);
-    press(cx, &f, "alt-2");
-    assert_eq!(
-        kinds(cx, &f),
-        [TileKind::Threads, TileKind::Chat, TileKind::Linked]
-    );
-    update(cx, &f, |view, _, _| {
-        view.layout.set_focus(TileKind::Threads)
+    assert_eq!(cx.read(|cx| f.view.read(cx).arrangement.sidebar), 56.);
+    on_window(cx, &f, |window, _| {
+        assert!(
+            window.find("nav-library").visible(),
+            "labelled rail control"
+        );
+        assert!(window.try_find("recent-chats-label").is_none());
     });
+    press(cx, &f, "cmd-\\");
+    assert_eq!(cx.read(|cx| f.view.read(cx).arrangement.sidebar), 224.);
+
+    // ⌘] and ⌘[ move between sidebar, document and assistant.
+    update(cx, &f, |view, _, _| view.layout.set_focus(TileKind::Note));
     press(cx, &f, "cmd-]");
     assert_eq!(
         cx.read(|cx| f.view.read(cx).layout.focus()),
@@ -273,9 +234,40 @@ fn layouts_resize_swap_maximize_and_tile_menu_work_by_mouse_and_keys(cx: &mut Te
     on_window(cx, &f, |window, cx| {
         assert!(
             f.view.read(cx).composer.focus_handle(cx).is_focused(window),
-            "focusing the Chat panel focuses its composer"
+            "focusing the assistant focuses its composer"
         );
     });
+    press(cx, &f, "cmd-]");
+    assert_eq!(
+        cx.read(|cx| f.view.read(cx).layout.focus()),
+        Some(TileKind::Threads)
+    );
+    on_window(cx, &f, |window, cx| {
+        let view = f.view.read(cx);
+        assert!(
+            view.panel_body(TileKind::Threads)
+                .contains_focused(window, cx)
+        );
+    });
+    press(cx, &f, "cmd-[");
+    assert_eq!(
+        cx.read(|cx| f.view.read(cx).layout.focus()),
+        Some(TileKind::Chat)
+    );
+
+    // Settings from the workspace menu; Escape returns to the arrangement.
+    click(cx, &f, "workspace-menu");
+    choose(cx, &f, "Settings");
+    assert_eq!(
+        cx.read(|cx| f.view.read(cx).layout.focus()),
+        Some(TileKind::Settings)
+    );
+    press(cx, &f, "escape");
+    assert_eq!(kinds(cx, &f), [TileKind::Note, TileKind::Chat]);
+    // ⌘0 opens New chat in the whole workspace.
+    press(cx, &f, "cmd-0");
+    assert_eq!(kinds(cx, &f), [TileKind::Chat]);
+    assert_eq!(cx.read(|cx| f.view.read(cx).chat.clone()), ChatTarget::New);
 }
 
 #[gpui_kit::test]
@@ -285,18 +277,18 @@ fn appearance_switches_from_settings_and_launcher_without_fencing_runs(cx: &mut 
     // test window's (light) OS appearance (THEME-01).
     assert_eq!(cx.read(|cx| f.view.read(cx).appearance), Appearance::System);
     assert_eq!(theme::pal(), ThemeId::Light.palette());
-    // Owner decision: no theme control in the status bar or its Layout menu.
+    // Owner decision: no theme control in the shell chrome or its workspace menu.
     on_window(cx, &f, |window, _| {
         assert!(window.try_find("status-theme").is_none());
     });
-    click(cx, &f, "status-layout");
+    click(cx, &f, "workspace-menu");
     on_window(cx, &f, |window, _| {
         let menu = window.within("popup-menu");
         let rows: Vec<String> = (0..60usize)
             .filter_map(|index| menu.try_find(index))
             .filter_map(|row| row.label().map(str::to_owned))
             .collect();
-        assert!(rows.iter().any(|row| row == "Chats"), "{rows:?}");
+        assert!(rows.iter().any(|row| row == "Settings"), "{rows:?}");
         for theme in ThemeId::ALL {
             assert!(
                 rows.iter()
@@ -492,13 +484,18 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
             window.try_find(format!("thread-{done}")).is_none(),
             "resolved never listed inline"
         );
-        assert_eq!(window.find("resolved-count").label(), Some("Archived · 1"));
-        assert_eq!(window.find("all-threads").label(), Some("All · 13"));
+        assert_eq!(window.find("nav-all-chats").label(), Some("All chats · 13"));
         let shown = ids
             .iter()
             .filter(|id| window.try_find(format!("thread-{id}")).is_some())
             .count();
         assert_eq!(shown, lists::SIDEBAR_OPEN);
+    });
+    // All chats counts the archived ones and lists them under Archived.
+    click(cx, &f, "nav-all-chats");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(window.find("resolved-count").label(), Some("Archived · 1"));
+        assert_eq!(window.find("all-threads").label(), Some("All · 13"));
     });
     click(cx, &f, "resolved-count");
     on_window(cx, &f, |window, _| {
@@ -1400,51 +1397,54 @@ fn chat_and_note_figure_resolvers_exclude_foreign_private_assets(cx: &mut TestAp
 }
 
 #[gpui_kit::test]
-fn normal_navigation_stays_bounded_and_explicit_splits_are_reused(cx: &mut TestAppContext) {
-    let f = fixture(cx, |_| {});
+fn sidebar_navigation_replaces_the_primary_view_and_supporting_views_are_reused(
+    cx: &mut TestAppContext,
+) {
+    let mut note = String::new();
+    let f = fixture(cx, |workspace| {
+        note = workspace
+            .new_note("Beside witness", "Saved text")
+            .unwrap()
+            .id;
+    });
     for _ in 0..5 {
         for id in [
-            "open-notes",
-            "browse-chats",
-            "all-threads",
-            "home",
-            "actions",
-            "history",
-            "browse-chats",
+            "nav-library",
+            "nav-inbox",
+            "nav-all-chats",
+            "nav-projects",
+            "nav-new-chat",
         ] {
             click(cx, &f, id);
-            assert!(kinds(cx, &f).len() <= 3);
+            assert!(kinds(cx, &f).len() <= 2, "{id}: {:?}", kinds(cx, &f));
         }
+        click(cx, &f, "workspace-menu");
+        choose(cx, &f, "Recent changes");
+        assert_eq!(kinds(cx, &f), [TileKind::History]);
     }
-    click(cx, &f, "layout-write");
-    click(cx, &f, "open-beside");
-    choose(cx, &f, "Connections");
-    assert_eq!(kinds(cx, &f).len(), 4);
-    on_window(cx, &f, |window, _| {
-        let split = window.find("tile-split-connections");
-        assert!(split.visible());
-        assert_eq!(split.label(), Some("Split"));
-        assert!(
-            window.try_find("tile-split-note").is_none(),
-            "reused areas carry no Split chip"
-        );
+    update(cx, &f, |view, window, cx| {
+        view.relayout(window, cx, Layout::document_with_assistant);
+        view.open_note(&note, None, window, cx);
+        view.show_tile(TileKind::Connections, window, cx);
     });
-    click(cx, &f, "open-beside");
-    choose(cx, &f, "Connections");
-    assert_eq!(kinds(cx, &f).len(), 4, "an existing panel is reused");
-    click(cx, &f, "actions");
-    assert_eq!(kinds(cx, &f).len(), 4);
-    assert!(kinds(cx, &f).contains(&TileKind::Connections));
-    assert!(!kinds(cx, &f).contains(&TileKind::Note));
-    click(cx, &f, "open-beside");
-    choose(cx, &f, "Close extra splits");
-    assert_eq!(kinds(cx, &f).len(), 3);
-    assert!(!kinds(cx, &f).contains(&TileKind::Connections));
+    assert_eq!(kinds(cx, &f), [TileKind::Note, TileKind::Connections]);
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Connections, window, cx)
+    });
+    assert_eq!(
+        kinds(cx, &f),
+        [TileKind::Note, TileKind::Connections],
+        "an open supporting view is reused"
+    );
+    click(cx, &f, "nav-inbox");
+    assert_eq!(kinds(cx, &f), [TileKind::Overview]);
     cx.read(|cx| assert!(f.view.read(cx).worker.is_none()));
 }
 
 #[gpui_kit::test]
-fn settings_and_solo_restore_arrangement_and_preserve_dirty_input(cx: &mut TestAppContext) {
+fn settings_and_the_assistant_toggle_restore_arrangement_and_preserve_dirty_input(
+    cx: &mut TestAppContext,
+) {
     let mut note = String::new();
     let f = fixture(cx, |workspace| {
         note = workspace
@@ -1459,16 +1459,16 @@ fn settings_and_solo_restore_arrangement_and_preserve_dirty_input(cx: &mut TestA
         });
     });
     let before = kinds(cx, &f);
-    click(cx, &f, "settings");
+    assert_eq!(before, [TileKind::Note, TileKind::Chat]);
+    click(cx, &f, "workspace-menu");
+    choose(cx, &f, "Settings");
     on_window(cx, &f, |window, cx| {
-        assert!(window.find("settings-surface").visible());
-        // Settings is headed like a panel: 6 px gap, hairline, 36 px header.
-        let surface = window.find("settings-surface").bounds();
+        // Settings is a primary view: its Done sits in the workspace header.
+        let header = window.find("workspace-header").bounds();
         let body = window.find("tile-body-settings").bounds();
-        let header = f32::from(body.top() - surface.top());
-        assert!((42. ..=45.).contains(&header), "settings header {header}");
         let done = window.find("close-settings").bounds();
-        assert!(done.top() > surface.top() && done.bottom() < body.top());
+        assert!(done.top() >= header.top() && done.bottom() <= header.bottom());
+        assert!(body.top() >= header.bottom());
         assert!(window.try_find("note-body").is_none());
         assert!(
             !f.view
@@ -1481,7 +1481,6 @@ fn settings_and_solo_restore_arrangement_and_preserve_dirty_input(cx: &mut TestA
         window.press("tab", cx);
         window.input("Should not reach the note", cx);
     });
-    press(cx, &f, "cmd-shift-enter");
     press(cx, &f, "escape");
     assert_eq!(kinds(cx, &f), before);
     cx.read(|cx| {
@@ -1496,75 +1495,46 @@ fn settings_and_solo_restore_arrangement_and_preserve_dirty_input(cx: &mut TestA
             "Unsaved work"
         );
     });
-    click(cx, &f, "layout-solo");
+    // Hiding the assistant leaves the document alone; showing it restores.
+    click(cx, &f, "toggle-assistant");
     assert_eq!(kinds(cx, &f), [TileKind::Note]);
-    click(cx, &f, "layout-solo");
+    click(cx, &f, "toggle-assistant");
     assert_eq!(kinds(cx, &f), before);
-    click(cx, &f, "settings");
+    click(cx, &f, "workspace-menu");
+    choose(cx, &f, "Settings");
     click(cx, &f, "close-settings");
     assert_eq!(kinds(cx, &f), before);
-}
-
-#[gpui_kit::test]
-fn explicit_offscreen_split_and_keyboard_focus_are_revealed(cx: &mut TestAppContext) {
-    let f = fixture(cx, |_| {});
-    for kind in [
-        TileKind::Overview,
-        TileKind::Actions,
-        TileKind::History,
-        TileKind::Connections,
-    ] {
-        update(cx, &f, |view, window, cx| {
-            view.show_beside(kind, window, cx)
-        });
-    }
-    on_window(cx, &f, |window, _| {
-        let target = window.find("tile-connections").bounds();
-        assert!(target.left() >= px(0.) && target.right() <= px(1400.));
-    });
-    // Manually scroll the already-focused target away; reopening must still reveal it.
-    update(cx, &f, |view, _, cx| {
-        view.tile_scroll.set_offset(point(px(0.), px(0.)));
-        cx.notify();
-    });
-    on_window(cx, &f, |window, _| {
-        assert!(window.find("tile-connections").bounds().right() > px(1400.))
-    });
-    update(cx, &f, |view, window, cx| {
-        view.show_tile(TileKind::Connections, window, cx)
-    });
-    on_window(cx, &f, |window, _| {
-        assert!(window.find("tile-connections").bounds().right() <= px(1400.))
-    });
-    update(cx, &f, |view, window, cx| {
-        view.show_tile(TileKind::Threads, window, cx)
-    });
-    on_window(cx, &f, |window, _| {
-        let target = window.find("tile-threads").bounds();
-        assert!(target.left() >= px(0.) && target.right() <= px(1400.));
-    });
-    press(cx, &f, "cmd-[");
-    on_window(cx, &f, |window, _| {
-        let target = window.find("tile-connections").bounds();
-        assert!(target.left() >= px(0.) && target.right() <= px(1400.));
+    cx.read(|cx| {
+        assert_eq!(
+            f.view
+                .read(cx)
+                .writing
+                .note_editor
+                .read(cx)
+                .value()
+                .as_ref(),
+            "Unsaved work"
+        )
     });
 }
 
 #[gpui_kit::test]
-fn new_chat_from_solo_note_menu_focuses_the_visible_composer(cx: &mut TestAppContext) {
+fn new_chat_from_a_lone_note_menu_focuses_the_visible_assistant_composer(cx: &mut TestAppContext) {
     let mut note = String::new();
     let f = fixture(cx, |workspace| {
         note = workspace.new_note("Solo note", "Saved wording").unwrap().id;
     });
     update(cx, &f, |view, window, cx| {
         view.open_note(&note, None, window, cx);
-        view.apply_layout(Preset::Solo, window, cx);
+        view.relayout(window, cx, |layout| layout.show_alone(TileKind::Note));
     });
     click(cx, &f, "note-menu");
     choose(cx, &f, "New chat for this note");
     on_window(cx, &f, |window, cx| {
         let view = f.view.read(cx);
-        assert_eq!(view.layout.maximized(), Some(TileKind::Chat));
+        // The new chat joins the document as its assistant.
+        assert_eq!(view.layout.visible(), [TileKind::Note, TileKind::Chat]);
+        assert_eq!(view.layout.focus(), Some(TileKind::Chat));
         assert!(view.composer.focus_handle(cx).is_focused(window));
         assert!(!view.writing.note_editor.focus_handle(cx).is_focused(window));
         assert!(view.chat_thread().is_some());
@@ -1584,53 +1554,93 @@ fn simplified_navigation_tracks_focus_and_keeps_chat_filters_and_draft(cx: &mut 
             editor.set_value("Keep my unsent draft", window, cx)
         });
     });
+    on_window(cx, &f, |window, _| {
+        assert!(window.find(format!("thread-{chat}")).visible());
+    });
     for id in [
-        "browse-chats",
-        "all-threads",
+        "nav-all-chats",
         "resolved-count",
+        "all-threads",
         "chats-recent",
     ] {
         click(cx, &f, id);
         on_window(cx, &f, |window, cx| {
-            assert!(window.find("browse-chats").visible());
+            assert!(window.find("nav-all-chats").visible());
             let view = f.view.read(cx);
-            assert_eq!(view.navigation_focus(), Some(TileKind::Threads));
             assert_eq!(view.chat, ChatTarget::Thread(chat.clone()));
             assert_eq!(
                 view.composer.read(cx).value().as_str(),
                 "Keep my unsent draft"
             );
-            assert!(view.layout.visible().len() <= 3);
+            assert!(view.layout.visible().len() <= 2);
         });
     }
-    for (id, kind, label) in [
-        ("home", TileKind::Overview, "Home"),
-        ("open-notes", TileKind::Notes, "Notes"),
-        ("actions", TileKind::Actions, "Tasks"),
-        ("history", TileKind::History, "Changes"),
-        ("settings", TileKind::Settings, "Settings"),
+    // Recent goes to the sidebar's Recent chats, keeping the all-chats view.
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.layout.focus(), Some(TileKind::Threads));
+        assert_eq!(view.navigation_focus(), Some(TileKind::AllThreads));
+    });
+    for (id, kind, label, destination) in [
+        ("nav-inbox", TileKind::Overview, "Inbox", TileKind::Overview),
+        (
+            "inbox-tasks",
+            TileKind::Actions,
+            "Tasks",
+            TileKind::Overview,
+        ),
+        ("nav-library", TileKind::Notes, "Library", TileKind::Notes),
+        (
+            "nav-projects",
+            TileKind::Projects,
+            "Projects",
+            TileKind::Projects,
+        ),
     ] {
         click(cx, &f, id);
         on_window(cx, &f, |window, cx| {
             assert_eq!(f.view.read(cx).layout.focus(), Some(kind));
             assert_eq!(window.find(id).label(), Some(label));
-            assert_eq!(f.view.read(cx).navigation_focus(), Some(kind));
+            assert_eq!(f.view.read(cx).navigation_focus(), Some(destination));
         });
     }
+    click(cx, &f, "workspace-menu");
+    choose(cx, &f, "Recent changes");
+    assert_eq!(
+        cx.read(|cx| f.view.read(cx).layout.focus()),
+        Some(TileKind::History)
+    );
+    click(cx, &f, "workspace-menu");
+    choose(cx, &f, "Settings");
+    assert_eq!(
+        cx.read(|cx| f.view.read(cx).layout.focus()),
+        Some(TileKind::Settings)
+    );
     press(cx, &f, "escape");
     assert_eq!(
         cx.read(|cx| f.view.read(cx).layout.focus()),
         Some(TileKind::History)
     );
+    // The chat row marks the current chat; opening it fills the workspace.
+    click(cx, &f, format!("thread-{chat}"));
+    assert_eq!(kinds(cx, &f), [TileKind::Chat]);
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).composer.read(cx).value().as_str(),
+            "Keep my unsent draft"
+        )
+    });
 }
 
 #[gpui_kit::test]
 fn companion_focus_and_theme_changes_keep_navigation_readable(cx: &mut TestAppContext) {
     use gpui_kit::component::ActiveTheme;
     let f = fixture(cx, |_| {});
+    // New chat (and linked work beside it) marks New chat; a document and
+    // the views beside it mark the Library.
     for (kind, destination) in [
-        (TileKind::Chat, TileKind::Threads),
-        (TileKind::Linked, TileKind::Threads),
+        (TileKind::Chat, TileKind::Chat),
+        (TileKind::Linked, TileKind::Chat),
         (TileKind::Note, TileKind::Notes),
         (TileKind::Connections, TileKind::Notes),
         (TileKind::Compare, TileKind::Notes),
@@ -1796,7 +1806,7 @@ fn menu_rows(cx: &mut TestAppContext, f: &Fixture) -> Vec<String> {
 }
 
 #[gpui_kit::test]
-fn panel_headers_name_the_object_and_hold_one_menu_with_a_panel_section(cx: &mut TestAppContext) {
+fn the_workspace_header_names_the_object_and_holds_its_local_actions(cx: &mut TestAppContext) {
     let mut note = String::new();
     let f = fixture(cx, |workspace| {
         note = workspace
@@ -1807,81 +1817,70 @@ fn panel_headers_name_the_object_and_hold_one_menu_with_a_panel_section(cx: &mut
     update(cx, &f, |view, window, cx| {
         view.open_note(&note, None, window, cx)
     });
-    assert_eq!(
-        kinds(cx, &f),
-        [TileKind::Threads, TileKind::Note, TileKind::Chat]
-    );
+    assert_eq!(kinds(cx, &f), [TileKind::Note, TileKind::Chat]);
+    let inside = |window: &mut Window, id: &str, outer: &str| {
+        let (inner, outer) = (
+            window.find(id.to_owned()).bounds(),
+            window.find(outer.to_owned()).bounds(),
+        );
+        assert!(
+            inner.left() >= outer.left()
+                && inner.right() <= outer.right()
+                && inner.top() >= outer.top()
+                && inner.bottom() <= outer.bottom(),
+            "{inner:?} inside {outer:?}"
+        );
+    };
     on_window(cx, &f, |window, _| {
         assert_eq!(
             window.find("tile-title-note").label(),
             Some("Note: Pilot proposal")
         );
-        assert_eq!(window.find("tile-title-threads").label(), Some("Chats"));
         assert_eq!(
             window.find("tile-title-chat").label(),
             Some("Chat: New chat about Pilot proposal")
         );
-        // One ⋯ per panel, in its header; the Note's keeps note-menu.
-        for (menu, header) in [
-            ("note-menu", "tile-header-note"),
-            ("tile-menu-threads", "tile-header-threads"),
-            ("tile-menu-chat", "tile-header-chat"),
+        // The document's local actions sit in the one workspace header.
+        for id in [
+            "tile-title-note",
+            "status-save",
+            "note-menu",
+            "toggle-assistant",
         ] {
-            let (menu, header) = (window.find(menu).bounds(), window.find(header).bounds());
-            assert!(
-                menu.left() >= header.left()
-                    && menu.right() <= header.right()
-                    && menu.top() >= header.top()
-                    && menu.bottom() <= header.bottom(),
-                "{menu:?} inside {header:?}"
-            );
+            inside(window, id, "workspace-header");
         }
-        assert!(window.try_find("tile-menu-note").is_none());
+        // The assistant has its own small header with Close.
+        for id in ["tile-title-chat", "close-assistant"] {
+            inside(window, id, "assistant-header");
+        }
+        for retired in [
+            "tile-header-note",
+            "tile-header-chat",
+            "tile-menu-chat",
+            "tile-menu-note",
+            "tile-close-note",
+        ] {
+            assert!(window.try_find(retired).is_none(), "{retired} retired");
+        }
     });
     click(cx, &f, "note-menu");
     let rows = menu_rows(cx, &f);
     assert_eq!(rows.first().map(String::as_str), Some("Save"), "{rows:?}");
-    let panel = rows.iter().position(|row| row == "Panel").expect("Panel");
-    assert_eq!(
-        &rows[panel..],
-        [
-            "Panel",
-            "Maximize",
-            "Move left",
-            "Move right",
-            "Open beside",
-            "Close other splits",
-            "Close"
-        ],
-        "the Panel section comes last"
-    );
-    choose(cx, &f, "Move right");
-    assert_eq!(
-        kinds(cx, &f),
-        [TileKind::Threads, TileKind::Chat, TileKind::Note]
-    );
-    click(cx, &f, "tile-menu-chat");
-    assert_eq!(menu_rows(cx, &f).first().map(String::as_str), Some("Panel"));
-    choose(cx, &f, "Move left");
-    assert_eq!(
-        kinds(cx, &f),
-        [TileKind::Chat, TileKind::Threads, TileKind::Note]
-    );
-    click(cx, &f, "tile-menu-threads");
-    choose(cx, &f, "Maximize");
-    assert_eq!(kinds(cx, &f), [TileKind::Threads]);
-    on_window(cx, &f, |window, _| {
-        assert_eq!(
-            window.find("status-layout").label(),
-            Some("Maximized · Chats")
+    for retired in [
+        "Panel",
+        "Maximize",
+        "Move left",
+        "Open beside",
+        "Close other splits",
+    ] {
+        assert!(
+            !rows.iter().any(|row| row == retired),
+            "{retired}: {rows:?}"
         );
-    });
-    click(cx, &f, "tile-menu-threads");
-    choose(cx, &f, "Restore");
-    assert_eq!(kinds(cx, &f).len(), 3);
-    click(cx, &f, "tile-menu-threads");
-    choose(cx, &f, "Close");
-    assert!(!kinds(cx, &f).contains(&TileKind::Threads));
+    }
+    press(cx, &f, "escape");
+    click(cx, &f, "close-assistant");
+    assert_eq!(kinds(cx, &f), [TileKind::Note]);
     cx.read(|cx| assert!(f.view.read(cx).worker.is_none()));
 }
 
@@ -1912,7 +1911,7 @@ fn status_save_reads_unsaved_while_dirty_and_saved_otherwise(cx: &mut TestAppCon
         });
         view.preserve_visible_note_input(cx);
     });
-    // The open note's unsaved state stays visible with its panel closed.
+    // The open note's unsaved state stays visible in the header of other views.
     update(cx, &f, |view, window, cx| {
         view.relayout(window, cx, |layout| layout.close(TileKind::Note))
     });
@@ -1930,13 +1929,22 @@ fn status_save_reads_unsaved_while_dirty_and_saved_otherwise(cx: &mut TestAppCon
         );
     });
     on_window(cx, &f, |window, _| {
+        assert!(
+            window.try_find("status-save").is_none(),
+            "a saved note's state belongs to its own header"
+        );
+    });
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Note, window, cx)
+    });
+    on_window(cx, &f, |window, _| {
         assert_eq!(window.find("status-save").label(), Some("Saved"));
     });
     click(cx, &f, "status-save");
     assert_eq!(
         cx.read(|cx| f.view.read(cx).layout.focus()),
         Some(TileKind::History),
-        "Saved opens Changes"
+        "Saved opens Recent changes"
     );
 }
 
@@ -1963,7 +1971,9 @@ fn launcher_groups_results_and_lists_projects(cx: &mut TestAppContext) {
             Some("Note: Grouped note")
         );
         let launcher = window.within("launcher-scrim").find("launcher").bounds();
-        assert!(launcher.size.width <= px(580.), "{launcher:?}");
+        // A centred search surface at most 640 wide, sized to its results.
+        assert!(launcher.size.width <= px(640.), "{launcher:?}");
+        assert!(launcher.size.height <= px(700.), "{launcher:?}");
         assert!(
             window.find("launcher-results").bounds().size.height <= px(600.),
             "results fit within 60 % of the window"
@@ -2082,9 +2092,12 @@ fn launcher_keeps_a_matching_command_ahead_of_chat_messages(cx: &mut TestAppCont
 }
 
 #[gpui_kit::test]
-fn keys_help_names_panels_menus_dialogs_and_the_settings_theme(cx: &mut TestAppContext) {
+fn keyboard_shortcuts_name_the_shell_regions_menus_dialogs_and_the_settings_theme(
+    cx: &mut TestAppContext,
+) {
     let f = fixture(cx, |_| {});
-    click(cx, &f, "status-keys");
+    click(cx, &f, "workspace-menu");
+    choose(cx, &f, "Keyboard shortcuts");
     let rows: Vec<String> = on_window(cx, &f, |window, _| {
         assert!(window.find("keys-help").visible());
         (0..40)
@@ -2095,11 +2108,12 @@ fn keys_help_names_panels_menus_dialogs_and_the_settings_theme(cx: &mut TestAppC
     assert_eq!(rows.len(), shell::KEYS.len());
     for expected in [
         "Theme: Settings → General · ⌘K",
-        "Panel menu: ⋯ in the header · right-click the header",
-        "Maximize: ⌘⇧↵ · double-click its header · Maximize button",
+        "New chat: ⌘T or ⌘0 · New chat in the sidebar",
+        "Move focus: ⌘[ ⌘] · sidebar, workspace and assistant",
+        "Sidebar: ⌘\\ · collapse to the rail or expand",
         "Rewrite with AI: ⌘⇧R · writing bar · ⋯ menu",
-        "Stop: ⌘. · status bar · Stop button",
-        "Menus: Tab to ⋯ · ↵ opens · ↑↓ ↵ · Esc",
+        "Stop: ⌘. · Stop in the header",
+        "Menus: Tab to ⋯ · ↵ opens · ↑↓ ↵ · Esc · right-click a chat",
         "Dialogs: ↵ submits a one-field dialog · ⌘↵ submits a form · Space presses the focused button · Esc cancels",
     ] {
         assert!(
@@ -2107,10 +2121,13 @@ fn keys_help_names_panels_menus_dialogs_and_the_settings_theme(cx: &mut TestAppC
             "{expected}: {rows:?}"
         );
     }
-    assert!(
-        rows.iter().all(|row| !row.to_lowercase().contains("tile")),
-        "{rows:?}"
-    );
+    // Retired tile mechanics are no longer described.
+    for retired in ["tile", "maximize", "panel", "⌥", "split", "solo"] {
+        assert!(
+            rows.iter().all(|row| !row.to_lowercase().contains(retired)),
+            "{retired}: {rows:?}"
+        );
+    }
     press(cx, &f, "escape");
     on_window(cx, &f, |window, cx| assert!(!window.has_active_dialog(cx)));
 }

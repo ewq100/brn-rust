@@ -79,7 +79,7 @@ fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
 }
 /// Run a selected project's action from the Projects ⋯.
 fn project_action(cx: &mut TestAppContext, f: &Fixture, label: &str) {
-    click(cx, f, "tile-menu-projects");
+    click(cx, f, "projects-menu");
     choose(cx, f, label);
 }
 fn create(cx: &mut TestAppContext, f: &Fixture, name: &str) -> String {

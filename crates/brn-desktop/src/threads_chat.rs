@@ -986,9 +986,7 @@ impl ThreadsUi {
             .flex()
             .flex_col()
             .w_full()
-            .when(self.layout.maximized() == Some(TileKind::Chat), |row| {
-                row.items_center()
-            })
+            .when(self.centered(TileKind::Chat), |row| row.items_center())
             .child(column)
             .test_support()
             .into_any_element()

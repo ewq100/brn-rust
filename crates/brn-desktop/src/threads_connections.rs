@@ -94,11 +94,7 @@ impl ThreadsUi {
     /// Requests the open note's neighbourhood when the Connections tile is
     /// visible. A newer request replaces the older one.
     pub(super) fn refresh_connections(&mut self, cx: &mut Context<Self>) {
-        let visible = self
-            .layout
-            .visible()
-            .iter()
-            .any(|tile| tile.kind == TileKind::Connections);
+        let visible = self.layout.contains(TileKind::Connections);
         let graph = &mut self.graph;
         graph.generation += 1;
         graph.task = None;
