@@ -334,7 +334,7 @@ fn focus_lands_inside_each_destination_panel(cx: &mut TestAppContext) {
     inside(cx, TileKind::Settings);
     on_window(cx, &f, |window, _| {
         assert_eq!(
-            window.find("settings-section-general").focused(),
+            window.find("settings-section-appearance").focused(),
             Some(true)
         );
     });
@@ -344,7 +344,7 @@ fn focus_lands_inside_each_destination_panel(cx: &mut TestAppContext) {
 /// so the ring never marks an unselected section. A key press keeps focus on
 /// the pressed section.
 #[gpui_kit::test]
-fn a_clicked_settings_section_takes_the_focus_ring_off_general(cx: &mut TestAppContext) {
+fn a_clicked_settings_section_takes_the_focus_ring_off_appearance(cx: &mut TestAppContext) {
     let f = fixture(cx, 1250., 860., |_| {});
     update(cx, &f, |view, window, cx| {
         view.show_tile(TileKind::Settings, window, cx)
@@ -352,7 +352,7 @@ fn a_clicked_settings_section_takes_the_focus_ring_off_general(cx: &mut TestAppC
     next_frame(cx, &f);
     on_window(cx, &f, |window, _| {
         assert_eq!(
-            window.find("settings-section-general").focused(),
+            window.find("settings-section-appearance").focused(),
             Some(true)
         );
     });
@@ -363,7 +363,7 @@ fn a_clicked_settings_section_takes_the_focus_ring_off_general(cx: &mut TestAppC
         let view = f.view.read(cx);
         assert_eq!(view.settings_section, SettingsSection::Models);
         assert_ne!(
-            window.find("settings-section-general").focused(),
+            window.find("settings-section-appearance").focused(),
             Some(true)
         );
         assert!(
@@ -688,6 +688,9 @@ fn escape_closes_one_layer_at_a_time_and_never_stops_work(cx: &mut TestAppContex
         assert!(f.view.read(cx).layout.settings_open(), "Settings stays");
     });
     // A dialog over Settings closes before Settings does.
+    on_window(cx, &f, |window, cx| {
+        window.click("settings-section-general", cx)
+    });
     on_window(cx, &f, |window, cx| window.click("settings-keys", cx));
     press(cx, &f, "escape");
     on_window(cx, &f, |window, cx| {

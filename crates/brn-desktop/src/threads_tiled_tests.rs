@@ -194,10 +194,10 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
     let editor = cx.read(|cx| f.view.read(cx).writing.note_editor.clone());
     // Sidebar destinations, the Inbox's Tasks view and the workspace menu.
     for (button, kind, tile) in [
-        ("nav-inbox", TileKind::Overview, "home-needs-you"),
+        ("nav-inbox", TileKind::Overview, "home-content"),
         ("inbox-tasks", TileKind::Actions, "actions-content"),
         ("Recent changes", TileKind::History, "history-content"),
-        ("Settings", TileKind::Settings, "settings-general"),
+        ("Settings", TileKind::Settings, "settings-appearance-page"),
         ("nav-library", TileKind::Notes, "notes-list"),
     ] {
         match button {
@@ -579,12 +579,14 @@ fn empty_tiles_explain_home_search_actions_and_history_without_starting_work(
     .unwrap();
     click(cx, &f, "nav-inbox");
     cx.update_window(f.window, |_, window, _| {
-        assert!(window.find("home-needs-you").visible());
-        assert!(window.try_find("home-notes").is_some());
-        assert!(window.try_find("home-recent-changes").is_some());
+        // For you holds the pending delegation choice and the route to
+        // Recent changes; recent notes live in Library, not the Inbox.
+        assert!(window.find("for-you-delegation").visible());
+        assert!(window.try_find("for-you-history").is_some());
+        assert!(window.try_find("home-notes").is_none());
         assert!(
             window.find("delegation-pending").visible(),
-            "rendered once, in the overview"
+            "rendered once, in For you"
         );
     })
     .unwrap();
@@ -744,13 +746,9 @@ fn narrow_settings_and_shell_controls_remain_reachable(cx: &mut TestAppContext) 
     reveal(cx, &f, "settings-content", "export-now");
     // Traverse the longer Data section in both directions, including the new
     // controls. Keep real wheel events and full in-viewport bounds assertions.
-    reveal(cx, &f, "settings-content", "inbox-choose-folder");
-    reveal(cx, &f, "settings-content", "inbox-scan");
-    cx.update_window(f.window, |_, window, _| {
-        assert_eq!(window.find("inbox-scan").disabled(), Some(true));
-    })
-    .unwrap();
+    reveal(cx, &f, "settings-content", "data-open-trash");
     reveal(cx, &f, "settings-content", "restore-select");
+    reveal(cx, &f, "settings-content", "data-location-reveal");
     reveal(cx, &f, "settings-content", "backup-change-folder");
     reveal(cx, &f, "settings-content", "backup-now");
     reveal(cx, &f, "settings-content", "export-now");
@@ -760,6 +758,16 @@ fn narrow_settings_and_shell_controls_remain_reachable(cx: &mut TestAppContext) 
         assert!(settings.backup_directory.is_none());
         assert!(f.view.read(cx).worker.is_none());
     });
+    // The folder inbox moved to Inbox → Imports; it stays reachable there
+    // and Scan stays unavailable until a folder is chosen.
+    click(cx, &f, "nav-inbox");
+    click(cx, &f, "inbox-imports");
+    reveal(cx, &f, "imports-content", "inbox-choose-folder");
+    reveal(cx, &f, "imports-content", "inbox-scan");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(window.find("inbox-scan").disabled(), Some(true));
+    })
+    .unwrap();
 }
 
 #[gpui_kit::test]

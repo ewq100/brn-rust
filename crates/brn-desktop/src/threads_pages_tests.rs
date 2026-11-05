@@ -247,24 +247,30 @@ fn a_needs_you_title_stays_beside_a_long_reason_one_line_each(cx: &mut TestAppCo
         assert!(label(window, &chat).starts_with("A very long chat title"));
         assert_eq!(label(window, "nav-inbox"), "Inbox, 1 needs you");
     });
-    // The Inbox names the chat above its reason, one line each.
+    // For you names the chat above its reason, one line each, under Failed.
     click(cx, &f, "nav-inbox");
-    let inbox = format!("home-attention-{thread}");
+    let inbox = format!("for-you-chat-{thread}-0");
     on_window(cx, &f, |window, _| {
         assert_eq!(
             label(window, &inbox),
-            format!("Delivery update · {FAILURE}")
+            format!("Delivery update · {FAILURE} · Failed")
+        );
+        assert!(
+            window
+                .within("for-you-failed")
+                .find(inbox.clone())
+                .visible()
         );
         let frame = window.find(inbox.clone()).bounds();
         let title = window.find(format!("{inbox}-title")).bounds();
-        let reason = window.find(format!("{inbox}-reason")).bounds();
+        let reason = window.find(format!("{inbox}-context")).bounds();
         assert!(title.size.height < px(28.), "one title line: {title:?}");
         assert!(reason.size.height < px(24.), "one reason line: {reason:?}");
         assert!(reason.origin.y >= title.origin.y + title.size.height - px(1.));
         for line in [title, reason] {
             assert!(line.origin.x + line.size.width <= frame.origin.x + frame.size.width + px(1.));
         }
-        assert!(frame.size.height <= px(45.), "two lines high: {frame:?}");
+        assert!(frame.size.height <= px(57.), "two lines high: {frame:?}");
     });
     click(cx, &f, inbox.clone());
     cx.read(|cx| assert_eq!(f.view.read(cx).chat_thread(), Some(thread.as_str())));
@@ -391,11 +397,11 @@ fn needs_you_rows_keep_the_chat_title_above_the_reason_in_every_list(cx: &mut Te
     let two_lines = |window: &mut Window, row: &str| {
         assert_eq!(
             label(window, row),
-            format!("Venue booking · {reason}"),
+            format!("Venue booking · {reason} · Failed"),
             "{row}"
         );
         let title = window.find(format!("{row}-title")).bounds();
-        let second = window.find(format!("{row}-reason")).bounds();
+        let second = window.find(format!("{row}-context")).bounds();
         assert!(title.size.width > px(60.), "{row} title: {title:?}");
         assert!(
             second.top() >= title.bottom() - px(1.),
@@ -415,7 +421,7 @@ fn needs_you_rows_keep_the_chat_title_above_the_reason_in_every_list(cx: &mut Te
     });
     click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
-        two_lines(window, &format!("home-attention-{thread}"))
+        two_lines(window, &format!("for-you-chat-{thread}-0"))
     });
 }
 
@@ -501,17 +507,22 @@ fn review_rows_name_their_target_notes_and_mark_a_protected_one(cx: &mut TestApp
     });
     click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
-        for row in [
-            format!("home-candidate-{operation}"),
-            format!("home-attention-{thread}"),
-        ] {
-            let text = label(window, &row);
-            assert!(
-                text.contains(expected) && text.ends_with("· Protected"),
-                "{text}"
-            );
-            assert!(window.find(format!("{row}-protected")).visible());
-        }
+        // The chat's review is one For you item: the review, then its chat.
+        let row = format!("for-you-review-{operation}");
+        let text = label(window, &row);
+        assert!(
+            text.contains(expected) && text.ends_with("· Protected"),
+            "{text}"
+        );
+        assert!(text.contains("Proposed in chat · Delivery chat"), "{text}");
+        assert!(window.within("for-you-review").find(row.clone()).visible());
+        assert_eq!(label(window, format!("{row}-state")), "Review · Protected");
+        assert!(window.find(format!("{row}-chat")).visible());
+        assert!(
+            window
+                .try_find(format!("for-you-chat-{thread}-0"))
+                .is_none()
+        );
     });
     cx.read(|cx| {
         let view = f.view.read(cx);
@@ -543,18 +554,23 @@ fn kept_edits_read_recover_edit_with_an_unsaved_chip(cx: &mut TestAppContext) {
     on_window(cx, &f, |window, _| {
         // R4: the note's title leads, "Recover edit" is the reason line, and
         // the Unsaved marker follows, announced and in the tooltip.
-        assert_eq!(
-            label(window, "home-recover-0"),
-            "Pilot proposal · Recover edit · Unsaved"
-        );
-        assert_eq!(label(window, "home-recover-0-unsaved"), "Unsaved");
-        let title = window.find("home-recover-0-title").bounds();
-        let chip = window.find("home-recover-0-unsaved").bounds();
+        let text = label(window, "for-you-recover-0");
+        assert!(text.starts_with("Pilot proposal · Recover edit"), "{text}");
+        assert!(text.ends_with(" · Unsaved"), "{text}");
+        assert_eq!(label(window, "for-you-recover-0-state"), "Unsaved");
+        let title = window.find("for-you-recover-0-title").bounds();
+        let chip = window.find("for-you-recover-0-state").bounds();
         assert!(title.size.width >= px(90.), "{title:?} {chip:?}");
         assert!(title.right() <= chip.left(), "{title:?} {chip:?}");
-        assert!(window.find("home-recover-0-reason").visible());
+        assert!(window.find("for-you-recover-0-context").visible());
+        assert!(
+            window
+                .within("for-you-decision")
+                .find("for-you-recover-0")
+                .visible()
+        );
     });
-    click(cx, &f, "home-recover-0");
+    click(cx, &f, "for-you-recover-0");
     cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), Some(note.as_str())));
 }
 
@@ -927,48 +943,17 @@ fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &m
         );
         assert!(!view.queue_state().quiet);
     });
-    // Home leaves bookkeeping out and marks the change that needs refresh.
+    // Inbox leaves routine changes and their refresh follow-ups to Recent
+    // changes, and links there; nothing here asks for approval.
     click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
-        assert!(window.try_find(format!("home-change-{quiet}")).is_none());
-        assert_eq!(
-            label(window, format!("home-change-{op}-refresh")),
-            "Needs refresh"
-        );
-        assert!(window.find("home-open-history").visible());
+        assert!(window.try_find(format!("for-you-review-{quiet}")).is_none());
+        assert!(window.try_find(format!("for-you-review-{op}")).is_none());
+        assert!(window.find("for-you-empty").visible());
+        assert!(window.find("inbox-open-history").visible());
     });
-}
-
-#[gpui_kit::test]
-fn home_shows_the_intro_only_on_first_run(cx: &mut TestAppContext) {
-    let first = fixture(cx, 1250., 860., |_| {});
-    click(cx, &first, "nav-inbox");
-    on_window(cx, &first, |window, _| {
-        assert!(window.find("home-intro").visible());
-        assert!(window.find("delegation-pending").visible());
-    });
-    let mut note = String::new();
-    let seeded = fixture(cx, 1250., 860., |workspace| {
-        note = workspace
-            .new_note("Pilot proposal", "Saved text")
-            .unwrap()
-            .id;
-    });
-    click(cx, &seeded, "nav-inbox");
-    on_window(cx, &seeded, |window, _| {
-        assert!(window.try_find("home-intro").is_none());
-        // The pending choice is independent of first run.
-        assert!(window.find("delegation-pending").visible());
-        // Recent notes are rows with a readable time, not buttons.
-        let row = window.find(format!("home-note-{note}"));
-        assert!(row.visible());
-        assert!(
-            row.label().unwrap().starts_with("Pilot proposal · Today"),
-            "{:?}",
-            row.label()
-        );
-        assert_ne!(row.role(), Some(gpui_kit::Role::Button));
-    });
+    click(cx, &f, "inbox-open-history");
+    cx.read(|cx| assert_eq!(f.view.read(cx).layout.focus(), Some(TileKind::History)));
 }
 
 /// The reworked empty states on first run: a title, one sentence naming the
@@ -1379,9 +1364,19 @@ fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
     });
     click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
-        assert!(window.find("home-recover-0").visible());
-        assert!(window.find(format!("home-candidate-{operation}")).visible());
+        assert!(window.find("for-you-recover-0").visible());
+        assert!(window.find(format!("for-you-review-{operation}")).visible());
     });
+    // For you rows are themselves keyboard stops.
+    update(cx, &f, |view, window, cx| view.focus_root(window, cx));
+    assert!(
+        tab_to(cx, &f, "for-you-recover-0"),
+        "Tab reaches the kept edit"
+    );
+    assert!(
+        tab_to(cx, &f, &format!("for-you-review-{operation}")),
+        "Tab reaches the review"
+    );
     // The note and its kept edit: ⌘K opens the note.
     press(cx, &f, "cmd-k");
     on_window(cx, &f, |window, cx| window.input("Kept plan", cx));
@@ -1606,4 +1601,200 @@ fn chat_focus_dispatch_with_tasks_panel_and_split_enter(cx: &mut TestAppContext)
             assert!(ui.worker.is_none());
         });
     }
+}
+
+/// Tasks: a row opens the detail panel with every recorded fact; completion
+/// is an explicit step there, and a narrow window shows the detail alone.
+#[gpui_kit::test]
+fn a_task_opens_its_detail_panel_and_completes_explicitly(cx: &mut TestAppContext) {
+    let mut id = String::new();
+    let f = fixture(cx, 1400., 900., |workspace| {
+        id = task(workspace, "Send the venue deposit", ActionState::Waiting);
+    });
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::Actions, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        let page = window.find("actions-content").bounds();
+        let lead = window.find("tasks-lead").bounds();
+        assert!(
+            lead.origin.y > page.origin.y,
+            "the lead sits below the inset"
+        );
+        let left = lead.origin.x - page.origin.x;
+        let right = page.origin.x + page.size.width - (lead.origin.x + lead.size.width);
+        assert!((left - right).abs() < px(2.), "the column is centred");
+    });
+    click(cx, &f, format!("task-open-{id}"));
+    on_window(cx, &f, |window, _| {
+        assert!(
+            window.find("actions-list").visible(),
+            "the list stays beside"
+        );
+        assert_eq!(label(window, "task-detail-title"), "Send the venue deposit");
+        assert_eq!(label(window, "task-detail-state"), "Waiting");
+        assert_eq!(label(window, "task-detail-owner"), "Owner: Not reported");
+        assert_eq!(label(window, "task-detail-waiting"), "Waiting on: Nobody");
+        assert_eq!(label(window, "task-detail-follow-up"), "Follow up: No date");
+        assert_eq!(label(window, "task-detail-due"), "Due: 2026-10-15");
+        assert_eq!(
+            label(window, "task-detail-main"),
+            "Confirm done: Send the venue deposit"
+        );
+        assert!(window.find("task-detail-edit").visible());
+    });
+    assert_eq!(task_state(cx, &f, &id), ActionState::Waiting);
+    click(cx, &f, "task-detail-main");
+    assert_eq!(task_state(cx, &f, &id), ActionState::Done);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "task-detail-state"), "Done");
+        assert_eq!(
+            label(window, "task-detail-evidence"),
+            "Completed: Owner confirmed completion in BRN."
+        );
+    });
+    // Narrow: the detail replaces the list until All tasks.
+    let mut id = String::new();
+    let f = fixture(cx, 900., 600., |workspace| {
+        id = task(workspace, "Send the venue deposit", ActionState::Open);
+    });
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::Actions, cx)
+    });
+    click(cx, &f, format!("task-open-{id}"));
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("actions-list").is_none());
+        assert!(window.find("task-detail").visible());
+    });
+    click(cx, &f, "task-detail-close");
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("task-detail").is_none());
+        assert!(window.find(format!("action-tile-{id}")).visible());
+    });
+}
+
+#[test]
+fn follow_up_dates_are_checked_in_owner_terms() {
+    use super::tasks_view::check_follow_up;
+    assert_eq!(check_follow_up(None), Ok(()));
+    assert_eq!(check_follow_up(Some("2028-02-29")), Ok(()));
+    for bad in ["next Friday", "2027-02-29", "2026-1-5"] {
+        let error = check_follow_up(Some(bad)).unwrap_err();
+        assert!(
+            error.contains("YYYY-MM-DD") && error.contains(bad),
+            "{error}"
+        );
+        assert!(error.ends_with("Nothing was saved."), "{error}");
+    }
+}
+
+/// Settings opens on Appearance beside a list of every section, at both a
+/// roomy and a compact width; shortcuts live in General, and Data names the
+/// data location, export, backup, restore and deleted items separately.
+#[gpui_kit::test]
+fn settings_lists_its_sections_and_data_says_what_each_copy_is(cx: &mut TestAppContext) {
+    for (width, height) in [(1280., 1400.), (900., 600.)] {
+        let f = fixture(cx, width, height, |_| {});
+        update(cx, &f, |view, window, cx| {
+            view.show_tile(TileKind::Settings, window, cx)
+        });
+        on_window(cx, &f, |window, cx| {
+            assert_eq!(
+                f.view.read(cx).settings_section,
+                SettingsSection::Appearance
+            );
+            assert!(window.find("settings-sections").visible());
+            for section in SettingsSection::ALL {
+                assert!(
+                    window
+                        .find(format!("settings-section-{}", section.key()))
+                        .visible(),
+                    "{width}: {}",
+                    section.key()
+                );
+            }
+            assert!(window.find("settings-appearance-page").visible());
+            assert!(window.find("appearance-system").visible());
+            assert!(window.try_find("settings-keys").is_none());
+        });
+        click(cx, &f, "settings-section-general");
+        on_window(cx, &f, |window, _| {
+            assert!(window.find("settings-keys").visible());
+            assert!(window.try_find("appearance-system").is_none());
+        });
+        click(cx, &f, "settings-section-data");
+        on_window(cx, &f, |window, _| {
+            assert_eq!(label(window, "data-location"), f.data.display().to_string());
+            for id in [
+                "data-location-reveal",
+                "backup-now",
+                "restore-select",
+                "export-now",
+                "data-open-trash",
+                "data-open-history",
+            ] {
+                assert!(window.try_find(id).is_some(), "{id}");
+            }
+            // The folder inbox is set up in Inbox → Imports, not here.
+            assert!(window.try_find("inbox-choose-folder").is_none());
+        });
+        if width < 1000. {
+            continue;
+        }
+        // Tall enough that Deleted items is on screen without scrolling.
+        click(cx, &f, "data-open-trash");
+        cx.read(|cx| {
+            let view = f.view.read(cx);
+            assert!(view.projects_trash);
+            assert_eq!(view.layout.focus(), Some(TileKind::Projects));
+        });
+    }
+}
+
+/// Models says plainly when the saved credential location is missing, and
+/// never claims a sign-in it cannot see.
+#[gpui_kit::test]
+fn models_shows_unavailable_credentials_truthfully(cx: &mut TestAppContext) {
+    use super::settings_view::credential_status;
+    let f = fixture(cx, 1280., 860., |_| {});
+    let mut settings = cx.read(|cx| f.view.read(cx).settings.clone());
+    settings.provider = "codex".into();
+    settings.auth_file = Some(f.data.join("missing-auth.json").display().to_string());
+    let (tone, line) = credential_status(&settings);
+    assert_eq!(tone, Tone::Warning);
+    assert!(
+        line.contains("not found") && line.contains("unavailable"),
+        "{line}"
+    );
+    settings.auth_file = Some(f.data.display().to_string());
+    let (tone, line) = credential_status(&settings);
+    assert_eq!(tone, Tone::Success);
+    assert!(line.contains("checked when a chat starts"), "{line}");
+    settings.auth_file = None;
+    assert_eq!(credential_status(&settings).0, Tone::Info);
+    settings.provider = "copilot".into();
+    settings.credentials_dir = None;
+    let (tone, line) = credential_status(&settings);
+    assert_eq!(tone, Tone::Warning);
+    assert!(line.contains("not connected"), "{line}");
+    update(cx, &f, |view, _, cx| {
+        let mut saved = view.settings.clone();
+        saved.auth_file = Some(
+            view.data_dir
+                .join("missing-auth.json")
+                .display()
+                .to_string(),
+        );
+        saved.provider = "codex".into();
+        view.workspace.configure(saved).unwrap();
+        view.refresh();
+        focus_tests::settings(view, SettingsSection::Models, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        let status = label(window, "settings-credential-status");
+        assert!(
+            status.starts_with("Warning: Codex auth file not found"),
+            "{status}"
+        );
+    });
 }

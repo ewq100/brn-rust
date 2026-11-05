@@ -1,61 +1,211 @@
 //! Manual document inbox controls. No watcher, project inheritance or source-file writes.
+use super::components::Tone;
 use super::*;
 
 impl ThreadsUi {
+    /// Inbox → Imports: the manual folder inbox. Setup and Scan are separate
+    /// owner choices; there is no watcher and no scan at launch.
     pub(super) fn inbox_settings(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        use super::inbox_page::{group_heading, item_line, item_row, page_group};
+        let p = pal();
         let state = self.workspace.inbox();
-        let mut panel=div().id("settings-inbox").flex().flex_col().gap_2()
-            .child(section("Document inbox"))
-            .child(div().id("inbox-destination").child(INBOX_DESTINATION_NOTICE).test_support())
-            .child(metadata("Scan is manual. Only this folder's files are considered; subfolders and links are not followed. Statuses describe the latest explicit scan. Scan again to retry pending or failed items."));
-        panel = panel.child(metadata(format!(
-            "Next scan: {} · AI refinement {}",
-            match self.settings.document_conversion.converter {
-                DocumentConverter::Xberg => "Stock Xberg",
-                DocumentConverter::XbergBrn => "BRN Xberg",
-            },
-            if self.settings.document_conversion.ai {
-                "on"
-            } else {
-                "off"
-            }
-        )));
-        panel=panel.child(metadata("Up to 256 entries; 16 MiB per file; 64 MiB of source files and converted content per scan."));
+        let scanning = self
+            .worker
+            .as_ref()
+            .is_some_and(|worker| worker.kind() == WorkerKind::Inbox);
+        let busy = self.worker.is_some();
         let configured = matches!(&state, Ok(Some(_)));
-        panel = panel.child(
+        let quiet = |text: String| {
             div()
-                .flex()
-                .flex_wrap()
-                .gap_2()
-                .child(
-                    button("inbox-choose-folder")
-                        .label("Choose General inbox folder…")
-                        .outline()
-                        .disabled(self.worker.is_some())
-                        .on_click(
-                            cx.listener(|this, _, window, cx| this.choose_inbox_folder(window, cx)),
-                        ),
-                )
-                .child(
-                    button("inbox-scan")
-                        .label("Scan inbox")
-                        .primary()
-                        .disabled(self.worker.is_some() || !configured)
-                        .on_click(cx.listener(|this, _, _, cx| this.start_inbox_scan(cx))),
-                ),
-        );
-        match state {
-            Ok(Some(state))=>{
-                panel=panel.child(div().id("inbox-folder").child(state.folder).test_support());
-                for (index,entry) in state.entries.into_iter().enumerate() {
-                    let label=format!("{} — {:?}: {}",entry.name,entry.status,entry.detail);
-                    panel=panel.child(div().id(format!("inbox-entry-{index}")).child(label).test_support());
+                .text_size(px(theme::metrics::TEXT_LABEL))
+                .text_color(rgb(p.muted))
+                .child(text)
+        };
+        let mut panel = page_group("settings-inbox")
+            .child(group_heading("Folder inbox", None))
+            .child(
+                div()
+                    .id("inbox-destination")
+                    .text_color(rgb(p.ink))
+                    .child(INBOX_DESTINATION_NOTICE)
+                    .test_support(),
+            )
+            .child(quiet("Scan is manual: nothing is read until you choose Scan inbox, and BRN never watches the folder. Only this folder's files are considered; subfolders and links are not followed. Up to 256 entries, 16 MiB per file and 64 MiB per scan.".into()))
+            .child(quiet(format!(
+                "Next scan: {} · AI conversion {}",
+                match self.settings.document_conversion.converter {
+                    DocumentConverter::Xberg => "Xberg",
+                    DocumentConverter::XbergBrn => "Xberg + BRN layer",
+                },
+                if self.settings.document_conversion.ai {
+                    "on"
+                } else {
+                    "off"
                 }
-            },
-            Ok(None)=>panel=panel.child(metadata("No inbox folder selected. Choosing a folder authorizes only explicit scans into General knowledge.")),
-            Err(error)=>panel=panel.child(metadata(error.to_string())),
+            )));
+        let mut actions = div()
+            .flex()
+            .flex_wrap()
+            .items_center()
+            .gap_2()
+            .py(components::tokens::SPACE_2)
+            .child(
+                button("inbox-scan")
+                    .label("Scan inbox")
+                    .icon(IconName::Inbox)
+                    .primary()
+                    .disabled(busy || !configured)
+                    .when(!configured, |button| {
+                        let (announced, tooltip) =
+                            components::unavailable("Scan inbox", Some("choose a folder first"));
+                        button.accessibility_label(announced).tooltip(tooltip)
+                    })
+                    .on_click(cx.listener(|this, _, _, cx| this.start_inbox_scan(cx))),
+            )
+            .child(
+                button("inbox-choose-folder")
+                    .label(if configured {
+                        "Change folder…"
+                    } else {
+                        "Choose General inbox folder…"
+                    })
+                    .outline()
+                    .disabled(busy)
+                    .on_click(
+                        cx.listener(|this, _, window, cx| this.choose_inbox_folder(window, cx)),
+                    ),
+            );
+        if scanning {
+            actions = actions.child(
+                button("inbox-stop")
+                    .label("Stop scan")
+                    .outline()
+                    .on_click(cx.listener(|this, _, _, cx| this.cancel(cx))),
+            );
         }
-        panel.into_any_element()
+        panel = panel.child(actions);
+        if scanning {
+            panel = panel.child(components::loading("inbox-progress", self.progress.clone()));
+        }
+        match state {
+            Ok(Some(state)) => {
+                panel = panel.child(
+                    div()
+                        .id("inbox-folder")
+                        .font_family(MONO)
+                        .text_size(px(theme::metrics::TEXT_LABEL))
+                        .text_color(rgb(p.ink))
+                        .child(state.folder.clone())
+                        .test_support(),
+                );
+                let count = |status: InboxStatus| {
+                    state
+                        .entries
+                        .iter()
+                        .filter(|entry| entry.status == status)
+                        .count()
+                };
+                let (imported, failed, waiting) = (
+                    count(InboxStatus::Imported),
+                    count(InboxStatus::Failed),
+                    count(InboxStatus::Pending),
+                );
+                if state.entries.is_empty() {
+                    panel = panel.child(
+                        quiet("No scan yet for this folder. Choose Scan inbox when the files are ready.".into())
+                            .id("inbox-entries-empty")
+                            .test_support(),
+                    );
+                } else {
+                    let summary = format!(
+                        "Latest scan: {imported} imported · {failed} failed · {waiting} not processed"
+                    );
+                    panel = panel.child(
+                        div()
+                            .id("inbox-summary")
+                            .flex()
+                            .flex_wrap()
+                            .items_center()
+                            .gap_2()
+                            .pt(components::tokens::SPACE_2)
+                            .aria_label(summary.clone())
+                            .child(
+                                div()
+                                    .flex_1()
+                                    .min_w(px(200.))
+                                    .font_weight(gpui_kit::FontWeight::MEDIUM)
+                                    .text_color(rgb(p.ink))
+                                    .child(summary),
+                            )
+                            .when(failed + waiting > 0, |line| {
+                                line.child(
+                                    button("inbox-retry")
+                                        .label("Retry by scanning again")
+                                        .icon(IconName::RefreshCw)
+                                        .outline()
+                                        .compact()
+                                        .h(components::tokens::COMPACT_CONTROL)
+                                        .disabled(busy)
+                                        .tooltip("Scanning again retries failed and unprocessed files. Files already imported are recognised and not duplicated.")
+                                        .on_click(cx.listener(|this, _, _, cx| {
+                                            this.start_inbox_scan(cx)
+                                        })),
+                                )
+                            })
+                            .test_support(),
+                    );
+                }
+                for (index, entry) in state.entries.into_iter().enumerate() {
+                    let (tone, icon, word) = match entry.status {
+                        InboxStatus::Imported => {
+                            (Some(Tone::Success), IconName::CircleCheck, "Imported")
+                        }
+                        InboxStatus::Failed => (Some(Tone::Error), IconName::CircleX, "Failed"),
+                        InboxStatus::Pending => (None, IconName::Clock, "Not processed"),
+                    };
+                    let row = match entry.note.clone() {
+                        Some(note) => item_row(
+                            format!("inbox-entry-{index}"),
+                            icon,
+                            tone,
+                            entry.name.clone(),
+                            entry.detail.clone(),
+                            word,
+                        )
+                        .tooltip(format!("{} · {} · Open the note", entry.name, entry.detail))
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.open_note(&note, None, window, cx)
+                        }))
+                        .into_any_element(),
+                        None => item_line(
+                            format!("inbox-entry-{index}"),
+                            icon,
+                            tone,
+                            entry.name.clone(),
+                            entry.detail.clone(),
+                            word,
+                        ),
+                    };
+                    panel =
+                        panel.child(div().border_b_1().border_color(rgb(p.hairline)).child(row));
+                }
+            }
+            Ok(None) => {
+                panel = panel.child(quiet(
+                    "No inbox folder chosen. Choosing one authorizes only the explicit scans you start, into General knowledge.".into(),
+                ));
+            }
+            Err(error) => {
+                panel = panel.child(components::banner(
+                    "inbox-error",
+                    Tone::Error,
+                    format!("The folder inbox couldn't be read: {error}. Nothing was imported."),
+                    vec![],
+                    None,
+                ));
+            }
+        }
+        panel.test_support().into_any_element()
     }
     pub(super) fn choose_inbox_folder(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         if let Some(worker) = &self.worker {
@@ -158,9 +308,14 @@ impl ThreadsUi {
                     .enable_all()
                     .build()?;
                 let summary = workspace.scan_inbox(&worker_flag, |document, settings| {
-                    let _ = sender.try_send(WorkerEvent::Progress(
-                        "Importing inbox into General knowledge…".into(),
-                    ));
+                    // Per-item progress: the file being converted now.
+                    let name = std::path::Path::new(&document.source_reference)
+                        .file_name()
+                        .map(|name| name.to_string_lossy().into_owned())
+                        .unwrap_or_default();
+                    let _ = sender.try_send(WorkerEvent::Progress(format!(
+                        "Importing {name} into General knowledge…"
+                    )));
                     let helpers = DocumentHelpers::discover()
                         .map_err(|e| AppError::Unavailable(e.to_string()))?;
                     let converter = Converter {

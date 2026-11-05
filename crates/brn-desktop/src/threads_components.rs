@@ -168,6 +168,7 @@ impl ListRow {
         self
     }
     /// Replaces the tooltip, which otherwise repeats the full text.
+    #[allow(dead_code)]
     pub(super) fn tooltip(mut self, tooltip: impl Into<SharedString>) -> Self {
         self.tooltip = Some(tooltip.into());
         self

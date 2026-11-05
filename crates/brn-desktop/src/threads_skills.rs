@@ -271,6 +271,19 @@ impl ThreadsUi {
         if let Some(error) = &self.skill_view.error {
             panel = panel.child(metadata(error.clone()));
         }
+        if self.skill_view.project == project
+            && self.skill_view.rows.is_empty()
+            && self.skill_view.error.is_none()
+        {
+            panel = panel.child(
+                div()
+                    .id("skills-empty")
+                    .child(metadata(
+                        "No instruction skills in this scope yet. Chats use BRN's built-in guidance until you install a package.",
+                    ))
+                    .test_support(),
+            );
+        }
         if self.skill_view.project == project {
             for skill in &self.skill_view.rows {
                 let current_package = self
