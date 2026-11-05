@@ -11,7 +11,7 @@ pub(super) const SELECT_ALL: &str = if cfg!(target_os = "macos") {
 pub(super) const LINE_START: &str = if cfg!(target_os = "macos") {
     "cmd-left"
 } else {
-    "nav-inbox"
+    "home"
 };
 
 pub(super) fn configure_offline_fixture(workspace: &mut Workspace) {
