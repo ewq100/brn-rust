@@ -1615,7 +1615,7 @@ fn chat_focus_dispatch_with_tasks_panel_and_split_enter(cx: &mut TestAppContext)
 /// without a readable import; a source states its availability limit; a
 /// row opens the same note for reading with the assistant closed; Knowledge
 /// checks is in the Library menu; the launcher names type and scope and
-/// never lists project-only documents.
+/// lists a project-only document only from its own project.
 #[gpui_kit::test]
 fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContext) {
     let mut ids = (
