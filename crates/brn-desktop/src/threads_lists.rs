@@ -2,7 +2,7 @@
 //! Canonical state and every write remain in the shared service.
 use super::layout::{Preset, TileKind};
 use super::state::linked;
-use super::theme::ThemeId;
+use super::theme::{Appearance, ThemeId};
 use brn_threads_app::{ActionState, Receipt, Record, RecordData, ThreadState, record_in_chat};
 use std::collections::{BTreeMap, BTreeSet};
 
@@ -787,7 +787,9 @@ pub(super) enum Command {
     Rewrite,
     Save,
     Layout(Preset),
-    Theme(ThemeId),
+    /// Appearance: System/Light/Dark primary, plus legacy palettes under clear
+    /// labels. The payload is the preference, not the resolved palette.
+    Theme(Appearance),
     OpenTile(TileKind),
     Keys,
 }
@@ -800,7 +802,24 @@ impl Command {
             Self::Rewrite => "Rewrite with AI".into(),
             Self::Save => "Save note".into(),
             Self::Layout(preset) => format!("Layout: {}", preset.label()),
-            Self::Theme(theme) => format!("Theme: {} · {}", theme.label(), theme.description()),
+            Self::Theme(appearance) => match appearance {
+                // Primary choices read as plain appearance commands.
+                Appearance::System | Appearance::Light | Appearance::Dark => {
+                    format!(
+                        "Appearance: {} · {}",
+                        appearance.label(),
+                        appearance.description()
+                    )
+                }
+                // Legacy palettes are clearly labelled as such.
+                Appearance::Legacy(theme) => {
+                    format!(
+                        "Appearance: {} (legacy) · {}",
+                        theme.label(),
+                        theme.description()
+                    )
+                }
+            },
             Self::OpenTile(TileKind::Note) => "Current note".into(),
             Self::OpenTile(TileKind::Chat) => "Current chat".into(),
             Self::OpenTile(kind) => kind.label().into(),
@@ -826,7 +845,9 @@ impl Command {
     pub(super) fn all() -> Vec<Self> {
         let mut out = vec![Self::NewThread, Self::NewNote, Self::Rewrite, Self::Save];
         out.extend(Preset::ALL.map(Self::Layout));
-        out.extend(ThemeId::ALL.map(Self::Theme));
+        // System/Light/Dark first, then the legacy palettes under clear labels.
+        out.extend(Appearance::PRIMARY.map(Self::Theme));
+        out.extend(ThemeId::LEGACY.map(|theme| Self::Theme(Appearance::Legacy(theme))));
         out.extend(
             [
                 TileKind::Notes,
@@ -1507,8 +1528,14 @@ mod tests {
             "the archived state stays searchable"
         );
         assert!(
-            launcher("raba", &threads, &notes, &[])
-                .contains(&LaunchItem::Command(Command::Theme(ThemeId::Raba)))
+            launcher("raba", &threads, &notes, &[]).contains(&LaunchItem::Command(Command::Theme(
+                Appearance::Legacy(ThemeId::Raba)
+            )))
+        );
+        // The primary System/Light/Dark commands are reachable by name.
+        assert!(
+            launcher("system", &threads, &notes, &[])
+                .contains(&LaunchItem::Command(Command::Theme(Appearance::System)))
         );
         let empty = launcher("", &threads, &notes, &[]);
         assert!(
@@ -1571,7 +1598,7 @@ mod tests {
         // when the search answers, so ↵ and the selection never move to a
         // Message that arrived later.
         let before = launcher("raba", &[], &notes, &[]);
-        let theme = LaunchItem::Command(Command::Theme(ThemeId::Raba));
+        let theme = LaunchItem::Command(Command::Theme(Appearance::Legacy(ThemeId::Raba)));
         assert_eq!(before.first(), Some(&theme));
         let raba = [hit("m3", "Raba walk on Saturday", false)];
         let after = launcher("raba", &[], &notes, &raba);
