@@ -1602,3 +1602,77 @@ fn chat_focus_dispatch_with_tasks_panel_and_split_enter(cx: &mut TestAppContext)
         });
     }
 }
+
+/// Tasks: a row opens the detail panel with every recorded fact; completion
+/// is an explicit step there, and a narrow window shows the detail alone.
+#[gpui_kit::test]
+fn a_task_opens_its_detail_panel_and_completes_explicitly(cx: &mut TestAppContext) {
+    let mut id = String::new();
+    let f = fixture(cx, 1400., 900., |workspace| {
+        id = task(workspace, "Send the venue deposit", ActionState::Waiting);
+    });
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::Actions, cx)
+    });
+    click(cx, &f, format!("task-open-{id}"));
+    on_window(cx, &f, |window, _| {
+        assert!(
+            window.find("actions-list").visible(),
+            "the list stays beside"
+        );
+        assert_eq!(label(window, "task-detail-title"), "Send the venue deposit");
+        assert_eq!(label(window, "task-detail-state"), "Waiting");
+        assert_eq!(label(window, "task-detail-owner"), "Owner: Not reported");
+        assert_eq!(label(window, "task-detail-waiting"), "Waiting on: Nobody");
+        assert_eq!(label(window, "task-detail-follow-up"), "Follow up: No date");
+        assert_eq!(label(window, "task-detail-due"), "Due: 2026-10-15");
+        assert_eq!(
+            label(window, "task-detail-main"),
+            "Confirm done: Send the venue deposit"
+        );
+        assert!(window.find("task-detail-edit").visible());
+    });
+    assert_eq!(task_state(cx, &f, &id), ActionState::Waiting);
+    click(cx, &f, "task-detail-main");
+    assert_eq!(task_state(cx, &f, &id), ActionState::Done);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "task-detail-state"), "Done");
+        assert_eq!(
+            label(window, "task-detail-evidence"),
+            "Completed: Owner confirmed completion in BRN."
+        );
+    });
+    // Narrow: the detail replaces the list until All tasks.
+    let mut id = String::new();
+    let f = fixture(cx, 900., 600., |workspace| {
+        id = task(workspace, "Send the venue deposit", ActionState::Open);
+    });
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::Actions, cx)
+    });
+    click(cx, &f, format!("task-open-{id}"));
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("actions-list").is_none());
+        assert!(window.find("task-detail").visible());
+    });
+    click(cx, &f, "task-detail-close");
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("task-detail").is_none());
+        assert!(window.find(format!("action-tile-{id}")).visible());
+    });
+}
+
+#[test]
+fn follow_up_dates_are_checked_in_owner_terms() {
+    use super::tasks_view::check_follow_up;
+    assert_eq!(check_follow_up(None), Ok(()));
+    assert_eq!(check_follow_up(Some("2028-02-29")), Ok(()));
+    for bad in ["next Friday", "2027-02-29", "2026-1-5"] {
+        let error = check_follow_up(Some(bad)).unwrap_err();
+        assert!(
+            error.contains("YYYY-MM-DD") && error.contains(bad),
+            "{error}"
+        );
+        assert!(error.ends_with("Nothing was saved."), "{error}");
+    }
+}
