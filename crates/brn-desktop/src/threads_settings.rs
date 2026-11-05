@@ -28,6 +28,47 @@ fn field(label: &str, control: impl IntoElement) -> gpui_kit::Div {
         .child(control)
 }
 
+/// The saved provider's credential state, as far as BRN can tell without
+/// contacting the provider: a saved location that is missing is said so.
+pub(super) fn credential_status(settings: &WorkspaceSettings) -> (Tone, String) {
+    let copilot = settings.provider.eq_ignore_ascii_case("copilot");
+    let saved = if copilot {
+        settings.credentials_dir.as_deref()
+    } else {
+        settings.auth_file.as_deref()
+    }
+    .map(str::trim)
+    .filter(|path| !path.is_empty());
+    let kind = if copilot {
+        "Copilot credentials folder"
+    } else {
+        "Codex auth file"
+    };
+    let provider = if copilot {
+        "GitHub Copilot"
+    } else {
+        "Codex / ChatGPT"
+    };
+    match saved {
+        Some(path) if std::path::Path::new(path).exists() => (
+            Tone::Success,
+            format!("Saved {kind} found. Sign-in is checked when a chat starts."),
+        ),
+        Some(path) => (
+            Tone::Warning,
+            format!("{kind} not found at {path}. {provider} chats are unavailable until it exists."),
+        ),
+        None if copilot => (
+            Tone::Warning,
+            "GitHub Copilot is not connected. Use Connect GitHub Copilot… below.".into(),
+        ),
+        None => (
+            Tone::Info,
+            "No Codex auth file saved. BRN uses your Codex sign-in if there is one; a chat says so if not.".into(),
+        ),
+    }
+}
+
 impl ThreadsUi {
     /// The delegation choice. In Settings it is two radios and, once chosen,
     /// the maintenance switch; on Home or in a new chat it is the pending
@@ -262,6 +303,18 @@ impl ThreadsUi {
                     .w_full()
                     .aria_label("Copilot credentials folder"),
             ))
+            .child({
+                let (tone, line) = credential_status(&self.settings);
+                div()
+                    .id("settings-credential-status")
+                    .flex()
+                    .items_start()
+                    .gap_2()
+                    .aria_label(format!("{}: {line}", tone.word()))
+                    .child(components::tone_mark("settings-credential-tone", tone))
+                    .child(div().flex_1().min_w_0().text_size(SMALL_TEXT).child(line))
+                    .test_support()
+            })
             .child(metadata(
                 "Credentials stay outside notes, exports and Changes. The Codex auth file is used only with Codex / ChatGPT.",
             ))
@@ -389,10 +442,36 @@ impl ThreadsUi {
             .backup_directory
             .clone()
             .unwrap_or_else(|| "Backup folder not chosen".into());
+        let location = self.data_dir.display().to_string();
+        let data_location = group("settings-data-location")
+            .gap_2()
+            .child(section("Data location"))
+            .child("This workspace's notes, chats, history and settings live here.")
+            .child(
+                div()
+                    .id("data-location")
+                    .aria_label(location.clone())
+                    .font_family(MONO)
+                    .text_size(SMALL_TEXT)
+                    .child(location)
+                    .test_support(),
+            )
+            .child(
+                div().child(
+                    button("data-location-reveal")
+                        .label("Show in Finder")
+                        .outline()
+                        .compact()
+                        .h(components::tokens::COMPACT_CONTROL)
+                        .on_click(cx.listener(|this, _, _, cx| {
+                            cx.reveal_path(&this.data_dir);
+                        })),
+                ),
+            );
         let backup = group("settings-backup")
             .gap_2()
             .child(section("Full backup"))
-            .child("Includes notes, discussions, history, figures and recovery state.")
+            .child("A complete copy you can restore: notes, discussions, history, figures and recovery state.")
             .child(
                 div()
                     .id("backup-directory")
@@ -432,7 +511,7 @@ impl ThreadsUi {
             group("settings-export")
                 .gap_2()
                 .child(section("Markdown export"))
-                .child("Export a current snapshot of your notes and retained figures.")
+                .child("A readable snapshot of your notes and retained figures for other apps. It is not a backup and cannot be restored.")
                 .child(
                     div().child(
                         button("export-now")
@@ -444,17 +523,51 @@ impl ThreadsUi {
                     ),
                 )
                 .child(metadata(self.export_status.clone()));
+        let deletion = group("settings-deletion")
+            .gap_2()
+            .child(section("Deleted items"))
+            .child(
+                "Projects you move to Trash stay there, with their notes and chats, until you restore them. Other changes are listed in Recent changes, with Undo where it applies.",
+            )
+            .child(
+                div()
+                    .flex()
+                    .flex_wrap()
+                    .gap_2()
+                    .child(
+                        button("data-open-trash")
+                            .label("Open Projects Trash")
+                            .outline()
+                            .compact()
+                            .h(components::tokens::COMPACT_CONTROL)
+                            .on_click(cx.listener(|this, _, window, cx| {
+                                this.projects_trash = true;
+                                this.show_tile(TileKind::Projects, window, cx)
+                            })),
+                    )
+                    .child(
+                        button("data-open-history")
+                            .label("Recent changes")
+                            .outline()
+                            .compact()
+                            .h(components::tokens::COMPACT_CONTROL)
+                            .on_click(cx.listener(|this, _, window, cx| {
+                                this.show_tile(TileKind::History, window, cx)
+                            })),
+                    ),
+            );
         column()
             .id("settings-copies")
             .gap_6()
-            .child(self.inbox_settings(cx))
+            .child(data_location)
             .child(backup)
             .child(self.restore_section(cx))
             .child(export)
+            .child(deletion)
             .test_support()
             .into_any_element()
     }
-    fn general_settings(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    fn appearance_settings(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
         // Primary choice: System / Light / Dark as a keyboard-reachable
         // segmented control. The selected segment is marked by state, not by
@@ -547,7 +660,7 @@ impl ThreadsUi {
         }
 
         column()
-            .id("settings-general")
+            .id("settings-appearance-page")
             .gap_2()
             .child(components::section_header(
                 "Appearance",
@@ -555,12 +668,25 @@ impl ThreadsUi {
                 Some(metadata("Also in ⌘K.").into_any_element()),
             ))
             .child(group("settings-appearance-primary").gap_2().child(primary))
+            .child(metadata(
+                "System follows your Mac's light or dark setting as it changes.",
+            ))
             .child(advanced_section)
-            .child(section("Keys and mouse"))
+            .test_support()
+            .into_any_element()
+    }
+    fn general_settings(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        column()
+            .id("settings-general")
+            .gap_2()
+            .child(section("Keyboard shortcuts"))
+            .child(metadata(
+                "Every command, its shortcut and the mouse gestures BRN understands.",
+            ))
             .child(
                 div().child(
                     button("settings-keys")
-                        .label("Show keys and mouse help")
+                        .label("Show keyboard shortcuts")
                         .outline()
                         .on_click(cx.listener(|this, _, window, cx| this.show_keys(window, cx))),
                 ),
@@ -574,6 +700,10 @@ impl ThreadsUi {
             .map(|item| {
                 button(format!("settings-section-{}", item.key()))
                     .label(item.label())
+                    .ghost()
+                    .w_full()
+                    .justify_start()
+                    .h(components::tokens::FORM_CONTROL)
                     .selected(self.settings_section == item)
                     .on_click(
                         cx.listener(move |this, event: &gpui_kit::ClickEvent, window, cx| {
@@ -591,8 +721,9 @@ impl ThreadsUi {
                         }),
                     )
             })
-            .collect();
+            .collect::<Vec<_>>();
         let content = match self.settings_section {
+            SettingsSection::Appearance => self.appearance_settings(cx),
             SettingsSection::General => self.general_settings(cx),
             SettingsSection::Models => self.models_settings(cx),
             SettingsSection::Delegation => self.working_knowledge(cx),
@@ -601,22 +732,42 @@ impl ThreadsUi {
             SettingsSection::Skills => self.skills_settings(cx),
             SettingsSection::Mcp => self.mcp_settings(cx),
         };
+        // A readable local section list beside the section's form; narrower
+        // in a compact window so the form keeps its room.
+        let compact = self.arrangement.primary < 720.;
+        let inset = if compact {
+            theme::metrics::COMPACT_PAGE_INSET
+        } else {
+            theme::metrics::PAGE_INSET
+        };
+        let nav = div()
+            .id("settings-sections")
+            .flex()
+            .flex_col()
+            .flex_shrink_0()
+            .gap(px(2.))
+            .w(px(if compact { 132. } else { 176. }))
+            .pt(components::tokens::SPACE_4)
+            .pl(px(inset))
+            .pr_2()
+            .role(gpui_kit::Role::Group)
+            .aria_label("Settings sections")
+            .children(sections)
+            .test_support();
         div()
             .size_full()
             .flex()
-            .flex_col()
             .min_h_0()
-            .child(
-                components::toolbar("settings-sections-bar")
-                    .px_4()
-                    .child(components::segmented("settings-sections", sections)),
-            )
+            .child(nav)
             .child(
                 div()
                     .id("settings-content")
                     .flex_1()
+                    .min_w_0()
                     .min_h_0()
-                    .px_4()
+                    .pt(components::tokens::SPACE_4)
+                    .pl_4()
+                    .pr(px(inset))
                     .pb_6()
                     .font_family(UI_FONT)
                     .text_size(UI_TEXT)

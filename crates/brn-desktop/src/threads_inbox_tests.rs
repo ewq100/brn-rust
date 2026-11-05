@@ -81,8 +81,8 @@ fn fixture(cx: &mut TestAppContext) -> Fixture {
                     let mut ui = ThreadsUi::new(workspace, data, window, cx);
                     ui.poll = None;
                     ui.open_thread(&chat, window, cx);
-                    ui.settings_section = SettingsSection::Data;
-                    ui.layout.open(TileKind::Settings);
+                    // The folder inbox lives in Inbox → Imports.
+                    ui.layout.open(TileKind::Imports);
                     ui.workspace
                         .queue_message(
                             "inbox-private-queued",

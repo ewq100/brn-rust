@@ -210,6 +210,7 @@ enum ChatTarget {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum SettingsSection {
+    Appearance,
     General,
     Models,
     Delegation,
@@ -219,7 +220,8 @@ enum SettingsSection {
     Mcp,
 }
 impl SettingsSection {
-    const ALL: [Self; 7] = [
+    const ALL: [Self; 8] = [
+        Self::Appearance,
         Self::General,
         Self::Models,
         Self::Delegation,
@@ -230,6 +232,7 @@ impl SettingsSection {
     ];
     fn key(self) -> &'static str {
         match self {
+            Self::Appearance => "appearance",
             Self::General => "general",
             Self::Models => "models",
             Self::Delegation => "delegation",
@@ -241,6 +244,7 @@ impl SettingsSection {
     }
     fn label(self) -> &'static str {
         match self {
+            Self::Appearance => "Appearance",
             Self::General => "General",
             Self::Models => "Models",
             Self::Delegation => "Delegation",
@@ -713,7 +717,7 @@ impl ThreadsUi {
             chat: ChatTarget::New,
             appearance,
             theme,
-            settings_section: SettingsSection::General,
+            settings_section: SettingsSection::Appearance,
             skill_view: skills_view::SkillView::default(),
             mcp_view: mcp_view::McpView::new(window, cx),
             records: vec![],

@@ -197,7 +197,7 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
         ("nav-inbox", TileKind::Overview, "home-content"),
         ("inbox-tasks", TileKind::Actions, "actions-content"),
         ("Recent changes", TileKind::History, "history-content"),
-        ("Settings", TileKind::Settings, "settings-general"),
+        ("Settings", TileKind::Settings, "settings-appearance-page"),
         ("nav-library", TileKind::Notes, "notes-list"),
     ] {
         match button {
@@ -746,13 +746,9 @@ fn narrow_settings_and_shell_controls_remain_reachable(cx: &mut TestAppContext) 
     reveal(cx, &f, "settings-content", "export-now");
     // Traverse the longer Data section in both directions, including the new
     // controls. Keep real wheel events and full in-viewport bounds assertions.
-    reveal(cx, &f, "settings-content", "inbox-choose-folder");
-    reveal(cx, &f, "settings-content", "inbox-scan");
-    cx.update_window(f.window, |_, window, _| {
-        assert_eq!(window.find("inbox-scan").disabled(), Some(true));
-    })
-    .unwrap();
+    reveal(cx, &f, "settings-content", "data-open-trash");
     reveal(cx, &f, "settings-content", "restore-select");
+    reveal(cx, &f, "settings-content", "data-location-reveal");
     reveal(cx, &f, "settings-content", "backup-change-folder");
     reveal(cx, &f, "settings-content", "backup-now");
     reveal(cx, &f, "settings-content", "export-now");
@@ -762,6 +758,16 @@ fn narrow_settings_and_shell_controls_remain_reachable(cx: &mut TestAppContext) 
         assert!(settings.backup_directory.is_none());
         assert!(f.view.read(cx).worker.is_none());
     });
+    // The folder inbox moved to Inbox → Imports; it stays reachable there
+    // and Scan stays unavailable until a folder is chosen.
+    click(cx, &f, "nav-inbox");
+    click(cx, &f, "inbox-imports");
+    reveal(cx, &f, "imports-content", "inbox-choose-folder");
+    reveal(cx, &f, "imports-content", "inbox-scan");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(window.find("inbox-scan").disabled(), Some(true));
+    })
+    .unwrap();
 }
 
 #[gpui_kit::test]

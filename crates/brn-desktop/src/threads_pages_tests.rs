@@ -1676,3 +1676,114 @@ fn follow_up_dates_are_checked_in_owner_terms() {
         assert!(error.ends_with("Nothing was saved."), "{error}");
     }
 }
+
+/// Settings opens on Appearance beside a list of every section, at both a
+/// roomy and a compact width; shortcuts live in General, and Data names the
+/// data location, export, backup, restore and deleted items separately.
+#[gpui_kit::test]
+fn settings_lists_its_sections_and_data_says_what_each_copy_is(cx: &mut TestAppContext) {
+    for (width, height) in [(1280., 1400.), (900., 600.)] {
+        let f = fixture(cx, width, height, |_| {});
+        update(cx, &f, |view, window, cx| {
+            view.show_tile(TileKind::Settings, window, cx)
+        });
+        on_window(cx, &f, |window, cx| {
+            assert_eq!(
+                f.view.read(cx).settings_section,
+                SettingsSection::Appearance
+            );
+            assert!(window.find("settings-sections").visible());
+            for section in SettingsSection::ALL {
+                assert!(
+                    window
+                        .find(format!("settings-section-{}", section.key()))
+                        .visible(),
+                    "{width}: {}",
+                    section.key()
+                );
+            }
+            assert!(window.find("settings-appearance-page").visible());
+            assert!(window.find("appearance-system").visible());
+            assert!(window.try_find("settings-keys").is_none());
+        });
+        click(cx, &f, "settings-section-general");
+        on_window(cx, &f, |window, _| {
+            assert!(window.find("settings-keys").visible());
+            assert!(window.try_find("appearance-system").is_none());
+        });
+        click(cx, &f, "settings-section-data");
+        on_window(cx, &f, |window, _| {
+            assert_eq!(label(window, "data-location"), f.data.display().to_string());
+            for id in [
+                "data-location-reveal",
+                "backup-now",
+                "restore-select",
+                "export-now",
+                "data-open-trash",
+                "data-open-history",
+            ] {
+                assert!(window.try_find(id).is_some(), "{id}");
+            }
+            // The folder inbox is set up in Inbox → Imports, not here.
+            assert!(window.try_find("inbox-choose-folder").is_none());
+        });
+        if width < 1000. {
+            continue;
+        }
+        // Tall enough that Deleted items is on screen without scrolling.
+        click(cx, &f, "data-open-trash");
+        cx.read(|cx| {
+            let view = f.view.read(cx);
+            assert!(view.projects_trash);
+            assert_eq!(view.layout.focus(), Some(TileKind::Projects));
+        });
+    }
+}
+
+/// Models says plainly when the saved credential location is missing, and
+/// never claims a sign-in it cannot see.
+#[gpui_kit::test]
+fn models_shows_unavailable_credentials_truthfully(cx: &mut TestAppContext) {
+    use super::settings_view::credential_status;
+    let f = fixture(cx, 1280., 860., |_| {});
+    let mut settings = cx.read(|cx| f.view.read(cx).settings.clone());
+    settings.provider = "codex".into();
+    settings.auth_file = Some(f.data.join("missing-auth.json").display().to_string());
+    let (tone, line) = credential_status(&settings);
+    assert_eq!(tone, Tone::Warning);
+    assert!(
+        line.contains("not found") && line.contains("unavailable"),
+        "{line}"
+    );
+    settings.auth_file = Some(f.data.display().to_string());
+    let (tone, line) = credential_status(&settings);
+    assert_eq!(tone, Tone::Success);
+    assert!(line.contains("checked when a chat starts"), "{line}");
+    settings.auth_file = None;
+    assert_eq!(credential_status(&settings).0, Tone::Info);
+    settings.provider = "copilot".into();
+    settings.credentials_dir = None;
+    let (tone, line) = credential_status(&settings);
+    assert_eq!(tone, Tone::Warning);
+    assert!(line.contains("not connected"), "{line}");
+    update(cx, &f, |view, _, cx| {
+        let mut saved = view.settings.clone();
+        saved.auth_file = Some(
+            view.data_dir
+                .join("missing-auth.json")
+                .display()
+                .to_string(),
+        );
+        saved.provider = "codex".into();
+        view.workspace.configure(saved).unwrap();
+        view.refresh();
+        focus_tests::settings(view, SettingsSection::Models, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        let status = label(window, "settings-credential-status");
+        assert!(
+            status.starts_with("Warning: Codex auth file not found"),
+            "{status}"
+        );
+    });
+}

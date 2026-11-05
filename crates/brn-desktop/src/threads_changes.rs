@@ -5,7 +5,6 @@ use super::*;
 use gpui_kit::component::button::ButtonVariants;
 use gpui_kit::component::tooltip::Tooltip;
 
-use super::tiles::page;
 use super::tiles::{PAGE_WIDTH, column};
 
 fn group(id: impl Into<gpui_kit::ElementId>) -> gpui_kit::Stateful<gpui_kit::Div> {
@@ -192,7 +191,10 @@ impl ThreadsUi {
             .iter()
             .rev()
             .partition(|r| lists::is_background(r));
-        let mut view = column();
+        let mut view = column().child(super::inbox_page::lead(
+            "history-lead",
+            "Changes recorded in this workspace, newest first, by you and by BRN. Undo appears where it still applies.",
+        ));
         if changes.is_empty() {
             view = view.child(components::empty_state(
                 "history-empty",
@@ -202,7 +204,13 @@ impl ThreadsUi {
                 None,
             ));
         } else {
-            let mut list = group("history-changes").pt_2();
+            let mut list = super::inbox_page::page_group("history-changes")
+                .role(gpui_kit::Role::Group)
+                .aria_label(format!("Changes · {}", changes.len()))
+                .child(super::inbox_page::group_heading(
+                    "Changes",
+                    Some(changes.len()),
+                ));
             for receipt in changes {
                 list = list.child(self.receipt_row(receipt, cx));
             }
@@ -211,7 +219,7 @@ impl ThreadsUi {
         // Chat-control bookkeeping stays visible and undoable, grouped.
         if !background.is_empty() {
             let mut list = group("history-background").child(components::section_header(
-                "Background",
+                "Routine background changes",
                 Some(background.len()),
                 Some(self.disclosure("history-background", background.len(), cx)),
             ));
@@ -222,8 +230,13 @@ impl ThreadsUi {
             }
             view = view.child(list.test_support());
         }
-        page("history-content", PAGE_WIDTH, view)
-            .test_support()
-            .into_any_element()
+        super::inbox_page::page_frame(
+            "history-content",
+            PAGE_WIDTH,
+            self.arrangement.primary < 720.,
+            view,
+        )
+        .test_support()
+        .into_any_element()
     }
 }

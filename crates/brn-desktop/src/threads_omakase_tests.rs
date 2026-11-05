@@ -325,10 +325,10 @@ fn appearance_switches_from_settings_and_launcher_without_fencing_runs(cx: &mut 
         assert!(!view.launcher_open);
     });
     update(cx, &f, |view, _, cx| {
-        focus_tests::settings(view, SettingsSection::General, cx)
+        focus_tests::settings(view, SettingsSection::Appearance, cx)
     });
     on_window(cx, &f, |window, _| {
-        assert!(window.find("settings-general").visible());
+        assert!(window.find("settings-appearance-page").visible());
         // The primary System/Light/Dark segments are present and reachable.
         assert!(window.find("appearance-system").visible());
         assert!(window.find("appearance-light").visible());
