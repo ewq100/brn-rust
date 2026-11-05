@@ -21,6 +21,8 @@ pub(super) enum TileKind {
     AllThreads,
     Overview,
     Actions,
+    /// The Inbox's Imports view (capture, file intake, manual folder inbox).
+    Imports,
     History,
     Settings,
     Compare,
@@ -28,7 +30,7 @@ pub(super) enum TileKind {
     Projects,
 }
 impl TileKind {
-    pub(super) const ALL: [Self; 13] = [
+    pub(super) const ALL: [Self; 14] = [
         Self::Threads,
         Self::Note,
         Self::Chat,
@@ -37,6 +39,7 @@ impl TileKind {
         Self::AllThreads,
         Self::Overview,
         Self::Actions,
+        Self::Imports,
         Self::History,
         Self::Settings,
         Self::Compare,
@@ -53,6 +56,7 @@ impl TileKind {
             Self::AllThreads => "all-threads",
             Self::Overview => "overview",
             Self::Actions => "actions",
+            Self::Imports => "imports",
             Self::History => "history",
             Self::Settings => "settings",
             Self::Compare => "compare",
@@ -71,6 +75,7 @@ impl TileKind {
             Self::AllThreads => "All chats",
             Self::Overview => "Inbox",
             Self::Actions => "Tasks",
+            Self::Imports => "Imports",
             Self::History => "Recent changes",
             Self::Settings => "Settings",
             Self::Compare => "Compare",

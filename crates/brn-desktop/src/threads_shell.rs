@@ -89,6 +89,7 @@ pub(super) fn kind_icon(kind: TileKind) -> IconName {
         TileKind::Linked => IconName::Link,
         TileKind::Overview => IconName::House,
         TileKind::Actions => IconName::ListTodo,
+        TileKind::Imports => IconName::Inbox,
         TileKind::History => IconName::RotateCcwClock,
         TileKind::Settings => IconName::Settings,
         TileKind::Compare => IconName::Columns2,
@@ -191,8 +192,8 @@ impl ThreadsUi {
     pub(super) fn tile_title(&self, kind: TileKind) -> (String, String) {
         let named = |title: String| (title.clone(), format!("{}: {title}", kind.label()));
         match kind {
-            // Tasks is the Inbox's second local view.
-            TileKind::Actions => (
+            // Imports and Tasks are the Inbox's other local views.
+            TileKind::Actions | TileKind::Imports => (
                 TileKind::Overview.label().into(),
                 format!("{}: {}", TileKind::Overview.label(), kind.label()),
             ),
@@ -236,6 +237,7 @@ impl ThreadsUi {
             TileKind::Notes => self.notes_tile(cx),
             TileKind::Overview => self.overview_tile(cx),
             TileKind::Actions => self.actions_tile(cx),
+            TileKind::Imports => self.imports_tile(cx),
             TileKind::History => self.history_tile(cx),
             TileKind::Settings => self.settings_tile(cx),
             TileKind::Chat => self.chat_tile(cx),
@@ -368,7 +370,7 @@ impl ThreadsUi {
             TileKind::Notes | TileKind::Note | TileKind::Connections | TileKind::Compare => {
                 Some(TileKind::Notes)
             }
-            TileKind::Overview | TileKind::Actions => Some(TileKind::Overview),
+            TileKind::Overview | TileKind::Actions | TileKind::Imports => Some(TileKind::Overview),
             TileKind::Projects => Some(TileKind::Projects),
             TileKind::AllThreads => Some(TileKind::AllThreads),
             TileKind::Chat | TileKind::Linked if self.chat_thread().is_none() => {
@@ -379,10 +381,8 @@ impl ThreadsUi {
     }
     /// Needs-you chats: the Inbox's actionable attention count.
     pub(super) fn attention_count(&self) -> usize {
-        self.thread_rows
-            .iter()
-            .filter(|row| row.needs_you())
-            .count()
+        // S6 hook: For you owns what counts as actionable.
+        self.for_you_count()
     }
     /// A press here may start moving the window (native titlebar
     /// behaviour); a double click zooms like the macOS titlebar. Controls
@@ -1226,9 +1226,10 @@ impl ThreadsUi {
                     );
                 }
             }
-            TileKind::Overview | TileKind::Actions => {
+            TileKind::Overview | TileKind::Actions | TileKind::Imports => {
                 let views = [
                     ("inbox-for-you", "For you", TileKind::Overview),
+                    ("inbox-imports", "Imports", TileKind::Imports),
                     ("inbox-tasks", "Tasks", TileKind::Actions),
                 ]
                 .into_iter()

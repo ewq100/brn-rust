@@ -853,6 +853,7 @@ impl Command {
                 TileKind::Projects,
                 TileKind::History,
                 TileKind::Actions,
+                TileKind::Imports,
                 TileKind::Settings,
                 TileKind::Overview,
             ]

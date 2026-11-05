@@ -39,6 +39,8 @@ mod run_activity;
 #[path = "threads_web_search.rs"]
 mod web_search;
 use run_activity::{Event as RunActivityEvent, RunActivity};
+#[path = "threads_changes.rs"]
+mod changes_view;
 #[path = "threads_components.rs"]
 mod components;
 #[path = "threads_connections.rs"]
@@ -50,11 +52,17 @@ mod documents;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_documents_tests.rs"]
 mod documents_tests;
+#[path = "threads_inbox_view.rs"]
+mod inbox_page;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_inbox_tests.rs"]
 mod inbox_tests;
 #[path = "threads_inbox.rs"]
 mod inbox_view;
+#[path = "threads_settings.rs"]
+mod settings_view;
+#[path = "threads_tasks.rs"]
+mod tasks_view;
 use brn_writing_ui::diff;
 use brn_writing_ui::formatting;
 #[path = "threads_layout.rs"]
@@ -469,6 +477,8 @@ struct ThreadsUi {
     /// Rewrite request → its note's title, for Changes' "May need refresh"
     /// pills (R3), resolved when history refreshes rather than per render.
     refresh_names: BTreeMap<String, String>,
+    /// Inbox session state: the latest Imports attempt and the open task.
+    inbox_page: inbox_page::InboxPage,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
     worker: Option<Worker>,
     web_search: web_search::WebSearch,
@@ -755,6 +765,7 @@ impl ThreadsUi {
             queue_expanded: false,
             writing_threads: BTreeMap::new(),
             refresh_names: BTreeMap::new(),
+            inbox_page: inbox_page::InboxPage::default(),
             assets: Arc::new(BTreeMap::new()),
             worker: None,
             web_search: web_search::WebSearch::default(),
@@ -3045,6 +3056,7 @@ impl ThreadsUi {
                     } else {
                         *result
                     };
+                    let attempt_error = result.as_ref().err().map(ToString::to_string);
                     match result {
                         Ok(converted) => {
                             if let Some(reference) = reference.as_ref() {
@@ -3112,6 +3124,9 @@ impl ThreadsUi {
                             self.warn("Reference conversion stopped; no Note was attached. Return to the original writing context to inspect its import state.");
                         }
                         Err(e) => self.fail(format!("Import stopped: {e}")),
+                    }
+                    if reference.is_none() {
+                        self.finish_import_attempt(attempt_error, cancelled);
                     }
                     if !allow_dispatch && self.worker.is_none() {
                         let _ = self
