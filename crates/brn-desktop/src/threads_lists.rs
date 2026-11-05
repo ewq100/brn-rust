@@ -116,15 +116,17 @@ pub(super) fn follow_up_records(
 }
 
 /// Latest receipt position and commit time for records and the threads their
-/// messages and runs belong to.
+/// messages and runs belong to, and whether that latest change was committed
+/// under the standing delegation (`maintenance:` authority).
 #[derive(Default)]
-pub(super) struct Activity(BTreeMap<String, (usize, String)>);
+pub(super) struct Activity(BTreeMap<String, (usize, String, bool)>);
 impl Activity {
     pub(super) fn new(history: &[Receipt]) -> Self {
         let mut out = BTreeMap::new();
         for (index, receipt) in history.iter().enumerate() {
+            let delegated = receipt.authority.starts_with("maintenance:");
             for write in &receipt.writes {
-                let entry = (index, receipt.committed_at.clone());
+                let entry = (index, receipt.committed_at.clone(), delegated);
                 match &write.after.data {
                     RecordData::Message(message) => {
                         out.insert(message.thread.clone(), entry.clone());
@@ -140,10 +142,15 @@ impl Activity {
         Self(out)
     }
     pub(super) fn order(&self, id: &str) -> usize {
-        self.0.get(id).map_or(0, |(order, _)| *order)
+        self.0.get(id).map_or(0, |(order, ..)| *order)
     }
     pub(super) fn stamp(&self, id: &str) -> &str {
-        self.0.get(id).map_or("", |(_, stamp)| stamp.as_str())
+        self.0.get(id).map_or("", |(_, stamp, _)| stamp.as_str())
+    }
+    /// The record's latest recorded change came from delegated maintenance.
+    /// This names the authority only; it never implies personal review.
+    pub(super) fn delegated(&self, id: &str) -> bool {
+        self.0.get(id).is_some_and(|(.., delegated)| *delegated)
     }
 }
 
@@ -532,24 +539,6 @@ pub(super) enum ThreadFilter {
     HasAction,
 }
 impl ThreadFilter {
-    pub(super) const ALL: [Self; 6] = [
-        Self::All,
-        Self::Open,
-        Self::Resolved,
-        Self::NeedsYou,
-        Self::LinkedNote,
-        Self::HasAction,
-    ];
-    pub(super) fn key(self) -> &'static str {
-        match self {
-            Self::All => "all",
-            Self::Open => "open",
-            Self::Resolved => "archived",
-            Self::NeedsYou => "needs-you",
-            Self::LinkedNote => "linked-note",
-            Self::HasAction => "has-action",
-        }
-    }
     pub(super) fn label(self) -> &'static str {
         match self {
             Self::All => "All",
@@ -628,6 +617,119 @@ pub(super) struct NoteRow {
     pub(super) order: usize,
     /// Links into this note from other general notes.
     pub(super) inbound: usize,
+    /// The first prose line of the saved text, for the Library row.
+    pub(super) description: String,
+    /// The Source record the note's recorded import coverage names.
+    pub(super) source: Option<String>,
+    /// A faithful full-note import (a reference), not a written article.
+    pub(super) full_import: bool,
+}
+impl NoteRow {
+    /// Full imported references are files; every other current note, also
+    /// one written from sources, is an article. Protection does not decide.
+    pub(super) fn is_file(&self) -> bool {
+        self.full_import
+    }
+}
+
+/// Longest Library row description, in characters.
+pub(super) const DESCRIPTION_LIMIT: usize = 160;
+
+/// A short description from saved Markdown: the first prose line, without
+/// headings, fences, tables, images or inline markup, cut at a word. Empty
+/// when the note has no prose yet; nothing is invented.
+pub(super) fn note_description(markdown: &str) -> String {
+    let mut fenced = false;
+    let mut out = String::new();
+    for line in markdown.lines() {
+        let line = line.trim();
+        if line.starts_with("```") || line.starts_with("~~~") {
+            fenced = !fenced;
+            continue;
+        }
+        if fenced
+            || line.is_empty()
+            || line.starts_with('#')
+            || line.starts_with('|')
+            || line.starts_with("![")
+            || line.starts_with("---")
+            || line.starts_with("<!--")
+        {
+            if !out.is_empty() {
+                break;
+            }
+            continue;
+        }
+        let line = line
+            .trim_start_matches(['>', ' '])
+            .trim_start_matches("- [ ] ")
+            .trim_start_matches("- [x] ");
+        let item = line
+            .strip_prefix("- ")
+            .or_else(|| line.strip_prefix("* "))
+            .or_else(|| line.strip_prefix("+ "));
+        let line = item.unwrap_or(line);
+        if !out.is_empty() {
+            out.push_str(if item.is_some() { "; " } else { " " });
+        }
+        out.push_str(&plain_inline(line));
+        if out.chars().count() >= DESCRIPTION_LIMIT {
+            break;
+        }
+    }
+    let out = out.split_whitespace().collect::<Vec<_>>().join(" ");
+    if out.chars().count() <= DESCRIPTION_LIMIT {
+        return out;
+    }
+    let cut: String = out.chars().take(DESCRIPTION_LIMIT).collect();
+    let cut = cut.rsplit_once(' ').map_or(cut.as_str(), |(head, _)| head);
+    format!("{}…", cut.trim_end_matches([',', ';', ':', '.', ' ']))
+}
+
+/// Inline Markdown as plain text: `[label](url)` keeps the label, `[[Note]]`
+/// keeps the name, emphasis and code marks drop.
+fn plain_inline(line: &str) -> String {
+    let mut out = String::with_capacity(line.len());
+    let mut chars = line.chars().peekable();
+    while let Some(ch) = chars.next() {
+        match ch {
+            '*' | '`' => {}
+            '_' if chars.peek() == Some(&'_') => {
+                chars.next();
+            }
+            '[' => {
+                let wiki = chars.peek() == Some(&'[');
+                if wiki {
+                    chars.next();
+                }
+                let mut label = String::new();
+                for next in chars.by_ref() {
+                    if next == ']' {
+                        break;
+                    }
+                    label.push(next);
+                }
+                if wiki {
+                    if chars.peek() == Some(&']') {
+                        chars.next();
+                    }
+                    let name = label.split('|').next_back().unwrap_or(&label);
+                    out.push_str(name);
+                    continue;
+                }
+                out.push_str(&label);
+                if chars.peek() == Some(&'(') {
+                    for next in chars.by_ref() {
+                        if next == ')' {
+                            break;
+                        }
+                    }
+                }
+            }
+            ch => out.push(ch),
+        }
+    }
+    out
 }
 pub(super) fn letter(title: &str) -> char {
     title
@@ -672,6 +774,9 @@ pub(super) fn note_rows(records: &[Record], activity: &Activity) -> Vec<NoteRow>
                     imported: note.import.is_some(),
                     order: activity.order(&record.id),
                     inbound: inbound.get(record.id.as_str()).copied().unwrap_or(0),
+                    description: note_description(&note.markdown),
+                    source: note.import.as_ref().map(|import| import.source.clone()),
+                    full_import: note.import.as_ref().is_some_and(|import| import.full_note),
                 })
             }
             _ => None,
@@ -684,72 +789,6 @@ pub(super) fn note_rows(records: &[Record], activity: &Activity) -> Vec<NoteRow>
             .then_with(|| a.id.cmp(&b.id))
     });
     rows
-}
-
-pub(super) const SECTION_LIMIT: usize = 12;
-pub(super) const LETTER_LIMIT: usize = 150;
-
-pub(super) struct NotesView<'a> {
-    pub(super) recent: Vec<&'a NoteRow>,
-    pub(super) linked: (Vec<&'a NoteRow>, usize),
-    pub(super) kept: (Vec<&'a NoteRow>, usize),
-    /// Notes with inbound links, most linked first.
-    pub(super) most_linked: (Vec<&'a NoteRow>, usize),
-    pub(super) letters: Vec<(char, usize)>,
-    pub(super) letter: (Vec<&'a NoteRow>, usize),
-}
-
-/// Notes tile sections: every list is bounded and reports how many it hides.
-pub(super) fn notes_view<'a>(
-    rows: &'a [NoteRow],
-    linked_to_open: &BTreeSet<String>,
-    selected: char,
-) -> NotesView<'a> {
-    let mut recent: Vec<_> = rows.iter().collect();
-    recent.sort_by_key(|row| std::cmp::Reverse(row.order));
-    recent.truncate(SECTION_LIMIT);
-    let bounded = |items: Vec<&'a NoteRow>, limit: usize| {
-        let total = items.len();
-        (items.into_iter().take(limit).collect::<Vec<_>>(), total)
-    };
-    let mut letters: BTreeMap<char, usize> = BTreeMap::new();
-    for row in rows {
-        *letters.entry(letter(&row.title)).or_default() += 1;
-    }
-    NotesView {
-        recent,
-        linked: bounded(
-            rows.iter()
-                .filter(|row| linked_to_open.contains(&row.id))
-                .collect(),
-            SECTION_LIMIT,
-        ),
-        kept: bounded(
-            rows.iter()
-                .filter(|row| row.protected || row.imported)
-                .collect(),
-            SECTION_LIMIT,
-        ),
-        most_linked: bounded(
-            {
-                let mut linked: Vec<_> = rows.iter().filter(|row| row.inbound > 0).collect();
-                linked.sort_by(|a, b| {
-                    b.inbound
-                        .cmp(&a.inbound)
-                        .then_with(|| a.title.cmp(&b.title))
-                });
-                linked
-            },
-            SECTION_LIMIT,
-        ),
-        letters: letters.into_iter().collect(),
-        letter: bounded(
-            rows.iter()
-                .filter(|row| letter(&row.title) == selected)
-                .collect(),
-            LETTER_LIMIT,
-        ),
-    }
 }
 
 pub(super) fn filter_notes<'a>(
@@ -870,9 +909,12 @@ pub(super) enum LaunchItem {
         title: String,
         resolved: bool,
     },
+    /// A current general note: an article, or a full imported reference
+    /// (`file`). Only current notes are listed; candidates never are.
     Note {
         id: String,
         title: String,
+        file: bool,
     },
     /// A saved chat Message the owner search matched; opens its chat.
     Message {
@@ -907,7 +949,7 @@ impl LaunchItem {
             _ => None,
         }
     }
-    /// The announced name keeps the kind and the archived state.
+    /// The announced name keeps the kind, the scope and the archived state.
     pub(super) fn accessible_label(&self) -> String {
         match self {
             Self::Thread {
@@ -916,7 +958,12 @@ impl LaunchItem {
                 "Chat: {title}{}",
                 if *resolved { " · archived" } else { "" }
             ),
-            Self::Note { title, .. } => format!("Note: {title}"),
+            Self::Note {
+                title, file: false, ..
+            } => format!("Article: {title}"),
+            Self::Note {
+                title, file: true, ..
+            } => format!("File: {title} · full imported reference"),
             Self::Message {
                 chat_title,
                 role,
@@ -924,32 +971,55 @@ impl LaunchItem {
                 archived,
                 ..
             } => format!(
-                "Message in {chat_title}, {}: {snippet}{}",
+                "Chat history in {chat_title}, {}: {snippet}{}",
                 super::search_view::role_label(role),
                 if *archived { " · archived" } else { "" }
             ),
             Self::Command(command) => command.label(),
         }
     }
-    /// Results are ordered chats, notes, commands, then chat messages, so
-    /// headings follow order.
+    /// Results are ordered articles, files, chats, commands, then chat
+    /// history, so headings follow order.
     pub(super) fn group(&self) -> &'static str {
         match self {
+            Self::Note { file: false, .. } => "Articles",
+            Self::Note { file: true, .. } => "Files",
             Self::Thread { .. } => "Chats",
-            Self::Note { .. } => "Notes",
-            Self::Message { .. } => "In chats",
             Self::Command(_) => "Commands",
+            Self::Message { .. } => "In chat history",
+        }
+    }
+    /// The stable element key of the group heading.
+    pub(super) fn group_key(&self) -> &'static str {
+        match self {
+            Self::Note { file: false, .. } => "articles",
+            Self::Note { file: true, .. } => "files",
+            Self::Thread { .. } => "chats",
+            Self::Command(_) => "commands",
+            Self::Message { .. } => "in-chats",
+        }
+    }
+    /// What the group's results are, beside its heading: current saved
+    /// knowledge, or conversation history that is not current knowledge.
+    pub(super) fn group_scope(&self) -> Option<&'static str> {
+        match self {
+            Self::Note { .. } => Some("Current knowledge · saved library"),
+            Self::Thread { .. } => Some("Conversations"),
+            Self::Message { .. } => Some("History · not current knowledge"),
+            Self::Command(_) => None,
         }
     }
 }
 pub(super) const LAUNCH_LIMIT: usize = 20;
 
-/// Empty queries show recent work then commands; otherwise every thread
-/// (including resolved), note and command whose label matches (at most
-/// `LAUNCH_LIMIT`), then the owner search's matching chat Messages
-/// (`messages`, as the Notes search lists them under "In chats"). The
-/// Messages arrive after the label matches, so they come last: an answer
-/// landing never moves a row the selection or ↵ already points at.
+/// Empty queries show recent articles, recent chats, then commands;
+/// otherwise every current article and file, thread (including resolved) and
+/// command whose label matches (at most `LAUNCH_LIMIT`), then the owner
+/// search's matching chat Messages (`messages`, as the Library search lists
+/// them under "In chat history"). The Messages arrive after the label
+/// matches, so they come last: an answer landing never moves a row the
+/// selection or ↵ already points at. `notes` holds current general notes
+/// only, so project-only material and candidates never appear here.
 pub(super) fn launcher(
     query: &str,
     threads: &[ThreadRow],
@@ -965,16 +1035,22 @@ pub(super) fn launcher(
     let note = |row: &NoteRow| LaunchItem::Note {
         id: row.id.clone(),
         title: row.title.clone(),
+        file: row.is_file(),
     };
     if query.is_empty() {
-        let mut recent: Vec<&NoteRow> = notes.iter().collect();
+        let mut recent: Vec<&NoteRow> = notes.iter().filter(|row| !row.is_file()).collect();
         recent.sort_by_key(|row| std::cmp::Reverse(row.order));
-        return threads
-            .iter()
-            .filter(|row| !row.resolved)
+        return recent
+            .into_iter()
             .take(4)
-            .map(thread)
-            .chain(recent.into_iter().take(4).map(note))
+            .map(note)
+            .chain(
+                threads
+                    .iter()
+                    .filter(|row| !row.resolved)
+                    .take(4)
+                    .map(thread),
+            )
             .chain(Command::all().into_iter().map(LaunchItem::Command))
             .take(LAUNCH_LIMIT)
             .collect();
@@ -989,10 +1065,12 @@ pub(super) fn launcher(
         highlights: hit.highlights.clone(),
         archived: hit.archived,
     };
-    threads
+    notes
         .iter()
-        .map(thread)
-        .chain(notes.iter().map(note))
+        .filter(|row| !row.is_file())
+        .map(note)
+        .chain(notes.iter().filter(|row| row.is_file()).map(note))
+        .chain(threads.iter().map(thread))
         .chain(Command::all().into_iter().map(LaunchItem::Command))
         .filter(matches)
         .take(LAUNCH_LIMIT)
@@ -1458,7 +1536,7 @@ mod tests {
     }
 
     #[test]
-    fn notes_view_stays_bounded_at_five_thousand_notes() {
+    fn note_rows_and_title_filter_scale_to_five_thousand_notes() {
         let records: Vec<_> = (0..5_000)
             .map(|i| {
                 note(
@@ -1474,29 +1552,52 @@ mod tests {
             .map(|(i, r)| {
                 receipt(
                     &format!("{i}"),
-                    "owner:x",
+                    if i % 2 == 0 {
+                        "owner:x"
+                    } else {
+                        "maintenance:y"
+                    },
                     "2026-10-12T10:00:00Z",
                     vec![(None, r.clone())],
                 )
             })
             .collect();
-        let rows = note_rows(&records, &Activity::new(&history));
-        let linked: BTreeSet<String> = (0..30).map(|i| format!("n{i:04}")).collect();
-        let view = notes_view(&rows, &linked, 'Õ');
-        assert_eq!(view.recent.len(), SECTION_LIMIT);
-        assert_eq!(view.recent[0].id, "n4999");
-        assert_eq!((view.linked.0.len(), view.linked.1), (SECTION_LIMIT, 30));
-        assert_eq!((view.kept.0.len(), view.kept.1), (SECTION_LIMIT, 100));
-        assert_eq!(
-            view.letters,
-            [('#', 1_250), ('A', 1_250), ('B', 1_250), ('Õ', 1_250)]
-        );
-        assert_eq!((view.letter.0.len(), view.letter.1), (LETTER_LIMIT, 1_250));
+        let activity = Activity::new(&history);
+        let rows = note_rows(&records, &activity);
+        assert_eq!(rows.len(), 5_000);
+        assert_eq!(rows.iter().filter(|row| row.protected).count(), 100);
+        assert!(!activity.delegated("n0000") && activity.delegated("n0001"));
         let (shown, total) = filter_notes(&rows, "NOTE 499", 100);
         assert_eq!(total, 11);
         assert_eq!(shown.len(), 11);
         let (shown, total) = filter_notes(&rows, "beta", 100);
         assert_eq!((shown.len(), total), (100, 1_250));
+    }
+
+    #[test]
+    fn descriptions_come_from_the_first_prose_line_without_markup() {
+        assert_eq!(
+            note_description(
+                "# Harbor\n\n## Status\nThe **berth** plan uses [[Tides|tide tables]] and [the survey](https://x.test).\n\nMore."
+            ),
+            "The berth plan uses tide tables and the survey."
+        );
+        assert_eq!(
+            note_description(
+                "```\ncode only\n```\n| a | b |\n![figure](x.png)\n- First point\n- Second"
+            ),
+            "First point; Second"
+        );
+        assert_eq!(
+            note_description("# Only a title\n"),
+            "",
+            "nothing is invented"
+        );
+        let long = note_description(&"word ".repeat(80));
+        assert!(
+            long.ends_with('…') && long.chars().count() <= DESCRIPTION_LIMIT + 1,
+            "{long}"
+        );
     }
 
     #[test]
@@ -1510,14 +1611,19 @@ mod tests {
         let notes = note_rows(&records, &activity);
         let items = launcher("renewal", &threads, &notes, &[]);
         assert_eq!(items.len(), 2);
-        assert_eq!(items[0].label(), "Renewal date");
-        assert_eq!(items[0].accessible_label(), "Chat: Renewal date · archived");
-        assert_eq!(items[0].group(), "Chats");
-        assert_eq!(items[1].accessible_label(), "Note: Renewal contract");
-        assert_eq!(items[1].group(), "Notes");
+        // Current knowledge first, then conversations.
+        assert_eq!(items[0].accessible_label(), "Article: Renewal contract");
+        assert_eq!(items[0].group(), "Articles");
+        assert_eq!(
+            items[0].group_scope(),
+            Some("Current knowledge · saved library")
+        );
+        assert_eq!(items[1].label(), "Renewal date");
+        assert_eq!(items[1].accessible_label(), "Chat: Renewal date · archived");
+        assert_eq!(items[1].group(), "Chats");
         assert_eq!(
             launcher("archived", &threads, &notes, &[]),
-            [items[0].clone()],
+            [items[1].clone()],
             "the archived state stays searchable"
         );
         assert!(
@@ -1567,16 +1673,20 @@ mod tests {
         ];
         let items = launcher("berth", &[], &notes, &messages);
         let groups: Vec<_> = items.iter().map(LaunchItem::group).collect();
-        assert_eq!(groups, ["Notes", "In chats", "In chats"]);
+        assert_eq!(groups, ["Articles", "In chat history", "In chat history"]);
+        assert_eq!(
+            items[1].group_scope(),
+            Some("History · not current knowledge")
+        );
         assert_eq!(items[1].label(), "Berth survey reply draft 1.4 m");
         assert_eq!(items[1].meta().as_deref(), Some("Replies · You"));
         assert_eq!(
             items[1].accessible_label(),
-            "Message in Replies, You: Berth survey reply draft 1.4 m"
+            "Chat history in Replies, You: Berth survey reply draft 1.4 m"
         );
         assert_eq!(
             items[2].accessible_label(),
-            "Message in Replies, You: Survey reply, kept · archived"
+            "Chat history in Replies, You: Survey reply, kept · archived"
         );
         assert!(matches!(
             &items[2],
@@ -1599,7 +1709,7 @@ mod tests {
         assert_eq!(after[..before.len()], before[..], "earlier rows stay put");
         assert_eq!(after.first(), Some(&theme));
         let groups: Vec<_> = after.iter().map(LaunchItem::group).collect();
-        assert_eq!(groups, ["Commands", "In chats"]);
+        assert_eq!(groups, ["Commands", "In chat history"]);
         assert!(matches!(
             after.last(),
             Some(LaunchItem::Message { message, .. }) if message == "m3"

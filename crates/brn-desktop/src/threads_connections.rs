@@ -2,10 +2,12 @@
 //! (a bounded, visibility-checked neighbourhood of the open note, as a
 //! readable list), the root Topics section, and the owner-triggered
 //! knowledge check. Every request runs off the UI thread.
+use super::components::AccessibleDropdownMenu;
 use super::shell::pill;
-use super::tiles::{row, scroll};
+use super::tiles::scroll;
 use super::*;
 use brn_threads_app::search::{CancelOnDrop, Connections, Neighbour, NodeKind};
+use gpui_kit::component::button::ButtonVariants;
 
 /// Relation filters shown as pills; other names are grouped as "other".
 const OTHER: &str = "other";
@@ -158,9 +160,13 @@ impl ThreadsUi {
         }));
     }
 
+    /// Related and sources: the open document's saved links as a bounded,
+    /// visibility-checked list, shown beside the document (or as its
+    /// sheet). Nothing is inferred; a link is not evidence that a claim is
+    /// true. Sources open their recorded original or state the limit.
     pub(super) fn connections_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let graph = &self.graph;
-        let mut list = scroll("connections-content").gap_2().p_3();
+        let mut list = scroll("connections-content").gap_2().px_4().py_3();
         let Some(open) = self.open_note_id() else {
             return list
                 .child(components::empty_state(
@@ -174,56 +180,78 @@ impl ThreadsUi {
                 .into_any_element();
         };
         let depth = graph.depth.max(1);
-        let mut controls = div().flex().flex_wrap().gap_1().items_center();
-        for hops in [1u8, 2] {
-            controls = controls.child(
-                pill(
-                    format!("connections-depth-{hops}"),
-                    if hops == 1 { "Direct" } else { "Two hops" },
-                )
-                .selected(depth == hops)
-                .on_click(cx.listener(move |this, _, _, cx| {
-                    this.graph.depth = hops;
-                    this.refresh_connections(cx);
-                    cx.notify();
-                })),
-            );
-        }
-        controls = controls.child(
-            pill("connections-sources", "Sources")
-                .selected(graph.sources)
-                .on_click(cx.listener(|this, _, _, cx| {
-                    this.graph.sources = !this.graph.sources;
-                    this.refresh_connections(cx);
-                    cx.notify();
-                })),
-        );
-        let mut filters = div().flex().flex_wrap().gap_1();
-        for name in [None]
+        let hops = [1u8, 2]
             .into_iter()
-            .chain(relations::RECOMMENDED.iter().map(|r| Some(*r)))
-            .chain([Some(OTHER)])
-        {
-            let id = format!("connections-filter-{}", name.unwrap_or("all"));
-            // Relation names appear as written.
-            let label = name.unwrap_or("All").to_owned();
-            filters = filters.child(
-                pill(id, label)
-                    .selected(graph.filter.as_deref() == name)
+            .map(|hops| {
+                button(format!("connections-depth-{hops}"))
+                    .label(if hops == 1 { "Direct" } else { "Two hops" })
+                    .selected(depth == hops)
                     .on_click(cx.listener(move |this, _, _, cx| {
-                        this.graph.filter = name.map(str::to_owned);
+                        this.graph.depth = hops;
+                        this.refresh_connections(cx);
+                        cx.notify();
+                    }))
+            })
+            .collect();
+        let this = cx.entity().downgrade();
+        let current = graph.filter.clone();
+        let relation = current.clone().unwrap_or_else(|| "All".into());
+        let filter = button("connections-filter")
+            .label(format!("Relation: {relation}"))
+            .icon(IconName::ChevronDown)
+            .ghost()
+            .compact()
+            .h(components::tokens::COMPACT_CONTROL)
+            .accessibility_label(format!("Relation filter: {relation}"))
+            .accessible_dropdown_menu(move |mut menu, _, _| {
+                for name in [None]
+                    .into_iter()
+                    .chain(relations::RECOMMENDED.iter().map(|r| Some(*r)))
+                    .chain([Some(OTHER)])
+                {
+                    // Relation names appear as written.
+                    menu = menu.item(super::shell::item(
+                        &this,
+                        name.unwrap_or("All"),
+                        None,
+                        false,
+                        current.as_deref() == name,
+                        move |view, _, cx| {
+                            view.graph.filter = name.map(str::to_owned);
+                            cx.notify();
+                        },
+                    ));
+                }
+                menu
+            });
+        let controls = div()
+            .flex()
+            .flex_wrap()
+            .items_center()
+            .gap_2()
+            .child(components::segmented("connections-depth", hops))
+            .child(
+                pill("connections-sources", "Sources")
+                    .icon(if graph.sources {
+                        IconName::Check
+                    } else {
+                        IconName::Plus
+                    })
+                    .selected(graph.sources)
+                    .accessibility_label(if graph.sources {
+                        "Sources: shown"
+                    } else {
+                        "Sources: hidden"
+                    })
+                    .tooltip("List the sources these notes record")
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.graph.sources = !this.graph.sources;
+                        this.refresh_connections(cx);
                         cx.notify();
                     })),
-            );
-        }
-        list = list
-            .child(section(if depth == 1 {
-                "Local connections · direct links"
-            } else {
-                "Local connections · two hops"
-            }))
-            .child(controls)
-            .child(filters);
+            )
+            .child(filter);
+        list = list.child(controls);
         if let Some(error) = &graph.error {
             list = list.child(components::banner(
                 "connections-error",
@@ -254,7 +282,7 @@ impl ThreadsUi {
         let available: usize = found.hops.iter().map(|h| h.available).sum();
         list = list.child(
             metadata(format!(
-                "{shown} of {available} connected items shown · click a note to open and recenter"
+                "{shown} of {available} connected items shown · open a note to recenter"
             ))
             .id("connections-status")
             .test_support(),
@@ -277,8 +305,32 @@ impl ThreadsUi {
             for node in nodes {
                 let id = node.id.clone();
                 let mut facts: Vec<String> = node.relations.iter().map(relation_label).collect();
+                let source = (node.kind == NodeKind::Source)
+                    .then(|| self.records.iter().find(|r| r.id == node.id))
+                    .flatten()
+                    .and_then(|r| match &r.data {
+                        RecordData::Source(source) => Some(source.clone()),
+                        _ => None,
+                    });
                 if node.kind == NodeKind::Source {
-                    facts.push("source".into());
+                    facts.insert(0, "Source".into());
+                    // When BRN recorded it, kept apart from the source's own
+                    // version or date.
+                    if let Some(source) = &source {
+                        if !source.observed_at.is_empty() {
+                            facts.push(format!(
+                                "recorded {}",
+                                lists::human_time(&source.observed_at)
+                            ));
+                        }
+                        if let Some(version) =
+                            source.external_version.as_deref().filter(|v| !v.is_empty())
+                        {
+                            facts.push(format!("source version {}", short(version)));
+                        }
+                    }
+                } else {
+                    facts.insert(0, "Article".into());
                 }
                 if let Some(via) = &node.via {
                     let through = found
@@ -293,87 +345,111 @@ impl ThreadsUi {
                 } else {
                     String::new()
                 };
-                let mut entry =
+                let entry =
                     components::ListRow::new(format!("connection-{}", node.id), node.title.clone())
-                        .meta(links);
-                if !facts.is_empty() {
-                    entry = entry.reason(facts.join(" · "));
-                }
-                let mut entry = entry.build();
-                if node.kind == NodeKind::Note {
-                    entry = entry.on_click(cx.listener(move |this, _, window, cx| {
+                        .meta(links)
+                        .reason(facts.join(" · "))
+                        .actionable()
+                        .build();
+                let entry = if node.kind == NodeKind::Note {
+                    entry.on_click(cx.listener(move |this, _, window, cx| {
                         this.open_note(&id, None, window, cx);
                         this.refresh_connections(cx);
-                    }));
-                }
+                    }))
+                } else {
+                    let locator = source.map(|source| source.locator);
+                    entry.on_click(cx.listener(move |this, _, _, cx| {
+                        let outcome = match &locator {
+                            Some(locator) => super::library_view::open_source_locator(locator, cx),
+                            None => Err("This source is no longer available in BRN.".into()),
+                        };
+                        if let Err(limit) = outcome {
+                            this.warn(limit);
+                            cx.notify();
+                        }
+                    }))
+                };
                 list = list.child(entry);
             }
         }
         list = list.child(metadata(
-            "Only saved links are shown; nothing is inferred. Relation names appear as written.",
+            "Only saved links are shown; nothing is inferred, and a link is not evidence that a claim is true. Relation names appear as written.",
         ));
         list.test_support().into_any_element()
     }
 
-    /// The Topics section at the top of the notes tile.
+    /// The Topics block at the top of Library Articles: the Topics note and
+    /// the topic pages it links. Topic pages are ordinary Notes; an article
+    /// can sit under several of them without a copy.
     pub(super) fn topics_section(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let p = pal();
-        let mut block = div().id("topics").flex().flex_col().gap_1();
+        let mut block = div().id("topics").flex().flex_col().gap(px(2.)).px_3();
         let Some(topics) = &self.topics else {
-            // One row; the explanation is in the tooltip.
+            let why =
+                "A Topics note links your topic pages, so you and BRN start from the same map.";
             return block
-                .flex_row()
-                .items_center()
-                .gap_2()
-                .pt_2()
-                .px_2()
-                .font_family(UI_FONT)
-                .text_size(SMALL_TEXT)
-                .font_weight(gpui_kit::FontWeight::MEDIUM)
-                .text_color(rgb(p.muted))
+                .child(components::section_header(
+                    "Topics",
+                    None,
+                    Some(
+                        pill("create-topics", "Create Topics note")
+                            .icon(IconName::Plus)
+                            .tooltip(why)
+                            .on_click(
+                                cx.listener(|this, _, window, cx| this.create_topics(window, cx)),
+                            )
+                            .into_any_element(),
+                    ),
+                ))
+                .child(metadata(why).id("topics-hint").test_support())
                 .aria_label("Topics · Create Topics note")
-                .child(div().flex_1().min_w_0().truncate().child("Topics"))
-                .child(
-                    pill("create-topics", "Create Topics note")
-                        .tooltip(
-                            "A Topics note links your topic pages, so you and BRN start from the same map.",
-                        )
-                        .on_click(
-                            cx.listener(|this, _, window, cx| this.create_topics(window, cx)),
-                        ),
-                )
                 .test_support()
                 .into_any_element();
         };
         let id = topics.note.clone();
-        block = block
-            .child(section(format!("Topics · {}", topics.entries.len())))
-            .child(
-                row("topics-note", topics.title.clone(), "Topics note", false).on_click(
-                    cx.listener(move |this, _, window, cx| this.open_note(&id, None, window, cx)),
+        block =
+            block.child(components::section_header(
+                "Topics",
+                Some(topics.entries.len()),
+                Some(
+                    pill("topics-note", "Open Topics note")
+                        .tooltip(format!(
+                            "Open “{}”, the note that links your topic pages",
+                            topics.title
+                        ))
+                        .on_click(cx.listener(move |this, _, window, cx| {
+                            this.open_note(&id, None, window, cx)
+                        }))
+                        .into_any_element(),
                 ),
-            );
+            ));
         if topics.entries.is_empty() {
-            block = block
-                .child(metadata("Link topic pages from the Topics note to list them here.").px_2());
+            block = block.child(
+                metadata("Link topic pages from the Topics note to list them here.")
+                    .id("topics-hint")
+                    .test_support(),
+            );
         }
         for entry in &topics.entries {
             let id = entry.note.clone();
             let mut topic =
                 components::ListRow::new(format!("topic-{}", entry.note), entry.title.clone())
-                    .meta(format!("{} linked", entry.linked_notes))
+                    .meta(format!(
+                        "{} linked note{}",
+                        entry.linked_notes,
+                        if entry.linked_notes == 1 { "" } else { "s" }
+                    ))
                     .selected(self.open_note_id() == Some(entry.note.as_str()));
             if !entry.description.is_empty() {
                 topic = topic.reason(entry.description.clone());
             }
-            block = block.child(topic.build().on_click(
+            block = block.child(topic.actionable().build().on_click(
                 cx.listener(move |this, _, window, cx| this.open_note(&id, None, window, cx)),
             ));
         }
         block.test_support().into_any_element()
     }
 
-    fn create_topics(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+    pub(super) fn create_topics(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         match self.workspace.create_topics_note() {
             Ok((note, outcome)) => {
                 if !matches!(outcome, ApplyOutcome::Applied(_)) {

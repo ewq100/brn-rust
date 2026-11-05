@@ -710,7 +710,7 @@ fn completed_chats_remain_in_history_without_auto_resolving(cx: &mut TestAppCont
 }
 
 #[gpui_kit::test]
-fn notes_tile_sections_letters_and_filter_stay_bounded_with_many_notes(cx: &mut TestAppContext) {
+fn library_list_stays_virtualized_ordered_and_filterable_with_many_notes(cx: &mut TestAppContext) {
     let f = fixture(cx, |workspace| {
         for i in 0..240 {
             let prefix = ["Alpha", "Beta", "Õun"][i % 3];
@@ -741,14 +741,41 @@ fn notes_tile_sections_letters_and_filter_stay_bounded_with_many_notes(cx: &mut 
             .map(|row| row.id.clone())
             .collect()
     });
-    on_window(cx, &f, |window, _| {
-        assert_eq!(rows(window, "notes-recent-", &ids), lists::SECTION_LIMIT);
-        assert_eq!(rows(window, "notes-linked-", &ids), 6);
-        assert_eq!(rows(window, "note-", &ids), 80, "only the selected letter");
+    // Recently changed first; only the rows in view are rendered.
+    let newest = cx.read(|cx| {
+        let view = f.view.read(cx);
+        view.note_rows
+            .iter()
+            .max_by_key(|row| row.order)
+            .unwrap()
+            .id
+            .clone()
     });
-    click(cx, &f, format!("notes-letter-{}", 'Õ' as u32));
     on_window(cx, &f, |window, _| {
-        assert_eq!(rows(window, "note-", &ids), 80);
+        let shown = rows(window, "note-", &ids);
+        assert!(
+            shown > 0 && shown < 60,
+            "virtualized: {shown} of 240 rendered"
+        );
+        assert!(window.find(format!("note-{newest}")).visible());
+        assert_eq!(
+            window.find("library-order").label(),
+            Some("Recently changed")
+        );
+    });
+    // Linked to open chats narrows to the six linked notes.
+    click(cx, &f, "library-show");
+    choose(cx, &f, "Linked to open chats");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(rows(window, "note-", &ids), 6);
+    });
+    click(cx, &f, "library-show");
+    choose(cx, &f, "A–Z");
+    on_window(cx, &f, |window, _| {
+        assert!(
+            window.find(format!("note-{}", ids[0])).visible(),
+            "A–Z starts at the first title"
+        );
     });
     on_window(cx, &f, |window, cx| {
         f.view

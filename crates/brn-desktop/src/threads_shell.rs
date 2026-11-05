@@ -1217,7 +1217,7 @@ impl ThreadsUi {
                 );
             }
             TileKind::Chat => out.extend(self.chat_controls(cx)),
-            TileKind::Notes => out.extend(self.tile_controls(TileKind::Notes, cx)),
+            TileKind::Notes => out.extend(self.library_controls(cx)),
             TileKind::Projects => {
                 if let Some(section) = self.projects_menu_section(cx) {
                     out.push(
@@ -1661,7 +1661,7 @@ impl ThreadsUi {
                 "launcher-empty",
                 IconName::Search,
                 "No matches",
-                "No note, chat or command matches. Try fewer words.",
+                "No article, file, chat or command matches. Try fewer words.",
                 None,
             ));
         }
@@ -1669,20 +1669,36 @@ impl ThreadsUi {
         for (index, entry) in items.iter().enumerate() {
             if entry.group() != group {
                 group = entry.group();
+                // The heading names the result type; its scope says whether
+                // these are current knowledge or conversation history.
+                let scope = entry.group_scope();
+                let announced = match scope {
+                    Some(scope) => format!("{group} · {scope}"),
+                    None => group.to_owned(),
+                };
                 list = list.child(
-                    components::section_header(group, None, None)
-                        .id(format!(
-                            "launcher-group-{}",
-                            group.to_lowercase().replace(' ', "-")
-                        ))
-                        .px_2()
-                        .pt(if index == 0 {
-                            tokens::SPACE_1
-                        } else {
-                            tokens::SPACE_2
-                        })
-                        .aria_label(group)
-                        .test_support(),
+                    components::section_header(
+                        group,
+                        None,
+                        scope.map(|scope| {
+                            div()
+                                .flex_shrink_0()
+                                .text_size(px(theme::metrics::TEXT_METADATA))
+                                .font_weight(gpui_kit::FontWeight::NORMAL)
+                                .text_color(rgb(p.muted))
+                                .child(scope)
+                                .into_any_element()
+                        }),
+                    )
+                    .id(format!("launcher-group-{}", entry.group_key()))
+                    .px_2()
+                    .pt(if index == 0 {
+                        tokens::SPACE_1
+                    } else {
+                        tokens::SPACE_2
+                    })
+                    .aria_label(announced)
+                    .test_support(),
                 );
             }
             let selected = index == self.launcher_index;
@@ -1690,7 +1706,8 @@ impl ThreadsUi {
                 lists::LaunchItem::Thread { resolved, .. } => {
                     (IconName::MessageSquare, None, *resolved)
                 }
-                lists::LaunchItem::Note { .. } => (IconName::FileText, None, false),
+                lists::LaunchItem::Note { file: false, .. } => (IconName::FileText, None, false),
+                lists::LaunchItem::Note { file: true, .. } => (IconName::Paperclip, None, false),
                 lists::LaunchItem::Message { archived, .. } => {
                     (IconName::MessageSquare, None, *archived)
                 }

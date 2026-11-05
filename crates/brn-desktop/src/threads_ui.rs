@@ -59,6 +59,8 @@ use brn_writing_ui::diff;
 use brn_writing_ui::formatting;
 #[path = "threads_layout.rs"]
 mod layout;
+#[path = "threads_library.rs"]
+mod library_view;
 #[path = "threads_lists.rs"]
 mod lists;
 #[cfg(all(test, feature = "native-test-support"))]
@@ -442,6 +444,8 @@ struct ThreadsUi {
     topics: Option<Topics>,
     graph: connections_view::ConnectionsView,
     knowledge: connections_view::KnowledgeView,
+    /// The Library's local view, order, topic and virtualized list.
+    library: library_view::LibraryState,
     notes_letter: char,
     threads_query: Entity<InputState>,
     thread_filter: ThreadFilter,
@@ -527,13 +531,12 @@ impl ThreadsUi {
         let review_editor = writing.review_editor.clone();
         let comment_input = writing.comment_input.clone();
         let general_feedback = writing.general_feedback.clone();
-        let search = cx.new(|cx| {
-            InputState::new(window, cx).placeholder("Filter titles and search note text")
-        });
+        let search = cx.new(|cx| InputState::new(window, cx).placeholder("Find in your library"));
         let threads_query =
             cx.new(|cx| InputState::new(window, cx).placeholder("Filter chats as you type"));
-        let launcher_query =
-            cx.new(|cx| InputState::new(window, cx).placeholder("Search notes, chats, commands…"));
+        let launcher_query = cx.new(|cx| {
+            InputState::new(window, cx).placeholder("Search articles, files, chats and commands…")
+        });
         let model = cx.new(|cx| {
             InputState::new(window, cx)
                 .default_value(settings.model.clone())
@@ -737,6 +740,7 @@ impl ThreadsUi {
             topics: None,
             graph: connections_view::ConnectionsView::default(),
             knowledge: connections_view::KnowledgeView::default(),
+            library: library_view::LibraryState::default(),
             notes_letter: 'A',
             threads_query,
             thread_filter: ThreadFilter::All,

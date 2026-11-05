@@ -408,12 +408,17 @@ impl ThreadsUi {
         let results = &self.results;
         let typing = results.state.fresh();
         let notes_pending = results.state.pending(Lanes::Notes);
-        let mut block = div()
-            .id("search-results")
-            .flex()
-            .flex_col()
-            .gap_1()
-            .child(section("In note text"));
+        let mut block =
+            div()
+                .id("search-results")
+                .flex()
+                .flex_col()
+                .gap_1()
+                .child(components::section_header(
+                    "In note text",
+                    None,
+                    Some(metadata("Current knowledge").into_any_element()),
+                ));
         if notes_pending {
             block = block.child(components::loading(
                 "search-status",
@@ -471,14 +476,24 @@ impl ThreadsUi {
         for (index, hit) in self.hits.iter().enumerate() {
             let id = hit.note.clone();
             let range = hit.start..hit.end;
-            let mut facts = Vec::new();
+            // The result type first: an article or a full imported reference.
+            let file = self
+                .note_rows
+                .iter()
+                .find(|row| row.id == hit.note)
+                .is_some_and(NoteRow::is_file);
+            let mut facts = vec![if file {
+                "Full imported reference".to_owned()
+            } else {
+                "Article".to_owned()
+            }];
             if !hit.heading_path.is_empty() {
                 facts.push(format!("§ {}", hit.heading_path));
             }
             if hit.matches > 1 {
                 facts.push(format!("{} passages", hit.matches));
             }
-            if hit.imported {
+            if hit.imported && !file {
                 facts.push("imported".into());
             }
             if hit.protected {
@@ -563,12 +578,17 @@ impl ThreadsUi {
         else {
             return div().into_any_element();
         };
-        let mut block = div()
-            .id("search-chats")
-            .flex()
-            .flex_col()
-            .gap_1()
-            .child(section("In chats"));
+        let mut block =
+            div()
+                .id("search-chats")
+                .flex()
+                .flex_col()
+                .gap_1()
+                .child(components::section_header(
+                    "In chats",
+                    None,
+                    Some(metadata("Chat history · not current knowledge").into_any_element()),
+                ));
         if paging {
             block = block.child(components::loading(
                 "search-chats-status",
