@@ -1,6 +1,8 @@
 # BRN UX rebuild
 
-**Selected design:** simple, clean, ChatGPT-inspired native UX using GPUI Kit, with complete System, Light and Dark appearance.
+**Selected design:** simple, clean, ChatGPT-inspired native UX using GPUI Kit **0.9.0**, with complete System, Light and Dark appearance.
+
+**Revision 1.1:** Evo added the required 0.9.0 upgrade on 5 November 2026. The build agent must complete the compatibility migration and lockfile update as an early part of the assigned rebuild. See specification §12.1; the approved visual references remain applicable.
 
 This is the owner-requested repository copy of the BRN-UX-002 design handoff, published on 5 November 2026. It defines the full UX rebuild target. Publishing these references does not start production implementation or replace another active task.
 

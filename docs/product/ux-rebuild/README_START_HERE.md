@@ -1,8 +1,8 @@
 # BRN UX Rebuild Handoff
 
-**Version 1.0 · 5 November 2026 · Owner Evo**
+**Version 1.1 · 5 November 2026 · Owner Evo**
 
-The selected direction is simple and clean: a ChatGPT-inspired native shell, one main workspace, a spacious document canvas and an article-based Library. Keep GPUI Kit. Light and Dark are equal parts of the design, with a System preference.
+The selected direction is simple and clean: a ChatGPT-inspired native shell, one main workspace, a spacious document canvas and an article-based Library. Keep GPUI Kit and upgrade it to **0.9.0** as an early part of the rebuild. Light and Dark are equal parts of the design, with a System preference.
 
 ## Give this package to the build agent
 
@@ -31,7 +31,7 @@ The HTML uses sample data and temporary in-memory actions. It does not call an A
 - Use “Saved library” or “Current knowledge.” Saved content can include valid delegated ordinary maintenance; it does not always mean personally reviewed.
 - Preserve review-required/protected writing changes and exact Apply/Discard/Undo behavior.
 - Keep current manual inbox Scan behavior. A new background watcher is not included.
-- Implement against the actual pinned GPUI Kit version. The inspected baseline uses 0.8.0; latest public documentation may differ.
+- Upgrade the active desktop/writing consumers to GPUI Kit `=0.9.0`, migrate the relevant APIs and update the lockfile coherently. The inspected 0.8.0 pin is historical context. The owner explicitly required this upgrade; use spec §12.1 and verify native behavior after migration.
 
 ## Verification status of this handoff
 

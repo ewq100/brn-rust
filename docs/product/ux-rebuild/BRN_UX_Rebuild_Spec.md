@@ -1,7 +1,7 @@
 # BRN UX Rebuild Specification
 
 **Specification:** BRN-UX-002<br>
-**Version:** 1.0<br>
+**Version:** 1.1<br>
 **Date:** 5 November 2026<br>
 **Owner:** Evo<br>
 **Audience:** The build agent, implementation agents and independent reviewers<br>
@@ -23,6 +23,7 @@ The main task must remain obvious. In a conversation, read and respond. In a doc
 - **UX-04:** Preserve all supported capabilities. Relocate and simplify their presentation; do not silently remove functionality because it is absent from the concept.
 - **UX-05:** Preserve current service rules for scope, protection, delegation, saves, revisions, recovery, exact-candidate Apply and receipt-based Undo.
 - **UX-06:** Finish the complete UX migration. A new sidebar around untouched legacy tile screens is an intermediate state, not completion.
+- **UX-07:** Upgrade the active desktop and reusable writing UI to **GPUI Kit `=0.9.0`** as part of the rebuild. Complete the compatibility migration and dependency validation before expanding the new shell across the app.
 
 ### 1.2 Meaning of requirement words
 
@@ -55,7 +56,7 @@ The related [Wiki Library specification](BRN_Wiki_Library_Spec.md) is included i
 
 The read-only repository inventory used `ewq100/brn-rust` main at **`e749a83e207c5b6d3c081d9f7d1fa6d6efed088c`**. Reconcile the receiving agent's actual branch, HEAD, work in progress, task instructions and open changes before implementation. Source findings are not a native acceptance result.
 
-At this baseline, desktop and reusable writing UI pin **GPUI Kit `=0.8.0`**. The public toolkit documentation currently describes newer APIs. Implement against the pinned dependency unless a separate, justified dependency change is approved by the current task. Neither this design nor dark mode requires an automatic upgrade. [R1] [R2]
+At the inspected baseline, desktop and reusable writing UI pin **GPUI Kit `=0.8.0`**. On 5 November 2026, Evo explicitly added an upgrade to **GPUI Kit `=0.9.0`** to this handoff. Version 0.8.0 is historical context, not the rebuild target. The upgrade is required and already authorized within the assigned UX rebuild; do not request a second approval merely to perform it. Target 0.9.0 explicitly rather than a floating latest version, and reconcile a checkout that has already completed this upgrade. [R1] [R2] [T13]
 
 The desktop currently presents a tiled workspace, with Chats, Notes, Projects, Tasks, Changes and Settings, plus contextual Compare, Connections and linked-work surfaces. Existing capabilities include queued chat, independent document writing, project attachments, manual document scanning, reviewed changes, tasks, history and recovery. These must be mapped into the new interface. [R1] [R3]
 
@@ -411,7 +412,7 @@ Reduced motion removes nonessential transitions. Any animation should help orien
 
 ## 12 GPUI implementation guidance
 
-The following is a capability map, not a promise that the latest documented symbol exists unchanged in BRN's pin. Check the pinned APIs and existing uses first. Prefer an existing working component before adding a custom one.
+The following is a capability map for the selected GPUI Kit 0.9.0 target. Check the versioned APIs and existing uses first; later public documentation may differ. Prefer an existing working component before adding a custom one.
 
 | Surface | Toolkit direction | BRN responsibility |
 |---|---|---|
@@ -428,11 +429,24 @@ The following is a capability map, not a promise that the latest documented symb
 
 TextView renders formatted text; it is not a complete rich-text editor. A toolkit patch Diff displays supplied changes; it does not own proposal generation or BRN transactions. Keep those distinctions in implementation plans. [T1] [T2] [T3] [T4]
 
-Current public theme source exposes Light and Dark modes; System is an application preference resolved against OS appearance. Do not invent `ThemeMode::System`. Verify the installed equivalent of theme update, system appearance synchronization and appearance observation. In newer documentation, supported theme-update APIs synchronize components more reliably than direct global field mutation; confirm the pinned behavior. [T5] [T6]
+The toolkit theme source exposes Light and Dark modes; System is an application preference resolved against OS appearance. Do not invent `ThemeMode::System`. Use and verify the 0.9.0 APIs for theme update, system appearance synchronization and appearance observation. Confirm that BRN's update path synchronizes all component themes; direct global field mutation alone is not sufficient evidence. [T5] [T6]
 
 Keep a single BRN semantic token layer shared by desktop and reusable writing UI. Do not scatter raw colors across screen modules or assume the toolkit retains custom spacing values that it does not own. App text scaling and theme color are distinct controls. Invalidate wrapping/measurement caches when typography changes.
 
 The HTML reference is design material. Do not embed it as a webview to avoid building the GPUI interface. Do not change frameworks, introduce a second editor or rebuild maintained controls solely to reproduce the mockup.
+
+### 12.1 Required GPUI Kit 0.9.0 migration
+
+Make the dependency migration an early, reviewable change with a working app before broad layout changes. Inspect the actual manifests, enabled features, aliases, patches and dependency graph. Update all applicable active-workspace GPUI Kit pins, including `brn-desktop` and `brn-writing-ui`, to `=0.9.0`; update necessary compatible companion/backend entries and `Cargo.lock` coherently. Verify the resolved graph and avoid incompatible mixed UI type versions. The selected 0.9.0 release uses gpui-pre 0.3.11 by default and gpui-fast 0.1.13 for the optional backend; retain BRN's chosen backend and features. [T13]
+
+Read the official 0.9.0 release notes and the intervening 0.8.1 migration notes when starting from the inspected 0.8.0 pin. Address the relevant changes in production code and existing tests: [T13] [T14]
+
+- Public theme structs are now `#[non_exhaustive]`. Replace external struct literals, including struct-update literals, with supported defaults/constructors and field assignments.
+- `Window::text_system()` now returns an `Rc`-based window text system that is not `Send`/`Sync`; preserve UI-thread ownership. Review affected unwind boundaries because `DisplayMap` no longer implements the unwind-safety marker traits.
+- Migrate affected keyboard/modifier and scrolling APIs from the intervening backend update. Where animation tests depend on time, use the supported executor test clock rather than wall-clock sleeps.
+- Preserve the existing writing engine, event identity, selection, comments, review and save/recovery contracts while adapting APIs. If adopting `InputEditsEvent`, account for its delivery alongside `InputEvent::Change` so one edit does not duplicate dirty-state, save or history work. Use new toolkit capabilities only where they serve the approved UX; the upgrade does not require adopting every new feature.
+
+Run the relevant existing build, strict lint and focused desktop/writing checks with the updated lockfile and native features, then qualify the actual app through AC-29 to AC-34 and the affected save/review journeys. Verify both light and dark themes, focus, scrolling, selection/IME, dialogs and Apply/Undo. Record dependency resolution and exact-build evidence. Report a concrete unresolved compatibility issue accurately; do not call the rebuild complete on the old pin or infer a native pass from compilation. Broader dependency upgrades remain outside this instruction unless required by this migration and justified in the change.
 
 ## 13 Code and state ownership
 
@@ -467,7 +481,7 @@ These are navigation aids for the baseline, not a requirement to preserve the sa
 Work in reviewable slices with a single integration owner and clear file ownership. Keep the app runnable after each slice. Use the repository's existing task/evidence workflow and preserve unrelated work.
 
 1. **Reconcile and inventory.** Record actual HEAD, pin, active gates, current routes and supported behaviors. Capture a small native baseline on synthetic data when available. Complete the preservation map and identify differences from this baseline. Determine whether an active gate blocks implementation. If it does, satisfy that gate on the selected direction before step 2; final native review remains a separate gate.
-2. **Establish tokens and shell.** Build paired neutral themes and System/Light/Dark behavior. Implement sidebar, routing, modal host, focus and responsive pane policy. Validate real small-window layout in both themes before spreading the pattern.
+2. **Upgrade GPUI Kit, then establish tokens and shell.** Complete and check the required 0.9.0 migration in §12.1 as a distinct early change. Build paired neutral themes and System/Light/Dark behavior. Implement sidebar, routing, modal host, focus and responsive pane policy. Validate real small-window layout in both themes before spreading the pattern.
 3. **Complete conversation UX.** Move existing chat, streaming, context, queue, run control, explicit writing/decision/capture actions and errors into the new shell. Verify continuity, cancellation and retry.
 4. **Complete reading and writing.** Integrate the existing writing module into the canvas. Preserve direct edits, comments, independent Rewrite, review, exact Apply/Discard, history and Undo.
 5. **Complete Library and projects.** Implement article-first navigation, All files, sources/related/checks, project documents/chats/settings, private attachments and explicit promotion.
@@ -561,7 +575,7 @@ All cases begin **Not run**. Evidence requirements below describe what must be e
 | AC-31 | **Keyboard and focus.** Navigate chat, queue controls, Library, editor, review, and a modal using only the keyboard; exercise documented shortcuts, Escape, and multiline input. | Every essential action is reachable with visible focus, including queue reordering. Sending/newline behaviour matches the documented shortcut. Modals have coherent focus entry/exit. Streaming, theme changes, and passive status updates do not steal focus. No essential action depends on hover or drag alone. | N, A |
 | AC-32 | **Native accessibility semantics.** Inspect names, roles, state, reading order, and announcements for navigation, composer, editor, review actions, and a permission/error dialog; exercise an available target-platform assistive technology. | Controls expose meaningful native semantics; selected/current, busy, error, and disabled states are understandable. Announcements are useful without reading every token. Report assistive-technology results only for sessions actually observed; an accessibility-tree dump alone is not a screen-reader pass. | A, N |
 | AC-33 | **Native text and long content.** Use Unicode/IME composition, selection, clipboard, undo/redo, scrolling, and keyboard movement in a long document and a long conversation. | Text is neither lost nor duplicated. Composition is not submitted prematurely. Selection, comments, wrapped text, scrolling, and focus remain coherent in both themes. Existing native editor behaviours remain available; the redesign does not replace them with a less capable imitation. | N, B; V for visible defects |
-| AC-34 | **Actual app and declared platform gates.** Build and launch the real GPUI application on the declared release targets; run the representative chat–canvas–review–reopen journey and inspect startup/recovery. | The app launches and paints correctly, executes the new UI against the real service boundary, and satisfies the active repository/platform gates. Evidence comes from the native application, not the HTML concept or a browser reconstruction. A target that could not be observed remains unverified. | N, V, relevant existing build/test evidence |
+| AC-34 | **Actual app, toolkit migration and declared platform gates.** Verify the resolved GPUI Kit 0.9.0 dependency and lockfile, build and launch the real application on the declared release targets, run the representative chat–canvas–review–reopen journey and inspect startup/recovery. | Desktop and reusable writing consumers use the required 0.9.0 target with compatible UI dependencies. The app launches and paints correctly, executes the new UI against the real service boundary, and satisfies the active repository/platform gates. Evidence comes from the native application, not the HTML concept or a browser reconstruction. A target that could not be observed remains unverified. | N, V, relevant existing dependency/build/test evidence |
 
 ### Other retained workflows
 
@@ -615,6 +629,7 @@ The rebuild is accepted only when the retained-feature mapping is complete, requ
 
 The full rebuild is complete only when:
 
+- The required GPUI Kit 0.9.0 migration is implemented, the lockfile and active consumers agree, and relevant compatibility checks pass.
 - Every supported behavior in the preservation inventory has a working, discoverable destination and a recorded verification result.
 - The final app uses the selected shell throughout; legacy tiles or dialogs do not remain as unexplained islands.
 - Light, Dark and System work across all BRN-owned surfaces and preserve work during appearance changes.
@@ -627,7 +642,7 @@ User-facing success is simple: Evo can open BRN, understand the current task imm
 
 ## 18 Sources and supporting references
 
-Repository links are pinned to the inspected baseline. Toolkit documentation is a capability reference and must be reconciled against BRN's installed version. The geometry, palette and information architecture in this specification are selected design decisions, not claims of measured native performance.
+Repository links are pinned to the inspected baseline. Toolkit documentation is a capability reference and must be reconciled against the required GPUI Kit 0.9.0 target. The geometry, palette and information architecture in this specification are selected design decisions, not claims of measured native performance.
 
 [R1]: https://github.com/ewq100/brn-rust/blob/e749a83e207c5b6d3c081d9f7d1fa6d6efed088c/crates/brn-desktop/README.md "Desktop behavior and qualification boundaries"
 [R2]: https://github.com/ewq100/brn-rust/blob/e749a83e207c5b6d3c081d9f7d1fa6d6efed088c/crates/brn-desktop/Cargo.toml "Pinned desktop dependencies"
@@ -644,12 +659,14 @@ Repository links are pinned to the inspected baseline. Toolkit documentation is 
 [T3]: https://gpui-kit.com/component/text-view/ "Formatted text rendering"
 [T4]: https://gpui-kit.com/component/resizable/ "Resizable panels"
 [T5]: https://gpui-kit.com/component/theme/ "Theme configuration"
-[T6]: https://github.com/longbridge/gpui-kit/blob/main/crates/component/src/theme/mod.rs "Current theme implementation"
+[T6]: https://github.com/longbridge/gpui-kit/blob/v0.9.0/crates/component/src/theme/mod.rs "GPUI Kit 0.9.0 theme implementation"
 [T7]: https://gpui-kit.com/docs/accessibility/ "Toolkit accessibility"
 [T8]: https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html "Text contrast guidance"
 [T9]: https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html "Control contrast guidance"
 [T10]: https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html "Meaning beyond color"
 [T11]: https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html "Visible focus"
 [T12]: https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html "Reduced interaction motion"
+[T13]: https://github.com/longbridge/gpui-kit/releases/tag/v0.9.0 "GPUI Kit 0.9.0 release and breaking changes"
+[T14]: https://github.com/longbridge/gpui-kit/releases/tag/v0.8.1 "Intervening GPUI backend migration notes"
 
 Prior related requirement: [BRN Wiki Library Specification](BRN_Wiki_Library_Spec.md). It supplies the related article consolidation and evidence requirements; this specification supplies the selected interface. The repository-local copy replaces the original ChatGPT file link for build-agent access. Current canonical contracts and task authority retain their existing ownership.

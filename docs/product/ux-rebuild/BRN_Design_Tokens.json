@@ -1,7 +1,8 @@
 {
   "specification": "BRN-UX-002",
-  "version": "1.0",
+  "version": "1.1",
   "date": "2026-11-05",
+  "gpui_kit_target": "=0.9.0",
   "units": "Logical pixels or native points; adapt to platform scaling and measured readability.",
   "appearance": {
     "default": "system",
@@ -10,7 +11,7 @@
       "light",
       "dark"
     ],
-    "note": "System is a BRN preference resolving to a toolkit light or dark mode; verify pinned APIs."
+    "note": "System is a BRN preference resolving to a toolkit light or dark mode; use and verify GPUI Kit 0.9.0 APIs."
   },
   "colors": {
     "light": {
