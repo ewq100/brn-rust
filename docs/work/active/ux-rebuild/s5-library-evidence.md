@@ -209,14 +209,20 @@ Fixed after native observation:
 
 ## Lead fixes at integration
 
-Two gaps outside S5's files were fixed by the lead while merging. Both are covered by assertions in `library_articles_files_sources_checks_and_search_scope`, and neither has been rechecked natively yet:
+Two gaps outside S5's files were fixed by the lead while merging. Both are covered by assertions in `library_articles_files_sources_checks_and_search_scope`. Both were rechecked natively in Light at 1280×900 on 5 November: the project document's assistant reads "New chat about Run sheet", and the sidebar marks Harbour festival.
 
 - A project-only document's assistant now uses the document's title, not its id. `note_title` falls back to the open document's own record.
 - While a project document is open, the sidebar now marks its project instead of Library (`focused_project`).
 
 ## Lead fixes after independent review
 
-The Sol review found one Major and two Minor issues. All three were fixed by the lead and covered by `launcher_project_scope_follows_the_visible_route` (`threads_projects_tests.rs`) plus the launcher label unit test. None has been rechecked natively yet.
+The Sol review found one Major and two Minor issues. All three were fixed by the lead and covered by `launcher_project_scope_follows_the_visible_route` (`threads_projects_tests.rs`) plus the launcher label unit test. The scope fix and the unshared wording were rechecked natively in Light at 1280×900 on 5 November (shots in `brn-ux-rebuild-artifacts/shots/review-fixes/`; copies in [evidence/final](evidence/final/)):
+
+- Projects → Harbour festival shows Run sheet as "Only in this project".
+- With Run sheet open, ⌘K "run" lists Run sheet under "This project · Project documents · not in Library".
+- From Library, ⌘K "run" finds no matches.
+
+The shared wording ("Not in Library · also in N other project(s)") and the attachment scope are covered only by tests: the synthetic fixture has a single project and no standalone-chat attachment.
 
 - **Major, search scope leak.** `context_project()` fell back to the retained writing scope, so a project document opened earlier kept its project's documents in ⌘K from Library, New chat or another chat. Scope now comes from the visible route only: the project page shown, the displayed project document (`note_project`), or the displayed chat's project. Global destinations have none.
 - **Minor, false exclusivity.** A private document linked into a second project said "Only in this project" and search announced "only in A". The row now reads "Not in Library · also in N other project(s)", the search label names the other projects, and the group scope reads "Project documents · not in Library".

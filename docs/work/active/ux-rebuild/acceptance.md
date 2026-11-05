@@ -79,3 +79,4 @@ Downscaled copies of native captures (synthetic data, macOS) are kept in [eviden
 | [light-ve04-draft-comment-900](evidence/final/light-ve04-draft-comment-900.png), [dark-ve04-draft-comment-900](evidence/final/dark-ve04-draft-comment-900.png) | Direct-edit draft with a passage comment at 900×600 (VE-04) |
 | [dark-settings-appearance](evidence/final/dark-settings-appearance.png) | Settings → Appearance (Dark) |
 | [light-ac01-restored](evidence/final/light-ac01-restored.png) | Project document restored after relaunch (AC-01) |
+| [light-search-project-scope](evidence/final/light-search-project-scope.png), [light-search-library-scope](evidence/final/light-search-library-scope.png) | ⌘K "run" from a project document lists it under "This project · Project documents · not in Library"; from Library it finds nothing (S5 review fix) |
