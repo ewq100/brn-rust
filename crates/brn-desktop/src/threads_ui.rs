@@ -3072,7 +3072,7 @@ impl ThreadsUi {
                     } else {
                         *result
                     };
-                    let attempt_error = result.as_ref().err().map(ToString::to_string);
+                    let mut attempt_error = result.as_ref().err().map(ToString::to_string);
                     match result {
                         Ok(converted) => {
                             if let Some(reference) = reference.as_ref() {
@@ -3117,10 +3117,13 @@ impl ThreadsUi {
                                             self.open_note(&id, None, window, cx);
                                         }
                                     }
-                                    Err(e) => self.fail(e.to_string()),
+                                    Err(e) => {
+                                        attempt_error = Some(e.to_string());
+                                        self.fail(e.to_string());
+                                    }
                                 }
                             } else {
-                                self.useful_intake(
+                                attempt_error = self.useful_intake(
                                     converted,
                                     title,
                                     settings,
@@ -3216,6 +3219,8 @@ impl ThreadsUi {
         self.fail("Work stopped unexpectedly. Saved progress is kept; retry from the note or continue from the chat.");
         self.refresh();
     }
+    /// Opens the intake chat and starts its run. Returns the service's
+    /// refusal, if any, so the Imports attempt reports it with Retry.
     fn useful_intake(
         &mut self,
         converted: ConversionResult,
@@ -3224,12 +3229,12 @@ impl ThreadsUi {
         project: Option<String>,
         window: &mut Window,
         cx: &mut Context<Self>,
-    ) {
+    ) -> Option<String> {
         let report = match brn_threads_app::import_report_with_conversion(&converted, &settings) {
             Ok(report) => report,
             Err(error) => {
                 self.fail(error.to_string());
-                return;
+                return Some(error.to_string());
             }
         };
         let fingerprint = brn_intake::hex(&converted.source_sha256);
@@ -3277,11 +3282,18 @@ impl ThreadsUi {
                             None,
                             cx,
                         );
+                        None
                     }
-                    Err(e) => self.fail(e.to_string()),
+                    Err(e) => {
+                        self.fail(e.to_string());
+                        Some(e.to_string())
+                    }
                 }
             }
-            Err(e) => self.fail(e.to_string()),
+            Err(e) => {
+                self.fail(e.to_string());
+                Some(e.to_string())
+            }
         }
     }
     fn choose_import(
@@ -3362,6 +3374,19 @@ impl ThreadsUi {
         attachment_chat: Option<String>,
         cx: &mut Context<Self>,
     ) {
+        self.convert_file_scoped(reference_intent, path, intent, attachment_chat, None, cx);
+    }
+    /// `project`: a useful-information import's already-chosen Project
+    /// (`Some(None)` is General); `None` takes the open chat's Project.
+    pub(super) fn convert_file_scoped(
+        &mut self,
+        reference_intent: Option<ReferenceImportIntent>,
+        path: PathBuf,
+        intent: ImportIntent,
+        attachment_chat: Option<String>,
+        project: Option<Option<String>>,
+        cx: &mut Context<Self>,
+    ) {
         if let Some(worker) = &self.worker {
             self.warn(format!(
                 "{} Then choose this file again.",
@@ -3410,7 +3435,11 @@ impl ThreadsUi {
                 return;
             }
         };
-        let useful_project = if intent == ImportIntent::UsefulInformation {
+        let useful_project = if intent != ImportIntent::UsefulInformation {
+            None
+        } else if let Some(project) = project {
+            project
+        } else {
             let rows = match self.workspace.records() {
                 Ok(rows) => rows,
                 Err(error) => {
@@ -3422,8 +3451,6 @@ impl ThreadsUi {
             self.chat_thread()
                 .and_then(|chat| project_for_chat(&rows, chat))
                 .map(|project| project.id.clone())
-        } else {
-            None
         };
         let captured = canonical.document_conversion.clone();
         let auth_file = canonical.auth_file.map(PathBuf::from);

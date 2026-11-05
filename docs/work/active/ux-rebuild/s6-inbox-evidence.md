@@ -89,6 +89,7 @@ Operational note: overwriting the copied app binary in place makes macOS kill th
 - Dark captures, VE-05 (error in Dark), VE-06 Dark task completion receipt, VE-07 (900×600 keyboard focus) and AC-16/AC-18 native runs are missing: the screen locked during the pass and window capture/AX stopped working.
 - Status chip icons (e.g. task state) render blank; the chip is the shared `components::status_chip` in `brn-writing-ui`, outside S6.
 - Fixed at integration (lead): a rescan now reports unchanged files separately ("N unchanged") in the scan summary and Folder inbox ledger.
+- Fixed at integration after independent review: Retry keeps the original attempt's Project (refused if it is no longer available) instead of re-deriving it from the open chat, and an intake or full-note publication refused after a successful conversion is now a failed, retryable attempt. Covered by `import_retry_keeps_its_project_and_reports_intake_refusal`.
 - Documents and MCP settings sections are restyled by the shell only; their bodies are unchanged.
 - No live provider was used; Models shows credential status only.
 - VoiceOver, large text and IME were not exercised.

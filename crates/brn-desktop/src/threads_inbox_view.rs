@@ -28,6 +28,9 @@ pub(super) struct ImportAttempt {
     pub(super) intent: ImportIntent,
     /// Where the result goes, as shown before the import started.
     pub(super) destination: String,
+    /// The Project a useful-information import was scoped to when it
+    /// started (None: General). Retry reuses it instead of the open chat.
+    pub(super) project: Option<String>,
     pub(super) state: AttemptState,
 }
 #[derive(Clone, Debug, PartialEq)]
@@ -721,15 +724,28 @@ impl ThreadsUi {
 
     /// Where an import made now would go, as the service will scope it.
     fn import_destination(&self, intent: ImportIntent) -> String {
-        match intent {
-            ImportIntent::FullNote => "General knowledge".into(),
-            _ => match self
-                .chat_thread()
-                .and_then(|chat| project_for_chat(&self.records, chat))
-            {
-                Some(project) => format!("Project {} (the open chat's project)", title(project)),
-                None => "A new general chat".into(),
+        self.import_destination_for(intent, self.import_project(intent).as_deref())
+    }
+
+    /// The Project a useful-information import started now is scoped to.
+    pub(super) fn import_project(&self, intent: ImportIntent) -> Option<String> {
+        (intent == ImportIntent::UsefulInformation)
+            .then(|| {
+                self.chat_thread()
+                    .and_then(|chat| project_for_chat(&self.records, chat))
+                    .map(|project| project.id.clone())
+            })
+            .flatten()
+    }
+
+    fn import_destination_for(&self, intent: ImportIntent, project: Option<&str>) -> String {
+        match (intent, project) {
+            (ImportIntent::FullNote, _) => "General knowledge".into(),
+            (_, Some(id)) => match self.records.iter().find(|record| record.id == id) {
+                Some(project) => format!("Project {}", title(project)),
+                None => "Its original Project (no longer available)".into(),
             },
+            (_, None) => "A new general chat".into(),
         }
     }
 
@@ -1066,7 +1082,7 @@ impl ThreadsUi {
             let _ = this.update_in(cx, |this, _, cx| match paths {
                 Ok(Ok(Some(paths))) => {
                     if let Some(path) = paths.into_iter().next() {
-                        this.start_import_attempt(path, intent, cx);
+                        this.start_import_attempt(path, intent, None, cx);
                     }
                 }
                 Ok(Ok(None)) => {}
@@ -1110,7 +1126,7 @@ impl ThreadsUi {
                 let control = button(id).label(label).on_click(move |_, window, cx| {
                     window.close_dialog(cx);
                     let _ = target.update(cx, |this, cx| {
-                        this.start_import_attempt(path.clone(), intent, cx)
+                        this.start_import_attempt(path.clone(), intent, None, cx)
                     });
                 });
                 if primary { control.primary() } else { control.outline() }
@@ -1154,6 +1170,7 @@ impl ThreadsUi {
         &mut self,
         path: PathBuf,
         intent: ImportIntent,
+        pinned_project: Option<Option<String>>,
         cx: &mut Context<Self>,
     ) {
         if let Some(worker) = &self.worker {
@@ -1168,8 +1185,32 @@ impl ThreadsUi {
             .file_name()
             .map(|name| name.to_string_lossy().into_owned())
             .unwrap_or_else(|| path.display().to_string());
-        let destination = self.import_destination(intent);
-        self.convert_file(None, path.clone(), intent, None, cx);
+        // Retry keeps the original scope; a new attempt takes the open chat's.
+        let project = match pinned_project {
+            Some(project) => project,
+            None => self.import_project(intent),
+        };
+        let destination = self.import_destination_for(intent, project.as_deref());
+        if let Some(id) = &project
+            && !self
+                .records
+                .iter()
+                .any(|record| record.id == *id && !record.archived)
+        {
+            self.inbox_page.attempt = Some(ImportAttempt {
+                path,
+                title,
+                intent,
+                destination,
+                project,
+                state: AttemptState::Failed(
+                    "Its Project is no longer available, so nothing was imported. Choose the file again from where it should go.".into(),
+                ),
+            });
+            cx.notify();
+            return;
+        }
+        self.convert_file_scoped(None, path.clone(), intent, None, Some(project.clone()), cx);
         // convert_file refuses unsupported files without starting work.
         let started = self
             .worker
@@ -1180,6 +1221,7 @@ impl ThreadsUi {
             title,
             intent,
             destination,
+            project,
             state: if started {
                 AttemptState::Running
             } else {
@@ -1189,11 +1231,11 @@ impl ThreadsUi {
         cx.notify();
     }
 
-    fn retry_import(&mut self, cx: &mut Context<Self>) {
+    pub(super) fn retry_import(&mut self, cx: &mut Context<Self>) {
         let Some(attempt) = self.inbox_page.attempt.clone() else {
             return;
         };
-        self.start_import_attempt(attempt.path, attempt.intent, cx);
+        self.start_import_attempt(attempt.path, attempt.intent, Some(attempt.project), cx);
     }
 
     /// Called when a conversion finishes: records this import's outcome on
