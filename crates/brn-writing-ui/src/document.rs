@@ -64,6 +64,9 @@ pub fn readable_document(
         .w_full()
         .h_full()
         .scrollable(true);
+    // The overlay scrollbar masks the view's right edge while it shows;
+    // keep text out from under it.
+    let base = base.pr(px(16.));
     let view = match collector {
         Some(collector) => crate::markdown::observed_markdown(base, assets, collector),
         None => crate::markdown::safe_markdown(base, assets),

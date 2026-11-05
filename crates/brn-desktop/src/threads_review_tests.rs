@@ -453,7 +453,9 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_620x6
         assert!(
             proposal
                 .label()
-                .is_some_and(|label| label.starts_with("Proposal · whole note · ") && label.contains(" added · ") && label.ends_with(" removed")),
+                .is_some_and(|label| label.starts_with("Proposal · whole note · ")
+                    && label.contains(" added · ")
+                    && label.ends_with(" removed")),
             "{proposal:?}"
         );
         assert_eq!(window.find("review-protected").label(), Some("Protected"));

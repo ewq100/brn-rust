@@ -650,8 +650,9 @@ fn formatting_controls_refuse_read_recovery_and_review_states(cx: &mut TestAppCo
 
 /// The Read view's Markdown policy is observable in the rendered plain copy:
 /// block HTML stays literal text (the default parser strips its tags), and the
-/// text of a `javascript:` link is still rendered, while images and link
-/// destinations contribute nothing. The exact string also fails if the plugin
+/// text of a `javascript:` link is still rendered, while stored images and
+/// link destinations contribute nothing. An image whose asset is not stored
+/// renders a bounded placeholder with its alternative text (spec §10.1). The exact string also fails if the plugin
 /// registration changes (for example both plugins becoming block parsers would
 /// render the inline tags literally). Inline HTML literalness is a visual
 /// property the plain copy excludes by design, so it stays a native check.
@@ -734,9 +735,10 @@ fn read_view_shows_block_html_literally_and_renders_all_link_text(cx: &mut TestA
             assert_eq!(rendered.source(), source);
             assert_eq!(
                 rendered.as_str(),
-                "Intro with inline html.\n<div>block html</div>\ngood and bad\n",
-                "block HTML stays literal and link text renders; the default \
-                 parser would strip the tags and drop the javascript: link text"
+                "Intro with inline html.\n<div>block html</div>\nImage unavailable · gone\ngood and bad\n",
+                "block HTML stays literal, a missing image names its alt text and \
+                 link text renders; the default parser would strip the tags and \
+                 drop the javascript: link text"
             );
         });
     })
