@@ -348,38 +348,36 @@ fn note_toolbar_is_one_row_at_each_window_size_dirty_or_clean(cx: &mut TestAppCo
 /// Connections into the Note ⋯, a plain note ("Working · v1", no comments)
 /// keeps both in its one-row toolbar.
 #[gpui_kit::test]
-fn edit_note_and_connections_stay_in_the_toolbar_when_this_notes_row_fits(cx: &mut TestAppContext) {
-    for (plain, f) in [
+fn edit_note_stays_in_the_toolbar_and_connections_lives_in_the_document_menu(
+    cx: &mut TestAppContext,
+) {
+    for f in [
         // Beside the assistant the Note is about 744 pt here.
-        (true, fixture(cx, 1290., 860., "Saved text")),
-        (false, widest(cx, 1290., 860.)),
+        fixture(cx, 1290., 860., "Saved text"),
+        widest(cx, 1290., 860.),
     ] {
         on_window(cx, &f, |window, cx| {
-            let view = f.view.read(cx);
-            let width = view.note_panel_width(window).unwrap();
-            let needs = view.note_toolbar_needs(window);
-            assert!(
-                width < layout::NoteNeeds::WIDEST.format_menu
-                    && (needs.format_menu <= width) == plain,
-                "plain {plain}: {needs:?} at {width}"
-            );
+            let (width, needs) = {
+                let view = f.view.read(cx);
+                (
+                    view.note_panel_width(window).unwrap(),
+                    view.note_toolbar_needs(window),
+                )
+            };
+            assert!(needs.compact <= width, "{needs:?} at {width}");
             let bar = window.find("note-toolbar").bounds();
-            for id in ["edit-note-context", "note-connections"] {
-                assert_eq!(
-                    window.try_find(id).is_some(),
-                    plain,
-                    "plain {plain}: {id} in the toolbar"
-                );
-                if plain {
-                    assert_in(window, id, bar);
-                }
-            }
+            assert_in(window, "edit-note-context", bar);
+            assert!(window.try_find("note-connections").is_none());
             for id in TOOLBAR_IDS {
                 if window.try_find(id).is_some_and(|e| e.visible()) {
                     assert_in(window, id, bar);
                 }
             }
+            window.click("note-menu", cx);
         });
+        let rows = menu_rows(cx, &f);
+        assert!(rows.iter().any(|row| row == "Connections"), "{rows:?}");
+        assert!(rows.iter().any(|row| row == "Document history"), "{rows:?}");
     }
 }
 
@@ -387,9 +385,11 @@ fn edit_note_and_connections_stay_in_the_toolbar_when_this_notes_row_fits(cx: &m
 fn format_menu_holds_five_actions_and_outline_lists_headings_in_write_and_read(
     cx: &mut TestAppContext,
 ) {
+    // 980 wide: beside the assistant the toolbar folds formatting into
+    // Format ▾ (the 1250 row now fits all five buttons).
     let f = fixture(
         cx,
-        1250.,
+        980.,
         860.,
         "# Alpha\n\nOne two.\n\n## **Beta**\n\nThree.",
     );
@@ -421,24 +421,40 @@ fn format_menu_holds_five_actions_and_outline_lists_headings_in_write_and_read(
                 .contains("**One** two.")
         );
     });
-    // Write: Outline lists the headings and reveals the chosen one.
+    // Edit: the Outline lists the rendered headings (emphasis resolved)
+    // and puts the caret at the chosen one.
     on_window(cx, &f, |window, cx| window.click("note-outline", cx));
-    assert_eq!(menu_rows(cx, &f), ["Alpha", "Beta"]);
-    choose(cx, &f, "Beta");
+    on_window(cx, &f, |window, _| window.refresh());
+    let labels = |cx: &mut TestAppContext| {
+        cx.read(|cx| {
+            f.view
+                .read(cx)
+                .writing
+                .outline_state(cx)
+                .entries()
+                .iter()
+                .map(|entry| entry.label.clone())
+                .collect::<Vec<_>>()
+        })
+    };
+    assert_eq!(labels(cx), ["Alpha", "Beta"]);
+    on_window(cx, &f, |window, cx| window.click("outline-entry-1", cx));
     cx.read(|cx| {
         let editor = f.view.read(cx).writing.note_editor.read(cx);
-        let range = editor.selected_range();
-        assert_eq!(editor.value().get(range), Some("**Beta**"));
+        let at = editor.value().find("## **Beta**").unwrap();
+        assert_eq!(editor.selected_range(), at..at);
     });
     // Read shares the same Outline and has no formatting.
     update(cx, &f, |view, window, cx| {
         view.set_note_reading(true, window, cx)
     });
-    on_window(cx, &f, |window, cx| {
-        assert!(window.try_find("format-menu").is_none());
-        window.click("note-outline", cx);
+    on_window(cx, &f, |window, _| {
+        window.refresh();
     });
-    assert_eq!(menu_rows(cx, &f), ["Alpha", "Beta"]);
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("format-menu").is_none());
+    });
+    assert_eq!(labels(cx), ["Alpha", "Beta"]);
 }
 
 #[gpui_kit::test]
@@ -1439,8 +1455,8 @@ fn the_text_gets_most_of_the_note_and_keeps_a_readable_measure(cx: &mut TestAppC
         assert!(bar.size.height <= px(72.), "{bar:?}");
         assert!(window.try_find("section-0").is_none());
     });
-    // Alone, the text keeps a 680 px measure with 24 px gutters and is
-    // centered; beside the assistant it fills the narrower region from the left.
+    // Alone, the text keeps the 760 document column with its page inset,
+    // centred; beside the assistant it fills the narrower region.
     on_window(cx, &f, |window, _| {
         let (body, column) = (
             window.find("note-body").bounds(),
@@ -1457,7 +1473,11 @@ fn the_text_gets_most_of_the_note_and_keeps_a_readable_measure(cx: &mut TestAppC
             window.find("note-column").bounds(),
         );
         assert!(body.size.width > px(900.), "{body:?}");
-        assert_eq!(column.size.width, px(728.));
+        // The document column (spec §8: 680–760) includes its page inset.
+        assert_eq!(
+            column.size.width,
+            px(brn_writing_ui::theme::metrics::DOCUMENT_WIDTH)
+        );
         let (left, right) = (column.left() - body.left(), body.right() - column.right());
         assert!(
             (left - right).abs() <= px(1.),

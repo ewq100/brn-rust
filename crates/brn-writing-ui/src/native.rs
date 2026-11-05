@@ -149,6 +149,31 @@ pub struct WritingPanel {
     pub excluded_comments: BTreeSet<String>,
     pub expanded_requests: BTreeSet<String>,
     pub applied_rewrite: BTreeMap<String, (String, String)>,
+    /// Headings of the reading view's own parse (`outline`).
+    pub read_outline: crate::outline::HeadingCollector,
+    /// The owner's explicit Outline choice per document; absent is closed.
+    pub outline_shown: BTreeMap<String, bool>,
+    /// The temporary contents view while the outline cannot dock. It never
+    /// changes `outline_shown`.
+    pub outline_view: bool,
+    /// The section the reading position is in, kept by the reading list's
+    /// scroll handler without moving focus.
+    pub outline_current: std::rc::Rc<std::cell::Cell<Option<usize>>>,
+    /// Each displayed entry's reading block, for that handler.
+    pub outline_blocks: std::rc::Rc<std::cell::RefCell<Vec<usize>>>,
+    pub outline_toggle_focus: gpui_kit::FocusHandle,
+    pub outline_entry_focus: std::cell::RefCell<Vec<gpui_kit::FocusHandle>>,
+    /// The document region's resolved width (host pane policy).
+    pub note_width: f32,
+    /// Overall feedback shows on demand (or while it holds text).
+    pub feedback_open: bool,
+    /// The last Save attempt's state for its note and buffer generation.
+    pub save_attempt: Option<crate::canvas::SaveAttempt>,
+    /// The next different note opens in Read (Library and search results).
+    pub prefer_reading: bool,
+    /// The reading view has been laid out once, so its parse carries the
+    /// outline observer even while the document stays in Edit.
+    pub read_primed: std::cell::Cell<bool>,
 }
 
 /// A saved-request failure before run selection or any durable run write.
@@ -238,6 +263,14 @@ impl WritingPanel {
                 .selectable(true)
                 .scrollable(true)
         });
+        let outline_current = std::rc::Rc::new(std::cell::Cell::new(None));
+        let outline_blocks = std::rc::Rc::new(std::cell::RefCell::new(Vec::new()));
+        crate::canvas::follow_reading_position(
+            &note_read_view,
+            outline_current.clone(),
+            outline_blocks.clone(),
+            cx,
+        );
         let diff_editor = cx.new(|cx| components::prose_editor_state(window, cx).default_value(""));
         diff_editor.update(cx, |editor, cx| editor.set_readonly(true, cx));
         let review_editor =
@@ -306,6 +339,18 @@ impl WritingPanel {
             excluded_comments: BTreeSet::new(),
             expanded_requests: BTreeSet::new(),
             applied_rewrite: BTreeMap::new(),
+            read_outline: crate::outline::HeadingCollector::default(),
+            outline_shown: BTreeMap::new(),
+            outline_view: false,
+            outline_current,
+            outline_blocks,
+            outline_toggle_focus: cx.focus_handle(),
+            outline_entry_focus: Default::default(),
+            note_width: 0.,
+            feedback_open: false,
+            save_attempt: None,
+            prefer_reading: false,
+            read_primed: std::cell::Cell::new(false),
         }
     }
 }
@@ -390,6 +435,18 @@ pub enum WritingRequest {
     NoteReading(bool),
     Format(crate::formatting::Format),
     StopSaved(String),
+    /// The toolbar's Outline: docks, or opens the temporary contents view.
+    ToggleOutline,
+    /// Close the outline (Escape in the contents view returns to the toggle).
+    CloseOutline,
+    /// Go to one heading of the outline it was shown in.
+    OutlineGo(crate::outline::OutlineTarget),
+    /// Arrow keys between outline entries.
+    OutlineStep(i32),
+    /// Show or hide the overall-feedback field.
+    ToggleFeedback,
+    /// Open the document's history (Recent changes).
+    History,
 }
 
 /// A caller-scoped image map, using only the host's already retained bytes.
@@ -579,7 +636,7 @@ pub fn terminal_notice(run: &Run, run_id: &str, attention: &[Attention]) -> Opti
 }
 
 pub use crate::components::{IconName, Tone};
-pub(crate) use crate::layout::{comment_location, sections, unlocated_reason};
+pub(crate) use crate::layout::{comment_location, unlocated_reason};
 
 pub use crate::workbench::{RunOutcome, WritingRow};
 

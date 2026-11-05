@@ -2737,6 +2737,7 @@ impl ThreadsUi {
                 // A found article opens for reading, assistant closed.
                 self.preserve_visible_note_input(cx);
                 self.layout.open_article();
+                self.writing.read_next();
                 self.open_note(&id, None, window, cx)
             }
             lists::LaunchItem::Message { chat, message, .. } => {
@@ -2756,6 +2757,14 @@ impl ThreadsUi {
             lists::Command::NewNote => self.new_note(window, cx),
             lists::Command::Rewrite => self.rewrite_note(window, cx),
             lists::Command::Save => self.save(window, cx),
+            lists::Command::Outline => {
+                if self.open_note_id().is_some() {
+                    self.writing_request(WritingRequest::ToggleOutline, window, cx);
+                } else {
+                    self.warn("Open a document to show its outline.");
+                    cx.notify();
+                }
+            }
             lists::Command::Theme(appearance) => self.choose_appearance(appearance, window, cx),
             lists::Command::OpenTile(kind) => {
                 self.show_tile(kind, window, cx);
@@ -4821,6 +4830,35 @@ impl ThreadsUi {
             WritingRequest::NoteReading(reading) => self.set_note_reading(reading, window, cx),
             WritingRequest::Format(kind) => self.format_note(kind, window, cx),
             WritingRequest::StopSaved(run) => self.confirm_stop_saved_run(run, window, cx),
+            WritingRequest::ToggleOutline => {
+                let docks = self.writing_view().outline_docks();
+                // The contents view never stacks on the assistant sheet.
+                if self.writing.toggle_outline(docks, window, cx) {
+                    self.layout.close_sheet(Self::usable_width(window));
+                }
+                cx.notify();
+            }
+            WritingRequest::CloseOutline => {
+                self.writing.close_outline(window, cx);
+                cx.notify();
+            }
+            WritingRequest::OutlineGo(target) => {
+                if let Err(why) = self.writing.outline_go(&target, window, cx) {
+                    self.warn(why);
+                }
+                cx.notify();
+            }
+            WritingRequest::OutlineStep(step) => self.writing.outline_step(step, window, cx),
+            WritingRequest::ToggleFeedback => {
+                self.writing.feedback_open = !self.writing.feedback_open;
+                if self.writing.feedback_open {
+                    self.writing
+                        .general_feedback
+                        .update(cx, |input, cx| input.focus(window, cx));
+                }
+                cx.notify();
+            }
+            WritingRequest::History => self.show_tile(TileKind::History, window, cx),
         }
     }
     pub(super) fn note_toolbar_needs(&self, window: &Window) -> layout::NoteNeeds {

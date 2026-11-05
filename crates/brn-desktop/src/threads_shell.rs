@@ -104,6 +104,7 @@ fn command_icon(command: lists::Command) -> IconName {
         lists::Command::NewThread | lists::Command::NewNote => IconName::Plus,
         lists::Command::Rewrite => IconName::Replace,
         lists::Command::Save => IconName::Check,
+        lists::Command::Outline => IconName::TableOfContents,
         lists::Command::Theme(_) => IconName::Palette,
         lists::Command::OpenTile(kind) => kind_icon(kind),
         lists::Command::Keys => IconName::Keyboard,
@@ -1148,20 +1149,23 @@ impl ThreadsUi {
         }
         out
     }
-    /// The open note's save state: unsaved saves on click, saved opens
-    /// Recent changes.
+    /// The open document's save state from the actual Save results
+    /// (`WritingPanel::save_status`): Unsaved, Saving, Saved, Save failed or
+    /// Conflict. Saved opens Recent changes; the others save on click.
     fn save_status(&self, cx: &mut Context<Self>) -> Option<gpui_kit::AnyElement> {
+        use brn_writing_ui::canvas::SaveStatus;
         let p = pal();
         let open = self.writing.note.as_ref()?;
+        let status = self.writing.save_status()?;
         let name = one_line(&title(open.record()));
+        let label = status.label();
+        let button = pill("status-save", label).accessibility_label(match &status {
+            SaveStatus::Failed(why) | SaveStatus::Conflict(why) => format!("{label}: {why}"),
+            _ => label.to_owned(),
+        });
         Some(
-            if open.session().is_some() {
-                pill("status-save", "● Unsaved · ⌘S")
-                    .text_color(rgb(p.warning))
-                    .tooltip(format!("Save {name} (⌘S)"))
-                    .on_click(cx.listener(|this, _, window, cx| this.save(window, cx)))
-            } else {
-                pill("status-save", "Saved")
+            match &status {
+                SaveStatus::Saved => button
                     .text_color(rgb(p.muted))
                     .tooltip(format!(
                         "{name} v{} saved · Open Recent changes",
@@ -1169,7 +1173,16 @@ impl ThreadsUi {
                     ))
                     .on_click(cx.listener(|this, _, window, cx| {
                         this.show_tile(TileKind::History, window, cx)
-                    }))
+                    })),
+                SaveStatus::Saving => button.text_color(rgb(p.muted)).disabled(true),
+                SaveStatus::Unsaved => button
+                    .text_color(rgb(p.warning))
+                    .tooltip(format!("Save {name} (⌘S)"))
+                    .on_click(cx.listener(|this, _, window, cx| this.save(window, cx))),
+                SaveStatus::Failed(why) | SaveStatus::Conflict(why) => button
+                    .text_color(rgb(p.danger))
+                    .tooltip(format!("{why}. Your edit is kept · Save again (⌘S)"))
+                    .on_click(cx.listener(|this, _, window, cx| this.save(window, cx))),
             }
             .into_any_element(),
         )
@@ -1577,6 +1590,7 @@ impl ThreadsUi {
     /// chat's model control, by the widths the pane policy resolved.
     fn fit_panes(&mut self, window: &Window) {
         let note = self.panel_width(TileKind::Note);
+        self.writing.note_width = note.unwrap_or_default();
         self.writing.margin_mode = note.map_or(layout::MarginMode::Stacked, layout::margin_mode);
         self.writing.note_fit = note.map_or(layout::NoteFit::Full, |width| {
             layout::NoteFit::for_width(width, self.note_toolbar_needs(window))
