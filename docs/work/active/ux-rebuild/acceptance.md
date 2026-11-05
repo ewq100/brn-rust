@@ -9,10 +9,10 @@ Build: recorded per row as the integration commit. Platform: macOS (Apple silico
 | Case | Title | Result | Theme / size | Evidence |
 |---|---|---|---|---|
 | AC-01 | Workspace continuity | Not run | | |
-| AC-02 | Chat and draft isolation | Not run | | |
-| AC-03 | Queued messages | Not run | | |
-| AC-04 | Stop, Resume, and Steer | Not run | | |
-| AC-05 | Provider and model selection | Not run | | |
+| AC-02 | Chat and draft isolation | Partial | Light + Dark 1280 | Native: the composer stays bound to each chat while switching. Automated: per-chat drafts, clear-once-after-accept, a refused send keeps its text and names the retry. Not natively driven across a restart. [S3 evidence](s3-chat-evidence.md) |
+| AC-03 | Queued messages | Pass | Light + Dark 1280 and 900 | Native: paused queue of four in the chat, the start screen and the 900 sheet, with aligned Edit/Remove/↑/↓; Enter queues while paused. Automated: edit, reorder both ways, remove and dispatch order. [S3 evidence](s3-chat-evidence.md) |
+| AC-04 | Stop, Resume, and Steer | Partial | Light + Dark 1280 | Native: Resume queue control present. Automated: Stop pauses the queue, explicit Resume, Steer persistence and partial answers. A live run needs paid provider calls, so Stop/Steer were not driven natively. [S3 evidence](s3-chat-evidence.md) |
+| AC-05 | Provider and model selection | Partial | Light + Dark 1280 | Native: model and effort controls show "ChatGPT · gpt-6.1-sol" and "medium"; no run started. Automated: display names and busy reasons. [S3 evidence](s3-chat-evidence.md) |
 | AC-06 | Chat to document canvas | Not run | | |
 | AC-07 | Project attachments and Keep in BRN | Not run | | |
 | AC-08 | Articles and All files | Not run | | |
@@ -35,10 +35,10 @@ Build: recorded per row as the integration commit. Platform: macOS (Apple silico
 | AC-25 | Interruption and restart recovery | Not run | | |
 | AC-26 | Provenance and missing sources | Not run | | |
 | AC-27 | Context switching and archival | Not run | | |
-| AC-28 | Provider and run failures | Not run | | |
+| AC-28 | Provider and run failures | Partial | — | Automated only: failed and interrupted finish text, refused Stop/Undo banners, MCP refusals. Not native: needs a live provider failure. [S3 evidence](s3-chat-evidence.md) |
 | AC-29 | System, Light, and Dark | Partial | Light + Dark | Native Light and Dark tours of every page (`s1`–`s6`, `int-pre`). OS appearance flip with System selected is covered by the automated seam test only (owner's OS appearance is not changed). |
 | AC-30 | Window sizes and layout | Not run | | |
-| AC-31 | Keyboard and focus | Not run | | |
+| AC-31 | Keyboard and focus | Partial | Light + Dark | Native: Escape closes the chip and + menus; Shift-Enter inserts a newline; controls reachable by accessible name (every tour step pressed through AX). Automated: Enter/Shift-Enter/IME/⌘↵, Jump to latest label. Full keyboard-only traversal not recorded. [S3 evidence](s3-chat-evidence.md) |
 | AC-32 | Native accessibility semantics | Not run | | |
 | AC-33 | Native text and long content | Not run | | |
 | AC-34 | Actual app, toolkit migration and declared platform gates | Partial | — | `gpui-kit =0.9.0` resolved once in the lockfile; `--locked` builds and the real app launched on macOS (Apple silicon). Other declared release targets are not available in this environment (see `s0-gpui-090-evidence.md`). |
@@ -55,7 +55,7 @@ Build: recorded per row as the integration commit. Platform: macOS (Apple silico
 
 | Set | Subject | Required | Result | Screenshots |
 |---|---|---|---|---|
-| VE-01 | Conversation with an answer, references, active context, and composer | Light and Dark; 1280×900 | Not run | |
+| VE-01 | Conversation with an answer, references, active context, and composer | Light and Dark; 1280×900 | Pass | `shots/s3/ve01-{light,dark}-1280-conversation.png` (answer with references, paused queue, attachment row, composer) |
 | VE-02 | Document canvas with pending review, old/new text, assistant, and Apply/Discard | Light and Dark; 1280×900 | Pass | `shots/s4/{light,dark}-1280-review-pending.png`, `dark-1280-review-result.png`, `{light,dark}-1280-review-applied-undo.png` |
 | VE-03 | Article Library with a current delegated-update example and access to All files | Light and Dark; 1280×900 | Not run | |
 | VE-04 | Direct-edit draft with a passage comment and a useful pane configuration | Light and Dark; 900×600 | Not run | |
