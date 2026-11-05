@@ -355,10 +355,8 @@ impl ThreadsUi {
             ChatTarget::NewForNote(note) => (
                 format!(
                     "New chat about {}",
-                    self.note_rows
-                        .iter()
-                        .find(|row| &row.id == note)
-                        .map_or_else(|| note.clone(), |row| short(&row.title))
+                    self.note_title(note)
+                        .map_or_else(|| note.clone(), |title| short(&title))
                 ),
                 "This chat stays linked to the note.",
             ),
@@ -454,10 +452,8 @@ impl ThreadsUi {
             ChatTarget::NewForNote(note) => (
                 format!(
                     "New chat about {}",
-                    self.note_rows
-                        .iter()
-                        .find(|row| &row.id == note)
-                        .map_or_else(|| note.clone(), |row| short(&row.title))
+                    self.note_title(note)
+                        .map_or_else(|| note.clone(), |title| short(&title))
                 ),
                 "It stays linked to the note.".to_owned(),
             ),

@@ -71,6 +71,8 @@ use brn_writing_ui::diff;
 use brn_writing_ui::formatting;
 #[path = "threads_layout.rs"]
 mod layout;
+#[path = "threads_library.rs"]
+mod library_view;
 #[path = "threads_lists.rs"]
 mod lists;
 #[cfg(all(test, feature = "native-test-support"))]
@@ -480,6 +482,8 @@ struct ThreadsUi {
     topics: Option<Topics>,
     graph: connections_view::ConnectionsView,
     knowledge: connections_view::KnowledgeView,
+    /// The Library's local view, order, topic and virtualized list.
+    library: library_view::LibraryState,
     notes_letter: char,
     threads_query: Entity<InputState>,
     thread_filter: ThreadFilter,
@@ -575,13 +579,12 @@ impl ThreadsUi {
         let review_editor = writing.review_editor.clone();
         let comment_input = writing.comment_input.clone();
         let general_feedback = writing.general_feedback.clone();
-        let search = cx.new(|cx| {
-            InputState::new(window, cx).placeholder("Filter titles and search note text")
-        });
+        let search = cx.new(|cx| InputState::new(window, cx).placeholder("Find in your library"));
         let threads_query =
             cx.new(|cx| InputState::new(window, cx).placeholder("Filter chats as you type"));
-        let launcher_query =
-            cx.new(|cx| InputState::new(window, cx).placeholder("Search notes, chats, commands…"));
+        let launcher_query = cx.new(|cx| {
+            InputState::new(window, cx).placeholder("Search articles, files, chats and commands…")
+        });
         let model = cx.new(|cx| {
             InputState::new(window, cx)
                 .default_value(settings.model.clone())
@@ -786,6 +789,7 @@ impl ThreadsUi {
             topics: None,
             graph: connections_view::ConnectionsView::default(),
             knowledge: connections_view::KnowledgeView::default(),
+            library: library_view::LibraryState::default(),
             notes_letter: 'A',
             threads_query,
             thread_filter: ThreadFilter::All,
@@ -1148,6 +1152,19 @@ impl ThreadsUi {
     }
     fn open_note_id(&self) -> Option<&str> {
         self.writing.open_note_id()
+    }
+    /// A note's title from the Library rows, or from the open document when
+    /// it is project-only and therefore absent from the Library.
+    fn note_title(&self, note: &str) -> Option<String> {
+        self.note_rows
+            .iter()
+            .find(|row| row.id == note)
+            .map(|row| row.title.clone())
+            .or_else(|| {
+                (self.open_note_id() == Some(note))
+                    .then(|| self.writing.open_note_title())
+                    .flatten()
+            })
     }
     fn thread_note(&self, thread: &str) -> Option<String> {
         self.thread_rows
@@ -2715,6 +2732,7 @@ impl ThreadsUi {
             self.launcher_query.read(cx).value().as_ref(),
             &self.thread_rows,
             &self.note_rows,
+            &self.launcher_project_documents(),
             &self.launcher_search.messages,
         )
     }
@@ -2757,8 +2775,11 @@ impl ThreadsUi {
                 // A found article opens for reading, assistant closed.
                 self.preserve_visible_note_input(cx);
                 self.layout.open_article();
-                self.writing.read_next();
-                self.open_note(&id, None, window, cx)
+                self.open_from_library(&id, window, cx)
+            }
+            lists::LaunchItem::ProjectDoc { id, project, .. } => {
+                self.preserve_visible_note_input(cx);
+                self.open_project_note(&project, &id, window, cx)
             }
             lists::LaunchItem::Message { chat, message, .. } => {
                 self.open_chat_message(&chat, &message, window, cx)

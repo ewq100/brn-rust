@@ -241,6 +241,9 @@ impl WritingPanel {
     pub fn open_note_id(&self) -> Option<&str> {
         self.note.as_ref().map(|open| open.record().id.as_str())
     }
+    pub fn open_note_title(&self) -> Option<String> {
+        self.note.as_ref().map(|open| title(open.record()))
+    }
     pub fn recovery_blocked(&self, buffers: &[EditSession]) -> bool {
         self.note.as_ref().is_some_and(|open| {
             open.session().is_none() && buffers.iter().any(|s| s.note == open.record().id)

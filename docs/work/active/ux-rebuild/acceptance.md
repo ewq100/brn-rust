@@ -15,8 +15,8 @@ Build: recorded per row as the integration commit. Platform: macOS (Apple silico
 | AC-05 | Provider and model selection | Partial | Light + Dark 1280 | Native: model and effort controls show "ChatGPT · gpt-6.1-sol" and "medium"; no run started. Automated: display names and busy reasons. [S3 evidence](s3-chat-evidence.md) |
 | AC-06 | Chat to document canvas | Not run | | |
 | AC-07 | Project attachments and Keep in BRN | Not run | | |
-| AC-08 | Articles and All files | Not run | | |
-| AC-09 | Search and scope | Not run | | |
+| AC-08 | Articles and All files | Pass | Light + Dark 1280 and 900 | Native: Articles default; All files lists the full imported reference, the Topics note and sources with availability; a row opens the same note in Read with the assistant closed. Automated: `library_articles_files_sources_checks_and_search_scope`, `articles_exclude_full_imports_and_files_include_them`. [S5 evidence](s5-library-evidence.md) |
+| AC-09 | Search and scope | Pass | Light + Dark 1280 and 900 | Native: ⌘K "harbor" groups Articles, Files and Chats with scopes; a project-only document is listed only from its own project and opens. Automated: `launcher_lists_the_context_project_documents_after_files`. [S5 evidence](s5-library-evidence.md) |
 | AC-10 | Direct editing and saving | Partial | Light + Dark 1280 | Automated: edits survive refresh, theme, pane toggles and navigation; Unsaved → Saved; Conflict on stale Save. Native: Saved/Unsaved header and recoverable footer (`dry2/light-recovery`). Native typing and Save not driven. [S4 evidence](s4-writing-evidence.md) |
 | AC-11 | Passage comments and rewrite | Partial | Light + Dark 900 | Automated: anchoring, re-anchoring, "moved" status, unresolved quote kept. Native: commenting on an unsaved edit refused with "Save your edit first". A posted comment (VE-04) not captured natively. [S4 evidence](s4-writing-evidence.md) |
 | AC-12 | Review-required and protected edits | Partial | Light + Dark 1280 | Automated: review summary, Discard leaves note unchanged, Approve on protected. Native: pending proposal with Added/Removed in words and Apply whole note. Protected Approve not observed natively. [S4 evidence](s4-writing-evidence.md) |
@@ -33,8 +33,8 @@ Build: recorded per row as the integration commit. Platform: macOS (Apple silico
 | AC-23 | Concrete permission flow | Not run | | |
 | AC-24 | Save failure and retry | Partial | — | Automated: Conflict keeps the edit and never shows Saved; recovery buffer retained. A held SQLite write lock makes the first-dirty preservation fail: the header shows "Save failed · Retry", never Saved, and Retry saves once the lock is released. Native failure not observed. [S4 evidence](s4-writing-evidence.md) |
 | AC-25 | Interruption and restart recovery | Not run | | |
-| AC-26 | Provenance and missing sources | Not run | | |
-| AC-27 | Context switching and archival | Not run | | |
+| AC-26 | Provenance and missing sources | Partial | Light + Dark 1280 | Native: source rows state where the original is, or that it was not retained and BRN kept the recorded reference. Removing access to an original not exercised natively. [S5 evidence](s5-library-evidence.md) |
+| AC-27 | Context switching and archival | Partial | Light 1280 | Native: switching between articles and projects keeps each one's state. No desktop control archives an article, so archive-then-search is automated only (`an_archived_article_leaves_the_library_and_search`). [S5 evidence](s5-library-evidence.md) |
 | AC-28 | Provider and run failures | Partial | — | Automated only: failed and interrupted finish text, refused Stop/Undo banners, MCP refusals. Not native: needs a live provider failure. [S3 evidence](s3-chat-evidence.md) |
 | AC-29 | System, Light, and Dark | Partial | Light + Dark | Native Light and Dark tours of every page (`s1`–`s6`, `int-pre`). OS appearance flip with System selected is covered by the automated seam test only (owner's OS appearance is not changed). |
 | AC-30 | Window sizes and layout | Not run | | |
@@ -43,11 +43,11 @@ Build: recorded per row as the integration commit. Platform: macOS (Apple silico
 | AC-33 | Native text and long content | Not run | | |
 | AC-34 | Actual app, toolkit migration and declared platform gates | Partial | — | `gpui-kit =0.9.0` resolved once in the lockfile; `--locked` builds and the real app launched on macOS (Apple silicon). Other declared release targets are not available in this environment (see `s0-gpui-090-evidence.md`). |
 | AC-35 | Export and backup restore | Partial | — | Export, full backup and isolated restore driven through the shared service by CLI (S6 evidence); UI panels present in Settings → Data but not natively driven. Automated: backup/restore tests. |
-| AC-36 | Project movement and deletion | Not run | | |
+| AC-36 | Project movement and deletion | Pass | Light 1280 | Native: chat moved between projects (current place marked); Trash review names the project, its contents and task choices; moved to Trash, listed, restored with chats back and nothing resumed. Automated: `threads_projects_tests`. [S5 evidence](s5-library-evidence.md) |
 | AC-37 | Explicit web and MCP boundaries | Not run | | |
 | AC-38 | Intake intent and coverage | Partial | Light | Offline xberg conversion of `.docx`/`.md`, provenance shown in Imports. Controlled partial conversion and figures covered by intake tests only. |
 | AC-39 | Explicit writing decision and capture actions | Not run | | |
-| AC-40 | Knowledge checks and useful navigation | Not run | | |
+| AC-40 | Knowledge checks and useful navigation | Pass | Light + Dark 1280 and 900 | Native: Library ⋯ → Knowledge checks; findings name affected records; Inspect shows record and evidence; heuristics worded as signals. [S5 evidence](s5-library-evidence.md) |
 | AC-41 | Outline navigation and version correctness | Partial | Light + Dark 1280 and 900 | Automated: duplicate, skipped, Unicode, long and fenced headings; pointer and keyboard; generation-bound refusal; compact view, including Escape from an empty compact outline. Native: docked outline with current section; compact contents view and Go. Native keyboard traversal not captured. [S4 evidence](s4-writing-evidence.md) |
 | AC-42 | Long-article presentation and compact supporting views | Pass | Light + Dark 1280 and 900 | Native: prose, quote, table, code with Copy, wide table scroll, citation links, stored figure (not inverted in Dark); compact contents and empty-outline views. [S4 evidence](s4-writing-evidence.md) |
 
@@ -57,7 +57,7 @@ Build: recorded per row as the integration commit. Platform: macOS (Apple silico
 |---|---|---|---|---|
 | VE-01 | Conversation with an answer, references, active context, and composer | Light and Dark; 1280×900 | Pass | `shots/s3/ve01-{light,dark}-1280-conversation.png` (answer with references, paused queue, attachment row, composer) |
 | VE-02 | Document canvas with pending review, old/new text, assistant, and Apply/Discard | Light and Dark; 1280×900 | Pass | `shots/s4/{light,dark}-1280-review-pending.png`, `dark-1280-review-result.png`, `{light,dark}-1280-review-applied-undo.png` |
-| VE-03 | Article Library with a current delegated-update example and access to All files | Light and Dark; 1280×900 | Not run | |
+| VE-03 | Article Library with a current delegated-update example and access to All files | Light and Dark; 1280×900 | Pass | Captured at 1280×928 and 900×628 in both themes (`shots/s5/`). [S5 evidence](s5-library-evidence.md) |
 | VE-04 | Direct-edit draft with a passage comment and a useful pane configuration | Light and Dark; 900×600 | Not run | |
 | VE-05 | One concrete permission dialog; one representative provider or persistence error | Permission in Light; error in Dark; 1280×900 | Not run | |
 | VE-06 | Manual Inbox Scan result; task completion receipt | Scan in Light; receipt in Dark; 1280×900 | Not run | |

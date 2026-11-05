@@ -712,7 +712,7 @@ fn completed_chats_remain_in_history_without_auto_resolving(cx: &mut TestAppCont
 }
 
 #[gpui_kit::test]
-fn notes_tile_sections_letters_and_filter_stay_bounded_with_many_notes(cx: &mut TestAppContext) {
+fn library_list_stays_virtualized_ordered_and_filterable_with_many_notes(cx: &mut TestAppContext) {
     let f = fixture(cx, |workspace| {
         for i in 0..240 {
             let prefix = ["Alpha", "Beta", "Õun"][i % 3];
@@ -743,14 +743,41 @@ fn notes_tile_sections_letters_and_filter_stay_bounded_with_many_notes(cx: &mut 
             .map(|row| row.id.clone())
             .collect()
     });
-    on_window(cx, &f, |window, _| {
-        assert_eq!(rows(window, "notes-recent-", &ids), lists::SECTION_LIMIT);
-        assert_eq!(rows(window, "notes-linked-", &ids), 6);
-        assert_eq!(rows(window, "note-", &ids), 80, "only the selected letter");
+    // Recently changed first; only the rows in view are rendered.
+    let newest = cx.read(|cx| {
+        let view = f.view.read(cx);
+        view.note_rows
+            .iter()
+            .max_by_key(|row| row.order)
+            .unwrap()
+            .id
+            .clone()
     });
-    click(cx, &f, format!("notes-letter-{}", 'Õ' as u32));
     on_window(cx, &f, |window, _| {
-        assert_eq!(rows(window, "note-", &ids), 80);
+        let shown = rows(window, "note-", &ids);
+        assert!(
+            shown > 0 && shown < 60,
+            "virtualized: {shown} of 240 rendered"
+        );
+        assert!(window.find(format!("note-{newest}")).visible());
+        assert_eq!(
+            window.find("library-order").label(),
+            Some("Recently changed")
+        );
+    });
+    // Linked to open chats narrows to the six linked notes.
+    click(cx, &f, "library-show");
+    choose(cx, &f, "Linked to open chats");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(rows(window, "note-", &ids), 6);
+    });
+    click(cx, &f, "library-show");
+    choose(cx, &f, "A–Z");
+    on_window(cx, &f, |window, _| {
+        assert!(
+            window.find(format!("note-{}", ids[0])).visible(),
+            "A–Z starts at the first title"
+        );
     });
     on_window(cx, &f, |window, cx| {
         f.view
@@ -1559,12 +1586,8 @@ fn simplified_navigation_tracks_focus_and_keeps_chat_filters_and_draft(cx: &mut 
     on_window(cx, &f, |window, _| {
         assert!(window.find(format!("thread-{chat}")).visible());
     });
-    for id in [
-        "nav-all-chats",
-        "resolved-count",
-        "all-threads",
-        "chats-recent",
-    ] {
+    // Recent chats live in the sidebar; the chat list keeps All and Archived.
+    for id in ["nav-all-chats", "resolved-count", "all-threads"] {
         click(cx, &f, id);
         on_window(cx, &f, |window, cx| {
             assert!(window.find("nav-all-chats").visible());
@@ -1577,10 +1600,10 @@ fn simplified_navigation_tracks_focus_and_keeps_chat_filters_and_draft(cx: &mut 
             assert!(view.layout.visible().len() <= 2);
         });
     }
-    // Recent goes to the sidebar's Recent chats, keeping the all-chats view.
+    // The All and Archived tabs stay within the all-chats view.
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert_eq!(view.layout.focus(), Some(TileKind::Threads));
+        assert_eq!(view.layout.primary(), TileKind::AllThreads);
         assert_eq!(view.navigation_focus(), Some(TileKind::AllThreads));
     });
     for (id, kind, label, destination) in [
@@ -1958,19 +1981,28 @@ fn launcher_groups_results_and_lists_projects(cx: &mut TestAppContext) {
     });
     press(cx, &f, "cmd-k");
     on_window(cx, &f, |window, _| {
-        for group in ["chats", "notes", "commands"] {
+        for group in ["articles", "chats", "commands"] {
             assert!(
                 window.find(format!("launcher-group-{group}")).visible(),
                 "{group}"
             );
         }
+        // Each group names its type and scope.
+        assert_eq!(
+            window.find("launcher-group-articles").label(),
+            Some("Articles · Current knowledge · saved library")
+        );
+        assert_eq!(
+            window.find("launcher-group-chats").label(),
+            Some("Chats · Conversations")
+        );
         assert_eq!(
             window.find("launcher-item-0").label(),
-            Some("Chat: Grouped chat")
+            Some("Article: Grouped note")
         );
         assert_eq!(
             window.find("launcher-item-1").label(),
-            Some("Note: Grouped note")
+            Some("Chat: Grouped chat")
         );
         let launcher = window.within("launcher-scrim").find("launcher").bounds();
         // A centred search surface at most 640 wide, sized to its results.
@@ -2014,7 +2046,7 @@ fn launcher_lists_saved_chat_messages_and_opens_their_chat(cx: &mut TestAppConte
         assert!(window.find("launcher-group-in-chats").visible());
         assert_eq!(
             window.find("launcher-item-0").label(),
-            Some("Message in Replies, You: Berth survey reply draft 1.4 m")
+            Some("Chat history in Replies, You: Berth survey reply draft 1.4 m")
         );
         assert!(window.try_find("launcher-item-0-archived").is_none());
     });
@@ -2031,7 +2063,7 @@ fn launcher_lists_saved_chat_messages_and_opens_their_chat(cx: &mut TestAppConte
     on_window(cx, &f, |window, _| {
         assert_eq!(
             window.find("launcher-item-0").label(),
-            Some("Message in Replies, You: Berth survey reply draft 1.4 m · archived")
+            Some("Chat history in Replies, You: Berth survey reply draft 1.4 m · archived")
         );
         assert!(window.find("launcher-item-0-archived").visible());
     });
@@ -2070,7 +2102,7 @@ fn launcher_keeps_a_matching_command_ahead_of_chat_messages(cx: &mut TestAppCont
         );
         assert_eq!(
             window.find("launcher-item-1").label(),
-            Some("Message in Weekend, You: Raba walk on Saturday")
+            Some("Chat history in Weekend, You: Raba walk on Saturday")
         );
         let (commands, chats) = (
             window.find("launcher-group-commands").bounds(),

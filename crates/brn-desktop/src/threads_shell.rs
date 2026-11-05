@@ -221,10 +221,8 @@ impl ThreadsUi {
                     .map_or_else(|| id.clone(), |row| one_line(&row.title)),
                 ChatTarget::NewForNote(note) => format!(
                     "New chat about {}",
-                    self.note_rows
-                        .iter()
-                        .find(|row| &row.id == note)
-                        .map_or_else(|| note.clone(), |row| one_line(&row.title))
+                    self.note_title(note)
+                        .map_or_else(|| note.clone(), |title| one_line(&title))
                 ),
                 ChatTarget::New => "New chat".into(),
             }),
@@ -375,6 +373,11 @@ impl ThreadsUi {
     /// own row, Recent changes and Settings by nothing.
     pub(super) fn navigation_focus(&self) -> Option<TileKind> {
         match self.layout.primary() {
+            TileKind::Note | TileKind::Connections | TileKind::Compare
+                if self.note_writing_scope.is_some() =>
+            {
+                Some(TileKind::Projects)
+            }
             TileKind::Notes | TileKind::Note | TileKind::Connections | TileKind::Compare => {
                 Some(TileKind::Notes)
             }
@@ -385,6 +388,16 @@ impl ThreadsUi {
                 Some(TileKind::Chat)
             }
             _ => None,
+        }
+    }
+    /// The project the sidebar marks: a project document's own project, or
+    /// the project page being shown.
+    pub(super) fn focused_project(&self) -> Option<&str> {
+        match self.layout.primary() {
+            TileKind::Note | TileKind::Connections | TileKind::Compare => {
+                self.note_writing_scope.as_deref()
+            }
+            _ => self.selected_project.as_deref(),
         }
     }
     /// Needs-you chats: the Inbox's actionable attention count.
@@ -799,7 +812,7 @@ impl ThreadsUi {
                 "nav-projects",
                 IconName::Folder,
                 "Projects",
-                current == Some(TileKind::Projects) && self.selected_project.is_none(),
+                current == Some(TileKind::Projects) && self.focused_project().is_none(),
             )
             .w_full()
             .mt(tokens::SPACE_3)
@@ -809,8 +822,8 @@ impl ThreadsUi {
             })),
         );
         for (id, name) in self.recent_projects() {
-            let selected = current == Some(TileKind::Projects)
-                && self.selected_project.as_deref() == Some(id.as_str());
+            let selected =
+                current == Some(TileKind::Projects) && self.focused_project() == Some(id.as_str());
             let open = id.clone();
             list =
                 list.child(
@@ -1242,7 +1255,7 @@ impl ThreadsUi {
                 );
             }
             TileKind::Chat => out.extend(self.chat_controls(cx)),
-            TileKind::Notes => out.extend(self.tile_controls(TileKind::Notes, cx)),
+            TileKind::Notes => out.extend(self.library_controls(cx)),
             TileKind::Projects => {
                 if let Some(section) = self.projects_menu_section(cx) {
                     out.push(
@@ -1688,7 +1701,7 @@ impl ThreadsUi {
                 "launcher-empty",
                 IconName::Search,
                 "No matches",
-                "No note, chat or command matches. Try fewer words.",
+                "No article, file, chat or command matches. Try fewer words.",
                 None,
             ));
         }
@@ -1696,20 +1709,36 @@ impl ThreadsUi {
         for (index, entry) in items.iter().enumerate() {
             if entry.group() != group {
                 group = entry.group();
+                // The heading names the result type; its scope says whether
+                // these are current knowledge or conversation history.
+                let scope = entry.group_scope();
+                let announced = match scope {
+                    Some(scope) => format!("{group} · {scope}"),
+                    None => group.to_owned(),
+                };
                 list = list.child(
-                    components::section_header(group, None, None)
-                        .id(format!(
-                            "launcher-group-{}",
-                            group.to_lowercase().replace(' ', "-")
-                        ))
-                        .px_2()
-                        .pt(if index == 0 {
-                            tokens::SPACE_1
-                        } else {
-                            tokens::SPACE_2
-                        })
-                        .aria_label(group)
-                        .test_support(),
+                    components::section_header(
+                        group,
+                        None,
+                        scope.map(|scope| {
+                            div()
+                                .flex_shrink_0()
+                                .text_size(px(theme::metrics::TEXT_METADATA))
+                                .font_weight(gpui_kit::FontWeight::NORMAL)
+                                .text_color(rgb(p.muted))
+                                .child(scope)
+                                .into_any_element()
+                        }),
+                    )
+                    .id(format!("launcher-group-{}", entry.group_key()))
+                    .px_2()
+                    .pt(if index == 0 {
+                        tokens::SPACE_1
+                    } else {
+                        tokens::SPACE_2
+                    })
+                    .aria_label(announced)
+                    .test_support(),
                 );
             }
             let selected = index == self.launcher_index;
@@ -1717,7 +1746,9 @@ impl ThreadsUi {
                 lists::LaunchItem::Thread { resolved, .. } => {
                     (IconName::MessageSquare, None, *resolved)
                 }
-                lists::LaunchItem::Note { .. } => (IconName::FileText, None, false),
+                lists::LaunchItem::Note { file: false, .. } => (IconName::FileText, None, false),
+                lists::LaunchItem::Note { file: true, .. } => (IconName::Paperclip, None, false),
+                lists::LaunchItem::ProjectDoc { .. } => (IconName::Paperclip, None, false),
                 lists::LaunchItem::Message { archived, .. } => {
                     (IconName::MessageSquare, None, *archived)
                 }

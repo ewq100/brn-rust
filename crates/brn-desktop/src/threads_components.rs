@@ -245,19 +245,6 @@ impl ListRow {
     }
 }
 
-/// A 28 px list row (`ListRow` with metadata).
-pub(super) fn list_row(
-    id: impl Into<SharedString>,
-    title: impl Into<SharedString>,
-    meta: impl Into<SharedString>,
-    selected: bool,
-) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
-    ListRow::new(id, title)
-        .meta(meta)
-        .selected(selected)
-        .build()
-}
-
 /// A 44 px row whose second line states why it needs attention.
 #[allow(dead_code, reason = "callers with a chip use ListRow directly")]
 pub(super) fn list_row_two_line(

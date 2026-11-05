@@ -662,7 +662,7 @@ impl ThreadsUi {
         view = view.child(
             div()
                 .pt(components::tokens::SPACE_4)
-                .child(self.knowledge_panel(cx)),
+                .child(self.knowledge_panel(true, cx)),
         );
         page_frame("home-content", PAGE_WIDTH, self.inbox_compact(), view)
             .test_support()
