@@ -4947,7 +4947,13 @@ gpui_kit::assets::icon_assets!(
         Italic,
         List,
         TextQuote,
-        Trash
+        Trash,
+        CheckCheck,
+        Circle,
+        Clock,
+        GitPullRequest,
+        Hourglass,
+        Sparkles
     ]
 );
 
@@ -5231,6 +5237,53 @@ mod presentation_tests {
                 "{path}"
             );
         }
+    }
+
+    /// Every icon variant named in the desktop or writing sources must be
+    /// served by BrnAssets; an unbundled icon paints as a blank square.
+    #[test]
+    fn every_icon_named_in_source_is_bundled() {
+        let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        let mut used = std::collections::BTreeSet::new();
+        for dir in [manifest.join("src"), manifest.join("../brn-writing-ui/src")] {
+            let mut pending = vec![dir];
+            while let Some(dir) = pending.pop() {
+                for entry in std::fs::read_dir(&dir).unwrap() {
+                    let path = entry.unwrap().path();
+                    if path.is_dir() {
+                        pending.push(path);
+                    } else if path.extension().is_some_and(|ext| ext == "rs") {
+                        let text = std::fs::read_to_string(&path).unwrap();
+                        for (index, _) in text.match_indices("IconName::") {
+                            let name: String = text[index + "IconName::".len()..]
+                                .chars()
+                                .take_while(char::is_ascii_alphanumeric)
+                                .collect();
+                            if name.starts_with(|c: char| c.is_ascii_uppercase()) && name != "ALL" {
+                                used.insert(name);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        assert!(!used.is_empty());
+        let mut missing = Vec::new();
+        for name in &used {
+            let icon = IconName::ALL
+                .iter()
+                .find(|icon| format!("{icon:?}") == *name)
+                .unwrap_or_else(|| panic!("unknown icon {name}"));
+            if !BrnAssets
+                .load(&icon.path())
+                .ok()
+                .flatten()
+                .is_some_and(|svg| !svg.is_empty())
+            {
+                missing.push(name.clone());
+            }
+        }
+        assert!(missing.is_empty(), "add to BrnIcons: {missing:?}");
     }
 
     #[test]
