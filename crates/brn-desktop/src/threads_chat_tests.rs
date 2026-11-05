@@ -1592,6 +1592,34 @@ fn command_enter_in_the_composer_queues_exactly_once(cx: &mut TestAppContext) {
     });
 }
 
+/// CHAT-02: a refused send leaves the draft in its chat, posts nothing and
+/// names the retry; the composer clears only after the service accepts.
+#[gpui_kit::test]
+fn a_refused_send_keeps_the_text_and_names_the_retry(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |workspace, thread, _| {
+        workspace.archive_chat("archive:test", thread).unwrap();
+    });
+    let before = cx.read(|cx| f.view.read(cx).workspace.messages(&f.thread).unwrap().len());
+    update(cx, &f, |view, window, cx| {
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("Keep this draft", window, cx)
+        });
+        view.ask(window, cx);
+    });
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.composer.read(cx).value().as_ref(), "Keep this draft");
+        assert!(view.worker.is_none());
+        assert_eq!(view.workspace.messages(&f.thread).unwrap().len(), before);
+        let notice = view.notice.text();
+        assert!(notice.starts_with("Could not send: "), "{notice}");
+        assert!(
+            notice.ends_with("Your text is preserved; Send again to retry."),
+            "{notice}"
+        );
+    });
+}
+
 /// Waiting messages reorder with Move up / Move down controls (no drag),
 /// and editing one keeps the composer's own draft: it comes back after
 /// Save queued and after Cancel edit.

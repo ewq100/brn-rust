@@ -419,7 +419,15 @@ impl ThreadsUi {
                     self.dispatch_next(cx);
                 }
             }
-            Err(e) => self.fail(format!("{e}. Your composer text is preserved.")),
+            Err(e) => self.fail(format!(
+                "Could not {}: {e}. Your text is preserved; {} again to retry.",
+                if edited {
+                    "save the queued message"
+                } else {
+                    "queue"
+                },
+                if edited { "Save queued" } else { "Queue" },
+            )),
         }
         cx.notify();
     }

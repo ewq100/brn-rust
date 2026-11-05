@@ -2189,7 +2189,9 @@ impl ThreadsUi {
                 }
                 self.refresh();
             }
-            Err(error) => self.fail(format!("Could not send: {error}. Your text is preserved.")),
+            Err(error) => self.fail(format!(
+                "Could not send: {error}. Your text is preserved; Steer again to retry."
+            )),
         }
         cx.notify();
     }
@@ -2239,7 +2241,9 @@ impl ThreadsUi {
                 self.chat = ChatTarget::Thread(thread.clone());
                 self.start_run(prompt, thread, vec![], owner_request, cx);
             }
-            Err(e) => self.fail(format!("{e}. Your text is preserved.")),
+            Err(e) => self.fail(format!(
+                "Could not send: {e}. Your text is preserved; Send again to retry."
+            )),
         }
         self.refresh();
         cx.notify();
