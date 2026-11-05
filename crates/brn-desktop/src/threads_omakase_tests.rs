@@ -279,9 +279,12 @@ fn layouts_resize_swap_maximize_and_tile_menu_work_by_mouse_and_keys(cx: &mut Te
 }
 
 #[gpui_kit::test]
-fn themes_switch_from_settings_and_launcher_and_wait_for_running_work(cx: &mut TestAppContext) {
+fn appearance_switches_from_settings_and_launcher_without_fencing_runs(cx: &mut TestAppContext) {
     let f = fixture(cx, |_| {});
-    assert_eq!(theme::pal(), ThemeId::Sammal.palette());
+    // A fresh workspace defaults to System, which resolves to Light against the
+    // test window's (light) OS appearance (THEME-01).
+    assert_eq!(cx.read(|cx| f.view.read(cx).appearance), Appearance::System);
+    assert_eq!(theme::pal(), ThemeId::Light.palette());
     // Owner decision: no theme control in the status bar or its Layout menu.
     on_window(cx, &f, |window, _| {
         assert!(window.try_find("status-theme").is_none());
@@ -303,86 +306,166 @@ fn themes_switch_from_settings_and_launcher_and_wait_for_running_work(cx: &mut T
         }
     });
     press(cx, &f, "escape");
+    // The launcher reaches a legacy palette by name; "raba" matches its command.
     press(cx, &f, "cmd-k");
     on_window(cx, &f, |window, cx| window.input("raba", cx));
     press(cx, &f, "enter");
     cx.read(|cx| {
         let view = f.view.read(cx);
+        assert_eq!(view.appearance, Appearance::Legacy(ThemeId::Raba));
         assert_eq!(view.theme, ThemeId::Raba);
-        assert!(!view.theme_pending);
         assert_eq!(
-            view.workspace.settings().unwrap().theme.as_deref(),
-            Some("raba")
+            view.workspace.appearance().unwrap().as_deref(),
+            Some("raba"),
+            "saved at once through the presentation path"
         );
         assert!(!view.launcher_open);
     });
     assert_eq!(theme::pal().accent, 0xdf6d66);
+    // A primary choice from the launcher: Light.
     press(cx, &f, "cmd-k");
-    on_window(cx, &f, |window, cx| window.input("paber", cx));
+    on_window(cx, &f, |window, cx| window.input("light", cx));
     press(cx, &f, "enter");
-    assert_eq!(cx.read(|cx| f.view.read(cx).theme), ThemeId::Paber);
-    assert!(!cx.read(|cx| f.view.read(cx).launcher_open));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.appearance, Appearance::Light);
+        assert_eq!(view.theme, ThemeId::Light);
+        assert!(!view.launcher_open);
+    });
     update(cx, &f, |view, _, cx| {
         focus_tests::settings(view, SettingsSection::General, cx)
     });
     on_window(cx, &f, |window, _| {
         assert!(window.find("settings-general").visible());
+        // The primary System/Light/Dark segments are present and reachable.
+        assert!(window.find("appearance-system").visible());
+        assert!(window.find("appearance-light").visible());
+        assert!(window.find("appearance-dark").visible());
     });
+    // The legacy palettes live behind the Advanced disclosure.
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("settings-theme-virmalised").is_none());
+    });
+    click(cx, &f, "appearance-advanced-toggle");
     click(cx, &f, "settings-theme-virmalised");
     assert_eq!(theme::pal(), ThemeId::Virmalised.palette());
     cx.read(|cx| {
         let view = f.view.read(cx);
+        assert_eq!(view.appearance, Appearance::Legacy(ThemeId::Virmalised));
         assert_eq!(view.theme, ThemeId::Virmalised);
-        assert!(!view.theme_pending, "saved at once while no work runs");
         assert_eq!(
-            view.workspace.settings().unwrap().theme.as_deref(),
+            view.workspace.appearance().unwrap().as_deref(),
             Some("virmalised")
         );
     });
 
-    // A working run is bound to the Settings version, so saving waits.
+    // A working run is bound to the Settings version. Appearance now persists
+    // through the non-fencing presentation path, so saving it while a run is
+    // Working saves immediately and does NOT interrupt the run (THEME-02).
     let thread = update(cx, &f, |view, _, _| {
         view.workspace.new_thread("Busy").unwrap().id
     });
     let run = update(cx, &f, |view, _, _| {
         record_run(&mut view.workspace, &thread, RunState::Working)
     });
-    click(cx, &f, "settings-theme-laanemeri");
+    click(cx, &f, "appearance-dark");
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert_eq!(view.theme, ThemeId::Laanemeri, "applied immediately");
-        assert!(view.theme_pending);
+        assert_eq!(view.appearance, Appearance::Dark, "applied immediately");
+        assert_eq!(view.theme, ThemeId::Dark);
         assert_eq!(
-            view.workspace.settings().unwrap().theme.as_deref(),
-            Some("virmalised")
+            view.workspace.appearance().unwrap().as_deref(),
+            Some("dark"),
+            "saved at once, even with a run Working"
         );
-        assert!(view.notice.text().contains("once no work is running"));
-        assert!(matches!(
-            view.workspace.store.record(&run).unwrap().unwrap().data,
-            RecordData::Run(Run {
-                state: RunState::Working,
-                ..
-            })
-        ));
-    });
-    update(cx, &f, |view, window, cx| {
-        view.resolve_thread(&thread, cx);
-        view.choose_theme(ThemeId::Laanemeri, window, cx);
-    });
-    cx.read(|cx| {
-        let view = f.view.read(cx);
-        assert!(!view.theme_pending);
-        assert_eq!(
-            view.workspace.settings().unwrap().theme.as_deref(),
-            Some("laanemeri")
+        assert!(
+            matches!(
+                view.workspace.store.record(&run).unwrap().unwrap().data,
+                RecordData::Run(Run {
+                    state: RunState::Working,
+                    ..
+                })
+            ),
+            "the working run is not fenced by an appearance change"
         );
     });
-    // Reopening the workspace restores the saved theme.
+    update(cx, &f, |view, _, cx| view.resolve_thread(&thread, cx));
+    // Reopening the workspace restores the saved appearance preference.
     let reopened = Workspace::open(&f.data).unwrap();
     assert_eq!(
-        ThemeId::from_key(reopened.settings().unwrap().theme.as_deref()),
-        ThemeId::Laanemeri
+        Appearance::from_key(reopened.appearance().unwrap().as_deref()),
+        Appearance::Dark
     );
+}
+
+/// THEME-01/THEME-03: a live OS appearance change re-applies the palette only
+/// while the preference is System, and no appearance change (preference or OS)
+/// disturbs the composer's unsent text.
+#[gpui_kit::test]
+fn live_os_appearance_reapplies_only_under_system_and_keeps_composer_text(cx: &mut TestAppContext) {
+    let f = fixture(cx, |_| {});
+    // Unsent composer text must survive every appearance change below.
+    update(cx, &f, |view, window, cx| {
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("Unsent draft · õun", window, cx)
+        });
+    });
+    // Default System resolves to Light against the (light) test window.
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.appearance, Appearance::System);
+        assert_eq!(view.theme, ThemeId::Light);
+    });
+
+    // The OS turns dark while System is selected: the palette re-resolves to
+    // the dark tokens, and the draft is untouched.
+    update(cx, &f, |view, window, cx| {
+        view.simulate_os_appearance(true, window, cx)
+    });
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.theme, ThemeId::Dark, "System follows the OS to dark");
+        assert_eq!(view.appearance, Appearance::System, "preference unchanged");
+        assert_eq!(
+            view.composer.read(cx).value().as_ref(),
+            "Unsent draft · õun"
+        );
+    });
+    assert_eq!(theme::pal(), ThemeId::Dark.palette());
+
+    // The OS turns light again: System follows back.
+    update(cx, &f, |view, window, cx| {
+        view.simulate_os_appearance(false, window, cx)
+    });
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).theme,
+            ThemeId::Light,
+            "System follows back to light"
+        );
+    });
+
+    // An explicit Light override, then an OS flip to dark: the explicit choice
+    // ignores the OS and the palette stays Light. The draft still survives.
+    update(cx, &f, |view, window, cx| {
+        view.choose_appearance(Appearance::Light, window, cx)
+    });
+    update(cx, &f, |view, window, cx| {
+        view.simulate_os_appearance(true, window, cx)
+    });
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(
+            view.theme,
+            ThemeId::Light,
+            "an explicit Light choice does not follow the OS to dark"
+        );
+        assert_eq!(view.appearance, Appearance::Light);
+        assert_eq!(
+            view.composer.read(cx).value().as_ref(),
+            "Unsent draft · õun"
+        );
+    });
 }
 
 #[gpui_kit::test]
@@ -1559,8 +1642,16 @@ fn companion_focus_and_theme_changes_keep_navigation_readable(cx: &mut TestAppCo
         );
     }
     for theme in ThemeId::ALL {
+        // Reach each palette through the appearance preference: the neutral
+        // pair as the explicit Light/Dark overrides, the earlier palettes as
+        // legacy choices.
+        let appearance = match theme {
+            ThemeId::Light => Appearance::Light,
+            ThemeId::Dark => Appearance::Dark,
+            other => Appearance::Legacy(other),
+        };
         update(cx, &f, |view, window, cx| {
-            view.choose_theme(theme, window, cx);
+            view.choose_appearance(appearance, window, cx);
             let palette = theme.palette();
             // Ghost controls read these toolkit channels rather than button_foreground.
             assert_eq!(
@@ -1956,7 +2047,7 @@ fn launcher_keeps_a_matching_command_ahead_of_chat_messages(cx: &mut TestAppCont
             .post_message(&chat, "Raba walk on Saturday")
             .unwrap();
     });
-    let command = lists::Command::Theme(ThemeId::Raba).label();
+    let command = lists::Command::Theme(Appearance::Legacy(ThemeId::Raba)).label();
     press(cx, &f, "cmd-k");
     on_window(cx, &f, |window, cx| window.input("raba", cx));
     on_window(cx, &f, |window, _| {

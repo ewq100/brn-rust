@@ -100,7 +100,7 @@ use state::{
     outcome_message, owner_message_after_latest_run, recovery, refresh_hint, review_label,
     review_summary, save_message,
 };
-use theme::{ThemeId, pal};
+use theme::{Appearance, ThemeId, pal};
 use worker::{EditNoteTarget, Worker, WorkerBatchEnd, WorkerEvent};
 
 #[cfg(all(test, feature = "native-test-support"))]
@@ -274,6 +274,17 @@ fn top_bar_window_options() -> WindowOptions {
     }
     options
 }
+/// Whether the window's current OS appearance is dark. GPUI reports per-window
+/// appearance (`Dark`/`VibrantDark` are dark); this is the System preference's
+/// only input and the value `observe_window_appearance` delivers live changes
+/// for. Reading the window keeps the resolution correct before the first frame
+/// and after an OS switch.
+fn os_dark(window: &Window) -> bool {
+    matches!(
+        window.appearance(),
+        gpui_kit::WindowAppearance::Dark | gpui_kit::WindowAppearance::VibrantDark
+    )
+}
 /// Tone of an applied change's notice: refresh follow-ups need attention.
 fn apply_tone(outcome: &ApplyOutcome) -> Tone {
     match outcome {
@@ -388,8 +399,11 @@ struct ThreadsUi {
     tile_scroll: gpui_kit::ScrollHandle,
     tile_reveal: Option<(Vec<TileKind>, Option<TileKind>)>,
     chat: ChatTarget,
+    /// The owner's appearance preference (System/Light/Dark/legacy).
+    appearance: Appearance,
+    /// The palette currently painted; resolved from `appearance` and, when the
+    /// preference is System, the live OS window appearance.
     theme: ThemeId,
-    theme_pending: bool,
     settings_section: SettingsSection,
     skill_view: skills_view::SkillView,
     mcp_view: mcp_view::McpView,
@@ -489,7 +503,15 @@ impl ThreadsUi {
             .settings()
             .expect("workspace settings were checked before opening the window");
         let provider_form = ProviderForm::from_settings(&settings);
-        let theme = ThemeId::from_key(settings.theme.as_deref());
+        // Appearance is host presentation state, saved outside the versioned
+        // Settings record. Adopt a legacy `settings.theme` once so an owner's
+        // earlier choice carries over, then resolve the preference against the
+        // live OS appearance and apply it before the first normal frame so a
+        // dark-mode launch never flashes the light palette (THEME-01, THEME-04).
+        let _ = workspace.adopt_legacy_theme();
+        let appearance = Appearance::from_key(workspace.appearance().ok().flatten().as_deref());
+        let os_dark = os_dark(window);
+        let theme = appearance.resolve(os_dark);
         theme::apply(theme, cx);
         let composer = cx.new(|cx| {
             EditorState::new(window, cx)
@@ -641,6 +663,13 @@ impl ThreadsUi {
                     _ => {}
                 },
             ),
+            // Live OS appearance: re-resolve and re-apply when the preference
+            // is System (THEME-01). An explicit Light/Dark/legacy choice ignores
+            // the OS, so the observer leaves it untouched. Theme changes are
+            // presentation only and never touch run/editor/draft state (THEME-03).
+            cx.observe_window_appearance(window, |this, window, cx| {
+                this.follow_os_appearance(window, cx);
+            }),
         ];
         let poll = cx.spawn_in(window, async move |this, cx| {
             loop {
@@ -670,8 +699,8 @@ impl ThreadsUi {
             tile_scroll: gpui_kit::ScrollHandle::new(),
             tile_reveal: None,
             chat: ChatTarget::New,
+            appearance,
             theme,
-            theme_pending: false,
             settings_section: SettingsSection::General,
             skill_view: skills_view::SkillView::default(),
             mcp_view: mcp_view::McpView::new(window, cx),
@@ -2241,11 +2270,45 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
-    fn choose_theme(&mut self, theme: ThemeId, window: &mut Window, cx: &mut Context<Self>) {
+    /// Choose the owner's appearance preference (System/Light/Dark or a legacy
+    /// palette). The resolved palette applies immediately to every BRN surface;
+    /// the preference persists at once through the non-fencing presentation
+    /// path, so a working run is never cancelled or interrupted and we never
+    /// report a save that has not happened (THEME-02). Editor text, drafts,
+    /// selection, focus, scroll, proposals and run state are untouched
+    /// (THEME-03).
+    fn choose_appearance(
+        &mut self,
+        appearance: Appearance,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.appearance = appearance;
+        self.apply_resolved_theme(os_dark(window), window, cx);
+        if let Err(error) = self.workspace.save_appearance(appearance.key()) {
+            // The palette already applies; only the durable save failed.
+            self.fail(format!("Appearance applied but not saved: {error}"));
+        }
+    }
+    /// Re-resolve the current preference against the live OS appearance and
+    /// re-apply when it changed. Only System follows the OS; any explicit
+    /// choice is left as-is so an OS flip cannot override it.
+    fn follow_os_appearance(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.appearance.follows_os() {
+            self.apply_resolved_theme(os_dark(window), window, cx);
+        }
+    }
+    /// Resolve the preference to a palette for the given OS appearance, apply it
+    /// to the toolkit and BRN surfaces, and refresh dependent caches (note
+    /// marks, the diff view) so Markdown, selection and review colors move
+    /// together (THEME-04). A no-op when the palette is unchanged.
+    fn apply_resolved_theme(&mut self, os_dark: bool, window: &mut Window, cx: &mut Context<Self>) {
+        let theme = self.appearance.resolve(os_dark);
+        if self.theme == theme {
+            return;
+        }
         self.theme = theme;
         theme::apply(theme, cx);
-        self.theme_pending = self.settings.theme.as_deref() != Some(theme.key());
-        self.persist_theme();
         self.sync_note_marks(cx);
         if self.writing.review.is_some() {
             self.sync_diff(window, cx);
@@ -2253,35 +2316,19 @@ impl ThreadsUi {
         window.refresh();
         cx.notify();
     }
-    /// Settings writes would stop running invocations, so the core defers this
-    /// while any run is working; it is retried when local work finishes.
-    fn persist_theme(&mut self) {
-        if !self.theme_pending {
-            return;
-        }
-        if self
-            .worker
-            .as_ref()
-            .is_some_and(|worker| worker.kind() == WorkerKind::Run)
-        {
-            // The theme already applies; only saving waits, so this is not a warning.
-            self.inform(format!(
-                "{} applied. It is saved for next time when the current work finishes.",
-                self.theme.label()
-            ));
-            return;
-        }
-        match self.workspace.choose_theme(self.theme.key()) {
-            Ok(ApplyOutcome::Applied(_)) => {
-                self.theme_pending = false;
-                self.refresh();
-            }
-            Ok(ApplyOutcome::Deferred { .. }) => self.inform(format!(
-                "{} applied. It is saved for next time once no work is running.",
-                self.theme.label()
-            )),
-            Ok(outcome) => self.report_outcome(&outcome),
-            Err(error) => self.fail(error.to_string()),
+    /// Test seam: the public GPUI test surface cannot flip a window's OS
+    /// appearance (`simulate_appearance_change` is crate-private), so tests
+    /// exercise the live-OS path by driving the same resolution the
+    /// `observe_window_appearance` callback runs. Only System re-applies.
+    #[cfg(all(test, feature = "native-test-support"))]
+    fn simulate_os_appearance(
+        &mut self,
+        os_dark: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.appearance.follows_os() {
+            self.apply_resolved_theme(os_dark, window, cx);
         }
     }
     /// Pills change the explicit Settings through the existing configure path.
@@ -2649,7 +2696,7 @@ impl ThreadsUi {
             lists::Command::Rewrite => self.rewrite_note(window, cx),
             lists::Command::Save => self.save(window, cx),
             lists::Command::Layout(preset) => self.apply_layout(preset, window, cx),
-            lists::Command::Theme(theme) => self.choose_theme(theme, window, cx),
+            lists::Command::Theme(appearance) => self.choose_appearance(appearance, window, cx),
             lists::Command::OpenTile(kind) => {
                 self.show_tile(kind, window, cx);
             }
@@ -3060,7 +3107,9 @@ impl ThreadsUi {
             return;
         }
         if end == WorkerBatchEnd::Finished {
-            self.persist_theme();
+            // Appearance now persists immediately through the non-fencing
+            // presentation path, so there is no deferred theme save to retry
+            // when a run finishes (THEME-02).
             if let Some((prompt, thread)) = terminal_continuation {
                 // Launch only after draining the complete old batch, without navigation or grants.
                 self.start_run(prompt, thread, vec![], None, cx);

@@ -56,7 +56,67 @@ fn run_state(app: &Workspace, run: &str) -> RunState {
 }
 
 #[test]
-fn theme_waits_for_working_runs_and_never_stops_them() {
+fn appearance_persists_without_fencing_a_working_run() {
+    let (_root, mut app) = workspace();
+    let thread = app.new_thread("Synthetic appearance witness").unwrap().id;
+    let run = working_run(&mut app, &thread);
+    let before = app.settings().unwrap();
+
+    // No preference saved yet: the host reads None (its System default).
+    assert_eq!(app.appearance().unwrap(), None);
+    // Saving the appearance preference persists immediately through the
+    // presentation path, even while a run is Working. It does not fence or
+    // interrupt the run, and it does not touch the versioned Settings record
+    // (THEME-02).
+    app.save_appearance("dark").unwrap();
+    assert_eq!(app.appearance().unwrap().as_deref(), Some("dark"));
+    assert_eq!(
+        run_state(&app, &run),
+        RunState::Working,
+        "an appearance change never stops a working run"
+    );
+    assert_eq!(
+        app.settings().unwrap(),
+        before,
+        "appearance lives outside the Settings record; nothing there changed"
+    );
+
+    // The preference round-trips and overwrites cleanly.
+    app.save_appearance("virmalised").unwrap();
+    assert_eq!(app.appearance().unwrap().as_deref(), Some("virmalised"));
+    // An invalid key is refused and leaves the saved preference intact.
+    assert!(app.save_appearance("Not A Theme").is_err());
+    assert_eq!(app.appearance().unwrap().as_deref(), Some("virmalised"));
+
+    // Reopening the workspace restores the saved preference.
+    app.resolve_thread(&thread).unwrap();
+    drop(app);
+}
+
+#[test]
+fn legacy_settings_theme_is_adopted_once_as_the_appearance_preference() {
+    let (_root, mut app) = workspace();
+    // An owner who saved a theme through the earlier Settings path keeps it:
+    // the first adoption carries it into the presentation preference, and it
+    // is never reset.
+    assert!(matches!(
+        app.choose_theme("raba").unwrap(),
+        ApplyOutcome::Applied(_)
+    ));
+    assert_eq!(app.settings().unwrap().theme.as_deref(), Some("raba"));
+    assert_eq!(app.appearance().unwrap(), None, "not adopted until asked");
+    assert_eq!(app.adopt_legacy_theme().unwrap().as_deref(), Some("raba"));
+    assert_eq!(app.appearance().unwrap().as_deref(), Some("raba"));
+    // Adoption is one-time: it never overwrites an existing preference.
+    app.save_appearance("dark").unwrap();
+    assert_eq!(app.adopt_legacy_theme().unwrap(), None);
+    assert_eq!(app.appearance().unwrap().as_deref(), Some("dark"));
+}
+
+#[test]
+fn choose_theme_still_defers_the_settings_record_write_while_working() {
+    // The legacy Settings-record theme write keeps its defer-while-Working
+    // contract; it remains available for callers that want a settings revision.
     let (_root, mut app) = workspace();
     let thread = app.new_thread("Synthetic theme witness").unwrap().id;
     let run = working_run(&mut app, &thread);
@@ -79,13 +139,6 @@ fn theme_waits_for_working_runs_and_never_stops_them() {
     let mut unchanged = saved.clone();
     unchanged.theme = None;
     assert_eq!(unchanged, before, "only the theme changed");
-
-    // An ordinary configuration keeps the separately chosen theme.
-    let mut configured = app.settings().unwrap();
-    configured.theme = None;
-    configured.effort = "high".into();
-    app.configure(configured).unwrap();
-    assert_eq!(app.settings().unwrap().theme.as_deref(), Some("raba"));
     assert!(app.choose_theme("Not A Theme").is_err());
 }
 

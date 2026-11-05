@@ -18,6 +18,93 @@ pub enum ThemeId {
     Virmalised,
     Paber,
 }
+/// The owner's appearance preference (spec §9.1, THEME-01). `System` is a BRN
+/// preference resolved against the operating-system appearance; the toolkit
+/// has no `ThemeMode::System`. `Light` and `Dark` are explicit overrides. The
+/// five earlier palettes stay reachable as an advanced choice under `Legacy`.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Appearance {
+    /// Follow the operating-system light/dark appearance (the new default).
+    #[default]
+    System,
+    /// Always the neutral light tokens.
+    Light,
+    /// Always the neutral dark tokens.
+    Dark,
+    /// One of the earlier named palettes, chosen explicitly.
+    Legacy(ThemeId),
+}
+impl Appearance {
+    /// The three primary choices, in presentation order.
+    pub const PRIMARY: [Self; 3] = [Self::System, Self::Light, Self::Dark];
+    /// The persisted key stored in the presentation preference. Primary keys
+    /// are `system`/`light`/`dark`; a legacy choice persists its palette key.
+    pub fn key(self) -> &'static str {
+        match self {
+            Self::System => "system",
+            Self::Light => "light",
+            Self::Dark => "dark",
+            Self::Legacy(theme) => theme.key(),
+        }
+    }
+    /// Parse a persisted key. Absent or unknown values resolve to `System`
+    /// (the new default) without discarding a saved owner choice we recognize.
+    /// `"light"`/`"dark"` are the primary overrides; a recognized legacy key
+    /// keeps working as a `Legacy` choice so an explicitly saved palette is
+    /// never silently reset.
+    pub fn from_key(key: Option<&str>) -> Self {
+        match key {
+            Some("system") | None => Self::System,
+            Some("light") => Self::Light,
+            Some("dark") => Self::Dark,
+            Some(other) => ThemeId::LEGACY
+                .into_iter()
+                .find(|theme| theme.key() == other)
+                .map(Self::Legacy)
+                .unwrap_or_default(),
+        }
+    }
+    /// The short label for menus and settings rows.
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::System => "System",
+            Self::Light => "Light",
+            Self::Dark => "Dark",
+            Self::Legacy(theme) => theme.label(),
+        }
+    }
+    /// A one-line description for launcher rows and tooltips.
+    pub fn description(self) -> &'static str {
+        match self {
+            Self::System => "follow the operating system",
+            Self::Light => "neutral light",
+            Self::Dark => "neutral dark",
+            Self::Legacy(theme) => theme.description(),
+        }
+    }
+    /// Whether this preference follows the OS appearance (so a live OS change
+    /// must re-apply). Only `System` does.
+    pub fn follows_os(self) -> bool {
+        matches!(self, Self::System)
+    }
+    /// Resolve to the palette to paint. `os_dark` is the current operating
+    /// system appearance, consulted only for `System`.
+    pub fn resolve(self, os_dark: bool) -> ThemeId {
+        match self {
+            Self::System => {
+                if os_dark {
+                    ThemeId::Dark
+                } else {
+                    ThemeId::Light
+                }
+            }
+            Self::Light => ThemeId::Light,
+            Self::Dark => ThemeId::Dark,
+            Self::Legacy(theme) => theme,
+        }
+    }
+}
+
 impl ThemeId {
     pub const ALL: [Self; 7] = [
         Self::Light,
@@ -451,7 +538,9 @@ pub fn contrast(a: u32, b: u32) -> f32 {
 }
 
 thread_local! {
-    static CURRENT: Cell<ThemeId> = const { Cell::new(ThemeId::Sammal) };
+    // Fallback only: `apply` runs before the first frame. The new default
+    // preference is System, which resolves to Light, so start there.
+    static CURRENT: Cell<ThemeId> = const { Cell::new(ThemeId::Light) };
 }
 
 /// Colors of the theme applied in this UI thread.
@@ -738,5 +827,61 @@ mod tests {
         assert_eq!(ThemeId::from_key(Some("neon")), ThemeId::Sammal);
         assert_eq!(ThemeId::Raba.palette().accent, 0xdf6d66);
         assert_eq!(ThemeId::Sammal.palette().accent, 0x416438);
+    }
+
+    #[test]
+    fn appearance_defaults_to_system_and_round_trips_every_key() {
+        // Absent and unknown preferences both become System (the new default),
+        // without discarding a recognized saved choice.
+        assert_eq!(Appearance::from_key(None), Appearance::System);
+        assert_eq!(Appearance::from_key(Some("system")), Appearance::System);
+        assert_eq!(Appearance::from_key(Some("neon")), Appearance::System);
+        assert_eq!(Appearance::default(), Appearance::System);
+        assert_eq!(Appearance::from_key(Some("light")), Appearance::Light);
+        assert_eq!(Appearance::from_key(Some("dark")), Appearance::Dark);
+        // Every primary and legacy key survives a round trip through `key`.
+        for appearance in Appearance::PRIMARY {
+            assert_eq!(Appearance::from_key(Some(appearance.key())), appearance);
+        }
+        for theme in ThemeId::LEGACY {
+            let legacy = Appearance::Legacy(theme);
+            assert_eq!(legacy.key(), theme.key());
+            assert_eq!(Appearance::from_key(Some(theme.key())), legacy);
+        }
+    }
+
+    #[test]
+    fn an_explicitly_saved_legacy_choice_is_not_reset() {
+        // A legacy key the owner saved earlier keeps resolving to that palette,
+        // never silently to System.
+        let saved = Appearance::from_key(Some("virmalised"));
+        assert_eq!(saved, Appearance::Legacy(ThemeId::Virmalised));
+        assert_eq!(saved.resolve(true), ThemeId::Virmalised);
+        assert_eq!(saved.resolve(false), ThemeId::Virmalised);
+        // The neutral token palettes are not offered as legacy keys.
+        assert_eq!(Appearance::from_key(Some("light")), Appearance::Light);
+        assert_ne!(
+            Appearance::from_key(Some("light")),
+            Appearance::Legacy(ThemeId::Light)
+        );
+    }
+
+    #[test]
+    fn system_resolves_against_the_operating_system_appearance() {
+        // System is the only preference that consults the OS, and it resolves
+        // to the neutral token pair matching the OS appearance.
+        assert_eq!(Appearance::System.resolve(false), ThemeId::Light);
+        assert_eq!(Appearance::System.resolve(true), ThemeId::Dark);
+        assert!(Appearance::System.follows_os());
+        // Explicit overrides ignore the OS appearance entirely.
+        for (appearance, expected) in [
+            (Appearance::Light, ThemeId::Light),
+            (Appearance::Dark, ThemeId::Dark),
+            (Appearance::Legacy(ThemeId::Raba), ThemeId::Raba),
+        ] {
+            assert_eq!(appearance.resolve(false), expected);
+            assert_eq!(appearance.resolve(true), expected);
+            assert!(!appearance.follows_os());
+        }
     }
 }

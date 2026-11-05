@@ -23,6 +23,9 @@ pub(super) fn row(
     components::list_row(id, label, meta, selected)
 }
 
+/// Session-only disclosure key for the advanced (legacy) palette list.
+const APPEARANCE_ADVANCED: &str = "appearance-advanced";
+
 /// Pages keep their content in one column of at most 720 px.
 pub(super) const PAGE_WIDTH: f32 = 720.;
 /// Settings forms are narrower.
@@ -1928,10 +1931,39 @@ impl ThreadsUi {
     }
     fn general_settings(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
-        let mut themes = group("settings-themes");
-        for theme in ThemeId::ALL {
+        // Primary choice: System / Light / Dark as a keyboard-reachable
+        // segmented control. The selected segment is marked by state, not by
+        // colour alone, and each segment carries an accessible name (spec §9,
+        // AC-18). System is a BRN preference resolved against the OS.
+        let primary = components::segmented(
+            SharedString::from("settings-appearance"),
+            [
+                (Appearance::System, "appearance-system", "System"),
+                (Appearance::Light, "appearance-light", "Light"),
+                (Appearance::Dark, "appearance-dark", "Dark"),
+            ]
+            .into_iter()
+            .map(|(value, id, label)| {
+                button(SharedString::from(id))
+                    .label(label)
+                    .selected(self.appearance == value)
+                    .accessibility_label(format!("{label}: {}", value.description()))
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.choose_appearance(value, window, cx)
+                    }))
+            })
+            .collect(),
+        );
+
+        // Advanced palettes: the five earlier themes, under a disclosure so
+        // they stay out of the primary choice. Each row names the palette and
+        // shows its swatches; the active legacy choice is marked by state.
+        let advanced_open = self.open_sections.contains(APPEARANCE_ADVANCED);
+        let mut advanced = group("settings-legacy-palettes");
+        for theme in ThemeId::LEGACY {
             let colors = theme.palette();
-            let selected = self.theme == theme;
+            let value = Appearance::Legacy(theme);
+            let selected = self.appearance == value;
             let swatches = div().flex().flex_shrink_0().gap_1().children(
                 [
                     colors.paper,
@@ -1951,40 +1983,54 @@ impl ThreadsUi {
                         .bg(rgb(color))
                 }),
             );
-            themes =
-                themes.child(
-                    button(format!("settings-theme-{}", theme.key()))
-                        .ghost()
-                        .w_full()
-                        .h(components::tokens::FORM_CONTROL)
-                        .selected(selected)
-                        .accessibility_label(theme.label())
-                        .tooltip(theme.description())
-                        .child(div().w(px(110.)).flex_shrink_0().child(theme.label()))
-                        .child(swatches)
-                        .child(
-                            div()
-                                .flex_1()
-                                .min_w_0()
-                                .truncate()
-                                .text_size(SMALL_TEXT)
-                                .text_color(rgb(if selected { p.ink } else { p.muted }))
-                                .child(theme.description()),
-                        )
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.choose_theme(theme, window, cx)
-                        })),
-                );
+            advanced = advanced.child(
+                button(format!("settings-theme-{}", theme.key()))
+                    .ghost()
+                    .w_full()
+                    .h(components::tokens::FORM_CONTROL)
+                    .selected(selected)
+                    .accessibility_label(format!("{} (legacy palette)", theme.label()))
+                    .tooltip(theme.description())
+                    .child(div().w(px(110.)).flex_shrink_0().child(theme.label()))
+                    .child(swatches)
+                    .child(
+                        div()
+                            .flex_1()
+                            .min_w_0()
+                            .truncate()
+                            .text_size(SMALL_TEXT)
+                            .text_color(rgb(if selected { p.ink } else { p.muted }))
+                            .child(theme.description()),
+                    )
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.choose_appearance(value, window, cx)
+                    })),
+            );
         }
+        let advanced_count = ThemeId::LEGACY.len();
+        let mut advanced_section = column().id("settings-advanced-palettes").gap_2().child(
+            div()
+                .flex()
+                .items_center()
+                .justify_between()
+                .gap_3()
+                .child(section("Advanced palettes"))
+                .child(self.disclosure(APPEARANCE_ADVANCED, advanced_count, cx)),
+        );
+        if advanced_open {
+            advanced_section = advanced_section.child(advanced.test_support());
+        }
+
         column()
             .id("settings-general")
             .gap_2()
             .child(components::section_header(
-                "Theme",
+                "Appearance",
                 None,
                 Some(metadata("Also in ⌘K.").into_any_element()),
             ))
-            .child(themes)
+            .child(group("settings-appearance-primary").gap_2().child(primary))
+            .child(advanced_section)
             .child(section("Keys and mouse"))
             .child(
                 div().child(
