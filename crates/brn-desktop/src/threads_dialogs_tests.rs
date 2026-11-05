@@ -482,7 +482,10 @@ fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAp
     });
     choose(cx, &f, "Move to project…");
     on_window(cx, &f, |window, _| {
-        assert_eq!(window.find("move-chat-0").label(), Some("Standalone chat"));
+        assert_eq!(
+            window.find("move-chat-0").label(),
+            Some("Standalone chat · current")
+        );
     });
     escape_returns(cx, &in_the_workspace);
     assert_eq!(version(cx), before, "Escape moves nothing");

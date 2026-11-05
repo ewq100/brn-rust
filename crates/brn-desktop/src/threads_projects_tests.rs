@@ -108,6 +108,21 @@ fn project_creation_move_and_settings_preserve_saved_chat_and_draft(cx: &mut Tes
     click(cx, &f, "project-knowledge-toggle");
     click(cx, &f, "project-settings-save");
     cx.read(|cx| { let ui = f.view.read(cx); let r = ui.workspace.store.record(&p).unwrap().unwrap(); assert!(matches!(r.data, RecordData::Project(p) if p.chats == [f.chat.clone()] && !p.use_brn_knowledge && p.instructions == "For beginners, in Estonian")); assert_eq!(ui.composer.read(cx).value(), "Unsent draft · õun"); });
+    // Moving again marks where the chat already is.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view
+            .update(cx, |ui, cx| ui.move_chat_dialog(&f.chat, window, cx))
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(window.find("move-chat-0").label(), Some("Standalone chat"));
+        assert_eq!(
+            window.find("move-chat-1").label(),
+            Some("Japan trip · current")
+        );
+    })
+    .unwrap();
 }
 #[gpui_kit::test]
 fn linked_document_survives_project_delete_and_trash_restore(cx: &mut TestAppContext) {

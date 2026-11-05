@@ -1124,6 +1124,8 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        // The chat's present place reads "· current" and can't be chosen.
+        let current = project_for_chat(&self.records, chat).map(|r| r.id.clone());
         let choices: Vec<_> = std::iter::once((None, "Standalone chat".to_owned()))
             .chain(
                 self.records
@@ -1131,6 +1133,15 @@ impl ThreadsUi {
                     .filter(|r| !r.archived && matches!(r.data, RecordData::Project(_)))
                     .map(|r| (Some(r.id.clone()), title(r))),
             )
+            .map(|(project, label)| {
+                let here = project == current;
+                let label = if here {
+                    format!("{label} · current")
+                } else {
+                    label
+                };
+                (project, label, here)
+            })
             .collect();
         let chat = chat.to_owned();
         let target = cx.entity().downgrade();
@@ -1139,10 +1150,10 @@ impl ThreadsUi {
         // press Space. ↵ chooses nothing.
         self.open_dialog(window, cx, move |dialog, window, cx| {
             let mut rows = div().flex().flex_col();
-            for (i, (project, label)) in choices.iter().enumerate() {
+            for (i, (project, label, here)) in choices.iter().enumerate() {
                 let (project, chat, target, error) =
                     (project.clone(), chat.clone(), target.clone(), error.clone());
-                rows = rows.child(pick_row(format!("move-chat-{i}"), label.clone()).on_click(
+                rows = rows.child(pick_row(format!("move-chat-{i}"), label.clone()).disabled(*here).on_click(
                     move |_, window, cx| {
                         let mut result = Err("This window is unavailable.".to_owned());
                         let _ = target.update(cx, |this, cx| {
