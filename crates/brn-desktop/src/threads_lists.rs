@@ -1802,4 +1802,30 @@ mod tests {
             "matched by its own title, not its project's"
         );
     }
+
+    #[test]
+    fn an_archived_article_leaves_the_library_and_search() {
+        let mut records = vec![
+            note("current", "Berth schedule", false),
+            note("old", "Berth schedule 2025", false),
+        ];
+        let activity = Activity::default();
+        let titles = |records: &[Record]| {
+            let notes = note_rows(records, &activity);
+            launcher("berth", &[], &notes, &[], &[])
+                .iter()
+                .map(LaunchItem::label)
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(titles(&records), ["Berth schedule", "Berth schedule 2025"]);
+        records[1].archived = true;
+        assert_eq!(titles(&records), ["Berth schedule"]);
+        assert_eq!(
+            note_rows(&records, &activity)
+                .iter()
+                .map(|row| row.id.as_str())
+                .collect::<Vec<_>>(),
+            ["current"]
+        );
+    }
 }
