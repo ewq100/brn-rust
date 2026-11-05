@@ -57,6 +57,12 @@ pub fn read_input_file(
     if !path.is_absolute() || max_bytes == 0 || max_bytes > brn_intake::MAX_INPUT_BYTES {
         return Err(ConversionError::Invalid);
     }
+    // Windows cannot open a directory as an ordinary file. Classify non-files
+    // consistently before opening; still validate the actual opened handle below.
+    let meta = fs::metadata(path).map_err(|_| ConversionError::Io)?;
+    if !meta.is_file() || meta.len() > max_bytes as u64 {
+        return Err(ConversionError::Budget);
+    }
     let file = fs::File::open(path).map_err(|_| ConversionError::Io)?;
     let meta = file.metadata().map_err(|_| ConversionError::Io)?;
     if !meta.is_file() || meta.len() > max_bytes as u64 {

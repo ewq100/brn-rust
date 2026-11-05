@@ -1,13 +1,21 @@
 //! Explicit, pinned asset installation. Loading a model never enters this path.
-use crate::{Error, Result, check_cancel};
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+use crate::Error;
+use crate::{Result, check_cancel};
 use sha2::{Digest, Sha256};
 use std::{
-    fs::{File, OpenOptions},
-    io::{Read, Write},
-    os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt},
-    path::{Component, Path, PathBuf},
+    io::Read,
+    path::{Path, PathBuf},
     sync::atomic::AtomicBool,
     time::Duration,
+};
+
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+use std::{
+    fs::{File, OpenOptions},
+    io::Write,
+    os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt},
+    path::Component,
 };
 
 /// `Xenova/multilingual-e5-small` (ONNX of MIT-licensed
@@ -155,6 +163,7 @@ pub fn download_model(
     progress: impl Fn(u64, u64),
 ) -> Result<ModelInstallReport> {
     check_cancel(cancel)?;
+    ensure_install_supported()?;
     // Client construction is inert. The fetch closure is called only for missing assets.
     let source = HttpSource::new(BASE_URL)?;
     install_with(target, cancel, progress, &ASSETS, |asset| {
@@ -247,6 +256,7 @@ pub(super) fn verify_bytes(asset: &Asset, bytes: &[u8]) -> Result<()> {
     hash.verify(asset.digest)
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn validate_target(target: &Path) -> Result<()> {
     if !target.is_absolute()
         || target.file_name().is_none()
@@ -269,6 +279,7 @@ fn validate_target(target: &Path) -> Result<()> {
     Ok(())
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 fn verified_existing(target: &Path, assets: &[Asset], cancel: &AtomicBool) -> Result<bool> {
     let meta = match target.symlink_metadata() {
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(false),
@@ -328,12 +339,14 @@ fn verified_existing(target: &Path, assets: &[Asset], cancel: &AtomicBool) -> Re
     }
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 struct Stage {
     path: PathBuf,
     identity: (u64, u64),
     files: Vec<(PathBuf, (u64, u64))>,
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 impl Stage {
     fn create(parent: &Path) -> Result<Self> {
         let path = parent.join(format!(".brn-model-{}", uuid::Uuid::new_v4()));
@@ -381,6 +394,7 @@ impl Stage {
     }
 }
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 pub(super) fn install_with(
     target: &Path,
     cancel: &AtomicBool,
@@ -501,7 +515,25 @@ fn install_exclusive(stage: &Path, target: &Path) -> Result<()> {
     }
 }
 
+// The installer needs checked file identities, private staging and an atomic
+// no-replace directory publication. Until an adapter provides all three, refuse
+// before creating directories, reporting progress or calling the fetch closure.
+fn ensure_install_supported() -> Result<()> {
+    if cfg!(any(target_os = "macos", target_os = "linux")) {
+        Ok(())
+    } else {
+        Err(ModelInstallError::ExclusiveInstallUnavailable.into())
+    }
+}
+
 #[cfg(not(any(target_os = "macos", target_os = "linux")))]
-fn install_exclusive(_: &Path, _: &Path) -> Result<()> {
+pub(super) fn install_with(
+    _target: &Path,
+    cancel: &AtomicBool,
+    _progress: impl FnMut(u64, u64),
+    _assets: &[Asset],
+    _fetch: impl Fn(&Asset) -> Result<Box<dyn Read>>,
+) -> Result<ModelInstallReport> {
+    check_cancel(cancel)?;
     Err(ModelInstallError::ExclusiveInstallUnavailable.into())
 }

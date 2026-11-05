@@ -41,6 +41,7 @@ fn response(value: &Value) -> MockHttpResponse {
         "text/event-stream",
     )
 }
+#[cfg(unix)]
 fn done() -> MockHttpResponse {
     MockHttpResponse::success_typed(cache_tests::final_turn(), "text/event-stream")
 }
@@ -52,6 +53,7 @@ fn setup() -> (tempfile::TempDir, ThreadRunRequest, Vec<String>) {
     let ids = history(&request, 68);
     (root, request, ids)
 }
+#[cfg(unix)]
 async fn run(request: ThreadRunRequest, http: &SequencedHttpClient) -> ThreadResult {
     run_prepared_over(
         prepare_run(request).unwrap(),
@@ -62,6 +64,7 @@ async fn run(request: ThreadRunRequest, http: &SequencedHttpClient) -> ThreadRes
     .await
     .unwrap()
 }
+#[cfg(unix)]
 fn body(http: &SequencedHttpClient, n: usize) -> Value {
     serde_json::from_slice(&http.requests()[n].body).unwrap()
 }
@@ -84,6 +87,7 @@ fn cache_files(data: &std::path::Path) -> Vec<PathBuf> {
 // These witnesses use only pre-existing runner/storage/HTTP APIs. They also
 // compile on the accepted D1A baseline, where the semantic feature is absent.
 #[tokio::test]
+#[cfg(unix)]
 async fn model_backed_summary_precedes_chat_without_chat_cache_authority() {
     let (_root, request, ids) = setup();
     let thread = request.thread.clone();
@@ -129,6 +133,7 @@ async fn model_backed_summary_precedes_chat_without_chat_cache_authority() {
     assert_eq!(result.answer.text, "Done");
 }
 #[tokio::test]
+#[cfg(unix)]
 async fn semantic_coverage_is_derived_without_canonical_summary_message() {
     let (_root, request, ids) = setup();
     let data = request.data_dir.clone();
@@ -159,6 +164,7 @@ async fn semantic_coverage_is_derived_without_canonical_summary_message() {
 // END BASELINE-COMPATIBLE WITNESSES
 
 #[tokio::test]
+#[cfg(unix)]
 async fn cold_reopen_reuses_valid_coverage_then_corruption_and_loss_recompute() {
     let (_root, request, ids) = setup();
     let data = request.data_dir.clone();
@@ -205,6 +211,7 @@ async fn cold_reopen_reuses_valid_coverage_then_corruption_and_loss_recompute() 
     run(next, &lost).await;
     assert_eq!(lost.requests().len(), 2);
 }
+#[cfg(unix)]
 fn next_request(r: &ThreadRunRequest) -> ThreadRunRequest {
     ThreadRunRequest {
         request_message: None,
@@ -224,6 +231,7 @@ fn next_request(r: &ThreadRunRequest) -> ThreadRunRequest {
     }
 }
 #[tokio::test]
+#[cfg(unix)]
 async fn malformed_or_invented_summary_has_visible_gap_and_keeps_mandatory_request() {
     for artifact in [
         json!({"bad":"not a semantic artifact"}),
@@ -249,11 +257,13 @@ async fn malformed_or_invented_summary_has_visible_gap_and_keeps_mandatory_reque
 }
 
 #[derive(Clone)]
+#[cfg(unix)]
 struct Gate {
     entered: Arc<tokio::sync::Notify>,
     release: Arc<tokio::sync::Notify>,
     first: Arc<AtomicBool>,
 }
+#[cfg(unix)]
 impl rig::http_client::HttpMiddleware for Gate {
     fn after_response<'a>(
         &'a self,
@@ -271,6 +281,7 @@ impl rig::http_client::HttpMiddleware for Gate {
     }
 }
 #[tokio::test]
+#[cfg(unix)]
 async fn stop_and_concurrent_configuration_change_never_publish_inflight_summary() {
     for stop in [true, false] {
         let (_root, request, ids) = setup();
@@ -348,6 +359,7 @@ async fn stop_and_concurrent_configuration_change_never_publish_inflight_summary
     }
 }
 #[tokio::test]
+#[cfg(unix)]
 async fn timeout_and_busy_cache_keep_valid_prior_with_gap_without_replacing_it() {
     let (_root, request, ids) = setup();
     let next = next_request(&request);
@@ -447,6 +459,7 @@ async fn timeout_and_busy_cache_keep_valid_prior_with_gap_without_replacing_it()
     assert_eq!(std::fs::read(&path).unwrap(), old);
 }
 #[tokio::test]
+#[cfg(unix)]
 async fn incremental_summary_carries_prior_and_freezes_append_only_chat_prefix() {
     let (_root, request, ids) = setup();
     let next = next_request(&request);
@@ -484,6 +497,7 @@ async fn incremental_summary_carries_prior_and_freezes_append_only_chat_prefix()
     );
 }
 
+#[cfg(unix)]
 fn owner_replace(store: &mut Store, record: &Record, data: RecordData, archived: bool) {
     let op = store.allocate_operation(&unique_host_key()).unwrap();
     let owner = HostAuthority::owner("D1B canonical transition");
@@ -509,6 +523,7 @@ fn owner_replace(store: &mut Store, record: &Record, data: RecordData, archived:
     ));
 }
 #[tokio::test]
+#[cfg(unix)]
 async fn project_move_knowledge_off_delete_restore_and_source_versions_invalidate_cache() {
     let (_root, request, ids) = setup();
     let data = request.data_dir.clone();
@@ -623,6 +638,7 @@ async fn project_move_knowledge_off_delete_restore_and_source_versions_invalidat
     }
 }
 #[tokio::test]
+#[cfg(unix)]
 async fn derived_instructions_cannot_become_system_authority_or_note_read_evidence() {
     let (_root, request, ids) = setup();
     let prepared = prepare_run(request).unwrap();
@@ -930,6 +946,7 @@ async fn copilot_compaction_uses_same_chosen_account_model_effort_and_wire_witho
     }
 }
 #[tokio::test]
+#[cfg(unix)]
 async fn applied_receipts_get_host_stamps_but_proposals_cannot_be_summarized_as_applied() {
     for applied in [false, true] {
         let (root, mut request, note) = tests::fixture();
@@ -1018,6 +1035,7 @@ async fn applied_receipts_get_host_stamps_but_proposals_cannot_be_summarized_as_
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn canonical_generation_change_rejects_publication_even_when_run_and_sources_stay_live() {
     let (_root, request, ids) = setup();
     let data = request.data_dir.clone();
@@ -1078,6 +1096,7 @@ async fn canonical_generation_change_rejects_publication_even_when_run_and_sourc
     );
 }
 #[tokio::test]
+#[cfg(unix)]
 async fn resolved_account_change_invalidates_without_a_settings_or_history_change() {
     let (_root, request, ids) = setup();
     let next = next_request(&request);
@@ -1111,6 +1130,7 @@ async fn resolved_account_change_invalidates_without_a_settings_or_history_chang
 }
 
 // Round1 witnesses use existing a673 APIs. Saved test-only before production edits.
+#[cfg(unix)]
 mod review1 {
     use super::*;
     #[cfg(unix)]

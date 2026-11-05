@@ -7,7 +7,7 @@ pub mod stub;
 use serde_json::{json, Value};
 use std::{
     ffi::OsStr,
-    io::Write,
+    io::{Read, Write},
     path::{Path, PathBuf},
     process::{Child, Command, Stdio},
     time::Duration,
@@ -129,26 +129,63 @@ impl Run {
     }
 }
 
-pub fn wait_output(child: Child, limit: Duration) -> Run {
-    let id = child.id();
-    let (sender, receiver) = std::sync::mpsc::channel();
-    std::thread::spawn(move || {
-        let _ = sender.send(child.wait_with_output());
-    });
-    let output = match receiver.recv_timeout(limit) {
-        Ok(output) => output.unwrap(),
-        Err(_) => {
-            // SAFETY: signals only the child this test spawned.
-            unsafe { libc::kill(id as i32, libc::SIGKILL) };
-            panic!("brn did not finish within {limit:?}");
+pub fn wait_output(mut child: Child, limit: Duration) -> Run {
+    // Drain both pipes concurrently so a full pipe cannot prevent process exit.
+    // Keep the Child here so a timeout kills and reaps exactly the owned process.
+    let deadline = std::time::Instant::now() + limit;
+    drop(child.stdin.take());
+    let read = |pipe: Option<Box<dyn Read + Send>>| {
+        let (sender, receiver) = std::sync::mpsc::channel();
+        std::thread::spawn(move || {
+            let mut bytes = Vec::new();
+            let result = pipe.map_or(Ok(0), |mut pipe| pipe.read_to_end(&mut bytes));
+            let _ = sender.send(result.map(|_| bytes));
+        });
+        receiver
+    };
+    let stdout = read(
+        child
+            .stdout
+            .take()
+            .map(|p| Box::new(p) as Box<dyn Read + Send>),
+    );
+    let stderr = read(
+        child
+            .stderr
+            .take()
+            .map(|p| Box::new(p) as Box<dyn Read + Send>),
+    );
+    let status = loop {
+        match child.try_wait() {
+            Ok(Some(status)) => break status,
+            Ok(None) if std::time::Instant::now() < deadline => {
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            result => {
+                let _ = child.kill();
+                let _ = child.wait();
+                panic!("brn did not finish within {limit:?}: {result:?}");
+            }
         }
     };
-    use std::os::unix::process::ExitStatusExt;
+    let output = |receiver: std::sync::mpsc::Receiver<std::io::Result<Vec<u8>>>| {
+        receiver
+            .recv_timeout(deadline.saturating_duration_since(std::time::Instant::now()))
+            .expect("child output did not close before deadline")
+            .expect("child output could not be read")
+    };
+    #[cfg(unix)]
+    let signal = {
+        use std::os::unix::process::ExitStatusExt;
+        status.signal()
+    };
+    #[cfg(not(unix))]
+    let signal = None;
     Run {
-        code: output.status.code().unwrap_or(-1),
-        signal: output.status.signal(),
-        stdout: String::from_utf8(output.stdout).unwrap(),
-        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+        code: status.code().unwrap_or(-1),
+        signal,
+        stdout: String::from_utf8(output(stdout)).unwrap(),
+        stderr: String::from_utf8_lossy(&output(stderr)).into_owned(),
     }
 }
 
@@ -248,10 +285,12 @@ pub fn chat_attachment_fixture(
     ));
     id
 }
-/// `begin-edit --token-out FILE`: the session and the token file's path.
+/// Opens a real CLI session; returns its result and a synthetic token input file.
+/// Unix exercises production --token-out; other platforms issue inline.
 pub fn begin_edit(root: &Root, data: &Path, note: &str, base: u64) -> (Value, String) {
     let token = root.join(&format!("token-{}", uuid_like()));
     let token = token.to_str().unwrap().to_owned();
+    #[cfg(unix)]
     let session = ok(
         root,
         data,
@@ -265,6 +304,19 @@ pub fn begin_edit(root: &Root, data: &Path, note: &str, base: u64) -> (Value, St
             &token,
         ],
     );
+    #[cfg(not(unix))]
+    let session = {
+        let session = ok(
+            root,
+            data,
+            &["begin-edit", "--note", note, "--base", &base.to_string()],
+        );
+        let issued = session["token"].as_str().expect("inline CLI token");
+        assert_eq!(session["token_file"], Value::Null);
+        std::fs::write(&token, format!("{issued}\n")).unwrap();
+        session
+    };
+    #[cfg(unix)]
     assert_eq!(session["token"], Value::Null, "{session}");
     assert_eq!(session["holder"], "caller", "{session}");
     (session, token)
@@ -298,6 +350,7 @@ pub fn receipts(root: &Root, data: &Path) -> usize {
 /// SIGTERM at their default disposition and unblocked, whatever the parent
 /// inherited (some agent shells block SIGINT, and the mask survives exec).
 /// Tests signal the child directly with `kill(child.id(), …)`.
+#[cfg(unix)]
 pub fn isolate(command: &mut Command) -> &mut Command {
     use std::os::unix::process::CommandExt;
     command.process_group(0);
@@ -319,6 +372,7 @@ pub fn isolate(command: &mut Command) -> &mut Command {
 }
 /// Starts `argv` with piped stdin, stdout and stderr; finish with `wait_output`.
 /// The child is isolated (see `isolate`) so signal tests pass from any shell.
+#[cfg(unix)]
 pub fn spawn(root: &Root, argv: &[&str]) -> Child {
     let args: Vec<&OsStr> = argv.iter().map(OsStr::new).collect();
     let mut command = root.command(&args);
@@ -330,15 +384,18 @@ pub fn spawn(root: &Root, argv: &[&str]) -> Child {
         .unwrap()
 }
 /// Sends `signal` to a child this test spawned.
+#[cfg(unix)]
 pub fn signal(child: &Child, signal: i32) {
     // SAFETY: signals only the child this test spawned.
     assert_eq!(unsafe { libc::kill(child.id() as i32, signal) }, 0);
 }
 /// A FIFO in the root. `ready_writer` waits until a reader (the child) has it
 /// open, which proves the child is past startup, then returns the writer.
+#[cfg(unix)]
 pub struct Fifo {
     pub path: PathBuf,
 }
+#[cfg(unix)]
 impl Fifo {
     pub fn new(root: &Root, name: &str) -> Self {
         let path = root.join(name);

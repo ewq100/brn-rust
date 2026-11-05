@@ -1,0 +1,91 @@
+{
+  "baseline": {
+    "main": "e749a83e207c5b6d3c081d9f7d1fa6d6efed088c"
+  },
+  "authority": {
+    "source": "Owner: keep working until all is fixed and then merge it.",
+    "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
+  },
+  "work_view": {
+    "observed_at": "2026-11-05T11:54:06.903957+02:00",
+    "goal": "Complete Windows CI compatibility and merge through the normal checked PR path.",
+    "owner_attention": "The owner authorized continuing through fixes and normal merge. PR246 advanced main; the integration lead is reconciling its documentation routing without changing benchmark results or granting live experiment budget.",
+    "tasks": [
+      {
+        "id": "windows-ci",
+        "title": "Qualify and integrate Windows compatibility",
+        "owner": "Windows compatibility lead",
+        "state": "active",
+        "activity": "Reviewed currentmain e749a83e integration is ready:3documentation routing conflicts resolved; Rust/native/workflow inputs exactly match Windows-qualified6c6f9d40 and PR246 benchmark/evidence exactly match currentmain. Local334tooling tests(12skips),88benchmark protocol tests(11native/configuration skips),overview and links passed.",
+        "observed_at": "2026-11-05T11:54:06.903957+02:00",
+        "origin": "observed",
+        "next_action": "Publish the reviewed normalmerge of currentmain to PR245, require newhead normalPR checks, retain prior3Windows results for byte-identical Rust/native/workflow inputs, then normalmerge and resultingmain verification. Existingfollow-up stays paused while integrationlead owns active work; update that same task if infrastructure waiting requires handoff.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/windows-ci-portability/handoff.md",
+          "docs/work/active/windows-ci-portability/retry-20261104.md",
+          "https://github.com/ewq100/brn-rust/actions/runs/41828286144",
+          "docs/work/active/windows-ci-portability/resume-20261105.md"
+        ],
+        "gates": {
+          "implementation": "Independent stagedmerge review found no actionable issue. PR246 benchmark/source/evidence exactly preserved; Rust crates/manifests/lockfile/agent/workflow/attributes unchanged from reviewedWindows-qualified6c6f9d40.",
+          "checks": "Local334tooling(12skips) and88benchmark protocol(11skips) tests passed; overview/links passed. Newhead normalPR checks required. PriorWindows3 success on6c6f9d40 retained only for verified identical Rust/native/workflow inputs; no newhead native UI or parity claim.",
+          "integration": "Not merged. Existing hourlyfollow-up is paused and pins oldhead/base; reconcile and review currentmain locally before updating that same follow-up. No duplicate watcher.",
+          "native": "Windows native UI job passed on7c01e10d and Linux/Mac supported jobs passed onf3fd36f8; no new real UI interaction or feature parity claim.",
+          "owner_acceptance": "No native interaction or feature parity claim; secure credentials, exclusive model installation and owner-only token-output files remain explicitly unavailable on Windows."
+        },
+        "attempts": [
+          {
+            "outcome": "f3fd36f8 hosted run: Windows Core test compilation failed on Unix-only chat_storage symlinks; Windows retrieval writing fixture raced asynchronous worker shutdown; Ubuntu native runner failed before steps with no disk space.",
+            "change": "Split only Unix symlink fixture, retain portable directory protection, explicitly join preparatory writing-test worker, and qualify on fresh hosted runners.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/handoff.md",
+              "docs/work/active/windows-ci-portability/retry-20261104.md",
+              "https://github.com/ewq100/brn-rust/actions/runs/41828286144"
+            ]
+          },
+          {
+            "outcome": "PR245 e468175b Windows Core failed on locator helper dead code and provider stderr POSIX permission code. Static audit also found a Unix-only token permission assertion and Windows token output relying on inherited ACLs despite the owner-only promise.",
+            "change": "Gate only platform-specific fixture operations/helpers; refuse unsupported Windows token-out before workspace/session effects, preserve inline issuance and portable privacy/edit tests with real CLI tokens as synthetic input fixtures.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/41843507159",
+              "https://github.com/ewq100/brn-rust/actions/runs/41843506966",
+              "crates/brn/tests/agent_edits.rs",
+              "docs/work/active/windows-ci-portability/retry-20261104.md"
+            ]
+          },
+          {
+            "outcome": "Independent audit during90cb7427 CI found unguarded Unix signal/FIFO/process helpers in shared CLI tests, mixed symlink/file refusal, and Unix-shaped absolute paths affecting Windows validation precedence.",
+            "change": "Use a shared portable bounded child waiter that retains ownership and kills/reaps on timeout; gate only Unix signal/FIFO/symlink operations, retain ordinary-file refusals, and use absolute root-owned fixture paths.",
+            "evidence": [
+              "crates/brn/tests/support/mod.rs",
+              "crates/brn/tests/agent_contract.rs",
+              "crates/brn/tests/agent_discovery.rs",
+              "docs/work/active/windows-ci-portability/retry-20261104.md"
+            ]
+          },
+          {
+            "outcome": "701d63cf Windows Core runtime failures: input content/parse, README contract extraction, search-message credential expectation, refused-connect deadline, packaged skill frontmatter, raw backup intent spelling and directory source input. Both PR and manual runs reproduced the same eight failures. Mac retrieval runner never acquired (hosted arm64 capacity).",
+            "change": "Retain all portable assertions; fix platform fixtures and scoped LF checkout, preserve distinct raw intent using OsString, classify non-files consistently before opening while retaining handle checks, and separate connect-refusal test deadline from read-timeout fixture without broadening production retries.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/41850613329/job/126645897340",
+              "https://github.com/ewq100/brn-rust/actions/runs/41850620468/job/126645899830",
+              "https://github.com/ewq100/brn-rust/actions/runs/41850620468/job/126645899972",
+              "docs/work/active/windows-ci-portability/retry-20261104.md"
+            ]
+          },
+          {
+            "outcome": "PR245 became unmergeable after PR246 advanced main to e749a83e. Existing hourlyfollow-up was found paused; no execution result was recorded, so its reason is unknown. PriorWindows manual run completed success; Mac jobs canceled before starting.",
+            "change": "Integrate main in a separate clean worktree and resolve only selected-task routing/generated overview conflicts, preserving AgentBench source/evidence. Requalify the resulting exacthead; avoid rerunning oldhead checks.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/pull/246",
+              "https://github.com/ewq100/brn-rust/actions/runs/41857749887",
+              "https://github.com/ewq100/brn-rust/actions/runs/41855175855"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

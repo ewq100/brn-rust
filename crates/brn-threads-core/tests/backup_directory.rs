@@ -142,7 +142,12 @@ fn folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_wi
     other
         .apply(&run_op, &HostAuthority::owner("fixture"))
         .unwrap();
-    let raw = folder.join(".");
+    // Preserve distinct raw intent even for Windows verbatim paths, whose
+    // PathBuf::join normalizes away a dot component.
+    let mut raw = folder.as_os_str().to_owned();
+    raw.push(std::path::MAIN_SEPARATOR_STR);
+    let raw = std::path::PathBuf::from(raw);
+    assert_ne!(raw.as_os_str(), folder.as_os_str());
     let receipt = store
         .choose_backup_directory(&selection, &raw, &HostAuthority::owner("fixture"))
         .unwrap();

@@ -59,10 +59,14 @@ fn search_lists_a_saved_chat_message_with_its_chat() {
             "Berth survey reply draft 1.4 m",
         ],
     );
-    assert!(asked["terminal"]
-        .as_str()
-        .unwrap()
-        .starts_with("Failed:ReconnectNeeded"));
+    #[cfg(unix)]
+    let expected = "Failed:ReconnectNeeded";
+    #[cfg(not(unix))]
+    let expected = "Failed:UnsafeCredentials";
+    assert!(
+        asked["terminal"].as_str().unwrap().starts_with(expected),
+        "{asked}"
+    );
     let page = json_command(&data, &["search", "--query", "berth"]);
     // Before: no `messages`; the Message was found only by browsing chats.
     assert_eq!(page["message_total"], json!(1), "{page}");

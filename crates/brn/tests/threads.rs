@@ -29,8 +29,9 @@ fn workspace(root: &tempfile::TempDir, name: &str) -> std::path::PathBuf {
     json_command(&data, &["init", "--purpose", "test"]);
     data
 }
-/// `begin-edit --token-out`: the session ID; the token is in `token`.
+/// Real CLI issuance; the token is retained explicitly in the test input file.
 fn begin(data: &Path, note: &str, base: &str, token: &Path) -> String {
+    #[cfg(unix)]
     let session = json_command(
         data,
         &[
@@ -43,6 +44,14 @@ fn begin(data: &Path, note: &str, base: &str, token: &Path) -> String {
             token.to_str().unwrap(),
         ],
     );
+    #[cfg(not(unix))]
+    let session = {
+        let session = json_command(data, &["begin-edit", "--note", note, "--base", base]);
+        let issued = session["token"].as_str().expect("inline CLI token");
+        assert_eq!(session["token_file"], Value::Null);
+        std::fs::write(token, format!("{issued}\n")).unwrap();
+        session
+    };
     assert_eq!(session["holder"], "caller");
     session["id"].as_str().unwrap().to_owned()
 }

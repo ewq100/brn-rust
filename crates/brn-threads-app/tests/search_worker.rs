@@ -420,6 +420,9 @@ fn evidence_quota_keeps_rank_order_and_every_result_once() {
     assert_eq!(arrange(&[false; 5], 12), [0, 1, 2, 3, 4]);
 }
 
+// Unix can unlink SQLite's open index. Windows keeps those files locked until
+// the worker releases its connection; restart recovery is covered below.
+#[cfg(unix)]
 #[test]
 fn a_removed_derived_directory_is_recreated_while_running() {
     let (_root, data, mut ws) = workspace();
@@ -432,6 +435,30 @@ fn a_removed_derived_directory_is_recreated_while_running() {
     titles.sort();
     assert_eq!(titles, ["Ibis", "Stork"]);
     assert!(index_path(&ws.store).unwrap().exists());
+}
+
+#[test]
+fn a_removed_derived_directory_is_recreated_after_worker_restart() {
+    let (_root, data, mut ws) = workspace();
+    let ibis = ws.new_note("Ibis", "Ibis count.\n").unwrap();
+    let (handle, worker) = start(&ws);
+    assert_eq!(found(&handle, "ibis", None), ["Ibis"]);
+    drop(handle);
+    worker.join().unwrap();
+
+    let derived = data.join("derived");
+    std::fs::remove_dir_all(&derived).unwrap();
+    assert!(!derived.exists());
+    ws.new_note("Stork", "Stork count.\n").unwrap();
+
+    let (handle, worker) = start(&ws);
+    let mut titles = found(&handle, "count", None);
+    titles.sort();
+    assert_eq!(titles, ["Ibis", "Stork"]);
+    assert!(index_path(&ws.store).unwrap().exists());
+    assert_eq!(ws.store.record(&ibis.id).unwrap(), Some(ibis));
+    drop(handle);
+    worker.join().unwrap();
 }
 
 #[test]

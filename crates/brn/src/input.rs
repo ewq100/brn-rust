@@ -212,7 +212,7 @@ mod tests {
         );
         assert_eq!(read_bounded(&file(&dir, "empty", b"")).unwrap(), "");
         assert_eq!(
-            read_bounded(&file(&dir, "nul", b"a\0b")),
+            read_bounded(&file(&dir, "contains-nul.bin", b"a\0b")),
             Err(Reason::ContainsNul)
         );
         assert_eq!(
@@ -238,10 +238,10 @@ mod tests {
     }
 
     fn parse(args: &[&str]) -> CliError {
-        let args = ["--json", "--data-dir", "/nonexistent/brn-input-data"]
-            .iter()
-            .chain(args)
-            .map(OsString::from);
+        let root = tempfile::tempdir().unwrap();
+        let data = root.path().join("absent");
+        let global = ["--json", "--data-dir", data.to_str().unwrap()];
+        let args = global.iter().chain(args).map(OsString::from);
         match crate::parse(args) {
             Err(refused) => refused.error,
             Ok(_) => panic!("the invocation parsed"),

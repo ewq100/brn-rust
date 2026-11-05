@@ -1,3 +1,7 @@
 crates/brn-threads-intake/tests/fixtures/*.pdf binary
 crates/brn-threads-intake/tests/fixtures/luna/*.pdf binary
 crates/brn-threads-intake/tests/fixtures/luna/*.eml -text whitespace=cr-at-eol
+
+# Embedded guidance and CLI contract text must have identical bytes on every host.
+agent/**/*.md text eol=lf
+crates/brn/README.md text eol=lf

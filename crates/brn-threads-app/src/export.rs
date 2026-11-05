@@ -116,14 +116,24 @@ fn publish_with_directory_flush(
     )?;
     // Flush completed files before the directory becomes visible at its final name.
     for file in &manifest.files {
-        fs::File::open(stage.path().join(&file.path))?.sync_all()?;
+        sync_file(&stage.path().join(&file.path))?;
     }
-    fs::File::open(stage.path().join("manifest.json"))?.sync_all()?;
+    sync_file(&stage.path().join("manifest.json"))?;
     flush_directory(&stage.path().join("assets"))?;
     flush_directory(stage.path())?;
     rename_exclusive(stage.path(), destination)?;
     flush_directory(parent)?;
     Ok(manifest)
+}
+
+fn sync_file(path: &Path) -> std::io::Result<()> {
+    // Windows flushing requires a writable handle, as in core backup/restore.
+    // These owned staged files already exist; never create or truncate here.
+    fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .open(path)?
+        .sync_all()
 }
 
 fn sync_directory(path: &Path) -> std::io::Result<()> {

@@ -1,14 +1,15 @@
 //! Process-level checks of the `--json` machine contract, `--NAME-file`
 //! input and `--key` retries, through the built `brn` only.
-#[cfg(unix)]
 mod support;
 use serde_json::{json, Value};
+#[cfg(unix)]
+use std::time::Instant;
 use std::{
     ffi::OsStr,
     io::Write,
     path::{Path, PathBuf},
-    process::{Child, Command, ExitStatus, Stdio},
-    time::{Duration, Instant},
+    process::{Child, Command, Stdio},
+    time::Duration,
 };
 
 /// A private test root; children get HOME, CODEX_HOME and temp dirs inside it.
@@ -77,10 +78,6 @@ impl Run {
     }
 }
 
-fn status_code(status: ExitStatus) -> i32 {
-    status.code().unwrap_or(-1)
-}
-
 /// Runs to completion within 30 s, feeding `stdin` when given.
 fn run_os(root: &Root, args: &[&OsStr], stdin: Option<&[u8]>) -> Run {
     let mut command = root.command(args);
@@ -103,25 +100,14 @@ fn run_os(root: &Root, args: &[&OsStr], stdin: Option<&[u8]>) -> Run {
     wait_output(child, Duration::from_secs(30))
 }
 fn wait_output(child: Child, limit: Duration) -> Run {
-    let id = child.id();
-    let (sender, receiver) = std::sync::mpsc::channel();
-    std::thread::spawn(move || {
-        let _ = sender.send(child.wait_with_output());
-    });
-    let output = match receiver.recv_timeout(limit) {
-        Ok(output) => output.unwrap(),
-        Err(_) => {
-            // SAFETY: signals only the child this test spawned.
-            unsafe { libc::kill(id as i32, libc::SIGKILL) };
-            panic!("brn did not finish within {limit:?}");
-        }
-    };
+    let output = support::wait_output(child, limit);
     Run {
-        code: status_code(output.status),
-        stdout: String::from_utf8(output.stdout).unwrap(),
-        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+        code: output.code,
+        stdout: output.stdout,
+        stderr: output.stderr,
     }
 }
+
 fn args<'a>(json: bool, data: &'a Path, rest: &'a [&'a str]) -> Vec<&'a OsStr> {
     let mut args: Vec<&OsStr> = vec![];
     if json {
@@ -149,10 +135,11 @@ fn workspace(root: &Root, name: &str) -> PathBuf {
     assert_eq!(run.code, 0, "init --purpose test: {}", run.stdout);
     data
 }
-/// `begin-edit … --token-out FILE`: the envelope and the token file.
+/// Real CLI issuance: the authentic envelope and a synthetic token input file.
 fn begin(root: &Root, data: &Path, note: &str, base: &str) -> (Value, String) {
     let token = root.join(&format!("token-{note}-{base}-{}", next()));
     let token = token.to_str().unwrap().to_owned();
+    #[cfg(unix)]
     let envelope = call(
         root,
         data,
@@ -166,6 +153,16 @@ fn begin(root: &Root, data: &Path, note: &str, base: &str) -> (Value, String) {
             &token,
         ],
     );
+    #[cfg(not(unix))]
+    let envelope = {
+        let envelope = call(root, data, &["begin-edit", "--note", note, "--base", base]);
+        let issued = envelope["result"]["token"]
+            .as_str()
+            .expect("inline CLI token");
+        assert_eq!(envelope["result"]["token_file"], Value::Null);
+        std::fs::write(&token, format!("{issued}\n")).unwrap();
+        envelope
+    };
     (envelope, token)
 }
 fn next() -> u64 {
@@ -698,12 +695,14 @@ fn caller_input_mistakes_after_open_are_usage_or_rejected_not_internal() {
 fn text_input_refusals_create_nothing() {
     let root = Root::new();
     let data = root.join("absent");
-    let nul = root.file("nul.md", b"a\0b");
+    let nul = root.file("contains-nul.md", b"a\0b");
     let latin1 = root.file("latin1.md", b"caf\xe9");
     let large = root.file("large.md", &vec![b'a'; 16 * 1024 * 1024 + 1]);
     let dir = root.join("folder");
     std::fs::create_dir(&dir).unwrap();
     let dir = dir.to_str().unwrap().to_owned();
+    let missing = root.join("missing-text.md");
+    let missing = missing.to_str().unwrap();
     let cases: Vec<Refusal> = vec![
         (
             vec!["--text-file", &nul],
@@ -734,7 +733,7 @@ fn text_input_refusals_create_nothing() {
             "--text-file: is a directory",
         ),
         (
-            vec!["--text-file", "/nonexistent/brn-text.md"],
+            vec!["--text-file", missing],
             None,
             "invalid_input",
             json!({"option":"text-file","reason":"unreadable"}),
@@ -1291,6 +1290,20 @@ fn not_found_destination_exists_and_unsafe_directory_are_rejected() {
 }
 
 #[test]
+fn a_file_data_dir_is_data_folder_unusable() {
+    let root = Root::new();
+    let file = root.join("file");
+    std::fs::write(&file, b"synthetic").unwrap();
+    let refused = call(&root, &file, &["init"]);
+    assert_error(&refused, "rejected", "data_folder_unusable");
+    assert_eq!(
+        refused["error"]["details"],
+        json!({"problem":"not_a_directory"})
+    );
+}
+
+#[cfg(unix)]
+#[test]
 fn symlinked_data_dir_is_data_folder_unusable() {
     let root = Root::new();
     let real = workspace(&root, "real");
@@ -1303,14 +1316,6 @@ fn symlinked_data_dir_is_data_folder_unusable() {
     assert_eq!(
         refused["error"]["details"],
         json!({"problem":"symlink_refused"})
-    );
-    let file = root.join("file");
-    std::fs::write(&file, b"synthetic").unwrap();
-    let refused = call(&root, &file, &["init"]);
-    assert_error(&refused, "rejected", "data_folder_unusable");
-    assert_eq!(
-        refused["error"]["details"],
-        json!({"problem":"not_a_directory"})
     );
     // Default mode keeps the core's owner-terms message and exit 1.
     let default = run(&root, false, &link, &["notes"], None);

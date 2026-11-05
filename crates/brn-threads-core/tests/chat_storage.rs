@@ -345,6 +345,16 @@ fn derived_directory_is_allowed_only_as_a_real_directory() {
     assert!(matches!(Store::open(&data), Err(Error::UnsafeDirectory(_))));
 
     std::fs::remove_file(&derived).unwrap();
+}
+
+#[cfg(unix)]
+#[test]
+fn derived_directory_symlinks_are_refused_without_changing_target() {
+    let root = tempfile::tempdir().unwrap();
+    let base = root.path().canonicalize().unwrap();
+    let data = base.join("data");
+    drop(Store::open(&data).unwrap());
+    let derived = data.join(DERIVED_DIRECTORY);
     let elsewhere = base.join("elsewhere");
     std::fs::create_dir(&elsewhere).unwrap();
     std::os::unix::fs::symlink(&elsewhere, &derived).unwrap();
