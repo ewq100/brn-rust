@@ -1090,6 +1090,8 @@ impl ThreadsUi {
             })
             .unwrap_or_else(|_| div().into_any_element())
         })
+        // The kit's jump control is icon-only; name it for assistive tech.
+        .with_jump_button_renderer(|button| button.accessibility_label("Jump to latest"))
         .into_any_element()
     }
     fn message_row(&self, record: &Record, cx: &mut Context<Self>) -> gpui_kit::AnyElement {

@@ -2005,4 +2005,15 @@ fn streaming_keeps_the_reading_position_when_scrolled_up(cx: &mut TestAppContext
             "streaming did not move the reader"
         );
     });
+    // Jump to latest is named and returns the reader to the live tail.
+    let jump = gpui_kit::ElementId::from((
+        gpui_kit::ElementId::from(format!("conversation-{}", f.thread)),
+        "jump-to-latest",
+    ));
+    on_window(cx, &f, |window, cx| {
+        assert_eq!(window.find(jump.clone()).label(), Some("Jump to latest"));
+        window.click(jump, cx);
+    });
+    on_window(cx, &f, |window, cx| window.simulate_next_frame(cx));
+    cx.read(|cx| assert!(state.read(cx).is_following_tail()));
 }
