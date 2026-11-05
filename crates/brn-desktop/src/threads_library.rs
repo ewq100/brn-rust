@@ -244,6 +244,21 @@ pub(super) fn row_facts(row: &NoteRow, stamp: &str, delegated: bool) -> Vec<Stri
     facts
 }
 
+/// Where a source row's original is, judged from its recorded locator alone
+/// (no file system access while drawing): a file path, a web address, or
+/// only the recorded reference. Opening checks the file itself.
+pub(super) fn source_availability(locator: &str) -> String {
+    if std::path::Path::new(locator).is_absolute() {
+        format!("Original file · {}", short(locator))
+    } else if locator.starts_with("https://") || locator.starts_with("http://") {
+        format!("Web address · {}", short(locator))
+    } else if locator.starts_with("outlook:") {
+        "Outlook item".to_owned()
+    } else {
+        "Original not retained · BRN kept the recorded reference".to_owned()
+    }
+}
+
 /// Open a retained source: its absolute file or web address when BRN can
 /// reach it; otherwise say what was retained.
 pub(super) fn open_source_locator(locator: &str, cx: &mut App) -> Result<(), String> {
@@ -1087,7 +1102,8 @@ impl ThreadsUi {
         let selected = self.open_note_id() == Some(id.as_str());
         let this = cx.entity().downgrade();
         let (open, menu_id) = (id.clone(), id.clone());
-        let tooltip = (!stamp.is_empty()).then(|| format!("{} · last change {stamp}", note.title));
+        let tooltip = (!stamp.is_empty())
+            .then(|| format!("{} · last change {}", note.title, lists::human_time(&stamp)));
         library_row(
             row_id,
             icon,
@@ -1121,7 +1137,7 @@ impl ThreadsUi {
             format!("source-{}", source.id),
             IconName::Link,
             source.label.clone(),
-            short(&source.locator),
+            source_availability(&source.locator),
             facts.join(" · "),
             vec![],
             false,
@@ -1660,5 +1676,18 @@ mod tests {
             "imported and chat-private sources are not separate rows"
         );
         assert_eq!(rows[0].observed, "2026-11-01T09:00:00Z");
+    }
+
+    #[test]
+    fn source_rows_state_where_the_original_is_without_repeating_the_name() {
+        assert_eq!(
+            source_availability("/data/survey.pdf"),
+            "Original file · /data/survey.pdf"
+        );
+        assert!(source_availability("https://example.test/a").starts_with("Web address · "));
+        assert_eq!(
+            source_availability("tide-gauge-export.csv"),
+            "Original not retained · BRN kept the recorded reference"
+        );
     }
 }
