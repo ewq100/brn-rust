@@ -2734,6 +2734,7 @@ impl ThreadsUi {
                 self.show_tile(kind, window, cx);
             }
             lists::Command::Keys => self.show_keys(window, cx),
+            lists::Command::WebSearch => self.open_web_search(window, cx),
         }
     }
     fn continue_run(&mut self, thread: String, cx: &mut Context<Self>) {

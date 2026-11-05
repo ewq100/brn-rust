@@ -1903,3 +1903,78 @@ fn the_activity_disclosure_names_the_last_recorded_run(cx: &mut TestAppContext) 
         assert!(window.try_find("chat-activity-panel").is_none());
     });
 }
+
+/// CHAT-04: a reader who scrolled up keeps their place while the reply
+/// streams; the conversation stops following the tail until Jump to latest.
+#[gpui_kit::test]
+fn streaming_keeps_the_reading_position_when_scrolled_up(cx: &mut TestAppContext) {
+    let mut run = String::new();
+    let f = fixture(cx, 1250., 700., |workspace, thread, _| {
+        for index in 0..12 {
+            let key = format!("long-{index}");
+            let op = workspace.store.allocate_operation(&key).unwrap();
+            workspace
+                .owner_change(
+                    &key,
+                    &ChangeRequest {
+                        reason: "Synthetic long answer".into(),
+                        inputs: vec![],
+                        writes: vec![Put {
+                            id: op.creation_id(0),
+                            expected_version: None,
+                            archived: false,
+                            data: RecordData::Message(Message {
+                                thread: thread.into(),
+                                role: "assistant".into(),
+                                text: format!("Answer {index}. ").repeat(60),
+                            }),
+                        }],
+                    },
+                )
+                .unwrap();
+        }
+        run = record_run(workspace, thread, RunState::Working, "");
+    });
+    let _held = update(cx, &f, |view, _, cx| {
+        let held = hold_worker(view, &f.thread, &run);
+        view.stream = "Streaming start".into();
+        cx.notify();
+        held
+    });
+    on_window(cx, &f, |window, cx| window.simulate_next_frame(cx));
+    let state = cx.read(|cx| f.view.read(cx).scrollers.borrow()[&f.thread].state.clone());
+    cx.read(|cx| assert!(state.read(cx).is_following_tail()));
+    on_window(cx, &f, |window, cx| {
+        window.scroll(
+            "chat-tile",
+            gpui_kit::ScrollDelta::Pixels(point(px(0.), px(900.))),
+            cx,
+        );
+    });
+    on_window(cx, &f, |window, cx| window.simulate_next_frame(cx));
+    let before = cx.read(|cx| {
+        let state = state.read(cx);
+        assert!(
+            state.is_scrolled_up(),
+            "the reader scrolled away from the tail"
+        );
+        state.logical_scroll_top()
+    });
+    for chunk in 0..3 {
+        update(cx, &f, |view, _, cx| {
+            view.stream
+                .push_str(&format!(" more streamed text {chunk}").repeat(20));
+            cx.notify();
+        });
+        on_window(cx, &f, |window, cx| window.simulate_next_frame(cx));
+    }
+    cx.read(|cx| {
+        let state = state.read(cx);
+        assert!(state.is_scrolled_up());
+        assert_eq!(
+            state.logical_scroll_top(),
+            before,
+            "streaming did not move the reader"
+        );
+    });
+}

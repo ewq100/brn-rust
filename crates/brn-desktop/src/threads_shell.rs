@@ -106,6 +106,7 @@ fn command_icon(command: lists::Command) -> IconName {
         lists::Command::Theme(_) => IconName::Palette,
         lists::Command::OpenTile(kind) => kind_icon(kind),
         lists::Command::Keys => IconName::Keyboard,
+        lists::Command::WebSearch => IconName::Globe,
     }
 }
 
