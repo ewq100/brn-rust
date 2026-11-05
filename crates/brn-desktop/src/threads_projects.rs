@@ -618,9 +618,11 @@ impl ThreadsUi {
             );
         }
         if trash && !projects.is_empty() {
+            let hint = "Select a project to review and restore it. Restoring never resumes work.";
             body = body.child(
-                metadata("Deleted projects stay recoverable here. Restoring never resumes work.")
+                metadata(hint)
                     .id("projects-trash-hint")
+                    .aria_label(hint)
                     .px_3()
                     .pt_2()
                     .test_support(),

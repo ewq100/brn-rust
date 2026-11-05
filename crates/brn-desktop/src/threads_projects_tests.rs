@@ -384,7 +384,13 @@ fn projects_primaries_follow_the_view_and_trash_restores_from_active_and_trash(
             "no primary yet"
         );
         assert!(window.try_find("project-new").is_none());
-        assert!(window.find("projects-trash-hint").visible());
+        let hint = window.find("projects-trash-hint");
+        assert!(hint.visible());
+        // The page's subtitle already says Trash is recoverable.
+        assert_eq!(
+            hint.label(),
+            Some("Select a project to review and restore it. Restoring never resumes work.")
+        );
     })
     .unwrap();
     click(cx, &f, format!("project-row-{p}"));
