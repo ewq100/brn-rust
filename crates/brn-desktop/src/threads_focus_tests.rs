@@ -11,7 +11,7 @@ pub(super) const SELECT_ALL: &str = if cfg!(target_os = "macos") {
 pub(super) const LINE_START: &str = if cfg!(target_os = "macos") {
     "cmd-left"
 } else {
-    "home"
+    "nav-inbox"
 };
 
 pub(super) fn configure_offline_fixture(workspace: &mut Workspace) {
@@ -24,12 +24,9 @@ pub(super) fn configure_offline_fixture(workspace: &mut Workspace) {
     workspace.configure(settings).unwrap();
 }
 
-/// Show one tile alone, as the Solo layout does.
+/// Show one view alone in the workspace (no supporting pane).
 pub(super) fn solo(view: &mut ThreadsUi, kind: TileKind, cx: &mut Context<ThreadsUi>) {
-    view.layout.open(kind);
-    if kind != TileKind::Settings && view.layout.maximized() != Some(kind) {
-        view.layout.toggle_maximize(kind);
-    }
+    view.layout.show_alone(kind);
     view.refresh();
     cx.notify();
 }
@@ -1340,10 +1337,8 @@ fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_or_layout_change(
     cx.run_until_parked();
     let recovery =
         cx.read(|cx| view.read(cx).workspace.store.recovery_buffers().unwrap()[0].clone());
-    cx.update_window(window, |_, window, cx| window.click("home", cx))
-        .unwrap();
-    cx.run_until_parked();
-    cx.update_window(window, |_, window, cx| window.click("layout-solo", cx))
+    // Navigating to the Inbox replaces the document in the workspace.
+    cx.update_window(window, |_, window, cx| window.click("nav-inbox", cx))
         .unwrap();
     cx.run_until_parked();
     cx.update_window(window, |_, window, cx| {
@@ -1354,7 +1349,7 @@ fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_or_layout_change(
     cx.run_until_parked();
     cx.read(|cx| {
         let view = view.read(cx);
-        assert_eq!(view.layout.visible().len(), 1);
+        assert_eq!(view.layout.visible(), [TileKind::Overview]);
         assert_eq!(
             view.writing.note_editor.read(cx).value().as_ref(),
             recovery.markdown

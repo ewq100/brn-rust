@@ -278,16 +278,25 @@ fn row(cx: &mut TestAppContext, f: &Fixture) -> Option<workbench::WritingRow> {
 #[gpui_kit::test]
 fn note_toolbar_is_one_row_at_each_window_size_dirty_or_clean(cx: &mut TestAppContext) {
     for (width, height) in [(900., 600.), (1050., 700.), (1250., 860.)] {
-        for navigation in [TileKind::Threads, TileKind::Notes] {
+        // The sidebar expanded on purpose, or collapsed to its rail.
+        for expanded in [true, false] {
             for margin in [true, false] {
                 let f = widest(cx, width, height);
                 update(cx, &f, |view, window, cx| {
                     // Comments open or closed, beside the text or stacked.
                     view.writing.margin = Some(margin);
                     view.writing.comments_expanded = margin;
-                    view.show_tile(navigation, window, cx);
+                    if expanded {
+                        view.show_tile(TileKind::Threads, window, cx);
+                    } else {
+                        view.relayout(window, cx, |layout| layout.close(TileKind::Threads));
+                    }
                 });
-                assert!(cx.read(|cx| f.view.read(cx).layout.contains(navigation)));
+                assert_eq!(
+                    cx.read(|cx| f.view.read(cx).layout.contains(TileKind::Threads)),
+                    expanded
+                );
+                let navigation = if expanded { "sidebar" } else { "rail" };
                 for dirty in [false, true] {
                     if dirty {
                         type_edit(cx, &f, " edited");
@@ -341,8 +350,9 @@ fn note_toolbar_is_one_row_at_each_window_size_dirty_or_clean(cx: &mut TestAppCo
 #[gpui_kit::test]
 fn edit_note_and_connections_stay_in_the_toolbar_when_this_notes_row_fits(cx: &mut TestAppContext) {
     for (plain, f) in [
-        (true, fixture(cx, 1330., 860., "Saved text")),
-        (false, widest(cx, 1330., 860.)),
+        // Beside the assistant the Note is about 744 pt here.
+        (true, fixture(cx, 1290., 860., "Saved text")),
+        (false, widest(cx, 1290., 860.)),
     ] {
         on_window(cx, &f, |window, cx| {
             let view = f.view.read(cx);
@@ -953,9 +963,9 @@ fn a_dirty_protected_note_keeps_protection_and_shows_unsaved_in_the_bar(cx: &mut
     });
     assert_eq!(row(cx, &f), Some(workbench::WritingRow::Dirty));
     // In a narrow Note the chip shows its version and keeps its full name.
-    let f = widest(cx, 900., 600.);
+    let f = widest(cx, 520., 600.);
     on_window(cx, &f, |window, cx| {
-        // 900 pt stacks the comments, so the Note keeps about 406 pt.
+        // A 520 pt window stacks the comments; the Note keeps about 463 pt.
         assert_eq!(
             f.view.read(cx).writing.margin_mode,
             layout::MarginMode::Stacked
@@ -1386,10 +1396,10 @@ fn discard_always_confirms_and_enter_never_discards(cx: &mut TestAppContext) {
         window.click("note-menu", cx);
     });
     let rows = menu_rows(cx, &f);
-    let panel = rows.iter().position(|row| row == "Panel").unwrap();
+    // The Note ⋯ holds only the note's own actions now; Discard is last.
     assert_eq!(
-        rows[panel - 1],
-        "Discard edit…",
+        rows.last().map(String::as_str),
+        Some("Discard edit…"),
         "Discard comes last: {rows:?}"
     );
     choose(cx, &f, "Discard edit…");
@@ -1429,8 +1439,8 @@ fn the_text_gets_most_of_the_note_and_keeps_a_readable_measure(cx: &mut TestAppC
         assert!(bar.size.height <= px(72.), "{bar:?}");
         assert!(window.try_find("section-0").is_none());
     });
-    // Maximized, the text keeps a 680 px measure with 24 px gutters and is
-    // centered; in the split it fills the narrower panel from the left.
+    // Alone, the text keeps a 680 px measure with 24 px gutters and is
+    // centered; beside the assistant it fills the narrower region from the left.
     on_window(cx, &f, |window, _| {
         let (body, column) = (
             window.find("note-body").bounds(),
@@ -1439,7 +1449,7 @@ fn the_text_gets_most_of_the_note_and_keeps_a_readable_measure(cx: &mut TestAppC
         assert_eq!(column.left(), body.left());
     });
     update(cx, &f, |view, window, cx| {
-        view.relayout(window, cx, |layout| layout.toggle_maximize(TileKind::Note))
+        view.relayout(window, cx, |layout| layout.show_alone(TileKind::Note))
     });
     on_window(cx, &f, |window, _| {
         let (body, column) = (

@@ -1,6 +1,6 @@
 //! Navigation lists and small lifecycle rules derived from current records.
 //! Canonical state and every write remain in the shared service.
-use super::layout::{Preset, TileKind};
+use super::layout::TileKind;
 use super::state::linked;
 use super::theme::{Appearance, ThemeId};
 use brn_threads_app::{ActionState, Receipt, Record, RecordData, ThreadState, record_in_chat};
@@ -786,7 +786,6 @@ pub(super) enum Command {
     NewNote,
     Rewrite,
     Save,
-    Layout(Preset),
     /// Appearance: System/Light/Dark primary, plus legacy palettes under clear
     /// labels. The payload is the preference, not the resolved palette.
     Theme(Appearance),
@@ -801,7 +800,6 @@ impl Command {
             Self::NewNote => "New note".into(),
             Self::Rewrite => "Rewrite with AI".into(),
             Self::Save => "Save note".into(),
-            Self::Layout(preset) => format!("Layout: {}", preset.label()),
             Self::Theme(appearance) => match appearance {
                 // Primary choices read as plain appearance commands.
                 Appearance::System | Appearance::Light | Appearance::Dark => {
@@ -823,7 +821,7 @@ impl Command {
             Self::OpenTile(TileKind::Note) => "Current note".into(),
             Self::OpenTile(TileKind::Chat) => "Current chat".into(),
             Self::OpenTile(kind) => kind.label().into(),
-            Self::Keys => "Keys and mouse".into(),
+            Self::Keys => "Keyboard shortcuts".into(),
         }
     }
     /// The bound keystroke, shown in launcher rows with Kit's `Kbd`.
@@ -833,18 +831,13 @@ impl Command {
             Self::NewNote => "cmd-n",
             Self::Rewrite => "cmd-shift-r",
             Self::Save => "cmd-s",
-            Self::Layout(Preset::Write) => "alt-1",
-            Self::Layout(Preset::Chat) => "alt-2",
-            Self::Layout(Preset::Solo) => "alt-3",
             Self::OpenTile(TileKind::Threads) => "cmd-\\",
             Self::OpenTile(TileKind::Settings) => "cmd-,",
-            Self::OpenTile(TileKind::Overview) => "cmd-0",
             _ => return None,
         })
     }
     pub(super) fn all() -> Vec<Self> {
         let mut out = vec![Self::NewThread, Self::NewNote, Self::Rewrite, Self::Save];
-        out.extend(Preset::ALL.map(Self::Layout));
         // System/Light/Dark first, then the legacy palettes under clear labels.
         out.extend(Appearance::PRIMARY.map(Self::Theme));
         out.extend(ThemeId::LEGACY.map(|theme| Self::Theme(Appearance::Legacy(theme))));
@@ -1545,7 +1538,8 @@ mod tests {
             "resolved stay out of recent"
         );
         assert!(empty.contains(&LaunchItem::Command(Command::NewThread)));
-        assert_eq!(Command::Layout(Preset::Chat).keystroke(), Some("alt-2"));
+        assert_eq!(Command::NewThread.keystroke(), Some("cmd-t"));
+        assert_eq!(Command::OpenTile(TileKind::Overview).keystroke(), None);
         assert_eq!(Command::Keys.keystroke(), None);
     }
 
@@ -1616,18 +1610,18 @@ mod tests {
     fn launcher_commands_name_every_destination_including_projects() {
         let labels: Vec<String> = Command::all().into_iter().map(Command::label).collect();
         for destination in [
-            "Notes",
+            "Library",
             "Connections",
             "All chats",
-            "Chats",
+            "Recent chats",
             "Current note",
             "Current chat",
             "Linked work",
             "Projects",
-            "Changes",
+            "Recent changes",
             "Tasks",
             "Settings",
-            "Home",
+            "Inbox",
         ] {
             assert!(
                 labels.iter().any(|label| label == destination),

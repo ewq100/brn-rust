@@ -864,7 +864,7 @@ fn starting_a_replacement_run_clears_the_old_paused_notice(cx: &mut TestAppConte
 }
 
 #[gpui_kit::test]
-fn dismissed_completion_banner_can_be_restored_from_layout_menu(cx: &mut TestAppContext) {
+fn dismissed_completion_banner_can_be_restored_from_the_workspace_menu(cx: &mut TestAppContext) {
     let f = fixture(cx, RunState::Completed);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
@@ -874,12 +874,15 @@ fn dismissed_completion_banner_can_be_restored_from_layout_menu(cx: &mut TestApp
                 )))
                 .unwrap();
             ui.poll_worker(window, cx);
+            // The chat as the assistant beside a document (under 420 pt).
+            ui.relayout(window, cx, Layout::document_with_assistant);
         });
     })
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        assert_eq!(window.find("idle-status").label(), Some("Idle"));
+        // Nothing runs or waits: no permanent "Idle" in the header.
+        assert!(window.try_find("idle-status").is_none());
         assert!(
             window.try_find("status-model").is_none(),
             "model selection belongs in the composer"
@@ -904,7 +907,7 @@ fn dismissed_completion_banner_can_be_restored_from_layout_menu(cx: &mut TestApp
         cx.run_until_parked();
         cx.update_window(f.window, |_, window, cx| {
             assert!(window.try_find("workspace-notice").is_none());
-            window.click("status-layout", cx);
+            window.click("workspace-menu", cx);
         })
         .unwrap();
         cx.run_until_parked();
@@ -1131,7 +1134,7 @@ fn a_failed_finish_is_an_error_banner_and_restores_as_an_error(cx: &mut TestAppC
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.try_find("workspace-notice").is_none());
-        window.click("status-layout", cx);
+        window.click("workspace-menu", cx);
     })
     .unwrap();
     cx.run_until_parked();

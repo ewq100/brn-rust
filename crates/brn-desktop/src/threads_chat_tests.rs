@@ -230,6 +230,10 @@ fn a_failed_reply_shows_its_whole_recorded_reason_wrapping_at_300pt(cx: &mut Tes
     let f = fixture(cx, 900., 600., |workspace, thread, _| {
         run = record_run(workspace, thread, RunState::Failed, FAILURE);
     });
+    // The assistant at its narrowest beside a document.
+    update(cx, &f, |view, window, cx| {
+        view.relayout(window, cx, Layout::narrow_assistant)
+    });
     let card = format!("recovery-card-{}", f.thread);
     on_window(cx, &f, |window, _| {
         let chat = window.find("tile-chat").bounds();
@@ -1157,6 +1161,9 @@ fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mu
 #[gpui_kit::test]
 fn the_composer_is_one_row_and_names_the_effort_in_a_narrow_chat(cx: &mut TestAppContext) {
     let f = fixture(cx, 900., 600., |_, _, _| {});
+    update(cx, &f, |view, window, cx| {
+        view.relayout(window, cx, Layout::narrow_assistant)
+    });
     let (model, effort) = cx.read(|cx| {
         let settings = &f.view.read(cx).settings;
         (settings.model.clone(), settings.effort.clone())
@@ -1236,7 +1243,8 @@ fn while_work_runs_send_reads_queue_at_a_wide_chat_and_replies_keep_the_measure(
     });
     let _lease = update(cx, &f, |view, _, cx| {
         let (_, lease) = hold_worker(view, &f.thread, &run);
-        view.layout.toggle_maximize(TileKind::Chat);
+        // The conversation as the primary view (was: maximized chat).
+        view.layout.open_primary(TileKind::Chat);
         cx.notify();
         lease
     });
@@ -1257,7 +1265,7 @@ fn while_work_runs_send_reads_queue_at_a_wide_chat_and_replies_keep_the_measure(
             "Save as decision…"
         );
         // The reply's column is at most 680 px of text plus 24 px gutters,
-        // centered in the maximized chat.
+        // centered in the primary conversation.
         let chat = window.find("tile-chat").bounds();
         let copy = window.find(format!("answer-copy-{reply}")).bounds();
         let column_right = chat.origin.x + (chat.size.width + px(728.)) / 2.;
@@ -1285,7 +1293,7 @@ fn a_short_window_collapses_the_paused_queue_to_one_row(cx: &mut TestAppContext)
     };
     let f = fixture(cx, 900., 600., seed);
     update(cx, &f, |view, window, cx| {
-        view.apply_layout(Preset::Write, window, cx)
+        view.relayout(window, cx, Layout::document_with_assistant)
     });
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "queue-summary"), "Paused · 2 waiting");
@@ -1345,7 +1353,7 @@ fn a_short_window_keeps_a_running_queue_to_one_quiet_row(cx: &mut TestAppContext
             .queue_message("running-first", &other, "Check the venue")
             .unwrap();
         view.refresh();
-        view.apply_layout(Preset::Write, window, cx);
+        view.relayout(window, cx, Layout::document_with_assistant);
         cx.notify();
         lease
     });
@@ -1390,7 +1398,7 @@ fn editing_a_queued_message_does_not_redirect_the_next_chat_send(cx: &mut TestAp
         let run = record_run(&mut view.workspace, &f.thread, RunState::Working, "");
         let (sender, lease) = hold_worker(view, &f.thread, &run);
         view.refresh();
-        view.apply_layout(Preset::Write, window, cx);
+        view.relayout(window, cx, Layout::document_with_assistant);
         cx.notify();
         (run, sender, lease)
     });
