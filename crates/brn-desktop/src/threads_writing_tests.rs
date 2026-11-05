@@ -631,7 +631,9 @@ fn note_and_selected_chat_drafts_and_dirty_buffers_survive_navigation(cx: &mut T
             view.open_note(&f.b.id, None, window, cx);
             assert!(view.writing.comment_anchor.is_none());
             assert!(view.writing.comment_input.read(cx).value().is_empty());
-            assert_eq!(view.composer.read(cx).value().as_ref(), "Chat A draft");
+            // B's own conversation, with its own draft, replaces A's chat.
+            assert_eq!(view.chat_thread(), Some(f.chat_b.as_str()));
+            assert_eq!(view.composer.read(cx).value().as_ref(), "Chat B draft");
             view.writing
                 .comment_input
                 .update(cx, |editor, cx| editor.set_value("B draft", window, cx));
@@ -1678,12 +1680,15 @@ fn browsing_notes_keeps_selected_chat_and_replacing_main_preserves_review_text(
                 editor.set_value("Keep this conversation draft", window, cx)
             });
             view.open_note(&f.b.id, None, window, cx);
+            // Document B's assistant is its own, not A's chat (WRITE-05).
+            assert_ne!(view.chat_thread(), Some(f.chat_a.as_str()));
+            assert_eq!(view.composer.read(cx).value().as_ref(), "");
+            view.open_note(&f.a.id, None, window, cx);
             assert_eq!(view.chat_thread(), Some(f.chat_a.as_str()));
             assert_eq!(
                 view.composer.read(cx).value().as_ref(),
                 "Keep this conversation draft"
             );
-            view.open_note(&f.a.id, None, window, cx);
             let (_, candidate) = proposal(
                 view,
                 &f.a,

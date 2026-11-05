@@ -1351,6 +1351,7 @@ impl ThreadsUi {
         self.preserve_comment_draft(cx);
         self.focus_root(window, cx);
         self.doc_history = None;
+        let from_conversation = self.layout.primary() == TileKind::Chat;
         match self
             .writing
             .open_note(&mut self.workspace, id, recovery, window, cx)
@@ -1385,9 +1386,22 @@ impl ThreadsUi {
                     .get(id)
                     .cloned()
                     .map_or_else(|| ChatTarget::NewForNote(id.into()), ChatTarget::Thread);
-                if matches!(self.chat, ChatTarget::New)
-                    && self.composer.read(cx).value().trim().is_empty()
-                {
+                // The assistant beside a document is that document's own chat.
+                // A chat stays only when it is the document's chosen conversation,
+                // or when the document was opened from that conversation (AC-06).
+                // `set_chat` keeps each destination's unsent draft.
+                let keep = match &self.chat {
+                    ChatTarget::Thread(thread) => {
+                        from_conversation
+                            || opened_from == Some(thread.as_str())
+                            || target == ChatTarget::Thread(thread.clone())
+                    }
+                    ChatTarget::NewForNote(note) => note == id,
+                    ChatTarget::New => {
+                        from_conversation && !self.composer.read(cx).value().trim().is_empty()
+                    }
+                };
+                if !keep {
                     self.set_chat(target, window, cx);
                 }
                 self.sync_note_marks(cx);
@@ -2024,6 +2038,17 @@ impl ThreadsUi {
         owner_request: Option<brn_ai::threads::OwnerRequest>,
         cx: &mut Context<Self>,
     ) {
+        self.start_run_with_message(prompt, thread, sources, owner_request, None, cx);
+    }
+    fn start_run_with_message(
+        &mut self,
+        prompt: String,
+        thread: String,
+        sources: Vec<brn_ai::threads::TransientSource>,
+        owner_request: Option<brn_ai::threads::OwnerRequest>,
+        posted: Option<String>,
+        cx: &mut Context<Self>,
+    ) {
         if !self.begin_run_start(cx) {
             return;
         }
@@ -2040,7 +2065,7 @@ impl ThreadsUi {
         };
         let queue_match = queued.is_some();
         let request = brn_threads_app::ThreadRunStart {
-            request_message: queued.as_ref().and_then(|q| q.message.clone()),
+            request_message: queued.as_ref().and_then(|q| q.message.clone()).or(posted),
             queue_claim: queued.and_then(|q| q.dispatch),
             owner_request,
             thread: thread.clone(),
@@ -2237,12 +2262,21 @@ impl ThreadsUi {
             &prompt,
             (!self.stream.is_empty()).then_some(self.stream.as_str()),
         ) {
-            Ok(_) => {
+            Ok(receipt) => {
+                let message = receipt
+                    .writes
+                    .iter()
+                    .find(|write| {
+                        write.before.is_none()
+                            && matches!(&write.after.data, RecordData::Message(m)
+                                if m.role == "owner" && m.thread == thread && m.text == prompt)
+                    })
+                    .map(|write| write.after.id.clone());
                 // The durable commit and run fence precede input clearing and cancellation.
                 let armed = self
                     .worker
                     .as_mut()
-                    .is_some_and(|worker| worker.arm_continuation(prompt).is_ok());
+                    .is_some_and(|worker| worker.arm_continuation(prompt, message).is_ok());
                 self.save_composer(self.destination(), String::new());
                 self.composer
                     .update(cx, |editor, cx| editor.set_value("", window, cx));
@@ -3247,9 +3281,10 @@ impl ThreadsUi {
             // Appearance now persists immediately through the non-fencing
             // presentation path, so there is no deferred theme save to retry
             // when a run finishes (THEME-02).
-            if let Some((prompt, thread)) = terminal_continuation {
+            if let Some((prompt, thread, message)) = terminal_continuation {
                 // Launch only after draining the complete old batch, without navigation or grants.
-                self.start_run(prompt, thread, vec![], None, cx);
+                // The Steer receipt already holds the owner message; reuse it.
+                self.start_run_with_message(prompt, thread, vec![], None, message, cx);
             } else if allow_dispatch {
                 self.dispatch_next(cx);
             }

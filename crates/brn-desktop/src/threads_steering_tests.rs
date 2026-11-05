@@ -182,6 +182,23 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
                 ui.worker.as_ref().unwrap().continuation(),
                 Some("New exact instruction · õun")
             );
+            // The continuation reuses the saved owner message rather than posting it again.
+            let owner: Vec<String> = ui
+                .workspace
+                .messages(&f.thread)
+                .unwrap()
+                .into_iter()
+                .filter(|record| {
+                    matches!(&record.data, RecordData::Message(message)
+                    if message.role == "owner" && message.text == "New exact instruction · õun")
+                })
+                .map(|record| record.id)
+                .collect();
+            assert_eq!(owner.len(), 1);
+            assert_eq!(
+                ui.worker.as_ref().unwrap().continuation_message(),
+                Some(owner[0].as_str())
+            );
             assert!(
                 ui.workspace
                     .messages(&f.thread)

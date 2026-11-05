@@ -249,16 +249,56 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
             view.writing.note_editor.read(cx).value().as_ref(),
             "Human unsaved draft õun"
         );
+        // The document's own conversation returns; the standalone draft stays behind.
+        assert_eq!(view.chat, ChatTarget::Thread(thread.clone()));
         assert_eq!(
             view.composer.read(cx).value().as_ref(),
-            "Standalone unsent draft"
+            "Selected chat unsent draft"
         );
         assert!(view.writing.note.as_ref().unwrap().session().is_some());
         assert_eq!(view.workspace.store.note(&note.id).unwrap().unwrap(), *note);
     });
+    update(cx, &f, |view, window, cx| view.new_thread(window, cx));
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).composer.read(cx).value().as_ref(),
+            "Standalone unsent draft"
+        )
+    });
     let reopened = Workspace::open(&f.data).unwrap();
     assert_eq!(reopened.store.note(&note.id).unwrap().unwrap(), *note);
     assert!(reopened.messages(thread).unwrap().is_empty());
+}
+
+#[gpui_kit::test]
+fn library_document_assistant_never_shows_an_unrelated_retained_chat(cx: &mut TestAppContext) {
+    let f = fixture(cx, true, 1260., 1100.);
+    let note = f.note.as_ref().unwrap();
+    let unrelated = update_returning(cx, &f, |view| {
+        view.workspace.new_thread("Queue B").unwrap().id
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_thread(&unrelated, window, cx);
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("Queue B draft", window, cx)
+        });
+    });
+    click(cx, &f, "nav-library");
+    click(cx, &f, format!("note-{}", note.id));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_ne!(view.chat_thread(), Some(unrelated.as_str()));
+        assert_eq!(view.composer.read(cx).value().as_ref(), "");
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_thread(&unrelated, window, cx);
+        assert_eq!(view.composer.read(cx).value().as_ref(), "Queue B draft");
+        // A document opened from the conversation keeps that conversation (AC-06).
+        assert_eq!(view.layout.primary(), TileKind::Chat);
+        view.open_note(&note.id, None, window, cx);
+        assert_eq!(view.chat_thread(), Some(unrelated.as_str()));
+        assert_eq!(view.composer.read(cx).value().as_ref(), "Queue B draft");
+    });
 }
 
 #[gpui_kit::test]

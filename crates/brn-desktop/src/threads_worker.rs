@@ -58,11 +58,18 @@ pub(super) struct EditNoteTarget {
     pub(super) version: u64,
 }
 
+/// A saved Steer instruction: its text and the owner message already
+/// committed for it, which the next Run reuses instead of posting again.
+struct Continuation {
+    prompt: String,
+    message: Option<String>,
+}
+
 enum WorkerOperation {
     Run {
         identity: RunIdentity,
         edit_note_target: Option<EditNoteTarget>,
-        continuation: Option<String>,
+        continuation: Option<Continuation>,
     },
     Import {
         reference: Option<ReferenceImportIntent>,
@@ -195,10 +202,14 @@ impl Worker {
 
     /// Attach a committed saved prompt to this Run. The Run identity remains
     /// the sole source of the destination thread.
-    pub(super) fn arm_continuation(&mut self, prompt: String) -> Result<(), String> {
+    pub(super) fn arm_continuation(
+        &mut self,
+        prompt: String,
+        message: Option<String>,
+    ) -> Result<(), String> {
         match &mut self.operation {
             WorkerOperation::Run { continuation, .. } if continuation.is_none() => {
-                *continuation = Some(prompt);
+                *continuation = Some(Continuation { prompt, message });
                 Ok(())
             }
             WorkerOperation::Run { .. } => Err("Run already has a continuation".into()),
@@ -208,7 +219,9 @@ impl Worker {
 
     pub(super) fn continuation(&self) -> Option<&str> {
         match &self.operation {
-            WorkerOperation::Run { continuation, .. } => continuation.as_deref(),
+            WorkerOperation::Run { continuation, .. } => {
+                continuation.as_ref().map(|c| c.prompt.as_str())
+            }
             _ => None,
         }
     }
@@ -221,7 +234,20 @@ impl Worker {
     }
 
     /// Consume the saved prompt while its original Run identity is still live.
-    pub(super) fn take_terminal_continuation(&mut self) -> Option<(String, String)> {
+    #[cfg(test)]
+    pub(super) fn continuation_message(&self) -> Option<&str> {
+        match &self.operation {
+            WorkerOperation::Run { continuation, .. } => {
+                continuation.as_ref().and_then(|c| c.message.as_deref())
+            }
+            _ => None,
+        }
+    }
+
+    /// Returns the prompt, the original thread and the saved owner message.
+    pub(super) fn take_terminal_continuation(
+        &mut self,
+    ) -> Option<(String, String, Option<String>)> {
         match &mut self.operation {
             WorkerOperation::Run {
                 identity,
@@ -229,7 +255,7 @@ impl Worker {
                 ..
             } => continuation
                 .take()
-                .map(|prompt| (prompt, identity.thread.clone())),
+                .map(|c| (c.prompt, identity.thread.clone(), c.message)),
             _ => None,
         }
     }
@@ -316,14 +342,18 @@ mod tests {
         let (_sender, mut worker) = worker();
         assert_eq!(worker.continuation(), None);
         worker
-            .arm_continuation("saved prompt".into())
+            .arm_continuation("saved prompt".into(), Some("saved-message".into()))
             .expect("first continuation arms");
         assert_eq!(worker.continuation(), Some("saved prompt"));
-        assert!(worker.arm_continuation("replacement".into()).is_err());
+        assert!(worker.arm_continuation("replacement".into(), None).is_err());
         assert_eq!(worker.continuation(), Some("saved prompt"));
         assert_eq!(
             worker.take_terminal_continuation(),
-            Some(("saved prompt".into(), "original-chat".into()))
+            Some((
+                "saved prompt".into(),
+                "original-chat".into(),
+                Some("saved-message".into())
+            ))
         );
         assert_eq!(worker.take_terminal_continuation(), None);
 
@@ -334,7 +364,11 @@ mod tests {
             Arc::new(AtomicBool::new(false)),
             None,
         );
-        assert!(import.arm_continuation("saved prompt".into()).is_err());
+        assert!(
+            import
+                .arm_continuation("saved prompt".into(), None)
+                .is_err()
+        );
         assert_eq!(import.continuation(), None);
         assert_eq!(import.take_terminal_continuation(), None);
     }
