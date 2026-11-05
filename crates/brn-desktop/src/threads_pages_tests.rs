@@ -1624,6 +1624,7 @@ fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContex
         String::new(),
         String::new(),
         String::new(),
+        String::new(),
     );
     let f = fixture(cx, 1280., 900., |workspace| {
         let article = workspace
@@ -1728,7 +1729,7 @@ fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContex
             .project_command(
                 "s5-project-doc",
                 ProjectCommand::CreateDocument {
-                    project,
+                    project: project.clone(),
                     title: "Harbor private".into(),
                     markdown: "Only in the project.".into(),
                 },
@@ -1741,9 +1742,9 @@ fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContex
             .after
             .id
             .clone();
-        ids = (article, note, loose, doc, survey);
+        ids = (article, note, loose, doc, survey, project);
     });
-    let (article, reference, loose, private, survey) = ids;
+    let (article, reference, loose, private, survey, project) = ids;
     click(cx, &f, "nav-library");
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "library-articles"), "Articles · 1");
@@ -1867,5 +1868,26 @@ fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContex
             "a found article opens in Read"
         );
         assert_eq!(view.layout.visible(), [TileKind::Note]);
+    });
+    // Inside the project, its own documents are found and named as such.
+    click(cx, &f, "nav-projects");
+    click(cx, &f, format!("project-row-{project}"));
+    click(cx, &f, "launcher");
+    on_window(cx, &f, |window, cx| window.input("private", cx));
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "launcher-item-0"),
+            "Project document: Harbor private · only in Harbor project"
+        );
+        assert_eq!(
+            label(window, "launcher-group-project"),
+            "This project · Project only · not in Library"
+        );
+    });
+    press(cx, &f, "enter");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(private.as_str()));
+        assert_eq!(view.note_writing_scope.as_deref(), Some(project.as_str()));
     });
 }

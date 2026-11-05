@@ -2662,6 +2662,7 @@ impl ThreadsUi {
             self.launcher_query.read(cx).value().as_ref(),
             &self.thread_rows,
             &self.note_rows,
+            &self.launcher_project_documents(),
             &self.launcher_search.messages,
         )
     }
@@ -2705,6 +2706,10 @@ impl ThreadsUi {
                 self.preserve_visible_note_input(cx);
                 self.layout.open_article();
                 self.open_from_library(&id, window, cx)
+            }
+            lists::LaunchItem::ProjectDoc { id, project, .. } => {
+                self.preserve_visible_note_input(cx);
+                self.open_project_note(&project, &id, window, cx)
             }
             lists::LaunchItem::Message { chat, message, .. } => {
                 self.open_chat_message(&chat, &message, window, cx)

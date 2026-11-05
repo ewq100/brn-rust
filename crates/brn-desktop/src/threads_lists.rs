@@ -916,6 +916,15 @@ pub(super) enum LaunchItem {
         title: String,
         file: bool,
     },
+    /// A project-only document of the project the launcher opened from.
+    /// It is listed only there, so it never reaches another project's or
+    /// the general results.
+    ProjectDoc {
+        id: String,
+        project: String,
+        title: String,
+        project_title: String,
+    },
     /// A saved chat Message the owner search matched; opens its chat.
     Message {
         chat: String,
@@ -932,14 +941,18 @@ impl LaunchItem {
     /// The visible text; the group heading and kind icon name the kind.
     pub(super) fn label(&self) -> String {
         match self {
-            Self::Thread { title, .. } | Self::Note { title, .. } => title.clone(),
+            Self::Thread { title, .. }
+            | Self::Note { title, .. }
+            | Self::ProjectDoc { title, .. } => title.clone(),
             Self::Message { snippet, .. } => snippet.clone(),
             Self::Command(command) => command.label(),
         }
     }
-    /// Muted text after the label: a Message's chat and who wrote it.
+    /// Muted text after the label: a Message's chat and who wrote it, or
+    /// a project document's project.
     pub(super) fn meta(&self) -> Option<String> {
         match self {
+            Self::ProjectDoc { project_title, .. } => Some(project_title.clone()),
             Self::Message {
                 chat_title, role, ..
             } => Some(format!(
@@ -964,6 +977,11 @@ impl LaunchItem {
             Self::Note {
                 title, file: true, ..
             } => format!("File: {title} · full imported reference"),
+            Self::ProjectDoc {
+                title,
+                project_title,
+                ..
+            } => format!("Project document: {title} · only in {project_title}"),
             Self::Message {
                 chat_title,
                 role,
@@ -978,12 +996,13 @@ impl LaunchItem {
             Self::Command(command) => command.label(),
         }
     }
-    /// Results are ordered articles, files, chats, commands, then chat
-    /// history, so headings follow order.
+    /// Results are ordered articles, files, this project's documents,
+    /// chats, commands, then chat history, so headings follow order.
     pub(super) fn group(&self) -> &'static str {
         match self {
             Self::Note { file: false, .. } => "Articles",
             Self::Note { file: true, .. } => "Files",
+            Self::ProjectDoc { .. } => "This project",
             Self::Thread { .. } => "Chats",
             Self::Command(_) => "Commands",
             Self::Message { .. } => "In chat history",
@@ -994,6 +1013,7 @@ impl LaunchItem {
         match self {
             Self::Note { file: false, .. } => "articles",
             Self::Note { file: true, .. } => "files",
+            Self::ProjectDoc { .. } => "project",
             Self::Thread { .. } => "chats",
             Self::Command(_) => "commands",
             Self::Message { .. } => "in-chats",
@@ -1004,6 +1024,7 @@ impl LaunchItem {
     pub(super) fn group_scope(&self) -> Option<&'static str> {
         match self {
             Self::Note { .. } => Some("Current knowledge · saved library"),
+            Self::ProjectDoc { .. } => Some("Project only · not in Library"),
             Self::Thread { .. } => Some("Conversations"),
             Self::Message { .. } => Some("History · not current knowledge"),
             Self::Command(_) => None,
@@ -1019,11 +1040,13 @@ pub(super) const LAUNCH_LIMIT: usize = 20;
 /// them under "In chat history"). The Messages arrive after the label
 /// matches, so they come last: an answer landing never moves a row the
 /// selection or ↵ already points at. `notes` holds current general notes
-/// only, so project-only material and candidates never appear here.
+/// only, so candidates never appear here; `project` holds the project-only
+/// documents of the project the launcher opened from, matched by title.
 pub(super) fn launcher(
     query: &str,
     threads: &[ThreadRow],
     notes: &[NoteRow],
+    project: &[LaunchItem],
     messages: &[brn_threads_app::ChatMessageHit],
 ) -> Vec<LaunchItem> {
     let query = query.trim().to_lowercase();
@@ -1055,7 +1078,11 @@ pub(super) fn launcher(
             .take(LAUNCH_LIMIT)
             .collect();
     }
-    let matches = |item: &LaunchItem| item.accessible_label().to_lowercase().contains(&query);
+    let matches = |item: &LaunchItem| match item {
+        // The project's name is in every one of its documents' labels.
+        LaunchItem::ProjectDoc { title, .. } => title.to_lowercase().contains(&query),
+        _ => item.accessible_label().to_lowercase().contains(&query),
+    };
     let message = |hit: &brn_threads_app::ChatMessageHit| LaunchItem::Message {
         chat: hit.chat.clone(),
         message: hit.message.clone(),
@@ -1070,6 +1097,7 @@ pub(super) fn launcher(
         .filter(|row| !row.is_file())
         .map(note)
         .chain(notes.iter().filter(|row| row.is_file()).map(note))
+        .chain(project.iter().cloned())
         .chain(threads.iter().map(thread))
         .chain(Command::all().into_iter().map(LaunchItem::Command))
         .filter(matches)
@@ -1609,7 +1637,7 @@ mod tests {
         let activity = Activity::default();
         let threads = thread_rows(&records, &activity);
         let notes = note_rows(&records, &activity);
-        let items = launcher("renewal", &threads, &notes, &[]);
+        let items = launcher("renewal", &threads, &notes, &[], &[]);
         assert_eq!(items.len(), 2);
         // Current knowledge first, then conversations.
         assert_eq!(items[0].accessible_label(), "Article: Renewal contract");
@@ -1622,21 +1650,21 @@ mod tests {
         assert_eq!(items[1].accessible_label(), "Chat: Renewal date · archived");
         assert_eq!(items[1].group(), "Chats");
         assert_eq!(
-            launcher("archived", &threads, &notes, &[]),
+            launcher("archived", &threads, &notes, &[], &[]),
             [items[1].clone()],
             "the archived state stays searchable"
         );
         assert!(
-            launcher("raba", &threads, &notes, &[]).contains(&LaunchItem::Command(Command::Theme(
-                Appearance::Legacy(ThemeId::Raba)
-            )))
+            launcher("raba", &threads, &notes, &[], &[]).contains(&LaunchItem::Command(
+                Command::Theme(Appearance::Legacy(ThemeId::Raba))
+            ))
         );
         // The primary System/Light/Dark commands are reachable by name.
         assert!(
-            launcher("system", &threads, &notes, &[])
+            launcher("system", &threads, &notes, &[], &[])
                 .contains(&LaunchItem::Command(Command::Theme(Appearance::System)))
         );
-        let empty = launcher("", &threads, &notes, &[]);
+        let empty = launcher("", &threads, &notes, &[], &[]);
         assert!(
             !empty
                 .iter()
@@ -1671,7 +1699,7 @@ mod tests {
             hit("m1", "Berth survey reply draft 1.4 m", false),
             hit("m2", "Survey reply, kept", true),
         ];
-        let items = launcher("berth", &[], &notes, &messages);
+        let items = launcher("berth", &[], &notes, &[], &messages);
         let groups: Vec<_> = items.iter().map(LaunchItem::group).collect();
         assert_eq!(groups, ["Articles", "In chat history", "In chat history"]);
         assert_eq!(
@@ -1694,18 +1722,18 @@ mod tests {
         ));
         // Without a search answer nothing is invented.
         assert!(
-            launcher("berth", &[], &[], &[]).is_empty(),
+            launcher("berth", &[], &[], &[], &[]).is_empty(),
             "no label matches and no Messages"
         );
         // A word that is a command and also in saved chat text (the theme
         // names are everyday Estonian words): the command keeps its row
         // when the search answers, so ↵ and the selection never move to a
         // Message that arrived later.
-        let before = launcher("raba", &[], &notes, &[]);
+        let before = launcher("raba", &[], &notes, &[], &[]);
         let theme = LaunchItem::Command(Command::Theme(Appearance::Legacy(ThemeId::Raba)));
         assert_eq!(before.first(), Some(&theme));
         let raba = [hit("m3", "Raba walk on Saturday", false)];
-        let after = launcher("raba", &[], &notes, &raba);
+        let after = launcher("raba", &[], &notes, &[], &raba);
         assert_eq!(after[..before.len()], before[..], "earlier rows stay put");
         assert_eq!(after.first(), Some(&theme));
         let groups: Vec<_> = after.iter().map(LaunchItem::group).collect();
@@ -1743,8 +1771,35 @@ mod tests {
             "{labels:?}"
         );
         assert_eq!(
-            launcher("projects", &[], &[], &[]),
+            launcher("projects", &[], &[], &[], &[]),
             [LaunchItem::Command(Command::OpenTile(TileKind::Projects))]
+        );
+    }
+
+    #[test]
+    fn launcher_lists_the_context_project_documents_after_files() {
+        let budget = LaunchItem::ProjectDoc {
+            id: "doc".into(),
+            project: "p".into(),
+            title: "Expansion budget".into(),
+            project_title: "Harbor expansion".into(),
+        };
+        let items = launcher("budget", &[], &[], std::slice::from_ref(&budget), &[]);
+        assert_eq!(items, std::slice::from_ref(&budget));
+        assert_eq!(items[0].group(), "This project");
+        assert_eq!(
+            items[0].group_scope(),
+            Some("Project only · not in Library")
+        );
+        assert_eq!(items[0].meta().as_deref(), Some("Harbor expansion"));
+        assert_eq!(
+            items[0].accessible_label(),
+            "Project document: Expansion budget · only in Harbor expansion"
+        );
+        assert!(launcher("tides", &[], &[], std::slice::from_ref(&budget), &[]).is_empty());
+        assert!(
+            launcher("harbor", &[], &[], &[budget], &[]).is_empty(),
+            "matched by its own title, not its project's"
         );
     }
 }

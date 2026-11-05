@@ -1708,6 +1708,7 @@ impl ThreadsUi {
                 }
                 lists::LaunchItem::Note { file: false, .. } => (IconName::FileText, None, false),
                 lists::LaunchItem::Note { file: true, .. } => (IconName::Paperclip, None, false),
+                lists::LaunchItem::ProjectDoc { .. } => (IconName::Paperclip, None, false),
                 lists::LaunchItem::Message { archived, .. } => {
                     (IconName::MessageSquare, None, *archived)
                 }

@@ -160,6 +160,52 @@ impl ThreadsUi {
                 && matches!(r.data, RecordData::Project(_))
         })
     }
+    /// The active project the launcher opens from: the project shown on the
+    /// Projects page, or the project of the open note or chat.
+    fn context_project(&self) -> Option<&Record> {
+        let active = |id: &str| {
+            self.records
+                .iter()
+                .find(|r| r.id == id && !r.archived && matches!(r.data, RecordData::Project(_)))
+        };
+        self.layout
+            .visible()
+            .contains(&TileKind::Projects)
+            .then(|| self.shown_project())
+            .flatten()
+            .filter(|r| !r.archived)
+            .or_else(|| self.note_writing_scope.as_deref().and_then(active))
+            .or_else(|| {
+                self.chat_thread()
+                    .and_then(|chat| project_for_chat(&self.records, chat))
+                    .and_then(|r| active(&r.id))
+            })
+    }
+    /// The context project's own documents for the launcher. Shared
+    /// documents are already listed as articles, so only project-only ones.
+    pub(super) fn launcher_project_documents(&self) -> Vec<lists::LaunchItem> {
+        let Some(record) = self.context_project() else {
+            return vec![];
+        };
+        let RecordData::Project(p) = &record.data else {
+            return vec![];
+        };
+        project_document_ids(&self.records, record)
+            .into_iter()
+            .filter_map(|id| {
+                let note = self.records.iter().find(|r| r.id == id && !r.archived)?;
+                let RecordData::Note(data) = &note.data else {
+                    return None;
+                };
+                data.chat.is_some().then(|| lists::LaunchItem::ProjectDoc {
+                    title: title(note),
+                    id,
+                    project: record.id.clone(),
+                    project_title: p.title.clone(),
+                })
+            })
+            .collect()
+    }
     /// The Projects ⋯'s first section: the selected active project's
     /// actions, Move to Trash… last after a separator.
     pub(super) fn projects_menu_section(
