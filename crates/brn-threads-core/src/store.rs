@@ -158,16 +158,6 @@ impl Store {
         // The caller's actor for receipts of this connection (`set_actor`).
         // Temp tables are connection-scoped and never backed up.
         conn.execute_batch("CREATE TEMP TABLE IF NOT EXISTS caller_actor(actor TEXT NOT NULL)")?;
-        // Presentation preferences live outside the versioned records so a
-        // theme change never bumps the Settings version that working runs bind
-        // their authority to (THEME-02). This is host-only appearance state,
-        // like `workspace_profile`; it is a singleton, carries no receipt and
-        // never fences a run. Created idempotently on every open so an existing
-        // schema-13 workspace gains it without a schema upgrade, and the whole
-        // SQLite file (and thus this table) travels with backup and restore.
-        conn.execute_batch(
-            "CREATE TABLE IF NOT EXISTS presentation(id INTEGER PRIMARY KEY CHECK(id=1), theme TEXT)",
-        )?;
         if !existing {
             let tx = conn.transaction_with_behavior(TransactionBehavior::Immediate)?;
             tx.execute_batch("CREATE TABLE operations(id TEXT PRIMARY KEY, host_key TEXT UNIQUE NOT NULL, input_hash TEXT, hash TEXT, request TEXT, undo_of TEXT, replacement_of TEXT, retired INTEGER NOT NULL DEFAULT 0); CREATE TABLE candidate_targets(note TEXT PRIMARY KEY, operation TEXT NOT NULL REFERENCES operations(id)); CREATE TABLE records(id TEXT PRIMARY KEY, version INTEGER NOT NULL, body TEXT NOT NULL); CREATE UNIQUE INDEX one_workspace_settings ON records((1)) WHERE json_type(body,'$.data.Settings') IS NOT NULL; CREATE UNIQUE INDEX source_locator ON records(json_extract(body,'$.data.Source.locator')) WHERE json_type(body,'$.data.Source') IS NOT NULL; CREATE TABLE revisions(id TEXT NOT NULL, version INTEGER NOT NULL, operation TEXT NOT NULL REFERENCES operations(id), body TEXT NOT NULL, PRIMARY KEY(id,version)); CREATE TABLE receipts(operation TEXT PRIMARY KEY REFERENCES operations(id), body TEXT NOT NULL); CREATE TABLE edit_sessions(id TEXT PRIMARY KEY, note TEXT NOT NULL, base INTEGER NOT NULL, generation INTEGER NOT NULL, markdown TEXT NOT NULL, closed INTEGER NOT NULL DEFAULT 0); CREATE UNIQUE INDEX one_dirty_session ON edit_sessions(note) WHERE closed=0; CREATE TABLE derivation_inputs(operation TEXT NOT NULL, record TEXT NOT NULL, version INTEGER NOT NULL);")?;
@@ -214,7 +204,26 @@ impl Store {
     /// workspace, or one saved before this preference existed) reads as `None`,
     /// which the host resolves to its System default. Presentation only: this
     /// is never part of a run's authority binding.
+    ///
+    /// The singleton `presentation` table lives outside the versioned records
+    /// so a theme change never bumps the Settings version that working runs
+    /// bind their authority to (THEME-02). Opening a workspace never creates
+    /// it: the first save does, so an open (including an upgrade-mode open
+    /// before its verified snapshot) leaves the database unchanged. The whole
+    /// SQLite file, and so this table, travels with backup and restore.
     pub fn presentation_theme(&self) -> Result<Option<String>> {
+        let exists = self
+            .conn
+            .query_row(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='presentation'",
+                [],
+                |_| Ok(()),
+            )
+            .optional()?
+            .is_some();
+        if !exists {
+            return Ok(None);
+        }
         Ok(self
             .conn
             .query_row("SELECT theme FROM presentation WHERE id=1", [], |row| {
@@ -242,6 +251,9 @@ impl Store {
         let tx = self
             .conn
             .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(
+            "CREATE TABLE IF NOT EXISTS presentation(id INTEGER PRIMARY KEY CHECK(id=1), theme TEXT)",
+        )?;
         tx.execute(
             "INSERT INTO presentation(id,theme) VALUES(1,?1) ON CONFLICT(id) DO UPDATE SET theme=excluded.theme",
             [theme],
