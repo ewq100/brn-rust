@@ -63,3 +63,19 @@ Build: recorded per row as the integration commit. Platform: macOS (Apple silico
 | VE-06 | Manual Inbox Scan result; task completion receipt | Scan in Light; receipt in Dark; 1280×900 | Partial | Scan in Light: `s6/light-1280-scan-*`. A task completion receipt in Dark was not captured natively. |
 | VE-07 | Settings with the appearance choice and visible keyboard focus | Either theme; 900×600 | Pass | `final/{light,dark}-ve07-settings-appearance-900.png`: Appearance section with System/Light/Dark and a visible focus ring after Tab. |
 | VE-08 | Supplied long article with the outline/current section and representative table, image and citation states; compact contents fallback | Light and Dark; 1280×900 and 900×600 | Pass | `s4/{light,dark}-1280-outline-results`, `-outline-code-wide-table`, `-stored-figure`; `s4/{light,dark}-900-outline-compact`, `-after-contents-go`; `final/{light,dark}-article-read`, `-compact-article`. |
+
+## Representative captures
+
+Downscaled copies of native captures (synthetic data, macOS) are kept in [evidence/final](evidence/final/); full-size captures stay in the local artifacts folder named in each row.
+
+| Capture | Shows |
+|---|---|
+| [light-new-chat](evidence/final/light-new-chat.png) | New chat start with the delegation choice (Light) |
+| [dark-conversation](evidence/final/dark-conversation.png) | Conversation with paused queue, attachment and references (Dark, VE-01) |
+| [light-library](evidence/final/light-library.png) | Article Library (Light, VE-03) |
+| [dark-project-doc-assistant](evidence/final/dark-project-doc-assistant.png) | Project document with its assistant (Dark) |
+| [light-doc-history-preview](evidence/final/light-doc-history-preview.png) | Document history with a version preview (Light, AC-17) |
+| [dark-inbox-for-you](evidence/final/dark-inbox-for-you.png) | Inbox For you with a recovery decision (Dark) |
+| [light-ve04-draft-comment-900](evidence/final/light-ve04-draft-comment-900.png), [dark-ve04-draft-comment-900](evidence/final/dark-ve04-draft-comment-900.png) | Direct-edit draft with a passage comment at 900×600 (VE-04) |
+| [dark-settings-appearance](evidence/final/dark-settings-appearance.png) | Settings → Appearance (Dark) |
+| [light-ac01-restored](evidence/final/light-ac01-restored.png) | Project document restored after relaunch (AC-01) |
