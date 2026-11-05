@@ -5223,22 +5223,23 @@ fn int_w_general_notes_list_hides_p1_reference_with_scoped_retained_source(
         })
         .unwrap();
         cx.run_until_parked();
-        cx.update_window(f.window, |_, window, _| {
-            assert!(
-                window
-                    .try_find(format!("notes-recent-{}", f.a.id))
-                    .is_some(),
-                "visible general Note remains a real rendered positive control"
-            );
-            assert!(
-                window
-                    .try_find(format!("notes-recent-{}", f.b.id))
-                    .is_none(),
-                "general Notes UI must not reveal a P1-private retained-source reference title"
-            );
-            assert!(window.try_find(format!("notes-kept-{}", f.b.id)).is_none());
-        })
-        .unwrap();
+        // Articles and All files alike: the private reference stays hidden.
+        for tab in ["library-articles", "library-files"] {
+            cx.update_window(f.window, |_, window, cx| window.click(tab, cx))
+                .unwrap();
+            cx.run_until_parked();
+            cx.update_window(f.window, |_, window, _| {
+                assert!(
+                    window.try_find(format!("note-{}", f.a.id)).is_some(),
+                    "visible general Note remains a real rendered positive control"
+                );
+                assert!(
+                    window.try_find(format!("note-{}", f.b.id)).is_none(),
+                    "general Notes UI must not reveal a P1-private retained-source reference title"
+                );
+            })
+            .unwrap();
+        }
         cx.read(|cx| {
             assert!(
                 f.view.read(cx).note_rows.iter().all(|row| row.id != f.b.id),

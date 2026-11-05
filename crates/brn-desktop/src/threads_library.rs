@@ -309,7 +309,7 @@ pub(super) fn library_row(
     marks: Vec<gpui_kit::AnyElement>,
     selected: bool,
     tooltip: Option<String>,
-) -> gpui_kit::Stateful<gpui_kit::Div> {
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
     let p = pal();
     let id: SharedString = id.into();
     let announced = [title.as_str(), description.as_str(), facts.as_str()]
@@ -390,10 +390,15 @@ pub(super) fn library_row(
                 .mt(px(2.))
                 .text_color(rgb(p.muted)),
         )
+        .test_support()
 }
 
 /// A local view tab: an underlined label, announced as a selected tab.
-fn view_tab(id: &'static str, label: String, selected: bool) -> gpui_kit::Stateful<gpui_kit::Div> {
+fn view_tab(
+    id: &'static str,
+    label: String,
+    selected: bool,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
     let p = pal();
     div()
         .id(id)
@@ -421,6 +426,7 @@ fn view_tab(id: &'static str, label: String, selected: bool) -> gpui_kit::Statef
         .aria_label(label.clone())
         .aria_selected(selected)
         .child(label)
+        .test_support()
 }
 
 /// The Library's ⋯ menu: Knowledge checks, Recent changes and Topics.
@@ -922,6 +928,7 @@ impl ThreadsUi {
             Some(
                 metadata(self.library.order.label())
                     .id("library-order")
+                    .aria_label(self.library.order.label())
                     .test_support()
                     .into_any_element(),
             ),

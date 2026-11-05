@@ -352,11 +352,22 @@ fn the_projects_page_keeps_its_column_when_maximized(cx: &mut TestAppContext) {
     cx.update_window(f.window, |_, window, _| {
         let page = window.find("projects-tile").bounds();
         assert!(page.size.width > px(1000.), "maximized: {page:?}");
-        // Pages hold one column of at most 720 px, as Home, Tasks and Changes do.
-        for id in [format!("project-row-{p}"), "project-status".into()] {
-            let line = window.find(id.clone()).bounds();
-            assert!(line.size.width <= px(720.), "{id}: {line:?}");
+        // The workspace keeps one column near the reading measure.
+        for id in [
+            "project-title",
+            "project-status",
+            "project-documents",
+            "project-chats",
+        ] {
+            let line = window.find(id).bounds();
+            assert!(line.size.width <= px(760.), "{id}: {line:?}");
         }
+    })
+    .unwrap();
+    click(cx, &f, "project-back");
+    cx.update_window(f.window, |_, window, _| {
+        let line = window.find(format!("project-row-{p}")).bounds();
+        assert!(line.size.width <= px(760.), "{line:?}");
     })
     .unwrap();
 }
@@ -517,27 +528,28 @@ fn project_selection_rows_expose_names_and_selection(cx: &mut TestAppContext) {
     let title = "A full project title that may truncate visually";
     let first = create(cx, &f, title);
     let second = create(cx, &f, "Another project");
+    // Creating opens the new project's workspace; its header names it.
     cx.update_window(f.window, |_, window, _| {
-        let row = window.find(format!("project-row-{first}"));
-        assert_eq!(row.role(), Some(gpui_kit::Role::Button));
-        assert_eq!(row.label(), Some(title));
-        assert_eq!(row.selected(), Some(false));
-        assert_eq!(
-            window.find(format!("project-row-{second}")).selected(),
-            Some(true)
-        );
+        assert!(window.try_find(format!("project-row-{first}")).is_none());
+        assert!(window.find("project-title").visible());
+    })
+    .unwrap();
+    click(cx, &f, "project-back");
+    cx.update_window(f.window, |_, window, _| {
+        for (id, name) in [(&first, title), (&second, "Another project")] {
+            let row = window.find(format!("project-row-{id}"));
+            assert_eq!(row.role(), Some(gpui_kit::Role::Button));
+            let label = row.label().unwrap_or_default();
+            assert!(label.starts_with(name), "{label}");
+            assert!(label.contains("0 documents · 0 chats"), "{label}");
+            assert_eq!(row.selected(), Some(false));
+        }
     })
     .unwrap();
     click(cx, &f, format!("project-row-{first}"));
     cx.update_window(f.window, |_, window, _| {
-        assert_eq!(
-            window.find(format!("project-row-{first}")).selected(),
-            Some(true)
-        );
-        assert_eq!(
-            window.find(format!("project-row-{second}")).selected(),
-            Some(false)
-        );
+        assert!(window.find("project-title").visible());
+        assert!(window.try_find(format!("project-row-{second}")).is_none());
     })
     .unwrap();
     cx.read(|cx| {

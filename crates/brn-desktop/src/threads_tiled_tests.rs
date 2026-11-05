@@ -1185,13 +1185,20 @@ fn connections_tile_lists_visible_links_filters_relations_and_recenters(cx: &mut
         );
     })
     .unwrap();
-    click(cx, &f, "connections-filter-source");
+    // The relation filter is one menu, not a row of every relation.
+    click(cx, &f, "connections-filter");
+    choose(cx, &f, relations::SOURCE);
     cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("connections-filter").label(),
+            Some("Relation filter: source")
+        );
         assert!(window.find(format!("connection-{evidence}")).visible());
         assert!(window.try_find(format!("connection-{related}")).is_none());
     })
     .unwrap();
-    click(cx, &f, "connections-filter-all");
+    click(cx, &f, "connections-filter");
+    choose(cx, &f, "All");
 
     // Dispatch the real control but inspect its immediate frame before the
     // fixture's usual run_until_parked drains the matching request.

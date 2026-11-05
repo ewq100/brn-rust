@@ -990,7 +990,7 @@ fn first_run_empty_states_name_the_next_step(cx: &mut TestAppContext) {
         (
             TileKind::Projects,
             "projects-empty",
-            "No projects yet · Group related chats and documents with shared context.",
+            "No projects yet · Group related chats and documents with shared context. Start with New project.",
         ),
         (
             TileKind::Connections,
@@ -1309,8 +1309,10 @@ fn preparing_search_shows_a_spinner_with_its_text(cx: &mut TestAppContext) {
     });
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "search-preparing"), "Preparing search…");
-        // The A–Z strip is one row above the list.
-        assert!(window.find("notes-letters").bounds().size.height <= px(32.));
+        // The local views sit in one compact row above the list.
+        assert!(window.find("library-views").bounds().size.height <= px(40.));
+        assert_eq!(label(window, "library-articles"), "Articles · 1");
+        assert_eq!(label(window, "library-files"), "All files · 0");
         assert_eq!(label(window, "topics"), "Topics · Create Topics note");
     });
 }
@@ -1606,4 +1608,230 @@ fn chat_focus_dispatch_with_tasks_panel_and_split_enter(cx: &mut TestAppContext)
             assert!(ui.worker.is_none());
         });
     }
+}
+
+/// S5 Library (spec §6.4, AC-08/09/26): Articles is the default and leaves
+/// out full imported references; All files lists them and retained sources
+/// without a readable import; a source states its availability limit; a
+/// row opens the same note for reading with the assistant closed; Knowledge
+/// checks is in the Library menu; the launcher names type and scope and
+/// never lists project-only documents.
+#[gpui_kit::test]
+fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContext) {
+    let mut ids = (
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+    );
+    let f = fixture(cx, 1280., 900., |workspace| {
+        let article = workspace
+            .new_note(
+                "Harbor delivery",
+                "# Harbor delivery\n\nCurrent plan for the berth.",
+            )
+            .unwrap()
+            .id;
+        let source = |label: &str| {
+            RecordData::Source(Source {
+                chat: None,
+                locator: format!("/nonexistent-brn-fixture/{label}"),
+                label: label.into(),
+                observed_at: "2026-11-01T09:00:00Z".into(),
+                external_version: None,
+                outcome: "converted".into(),
+                gaps: vec![],
+                report: None,
+            })
+        };
+        let owner = HostAuthority::owner("fixture");
+        let op = workspace
+            .store
+            .allocate_operation("s5-library-fixture")
+            .unwrap();
+        let (survey, loose, note) = (op.creation_id(0), op.creation_id(1), op.creation_id(2));
+        let mut reference = Note::working("Harbor survey", "Survey text, kept faithfully.");
+        reference.protected = true;
+        reference.import = Some(ImportCoverage {
+            source: survey.clone(),
+            full_note: true,
+            gaps: vec![],
+            report: None,
+        });
+        let put = |id: &str, data: RecordData| Put {
+            id: id.into(),
+            expected_version: None,
+            archived: false,
+            data,
+        };
+        let request = ChangeRequest {
+            reason: "Synthetic Library fixture".into(),
+            writes: vec![
+                put(&survey, source("harbor-survey.pdf")),
+                put(&loose, source("harbor-tides.csv")),
+                put(&note, RecordData::Note(reference)),
+            ],
+            inputs: vec![],
+        };
+        workspace
+            .store
+            .prepare_owner(&op, &request, &owner)
+            .unwrap();
+        assert!(matches!(
+            workspace.store.apply(&op, &owner).unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        // One ordinary update committed under the standing delegation.
+        workspace
+            .choose_delegation(DelegationChoice::MaintainOrdinaryNotes)
+            .unwrap();
+        let current = workspace.store.record(&article).unwrap().unwrap();
+        let RecordData::Note(mut updated) = current.data.clone() else {
+            unreachable!()
+        };
+        updated.markdown.push_str("\nBerth two opens in May.\n");
+        let op = workspace.store.allocate_operation("s5-delegated").unwrap();
+        workspace
+            .store
+            .prepare(
+                &op,
+                &ChangeRequest {
+                    reason: "Delegated maintenance fixture".into(),
+                    writes: vec![Put {
+                        id: article.clone(),
+                        expected_version: Some(current.version),
+                        archived: false,
+                        data: RecordData::Note(updated),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        assert!(matches!(
+            workspace
+                .store
+                .apply(&op, &HostAuthority::maintenance("fixture"))
+                .unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        let receipt = workspace
+            .project_command(
+                "s5-project",
+                ProjectCommand::Create {
+                    title: "Harbor project".into(),
+                },
+            )
+            .unwrap();
+        let project = receipt.writes[0].after.id.clone();
+        let doc = workspace
+            .project_command(
+                "s5-project-doc",
+                ProjectCommand::CreateDocument {
+                    project,
+                    title: "Harbor private".into(),
+                    markdown: "Only in the project.".into(),
+                },
+            )
+            .unwrap()
+            .writes
+            .iter()
+            .find(|w| matches!(w.after.data, RecordData::Note(_)))
+            .unwrap()
+            .after
+            .id
+            .clone();
+        ids = (article, note, loose, doc, survey);
+    });
+    let (article, reference, loose, private, survey) = ids;
+    click(cx, &f, "nav-library");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "library-articles"), "Articles · 1");
+        assert_eq!(label(window, "library-files"), "All files · 2");
+        assert_eq!(window.find("library-articles").selected(), Some(true));
+        assert!(window.find(format!("note-{article}")).visible());
+        let row = label(window, format!("note-{article}"));
+        assert!(
+            row.contains("Current plan for the berth."),
+            "the row describes it: {row}"
+        );
+        assert!(
+            row.contains("by delegated maintenance"),
+            "the delegated update is named, not called reviewed: {row}"
+        );
+        assert!(window.try_find(format!("note-{reference}")).is_none());
+        assert!(window.try_find(format!("note-{private}")).is_none());
+        let footer = label(window, "library-footer");
+        assert!(footer.contains("not personally reviewed"), "{footer}");
+        assert!(!footer.contains("Approved"), "{footer}");
+    });
+    click(cx, &f, "library-files");
+    on_window(cx, &f, |window, _| {
+        let row = label(window, format!("note-{reference}"));
+        assert!(row.contains("Full imported reference"), "{row}");
+        assert!(row.contains("Protected"), "{row}");
+        assert!(window.find(format!("source-{loose}")).visible());
+        assert!(
+            window.try_find(format!("source-{survey}")).is_none(),
+            "a source with a readable import is reached through that import"
+        );
+        assert!(window.try_find(format!("note-{private}")).is_none());
+    });
+    click(cx, &f, format!("source-{loose}"));
+    cx.read(|cx| {
+        let notice = f.view.read(cx).notice.text().to_owned();
+        assert!(
+            notice.contains("BRN keeps only what it recorded"),
+            "{notice}"
+        );
+    });
+    click(cx, &f, format!("note-{reference}"));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(reference.as_str()));
+        assert_eq!(
+            view.layout.visible(),
+            [TileKind::Note],
+            "a Library article opens for reading with the assistant closed"
+        );
+    });
+    click(cx, &f, "nav-library");
+    click(cx, &f, "library-menu");
+    assert_eq!(
+        menu_rows(cx, &f),
+        ["Knowledge checks", "Recent changes", "Create Topics note"]
+    );
+    choose(cx, &f, "Knowledge checks");
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("library-checks-heading").visible());
+        assert!(window.find("knowledge-run").visible());
+    });
+    click(cx, &f, "library-back");
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("library-articles").visible());
+    });
+    press(cx, &f, "cmd-k");
+    on_window(cx, &f, |window, cx| window.input("harbor", cx));
+    on_window(cx, &f, |window, _| {
+        let labels: Vec<String> = (0..12)
+            .filter_map(|i| window.try_find(format!("launcher-item-{i}")))
+            .filter_map(|row| row.label().map(str::to_owned))
+            .collect();
+        assert!(
+            labels.contains(&"Article: Harbor delivery".to_owned()),
+            "{labels:?}"
+        );
+        assert!(
+            labels.contains(&"File: Harbor survey · full imported reference".to_owned()),
+            "{labels:?}"
+        );
+        assert!(
+            labels.iter().all(|label| !label.contains("Harbor private")),
+            "project-only material stays out of global search: {labels:?}"
+        );
+        assert_eq!(
+            label(window, "launcher-group-files"),
+            "Files · Current knowledge · saved library"
+        );
+    });
 }
