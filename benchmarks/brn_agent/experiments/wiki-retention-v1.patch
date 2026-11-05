@@ -1,0 +1,10 @@
+--- a/agent/skills/maintain-notes/SKILL.md
++++ b/agent/skills/maintain-notes/SKILL.md
+@@ -15,6 +15,7 @@
+    - **Project/entity:** identity and scope, supported current facts and dates, related work, open questions and evidence.
+    - **Concept/process:** explanation or steps, distinctions, conditions and exceptions, useful examples and evidence.
+    - **Synthesis/comparison:** the question, supported agreements and differences, explicitly labeled inference, uncertainty and evidence.
++   Before replacing the current account, check the proposed text against the useful existing facts and the incoming source: keep each still-supported fact, number, unit, condition, exception and unresolved point, and integrate any new facts. An exact duplicate can need no text change.
+    Preserve useful existing detail and owner wording. Split a page only when its subjects are independently useful and the current request permits it. A source-focused summary is useful when that source's argument or identity deserves separate treatment; source intake has no page quota.
+ 
+ ## Ground and connect the account

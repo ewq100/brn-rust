@@ -1,0 +1,47 @@
+{
+  "policy": "Sol independent council seat first; owner reserves multi-model review for a concrete disagreement.",
+  "complete_three_family_council": false,
+  "rounds": [
+    {
+      "round": 1,
+      "reviewer": "fresh Codex / GPT-6.1 Sol, inherited high",
+      "score": 7.5,
+      "findings": [
+        {
+          "severity": "P1",
+          "finding": "Reader receipt question not bound to actual native prompt",
+          "disposition": "Bound to saved owner Message and native Run; reject rehashed relabelled question."
+        },
+        {
+          "severity": "P2",
+          "finding": "Usefulness judgment not bound to reviewed actual reader answer",
+          "disposition": "Anonymous reader packets and hash-bound independent review import; report regenerates artifact before merging. Manual receipt attachment cannot score usefulness."
+        }
+      ],
+      "verification": "4 new reader-grading protocol tests pass, including CLI report join, missing/scripted/changed-answer/refusal and safety retention."
+    },
+    {
+      "round": 2,
+      "reviewer": "fresh Codex / GPT-6.1 Sol, inherited high",
+      "score": 8.7,
+      "findings": [
+        {
+          "severity": "P2",
+          "finding": "Receipt article versions were not revalidated at grading time",
+          "disposition": "Validate bounded unique exact current general-note ID/version pairs in both checkpoints; require packet record coverage. Regression test refuses rehashed version999, empty/duplicate/bool/private/archived selections."
+        }
+      ]
+    },
+    {
+      "round": 3,
+      "reviewer": "fresh Codex / GPT-6.1 Sol, inherited high",
+      "score": 9.0,
+      "findings": [],
+      "verdict": "All prior findings resolved; no substantiated remaining defects. Read-only focused checks passed."
+    }
+  ],
+  "deferred_seats": {
+    "Kiro/Claude Opus 5.5": "not invoked: no unresolved concrete disagreement",
+    "Copilot/Kimi K3": "not invoked: no unresolved concrete disagreement"
+  }
+}

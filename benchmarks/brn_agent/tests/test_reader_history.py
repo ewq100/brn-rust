@@ -45,7 +45,7 @@ class NativeMappingTests(unittest.TestCase):
         cases, admission = history_fixture()
         fixture, _, _ = native_fixture(cases, admission)
         with tempfile.TemporaryDirectory() as tmp:
-            output = Path(tmp) / 'stage'
+            output = Path(tmp).resolve() / 'stage'
             result = stage_history(cases, admission, fixture['cases'][0]['id'],
                                    os.environ['BRN_AGENTBENCH_TEST_BINARY'], output)
             self.assertEqual(result['status'], 'complete')
@@ -72,7 +72,7 @@ class NativeMappingTests(unittest.TestCase):
 class ReaderExecutionTests(unittest.TestCase):
     def test_wiki_only_reader_uses_clone_and_never_sees_raw_source_canary(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp) / 'experiment'
+            root = Path(tmp).resolve() / 'experiment'
             v2.create_root(root)
             binary = os.environ['BRN_AGENTBENCH_TEST_BINARY']
             arm = {'name':'A','binary':binary,'model_dir':None,'provider':None,'model':None,'effort':None,'binary_sha256':'unit'}
@@ -94,7 +94,7 @@ class ReaderExecutionTests(unittest.TestCase):
             packet = verified_proof_packet(checkpoint,wiki_records=reads)
             fixture = {'mode':'wiki-only','question':'What is the current target?','records':reads,
                        'controlled_answer':'The saved wiki says May 1.','packet_sha256':packet_hash(packet)}
-            result = run(checkpoint,fixture,binary,os.environ['BRN_AGENTBENCH_READER_BINARY'],Path(tmp)/'probe')
+            result = run(checkpoint,fixture,binary,os.environ['BRN_AGENTBENCH_READER_BINARY'],Path(tmp).resolve()/'probe')
             self.assertEqual(result['status'],'complete')
             self.assertFalse(result['qualified'])
             self.assertNotIn('RAW_SOURCE_READER_CANARY', json.dumps(result['observed']['model_visible_history']))
@@ -104,13 +104,13 @@ class ReaderExecutionTests(unittest.TestCase):
             normal_reads = reads + [{'id':source['id'],'version':source['version']}]
             normal_packet = verified_proof_packet(checkpoint)
             normal_fixture = dict(fixture,mode='normal-product',records=normal_reads,packet_sha256=packet_hash(normal_packet))
-            normal = run(checkpoint,normal_fixture,binary,os.environ['BRN_AGENTBENCH_READER_BINARY'],Path(tmp)/'normal')
+            normal = run(checkpoint,normal_fixture,binary,os.environ['BRN_AGENTBENCH_READER_BINARY'],Path(tmp).resolve()/'normal')
             self.assertIn('RAW_SOURCE_READER_CANARY', json.dumps(normal['observed']['model_visible_history']))
             self.assertEqual(sample.cli.call('records'), before)
             bad = dict(fixture,packet_sha256='wrong')
             with self.assertRaises(ValueError):
-                run(checkpoint,bad,binary,os.environ['BRN_AGENTBENCH_READER_BINARY'],Path(tmp)/'bad')
-            self.assertFalse((Path(tmp)/'bad').exists())
+                run(checkpoint,bad,binary,os.environ['BRN_AGENTBENCH_READER_BINARY'],Path(tmp).resolve()/'bad')
+            self.assertFalse((Path(tmp).resolve()/'bad').exists())
 
 @unittest.skipUnless(os.environ.get('BRN_AGENTBENCH_RECOVERY_BINARY'), 'explicit controlled recovery binary required')
 class RecoveryExecutionTests(unittest.TestCase):
@@ -118,7 +118,7 @@ class RecoveryExecutionTests(unittest.TestCase):
         import subprocess
         from score import sha256
         with tempfile.TemporaryDirectory() as tmp:
-            output = Path(tmp)/'recovery'
+            output = Path(tmp).resolve()/'recovery'
             command = [os.environ['BRN_AGENTBENCH_RECOVERY_BINARY'],str(output)]
             subprocess.run(command,check=True,capture_output=True,text=True,timeout=30)
             result = json.loads((output/'recovery-result.json').read_text())

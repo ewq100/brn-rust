@@ -959,7 +959,9 @@ class UnverifiedTests(unittest.TestCase):
         report = v2.build_report([self.result('A', blind), self.result('B', full)],
                                  [{'id': 'R1', 'repetitions': 1, 'scales': [1000]}])
         rows = {row['arm']: row for row in report['cases']}
-        self.assertEqual((rows['A']['passes'], rows['B']['passes']), (1, 1))  # B's failing read is not compared.
+        self.assertEqual((rows['A']['passes'], rows['B']['passes']), (0, 0))  # Unknown and failed checks remain visible.
+        self.assertEqual(rows['A']['automatic_checks']['status'], 'unverified')
+        self.assertEqual(rows['B']['automatic_checks']['status'], 'failed')
         self.assertEqual(rows['B']['excluded'], [{'type': 'read', 'step': 1, 'arms': ['A']}])
         text = v2.format_report(report)
         self.assertIn('excluded: read (step 1) unverifiable on arm A', text)
