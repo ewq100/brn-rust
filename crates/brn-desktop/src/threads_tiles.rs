@@ -462,7 +462,7 @@ impl ThreadsUi {
             PAGE_WIDTH,
             view.child(note_list.test_support())
                 .child(recent.test_support())
-                .child(self.knowledge_panel(cx)),
+                .child(self.knowledge_panel(true, cx)),
         )
         .test_support()
         .into_any_element()

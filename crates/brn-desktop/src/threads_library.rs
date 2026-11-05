@@ -1280,7 +1280,7 @@ impl ThreadsUi {
                     .child("Knowledge checks")
                     .test_support(),
             )
-            .child(self.knowledge_panel(cx));
+            .child(self.knowledge_panel(false, cx));
         scroll("library-checks")
             .items_center()
             .px(self.library_inset())

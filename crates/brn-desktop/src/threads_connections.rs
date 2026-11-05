@@ -611,7 +611,12 @@ impl ThreadsUi {
     }
 
     /// The overview panel for the owner-triggered knowledge check.
-    pub(super) fn knowledge_panel(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+    /// `titled` adds a section label where no page heading names the check.
+    pub(super) fn knowledge_panel(
+        &self,
+        titled: bool,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
         let knowledge = &self.knowledge;
         let mut panel = div()
             .id("knowledge-check")
@@ -619,12 +624,12 @@ impl ThreadsUi {
             .flex_col()
             .gap_2()
             .min_w_0()
-            .child(section("Knowledge check"))
+            .when(titled, |panel| panel.child(section("Knowledge check")))
             .child(metadata(
                 "Look for broken links, outdated inputs, gaps, orphans, duplicates and unresolved conflicts. A clean check is not proof of correctness.",
             ))
             .child(
-                div().child(
+                div().flex().child(
                     button("knowledge-run")
                         .label(if knowledge.running {
                             "Checking…"
@@ -722,13 +727,18 @@ impl ThreadsUi {
                     div()
                         .id(format!("knowledge-finding-{index}"))
                         .flex()
-                        .flex_col()
-                        .gap_1()
-                        .child(finding.detail.clone())
+                        .items_center()
+                        .gap_3()
+                        .py_1()
+                        .border_t_1()
+                        .border_color(rgb(pal().hairline))
+                        .child(div().flex_1().min_w_0().child(finding.detail.clone()))
                         .child(
                             button(format!("knowledge-inspect-{index}"))
-                                .label("Inspect finding")
+                                .label("Inspect")
+                                .accessibility_label(format!("Inspect finding: {}", finding.detail))
                                 .outline()
+                                .with_size(gpui_kit::component::Size::Small)
                                 .disabled(knowledge.busy)
                                 .on_click(cx.listener(move |this, _, window, cx| {
                                     this.knowledge_action(
@@ -774,7 +784,9 @@ impl ThreadsUi {
                     .id("knowledge-selected")
                     .flex()
                     .flex_col()
+                    .items_start()
                     .gap_2()
+                    .pt_2()
                     .child(section(finding_label(selection.finding.kind)))
                     .child(selection.finding.detail.clone());
                 for record in &selection.records {
