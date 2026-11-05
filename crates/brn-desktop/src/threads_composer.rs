@@ -200,9 +200,9 @@ impl ThreadsUi {
             .h(components::tokens::COMPACT_CONTROL)
             .min_w_0()
             .max_w(px(220.))
-            .flex_shrink(1.)
+            .when(narrow, |chip| chip.flex_shrink_0())
+            .when(!narrow, |chip| chip.flex_shrink(1.).dropdown_caret(true))
             .icon(IconName::BookOpen)
-            .dropdown_caret(true)
             .accessibility_label(announced.clone())
             .tooltip(format!("{announced} · what BRN can use here"))
             .when(!narrow, |chip| {
