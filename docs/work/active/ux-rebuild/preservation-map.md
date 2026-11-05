@@ -46,4 +46,4 @@ Status values: planned, implemented, verified (automated), native-observed. Evid
 | Chat, Queue | S3 | planned |
 | Writing, Comments, Review, Outline | S4 | planned |
 | Library, Projects, Search | S5 | planned |
-| Inbox, Tasks, Settings, Data, Skills, MCP, Web, Recovery | S6 | planned |
+| Inbox, Tasks, Settings, Data, Skills, MCP, Web, Recovery | S6 | implemented (automated-verified; native partial) — [evidence](s6-inbox-evidence.md) |
