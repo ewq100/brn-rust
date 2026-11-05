@@ -22,6 +22,7 @@ fn pick_row(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedString>) 
 }
 
 /// Shown beside Restore project, before the owner chooses it.
+const PROJECT_DOC_ACTIONS: f32 = 168.;
 const RESTORE_LINE: &str = "Restoring returns contents and settings. Cancelled tasks stay cancelled; tasks kept outside stay outside. Work stays paused.";
 
 /// The Projects page's one filled primary: New project with nothing
@@ -297,16 +298,23 @@ impl ThreadsUi {
         };
         let id = record.id.clone();
         let version = record.version;
-        let back = pill("project-back", "← All projects")
-            .tooltip(if trash {
-                "Back to projects in Trash"
+        let back = pill(
+            "project-back",
+            if trash {
+                "← Trash"
             } else {
-                "Back to all projects"
-            })
-            .on_click(cx.listener(|this, _, _, cx| {
-                this.selected_project = None;
-                cx.notify();
-            }));
+                "← All projects"
+            },
+        )
+        .tooltip(if trash {
+            "Back to projects in Trash"
+        } else {
+            "Back to all projects"
+        })
+        .on_click(cx.listener(|this, _, _, cx| {
+            this.selected_project = None;
+            cx.notify();
+        }));
         let heading = div()
             .flex()
             .flex_col()
@@ -658,7 +666,7 @@ impl ThreadsUi {
             } else {
                 vec![]
             };
-            let mut line = div().flex().items_center().gap_1().child(
+            let line = div().flex().items_center().gap_1().child(
                 library_row(
                     format!("project-doc-{id}"),
                     if private {
@@ -678,8 +686,16 @@ impl ThreadsUi {
                     this.open_project_note(&project_for_open, &id, window, cx)
                 })),
             );
+            // A fixed trailing column keeps every row's chevron aligned.
+            let mut actions = div()
+                .flex()
+                .flex_none()
+                .justify_end()
+                .items_center()
+                .gap_1()
+                .w(px(PROJECT_DOC_ACTIONS));
             if private {
-                line = line.child(
+                actions = actions.child(
                     pill(format!("project-keep-{keep}"), "Keep in BRN")
                         .tooltip("Keep a copy of this file in your general Library; provenance stays recorded")
                         .on_click(cx.listener(move |this, _, _, cx| {
@@ -697,7 +713,7 @@ impl ThreadsUi {
                 );
             }
             if p.documents.contains(&unlink) {
-                line = line.child(
+                actions = actions.child(
                     pill(format!("project-unlink-{unlink}"), "Unlink")
                         .tooltip("Remove from this project; the saved note stays in your Library")
                         .on_click(cx.listener(move |this, _, _, cx| {
@@ -714,7 +730,7 @@ impl ThreadsUi {
                         })),
                 );
             }
-            block = block.child(line);
+            block = block.child(line.child(actions));
         }
         block.test_support().into_any_element()
     }
