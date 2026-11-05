@@ -659,7 +659,7 @@ impl ThreadsUi {
             .icon(IconName::ChevronDown)
             .ghost()
             .compact()
-            .text_size(px(theme::metrics::TEXT_LABEL))
+            .with_size(gpui_kit::component::Size::Small)
             .h(components::tokens::COMPACT_CONTROL)
             .accessibility_label(format!("Show: {show_label}"))
             .tooltip("Order the list, or show one topic's articles")
@@ -1284,7 +1284,7 @@ impl ThreadsUi {
             .icon(IconName::ChevronDown)
             .ghost()
             .compact()
-            .text_size(px(theme::metrics::TEXT_LABEL))
+            .with_size(gpui_kit::component::Size::Small)
             .h(components::tokens::COMPACT_CONTROL)
             .accessibility_label(format!("Filter: {filter_label}"))
             .accessible_dropdown_menu(move |mut menu, _, _| {

@@ -313,7 +313,7 @@ impl ThreadsUi {
             .gap_1()
             .pt(tokens::SPACE_3)
             .min_w_0()
-            .child(div().child(back))
+            .child(div().flex().child(back))
             .child(
                 div()
                     .id("project-title")
@@ -458,7 +458,7 @@ impl ThreadsUi {
                 ),
         );
         body = body.child(components::section_header(
-            if trash { "In Trash" } else { "Projects" },
+            if trash { "In Trash" } else { "Active" },
             Some(projects.len()),
             None,
         ));
