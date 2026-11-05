@@ -194,7 +194,7 @@ impl Workspace {
         Ok(self.store.save_presentation_theme(theme)?)
     }
 
-    /// The desktop's last workspace location key, if one was saved. Host
+    /// The desktop's last workspace location key, if any. Host
     /// presentation state only: restoring it must never resume work.
     pub fn last_location(&self) -> AppResult<Option<String>> {
         Ok(self.store.presentation_location()?)
