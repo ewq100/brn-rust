@@ -163,12 +163,17 @@ pub struct WritingPanel {
     pub outline_blocks: std::rc::Rc<std::cell::RefCell<Vec<usize>>>,
     pub outline_toggle_focus: gpui_kit::FocusHandle,
     pub outline_entry_focus: std::cell::RefCell<Vec<gpui_kit::FocusHandle>>,
+    /// The outline's Close button: focus lands here when no entry exists.
+    pub outline_close_focus: gpui_kit::FocusHandle,
     /// The document region's resolved width (host pane policy).
     pub note_width: f32,
     /// Overall feedback shows on demand (or while it holds text).
     pub feedback_open: bool,
     /// The last Save attempt's state for its note and buffer generation.
     pub save_attempt: Option<crate::canvas::SaveAttempt>,
+    /// The last failure to preserve the visible text as a recovery buffer,
+    /// by note: the edit is neither saved nor recoverable until a retry.
+    pub preserve_failure: Option<(String, String)>,
     /// The next different note opens in Read (Library and search results).
     pub prefer_reading: bool,
     /// The reading view has been laid out once, so its parse carries the
@@ -346,9 +351,11 @@ impl WritingPanel {
             outline_blocks,
             outline_toggle_focus: cx.focus_handle(),
             outline_entry_focus: Default::default(),
+            outline_close_focus: cx.focus_handle(),
             note_width: 0.,
             feedback_open: false,
             save_attempt: None,
+            preserve_failure: None,
             prefer_reading: false,
             read_primed: std::cell::Cell::new(false),
         }

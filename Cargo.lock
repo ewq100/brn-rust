@@ -876,6 +876,7 @@ dependencies = [
  "chrono",
  "gpui-kit",
  "rig",
+ "rusqlite",
  "serde",
  "serde_json",
  "tempfile",

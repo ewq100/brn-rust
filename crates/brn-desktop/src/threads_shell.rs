@@ -1163,7 +1163,7 @@ impl ThreadsUi {
         use brn_writing_ui::canvas::SaveStatus;
         let p = pal();
         let open = self.writing.note.as_ref()?;
-        let status = self.writing.save_status()?;
+        let status = self.writing.save_status(cx)?;
         let name = one_line(&title(open.record()));
         let label = status.label();
         let button = pill("status-save", label).accessibility_label(match &status {
@@ -1208,9 +1208,8 @@ impl ThreadsUi {
         if primary != TileKind::Note
             && self
                 .writing
-                .note
-                .as_ref()
-                .is_some_and(|open| open.session().is_some())
+                .save_status(cx)
+                .is_some_and(|status| status != brn_writing_ui::canvas::SaveStatus::Saved)
         {
             out.extend(self.save_status(cx));
         }

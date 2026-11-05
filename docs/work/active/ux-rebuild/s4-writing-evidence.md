@@ -219,7 +219,27 @@ Two other helper apps (S3, S5) shared the Mac and held the Stage Manager stage. 
 - **Outline preference.** Visibility is remembered by document id for the session only; it is not persisted across restarts. This belongs with the lead's layout persistence.
 - **Folds.** Optional per-branch folding of the outline is not implemented; the spec makes it optional.
 - **Saving… state.** The checked Save is synchronous, so "Saving…" shows only for its duration.
-- **Save failure.** A controlled persistence failure cannot be injected in tests or natively, so "Save failed · Retry" is verified only by code path.
+- **Save failure.** Natively unobserved. The lead's review fix below covers it with a held SQLite write lock in tests.
 - **Not exercised natively:** large text, IME, VoiceOver, and a 5,000-note responsiveness check.
 - **Undo after a plain proposal.** The in-note "Applied · vN" status with Undo appears for an applied Rewrite. Other applied proposals show "Saved." and keep their receipt Undo in Recent changes (CAP-201, S6). An in-note Undo for every Apply would need the shell notice to carry an action, which is outside S4 ownership.
 - **Wide tables** scroll inside their frame but show no persistent scroll cue at rest; the cue is gpui-kit's.
+
+## Lead fixes after independent review
+
+Sol 6.1 reviewed `7dc1c794..aeab9a80` and reported two major findings and one minor finding. The lead fixed all three on the integration branch.
+
+- **A failed first-dirty preservation showed "Saved".**
+  - *Problem:* if `begin_edit` failed, for example because the database was busy, there was no edit session and the header said Saved.
+  - *Fix:* the panel now records the failed preservation for that note, and Saved needs the visible text to equal the committed note. Text that is neither kept nor committed shows "Save failed · Retry" or Unsaved. Retrying Save while still busy keeps showing the failure.
+  - *Test:* `a_failed_first_dirty_preservation_never_shows_saved` holds a real `BEGIN IMMEDIATE` lock from a second connection (WRITE-02, AC-24).
+- **⋯ Document history opened workspace-wide Recent changes.**
+  - *Fix:* it now opens this document's own history in place of the document (`threads_doc_history.rs`):
+    - accepted versions, newest first;
+    - a read-only preview of an earlier version, labelled "Earlier version N · read-only. The current document (vM) is unchanged.";
+    - Back to versions and Back to current;
+    - Restore version N, which puts that text in the editor as an unsaved edit of the current version. The ordinary checked Save then makes it a new current version with its own receipt and Undo, and every earlier version stays in history.
+  - *Refusals:* Restore is refused while an edit is unsaved, another edit holds the note, or a proposal is in review.
+  - *Test:* `document_history_previews_and_restores_through_a_checked_save` (AC-17).
+- **An empty compact outline lost Escape.**
+  - *Fix:* with no entries, the contents view now focuses Close, so Escape returns to the document and focus returns to the toggle.
+  - *Test:* `an_empty_compact_outline_still_closes_with_escape` (READ-03, AC-41).

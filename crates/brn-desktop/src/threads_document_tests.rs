@@ -503,7 +503,7 @@ fn late_checked_refresh_preserves_newer_typed_buffer_and_stale_save(cx: &mut Tes
             ));
 
             use brn_writing_ui::canvas::SaveStatus;
-            assert_eq!(view.writing.save_status(), Some(SaveStatus::Unsaved));
+            assert_eq!(view.writing.save_status(cx), Some(SaveStatus::Unsaved));
             let outcome = view
                 .writing
                 .save_note(&mut view.workspace, window, cx)
@@ -515,7 +515,7 @@ fn late_checked_refresh_preserves_newer_typed_buffer_and_stale_save(cx: &mut Tes
             assert_eq!(kept, session);
             // The header reports the conflict from the actual outcome, never
             // Saved, and says the edit is kept (WRITE-02).
-            let status = view.writing.save_status().unwrap();
+            let status = view.writing.save_status(cx).unwrap();
             assert_eq!(
                 status,
                 SaveStatus::Conflict("The note changed since this edit began".into())
@@ -536,6 +536,199 @@ fn late_checked_refresh_preserves_newer_typed_buffer_and_stale_save(cx: &mut Tes
     })
     .unwrap();
     cx.run_until_parked();
+}
+
+/// A failed first-dirty preservation (the database is busy) never reads as
+/// Saved: the visible text is neither committed nor kept, so the header says
+/// the save failed until a retry keeps it (WRITE-02, AC-24).
+#[gpui_kit::test]
+fn a_failed_first_dirty_preservation_never_shows_saved(cx: &mut TestAppContext) {
+    use brn_writing_ui::canvas::SaveStatus;
+    let f = fixture(cx, "Committed text.");
+    open_note(cx, &f);
+    let database = f
+        ._root
+        .path()
+        .join("document-native")
+        .join(brn_threads_app::DATABASE_FILENAME);
+    let blocker = rusqlite::Connection::open(&database).unwrap();
+    blocker.busy_timeout(std::time::Duration::ZERO).unwrap();
+    blocker.execute_batch("BEGIN IMMEDIATE").unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            assert_eq!(view.writing.save_status(cx), Some(SaveStatus::Saved));
+            view.writing.note_editor.update(cx, |editor, cx| {
+                editor.set_value("Typed while busy.", window, cx)
+            });
+            assert!(
+                view.writing
+                    .note_changed(&mut view.workspace, "Typed while busy.".into())
+                    .is_err(),
+                "a held write lock must refuse the first-dirty session"
+            );
+            assert!(view.writing.note.as_ref().unwrap().session().is_none());
+            let status = view.writing.save_status(cx).unwrap();
+            assert!(
+                matches!(status, SaveStatus::Failed(_)),
+                "unkept visible text must not read as Saved: {status:?}"
+            );
+            // Retrying Save while still busy keeps reporting the failure.
+            assert!(
+                view.writing
+                    .save_note(&mut view.workspace, window, cx)
+                    .is_err()
+            );
+            assert!(matches!(
+                view.writing.save_status(cx),
+                Some(SaveStatus::Failed(_))
+            ));
+        });
+    })
+    .unwrap();
+    blocker.execute_batch("ROLLBACK").unwrap();
+    drop(blocker);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            let outcome = view
+                .writing
+                .save_note(&mut view.workspace, window, cx)
+                .unwrap()
+                .unwrap();
+            assert!(matches!(outcome, SaveOutcome::Saved(_)), "{outcome:?}");
+            assert_eq!(view.writing.save_status(cx), Some(SaveStatus::Saved));
+            assert!(view.writing.preserve_failure.is_none());
+        });
+    })
+    .unwrap();
+}
+
+/// Document history (AC-17): ⋯ Document history lists this note's versions;
+/// previewing an earlier one is labelled and changes nothing; Back returns
+/// to the current document; Restore opens the earlier text as an unsaved
+/// edit that Save makes a new current version, keeping every earlier one.
+#[gpui_kit::test]
+fn document_history_previews_and_restores_through_a_checked_save(cx: &mut TestAppContext) {
+    use brn_writing_ui::canvas::SaveStatus;
+    let f = fixture(cx, "First text.");
+    open_note(cx, &f);
+    let save = |text: &'static str| {
+        move |view: &mut ThreadsUi, window: &mut Window, cx: &mut Context<ThreadsUi>| {
+            view.writing
+                .note_editor
+                .update(cx, |editor, cx| editor.set_value(text, window, cx));
+            view.writing
+                .note_changed(&mut view.workspace, text.into())
+                .unwrap();
+            let outcome = view.writing.save_note(&mut view.workspace, window, cx);
+            assert!(matches!(outcome, Ok(Some(SaveOutcome::Saved(_)))));
+        }
+    };
+    for text in ["Second text.", "Third text."] {
+        cx.update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| save(text)(view, window, cx));
+        })
+        .unwrap();
+    }
+    let current = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .workspace
+            .store
+            .note(&f.note.id)
+            .unwrap()
+            .unwrap()
+    });
+    assert_eq!(current.version, f.note.version + 2);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.writing_request(WritingRequest::History, window, cx);
+            assert!(view.doc_history_open());
+            let history = view.doc_history.as_ref().unwrap();
+            let versions: Vec<u64> = history.revisions.iter().map(|r| r.version).collect();
+            assert_eq!(
+                versions,
+                vec![current.version, current.version - 1, f.note.version],
+                "newest first"
+            );
+            view.preview_doc_version(f.note.version, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        let label = window
+            .find("doc-history-preview-label")
+            .label()
+            .unwrap()
+            .to_owned();
+        assert!(
+            label.starts_with(&format!("Earlier version {} · read-only", f.note.version)),
+            "{label}"
+        );
+        assert!(window.find("doc-history-restore").visible());
+        f.view.update(cx, |view, cx| {
+            // Previewing changes neither the note nor the editor.
+            assert_eq!(
+                view.workspace.store.note(&f.note.id).unwrap().unwrap(),
+                current
+            );
+            assert_eq!(
+                view.writing.note_editor.read(cx).value().as_ref(),
+                "Third text."
+            );
+            assert_eq!(view.writing.save_status(cx), Some(SaveStatus::Saved));
+            // Back: to the list, then to the current document.
+            view.doc_history_back(cx);
+            assert!(view.doc_history.as_ref().unwrap().preview.is_none());
+            view.doc_history_back(cx);
+            assert!(!view.doc_history_open());
+            view.writing_request(WritingRequest::History, window, cx);
+            view.preview_doc_version(f.note.version, cx);
+            view.restore_doc_version(window, cx);
+            assert!(!view.doc_history_open());
+            assert_eq!(
+                view.writing.note_editor.read(cx).value().as_ref(),
+                "First text."
+            );
+            assert_eq!(view.writing.save_status(cx), Some(SaveStatus::Unsaved));
+            assert_eq!(
+                view.workspace.store.note(&f.note.id).unwrap().unwrap(),
+                current,
+                "restore is an unsaved edit until Save"
+            );
+            let outcome = view.writing.save_note(&mut view.workspace, window, cx);
+            assert!(matches!(outcome, Ok(Some(SaveOutcome::Saved(_)))));
+            let restored = view.workspace.store.note(&f.note.id).unwrap().unwrap();
+            assert_eq!(restored.version, current.version + 1);
+            assert!(matches!(&restored.data, RecordData::Note(n) if n.markdown == "First text."));
+            for version in f.note.version..=current.version {
+                assert!(
+                    view.workspace
+                        .store
+                        .revision(&f.note.id, version)
+                        .unwrap()
+                        .is_some(),
+                    "version {version} stays in history"
+                );
+            }
+            // With an unsaved edit, Restore is refused and nothing changes.
+            view.writing.note_editor.update(cx, |editor, cx| {
+                editor.set_value("Unsaved typing.", window, cx)
+            });
+            view.writing
+                .note_changed(&mut view.workspace, "Unsaved typing.".into())
+                .unwrap();
+            view.writing_request(WritingRequest::History, window, cx);
+            view.preview_doc_version(f.note.version + 1, cx);
+            assert!(view.doc_restore_refusal().is_some());
+            view.restore_doc_version(window, cx);
+            assert_eq!(
+                view.writing.note_editor.read(cx).value().as_ref(),
+                "Unsaved typing."
+            );
+        });
+    })
+    .unwrap();
 }
 
 #[gpui_kit::test]
@@ -1227,6 +1420,42 @@ fn a_document_without_headings_says_no_headings_yet(cx: &mut TestAppContext) {
         assert_eq!(
             window.find("note-outline-empty").label(),
             Some("No headings yet")
+        );
+    });
+}
+
+/// A compact contents view of a document without headings focuses Close, so
+/// Escape still returns to the document and focus to the toggle (READ-03).
+#[gpui_kit::test]
+fn an_empty_compact_outline_still_closes_with_escape(cx: &mut TestAppContext) {
+    let plain = "Plain prose without a heading.\n";
+    let f = super::polish_tests::fixture(cx, 620., 600., plain);
+    read_mode(cx, &f);
+    assert!(outline_entries(cx, &f).is_empty());
+    super::polish_tests::on_window(cx, &f, |window, cx| window.click("note-outline", cx));
+    redraw(cx, &f);
+    super::polish_tests::on_window(cx, &f, |window, cx| {
+        assert!(window.find("note-outline-view").visible());
+        assert!(window.find("note-outline-empty").visible());
+        assert!(
+            f.view
+                .read(cx)
+                .writing
+                .outline_close_focus
+                .is_focused(window),
+            "Close holds focus when there is no entry"
+        );
+        window.press("escape", cx);
+    });
+    redraw(cx, &f);
+    super::polish_tests::on_window(cx, &f, |window, cx| {
+        assert!(window.try_find("note-outline-view").is_none());
+        assert!(
+            f.view
+                .read(cx)
+                .writing
+                .outline_toggle_focus
+                .is_focused(window)
         );
     });
 }

@@ -28,4 +28,5 @@ uuid = { version = "1", features = ["v4"] }
 [dev-dependencies]
 brn-ai = { path = "../brn-ai", features = ["scripted-runs"] }
 rig = { version = "=0.45.0", default-features = false, features = ["test-utils"] }
+rusqlite = { version = "=0.40.2", features = ["bundled"] }
 tempfile = "3"

@@ -262,6 +262,21 @@ impl WritingPanel {
         workspace: &mut Workspace,
         text: String,
     ) -> AppResult<Option<(Tone, &'static str)>> {
+        let result = self.preserve_text(workspace, text);
+        // The header shows a failed preservation as a failed Save (WRITE-02)
+        // until the visible text is kept or matches the note again.
+        self.preserve_failure = match (&result, self.open_note_id()) {
+            (Err(AppError::Core(brn_threads_app::Error::EditSessionOpen { .. })), _) => None,
+            (Err(error), Some(note)) => Some((note.to_owned(), error.to_string())),
+            _ => None,
+        };
+        result
+    }
+    fn preserve_text(
+        &mut self,
+        workspace: &mut Workspace,
+        text: String,
+    ) -> AppResult<Option<(Tone, &'static str)>> {
         let State::Open(open) = &mut self.note.state else {
             return Ok(None);
         };

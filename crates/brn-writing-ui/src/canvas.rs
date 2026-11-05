@@ -56,10 +56,30 @@ pub enum AttemptState {
 
 impl WritingPanel {
     /// The open document's save state; `None` with no document open.
-    pub fn save_status(&self) -> Option<SaveStatus> {
+    /// Saved needs the visible text to be the committed note's bytes; text
+    /// that is neither committed nor kept in an edit session never reads as
+    /// Saved.
+    pub fn save_status(&self, cx: &App) -> Option<SaveStatus> {
         let open = self.note.as_ref()?;
+        let failure = self
+            .preserve_failure
+            .as_ref()
+            .filter(|(note, _)| *note == open.record().id)
+            .map(|(_, why)| SaveStatus::Failed(why.clone()));
         let Some(session) = open.session() else {
-            return Some(SaveStatus::Saved);
+            let committed = match &open.record().data {
+                brn_threads_app::RecordData::Note(note) => Some(note.markdown.as_str()),
+                _ => None,
+            };
+            let visible = self.note_editor.read(cx).value();
+            if committed == Some(visible.as_ref()) {
+                return Some(SaveStatus::Saved);
+            }
+            return Some(match (failure, self.note.open_edit_elsewhere()) {
+                (Some(failed), _) => failed,
+                (None, Some(_)) => SaveStatus::Conflict("Another edit of this note is open".into()),
+                (None, None) => SaveStatus::Unsaved,
+            });
         };
         let attempt = self
             .save_attempt
@@ -69,7 +89,7 @@ impl WritingPanel {
             Some(AttemptState::Saving) => SaveStatus::Saving,
             Some(AttemptState::Failed(why)) => SaveStatus::Failed(why.clone()),
             Some(AttemptState::Conflict(why)) => SaveStatus::Conflict(why.clone()),
-            None => SaveStatus::Unsaved,
+            None => failure.unwrap_or(SaveStatus::Unsaved),
         })
     }
 
@@ -143,7 +163,13 @@ impl WritingPanel {
         } else {
             self.outline_view = !self.outline_view;
             if self.outline_view {
-                self.focus_outline_entry(self.outline_current.get().unwrap_or(0), window, cx);
+                // Without entries, focus Close so Escape still returns to the
+                // document (READ-03).
+                if self.outline_state(cx).entries().is_empty() {
+                    self.outline_close_focus.focus(window, cx);
+                } else {
+                    self.focus_outline_entry(self.outline_current.get().unwrap_or(0), window, cx);
+                }
             } else {
                 self.outline_toggle_focus.focus(window, cx);
             }
@@ -476,6 +502,7 @@ impl<T: 'static> WritingView<'_, T> {
             )
             .child(
                 components::icon_button("note-outline-close", IconName::Close, "Close outline")
+                    .track_focus(&self.outline_close_focus)
                     .tooltip(if docked {
                         "Close outline"
                     } else {

@@ -49,6 +49,8 @@ mod components;
 mod connections_view;
 #[path = "threads_context_actions.rs"]
 mod context_actions;
+#[path = "threads_doc_history.rs"]
+mod doc_history;
 #[path = "threads_documents.rs"]
 mod documents;
 #[cfg(all(test, feature = "native-test-support"))]
@@ -522,6 +524,8 @@ struct ThreadsUi {
     copilot_models: Vec<String>,
     backup_status: String,
     restore: restore_view::RestoreFlow,
+    /// The open note's version history, shown in place of the document.
+    doc_history: Option<doc_history::DocHistory>,
     subscriptions: Vec<Subscription>,
     poll: Option<Task<()>>,
 }
@@ -814,6 +818,7 @@ impl ThreadsUi {
             copilot_models: Vec::new(),
             backup_status: "No backup created in this session.".into(),
             restore: Default::default(),
+            doc_history: None,
             subscriptions,
             poll: Some(poll),
         };
@@ -1321,6 +1326,7 @@ impl ThreadsUi {
         self.preserve_visible_note_input(cx);
         self.preserve_comment_draft(cx);
         self.focus_root(window, cx);
+        self.doc_history = None;
         match self
             .writing
             .open_note(&mut self.workspace, id, recovery, window, cx)
@@ -4873,7 +4879,10 @@ impl ThreadsUi {
                 }
                 cx.notify();
             }
-            WritingRequest::History => self.show_tile(TileKind::History, window, cx),
+            WritingRequest::History => {
+                self.open_doc_history(cx);
+                self.show_tile(TileKind::Note, window, cx);
+            }
         }
     }
     pub(super) fn note_toolbar_needs(&self, window: &Window) -> layout::NoteNeeds {
@@ -4933,6 +4942,9 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> gpui_kit::AnyElement {
+        if self.doc_history_open() {
+            return self.doc_history_tile(cx);
+        }
         if self.writing.review.is_none() {
             self.sync_read_text(cx);
             self.sync_read_marks(cx);

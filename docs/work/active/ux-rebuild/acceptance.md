@@ -24,14 +24,14 @@ Build: recorded per row as the integration commit. Platform: macOS (Apple silico
 | AC-14 | Apply, reopen, and Undo | Partial | Light + Dark 1280 | Automated: apply then reopen; receipt Undo; editor undo cannot resurrect stale text. Native: Apply → v2 text, "Working · v2", Saved. Non-Rewrite proposals show Undo only in Recent changes; Undo not driven natively. [S4 evidence](s4-writing-evidence.md) |
 | AC-15 | Manual Inbox Scan | Pass | Light 1280×912 (S6); Dark 1280×900 (`90119da9`) | Native: explicit Scan of one `.md` + one invalid `.docx` → 1 imported, 1 failed keeping its name; rescan creates no duplicate and now reports "N unchanged" (`f220de1f`). Automated: `threads_inbox_tests`, `manual_inbox`, `inbox_scale`. Shots `s6/light-1280-scan-*`, `int-pre/dark-imports`. |
 | AC-16 | Tasks and completion receipts | Partial | Light 1280×912 | Native: Tasks page and detail captured (`s6/light-1280-task*`); completion receipt natively pending. Automated: `a_task_opens_its_detail_panel_and_completes_explicitly`. |
-| AC-17 | History and restoration | Partial | — | Automated: history views labelled; preview leaves current content unchanged; ⋯ Document history. Native not captured. [S4 evidence](s4-writing-evidence.md) |
+| AC-17 | History and restoration | Partial | — | Automated: ⋯ Document history lists this document's versions; the earlier-version preview is labelled read-only and leaves the note and editor unchanged; Back to current; Restore opens an unsaved edit that the checked Save makes a new version, keeping every earlier one; refused with an unsaved edit. Native not captured. [S4 evidence](s4-writing-evidence.md) |
 | AC-18 | Settings and retained capabilities | Partial | Light + Dark | Native: every Settings section reachable, Appearance/Data captured in both themes. Restart persistence and reset automated (settings tests, S1 presentation tests); natively pending. Documents/MCP section bodies unchanged in design. |
 | AC-19 | Multi-note proposal atomicity | Not run | | |
 | AC-20 | Stale proposal conflict | Not run | | |
 | AC-21 | Undo after later work | Not run | | |
 | AC-22 | Authority changes during a run | Not run | | |
 | AC-23 | Concrete permission flow | Not run | | |
-| AC-24 | Save failure and retry | Partial | — | Automated: Conflict keeps the edit and never shows Saved; recovery buffer retained. A controlled I/O failure is not injectable, so "Save failed · Retry" is exercised only by code path. [S4 evidence](s4-writing-evidence.md) |
+| AC-24 | Save failure and retry | Partial | — | Automated: Conflict keeps the edit and never shows Saved; recovery buffer retained. A held SQLite write lock makes the first-dirty preservation fail: the header shows "Save failed · Retry", never Saved, and Retry saves once the lock is released. Native failure not observed. [S4 evidence](s4-writing-evidence.md) |
 | AC-25 | Interruption and restart recovery | Not run | | |
 | AC-26 | Provenance and missing sources | Not run | | |
 | AC-27 | Context switching and archival | Not run | | |
@@ -48,7 +48,7 @@ Build: recorded per row as the integration commit. Platform: macOS (Apple silico
 | AC-38 | Intake intent and coverage | Partial | Light | Offline xberg conversion of `.docx`/`.md`, provenance shown in Imports. Controlled partial conversion and figures covered by intake tests only. |
 | AC-39 | Explicit writing decision and capture actions | Not run | | |
 | AC-40 | Knowledge checks and useful navigation | Not run | | |
-| AC-41 | Outline navigation and version correctness | Partial | Light + Dark 1280 and 900 | Automated: duplicate, skipped, Unicode, long and fenced headings; pointer and keyboard; generation-bound refusal; compact view. Native: docked outline with current section; compact contents view and Go. Native keyboard traversal not captured. [S4 evidence](s4-writing-evidence.md) |
+| AC-41 | Outline navigation and version correctness | Partial | Light + Dark 1280 and 900 | Automated: duplicate, skipped, Unicode, long and fenced headings; pointer and keyboard; generation-bound refusal; compact view, including Escape from an empty compact outline. Native: docked outline with current section; compact contents view and Go. Native keyboard traversal not captured. [S4 evidence](s4-writing-evidence.md) |
 | AC-42 | Long-article presentation and compact supporting views | Pass | Light + Dark 1280 and 900 | Native: prose, quote, table, code with Copy, wide table scroll, citation links, stored figure (not inverted in Dark); compact contents and empty-outline views. [S4 evidence](s4-writing-evidence.md) |
 
 ## Visual evidence
