@@ -232,6 +232,64 @@ fn each_projects_view_has_at_most_one_primary() {
 }
 
 #[test]
+fn project_notices_name_what_changed() {
+    use projects_view::project_notice;
+    let trip = Record {
+        id: "p".into(),
+        version: 1,
+        archived: false,
+        data: RecordData::Note(Note::working("Japan trip", "text")),
+    };
+    let records = std::slice::from_ref(&trip);
+    let moved = ProjectCommand::MoveChat {
+        chat: "c".into(),
+        project: Some("p".into()),
+    };
+    assert_eq!(project_notice(&moved, records), "Chat moved to Japan trip.");
+    assert_eq!(
+        project_notice(
+            &ProjectCommand::MoveChat {
+                chat: "c".into(),
+                project: None,
+            },
+            records
+        ),
+        "Chat is now standalone."
+    );
+    assert_eq!(
+        project_notice(
+            &ProjectCommand::WithProgress {
+                command: Box::new(moved),
+                run: "r".into(),
+                partial: String::new(),
+            },
+            records
+        ),
+        "Chat moved to Japan trip."
+    );
+    assert_eq!(
+        project_notice(
+            &ProjectCommand::UnlinkDocument {
+                project: "p".into(),
+                note: "n".into(),
+            },
+            records
+        ),
+        "Document unlinked from Japan trip."
+    );
+    assert_eq!(
+        project_notice(
+            &ProjectCommand::Restore {
+                project: "p".into(),
+                version: 1,
+            },
+            records
+        ),
+        "Project restored."
+    );
+}
+
+#[test]
 fn the_delete_preview_names_only_the_other_kinds_present() {
     use projects_view::other_items_line;
     let record = |id: &str, data: RecordData| Record {

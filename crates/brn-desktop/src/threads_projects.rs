@@ -92,6 +92,42 @@ fn listed(record: &Record) -> bool {
     )
 }
 
+/// The confirmation for an applied project change names what changed.
+pub(super) fn project_notice(command: &ProjectCommand, records: &[Record]) -> String {
+    let named = |id: &str| {
+        records
+            .iter()
+            .find(|r| r.id == id)
+            .map_or_else(|| "the project".to_owned(), title)
+    };
+    match command {
+        ProjectCommand::WithProgress { command, .. } => project_notice(command, records),
+        ProjectCommand::Create { .. } => "Project created.".into(),
+        ProjectCommand::CreateChat { project, .. } => {
+            format!("Chat started in {}.", named(project))
+        }
+        ProjectCommand::Configure { .. } => "Project settings saved.".into(),
+        ProjectCommand::MoveChat {
+            project: Some(project),
+            ..
+        } => {
+            format!("Chat moved to {}.", named(project))
+        }
+        ProjectCommand::MoveChat { project: None, .. } => "Chat is now standalone.".into(),
+        ProjectCommand::LinkDocument { project, .. } => {
+            format!("Document added to {}.", named(project))
+        }
+        ProjectCommand::UnlinkDocument { project, .. } => {
+            format!("Document unlinked from {}.", named(project))
+        }
+        ProjectCommand::CreateDocument { project, .. } => {
+            format!("Document created in {}.", named(project))
+        }
+        ProjectCommand::Delete { .. } => "Project moved to Trash.".into(),
+        ProjectCommand::Restore { .. } => "Project restored.".into(),
+    }
+}
+
 impl ThreadsUi {
     pub(super) fn open_project_note(
         &mut self,
@@ -131,6 +167,7 @@ impl ThreadsUi {
         } else {
             command
         };
+        let notice = project_notice(&command, &self.records);
         let receipt = self
             .workspace
             .project_command(&format!("ui:{}", uuid::Uuid::new_v4()), command)?;
@@ -145,7 +182,7 @@ impl ThreadsUi {
             worker.discard_continuation();
         }
         // A returned receipt is an applied change, like ApplyOutcome::Applied.
-        self.confirm("Project saved.");
+        self.confirm(notice);
         self.refresh();
         self.refresh_connections(cx);
         cx.notify();
