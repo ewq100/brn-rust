@@ -408,23 +408,22 @@ impl ThreadsUi {
                 .into_any_element();
         };
         let id = topics.note.clone();
-        block =
-            block.child(components::section_header(
-                "Topics",
-                Some(topics.entries.len()),
-                Some(
-                    pill("topics-note", "Open Topics note")
-                        .with_size(gpui_kit::component::Size::Small)
-                        .tooltip(format!(
-                            "Open “{}”, the note that links your topic pages",
-                            topics.title
-                        ))
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.open_note(&id, None, window, cx)
-                        }))
-                        .into_any_element(),
-                ),
-            ));
+        block = block.child(components::section_header(
+            "Topics",
+            Some(topics.entries.len()),
+            Some(
+                pill("topics-note", "Open Topics note")
+                    .with_size(gpui_kit::component::Size::Small)
+                    .tooltip(format!(
+                        "Open “{}”, the note that links your topic pages",
+                        topics.title
+                    ))
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.open_from_library(&id, window, cx)
+                    }))
+                    .into_any_element(),
+            ),
+        ));
         if topics.entries.is_empty() {
             block = block.child(
                 metadata("Link topic pages from the Topics note to list them here.")
@@ -446,7 +445,7 @@ impl ThreadsUi {
                 topic = topic.reason(entry.description.clone());
             }
             block = block.child(topic.actionable().build().on_click(
-                cx.listener(move |this, _, window, cx| this.open_note(&id, None, window, cx)),
+                cx.listener(move |this, _, window, cx| this.open_from_library(&id, window, cx)),
             ));
         }
         block.test_support().into_any_element()

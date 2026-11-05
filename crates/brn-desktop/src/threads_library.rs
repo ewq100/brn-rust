@@ -478,7 +478,7 @@ fn library_menu(
             None,
             false,
             false,
-            move |view, window, cx| view.open_note(&id, None, window, cx),
+            move |view, window, cx| view.open_from_library(&id, window, cx),
         )),
         None => menu.item(item(
             this,
@@ -501,7 +501,7 @@ fn note_menu(menu: PopupMenu, this: &WeakEntity<ThreadsUi>, id: String) -> Popup
         None,
         false,
         false,
-        move |view, window, cx| view.open_note(&open, None, window, cx),
+        move |view, window, cx| view.open_from_library(&open, window, cx),
     ))
     .item(item(
         this,
@@ -569,6 +569,24 @@ impl ThreadsUi {
     ) {
         self.library.view = view;
         self.show_tile(TileKind::Notes, window, cx);
+    }
+    /// Open a note from the Library or a found article: its current saved
+    /// version, assistant closed by the shell's Library default, in Read
+    /// mode. A kept unsaved edit or an edit open elsewhere stays in Write so
+    /// the owner sees that work first.
+    pub(super) fn open_from_library(
+        &mut self,
+        id: &str,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.open_note(id, None, window, cx);
+        let note = &self.writing.note;
+        let clean = note.as_ref().is_some_and(|open| open.session().is_none())
+            && note.open_edit_elsewhere().is_none();
+        if self.open_note_id() == Some(id) && clean && !note.is_reading() {
+            self.set_note_reading(true, window, cx);
+        }
     }
     /// Related articles and sources beside the open document: the bounded
     /// Connections view as its supporting panel, with sources listed when
@@ -1114,7 +1132,7 @@ impl ThreadsUi {
             selected,
             tooltip,
         )
-        .on_click(cx.listener(move |this, _, window, cx| this.open_note(&open, None, window, cx)))
+        .on_click(cx.listener(move |this, _, window, cx| this.open_from_library(&open, window, cx)))
         .context_menu(move |menu, _, _| note_menu(menu, &this, menu_id.clone()))
         .into_any_element()
     }
@@ -1203,16 +1221,15 @@ impl ThreadsUi {
                     ),
                 );
             }
-            column =
-                column.child(
-                    entry
-                        .actionable()
-                        .build()
-                        .on_click(cx.listener(move |this, _, window, cx| {
-                            this.open_note(&id, None, window, cx)
-                        }))
-                        .context_menu(move |menu, _, _| note_menu(menu, &this, menu_id.clone())),
-                );
+            column = column.child(
+                entry
+                    .actionable()
+                    .build()
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.open_from_library(&id, window, cx)
+                    }))
+                    .context_menu(move |menu, _, _| note_menu(menu, &this, menu_id.clone())),
+            );
         }
         if total > 100 {
             column = column.child(metadata(format!("Showing 100 of {total} · keep typing")).px_3());

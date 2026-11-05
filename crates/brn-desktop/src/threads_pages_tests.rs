@@ -1794,6 +1794,30 @@ fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContex
             [TileKind::Note],
             "a Library article opens for reading with the assistant closed"
         );
+        assert!(view.writing.note.is_reading(), "Library opens in Read");
+    });
+    // A kept unsaved edit is shown in Write when the row is opened again.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.set_note_reading(false, window, cx);
+            view.writing.note_editor.update(cx, |editor, cx| {
+                editor.set_value("Survey text, kept faithfully. Edited.", window, cx)
+            });
+            view.preserve_visible_note_input(cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    click(cx, &f, "nav-library");
+    click(cx, &f, "library-files");
+    click(cx, &f, format!("note-{reference}"));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(reference.as_str()));
+        assert!(
+            !view.writing.note.is_reading(),
+            "an unsaved edit stays in Write so it is seen first"
+        );
     });
     click(cx, &f, "nav-library");
     click(cx, &f, "library-menu");
@@ -1833,5 +1857,15 @@ fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContex
             label(window, "launcher-group-files"),
             "Files · Current knowledge · saved library"
         );
+    });
+    press(cx, &f, "enter");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(article.as_str()));
+        assert!(
+            view.writing.note.is_reading(),
+            "a found article opens in Read"
+        );
+        assert_eq!(view.layout.visible(), [TileKind::Note]);
     });
 }

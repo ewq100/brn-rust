@@ -2704,7 +2704,7 @@ impl ThreadsUi {
                 // A found article opens for reading, assistant closed.
                 self.preserve_visible_note_input(cx);
                 self.layout.open_article();
-                self.open_note(&id, None, window, cx)
+                self.open_from_library(&id, window, cx)
             }
             lists::LaunchItem::Message { chat, message, .. } => {
                 self.open_chat_message(&chat, &message, window, cx)
