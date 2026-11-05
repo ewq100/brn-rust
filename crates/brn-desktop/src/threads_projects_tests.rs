@@ -498,6 +498,35 @@ fn project_delete_dialog_confirms_only_by_space_on_its_danger_button(cx: &mut Te
     assert!(archived(cx, &f, &p), "Space presses the focused confirm");
 }
 
+/// The Trash review names the project first, then what goes with it.
+#[gpui_kit::test]
+fn the_trash_review_names_the_project_before_its_contents(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let p = create(cx, &f, "Japan trip");
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.apply_project(
+                ProjectCommand::MoveChat {
+                    chat: f.chat.clone(),
+                    project: Some(p.clone()),
+                },
+                cx,
+            )
+            .unwrap();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    project_action(cx, &f, "Move to Trash…");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("project-delete-moves").label(),
+            Some("Moves to Trash: Japan trip, Existing conversation.")
+        );
+    })
+    .unwrap();
+}
+
 /// Escape on a dialog opened from a Projects ⋯ item gives focus back to the
 /// Projects panel (the focus table's landing), so ⌘K and Tab work at once.
 /// The menu that opened the dialog is gone by then.

@@ -1353,6 +1353,7 @@ impl ThreadsUi {
             .find(|r| r.id == id)
             .map(title)
             .unwrap_or_else(|| "this project".into());
+        let project_id = id.to_owned();
         let choices = cx.new(|_| BTreeMap::<String, ProjectActionChoice>::new());
         let error = cx.new(|_| String::new());
         let target = cx.entity().downgrade();
@@ -1365,7 +1366,10 @@ impl ThreadsUi {
                     .child(text)
                     .test_support()
             };
-            let moved: Vec<String> = preview.removed.iter().filter(|r| listed(r)).map(title).collect();
+            // The project leads; its chats and documents follow.
+            let mut removed: Vec<&Record> = preview.removed.iter().filter(|r| listed(r)).collect();
+            removed.sort_by_key(|r| r.id != project_id);
+            let moved: Vec<String> = removed.into_iter().map(title).collect();
             let kept: Vec<String> = preview.retained.iter().map(title).collect();
             let mut body = div()
                 .flex()
