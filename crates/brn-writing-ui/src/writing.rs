@@ -1409,10 +1409,14 @@ impl<T: 'static> WritingView<'_, T> {
                 "Addressed · history kept".to_owned()
             } else if location.is_none() {
                 unlocated.status.clone()
-            } else if !checked {
-                "Excluded from rewrite".into()
             } else {
-                String::new()
+                let moved = layout::moved_anchor(comment, open.record().version);
+                let excluded = (!checked).then(|| "Excluded from rewrite".to_owned());
+                moved
+                    .into_iter()
+                    .chain(excluded)
+                    .collect::<Vec<_>>()
+                    .join(" · ")
             };
             let quote_label = format!(
                 "“{}{}”",

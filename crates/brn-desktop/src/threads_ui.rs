@@ -2720,6 +2720,14 @@ impl ThreadsUi {
             lists::Command::NewNote => self.new_note(window, cx),
             lists::Command::Rewrite => self.rewrite_note(window, cx),
             lists::Command::Save => self.save(window, cx),
+            lists::Command::Outline => {
+                if self.open_note_id().is_some() {
+                    self.writing_request(WritingRequest::ToggleOutline, window, cx);
+                } else {
+                    self.warn("Open a document to show its outline.");
+                    cx.notify();
+                }
+            }
             lists::Command::Theme(appearance) => self.choose_appearance(appearance, window, cx),
             lists::Command::OpenTile(kind) => {
                 self.show_tile(kind, window, cx);

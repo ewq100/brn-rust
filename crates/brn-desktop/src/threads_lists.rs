@@ -786,6 +786,8 @@ pub(super) enum Command {
     NewNote,
     Rewrite,
     Save,
+    /// The open document's Outline (READ-01); no global shortcut.
+    Outline,
     /// Appearance: System/Light/Dark primary, plus legacy palettes under clear
     /// labels. The payload is the preference, not the resolved palette.
     Theme(Appearance),
@@ -800,6 +802,7 @@ impl Command {
             Self::NewNote => "New note".into(),
             Self::Rewrite => "Rewrite with AI".into(),
             Self::Save => "Save note".into(),
+            Self::Outline => "Show or hide outline".into(),
             Self::Theme(appearance) => match appearance {
                 // Primary choices read as plain appearance commands.
                 Appearance::System | Appearance::Light | Appearance::Dark => {
@@ -837,7 +840,13 @@ impl Command {
         })
     }
     pub(super) fn all() -> Vec<Self> {
-        let mut out = vec![Self::NewThread, Self::NewNote, Self::Rewrite, Self::Save];
+        let mut out = vec![
+            Self::NewThread,
+            Self::NewNote,
+            Self::Rewrite,
+            Self::Save,
+            Self::Outline,
+        ];
         // System/Light/Dark first, then the legacy palettes under clear labels.
         out.extend(Appearance::PRIMARY.map(Self::Theme));
         out.extend(ThemeId::LEGACY.map(|theme| Self::Theme(Appearance::Legacy(theme))));
@@ -1632,6 +1641,8 @@ mod tests {
             labels.iter().all(|label| !label.starts_with("Open tile:")),
             "{labels:?}"
         );
+        assert!(labels.iter().any(|label| label == "Show or hide outline"));
+        assert_eq!(Command::Outline.keystroke(), None);
         assert_eq!(
             launcher("projects", &[], &[], &[]),
             [LaunchItem::Command(Command::OpenTile(TileKind::Projects))]

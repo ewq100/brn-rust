@@ -103,6 +103,7 @@ fn command_icon(command: lists::Command) -> IconName {
         lists::Command::NewThread | lists::Command::NewNote => IconName::Plus,
         lists::Command::Rewrite => IconName::Replace,
         lists::Command::Save => IconName::Check,
+        lists::Command::Outline => IconName::TableOfContents,
         lists::Command::Theme(_) => IconName::Palette,
         lists::Command::OpenTile(kind) => kind_icon(kind),
         lists::Command::Keys => IconName::Keyboard,

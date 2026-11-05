@@ -652,8 +652,8 @@ fn formatting_controls_refuse_read_recovery_and_review_states(cx: &mut TestAppCo
 /// block HTML stays literal text (the default parser strips its tags), and the
 /// text of a `javascript:` link is still rendered, while stored images and
 /// link destinations contribute nothing. An image whose asset is not stored
-/// renders a bounded placeholder with its alternative text (spec §10.1). The exact string also fails if the plugin
-/// registration changes (for example both plugins becoming block parsers would
+/// renders a bounded placeholder with its alternative text (spec §10.1). The
+/// exact string also fails if the plugin registration changes (for example both plugins becoming block parsers would
 /// render the inline tags literally). Inline HTML literalness is a visual
 /// property the plain copy excludes by design, so it stays a native check.
 #[gpui_kit::test]
@@ -1219,4 +1219,37 @@ fn a_document_without_headings_says_no_headings_yet(cx: &mut TestAppContext) {
             Some("No headings yet")
         );
     });
+}
+
+/// The launcher's Outline command (READ-01) docks the outline beside a wide
+/// document (assistant closed) and records the owner's choice, like the toolbar toggle; a
+/// second run hides it again.
+#[gpui_kit::test]
+fn the_launcher_outline_command_toggles_the_docked_outline(cx: &mut TestAppContext) {
+    let f = super::polish_tests::fixture(cx, 1280., 900., ARTICLE);
+    read_mode(cx, &f);
+    let _ = outline_entries(cx, &f);
+    super::polish_tests::update(cx, &f, |view, window, cx| {
+        view.relayout(window, cx, |layout| layout.set_support_open(false));
+    });
+    redraw(cx, &f);
+    let run = |cx: &mut TestAppContext| {
+        cx.update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                view.run_command(lists::Command::Outline, window, cx)
+            });
+        })
+        .unwrap();
+        redraw(cx, &f);
+    };
+    run(cx);
+    super::polish_tests::on_window(cx, &f, |window, _| {
+        assert!(window.find("note-outline-panel").visible());
+    });
+    cx.read(|cx| assert!(f.view.read(cx).writing.outline_preferred()));
+    run(cx);
+    super::polish_tests::on_window(cx, &f, |window, _| {
+        assert!(window.try_find("note-outline-panel").is_none());
+    });
+    cx.read(|cx| assert!(!f.view.read(cx).writing.outline_preferred()));
 }
