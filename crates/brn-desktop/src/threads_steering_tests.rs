@@ -327,7 +327,7 @@ fn stop_during_pending_send_preserves_message_and_cancels_automatic_launch(
     cx.update_window(f.window, |_, window, cx| window.click("chat-steer", cx))
         .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, cx| window.click("stop-work", cx))
+    cx.update_window(f.window, |_, window, cx| window.click("run-stop", cx))
         .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
@@ -505,9 +505,16 @@ fn quiet_display_keeps_stream_and_stop_and_saved_drafts_survive_reopening(cx: &m
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, _| {
+    cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("run-stop").visible());
+        // Quiet lives in the conversation's Activity disclosure.
+        window.click("chat-activity", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
         assert!(window.find("chat-quiet").visible());
+        assert!(window.find("run-stop").visible());
     })
     .unwrap();
     let w = Workspace::open(&f.data).unwrap();
@@ -561,13 +568,15 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        assert!(
-            window
-                .find("worker-status")
-                .label()
-                .unwrap()
-                .contains("Reading a note passage")
-        );
+        // The running conversation shows its status above the composer,
+        // not again in its header; routine steps wait in Activity.
+        assert!(window.try_find("worker-status").is_none());
+        assert!(window.try_find("run-activity").is_none());
+        window.click("chat-activity", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("run-activity").visible());
         // The live line names the status beside an icon, as the status bar does.
         assert!(
@@ -591,27 +600,38 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         assert!(
-            !window
-                .find("worker-status")
-                .label()
-                .unwrap()
-                .contains("Reading a note passage"),
-            "Quiet must suppress activity in the workspace status bar too"
-        );
-        assert!(
             window
-                .find("worker-status")
+                .find("run-line")
                 .label()
                 .unwrap()
-                .contains("Working quietly")
+                .contains("Working quietly"),
+            "Quiet must suppress activity in the running line"
         );
         assert_eq!(
             window.find("chat-quiet").label(),
             Some("Quiet on · show activity")
         );
         assert!(window.find("run-stop").visible());
-        assert!(window.find("stop-work").visible());
+        assert!(window.try_find("stop-work").is_none());
         assert!(window.try_find("run-activity").is_none());
+        // Another view's header carries the work status, quiet too.
+        f.view.update(cx, |ui, cx| {
+            ui.show_tile(TileKind::Notes, window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        let status = window.find("worker-status").label().unwrap().to_owned();
+        assert!(status.contains("Working quietly"), "{status}");
+        assert!(!status.contains("Reading a note passage"), "{status}");
+        assert!(window.find("stop-work").visible());
+        f.view
+            .update(cx, |ui, cx| ui.open_thread(&f.thread, window, cx));
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, _| {
             assert_eq!(ui.stream_for(&f.thread), Some("The answer keeps streaming"));
             assert_eq!(
@@ -691,13 +711,8 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("run-activity").visible());
-        assert!(
-            !window
-                .find("run-line")
-                .label()
-                .unwrap()
-                .contains("Unrelated conversion")
-        );
+        // Another worker's progress is not this chat's running line.
+        assert!(window.try_find("run-line").is_none());
         assert!(
             window.try_find("run-stop").is_none(),
             "a completed chat must not offer Stop for another worker"
@@ -1437,7 +1452,7 @@ fn a_refused_stop_renders_as_an_error_banner(cx: &mut TestAppContext) {
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, cx| window.click("stop-work", cx))
+    cx.update_window(f.window, |_, window, cx| window.click("run-stop", cx))
         .unwrap();
     let notice = cx.read(|cx| f.view.read(cx).notice.text().to_owned());
     assert!(!notice.is_empty());

@@ -75,7 +75,7 @@ pub(super) use brn_writing_ui::native::pill;
 
 /// Collapses whitespace so a title renders on one line; the element
 /// truncates it with an ellipsis instead of cutting the text.
-fn one_line(text: &str) -> String {
+pub(super) fn one_line(text: &str) -> String {
     text.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
@@ -108,6 +108,7 @@ fn command_icon(command: lists::Command) -> IconName {
         lists::Command::Theme(_) => IconName::Palette,
         lists::Command::OpenTile(kind) => kind_icon(kind),
         lists::Command::Keys => IconName::Keyboard,
+        lists::Command::WebSearch => IconName::Globe,
     }
 }
 
@@ -115,8 +116,14 @@ pub(super) const KEYS: [(&str, &str); 18] = [
     ("Search", "⌘K · Search in the sidebar"),
     ("New chat", "⌘T or ⌘0 · New chat in the sidebar"),
     ("New note", "⌘N · + in the Library header"),
-    ("Send / new line", "↵ or ⌘↵ / ⇧↵ · send button"),
-    ("Stop", "⌘. · Stop in the header"),
+    (
+        "Send / new line",
+        "↵ or ⌘↵ sends, or queues while BRN works / ⇧↵ adds a line",
+    ),
+    (
+        "Stop",
+        "⌘. · Stop beside the composer, or in the header elsewhere",
+    ),
     ("Focus composer", "⌘L"),
     ("Comment on selection", "⌘/ · selection strip · right-click"),
     ("Rewrite with AI", "⌘⇧R · writing bar · ⋯ menu"),
@@ -1189,8 +1196,14 @@ impl ThreadsUi {
     }
     /// The local actions the current view supplies to the header slot.
     fn header_actions(&self, cx: &mut Context<Self>) -> Vec<gpui_kit::AnyElement> {
-        let mut out = self.work_status(cx);
         let primary = self.layout.primary();
+        // The open conversation shows its own running line and Stop above
+        // its composer (S3), so its header does not repeat them.
+        let mut out = if primary == TileKind::Chat && self.running_here() {
+            vec![]
+        } else {
+            self.work_status(cx)
+        };
         // Unsaved document work stays visible (and savable) from any view.
         if primary != TileKind::Note
             && self

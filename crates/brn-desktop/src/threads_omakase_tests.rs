@@ -576,7 +576,9 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
         );
         assert!(view.queue_state().paused);
     });
-    click(cx, &f, "resolve-thread");
+    // Archive is in the conversation's ⋯ menu.
+    click(cx, &f, "chat-menu");
+    choose(cx, &f, "Archive");
     cx.read(|cx| {
         assert!(
             f.view
@@ -2112,7 +2114,8 @@ fn keyboard_shortcuts_name_the_shell_regions_menus_dialogs_and_the_settings_them
         "Move focus: ⌘[ ⌘] · sidebar, workspace and assistant",
         "Sidebar: ⌘\\ · collapse to the rail or expand",
         "Rewrite with AI: ⌘⇧R · writing bar · ⋯ menu",
-        "Stop: ⌘. · Stop in the header",
+        "Stop: ⌘. · Stop beside the composer, or in the header elsewhere",
+        "Send / new line: ↵ or ⌘↵ sends, or queues while BRN works / ⇧↵ adds a line",
         "Menus: Tab to ⋯ · ↵ opens · ↑↓ ↵ · Esc · right-click a chat",
         "Dialogs: ↵ submits a one-field dialog · ⌘↵ submits a form · Space presses the focused button · Esc cancels",
     ] {

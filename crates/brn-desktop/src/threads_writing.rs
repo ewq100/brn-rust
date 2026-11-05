@@ -1,15 +1,14 @@
 //! Writing and conversation tiles: chat, note, in-place review, compare and
 //! linked work. Every action calls the same checked services as before.
 use super::components::AccessibleDropdownMenu;
-use super::shell::{item, pill};
+use super::shell::{item, one_line, pill};
 use super::state::ReviewSummary;
 use super::tiles::scroll;
 use super::*;
-use brn_writing_ui::writing::READING_MEASURE;
 use gpui_kit::SharedString;
 use gpui_kit::StyledText;
+use gpui_kit::WeakEntity;
 use gpui_kit::component::button::ButtonVariants;
-use gpui_kit::component::{Icon, Sizable, Size};
 
 impl ThreadsUi {
     pub(super) fn safe_message(&self, id: String, text: String) -> TextView {
@@ -37,36 +36,102 @@ impl ThreadsUi {
             .iter()
             .any(|row| row.id == id && row.resolved)
     }
+    /// The conversation's header actions (spec §6.1): the project where
+    /// relevant, the per-conversation Activity disclosure, Linked work and
+    /// one ⋯ menu. Beside a document (the assistant) the header is smaller:
+    /// Activity and ⋯, whose menu then holds Linked work.
     pub(super) fn chat_controls(&self, cx: &mut Context<Self>) -> Vec<gpui_kit::AnyElement> {
         let this = cx.entity().downgrade();
+        let primary = self.layout.primary() == TileKind::Chat;
         let mut controls = vec![];
-        controls.push(
-            pill("search-web", "Search web…")
-                .on_click(cx.listener(|this, _, window, cx| this.open_web_search(window, cx)))
-                .into_any_element(),
-        );
-        if let ChatTarget::Thread(id) = &self.chat {
-            let id = id.clone();
-            if !self.thread_resolved(&id) {
-                controls.push(pill("capture-outcomes", "Capture outcomes…")
-                    .disabled(self.worker.is_some())
-                    .tooltip("Propose useful notes, decisions and follow-ups for review; nothing is saved automatically")
-                    .on_click(cx.listener(|this,_,window,cx|this.capture_outcomes(window,cx)))
-                    .into_any_element());
-            }
-            // An archived chat's only Unarchive is in the composer banner.
-            controls.push(if self.thread_resolved(&id) {
-                components::status_chip("chat-archived", None, Some(IconName::Archive), "Archived")
-                    .into_any_element()
-            } else {
-                const ARCHIVE: &str = "Archive this chat. Stops work and pauses the queue.";
-                pill("resolve-thread", "Archive")
-                    .accessibility_label(ARCHIVE)
-                    .tooltip(ARCHIVE)
-                    .on_click(cx.listener(move |this, _, _, cx| this.resolve_thread(&id, cx)))
-                    .into_any_element()
-            });
+        let thread = self.chat_thread().map(str::to_owned);
+        if primary
+            && let Some(project) = thread
+                .as_deref()
+                .and_then(|chat| project_for_chat(&self.records, chat))
+        {
+            let (id, name) = (project.id.clone(), one_line(&title(project)));
+            controls.push(
+                pill("chat-project", short(&name))
+                    .icon(IconName::Folder)
+                    .min_w_0()
+                    .flex_shrink(1.)
+                    .accessibility_label(format!("Project {name}"))
+                    .tooltip(format!("Open project {name}"))
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.projects_trash = false;
+                        this.selected_project = Some(id.clone());
+                        this.show_tile(TileKind::Projects, window, cx)
+                    }))
+                    .into_any_element(),
+            );
         }
+        if let Some(id) = &thread {
+            let open = self.conversation.activity_open;
+            let last = self
+                .last_work_status(id)
+                .unwrap_or_else(|| "no reply recorded yet".into());
+            controls.push(
+                pill("chat-activity", "Activity")
+                    .icon(IconName::ListChecks)
+                    .selected(open)
+                    .accessibility_label(format!(
+                        "{} activity · {last}",
+                        if open { "Hide" } else { "Show" }
+                    ))
+                    .tooltip(last)
+                    .on_click(cx.listener(|this, _, _, cx| {
+                        this.conversation.activity_open = !this.conversation.activity_open;
+                        cx.notify();
+                    }))
+                    .into_any_element(),
+            );
+            if primary {
+                let count = linked(&self.records, id).len();
+                let shown = self.layout.support() == Some(TileKind::Linked)
+                    && self.arrangement.support_visible();
+                controls.push(
+                    pill(
+                        "chat-linked",
+                        if count > 0 {
+                            format!("Linked · {count}")
+                        } else {
+                            "Linked".into()
+                        },
+                    )
+                    .icon(IconName::Link)
+                    .selected(shown)
+                    .tooltip("Notes, sources and tasks used in this chat")
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        if shown {
+                            this.relayout(window, cx, |layout| layout.close(TileKind::Linked));
+                        } else {
+                            this.show_tile(TileKind::Linked, window, cx);
+                        }
+                    }))
+                    .into_any_element(),
+                );
+            }
+            if self.thread_resolved(id) {
+                controls.push(
+                    components::status_chip(
+                        "chat-archived",
+                        None,
+                        Some(IconName::Archive),
+                        "Archived",
+                    )
+                    .into_any_element(),
+                );
+            }
+        }
+        controls.push(self.chat_menu(&this, primary));
+        controls
+    }
+    /// The conversation ⋯ menu: the note's chats, New chat, All chats,
+    /// Capture useful outcomes, Move to project, Open note, Linked work,
+    /// Quiet mode and Archive / Unarchive.
+    fn chat_menu(&self, this: &WeakEntity<Self>, primary: bool) -> gpui_kit::AnyElement {
+        let this = this.clone();
         let note = self
             .writing
             .note
@@ -80,39 +145,46 @@ impl ThreadsUi {
             .map(|record| (record.id.clone(), title(record)))
             .collect();
         let selected = self.chat_thread().map(str::to_owned);
-        controls.push(
-            components::icon_button("thread-menu", IconName::ChevronDown, "Chats for this note")
-                .accessible_dropdown_menu(move |mut menu, _, _| {
-                    if let Some((note_id, note_title)) = &note {
-                        menu = menu.label(format!("Chats for {}", short(note_title)));
-                        for (thread, label) in &threads {
-                            let (thread, note_id) = (thread.clone(), note_id.clone());
-                            menu = menu.item(item(
-                                &this,
-                                short(label),
-                                None,
-                                false,
-                                selected.as_deref() == Some(thread.as_str()),
-                                move |view, window, cx| {
-                                    view.select_writing_thread(
-                                        note_id.clone(),
-                                        thread.clone(),
-                                        window,
-                                        cx,
-                                    )
-                                },
-                            ));
-                        }
+        let resolved = selected
+            .as_deref()
+            .is_some_and(|id| self.thread_resolved(id));
+        let chat_note = selected.as_deref().and_then(|id| self.thread_note(id));
+        let busy = self.worker.is_some();
+        let quiet = self.queue_state().quiet;
+        components::overflow_menu("chat-menu", "Chat actions")
+            .accessible_dropdown_menu(move |mut menu, _, _| {
+                if let Some((note_id, note_title)) = &note {
+                    menu = menu.label(format!("Chats for {}", short(note_title)));
+                    for (thread, label) in &threads {
+                        let (thread, note_id) = (thread.clone(), note_id.clone());
+                        menu = menu.item(item(
+                            &this,
+                            short(label),
+                            None,
+                            false,
+                            selected.as_deref() == Some(thread.as_str()),
+                            move |view, window, cx| {
+                                view.select_writing_thread(
+                                    note_id.clone(),
+                                    thread.clone(),
+                                    window,
+                                    cx,
+                                )
+                            },
+                        ));
                     }
-                    menu.item(item(
-                        &this,
-                        "New chat for this note",
-                        None,
-                        note.is_none(),
-                        false,
-                        |view, window, cx| view.new_writing_thread(window, cx),
-                    ))
-                    .separator()
+                    menu = menu
+                        .item(item(
+                            &this,
+                            "New chat for this note",
+                            None,
+                            false,
+                            false,
+                            |view, window, cx| view.new_writing_thread(window, cx),
+                        ))
+                        .separator();
+                }
+                menu = menu
                     .item(item(
                         &this,
                         "New chat",
@@ -128,94 +200,287 @@ impl ThreadsUi {
                         false,
                         false,
                         |view, window, cx| view.show_tile(TileKind::AllThreads, window, cx),
-                    ))
-                })
-                .into_any_element(),
-        );
-        controls
-    }
-    pub(super) fn chat_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let body = match &self.chat {
-            ChatTarget::Thread(id) => self.conversation(id, cx),
-            target => {
-                // A new chat's empty state: what it is, and what the
-                // composer below can do.
-                let (title, body) = match target {
-                    ChatTarget::NewForNote(note) => (
-                        format!(
-                            "New chat about {}",
-                            self.note_rows
-                                .iter()
-                                .find(|row| &row.id == note)
-                                .map_or_else(|| note.clone(), |row| short(&row.title))
-                        ),
-                        "It stays linked to the note.".to_owned(),
-                    ),
-                    _ => (
-                        "New chat".to_owned(),
-                        "Ask below. Attach files for this chat, or let BRN use your saved notes."
-                            .to_owned(),
-                    ),
+                    ));
+                let Some(chat) = selected.clone() else {
+                    return menu;
                 };
-                let mut start =
-                    scroll("thread-conversation")
-                        .gap_3()
-                        .p_4()
-                        .child(components::empty_state(
-                            "chat-start",
-                            IconName::MessageSquare,
-                            title,
-                            body,
-                            None,
-                        ));
-                if self.delegation_host() == Some(TileKind::Chat) {
-                    start = start.child(self.working_knowledge(cx));
+                menu = menu.separator();
+                if !resolved {
+                    menu = menu.item(item(
+                        &this,
+                        "Capture useful outcomes…",
+                        None,
+                        busy,
+                        false,
+                        |view, window, cx| view.capture_outcomes(window, cx),
+                    ));
                 }
-                start.test_support().into_any_element()
-            }
+                let moving = chat.clone();
+                menu = menu.item(item(
+                    &this,
+                    "Move to project…",
+                    None,
+                    false,
+                    false,
+                    move |view, window, cx| view.move_chat_dialog(&moving, window, cx),
+                ));
+                if let Some(note) = chat_note.clone() {
+                    menu = menu.item(item(
+                        &this,
+                        "Open note",
+                        None,
+                        false,
+                        false,
+                        move |view, window, cx| view.open_note(&note, None, window, cx),
+                    ));
+                }
+                if !primary {
+                    menu = menu.item(item(
+                        &this,
+                        "Linked work",
+                        None,
+                        false,
+                        false,
+                        |view, window, cx| view.show_tile(TileKind::Linked, window, cx),
+                    ));
+                }
+                menu = menu
+                    .item(item(
+                        &this,
+                        "Quiet mode",
+                        None,
+                        false,
+                        quiet,
+                        |view, _, cx| view.toggle_quiet(cx),
+                    ))
+                    .separator();
+                let lifecycle = chat.clone();
+                menu.item(item(
+                    &this,
+                    if resolved { "Unarchive" } else { "Archive" },
+                    None,
+                    false,
+                    false,
+                    move |view, _, cx| {
+                        if resolved {
+                            view.reopen_thread(&lifecycle, cx)
+                        } else {
+                            view.resolve_thread(&lifecycle, cx)
+                        }
+                    },
+                ))
+            })
+            .into_any_element()
+    }
+    /// The conversation workspace: the transcript in its centred column,
+    /// then, above the one composer, the activity disclosure (when open),
+    /// the running line, a permission request, waiting messages and
+    /// attachments. A new chat in the primary view is the start surface.
+    pub(super) fn chat_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let primary = self.layout.primary() == TileKind::Chat;
+        let chat = self.chat_thread().map(str::to_owned);
+        if chat.is_none() && primary {
+            return self.start_surface(cx);
+        }
+        let body = match &chat {
+            Some(id) => self.conversation(id, cx),
+            None => self.assistant_start(cx),
         };
-        let activity = self.chat_thread().and_then(|id| {
-            if let Some(run) = self
-                .worker
-                .as_ref()
-                .and_then(Worker::run_identity)
-                .filter(|run| run.thread == id)
-            {
-                if self
-                    .workspace
-                    .store
-                    .record(&run.run_id)
-                    .ok()
-                    .flatten()
-                    .and_then(|r| match r.data {
-                        RecordData::Run(run) => run.instruction,
-                        _ => None,
-                    })
-                    .is_some_and(|id| self.workspace.writing_request(&id).is_ok())
-                {
-                    None
-                } else {
-                    Some(self.live_activity(true, cx))
-                }
-            } else if !self.queue_state().quiet && self.run_activity.has_steps_for(id) {
-                Some(self.live_activity(false, cx))
-            } else {
-                None
-            }
-        });
+        // A rewrite's progress belongs to its document, not the chat.
+        let writing_run = self
+            .worker
+            .as_ref()
+            .and_then(Worker::run_identity)
+            .and_then(|run| self.workspace.store.record(&run.run_id).ok().flatten())
+            .and_then(|record| match record.data {
+                RecordData::Run(run) => run.instruction,
+                _ => None,
+            })
+            .is_some_and(|id| self.workspace.writing_request(&id).is_ok());
+        let activity = chat
+            .as_deref()
+            .filter(|_| self.conversation.activity_open)
+            .map(|id| self.activity_panel(id, cx));
+        let supports = [activity, self.queue_panel(cx), self.attachments_panel(cx)]
+            .into_iter()
+            .flatten()
+            .collect::<Vec<_>>();
+        let footer = super::chat::transcript_column(primary)
+            .flex_shrink_0()
+            .gap_2()
+            .pt_1()
+            .pb_3()
+            .when(!supports.is_empty(), |footer| {
+                // Supporting rows scroll inside a bounded region so the
+                // transcript stays reachable in a small window.
+                footer.child(
+                    div()
+                        .id("chat-supports")
+                        .flex()
+                        .flex_col()
+                        .gap_2()
+                        .max_h(px(260.))
+                        .overflow_y_scroll()
+                        .children(supports)
+                        .test_support(),
+                )
+            })
+            .children((!writing_run).then(|| self.run_status_line()).flatten())
+            .children(self.mcp_permission_card(cx))
+            .child(self.composer_tile(cx));
         div()
             .id("chat-tile")
             .size_full()
             .flex()
             .flex_col()
             .child(div().flex_1().min_h_0().child(body))
-            // Keep the activity scroller outside MessageScroller's wheel mask.
-            .when_some(activity, |tile, activity| {
-                tile.child(div().flex_shrink_0().p_2().child(activity))
-            })
-            .child(self.composer_tile(cx))
+            .child(
+                div()
+                    .flex()
+                    .flex_col()
+                    .flex_shrink_0()
+                    .w_full()
+                    .when(primary, |row| row.items_center())
+                    .child(footer),
+            )
             .test_support()
             .into_any_element()
+    }
+    /// The New chat start surface (§4.3): a short greeting, the composer,
+    /// at most three starting actions and, while unchosen, the delegation
+    /// choice. Existing manual work stays available before choosing.
+    fn start_surface(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let p = pal();
+        let (heading, hint) = match &self.chat {
+            ChatTarget::NewForNote(note) => (
+                format!(
+                    "New chat about {}",
+                    self.note_rows
+                        .iter()
+                        .find(|row| &row.id == note)
+                        .map_or_else(|| note.clone(), |row| short(&row.title))
+                ),
+                "This chat stays linked to the note.",
+            ),
+            _ => (
+                "What are we working on?".to_owned(),
+                "Ask anything. Files you attach stay with this chat until you keep them in BRN.",
+            ),
+        };
+        let action = |id: &'static str, icon: IconName, label: &'static str| {
+            button(id)
+                .outline()
+                .compact()
+                .h(px(theme::metrics::CONTROL_HEIGHT))
+                .icon(icon)
+                .label(label)
+        };
+        let busy = self.worker.is_some();
+        let column = super::chat::transcript_column(true)
+            .gap_4()
+            .py(components::tokens::SPACE_8)
+            .child(
+                div()
+                    .id("chat-start")
+                    .flex()
+                    .flex_col()
+                    .items_center()
+                    .gap_2()
+                    .child(
+                        div()
+                            .id("chat-start-heading")
+                            .text_size(px(theme::metrics::TEXT_ARTICLE_HEADING))
+                            .font_weight(gpui_kit::FontWeight::MEDIUM)
+                            .text_color(rgb(p.ink))
+                            .aria_label(heading.clone())
+                            .child(heading)
+                            .test_support(),
+                    )
+                    .child(
+                        div()
+                            .text_size(UI_TEXT)
+                            .text_color(rgb(p.muted))
+                            .child(hint),
+                    )
+                    .test_support(),
+            )
+            .children(self.queue_panel(cx))
+            .child(self.composer_tile(cx))
+            .child(
+                div()
+                    .id("chat-start-actions")
+                    .flex()
+                    .flex_wrap()
+                    .justify_center()
+                    .gap_2()
+                    .child(
+                        action("start-attach", IconName::Paperclip, "Attach a document")
+                            .disabled(busy)
+                            .on_click(cx.listener(|this, _, window, cx| {
+                                this.choose_chat_attachment(window, cx)
+                            })),
+                    )
+                    .child(
+                        action("start-new-document", IconName::FilePlus, "New document")
+                            .on_click(cx.listener(|this, _, window, cx| this.new_note(window, cx))),
+                    )
+                    .child(
+                        action("start-web", IconName::Globe, "Search the web").on_click(
+                            cx.listener(|this, _, window, cx| this.open_web_search(window, cx)),
+                        ),
+                    )
+                    .test_support(),
+            )
+            .when(self.delegation_host() == Some(TileKind::Chat), |column| {
+                column.child(self.working_knowledge(cx))
+            });
+        div()
+            .id("chat-tile")
+            .size_full()
+            .child(
+                scroll("thread-conversation")
+                    .items_center()
+                    .justify_center()
+                    .px_0()
+                    .child(column)
+                    .test_support(),
+            )
+            .test_support()
+            .into_any_element()
+    }
+    /// A new chat beside a document: what it is, above the composer.
+    fn assistant_start(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
+        let (heading, body) = match &self.chat {
+            ChatTarget::NewForNote(note) => (
+                format!(
+                    "New chat about {}",
+                    self.note_rows
+                        .iter()
+                        .find(|row| &row.id == note)
+                        .map_or_else(|| note.clone(), |row| short(&row.title))
+                ),
+                "It stays linked to the note.".to_owned(),
+            ),
+            _ => (
+                "New chat".to_owned(),
+                "Ask below. Attach files for this chat, or let BRN use your saved notes."
+                    .to_owned(),
+            ),
+        };
+        let mut start = scroll("thread-conversation")
+            .gap_3()
+            .p_4()
+            .child(components::empty_state(
+                "chat-start",
+                IconName::MessageSquare,
+                heading,
+                body,
+                None,
+            ));
+        if self.delegation_host() == Some(TileKind::Chat) {
+            start = start.child(self.working_knowledge(cx));
+        }
+        start.test_support().into_any_element()
     }
     pub(super) fn conversation_detail(
         &self,
@@ -264,7 +529,8 @@ impl ThreadsUi {
                 .rev()
                 .find_map(|(index, _, candidate)| candidate.map(|_| *index))
         };
-        let mut conversation = transcript_column().gap_3();
+        let mut conversation =
+            super::chat::transcript_column(self.centered(TileKind::Chat)).gap_3();
         for (index, attention, candidate) in cards {
             conversation = conversation.child(self.attention_card(
                 index,
@@ -282,7 +548,7 @@ impl ThreadsUi {
                     .flex()
                     .flex_col()
                     .gap_1()
-                    .child(metadata("BRN · writing…"))
+                    .child(metadata("Writing…"))
                     .child(self.safe_message(
                         format!(
                                 "response-{}",
@@ -298,9 +564,19 @@ impl ThreadsUi {
         if recovering {
             conversation = conversation.child(self.recovery_card(id, &queue, &path, cx));
         }
-        conversation = conversation
-            .child(self.loaded_skill_details(id))
-            .child(self.mcp_detail(id));
+        // Capture useful outcomes stays one visible step after the latest
+        // exchange as well as in the ⋯ menu (proposals wait for review).
+        if !messages.is_empty() && !self.thread_resolved(id) {
+            conversation = conversation.child(
+                div().flex().child(
+                    pill("capture-outcomes", "Capture outcomes…")
+                        .icon(IconName::ListChecks)
+                        .disabled(self.worker.is_some())
+                        .tooltip("Propose useful notes, decisions and follow-ups for review; nothing is saved automatically")
+                        .on_click(cx.listener(|this, _, window, cx| this.capture_outcomes(window, cx))),
+                ),
+            );
+        }
         scroll("thread-conversation")
             .py_4()
             .px_0()
@@ -709,281 +985,6 @@ impl ThreadsUi {
         .test_support()
         .into_any_element()
     }
-    fn composer_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let p = pal();
-        let this = cx.entity().downgrade();
-        let busy = self.worker.is_some();
-        let editing_queue = self.queued_edit_for_current_chat().is_some();
-        let archived = self.chat_thread().filter(|id| self.thread_resolved(id));
-        let quiet = self.queue_state().quiet;
-        let model_this = this.clone();
-        let effort_this = this.clone();
-        let add_this = this.clone();
-        let quiet_control = button("chat-quiet")
-                .ghost()
-                .icon(if quiet { gpui_kit::component::IconName::EyeOff } else { gpui_kit::component::IconName::Eye })
-                .w(px(28.)).h(px(28.))
-                .accessibility_label(if quiet { "Quiet on · show activity" } else { "Quiet off · hide activity" })
-                .toggled(quiet)
-                .selected(quiet)
-                .tooltip(if quiet {
-                    "Quiet is on · click to show activity. Answers, Stop, errors and decisions stay visible."
-                } else {
-                    "Quiet is off · click to hide routine activity. Answers, Stop, errors and decisions stay visible."
-                })
-                .on_click(cx.listener(|this, _, _, cx| {
-                    let quiet = !this.queue_state().quiet;
-                    if let Err(e) = this
-                        .workspace
-                        .choose_quiet(&format!("quiet:{}", uuid::Uuid::new_v4()), quiet)
-                    {
-                        this.fail(e.to_string());
-                    }
-                    cx.notify();
-                }));
-        let can_steer = self.can_stop_and_send();
-        // Below 420 pt the model control also names the effort (the model
-        // name truncates first) and its menu holds the effort choices.
-        let narrow = self.chat_narrow;
-        let model = self.settings.model.clone();
-        let effort = self.settings.effort.clone();
-        let model_control = if narrow {
-            button("model-pill")
-                .compact()
-                .ghost()
-                .h(components::tokens::COMPACT_CONTROL)
-                .flex_shrink(1.)
-                .min_w_0()
-                .max_w(px(160.))
-                .dropdown_caret(true)
-                .accessibility_label(format!("Model {model}, effort {effort}"))
-                .tooltip("Provider, model and reasoning effort · changes Settings · no fallback")
-                .child(
-                    div()
-                        .flex()
-                        .min_w_0()
-                        .child(div().min_w_0().truncate().child(model))
-                        .child(
-                            div()
-                                .flex_shrink_0()
-                                .whitespace_nowrap()
-                                .child(format!("\u{a0}· {effort}")),
-                        ),
-                )
-                .accessible_dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
-                    Some(view) => {
-                        let view = view.read(cx);
-                        view.effort_section(
-                            view.model_menu(menu, &model_this).separator(),
-                            &model_this,
-                        )
-                    }
-                    None => menu,
-                })
-        } else {
-            pill(
-                "model-pill",
-                super::shell::model_display(&self.settings.provider, &model),
-            )
-            .dropdown_caret(true)
-            .tooltip("Provider and model · changes Settings · no fallback")
-            .accessible_dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
-                Some(view) => view.read(cx).model_menu(menu, &model_this),
-                None => menu,
-            })
-        };
-        div()
-            .id("composer-tile")
-            .on_drop(
-                cx.listener(|this, paths: &gpui_kit::ExternalPaths, window, cx| {
-                    this.attach_chat_path(paths.paths(), window, cx)
-                }),
-            )
-            .capture_key_down(
-                cx.listener(|this, event: &gpui_kit::KeyDownEvent, window, cx| {
-                    if event.keystroke.key == "v"
-                        && event.keystroke.modifiers.platform
-                        && let Some(item) = cx.read_from_clipboard()
-                    {
-                        let paths = item
-                            .entries()
-                            .iter()
-                            .filter_map(|entry| match entry {
-                                gpui_kit::ClipboardEntry::ExternalPaths(paths) => {
-                                    Some(paths.paths())
-                                }
-                                _ => None,
-                            })
-                            .flatten()
-                            .cloned()
-                            .collect::<Vec<_>>();
-                        if !paths.is_empty() {
-                            cx.stop_propagation();
-                            this.attach_chat_path(&paths, window, cx);
-                        }
-                    }
-                }),
-            )
-            .flex()
-            .flex_col()
-            .flex_shrink_0()
-            .gap_1()
-            .px_2()
-            .py_1()
-            .bg(rgb(p.alt))
-            .border_t_1()
-            .border_color(rgb(p.hairline))
-            // The archived chat's one banner holds its only Unarchive.
-            .when_some(archived, |composer, chat| {
-                let chat = chat.to_owned();
-                composer.child(
-                    div()
-                        .id("composer-destination")
-                        .track_focus(&self.archived_banner)
-                        .flex()
-                        .items_center()
-                        .gap_2()
-                        .px_2()
-                        .py_1()
-                        .rounded(components::tokens::RADIUS_CONTROL)
-                        .border_1()
-                        .border_color(rgb(p.hairline))
-                        .bg(rgb(p.tile))
-                        .font_family(UI_FONT)
-                        .text_size(UI_TEXT)
-                        .text_color(rgb(p.ink))
-                        .aria_label("Archived. Unarchive to reply.")
-                        .child(
-                            Icon::new(IconName::Archive)
-                                .with_size(Size::Small)
-                                .flex_shrink_0()
-                                .text_color(rgb(p.muted)),
-                        )
-                        .child(div().flex_1().min_w_0().child("Archived. Unarchive to reply."))
-                        .child(
-                            // The archived chat's next action; Send waits.
-                            button("reopen-thread")
-                                .label("Unarchive")
-                                .compact()
-                                .primary()
-                                .h(components::tokens::COMPACT_CONTROL)
-                                .tooltip("Unarchive this chat. The queue stays paused until you resume it.")
-                                .on_click(cx.listener(move |this, _, _, cx| {
-                                    this.reopen_thread(&chat, cx)
-                                })),
-                        )
-                        .test_support(),
-                )
-            })
-            .child(self.composer_controls(cx))
-            .child(
-                div().h(px(64.)).child(
-                    prose_editor(&self.composer)
-                        .h_full()
-                        .aria_label("Ask or delegate"),
-                ),
-            )
-            .child(
-                div()
-                    .flex()
-                    .flex_wrap()
-                    .items_center()
-                    .gap_1()
-                    .child(
-                        components::icon_button("composer-add", IconName::Plus, "Add information")
-                            .accessible_dropdown_menu(move |menu, _, _| {
-                                menu.item(item(
-                                    &add_this,
-                                    "Attach file to chat…",
-                                    None,
-                                    busy,
-                                    false,
-                                    |view, window, cx| view.choose_chat_attachment(window, cx),
-                                ))
-                                .item(item(
-                                    &add_this,
-                                    "Add useful information…",
-                                    None,
-                                    busy,
-                                    false,
-                                    |view, window, cx| {
-                                        view.choose_import(
-                                            ImportIntent::UsefulInformation,
-                                            None,
-                                            window,
-                                            cx,
-                                        )
-                                    },
-                                ))
-                                .item(item(
-                                    &add_this,
-                                    "Import full note…",
-                                    None,
-                                    busy,
-                                    false,
-                                    |view, window, cx| {
-                                        view.choose_import(ImportIntent::FullNote, None, window, cx)
-                                    },
-                                ))
-                            }),
-                    )
-                    .child(div().flex_1())
-                    .child(model_control)
-                    .when(!narrow, |row| {
-                        row.child(
-                            pill("effort-pill", self.settings.effort.clone())
-                                .dropdown_caret(true)
-                                .tooltip("Reasoning effort")
-                                .accessible_dropdown_menu(move |menu, _, cx| match effort_this.upgrade() {
-                                    Some(view) => view.read(cx).effort_menu(menu, &effort_this),
-                                    None => menu,
-                                }),
-                        )
-                    })
-                    .child(quiet_control)
-                    .when(can_steer, |row| {
-                        row.child(
-                            pill("chat-steer", "Steer")
-                                .tooltip("Stop the current reply and start fresh with this message.")
-                                .on_click(cx.listener(|this, _, window, cx| {
-                                    this.stop_and_send(window, cx)
-                                })),
-                        )
-                    })
-                    .child({
-                        // While work runs ↵ queues, so Send reads Queue. In an
-                        // archived chat Unarchive is the filled control, and
-                        // beside a recovery card its Continue or Resume queue
-                        // is: one filled control per panel.
-                        let send = button("ask-delegate");
-                        let send = if archived.is_some() || self.recovery_card_leads() {
-                            send.outline()
-                        } else {
-                            send.primary()
-                        };
-                        send.label(if editing_queue {
-                            "Save queued"
-                        } else if busy {
-                            "Queue"
-                        } else {
-                            "Send"
-                        })
-                        .compact()
-                        .h(components::tokens::COMPACT_CONTROL)
-                        .tooltip(if editing_queue {
-                            "Save the queued message ↵ · Shift-↵ adds a line"
-                        } else if busy {
-                            "Add this message to the queue ↵"
-                        } else {
-                            "Send ↵ · Shift-↵ adds a line"
-                        })
-                        .disabled(false)
-                        .on_click(cx.listener(|this, _, window, cx| this.ask(window, cx)))
-                    }),
-            )
-            .test_support()
-            .into_any_element()
-    }
     /// What each Note toolbar arrangement needs for the open note: each
     /// label's measured text plus its control's fixed chrome, as measured on
     /// the toolbar (Write 16 and Read 17 pt, Format ▾ and Outline 41, the
@@ -1186,17 +1187,6 @@ impl ThreadsUi {
         }
         context.test_support().into_any_element()
     }
-}
-
-/// One transcript row's column: the reading measure with 24 px gutters.
-fn transcript_column() -> gpui_kit::Div {
-    div()
-        .flex()
-        .flex_col()
-        .w_full()
-        .min_w_0()
-        .max_w(px(READING_MEASURE) + components::tokens::SPACE_6 * 2.)
-        .px(components::tokens::SPACE_6)
 }
 
 /// A recovery card's tone; neutral has none.

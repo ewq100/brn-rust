@@ -1,5 +1,6 @@
 //! Isolated owner MCP view. Rendering uses refreshed bounded snapshots only.
 //! Exact input is transient and consumed once at the existing prepare handoff.
+use super::shell::one_line;
 use super::*;
 #[derive(Clone, PartialEq, Eq)]
 pub(super) struct Stamp {
@@ -549,6 +550,141 @@ impl ThreadsUi {
             }
         }
         panel.test_support().into_any_element()
+    }
+    /// The conversation's permission request (spec §6.11): an exact-input
+    /// review for an approved local tool, inline above the composer with
+    /// Allow once and Deny. It names the tool, destination, chat scope and
+    /// the exact input; Allow binds that input to the unchanged owner
+    /// request in the composer, and any change of context, policy or run
+    /// clears it (refresh_mcp). It never hides inside routine activity.
+    pub(super) fn mcp_permission_card(
+        &self,
+        cx: &mut Context<Self>,
+    ) -> Option<gpui_kit::AnyElement> {
+        let ChatTarget::Thread(chat) = &self.chat else {
+            return None;
+        };
+        if self.mcp_view.stamp.as_ref() != Some(&self.mcp_stamp()) {
+            return None;
+        }
+        let tool = self.mcp_view.review_tool.clone().or_else(|| {
+            self.mcp_view
+                .pending
+                .as_ref()
+                .map(|pending| pending.tool.clone())
+        })?;
+        let p = pal();
+        let destination = self
+            .mcp_view
+            .status
+            .as_ref()
+            .and_then(|status| status.endpoint.clone())
+            .unwrap_or_else(|| "unavailable".into());
+        let scope = match project_for_chat(&self.records, chat) {
+            Some(project) => format!(
+                "{} · project {}",
+                short(&self.thread_title(chat)),
+                short(&one_line(&title(project)))
+            ),
+            None => short(&self.thread_title(chat)),
+        };
+        let heading = if self.mcp_view.pending.is_some() {
+            format!("Allowed once: {tool}")
+        } else {
+            format!("Allow {tool} once?")
+        };
+        let mut card = components::card("permission-card", Some(Tone::Warning))
+            .gap_2()
+            .aria_label(format!("Permission request · {heading}"))
+            .child(
+                div()
+                    .flex()
+                    .items_center()
+                    .gap_2()
+                    .child(components::tone_mark("permission-card-tone", Tone::Warning))
+                    .child(
+                        div()
+                            .id("permission-card-heading")
+                            .min_w_0()
+                            .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                            .aria_label(heading.clone())
+                            .child(heading)
+                            .test_support(),
+                    ),
+            )
+            .child(
+                div()
+                    .id("permission-card-target")
+                    .text_size(SMALL_TEXT)
+                    .text_color(rgb(p.ink))
+                    .child(format!("Destination: {destination} · chat: {scope}"))
+                    .test_support(),
+            );
+        if let Some(pending) = &self.mcp_view.pending {
+            card = card
+                .child(
+                    div()
+                        .id("permission-card-input")
+                        .text_size(SMALL_TEXT)
+                        .child(format!("Exact input: {}", pending.input))
+                        .test_support(),
+                )
+                .child(metadata(
+                    "Sent once with the message below, only while it stays unchanged. Not saved; queued messages never use it.",
+                ))
+                .child(
+                    div().flex().justify_end().child(
+                        button("permission-revoke")
+                            .label("Withdraw")
+                            .compact()
+                            .outline()
+                            .h(components::tokens::COMPACT_CONTROL)
+                            .tooltip("Withdraw this one-time permission")
+                            .on_click(cx.listener(|this, _, _, cx| this.deny_mcp_input(cx))),
+                    ),
+                );
+        } else if let Some(query) = &self.mcp_view.query {
+            card = card
+                .child(
+                    Input::new(query)
+                        .id("permission-query")
+                        .w_full()
+                        .aria_label(format!("Exact input for {tool}")),
+                )
+                .child(metadata(
+                    "Write your message in the composer first. Allow binds this exact input to that message once; it is never saved as a draft.",
+                ))
+                .child(
+                    div()
+                        .flex()
+                        .justify_end()
+                        .gap_2()
+                        .child(
+                            button("permission-deny")
+                                .label("Deny")
+                                .compact()
+                                .outline()
+                                .h(components::tokens::COMPACT_CONTROL)
+                                .on_click(cx.listener(|this, _, _, cx| this.deny_mcp_input(cx))),
+                        )
+                        .child(
+                            button("permission-allow")
+                                .label("Allow once")
+                                .compact()
+                                .primary()
+                                .h(components::tokens::COMPACT_CONTROL)
+                                .tooltip("Authorize this exact input once for the message in the composer")
+                                .on_click(cx.listener(|this, _, _, cx| this.review_mcp_input(cx))),
+                        ),
+                );
+        }
+        Some(card.test_support().into_any_element())
+    }
+    /// Deny or withdraw: the transient review and any one-time grant go.
+    pub(super) fn deny_mcp_input(&mut self, cx: &mut Context<Self>) {
+        self.mcp_view.clear_input();
+        self.inform("Permission not given. Nothing was sent to the tool.");
+        cx.notify();
     }
     pub(super) fn mcp_detail(&self, chat: &str) -> gpui_kit::AnyElement {
         let mut panel = div().id("mcp-status-detail").flex().flex_col().gap_1();
