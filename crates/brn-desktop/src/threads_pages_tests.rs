@@ -1614,6 +1614,17 @@ fn a_task_opens_its_detail_panel_and_completes_explicitly(cx: &mut TestAppContex
     update(cx, &f, |view, _, cx| {
         focus_tests::solo(view, TileKind::Actions, cx)
     });
+    on_window(cx, &f, |window, _| {
+        let page = window.find("actions-content").bounds();
+        let lead = window.find("tasks-lead").bounds();
+        assert!(
+            lead.origin.y > page.origin.y,
+            "the lead sits below the inset"
+        );
+        let left = lead.origin.x - page.origin.x;
+        let right = page.origin.x + page.size.width - (lead.origin.x + lead.size.width);
+        assert!((left - right).abs() < px(2.), "the column is centred");
+    });
     click(cx, &f, format!("task-open-{id}"));
     on_window(cx, &f, |window, _| {
         assert!(

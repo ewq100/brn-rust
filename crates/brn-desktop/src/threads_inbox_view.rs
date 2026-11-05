@@ -463,7 +463,7 @@ pub(super) fn item_line(
 }
 
 impl ThreadsUi {
-    fn inbox_compact(&self) -> bool {
+    pub(super) fn inbox_compact(&self) -> bool {
         self.arrangement.primary < 720.
     }
     /// For you, as rendered now.

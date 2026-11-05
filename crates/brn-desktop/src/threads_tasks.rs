@@ -6,6 +6,7 @@ use super::*;
 use gpui_kit::component::button::ButtonVariants;
 use gpui_kit::component::input::Input;
 
+use super::inbox_page::{lead, page_frame};
 use super::tiles::page;
 use super::tiles::{PAGE_WIDTH, column};
 
@@ -355,7 +356,11 @@ impl ThreadsUi {
         .into_any_element()
     }
     pub(super) fn actions_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let mut view = column();
+        let compact = self.inbox_compact();
+        let mut view = column().child(lead(
+            "tasks-lead",
+            "Tasks you and BRN are tracking. Each keeps its own state, even after its chat ends.",
+        ));
         if !self
             .records
             .iter()
@@ -408,7 +413,7 @@ impl ThreadsUi {
             view = view.child(group.test_support());
         }
         let Some(task) = self.inbox_page.task.as_ref() else {
-            return page("actions-content", PAGE_WIDTH, view)
+            return page_frame("actions-content", PAGE_WIDTH, compact, view)
                 .test_support()
                 .into_any_element();
         };
@@ -422,11 +427,9 @@ impl ThreadsUi {
                 .size_full()
                 .min_h_0()
                 .child(
-                    div()
-                        .flex_1()
-                        .min_w_0()
-                        .min_h_0()
-                        .child(page("actions-list", PAGE_WIDTH, view).test_support()),
+                    div().flex_1().min_w_0().min_h_0().child(
+                        page_frame("actions-list", PAGE_WIDTH, compact, view).test_support(),
+                    ),
                 )
                 .child(
                     div()
@@ -440,7 +443,7 @@ impl ThreadsUi {
                 .test_support()
                 .into_any_element()
         } else {
-            page("actions-content", PAGE_WIDTH, detail)
+            page_frame("actions-content", PAGE_WIDTH, compact, detail)
                 .test_support()
                 .into_any_element()
         }
