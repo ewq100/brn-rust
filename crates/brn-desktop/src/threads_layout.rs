@@ -334,7 +334,7 @@ impl Layout {
     /// Test arrangement: a document with the assistant showing beside it
     /// (or as the open sheet when the window is compact), focus in the
     /// assistant. Replaces the retired Write preset in behavior tests.
-    #[cfg(test)]
+    #[cfg(all(test, feature = "native-test-support"))]
     pub(super) fn document_with_assistant(&mut self) {
         self.primary = TileKind::Note;
         self.support = TileKind::Chat;
@@ -344,13 +344,13 @@ impl Layout {
     }
     /// Test arrangement: a narrow (300 pt) assistant beside a document,
     /// where the chat body folds its controls like the old companion.
-    #[cfg(test)]
+    #[cfg(all(test, feature = "native-test-support"))]
     pub(super) fn narrow_assistant(&mut self) {
         self.document_with_assistant();
         self.support_width = 300.;
     }
     /// Test arrangement: `kind` as the only view (the retired Solo).
-    #[cfg(test)]
+    #[cfg(all(test, feature = "native-test-support"))]
     pub(super) fn show_alone(&mut self, kind: TileKind) {
         if kind == TileKind::Settings {
             self.open(kind);
