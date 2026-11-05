@@ -502,6 +502,8 @@ fn late_checked_refresh_preserves_newer_typed_buffer_and_stale_save(cx: &mut Tes
                 RecordData::Note(note) if note.markdown == "Version two: checked external update."
             ));
 
+            use brn_writing_ui::canvas::SaveStatus;
+            assert_eq!(view.writing.save_status(), Some(SaveStatus::Unsaved));
             let outcome = view
                 .writing
                 .save_note(&mut view.workspace, window, cx)
@@ -511,6 +513,14 @@ fn late_checked_refresh_preserves_newer_typed_buffer_and_stale_save(cx: &mut Tes
                 panic!("expected stale Save, got {outcome:?}");
             };
             assert_eq!(kept, session);
+            // The header reports the conflict from the actual outcome, never
+            // Saved, and says the edit is kept (WRITE-02).
+            let status = view.writing.save_status().unwrap();
+            assert_eq!(
+                status,
+                SaveStatus::Conflict("The note changed since this edit began".into())
+            );
+            assert_eq!(status.label(), "Conflict · edit kept");
             assert_eq!(view.writing.note_editor.read(cx).value().as_ref(), typed);
             assert_eq!(
                 view.workspace.store.recovery_buffers().unwrap(),
