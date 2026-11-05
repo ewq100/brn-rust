@@ -699,11 +699,25 @@ impl ThreadsUi {
             .into_iter()
             .map(|item| {
                 button(format!("settings-section-{}", item.key()))
-                    .label(item.label())
+                    .accessibility_label(item.label())
                     .ghost()
                     .w_full()
-                    .justify_start()
+                    .px_3()
                     .h(components::tokens::FORM_CONTROL)
+                    // The kit centres a plain label; a filling child keeps the
+                    // section names left-aligned like a list.
+                    .child(
+                        gpui_kit::div()
+                            .id(gpui_kit::SharedString::from(format!(
+                                "settings-section-{}-label",
+                                item.key()
+                            )))
+                            .flex_1()
+                            .min_w_0()
+                            .text_left()
+                            .child(item.label())
+                            .test_support(),
+                    )
                     .selected(self.settings_section == item)
                     .on_click(
                         cx.listener(move |this, event: &gpui_kit::ClickEvent, window, cx| {
