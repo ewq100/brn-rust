@@ -1047,6 +1047,13 @@ fn an_archived_chats_note_hit_reads_archived_like_its_messages(cx: &mut TestAppC
         assert!(window.find("hit-0-archived").visible());
     })
     .unwrap();
+    // A clean note opens from a Library text hit in Read mode.
+    click(cx, &f, "hit-0");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.layout.primary(), TileKind::Note);
+        assert!(view.writing.note.is_reading());
+    });
 }
 
 fn owner_write(view: &mut ThreadsUi, key: &str, data: Vec<RecordData>) -> Vec<Record> {

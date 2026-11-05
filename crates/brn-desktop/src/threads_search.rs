@@ -408,17 +408,14 @@ impl ThreadsUi {
         let results = &self.results;
         let typing = results.state.fresh();
         let notes_pending = results.state.pending(Lanes::Notes);
-        let mut block =
-            div()
-                .id("search-results")
-                .flex()
-                .flex_col()
-                .gap_1()
-                .child(components::section_header(
-                    "In note text",
-                    None,
-                    Some(metadata("Current knowledge").into_any_element()),
-                ));
+        let mut block = div().id("search-results").flex().flex_col().gap_1().child(
+            components::section_header(
+                "In note text",
+                None,
+                Some(metadata("Current knowledge").into_any_element()),
+            )
+            .px_2(),
+        );
         if notes_pending {
             block = block.child(components::loading(
                 "search-status",
@@ -458,6 +455,7 @@ impl ThreadsUi {
             block = block.child(
                 metadata(status)
                     .id("search-status")
+                    .px_2()
                     .font_family(UI_FONT)
                     .test_support(),
             );
@@ -513,7 +511,7 @@ impl ThreadsUi {
                 )
                 .build()
                 .on_click(cx.listener(move |this, _, window, cx| {
-                    this.open_note(&id, None, window, cx);
+                    this.open_from_library(&id, window, cx);
                     this.reveal(range.clone(), window, cx);
                 })),
             );
@@ -578,17 +576,14 @@ impl ThreadsUi {
         else {
             return div().into_any_element();
         };
-        let mut block =
-            div()
-                .id("search-chats")
-                .flex()
-                .flex_col()
-                .gap_1()
-                .child(components::section_header(
-                    "In chats",
-                    None,
-                    Some(metadata("Chat history · not current knowledge").into_any_element()),
-                ));
+        let mut block = div().id("search-chats").flex().flex_col().gap_1().child(
+            components::section_header(
+                "In chats",
+                None,
+                Some(metadata("Chat history · not current knowledge").into_any_element()),
+            )
+            .px_2(),
+        );
         if paging {
             block = block.child(components::loading(
                 "search-chats-status",
@@ -612,6 +607,7 @@ impl ThreadsUi {
             block = block.child(
                 metadata(status)
                     .id("search-chats-status")
+                    .px_2()
                     .font_family(UI_FONT)
                     .test_support(),
             );

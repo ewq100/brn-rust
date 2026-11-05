@@ -1187,14 +1187,14 @@ impl ThreadsUi {
                 div()
                     .id("library-search-scope")
                     .pt(tokens::SPACE_3)
-                    .px_3()
+                    .px_2()
                     .text_size(px(theme::metrics::TEXT_METADATA))
                     .text_color(rgb(p.muted))
                     .aria_label(scope)
                     .child(scope)
                     .test_support(),
             )
-            .child(section(format!("Titles · {total}")).px_3());
+            .child(section(format!("Titles · {total}")).px_2());
         let current = self.open_note_id().map(str::to_owned);
         for data in titles {
             let id = data.id.clone();
@@ -1232,7 +1232,7 @@ impl ThreadsUi {
             );
         }
         if total > 100 {
-            column = column.child(metadata(format!("Showing 100 of {total} · keep typing")).px_3());
+            column = column.child(metadata(format!("Showing 100 of {total} · keep typing")).px_2());
         }
         column = column.child(self.search_results(cx));
         scroll("notes-list")
