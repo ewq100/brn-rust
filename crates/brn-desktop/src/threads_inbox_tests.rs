@@ -219,6 +219,7 @@ fn scan_button_runs_stock_worker_and_reopens_import_without_dispatching_private_
     let bytes = include_bytes!("../../brn-intake/tests/fixtures/harbor.docx");
     let source_path = f.folder.join("harbor.docx");
     std::fs::write(&source_path, bytes).unwrap();
+    std::fs::write(f.folder.join("broken.docx"), b"not a document").unwrap();
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
             ui.workspace
@@ -277,9 +278,24 @@ fn scan_button_runs_stock_worker_and_reopens_import_without_dispatching_private_
         std::thread::sleep(Duration::from_millis(10));
     }
     cx.run_until_parked();
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).notice_tone(),
+            Tone::Warning,
+            "a scan with a failed file is not reported as a success"
+        )
+    });
     let reopened = Workspace::open_existing_no_upgrade(f._root.path().join("data")).unwrap();
-    let state = reopened.inbox().unwrap().unwrap();
-    assert_eq!(state.entries.len(), 1);
+    let mut state = reopened.inbox().unwrap().unwrap();
+    assert_eq!(state.entries.len(), 2);
+    let failed = state
+        .entries
+        .iter()
+        .position(|entry| entry.name == "broken.docx")
+        .unwrap();
+    let failed = state.entries.remove(failed);
+    assert_eq!(failed.status, InboxStatus::Failed, "{failed:?}");
+    assert!(failed.note.is_none());
     assert_eq!(state.entries[0].status, InboxStatus::Imported, "{state:?}");
     let key = state.entries[0].operation_key.as_ref().unwrap();
     let operation = reopened

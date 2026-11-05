@@ -2968,6 +2968,18 @@ impl ThreadsUi {
                         tone = *terminal_tone;
                     }
                     let ok = result.is_ok();
+                    // A scan that finished with failed files is not a success.
+                    if ok
+                        && kind == Some(WorkerKind::Inbox)
+                        && self.workspace.inbox().ok().flatten().is_some_and(|state| {
+                            state
+                                .entries
+                                .iter()
+                                .any(|entry| entry.status == InboxStatus::Failed)
+                        })
+                    {
+                        tone = Tone::Warning;
+                    }
                     if let Some(identity) = &identity {
                         let status = match &run_state {
                             Some(RunState::Working) => "Work ended · status unconfirmed".into(),
