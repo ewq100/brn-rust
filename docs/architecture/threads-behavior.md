@@ -46,6 +46,8 @@ New immutable requests use envelope v2, capturing the scope, setup Current input
 
 Workspace navigation reuses the main and companion areas. Opening a note preserves the selected conversation and its unsent draft; explicit chat selection, a new chat about a note, and opening a writing review select their intended conversation. A blank new chat can initially acquire the opened note's context. Hiding or replacing an area preserves note/review input and never applies a candidate or archives a conversation. Settings and Solo preserve the underlying arrangement. [Accepted workspace-area contract](threads-target.md).
 
+On launch the desktop restores the last valid destination — a chat, a document with its project, a project, Library, Inbox, Projects or All chats — from host presentation state outside the versioned records. Settings and other transient surfaces keep the previous location. A destination that no longer exists falls back to the new-chat start. Restoring only opens a view: it never starts or resumes a run, and never scans the inbox.
+
 The owner can start a thread from Ask or delegate, a selected note passage, a source import, or an existing Action. The agent can open one when useful work requires an owner decision. Routine processing can attach its outcome to an existing work context and remain quiet.
 
 ## State and attention

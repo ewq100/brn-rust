@@ -262,6 +262,56 @@ impl Store {
         Ok(())
     }
 
+    /// The desktop's last workspace location, an opaque host-owned key, or
+    /// `None` when none has been saved. Like the appearance preference it is
+    /// presentation state outside the versioned records: it carries no
+    /// receipt, never grants anything and never resumes work. Opening a
+    /// workspace never creates its table; the first save does.
+    pub fn presentation_location(&self) -> Result<Option<String>> {
+        let exists = self
+            .conn
+            .query_row(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='workspace_location'",
+                [],
+                |_| Ok(()),
+            )
+            .optional()?
+            .is_some();
+        if !exists {
+            return Ok(None);
+        }
+        Ok(self
+            .conn
+            .query_row(
+                "SELECT location FROM workspace_location WHERE id=1",
+                [],
+                |row| row.get::<_, Option<String>>(0),
+            )
+            .optional()?
+            .flatten())
+    }
+
+    /// Save the desktop's last workspace location (see
+    /// [`Store::presentation_location`]). The key is bounded and durable
+    /// before this returns.
+    pub fn save_presentation_location(&mut self, location: &str) -> Result<()> {
+        if location.is_empty() || location.len() > 4096 {
+            return Err(Error::Invalid("unsupported workspace location".into()));
+        }
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(
+            "CREATE TABLE IF NOT EXISTS workspace_location(id INTEGER PRIMARY KEY CHECK(id=1), location TEXT)",
+        )?;
+        tx.execute(
+            "INSERT INTO workspace_location(id,location) VALUES(1,?1) ON CONFLICT(id) DO UPDATE SET location=excluded.location",
+            [location],
+        )?;
+        tx.commit()?;
+        Ok(())
+    }
+
     /// The caller's actor name, recorded beside every receipt this
     /// connection commits from now on; `None` records none. It is never part
     /// of a request's identity: a replay keeps the first actor.

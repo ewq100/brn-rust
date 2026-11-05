@@ -2093,3 +2093,111 @@ fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContex
         );
     });
 }
+
+/// A second window over the same data, as a relaunch would open it.
+fn relaunch(cx: &mut TestAppContext, data: &std::path::Path) -> Entity<ThreadsUi> {
+    let workspace = Workspace::open(data).unwrap();
+    let data = data.to_path_buf();
+    let (_, view) = cx.update(|cx| {
+        gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
+            cx.new(|cx| {
+                let mut ui = ThreadsUi::new(workspace, data, window, cx);
+                ui.poll = None;
+                ui
+            })
+        })
+        .unwrap()
+    });
+    cx.run_until_parked();
+    view
+}
+
+/// AC-01: the last supported workspace restores with its identity on
+/// relaunch; transient surfaces keep the previous location; a location whose
+/// document no longer exists falls back to the new-chat start without a
+/// warning, a task or a scan.
+#[gpui_kit::test]
+fn relaunch_restores_the_last_valid_workspace_location(cx: &mut TestAppContext) {
+    let mut ids = (String::new(), String::new());
+    let f = fixture(cx, 1280., 900., |workspace| {
+        let project = workspace
+            .project_command(
+                "loc-project",
+                ProjectCommand::Create {
+                    title: "Harbor project".into(),
+                },
+            )
+            .unwrap()
+            .writes[0]
+            .after
+            .id
+            .clone();
+        let doc = workspace
+            .project_command(
+                "loc-project-doc",
+                ProjectCommand::CreateDocument {
+                    project: project.clone(),
+                    title: "Run sheet".into(),
+                    markdown: "Only in the project.".into(),
+                },
+            )
+            .unwrap()
+            .writes
+            .iter()
+            .find(|w| matches!(w.after.data, RecordData::Note(_)))
+            .unwrap()
+            .after
+            .id
+            .clone();
+        ids = (project, doc);
+    });
+    let (project, doc) = ids;
+    update(cx, &f, |view, window, cx| {
+        view.open_project_note(&project, &doc, window, cx);
+        view.persist_location();
+        view.open_settings_section(SettingsSection::Appearance, window, cx);
+        view.persist_location();
+    });
+    let reopened = relaunch(cx, &f.data);
+    cx.read(|cx| {
+        let view = reopened.read(cx);
+        assert_eq!(view.open_note_id(), Some(doc.as_str()));
+        assert_eq!(view.note_writing_scope.as_deref(), Some(project.as_str()));
+        assert_eq!(view.layout.primary(), TileKind::Note);
+        assert_eq!(view.navigation_focus(), Some(TileKind::Projects));
+        assert!(view.worker.is_none(), "restoring never starts work");
+        assert!(view.notice.text().is_empty(), "{}", view.notice.text());
+    });
+
+    update(cx, &f, |view, window, cx| {
+        view.open_project(&project, window, cx);
+        view.persist_location();
+    });
+    let reopened = relaunch(cx, &f.data);
+    cx.read(|cx| {
+        let view = reopened.read(cx);
+        assert_eq!(view.layout.primary(), TileKind::Projects);
+        assert_eq!(view.selected_project.as_deref(), Some(project.as_str()));
+    });
+
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Notes, window, cx);
+        view.persist_location();
+    });
+    let reopened = relaunch(cx, &f.data);
+    cx.read(|cx| assert_eq!(reopened.read(cx).layout.primary(), TileKind::Notes));
+
+    update(cx, &f, |view, _, _| {
+        view.workspace
+            .save_last_location(r#"{"kind":"document","note":"missing","project":null}"#)
+            .unwrap();
+    });
+    let reopened = relaunch(cx, &f.data);
+    cx.read(|cx| {
+        let view = reopened.read(cx);
+        assert_eq!(view.layout.primary(), TileKind::Chat);
+        assert!(view.chat_thread().is_none());
+        assert!(view.open_note_id().is_none());
+        assert!(view.notice.text().is_empty(), "{}", view.notice.text());
+    });
+}

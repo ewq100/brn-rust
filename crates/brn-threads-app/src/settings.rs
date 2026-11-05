@@ -194,6 +194,18 @@ impl Workspace {
         Ok(self.store.save_presentation_theme(theme)?)
     }
 
+    /// The desktop's last workspace location key, if one was saved. Host
+    /// presentation state only: restoring it must never resume work.
+    pub fn last_location(&self) -> AppResult<Option<String>> {
+        Ok(self.store.presentation_location()?)
+    }
+
+    /// Save the desktop's last workspace location key. Presentation only,
+    /// like [`Workspace::save_appearance`].
+    pub fn save_last_location(&mut self, location: &str) -> AppResult<()> {
+        Ok(self.store.save_presentation_location(location)?)
+    }
+
     /// One-time migration: if no presentation preference has been saved yet but
     /// the workspace carries a legacy [`WorkspaceSettings::theme`], adopt it as
     /// the presentation preference so an owner's earlier choice is not reset.

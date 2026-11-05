@@ -41,3 +41,27 @@ fn opening_never_creates_presentation_state_and_the_first_save_persists_it() {
     let store = Store::open(&directory).unwrap();
     assert_eq!(store.presentation_theme().unwrap().as_deref(), Some("dark"));
 }
+
+#[test]
+fn workspace_location_is_lazy_bounded_and_survives_reopen() {
+    let root = TempDir::new_in(std::fs::canonicalize(std::env::temp_dir()).unwrap()).unwrap();
+    let directory = root.path().join("data");
+    let mut store = Store::open(&directory).unwrap();
+    assert_eq!(store.presentation_location().unwrap(), None);
+    assert!(
+        !tables(&directory)
+            .iter()
+            .any(|name| name == "workspace_location")
+    );
+    assert!(store.save_presentation_location("").is_err());
+    assert!(store.save_presentation_location(&"x".repeat(4097)).is_err());
+    store
+        .save_presentation_location(r#"{"kind":"page","page":"library"}"#)
+        .unwrap();
+    drop(store);
+    let store = Store::open(&directory).unwrap();
+    assert_eq!(
+        store.presentation_location().unwrap().as_deref(),
+        Some(r#"{"kind":"page","page":"library"}"#)
+    );
+}

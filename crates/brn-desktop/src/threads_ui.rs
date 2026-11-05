@@ -75,6 +75,8 @@ mod layout;
 mod library_view;
 #[path = "threads_lists.rs"]
 mod lists;
+#[path = "threads_location.rs"]
+mod location;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_mcp_tests.rs"]
 mod mcp_tests;
@@ -530,6 +532,8 @@ struct ThreadsUi {
     restore: restore_view::RestoreFlow,
     /// The open note's version history, shown in place of the document.
     doc_history: Option<doc_history::DocHistory>,
+    /// The last location saved for restoring on launch.
+    saved_location: Option<location::SavedLocation>,
     subscriptions: Vec<Subscription>,
     poll: Option<Task<()>>,
 }
@@ -823,6 +827,7 @@ impl ThreadsUi {
             backup_status: "No backup created in this session.".into(),
             restore: Default::default(),
             doc_history: None,
+            saved_location: None,
             subscriptions,
             poll: Some(poll),
         };
@@ -838,6 +843,7 @@ impl ThreadsUi {
         this.composer
             .update(cx, |e, cx| e.set_value(home, window, cx));
         this.root_focus.focus(window, cx);
+        this.restore_location(window, cx);
         this
     }
     /// One checked display batch per canonical change; never an Apply/read grant.

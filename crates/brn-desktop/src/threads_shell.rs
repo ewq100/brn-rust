@@ -696,7 +696,7 @@ impl ThreadsUi {
             .map(|record| (record.id.clone(), one_line(&title(record))))
             .collect()
     }
-    fn open_project(&mut self, id: &str, window: &mut Window, cx: &mut Context<Self>) {
+    pub(super) fn open_project(&mut self, id: &str, window: &mut Window, cx: &mut Context<Self>) {
         self.projects_trash = false;
         self.selected_project = Some(id.to_owned());
         self.show_tile(TileKind::Projects, window, cx);
@@ -1972,6 +1972,7 @@ impl ThreadsUi {
 impl Render for ThreadsUi {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         self.refresh_writing_review_cache();
+        self.persist_location();
         let _retained = (&self.subscriptions, &self.poll);
         let p = pal();
         self.schedule_focus_first(window);
