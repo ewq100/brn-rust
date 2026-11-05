@@ -108,9 +108,9 @@ fn assert_inside(window: &Window, id: &str, outer: Bounds<gpui_kit::Pixels>) {
         "{id} {bounds:?} inside {outer:?}"
     );
 }
-/// The open dialog's surface (Kit's layer 0).
+/// The open dialog's surface (Kit 0.9 names it `surface` inside `dialog`).
 fn dialog_surface(window: &mut Window) -> Bounds<gpui_kit::Pixels> {
-    window.within("dialog").find(0usize).bounds()
+    window.within("dialog").find("surface").bounds()
 }
 fn note_titles(view: &ThreadsUi) -> Vec<String> {
     view.workspace
