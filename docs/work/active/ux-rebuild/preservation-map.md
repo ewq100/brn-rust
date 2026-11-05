@@ -41,7 +41,7 @@ Status values: planned, implemented, verified (automated), native-observed. Evid
 | Area | Slice | Status |
 |---|---|---|
 | Dependency (GPUI Kit 0.9.0) | S0 | in progress |
-| Appearance | S1 | planned |
+| Appearance | S1 | implemented (automated-verified; native partial) — [evidence](s1-appearance-evidence.md) |
 | Shell, Keyboard | S2 | planned |
 | Chat, Queue | S3 | planned |
 | Writing, Comments, Review, Outline | S4 | planned |
