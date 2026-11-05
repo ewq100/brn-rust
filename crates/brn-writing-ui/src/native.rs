@@ -171,6 +171,9 @@ pub struct WritingPanel {
     pub save_attempt: Option<crate::canvas::SaveAttempt>,
     /// The next different note opens in Read (Library and search results).
     pub prefer_reading: bool,
+    /// The reading view has been laid out once, so its parse carries the
+    /// outline observer even while the document stays in Edit.
+    pub read_primed: std::cell::Cell<bool>,
 }
 
 /// A saved-request failure before run selection or any durable run write.
@@ -347,6 +350,7 @@ impl WritingPanel {
             feedback_open: false,
             save_attempt: None,
             prefer_reading: false,
+            read_primed: std::cell::Cell::new(false),
         }
     }
 }

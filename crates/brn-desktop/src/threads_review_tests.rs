@@ -1746,6 +1746,8 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_620x600(cx: &mut TestAppC
     // The stale banner, open comments and a dirty bar: the text keeps 120 px.
     let f = fixture(cx, 620., 600., TEXT);
     commented(cx, &f, false);
+    // The overall-feedback field is open, as the budget assumes.
+    update(cx, &f, |view, _, _| view.writing.feedback_open = true);
     // Saved elsewhere first, then edited here: the edit's base is behind.
     change_saved(cx, &f, |note| {
         note.markdown = format!("{TEXT}\n\nChanged elsewhere.")
@@ -1784,6 +1786,7 @@ fn the_banner_stack_keeps_its_budget_above_the_text_at_620x600(cx: &mut TestAppC
     // than the old tiles', so 490 pt gives the Note a comparably tight height.
     let f = fixture(cx, 620., 490., TEXT);
     let thread = commented(cx, &f, false);
+    update(cx, &f, |view, _, _| view.writing.feedback_open = true);
     update(cx, &f, |view, window, cx| view.rewrite_note(window, cx));
     failed_rewrite(
         cx,

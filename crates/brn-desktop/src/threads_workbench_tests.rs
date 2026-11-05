@@ -815,7 +815,8 @@ fn repeated_rewrite_requests_preserve_pending_review_and_reading_space(cx: &mut 
         assert_eq!(f.view.read(cx).candidates.len(), 1);
         assert!(window.find("writing-proposals").bounds().size.height <= px(110.));
         assert!(window.find("note-body").bounds().size.height > px(200.));
-        assert!(window.find("overall-feedback").visible());
+        // Overall feedback stays one click away for Rewrite.
+        assert!(window.find("toggle-feedback").visible());
     })
     .unwrap();
 }

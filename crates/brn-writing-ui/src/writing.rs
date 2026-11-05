@@ -42,6 +42,7 @@ impl<T: 'static> WritingView<'_, T> {
             24.
         };
         let format = text("Format", UI_TEXT) + 41.;
+        let edit = text("Edit note", UI_TEXT) + 17.;
         let format_menu = 50.
             + 8.
             + text("Edit", UI_TEXT)
@@ -52,11 +53,12 @@ impl<T: 'static> WritingView<'_, T> {
             + text("Outline", UI_TEXT)
             + 41.
             + chip
-            + toggle;
+            + toggle
+            + edit;
         layout::NoteNeeds {
             full: format_menu - format + 136.,
             format_menu,
-            compact: format_menu - 1.,
+            compact: format_menu - edit - 8.,
         }
     }
 
@@ -95,6 +97,26 @@ impl<T: 'static> WritingView<'_, T> {
             .into_any_element(),
         );
         controls.extend(self.comments_toggle(cx));
+        // Edit note is an explicit instruction for this saved note
+        // (CHAT-05); it stays in view when the row has room. Connections
+        // and the other document actions live in the document ⋯.
+        if !fit.actions_in_menu() {
+            let blocked = self.edit_note_blocked();
+            controls.push(
+                pill("edit-note-context", "Edit note")
+                    .disabled(blocked.is_some())
+                    .accessibility_label(match blocked {
+                        Some(reason) => format!("Edit note, unavailable: {reason}"),
+                        None => "Edit note".into(),
+                    })
+                    .tooltip(match blocked {
+                        Some(reason) => format!("Edit note is unavailable: {reason}"),
+                        None => "Give BRN an instruction for this saved note".into(),
+                    })
+                    .on_click(self.on(cx, WritingRequest::EditNote))
+                    .into_any_element(),
+            );
+        }
         controls
     }
 
@@ -118,9 +140,8 @@ impl<T: 'static> WritingView<'_, T> {
         let busy = self.worker.is_some();
         let imported = note.import.is_some();
         let protected = note.protected;
-        // Edit note and Connections live here, beside the other
-        // document-level actions; the toolbar keeps only reading/writing.
-        let collapsed = true;
+        // A narrow document keeps Edit note here; Connections always is.
+        let collapsed = self.note_fit.actions_in_menu();
         let edit_blocked = self.edit_note_blocked();
         Some(Box::new(move |menu: PopupMenu| {
             let mut menu = menu
@@ -175,29 +196,28 @@ impl<T: 'static> WritingView<'_, T> {
                     dispatch,
                 ));
             if collapsed {
-                menu = menu
-                    .item(item(
-                        &this,
-                        match edit_blocked {
-                            Some(reason) => format!("Edit note… · {reason}"),
-                            None => "Edit note…".into(),
-                        },
-                        None,
-                        edit_blocked.is_some(),
-                        false,
-                        WritingRequest::EditNote,
-                        dispatch,
-                    ))
-                    .item(item(
-                        &this,
-                        "Connections",
-                        None,
-                        false,
-                        false,
-                        WritingRequest::Connections,
-                        dispatch,
-                    ));
+                menu = menu.item(item(
+                    &this,
+                    match edit_blocked {
+                        Some(reason) => format!("Edit note… · {reason}"),
+                        None => "Edit note…".into(),
+                    },
+                    None,
+                    edit_blocked.is_some(),
+                    false,
+                    WritingRequest::EditNote,
+                    dispatch,
+                ));
             }
+            menu = menu.item(item(
+                &this,
+                "Connections",
+                None,
+                false,
+                false,
+                WritingRequest::Connections,
+                dispatch,
+            ));
             let mut menu = menu
                 .separator()
                 .item(item(
@@ -504,6 +524,13 @@ impl<T: 'static> WritingView<'_, T> {
             }
             content = content.child(strip.test_support());
         }
+        // The reading view registers its parser options when it is laid
+        // out. A document opened in Edit lays it out once, hidden, so the
+        // outline is built from that same parse of the buffer.
+        let prime = !self.note.is_reading() && !self.read_primed.replace(true);
+        if self.note.is_reading() {
+            self.read_primed.set(true);
+        }
         let editor = if self.note.is_reading() {
             crate::document::readable_document(
                 &self.note_read_view,
@@ -586,6 +613,21 @@ impl<T: 'static> WritingView<'_, T> {
                 self.on(cx, WritingRequest::TrackSelection),
             )
             .on_key_up(self.on(cx, WritingRequest::TrackSelection))
+            .when(prime, |text| {
+                text.child(
+                    div()
+                        .absolute()
+                        .w(px(crate::theme::metrics::DOCUMENT_WIDTH))
+                        .h(px(0.))
+                        .overflow_hidden()
+                        .invisible()
+                        .child(crate::document::readable_document(
+                            &self.note_read_view,
+                            self.note_assets(),
+                            Some(&self.read_outline),
+                        )),
+                )
+            })
             .test_support();
         body = if outline && !outline_docked {
             body.child(

@@ -1172,7 +1172,7 @@ fn connections_tile_lists_visible_links_filters_relations_and_recenters(cx: &mut
     update(cx, &f, |view, window, cx| {
         view.open_note(&centre, None, window, cx)
     });
-    click(cx, &f, "note-connections");
+    open_connections(cx, &f);
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("connections-status").visible());
         assert!(window.find(format!("connection-{evidence}")).visible());
@@ -1335,7 +1335,7 @@ fn connections_result_is_cleared_when_project_unlink_revokes_neighbor_visibility
     });
     click(cx, &f, format!("project-row-{shared_project}"));
     click(cx, &f, format!("project-doc-{centre}"));
-    click(cx, &f, "note-connections");
+    open_connections(cx, &f);
     let connection_id = format!("connection-{private_note}");
     let unlink_id = format!("project-unlink-{private_note}");
     cx.update_window(f.window, |_, window, cx| {
@@ -2093,4 +2093,21 @@ fn task_details_owner_form_preserves_state_due_and_rejects_ambiguous_date(cx: &m
         assert_eq!(action.state, ActionState::Waiting);
     })
     .unwrap();
+}
+
+/// Connections lives in the document ⋯ (S4), not the toolbar.
+fn open_connections(cx: &mut TestAppContext, f: &Fixture) {
+    click(cx, f, "note-menu");
+    cx.update_window(f.window, |_, window, cx| {
+        let mut menu = window.within("popup-menu");
+        let index = (0..60usize)
+            .find(|index| {
+                menu.try_find(*index)
+                    .is_some_and(|row| row.label() == Some("Connections"))
+            })
+            .expect("Connections in the document menu");
+        menu.click(index, cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
 }
