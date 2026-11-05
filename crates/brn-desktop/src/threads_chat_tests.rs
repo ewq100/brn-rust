@@ -1804,28 +1804,33 @@ fn the_context_chip_names_the_real_scope(cx: &mut TestAppContext) {
     );
 }
 
+/// A synthetic attachment held by this chat (coverage unchecked).
+fn attach_venue_contract(workspace: &mut Workspace, thread: &str) {
+    let converted = ConversionResult {
+        intent: ImportIntent::FullNote,
+        markdown: "# Venue contract\nSynthetic attached document.".into(),
+        assets: vec![],
+        source_sha256: [3; 32],
+        source_reference: "/missing/venue-contract.md".into(),
+        converter: brn_threads_intake::document_conversion_label("xberg", false).unwrap(),
+        sources: vec![],
+        coverage: brn_threads_intake::Coverage {
+            status: brn_threads_intake::CoverageStatus::Unchecked,
+            checked_items: vec![],
+            gaps: vec![],
+        },
+    };
+    workspace
+        .attach_full("keep-attachment", thread, "Venue contract", &converted)
+        .unwrap();
+}
+
 /// Keep in BRN shows its destination and asks first; Cancel changes
 /// nothing, and confirming promotes the same note out of the chat (§6.8).
 #[gpui_kit::test]
 fn keep_in_brn_names_the_destination_before_it_promotes(cx: &mut TestAppContext) {
     let f = fixture(cx, 1250., 860., |workspace, thread, _| {
-        let converted = ConversionResult {
-            intent: ImportIntent::FullNote,
-            markdown: "# Venue contract\nSynthetic attached document.".into(),
-            assets: vec![],
-            source_sha256: [3; 32],
-            source_reference: "/missing/venue-contract.md".into(),
-            converter: brn_threads_intake::document_conversion_label("xberg", false).unwrap(),
-            sources: vec![],
-            coverage: brn_threads_intake::Coverage {
-                status: brn_threads_intake::CoverageStatus::Unchecked,
-                checked_items: vec![],
-                gaps: vec![],
-            },
-        };
-        workspace
-            .attach_full("keep-attachment", thread, "Venue contract", &converted)
-            .unwrap();
+        attach_venue_contract(workspace, thread)
     });
     let note = cx.read(|cx| {
         f.view
@@ -1868,6 +1873,42 @@ fn keep_in_brn_names_the_destination_before_it_promotes(cx: &mut TestAppContext)
     on_window(cx, &f, |window, _| {
         assert!(window.try_find(format!("attachment-keep-{note}")).is_none());
     });
+}
+
+/// In the narrow assistant the attachment's name stays readable; the
+/// coverage note gives way first.
+#[gpui_kit::test]
+fn a_narrow_assistant_keeps_the_attachment_name_readable(cx: &mut TestAppContext) {
+    // Across assistant widths, including ones where the coverage note fits
+    // beside the name only by squeezing it.
+    for width in [300., 320., 340., 360., 380.] {
+        let f = fixture(cx, 1100., 600., |workspace, thread, _| {
+            attach_venue_contract(workspace, thread)
+        });
+        update(cx, &f, |view, window, cx| {
+            view.relayout(window, cx, |layout| {
+                layout.document_with_assistant();
+                layout.set_support_width(width);
+            })
+        });
+        let note = cx.read(|cx| {
+            f.view
+                .read(cx)
+                .records
+                .iter()
+                .find(|r| matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(f.thread.as_str())))
+                .unwrap()
+                .id
+                .clone()
+        });
+        on_window(cx, &f, |window, _| {
+            let chat = window.find("tile-chat").bounds();
+            let name = window.find(format!("attachment-name-{note}")).bounds();
+            let coverage = window.find(format!("attachment-coverage-{note}")).bounds();
+            assert!(name.size.width >= px(140.), "{width}: {name:?}");
+            assert!(coverage.right() <= chat.right(), "{coverage:?} {chat:?}");
+        });
+    }
 }
 
 /// New chat is a calm start: a short greeting, the composer, at most three

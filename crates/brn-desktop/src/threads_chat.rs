@@ -5,6 +5,9 @@ use gpui_kit::Focusable;
 use gpui_kit::component::message_scroller::{MessageScroller, MessageScrollerState};
 use gpui_kit::component::{Icon, Sizable, Size};
 
+/// The narrowest an attachment's name gets before its coverage note shrinks.
+const ATTACHMENT_NAME_MIN: f32 = 140.;
+
 pub(super) struct ChatScroller {
     pub state: Entity<MessageScrollerState>,
     pub keys: Vec<String>,
@@ -868,16 +871,21 @@ impl ThreadsUi {
                             .text_color(rgb(pal().muted)),
                     )
                     .child(
+                        // The name keeps a readable width; the coverage note
+                        // gives way first in a narrow assistant.
                         div()
+                            .id(format!("attachment-name-{}", r.id))
                             .flex_1()
-                            .min_w_0()
+                            .min_w(px(ATTACHMENT_NAME_MIN))
                             .truncate()
                             .text_size(SMALL_TEXT)
-                            .child(format!("Attachment · {}", short(&title(r)))),
+                            .child(format!("Attachment · {}", short(&title(r))))
+                            .test_support(),
                     )
                     .child(
                         metadata(coverage.clone())
-                            .flex_shrink_0()
+                            .min_w_0()
+                            .truncate()
                             .id(format!("attachment-coverage-{}", r.id))
                             .aria_label(coverage)
                             .test_support(),
