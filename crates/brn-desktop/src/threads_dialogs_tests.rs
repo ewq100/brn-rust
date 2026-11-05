@@ -738,12 +738,10 @@ fn a_document_at_900x600_stays_dominant_and_the_launcher_fits(cx: &mut TestAppCo
                 window.try_find("assistant-pane").is_none(),
                 "{navigation:?}"
             );
-            // The dominant document has room for comments beside the text.
-            assert_eq!(
-                view.writing.margin_mode,
-                layout::MarginMode::Wide,
-                "{navigation:?}"
-            );
+            // Comments sit beside the text only while it keeps 560 pt;
+            // beside the expanded sidebar they stack below it (§8).
+            let text = view.writing.note_width - view.writing.margin_mode.width();
+            assert!(text >= 560., "{navigation:?}: {text}");
             let note = window.find("tile-note").bounds();
             assert!(note.size.width >= px(560.), "{note:?}");
             assert!(note.right() <= px(f.width) + px(0.5), "{note:?}");

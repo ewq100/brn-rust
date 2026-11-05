@@ -258,6 +258,10 @@ impl WritingPanel {
         self.note_input_active(note_visible) && !self.recovery_blocked(buffers)
     }
     pub fn toggle_comments(&mut self, open: bool) {
+        // Comments replace a temporary contents view rather than joining it.
+        if open {
+            self.outline_view = false;
+        }
         if self.margin_mode == layout::MarginMode::Stacked {
             self.comments_expanded = open;
         } else {
@@ -401,6 +405,8 @@ pub enum WritingRequest {
     ToggleProtection,
     Export,
     ToggleCoverage,
+    /// Open a full import's original; the host reports a missing one.
+    OpenOriginal(String),
     NewNote,
     NewWritingThread,
     ConfirmDiscard,

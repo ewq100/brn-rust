@@ -528,6 +528,14 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
             Some("Archived")
         );
         assert!(window.find("launcher-group-chats").visible());
+        assert_eq!(
+            window.find("launcher-item-0").role(),
+            Some(gpui_kit::Role::ListBoxOption)
+        );
+        assert_eq!(
+            window.find("launcher-results").role(),
+            Some(gpui_kit::Role::ListBox)
+        );
     });
     click(cx, &f, "launcher-item-0");
     on_window(cx, &f, |window, _| {

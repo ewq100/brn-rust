@@ -5267,7 +5267,8 @@ fn int_w_general_notes_list_hides_p1_reference_with_scoped_retained_source(
 
 #[gpui_kit::test]
 fn review_feedback_selector_and_apply_click_commit_exact_subset_with_undo(cx: &mut TestAppContext) {
-    let f = fixture(cx);
+    // Wide enough for the comments margin beside the docked assistant.
+    let f = fixture_size(cx, 1440., 1100.);
     let mut ids = Vec::new();
     let mut operation = String::new();
     cx.update_window(f.window, |_, window, cx| {
@@ -5618,7 +5619,8 @@ fn changing_review_member_or_preparing_groups_clears_feedback_selection(cx: &mut
 fn captured_review_card_keeps_original_feedback_and_changed_comment_refuses_apply(
     cx: &mut TestAppContext,
 ) {
-    let f = fixture(cx);
+    // Wide enough for the comments margin beside the docked assistant.
+    let f = fixture_size(cx, 1440., 1100.);
     let mut id = String::new();
     let mut operation = String::new();
     cx.update_window(f.window, |_, window, cx| {
@@ -5709,7 +5711,8 @@ fn captured_review_card_keeps_original_feedback_and_changed_comment_refuses_appl
 
 #[gpui_kit::test]
 fn model_comment_hint_apply_alone_creates_no_addressed_proof(cx: &mut TestAppContext) {
-    let f = fixture(cx);
+    // Wide enough for the comments margin beside the docked assistant.
+    let f = fixture_size(cx, 1440., 1100.);
     let mut id = String::new();
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {

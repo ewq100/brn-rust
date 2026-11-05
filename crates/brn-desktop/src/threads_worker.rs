@@ -233,8 +233,8 @@ impl Worker {
         }
     }
 
-    /// Consume the saved prompt while its original Run identity is still live.
-    #[cfg(test)]
+    /// The owner message the armed continuation will answer.
+    #[cfg(all(test, feature = "native-test-support"))]
     pub(super) fn continuation_message(&self) -> Option<&str> {
         match &self.operation {
             WorkerOperation::Run { continuation, .. } => {
@@ -244,7 +244,9 @@ impl Worker {
         }
     }
 
-    /// Returns the prompt, the original thread and the saved owner message.
+    /// Consume the saved prompt while its original Run identity is still
+    /// live: returns the prompt, the original thread and the saved owner
+    /// message.
     pub(super) fn take_terminal_continuation(
         &mut self,
     ) -> Option<(String, String, Option<String>)> {

@@ -163,6 +163,9 @@ impl WritingPanel {
         } else {
             self.outline_view = !self.outline_view;
             if self.outline_view {
+                // The contents view replaces open stacked comments; their
+                // draft and anchor stay for when they reopen.
+                self.comments_expanded = false;
                 // Without entries, focus Close so Escape still returns to the
                 // document (READ-03).
                 if self.outline_state(cx).entries().is_empty() {

@@ -4845,6 +4845,12 @@ impl ThreadsUi {
                 self.writing.show_coverage = !self.writing.show_coverage;
                 cx.notify();
             }
+            WritingRequest::OpenOriginal(locator) => {
+                if let Err(limit) = library_view::open_source_locator(&locator, cx) {
+                    self.warn(limit);
+                    cx.notify();
+                }
+            }
             WritingRequest::NewNote => self.new_note(window, cx),
             WritingRequest::NewWritingThread => self.new_writing_thread(window, cx),
             WritingRequest::ConfirmDiscard => self.confirm_discard(window, cx),
@@ -4915,10 +4921,16 @@ impl ThreadsUi {
             WritingRequest::Format(kind) => self.format_note(kind, window, cx),
             WritingRequest::StopSaved(run) => self.confirm_stop_saved_run(run, window, cx),
             WritingRequest::ToggleOutline => {
-                let docks = self.writing_view().outline_docks();
-                // The contents view never stacks on the assistant sheet.
+                let view = self.writing_view();
+                let docks = view.outline_docks();
+                let beside = view.comments_beside();
+                // The contents view never stacks on the assistant sheet, and
+                // it replaces comments beside the text rather than joining them.
                 if self.writing.toggle_outline(docks, window, cx) {
                     self.layout.close_sheet(Self::usable_width(window));
+                    if beside {
+                        self.writing.margin = Some(false);
+                    }
                 }
                 cx.notify();
             }

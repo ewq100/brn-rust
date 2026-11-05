@@ -842,13 +842,13 @@ fn review_footer_stays_whole_with_inputs_and_comments_open_at_600_tall(cx: &mut 
     }
 }
 
-/// At 1150×760 and 1250×860 the review shows the comments beside the text,
+/// At 1340×860 and 1400×900 the review shows the comments beside the text,
 /// and the same toggle in the review bar hides and shows them.
 #[gpui_kit::test]
-fn review_comments_render_beside_the_text_at_1250x860(cx: &mut TestAppContext) {
+fn review_comments_render_beside_the_text_when_the_text_keeps_560(cx: &mut TestAppContext) {
     for (width, height, mode, fit) in [
-        (1150., 760., MarginMode::Narrow, ReviewFit::Icons),
-        (1250., 860., MarginMode::Wide, ReviewFit::Compact),
+        (1340., 860., MarginMode::Narrow, ReviewFit::Compact),
+        (1400., 900., MarginMode::Wide, ReviewFit::Compact),
     ] {
         let f = fixture(cx, width, height, TEXT);
         let thread = commented(cx, &f, false);
@@ -1179,14 +1179,15 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
 fn comment_placement_follows_the_note_width(cx: &mut TestAppContext) {
     // The pane policy decides the Note's width: dominant alone at 900
     // (assistant as a closed sheet), docked beside the assistant from about
-    // 940, and below about 640 the comments stack.
+    // 940. The margin sits beside the text only while the text keeps its
+    // 560 pt region; otherwise the comments stack.
     for (width, height, mode) in [
         (620., 600., MarginMode::Stacked),
         (900., 600., MarginMode::Wide),
-        (960., 700., MarginMode::Narrow),
-        (1050., 700., MarginMode::Wide),
-        (1150., 760., MarginMode::Narrow),
-        (1250., 860., MarginMode::Wide),
+        (960., 700., MarginMode::Stacked),
+        (1250., 860., MarginMode::Stacked),
+        (1340., 860., MarginMode::Narrow),
+        (1400., 900., MarginMode::Wide),
     ] {
         let f = fixture(cx, width, height, TEXT);
         commented(cx, &f, false);
@@ -1246,7 +1247,7 @@ fn comment_placement_follows_the_note_width(cx: &mut TestAppContext) {
         }
     }
     // The document alone has the whole workspace, so comments go beside the text.
-    let f = fixture(cx, 900., 600., TEXT);
+    let f = fixture(cx, 1150., 760., TEXT);
     commented(cx, &f, false);
     update(cx, &f, |view, window, cx| {
         view.relayout(window, cx, |layout| layout.show_alone(TileKind::Note));

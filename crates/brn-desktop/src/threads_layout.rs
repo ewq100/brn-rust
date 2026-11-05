@@ -94,8 +94,9 @@ impl TileKind {
 
 pub(super) use brn_writing_ui::layout::{MarginMode, NoteFit, NoteNeeds, ReviewFit};
 
-/// The Note's own minimum before a comments margin is added beside it.
-pub(super) const NOTE_MIN: f32 = 360.;
+/// The text region a comments margin must leave beside it: the same
+/// 560 pt document region every supporting view keeps (spec §8).
+pub(super) const NOTE_MIN: f32 = metrics::DOCUMENT_REGION_MIN;
 
 /// The widest comments placement that fits a document region `width` wide.
 pub(super) fn margin_mode(width: f32) -> MarginMode {
@@ -806,8 +807,12 @@ mod tests {
             margin_mode(NOTE_MIN + MarginMode::NARROW - 1.),
             MarginMode::Stacked
         );
-        // A docked document at 1280 has room for the wide margin.
+        // Beside the docked assistant at 1280 the margin would squeeze the
+        // text below 560, so the comments stack; alone, the wide margin fits.
         let arranged = note_with_assistant().arrange(WIDE);
-        assert_eq!(margin_mode(arranged.primary), MarginMode::Wide);
+        assert_eq!(margin_mode(arranged.primary), MarginMode::Stacked);
+        let mut alone = note_with_assistant();
+        alone.set_support_open(false);
+        assert_eq!(margin_mode(alone.arrange(WIDE).primary), MarginMode::Wide);
     }
 }

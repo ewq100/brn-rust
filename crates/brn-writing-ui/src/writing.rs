@@ -875,18 +875,9 @@ impl<T: 'static> WritingView<'_, T> {
             if let Some(record) = self.records.iter().find(|r| r.id == coverage.source)
                 && let RecordData::Source(source) = &record.data
             {
-                let locator = source.locator.clone();
                 actions.push(
                     banner_button("open-import-original", "Open original")
-                        .on_click(move |_, _, cx| {
-                            if std::path::Path::new(&locator).is_absolute() {
-                                cx.open_with_system(std::path::Path::new(&locator));
-                            } else if locator.starts_with("https://")
-                                || locator.starts_with("http://")
-                            {
-                                cx.open_url(&locator);
-                            }
-                        })
+                        .on_click(self.on(cx, WritingRequest::OpenOriginal(source.locator.clone())))
                         .into_any_element(),
                 );
             }

@@ -553,6 +553,12 @@ fn the_four_note_banners_stay_visible_in_write_at_900x600(cx: &mut TestAppContex
         (ImportStatus::Complete, vec![], "Info"),
     ] {
         let f = fixture(cx, 900., 600., "Imported text");
+        let missing_original = std::env::temp_dir()
+            .canonicalize()
+            .unwrap()
+            .join(format!("brn-missing-original-{}.md", uuid::Uuid::new_v4()))
+            .to_string_lossy()
+            .into_owned();
         let source = update(cx, &f, |view, _, _| {
             let key = format!("polish-source-{tone}");
             let source = view
@@ -572,7 +578,7 @@ fn the_four_note_banners_stay_visible_in_write_at_900x600(cx: &mut TestAppContex
                             archived: false,
                             data: RecordData::Source(Source {
                                 chat: None,
-                                locator: "synthetic://polish-import".into(),
+                                locator: missing_original.clone(),
                                 label: "Synthetic source".into(),
                                 observed_at: "synthetic".into(),
                                 external_version: None,
@@ -614,6 +620,15 @@ fn the_four_note_banners_stay_visible_in_write_at_900x600(cx: &mut TestAppContex
                     .map(|e| e.label().map(str::to_owned)),
                 (!issues.is_empty()).then(|| Some("Coverage details (1)".to_owned()))
             );
+        });
+        // A moved or deleted original says so; the kept text stays open.
+        on_window(cx, &f, |window, cx| {
+            window.click("open-import-original", cx)
+        });
+        cx.read(|cx| {
+            let view = f.view.read(cx);
+            assert!(view.notice.text().contains("The original is no longer at"));
+            assert_eq!(view.open_note_id(), Some(id.as_str()));
         });
     }
 }

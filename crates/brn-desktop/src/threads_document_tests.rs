@@ -1408,6 +1408,40 @@ fn a_compact_window_uses_a_temporary_contents_view_that_keeps_the_preference(
     });
 }
 
+/// The temporary contents view and the comments replace each other rather
+/// than sharing the compact document region (§8): stacked at 620 and beside
+/// the text in a window too narrow to dock the outline next to the margin.
+#[gpui_kit::test]
+fn the_temporary_contents_view_and_comments_replace_each_other(cx: &mut TestAppContext) {
+    for (width, height) in [(620., 600.), (1150., 760.)] {
+        let f = super::polish_tests::fixture(cx, width, height, ARTICLE);
+        read_mode(cx, &f);
+        super::polish_tests::update(cx, &f, |view, _, cx| {
+            if !view.comments_open() {
+                view.toggle_comments(cx);
+            }
+        });
+        redraw(cx, &f);
+        cx.read(|cx| {
+            let view = f.view.read(cx);
+            assert!(view.comments_open(), "{width}");
+            assert!(!view.writing_view().outline_docks(), "{width}");
+        });
+        super::polish_tests::on_window(cx, &f, |window, cx| window.click("note-outline", cx));
+        redraw(cx, &f);
+        super::polish_tests::on_window(cx, &f, |window, cx| {
+            assert!(window.find("note-outline-view").visible(), "{width}");
+            assert!(!f.view.read(cx).comments_open(), "{width}");
+        });
+        super::polish_tests::update(cx, &f, |view, _, cx| view.toggle_comments(cx));
+        redraw(cx, &f);
+        super::polish_tests::on_window(cx, &f, |window, cx| {
+            assert!(window.try_find("note-outline-view").is_none(), "{width}");
+            assert!(f.view.read(cx).comments_open(), "{width}");
+        });
+    }
+}
+
 #[gpui_kit::test]
 fn a_document_without_headings_says_no_headings_yet(cx: &mut TestAppContext) {
     let plain = "Plain prose without a heading.\n\n```markdown\n# Not a heading\n```\n";

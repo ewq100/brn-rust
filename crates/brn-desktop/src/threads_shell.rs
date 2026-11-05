@@ -1684,6 +1684,8 @@ impl ThreadsUi {
         let results = (viewport.height * 0.6 - px(56.)).max(px(120.));
         let mut list = div()
             .id("launcher-results")
+            .role(gpui_kit::Role::ListBox)
+            .aria_label("Search results")
             .test_support()
             .flex()
             .flex_col()
@@ -1737,6 +1739,7 @@ impl ThreadsUi {
                     } else {
                         tokens::SPACE_2
                     })
+                    .role(gpui_kit::Role::Label)
                     .aria_label(announced)
                     .test_support(),
                 );
@@ -1781,6 +1784,9 @@ impl ThreadsUi {
                     .when(!selected, |row| {
                         row.hover(|style| style.bg(rgb(pal().hover)))
                     })
+                    // An option node, so the native tree exposes each result
+                    // with its title, type and scope (AC-09, AC-32).
+                    .role(gpui_kit::Role::ListBoxOption)
                     .aria_label(entry.accessible_label())
                     .aria_selected(selected)
                     .child(
