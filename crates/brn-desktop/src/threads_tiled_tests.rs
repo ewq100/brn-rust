@@ -194,7 +194,7 @@ fn global_tiles_navigation_preserves_human_buffer_and_each_chat_draft(cx: &mut T
     let editor = cx.read(|cx| f.view.read(cx).writing.note_editor.clone());
     // Sidebar destinations, the Inbox's Tasks view and the workspace menu.
     for (button, kind, tile) in [
-        ("nav-inbox", TileKind::Overview, "home-needs-you"),
+        ("nav-inbox", TileKind::Overview, "home-content"),
         ("inbox-tasks", TileKind::Actions, "actions-content"),
         ("Recent changes", TileKind::History, "history-content"),
         ("Settings", TileKind::Settings, "settings-general"),
@@ -579,12 +579,14 @@ fn empty_tiles_explain_home_search_actions_and_history_without_starting_work(
     .unwrap();
     click(cx, &f, "nav-inbox");
     cx.update_window(f.window, |_, window, _| {
-        assert!(window.find("home-needs-you").visible());
-        assert!(window.try_find("home-notes").is_some());
-        assert!(window.try_find("home-recent-changes").is_some());
+        // For you holds the pending delegation choice and the route to
+        // Recent changes; recent notes live in Library, not the Inbox.
+        assert!(window.find("for-you-delegation").visible());
+        assert!(window.try_find("for-you-history").is_some());
+        assert!(window.try_find("home-notes").is_none());
         assert!(
             window.find("delegation-pending").visible(),
-            "rendered once, in the overview"
+            "rendered once, in For you"
         );
     })
     .unwrap();

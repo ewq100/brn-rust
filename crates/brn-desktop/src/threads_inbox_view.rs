@@ -173,14 +173,20 @@ pub(super) fn for_you_items(
                     AttentionKind::Conflict => (Need::Decision, "Conflict"),
                     AttentionKind::Blocker => (Need::Decision, "Blocked"),
                 };
+                // The chat's title leads; the reason is the second line.
                 ForYouItem {
                     key,
                     need,
                     state,
-                    title: one_line(&attention.reason),
+                    title: chat.clone(),
                     context: format!(
-                        "Chat · {chat}{}",
-                        if row.resolved { " · archived" } else { "" }
+                        "{}{}",
+                        one_line(&attention.reason),
+                        if row.resolved {
+                            " · archived chat"
+                        } else {
+                            ""
+                        }
                     ),
                     chat: None,
                     target: Target::Chat(row.id.clone()),
@@ -216,8 +222,9 @@ pub(super) fn for_you_items(
             key: format!("recover-{index}"),
             need: Need::Decision,
             state: "Unsaved",
-            title: format!("Recover your edit to {}", one_line(&note)),
-            context: "Kept apart from the saved note until you save or discard it".into(),
+            title: one_line(&note),
+            context: "Recover edit · kept apart from the saved note until you save or discard it"
+                .into(),
             chat: None,
             target: Target::Recover(index),
             protected: false,
@@ -1348,7 +1355,11 @@ mod tests {
         let items = for_you_items(&records, &rows, &[], &[], Some(&inbox));
         let summary: Vec<(Need, &str, &str)> = items
             .iter()
-            .map(|item| (item.need, item.state, item.title.as_str()))
+            .map(|item| match item.target {
+                // A chat item leads with the chat; its reason is the context.
+                Target::Chat(_) => (item.need, item.state, item.context.as_str()),
+                _ => (item.need, item.state, item.title.as_str()),
+            })
             .collect();
         assert_eq!(
             summary,

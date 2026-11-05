@@ -604,8 +604,8 @@ fn a_killed_intake_candidate_reaches_needs_you_after_the_delegation_choice(
         ui.show_tile(TileKind::Overview, window, cx)
     });
     cx.update_window(f.window, |_, window, _| {
-        assert!(window.try_find("home-needs-you").is_some());
-        assert!(window.try_find(format!("home-attention-{chat}")).is_none());
+        assert!(window.try_find("for-you-delegation").is_some());
+        assert!(window.try_find(format!("for-you-chat-{chat}-1")).is_none());
     })
     .unwrap();
     update(cx, &f, |ui, _, cx| {
@@ -619,9 +619,14 @@ fn a_killed_intake_candidate_reaches_needs_you_after_the_delegation_choice(
         assert!(has_candidate(ui, &operation));
         cx.notify();
     });
-    // Home's Needs you now lists the chat.
+    // For you now lists the chat's review and its interrupted run.
     cx.update_window(f.window, |_, window, _| {
-        assert!(window.try_find(format!("home-attention-{chat}")).is_some());
+        assert!(
+            window
+                .try_find(format!("for-you-review-{operation}"))
+                .is_some()
+        );
+        assert!(window.try_find(format!("for-you-chat-{chat}-1")).is_some());
     })
     .unwrap();
     update(cx, &f, |ui, window, cx| {
