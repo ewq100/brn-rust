@@ -428,7 +428,7 @@ impl ThreadsUi {
                             .test_support(),
                     )
                     .child(
-                        div().pt_3().child(
+                        div().pt_3().flex().child(
                             button("project-restore")
                                 .label("Restore project")
                                 .primary()

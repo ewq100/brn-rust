@@ -396,6 +396,11 @@ fn projects_primaries_follow_the_view_and_trash_restores_from_active_and_trash(
     click(cx, &f, format!("project-row-{p}"));
     cx.update_window(f.window, |_, window, _| {
         assert!(window.find("project-restore").visible());
+        let restore = window.find("project-restore").bounds();
+        assert!(
+            restore.size.width < px(240.),
+            "Restore keeps its natural width: {restore:?}"
+        );
         assert_eq!(
             window.find("project-restore-line").label(),
             Some(
