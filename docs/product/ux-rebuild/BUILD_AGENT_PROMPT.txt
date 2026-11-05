@@ -9,6 +9,7 @@ READ FIRST (paths relative to docs/product/ux-rebuild/)
 4. BRN_Interactive_Reference.html
 5. BRN_Design_Tokens.json
 6. BRN_Wiki_Library_Spec.md for the Library work
+7. fixtures/README.md and fixtures/reading-quality-article.md for long-article reading and outline acceptance
 Then read the actual checkout's AGENTS.md, active task/status, architecture invariants, writing/review contracts and verification requirements. Reconcile the branch, HEAD, uncommitted work, ongoing agents and applicable gates. The package's inspected baseline is historical context; your checkout is authoritative for current code.
 
 TARGET
@@ -17,6 +18,8 @@ Carry the approved visual direction through the whole app. Preserve every suppor
 IMPLEMENTATION RULES
 - Upgrade the active workspace to GPUI Kit =0.9.0 as a required early part of this rebuild. This upgrade is already authorized by Evo. Follow spec §12.1: align desktop/writing pins, necessary compatible backend/companion dependencies and Cargo.lock; migrate breaking APIs and verify the resolved graph. Use the official 0.9.0 and intervening 0.8.1 notes. Do not leave the old 0.8.0 pin as the completed target or use a floating latest version.
 - Reuse GPUI Kit 0.9.0 components and the existing brn-writing-ui and shared application services. Complete a reviewable compatibility migration before expanding the new shell, and preserve the chosen backend, writing engine and service contracts.
+- Apply the Mado reading reference in spec §2.2 within the approved shell. Add the collapsible Outline control, real heading hierarchy/current-section indication, exact displayed-document/version targets, keyboard access and compact supporting-view rules in §§6.5.1 and 8. Reuse the renderer's structure and range mapping; do not create another Markdown parser or editor.
+- Use shared document styles for headings, prose, tables, images, code and citations in both themes. The PDF/HTML show the earlier approved baseline; revision 1.2's written rules and tokens define the outline addition. Mado is a product reference, not a required SDK or runtime dependency. New polished HTML/PDF exports and small destination adapters are deferred; retain existing export/backup/restore.
 - Keep service-owned identity, scope, protection, version checks, exact-candidate Apply, receipts, recovery and Undo intact.
 - Saved/current knowledge may include valid delegated ordinary maintenance. Do not introduce blanket owner approval for every update, and do not broaden existing delegation.
 - Preserve queued-message edit/reorder, Stop/Resume/Steer, private attachments and explicit Keep in BRN, manual Inbox Scan, task semantics, export/backup/restore and existing settings.
@@ -31,7 +34,7 @@ Create a concise behavior-preservation map and an ordered implementation plan. T
 The visual direction is selected; no unrelated concept exploration is requested. Determine whether an active gate blocks implementation; satisfy it on this direction before production UI changes. Final native review remains separate. Do not claim an unperformed score or invent an extra approval gate. The receiving session's explicit task controls implementation and final merge/release authority; this reference does not override access controls or repository protections. Do all already-authorized work before asking for a genuinely necessary final approval.
 
 VALIDATION
-Use the specification's 40 acceptance cases and representative native visual matrix. Verify the GPUI Kit 0.9.0 dependency/lockfile, relevant native-feature builds, strict lint and focused desktop/writing checks. Reuse meaningful existing tests. Inspect the actual GPUI app in Light and Dark at 1280x900 and 900x600, plus the declared platform/display scale. Verify persistence and authority through real services, not screenshots or simulation.
+Use the specification's 42 acceptance cases and representative native visual matrix. Verify the GPUI Kit 0.9.0 dependency/lockfile, relevant native-feature builds, strict lint and focused desktop/writing checks. Reuse meaningful existing tests. Inspect the actual GPUI app in Light and Dark at 1280x900 and 900x600, plus the declared platform/display scale. Import the synthetic reading fixture through existing services and check AC-41/AC-42 with VE-08: duplicate/nested headings, unsaved and revision changes, wide tables, images, citations and compact supporting views. Verify persistence and authority through real services, not screenshots or simulation.
 
 If native access is unavailable, continue useful authorized implementation and automated checks, prepare a reproducible native handoff, and label native acceptance pending. Never substitute a browser mockup or another build's screenshots for current native evidence.
 

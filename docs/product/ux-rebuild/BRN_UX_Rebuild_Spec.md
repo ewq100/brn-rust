@@ -1,7 +1,7 @@
 # BRN UX Rebuild Specification
 
 **Specification:** BRN-UX-002<br>
-**Version:** 1.1<br>
+**Version:** 1.2<br>
 **Date:** 5 November 2026<br>
 **Owner:** Evo<br>
 **Audience:** The build agent, implementation agents and independent reviewers<br>
@@ -24,6 +24,7 @@ The main task must remain obvious. In a conversation, read and respond. In a doc
 - **UX-05:** Preserve current service rules for scope, protection, delegation, saves, revisions, recovery, exact-candidate Apply and receipt-based Undo.
 - **UX-06:** Finish the complete UX migration. A new sidebar around untouched legacy tile screens is an intermediate state, not completion.
 - **UX-07:** Upgrade the active desktop and reusable writing UI to **GPUI Kit `=0.9.0`** as part of the rebuild. Complete the compatibility migration and dependency validation before expanding the new shell across the app.
+- **UX-08:** Make long articles comfortable to read and navigate. Add a collapsible heading outline and consistent document presentation in both themes, using Mado as a reading reference within the selected BRN design.
 
 ### 1.2 Meaning of requirement words
 
@@ -39,6 +40,7 @@ Read these files in order:
 4. `BRN_Interactive_Reference.html` for the chat to canvas to Library transitions.
 5. `BRN_Design_Tokens.json` for named appearance and geometry values.
 6. `BUILD_AGENT_PROMPT.txt` for the receiving agent's starting instruction.
+7. [Reading-quality fixture instructions](fixtures/README.md) and the [sample article](fixtures/reading-quality-article.md) for outline and document-presentation acceptance.
 
 The written behavior in this specification governs edge cases. The PDF and interactive reference govern visual hierarchy, density and interaction direction. The token file governs the named starting values. Resolve a conflict in that order, record the decision, and keep the package coherent. The reference content and model names are examples, not production defaults.
 
@@ -51,6 +53,22 @@ This handoff lives at `docs/product/ux-rebuild/`. The canonical target, architec
 The selected concept replaces open exploration of unrelated visual directions. Keep applicable repository and task approval gates. User approval of a direction does not establish that a named Council met a score gate, that native behavior passed, or that a release was approved. If the current task retains a visual review gate, complete it honestly on this direction, including dark mode. No Council score is claimed by this package.
 
 The related [Wiki Library specification](BRN_Wiki_Library_Spec.md) is included in this directory and remains relevant to article consolidation and evidence. This document defines the new interface around that behavior. It does not authorize bulk consolidation of the owner's real library during development.
+
+### 2.2 Mado reading reference — revision 1.2
+
+Evo supplied the Mado recommendation from the [shared design discussion](https://chatgpt.com/s/t_6aec0987aaa08191beba222ebba48e3c). Its required decisions are recorded here so the build agent does not need access to that conversation. Mado's official product page illustrates reading-first Markdown presentation, a heading outline and document export. It is a product reference for the article surface, not a replacement for the approved ChatGPT-inspired shell or the required GPUI Kit 0.9.0 implementation. [T15]
+
+| Idea | BRN requirement | Scope |
+|---|---|---|
+| Reading first | Open Library articles in Read mode; keep editing, assistant, sources and comments available when needed. | Required; reinforces §§6.2–6.5 |
+| Heading outline | Provide collapsible contents navigation with distinct targets and current-section indication. | Required; highest-priority addition in this revision, §6.5.1 |
+| Consistent presentation | Use deliberate heading hierarchy, paragraph spacing, readable width, tables, images and citations in Light and Dark. | Required; §§8–10 and AC-42 |
+| Polished HTML/PDF snapshots | Consider export of one explicitly selected article version, with contents navigation and working source links. | Later work, §15.1 |
+| Small publishing adapters | Consider one explicit export action and one destination per adapter. | Later work, §15.1 |
+
+This reference does not establish an available Mado source library or embeddable SDK. No Mado code, runtime or connector dependency is required. Use the existing BRN writing lifecycle and GPUI Kit building blocks. SQLite remains the authority for accepted content; Markdown is an input/rendering or export representation, not a second authoritative store. [R4] [R6]
+
+The PDF and HTML retain the approved visual baseline. They do not yet depict or simulate the new outline; the written rules, tokens and fixture in revision 1.2 define that addition. The fixture is synthetic source material for native verification, not a claim that the feature has been implemented or observed.
 
 ## 3 Grounded starting point
 
@@ -201,6 +219,18 @@ Use a small local Read / Edit control or the existing equivalent. Keep formattin
 
 **WRITE-05:** Keep document-specific state separate: editor buffer, draft prompt, references, proposal, selection and applied status must not leak into an unrelated document or host context. Existing comments are Note-based: an intentionally shared Note can expose the same comments in its authorized hosts. Preserve that visibility rule and the current access boundary; do not promise new per-project comment privacy. Scoped writing setup, references and unsent assistant drafts remain distinct. The shared-Note comment privacy question requires a separate explicit product decision if changed. [R9]
 
+### 6.5.1 Long-article reading and outline
+
+**READ-01 — Local, optional contents.** Provide a labeled **Outline** toggle in the document toolbar and an accessible command in the existing command surface. On first opening an article, keep the outline closed until requested. Remember explicit visibility and any heading-fold choices by stable document identity. It is independent of the assistant. Outline navigation is required in Read mode; Edit mode may reuse existing editor navigation only where its range APIs support it. Do not create a second editor, buffer or document copy to supply this feature.
+
+**READ-02 — Real headings and exact targets.** Build the outline from the structure used to render the displayed article. Support heading levels 1–6, nested and skipped levels, Unicode, repeated names and long labels. Modest indentation communicates hierarchy; wrap long labels or make their full text accessible. Fenced code must not create headings. Repeated titles have distinct targets within the displayed content generation; a title string or guessed slug is not sufficient identity. A document without headings shows “No headings yet” without implying a load failure. Collapsing the outline is required; folding individual branches is optional.
+
+**READ-03 — Predictable navigation.** Clicking or pressing Enter on an entry reveals its heading below the fixed document toolbar. Indicate the current section with accessible selected/current semantics and more than color alone. Scrolling updates that indication without moving keyboard focus or jumping the document. Keyboard users can reach the toggle, move through headings, activate an entry and close the panel; expose any optional folding controls. A docked outline is a normal nonmodal region. In the compact temporary view, selecting a heading returns to the document at that section; Escape dismisses it and returns focus to the invoking control. Do not introduce an unreviewed global shortcut.
+
+**READ-04 — Correct document and version.** Bind heading targets to the actual displayed document identity and content generation: committed revision, historical revision, or unsaved buffer as applicable. Rename/removal, Read/Edit transitions, saved changes, Apply, Undo and reopened documents must refresh the outline before old targets can activate. Discard stale asynchronous results. If an entry no longer resolves, refresh or show its unavailable state rather than guessing a similarly named section. History or proposal views must identify the outlined surface; when no single document surface is unambiguous, temporarily hide the outline. Navigation and theme/pane changes preserve unsaved text, assistant drafts, selection and the appropriate reading position; preserve explicit pane preferences separately from temporary layout fallbacks.
+
+**READ-05 — Reading quality.** Use the document styles in §10 for prose, headings, lists, quotes, code, tables, images and citations. Tables and code may scroll locally; ordinary paragraphs must wrap inside the reading column. Images keep their aspect ratio and have useful alternative text or a clear unavailable state. Citation links open the actual recorded source or explain the availability limit, then allow a return to the reading position. Use the [long-article fixture](fixtures/reading-quality-article.md) and its [setup instructions](fixtures/README.md) to inspect these requirements in both themes. Existing source permissions, comment anchors and review semantics continue to apply.
+
 ### 6.6 Comments and rewriting
 
 Selecting a passage exposes **Comment** and the existing appropriate actions. A comment retains the original quote, note, revision and range. Comments can be inspected from a compact side sheet or contextual list. Do not require a permanently visible comment column.
@@ -296,6 +326,7 @@ Use logical pixels/points and native scaling. The main desktop acceptance viewpo
 | Application header | 56 | Native titlebar integration may alter physical chrome. |
 | Conversation reading column | 640–720 | Centered with flexible side space. |
 | Document reading column | 680–760 | Do not stretch prose across an ultrawide window. |
+| Docked article outline | 200 | Useful range 180–240; counts separately from the document region. |
 | Assistant pane | 320 | Useful range 280–400; collapsible and resizable. |
 | Document region in split view | At least 560 | Includes inner margins; preserve readable prose. |
 | Page inset | 32–40 | Reduce to 20–24 where needed in a small window. |
@@ -308,6 +339,10 @@ Use logical pixels/points and native scaling. The main desktop acceptance viewpo
 Compute split availability from remaining usable width after navigation, scaling and padding. Do not assume a screen-name breakpoint guarantees enough room. When document plus assistant cannot fit their usable widths, collapse navigation first if the owner has not deliberately expanded it; then use a contextual assistant sheet or a local document/assistant switch. Preserve work when moving between layouts.
 
 At 900 × 600, writing should open with the document dominant and supporting panes closed by default. Opening the assistant must not squeeze the document into a narrow unreadable strip. Give the owner a clear return to the document.
+
+The outline is a local contents region beside the document, not another global navigation destination. Dock it only when the remaining document region still meets the 560 minimum, including its inner margins. Count navigation, outline, assistant, dividers and usable window width before choosing the layout. Never shrink text or margins below the stated reading rules just to keep four panes visible.
+
+When the requested outline cannot fit, use a temporary sheet or local contents view. At the minimum window size, opening Outline, assistant, sources or comments must show the newly requested supporting view coherently; temporarily hide an incompatible supporting view and preserve its draft, selection and scroll state. Do not stack sheets or duplicate the composer. Selecting an outline entry returns to the document at the selected section. A responsive fallback does not overwrite the owner's stored visibility or width preference; restore the preferred arrangement when space permits.
 
 At wide sizes, expanded navigation, document and assistant may coexist if the minimums hold. Changing theme, applying a change or receiving a stream event must not reset pane widths. Avoid horizontal scrolling in ordinary prose; wide tables and code blocks may scroll within their own region.
 
@@ -382,6 +417,18 @@ Use the native platform system font for chrome and prose, with an appropriate in
 
 Use a shared spacing scale of **4, 8, 12, 16, 20, 24, 32, 40 and 48**. Typical control radius is 6–8, a meaningful result card 10, user bubble 16–18 and composer 16–18. Rounded corners should help distinguish controls, not turn every layout container into a card.
 
+### 10.1 Article presentation
+
+Apply one shared set of document styles to the reading view. Start Markdown H1–H6 at **28, 22, 18, 16, 16 and 16**, with medium weight and approximately 1.3 line height; lower levels retain their actual semantic level even where the visual size matches. Use **12** between paragraphs and **24 before / 8 after** headings, adapting first-child spacing and measured wrapping. The document body remains **16 / 1.7**. Avoid duplicating the same title as both a large application heading and a second decorative document title; preserve the actual stored heading content and its outline target.
+
+Lists retain readable indentation and line spacing. Quotes use a quiet divider and text that meets the theme's contrast requirement. Code uses a readable monospace style, preserves whitespace and offers the existing copy behavior. Syntax coloring, where supported, must remain legible in both themes without introducing a second highlighting engine solely for this redesign.
+
+Tables have distinguishable headers, aligned values, readable cell padding and useful wrapping. Keep a wide table's horizontal scrolling within the table region and reachable by keyboard. Avoid shrinking all document text to fit a table. Preserve the renderer's supported selection and copy behavior, and test that the reader can continue vertically after interacting with a wide block.
+
+Images fit the reading column, preserve aspect ratio and retain captions where present. Do not invert photographs or arbitrary imported figures in Dark mode; give transparent or low-contrast artwork a suitable neutral backing if needed. Missing images show a bounded placeholder with available alternative text and a truthful status, without preventing the rest of the article from opening. Citations and ordinary links remain identifiable, keyboard reachable and readable in both themes. These are presentation requirements; never invent missing source excerpts or rewrite accepted document content to improve its appearance.
+
+### 10.2 Shared controls
+
 Use the toolkit's line-icon family consistently, generally 16–18 in compact chrome. Put a text label on primary actions and meaningful accessible names on icon-only controls. Native focus and selected states need a visible difference in both themes. Do not use tooltip text as the sole accessible name.
 
 Tables are for genuinely tabular information. Library navigation is a readable article list. Use a divider between major panes, restrained row separators and whitespace within content. Avoid permanently visible diagnostics, duplicated status bars, decorative gradients, large colored section headers and placeholder statistics.
@@ -420,7 +467,8 @@ The following is a capability map for the selected GPUI Kit 0.9.0 target. Check 
 | Lists and search | List/virtual-list and existing search/command surface | Scope, stable rows, ordering and correct actions |
 | Conversation | Existing MessageScroller and formatted text | Message lifecycle, streaming, citations and queue |
 | Composer | Pinned multiline Input/Textarea equivalent | Send/Queue, references, draft persistence and run control |
-| Article reading | TextView/Markdown renderer | Sources, links, access, record/revision identity |
+| Article reading | GPUI Base TextView/Markdown renderer through the pinned kit | Shared document styles, sources, assets, access and record/revision identity |
+| Article outline | Toolkit list/tree or simple navigation rows beside the existing renderer | Parsed headings, current section, exact generation-bound targets, focus and compact fallback |
 | Writing | Existing brn-writing-ui editor | Buffer, comments, formatting, saves and recovery |
 | Split layout | Resizable panels and normal GPUI layout | Usable minimums and remembered layout |
 | Menus/dialogs | Maintained toolkit controls under the proper root | Actions, focus, approval meaning and errors |
@@ -428,6 +476,8 @@ The following is a capability map for the selected GPUI Kit 0.9.0 target. Check 
 | Appearance | Pinned toolkit theme API plus BRN semantic tokens | System preference, persistence and complete coverage |
 
 TextView renders formatted text; it is not a complete rich-text editor. A toolkit patch Diff displays supplied changes; it does not own proposal generation or BRN transactions. Keep those distinctions in implementation plans. [T1] [T2] [T3] [T4]
+
+GPUI Base TextView documents Markdown rendering, selection, tables, images, links, styling and source/rendered range mapping. Reconcile those APIs with the actual pinned 0.9.0 code before using them. Reuse the existing parser/structure and retained view state for heading extraction and reveal/scroll coordination through a narrow BRN adapter. The outline is an application feature, not a claimed ready-made toolkit TOC. Do not add an independent Markdown parser or regex heading scan that can disagree with the displayed document. Keep one applicable selection layer and the existing lifecycle owner; integrate within the normal toolkit root. [T16]
 
 The toolkit theme source exposes Light and Dark modes; System is an application preference resolved against OS appearance. Do not invent `ThemeMode::System`. Use and verify the 0.9.0 APIs for theme update, system appearance synchronization and appearance observation. Confirm that BRN's update path synchronizes all component themes; direct global field mutation alone is not sufficient evidence. [T5] [T6]
 
@@ -483,7 +533,7 @@ Work in reviewable slices with a single integration owner and clear file ownersh
 1. **Reconcile and inventory.** Record actual HEAD, pin, active gates, current routes and supported behaviors. Capture a small native baseline on synthetic data when available. Complete the preservation map and identify differences from this baseline. Determine whether an active gate blocks implementation. If it does, satisfy that gate on the selected direction before step 2; final native review remains a separate gate.
 2. **Upgrade GPUI Kit, then establish tokens and shell.** Complete and check the required 0.9.0 migration in §12.1 as a distinct early change. Build paired neutral themes and System/Light/Dark behavior. Implement sidebar, routing, modal host, focus and responsive pane policy. Validate real small-window layout in both themes before spreading the pattern.
 3. **Complete conversation UX.** Move existing chat, streaming, context, queue, run control, explicit writing/decision/capture actions and errors into the new shell. Verify continuity, cancellation and retry.
-4. **Complete reading and writing.** Integrate the existing writing module into the canvas. Preserve direct edits, comments, independent Rewrite, review, exact Apply/Discard, history and Undo.
+4. **Complete reading and writing.** Integrate the existing writing module into the canvas. Add the collapsible article outline, shared reading styles and long-article fixture checks in both themes. Preserve direct edits, comments, independent Rewrite, review, exact Apply/Discard, history and Undo.
 5. **Complete Library and projects.** Implement article-first navigation, All files, sources/related/checks, project documents/chats/settings, private attachments and explicit promotion.
 6. **Complete Inbox and secondary flows.** Migrate attention, manual imports, tasks, global changes, settings, skills/MCP, export/backup/restore, Trash and empty/error/recovery states.
 7. **Retire the old UX coherently.** Remove unreachable tile chrome, dead actions and duplicated presentation state only after every retained capability has a verified destination. Update shortcuts, help and behavior documentation together.
@@ -505,6 +555,15 @@ Do not hard-code sample records, model choices, statuses, source links or succes
 
 The receiving agent's task controls implementation, merge, publication and release authority. This package records a design and build target; it does not claim a merge, release, Council pass or owner native acceptance. Complete all work already authorized before requesting any genuinely necessary final approval.
 
+### 15.1 Later export and publishing ideas
+
+Mado's document export and connectors are useful product references for a later BRN publishing feature. They do not add implementation or acceptance obligations to this rebuild. [T15]
+
+- **Polished article snapshots:** a later design may export one explicitly selected, identified article revision as HTML or PDF, with a table of contents, working source links and a clear treatment of unavailable assets. A snapshot must not silently substitute a newer revision or become the authoritative stored article.
+- **Small destination adapters:** a later design may use one explicit export action, one destination and a narrow adapter contract. Decide the content/version, destination, credentials, failure reporting and publication authority when that feature is assigned. No Mado JavaScript runtime, connector contract, automatic publication or new external integration is required now.
+
+The currently supported Markdown/assets export and full backup/restore remain required, including AC-35. Deferring new presentation exports must not remove or weaken those existing workflows.
+
 ## 16 Acceptance and verification
 
 The acceptance checklist appended below is part of this specification. Record Pass, Partial, Fail, Blocked or Not run for every applicable case, with the exact build, platform, theme, fixture and evidence. Mark a capability unavailable only after checking the actual baseline and task scope; do not use Not applicable to hide an unfinished migration.
@@ -513,9 +572,9 @@ The acceptance checklist appended below is part of this specification. Record Pa
 
 The existing repository and wiki authority model governs these checks. **Current** or **Saved** means committed content; it does not mean the owner personally reviewed it. Ordinary knowledge may be maintained within an explicitly selected delegation scope. Review-required changes and protected documents retain their applicable gates. A cleaner interface must make these distinctions understandable without adding an owner-approval step to every ordinary update.
 
-Use an isolated synthetic BRN workspace with two projects and separate conversations, ordinary current articles, a review-required article, a protected article, project-only attachments, retained sources, and a multi-note proposal. Include a long document, a missing external source, and controlled failure fixtures. Exercise tasks against harmless test targets. Do not use real external side effects to prove the design.
+Use an isolated synthetic BRN workspace with two projects and separate conversations, ordinary current articles, a review-required article, a protected article, project-only attachments, retained sources, and a multi-note proposal. Include the [long-article reading fixture](fixtures/reading-quality-article.md), a missing external source, and controlled failure fixtures. Follow the [fixture setup](fixtures/README.md) through existing import/edit services; repository Markdown is not a substitute for actual stored document identity. Exercise tasks against harmless test targets. Do not use real external side effects to prove the design.
 
-Reuse existing tests and native journeys where they establish the required behaviour. These 40 cases are acceptance obligations, not a requirement to write one new test per case. One coherent native journey may supply evidence for several cases. Add targeted tests for meaningful uncovered risks, especially persistence, isolation, atomicity, and interruption.
+Reuse existing tests and native journeys where they establish the required behaviour. These 42 cases are acceptance obligations, not a requirement to write one new test per case. One coherent native journey may supply evidence for several cases. Add targeted tests for meaningful uncovered risks, especially persistence, isolation, atomicity, and interruption.
 
 Evidence codes:
 
@@ -588,6 +647,13 @@ All cases begin **Not run**. Evidence requirements below describe what must be e
 | AC-39 | **Explicit writing decision and capture actions.** Use Edit note on a saved version, Save as decision on a completed reply, and Capture outcomes in a posted conversation, while preserving an unsent draft. | Each action retains its distinct authority. The decision preview allows the exact title/text review before a protected confirmed note is saved. Capture outputs remain correctly scoped proposals; draft text survives. A general chat or attachment does not supply the same grant. | N, B, S, R |
 | AC-40 | **Knowledge checks and useful navigation.** Open representative broken-link, stale-input and recorded-conflict results; inspect the affected records, related article view and offered repair/follow-up. | Existing checks remain reachable. Actual record identities, evidence and limitations are visible. A repair follows existing authority and review rules. Historical citations retain their meaning, and heuristics are not presented as proof. | N, B, S, R |
 
+### Long-article reading additions
+
+| ID | Scenario and steps | Observable pass conditions | Evidence |
+| --- | --- | --- | --- |
+| AC-41 | **Outline navigation and version correctness.** Open the supplied fixture; navigate nested, skipped, duplicate, Unicode and long headings by pointer and keyboard. Scroll, switch documents, rename/remove a heading in an unsaved draft, then save, view history, Apply a proposal, reopen and Undo through existing supported flows. Also use a no-heading variant. | Entries describe the displayed content and reach distinct correct targets below the toolbar. Code fences create no headings. Current-section updates do not steal focus. Old async results/anchors cannot navigate another document or generation. Empty state, optional folding, close/focus return and visibility preferences work. Read/Edit transitions and changes preserve draft and selection state. Existing conflict/review/Undo rules still govern changes. | N, B, S, A; V with VE-08 |
+| AC-42 | **Long-article presentation and compact supporting views.** Read the fixture's prose, nested headings, lists, code, tables, image/caption and citations in Light and Dark at 1280×900 and 900×600. Open Outline, assistant, sources and comments in turn; exercise a controlled missing-image/source condition. | Body width, hierarchy, spacing, contrast, selection and links remain readable. Ordinary prose wraps; wide tables/code scroll locally with keyboard access. Images fit without distortion or theme inversion, and unavailable content is truthful. Supporting views follow §8 without stacked sheets, hidden essential controls or duplicated composers. Returning from a source or compact outline restores the intended position; unsent work and pane preferences survive. | N, V, A; S for source identity/access |
+
 ### Minimum representative visual evidence
 
 Use native captures from the same candidate build and stable sample data. Capture the selected content at a useful scroll position; do not shrink the entire app to make one image contain every state. Keep an evidence index with theme, logical window size, display scale, platform, build/ref, and linked acceptance IDs.
@@ -603,6 +669,7 @@ This is a minimum representative set, not a screenshot of every state in every t
 | VE-05 | One concrete permission dialog; one representative provider or persistence error | Permission in Light; error in Dark; 1280×900 | Opaque, readable transient surfaces and clear decision/recovery actions. |
 | VE-06 | Manual Inbox Scan result; task completion receipt | Scan in Light; receipt in Dark; 1280×900 | Accurate processing and completion feedback without a new watcher or false success. |
 | VE-07 | Settings with the appearance choice and visible keyboard focus | Either theme; 900×600 | Discoverable System/Light/Dark selection, focus visibility, and compact settings layout. |
+| VE-08 | Supplied long article with the outline/current section and representative table, image and citation states; compact contents fallback | Light and Dark; 1280×900 and 900×600 | Reading hierarchy and contrast, outline/current-section presentation, readable block content and document-first supporting-view layout. Capture useful scroll positions, not one shrunken whole-page image. |
 
 These captures support visual review; they do not alone prove saving, approval enforcement, transaction atomicity, or accessibility. Use the required behavioural/native evidence for those claims.
 
@@ -633,6 +700,7 @@ The full rebuild is complete only when:
 - Every supported behavior in the preservation inventory has a working, discoverable destination and a recorded verification result.
 - The final app uses the selected shell throughout; legacy tiles or dialogs do not remain as unexplained islands.
 - Light, Dark and System work across all BRN-owned surfaces and preserve work during appearance changes.
+- Long articles meet the outline and reading-quality contracts in AC-41/AC-42, including version correctness and compact layout in both themes.
 - Chat, writing, sources, projects, review, queue controls, tasks and recovery work together with correct identity and scope.
 - Relevant deterministic checks and required native/platform acceptance pass for each declared release target. Otherwise report the distinct interim status “implementation complete with native acceptance pending.”
 - Blocking independent review findings affecting usability or data integrity are resolved. Any remaining nonblocking limitation is explicitly documented.
@@ -668,5 +736,7 @@ Repository links are pinned to the inspected baseline. Toolkit documentation is 
 [T12]: https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html "Reduced interaction motion"
 [T13]: https://github.com/longbridge/gpui-kit/releases/tag/v0.9.0 "GPUI Kit 0.9.0 release and breaking changes"
 [T14]: https://github.com/longbridge/gpui-kit/releases/tag/v0.8.1 "Intervening GPUI backend migration notes"
+[T15]: https://madomd.com/ "Mado product reference for reading, outline and document export"
+[T16]: https://gpui-kit.com/base/text-view/ "GPUI Base TextView rendering, selection, styling and range mapping"
 
 Prior related requirement: [BRN Wiki Library Specification](BRN_Wiki_Library_Spec.md). It supplies the related article consolidation and evidence requirements; this specification supplies the selected interface. The repository-local copy replaces the original ChatGPT file link for build-agent access. Current canonical contracts and task authority retain their existing ownership.

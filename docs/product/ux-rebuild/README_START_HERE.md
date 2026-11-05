@@ -1,12 +1,12 @@
 # BRN UX Rebuild Handoff
 
-**Version 1.1 · 5 November 2026 · Owner Evo**
+**Version 1.2 · 5 November 2026 · Owner Evo**
 
 The selected direction is simple and clean: a ChatGPT-inspired native shell, one main workspace, a spacious document canvas and an article-based Library. Keep GPUI Kit and upgrade it to **0.9.0** as an early part of the rebuild. Light and Dark are equal parts of the design, with a System preference.
 
 ## Give this package to the build agent
 
-Read [BRN_UX_Rebuild_Spec.md](BRN_UX_Rebuild_Spec.md) first. It is the main UX specification and includes the current capability map, behavior contracts, theme rules, code boundaries, delivery sequence and 40 acceptance cases. The package is already in `docs/product/ux-rebuild/`. When the owner assigns implementation, connect that task's work record to this location.
+Read [BRN_UX_Rebuild_Spec.md](BRN_UX_Rebuild_Spec.md) first. It is the main UX specification and includes the current capability map, behavior contracts, theme rules, code boundaries, delivery sequence and 42 acceptance cases. The package is already in `docs/product/ux-rebuild/`. When the owner assigns implementation, connect that task's work record to this location.
 
 | File | Purpose |
 |---|---|
@@ -15,6 +15,7 @@ Read [BRN_UX_Rebuild_Spec.md](BRN_UX_Rebuild_Spec.md) first. It is the main UX s
 | [BRN_Interactive_Reference.html](BRN_Interactive_Reference.html) | Offline interactive reference with System, Light and Dark preview controls |
 | [BRN_Design_Tokens.json](BRN_Design_Tokens.json) | Semantic color pairs, spacing, type and layout targets |
 | [BRN_Wiki_Library_Spec.md](BRN_Wiki_Library_Spec.md) | Related article consolidation and evidence requirements, included for repository access |
+| [fixtures/README.md](fixtures/README.md) | Synthetic long-article fixture and native reading/outline checks, including local image and source links |
 | [BUILD_AGENT_PROMPT.txt](BUILD_AGENT_PROMPT.txt) | Starting prompt for the receiving build agent |
 | [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt) | License notice for the reference's bundled icons |
 
@@ -24,6 +25,8 @@ Open the HTML reference in a modern browser. Use the appearance choice above the
 
 The HTML uses sample data and temporary in-memory actions. It does not call an AI provider, read BRN data, import files or save changes to BRN. The PDF contains manually drawn vector design plates, not native screenshots. The specification is the authority for real behavior and any edge case the reference does not implement.
 
+Revision 1.2 adds Mado as a reading reference and requires a collapsible article outline. The PDF/HTML retain the approved baseline and do not depict this addition. Use spec §§2.2, 6.5.1, 8 and 10, the updated tokens and the fixture for its implementation; use AC-41/AC-42 and VE-08 for native verification.
+
 ## Important implementation decisions
 
 - Rebuild the complete presentation and navigation, while retaining supported user capabilities.
@@ -31,6 +34,8 @@ The HTML uses sample data and temporary in-memory actions. It does not call an A
 - Use “Saved library” or “Current knowledge.” Saved content can include valid delegated ordinary maintenance; it does not always mean personally reviewed.
 - Preserve review-required/protected writing changes and exact Apply/Discard/Undo behavior.
 - Keep current manual inbox Scan behavior. A new background watcher is not included.
+- Open articles for reading and add a local, collapsible heading outline with correct document/version targets, current-section indication and a compact-window fallback. Keep tables, images, code and citations readable in both themes.
+- Treat Mado as a product reference. Use GPUI Kit and existing BRN services; polished per-version HTML/PDF exports and destination adapters are later work. Preserve current Markdown export and full backup/restore.
 - Upgrade the active desktop/writing consumers to GPUI Kit `=0.9.0`, migrate the relevant APIs and update the lockfile coherently. The inspected 0.8.0 pin is historical context. The owner explicitly required this upgrade; use spec §12.1 and verify native behavior after migration.
 
 ## Verification status of this handoff
