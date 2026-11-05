@@ -181,11 +181,14 @@ pub(super) fn library_rows(
     order: LibraryOrder,
     topic: Option<&BTreeSet<String>>,
     linked_to_open: &BTreeSet<String>,
+    topics_note: Option<&str>,
 ) -> Vec<usize> {
     let mut shown: Vec<usize> = rows
         .iter()
         .enumerate()
         .filter(|(_, row)| view == LibraryView::Files || !row.is_file())
+        // The Topics note heads the Topics block; All files keeps it.
+        .filter(|(_, row)| view == LibraryView::Files || topics_note != Some(row.id.as_str()))
         .filter(|(_, row)| topic.is_none_or(|members| members.contains(&row.id)))
         .filter(|(_, row)| match order {
             LibraryOrder::LinkedToOpenChats => linked_to_open.contains(&row.id),
@@ -604,11 +607,17 @@ impl ThreadsUi {
             .into_any_element()
     }
 
-    fn library_counts(&self) -> (usize, usize) {
+    /// Articles, references and sources, and everything All files lists.
+    fn library_counts(&self) -> (usize, usize, usize) {
         let files = self.note_rows.iter().filter(|row| row.is_file()).count();
+        let topics = self
+            .topics
+            .as_ref()
+            .is_some_and(|topics| self.note_rows.iter().any(|row| row.id == topics.note));
         (
-            self.note_rows.len() - files,
+            self.note_rows.len() - files - usize::from(topics),
             files + self.library.sources.len(),
+            self.note_rows.len() + self.library.sources.len(),
         )
     }
 
@@ -617,7 +626,7 @@ impl ThreadsUi {
     fn library_tools(&mut self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         self.library.sources = source_rows(&self.records, &self.note_rows);
         let p = pal();
-        let (articles, files) = self.library_counts();
+        let (articles, files, all) = self.library_counts();
         let view = self.library.view;
         let this = cx.entity().downgrade();
         let order = self.library.order;
@@ -650,6 +659,7 @@ impl ThreadsUi {
             .icon(IconName::ChevronDown)
             .ghost()
             .compact()
+            .text_size(px(theme::metrics::TEXT_LABEL))
             .h(components::tokens::COMPACT_CONTROL)
             .accessibility_label(format!("Show: {show_label}"))
             .tooltip("Order the list, or show one topic's articles")
@@ -698,9 +708,13 @@ impl ThreadsUi {
                 menu
             });
         let subtitle = format!(
-            "Current knowledge · {articles} article{} · {files} file{}",
+            "Current knowledge · {articles} article{} · {files} {}",
             if articles == 1 { "" } else { "s" },
-            if files == 1 { "" } else { "s" },
+            if files == 1 {
+                "reference or source"
+            } else {
+                "references and sources"
+            },
         );
         let heading = div()
             .flex()
@@ -750,7 +764,7 @@ impl ThreadsUi {
             .child(
                 view_tab(
                     "library-files",
-                    format!("All files · {files}"),
+                    format!("All files · {all}"),
                     view == LibraryView::Files,
                 )
                 .on_click(cx.listener(|this, _, _, cx| {
@@ -840,6 +854,7 @@ impl ThreadsUi {
             self.library.order,
             topic.as_ref(),
             &linked,
+            self.topics.as_ref().map(|topics| topics.note.as_str()),
         );
         let mut entries = vec![];
         if view == LibraryView::Articles && self.library.topic.is_none() {
@@ -1269,6 +1284,7 @@ impl ThreadsUi {
             .icon(IconName::ChevronDown)
             .ghost()
             .compact()
+            .text_size(px(theme::metrics::TEXT_LABEL))
             .h(components::tokens::COMPACT_CONTROL)
             .accessibility_label(format!("Filter: {filter_label}"))
             .accessible_dropdown_menu(move |mut menu, _, _| {
@@ -1518,6 +1534,7 @@ mod tests {
             LibraryOrder::Recent,
             None,
             &none,
+            None,
         );
         assert_eq!(articles, [0, 2], "recent first; the full import is a file");
         let files = library_rows(
@@ -1526,6 +1543,7 @@ mod tests {
             LibraryOrder::Alphabetical,
             None,
             &none,
+            None,
         );
         assert_eq!(files, [0, 1, 2], "All files keeps every current note, A–Z");
         let linked = library_rows(
@@ -1534,6 +1552,7 @@ mod tests {
             LibraryOrder::MostLinked,
             None,
             &none,
+            None,
         );
         assert_eq!(linked, [2, 1]);
         let kept = library_rows(
@@ -1542,6 +1561,7 @@ mod tests {
             LibraryOrder::ProtectedOrImported,
             None,
             &none,
+            None,
         );
         assert_eq!(kept, [1]);
         let open: BTreeSet<String> = ["c".to_owned()].into();
@@ -1551,7 +1571,8 @@ mod tests {
                 LibraryView::Articles,
                 LibraryOrder::LinkedToOpenChats,
                 None,
-                &open
+                &open,
+                None
             ),
             [2]
         );
@@ -1564,9 +1585,28 @@ mod tests {
                 LibraryView::Articles,
                 LibraryOrder::Recent,
                 Some(&topic),
-                &none
+                &none,
+                None
             ),
             [0]
+        );
+    }
+
+    #[test]
+    fn the_topics_note_heads_topics_and_stays_in_all_files() {
+        let rows = vec![
+            row("t", "Topics", 2, false, 0),
+            row("a", "Alpha", 1, false, 0),
+        ];
+        let none = BTreeSet::new();
+        let order = LibraryOrder::Recent;
+        assert_eq!(
+            library_rows(&rows, LibraryView::Articles, order, None, &none, Some("t")),
+            [1]
+        );
+        assert_eq!(
+            library_rows(&rows, LibraryView::Files, order, None, &none, Some("t")),
+            [0, 1]
         );
     }
 

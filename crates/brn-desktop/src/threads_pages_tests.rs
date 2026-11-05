@@ -1312,7 +1312,7 @@ fn preparing_search_shows_a_spinner_with_its_text(cx: &mut TestAppContext) {
         // The local views sit in one compact row above the list.
         assert!(window.find("library-views").bounds().size.height <= px(40.));
         assert_eq!(label(window, "library-articles"), "Articles · 1");
-        assert_eq!(label(window, "library-files"), "All files · 0");
+        assert_eq!(label(window, "library-files"), "All files · 1");
         assert_eq!(label(window, "topics"), "Topics · Create Topics note");
     });
 }
@@ -1747,7 +1747,7 @@ fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContex
     click(cx, &f, "nav-library");
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "library-articles"), "Articles · 1");
-        assert_eq!(label(window, "library-files"), "All files · 2");
+        assert_eq!(label(window, "library-files"), "All files · 3");
         assert_eq!(window.find("library-articles").selected(), Some(true));
         assert!(window.find(format!("note-{article}")).visible());
         let row = label(window, format!("note-{article}"));

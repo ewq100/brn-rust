@@ -393,6 +393,7 @@ impl ThreadsUi {
                     Some(
                         pill("create-topics", "Create Topics note")
                             .icon(IconName::Plus)
+                            .text_size(px(theme::metrics::TEXT_LABEL))
                             .tooltip(why)
                             .on_click(
                                 cx.listener(|this, _, window, cx| this.create_topics(window, cx)),
@@ -412,6 +413,7 @@ impl ThreadsUi {
                 Some(topics.entries.len()),
                 Some(
                     pill("topics-note", "Open Topics note")
+                        .text_size(px(theme::metrics::TEXT_LABEL))
                         .tooltip(format!(
                             "Open “{}”, the note that links your topic pages",
                             topics.title
