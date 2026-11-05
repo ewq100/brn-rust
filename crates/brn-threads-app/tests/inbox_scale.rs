@@ -88,6 +88,7 @@ fn bounded_inbox_scan_cancel_reopen_and_exact_replay_profile() {
                 resumed,
                 InboxScanSummary {
                     imported: files,
+                    unchanged: stopped.imported,
                     pending: 0,
                     failed: 0
                 }
@@ -122,6 +123,7 @@ fn bounded_inbox_scan_cancel_reopen_and_exact_replay_profile() {
                 replay,
                 InboxScanSummary {
                     imported: files,
+                    unchanged: files,
                     pending: 0,
                     failed: 0
                 }

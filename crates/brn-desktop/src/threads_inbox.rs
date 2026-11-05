@@ -106,8 +106,16 @@ impl ThreadsUi {
                         .filter(|entry| entry.status == status)
                         .count()
                 };
+                let unchanged = state
+                    .entries
+                    .iter()
+                    .filter(|entry| {
+                        entry.status == InboxStatus::Imported
+                            && entry.detail == INBOX_UNCHANGED_DETAIL
+                    })
+                    .count();
                 let (imported, failed, waiting) = (
-                    count(InboxStatus::Imported),
+                    count(InboxStatus::Imported) - unchanged,
                     count(InboxStatus::Failed),
                     count(InboxStatus::Pending),
                 );
@@ -119,7 +127,7 @@ impl ThreadsUi {
                     );
                 } else {
                     let summary = format!(
-                        "Latest scan: {imported} imported · {failed} failed · {waiting} not processed"
+                        "Latest scan: {imported} imported · {unchanged} unchanged · {failed} failed · {waiting} not processed"
                     );
                     panel = panel.child(
                         div()

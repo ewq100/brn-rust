@@ -167,6 +167,11 @@ fn picker_alone_does_not_authorize_scan_and_general_confirmation_does_not_import
         let general:Vec<_>=records.iter().filter_map(|r|match &r.data{RecordData::Note(n) if n.chat.is_none()=>Some(n),_=>None}).collect();
         assert_eq!(general.len(),1);assert_eq!(general[0].markdown,"Chosen public source only");assert!(general[0].protected);
         assert!(records.iter().all(|r|!matches!(r.data,RecordData::Run(_))));
+        // Rescanning the same bytes skips the committed file and says so.
+        let again=ui.workspace.scan_inbox(&AtomicBool::new(false),|_,_|panic!("unchanged file must not reconvert")).unwrap();
+        assert_eq!((again.imported,again.unchanged,again.failed,again.pending),(1,1,0,0));
+        assert_eq!(again.to_string(),"Inbox: 0 imported, 1 unchanged, 0 failed, 0 pending");
+        assert_eq!(ui.workspace.records().unwrap(),records);
     })).unwrap();
 }
 #[gpui_kit::test]
