@@ -26,6 +26,7 @@ impl ThreadsUi {
             .child(
                 div()
                     .id("inbox-destination")
+                    .text_size(px(theme::metrics::TEXT_BODY))
                     .text_color(rgb(p.ink))
                     .child(INBOX_DESTINATION_NOTICE)
                     .test_support(),
