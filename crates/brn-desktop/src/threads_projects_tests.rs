@@ -200,6 +200,138 @@ fn a_shared_private_document_uses_the_selected_projects_writing_chat(cx: &mut Te
     cx.run_until_parked();
 }
 
+/// Search's project scope follows the visible route: a project document
+/// opened earlier never leaks into Library or New chat, and a private
+/// document held by two projects never claims to be only in one.
+#[gpui_kit::test]
+fn launcher_project_scope_follows_the_visible_route(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            let a = ui
+                .apply_project(
+                    ProjectCommand::Create {
+                        title: "Harbour".into(),
+                    },
+                    cx,
+                )
+                .unwrap()
+                .writes[0]
+                .after
+                .id
+                .clone();
+            let b = ui
+                .apply_project(
+                    ProjectCommand::Create {
+                        title: "Festival".into(),
+                    },
+                    cx,
+                )
+                .unwrap()
+                .writes[0]
+                .after
+                .id
+                .clone();
+            let op = ui
+                .workspace
+                .store
+                .allocate_operation("scoped-private-doc")
+                .unwrap();
+            let (note, attachment) = (op.creation_id(0), op.creation_id(1));
+            let private = |title: &str| {
+                let mut data = Note::working(title, "Private to the chat or projects that hold it");
+                data.chat = Some(f.chat.clone());
+                RecordData::Note(data)
+            };
+            ui.workspace
+                .owner_change(
+                    "scoped-private-doc",
+                    &ChangeRequest {
+                        reason: "Owner attachment".into(),
+                        inputs: vec![],
+                        writes: vec![
+                            Put {
+                                id: note.clone(),
+                                expected_version: None,
+                                archived: false,
+                                data: private("Berth plan"),
+                            },
+                            Put {
+                                id: attachment.clone(),
+                                expected_version: None,
+                                archived: false,
+                                data: private("Chat-only attachment"),
+                            },
+                        ],
+                    },
+                )
+                .unwrap();
+            ui.refresh();
+            ui.apply_project(
+                ProjectCommand::LinkDocument {
+                    project: a.clone(),
+                    note: note.clone(),
+                },
+                cx,
+            )
+            .unwrap();
+            let shared = |ui: &ThreadsUi| -> Vec<bool> {
+                ui.launcher_project_documents()
+                    .into_iter()
+                    .map(|item| match item {
+                        lists::LaunchItem::ProjectDoc { shared, .. } => shared,
+                        other => panic!("{other:?}"),
+                    })
+                    .collect()
+            };
+
+            ui.open_project_note(&a, &note, window, cx);
+            assert_eq!(ui.context_project().map(|r| r.id.clone()), Some(a.clone()));
+            assert_eq!(shared(ui), [false], "only in Harbour");
+
+            ui.apply_project(
+                ProjectCommand::LinkDocument {
+                    project: b.clone(),
+                    note: note.clone(),
+                },
+                cx,
+            )
+            .unwrap();
+            ui.refresh();
+            assert_eq!(shared(ui), [true], "also in Festival: never 'only in'");
+
+            ui.show_tile(TileKind::Notes, window, cx);
+            assert!(ui.context_project().is_none(), "Library is global");
+            assert!(ui.launcher_project_documents().is_empty());
+
+            ui.open_project_note(&a, &note, window, cx);
+            ui.new_thread(window, cx);
+            assert!(ui.context_project().is_none(), "New chat is global");
+            assert!(ui.launcher_project_documents().is_empty());
+
+            ui.open_thread(&f.chat, window, cx);
+            assert!(
+                ui.context_project().is_none(),
+                "a standalone chat has no project"
+            );
+
+            // A standalone chat's attachment is scoped by the chat, not a project.
+            ui.open_note_in_context(&attachment, None, Some(&f.chat), window, cx);
+            assert_eq!(ui.open_note_id(), Some(attachment.as_str()));
+            assert_eq!(ui.note_writing_scope.as_deref(), Some(f.chat.as_str()));
+            assert!(ui.focused_project().is_none());
+            assert_eq!(ui.navigation_focus(), Some(TileKind::Notes));
+            assert!(ui.context_project().is_none());
+
+            ui.show_tile(TileKind::Projects, window, cx);
+            ui.open_project(&b, window, cx);
+            assert_eq!(ui.context_project().map(|r| r.id.clone()), Some(b));
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+}
+
 #[gpui_kit::test]
 fn native_project_delete_preserves_displayed_partial_and_pauses_even_an_empty_queue(
     cx: &mut TestAppContext,

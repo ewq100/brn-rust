@@ -183,3 +183,7 @@ Defects found natively and fixed, each with a test that fails without the fix:
 - AC-04 and AC-28 were not exercised natively.
 - Focus contention: another slice's app was taking focus during capture. The guarded driver stopped and retried, and every capture was checked by eye.
 - After an accessibility "press" on the note header's Assistant toggle, its tooltip ("Ask about this document beside it") stayed visible over the sheet header until another control was used. The toggle belongs to the S2 shell, and this was not seen with a real pointer. It is recorded for the lead and was not changed here.
+
+## Lead fix after independent review
+
+The Sol review found one Major issue: editing chat A's queued message and then chat B's lost A's set-aside draft, because the host kept a single stash and a single open edit. Queued edits and their set-aside drafts are now kept per chat. Ending an edit in one chat (Save queued or Cancel edit) restores that chat's own draft, and another chat's open edit keeps its in-progress text. Covered by `queued_edits_in_two_chats_keep_each_chats_draft`; not rechecked natively.

@@ -54,7 +54,7 @@ impl ThreadsUi {
         Some(match self.layout.primary() {
             TileKind::Note | TileKind::Connections | TileKind::Compare => SavedLocation::Document {
                 note: self.open_note_id()?.to_owned(),
-                project: self.note_writing_scope.clone(),
+                project: self.note_project.clone(),
             },
             TileKind::Notes => SavedLocation::Page {
                 page: SavedPage::Library,

@@ -64,7 +64,7 @@ The first three commits are from an earlier helper; the rest continue the same s
   - Documents · N with New document / Add document;
   - Chats · N with New chat;
   - empty states for each.
-- Project document rows: "Shared · also in Library" vs "Only in this project", with trailing Keep in BRN / Unlink actions.
+- Project document rows: "Shared · also in Library", "Only in this project", or "Not in Library · also in N other project(s)" for a private document held by more than one project, with trailing Keep in BRN / Unlink actions.
 - Move chat marks the current place "· current" (disabled).
 - Notices name what changed ("Project moved to Trash.", "Project restored.", "Chat moved to …").
 - The Trash review lists the project first, then its contents and per-task choices.
@@ -79,7 +79,7 @@ The first three commits are from an earlier helper; the rest continue the same s
   |---|---|
   | Articles | Current knowledge · saved library |
   | Files | |
-  | This project | Project only · not in Library (current project context only) |
+  | This project | Project documents · not in Library (current project context only) |
   | Chats | Conversations |
   | In chats history | |
   | Commands | |
@@ -184,7 +184,7 @@ Fixed after native observation:
 | AC | Native | Automated |
 |---|---|---|
 | AC-08 | Articles default; All files shows the full imported reference, the Topics note and sources with availability; a row opens the same note in Read with the assistant closed | `library_articles_files_sources_checks_and_search_scope`, `articles_exclude_full_imports_and_files_include_them` |
-| AC-09 | Global ⌘K "harbor": Articles / Files / Chats with scopes. From Harbor expansion, ⌘K "budget": "This project · Project only · not in Library → Expansion budget draft"; ↵ opens it. Not listed from Crew onboarding or globally | `launcher_lists_the_context_project_documents_after_files`, the project tail of the Library test |
+| AC-09 | Global ⌘K "harbor": Articles / Files / Chats with scopes. From Harbor expansion, ⌘K "budget": "This project · Project documents · not in Library → Expansion budget draft"; ↵ opens it. Not listed from Crew onboarding or globally | `launcher_lists_the_context_project_documents_after_files`, the project tail of the Library test |
 | AC-26 | Source rows state "Original file / Web address / Outlook item / Original not retained · BRN kept the recorded reference"; Sources toggle in Related. Removing access to an original was not exercised natively | `source_rows_state_where_the_original_is_without_repeating_the_name`, `sources_with_a_readable_import_are_not_listed_twice` |
 | AC-27 | Not exercised natively: the desktop has no article-archive control (archival is a checked write). Context switching between two articles and projects was exercised and kept their own state | `an_archived_article_leaves_the_library_and_search` (archived note leaves Library rows and launcher Articles); existing archived-chat search tests |
 | AC-36 | Moved "Expansion planning" Harbor → Crew onboarding 2027 ("· current" marked). Trash review lists the project, its contents and task choices; moved to Trash ("Project moved to Trash."), listed under Trash, restored ("Project restored.") with chats back and nothing resumed | `threads_projects_tests` (16), `project_notices_name_what_changed`, `the_trash_review_names_the_project_before_its_contents` |
@@ -213,3 +213,11 @@ Two gaps outside S5's files were fixed by the lead while merging. Both are cover
 
 - A project-only document's assistant now uses the document's title, not its id. `note_title` falls back to the open document's own record.
 - While a project document is open, the sidebar now marks its project instead of Library (`focused_project`).
+
+## Lead fixes after independent review
+
+The Sol review found one Major and two Minor issues. All three were fixed by the lead and covered by `launcher_project_scope_follows_the_visible_route` (`threads_projects_tests.rs`) plus the launcher label unit test. None has been rechecked natively yet.
+
+- **Major, search scope leak.** `context_project()` fell back to the retained writing scope, so a project document opened earlier kept its project's documents in ⌘K from Library, New chat or another chat. Scope now comes from the visible route only: the project page shown, the displayed project document (`note_project`), or the displayed chat's project. Global destinations have none.
+- **Minor, false exclusivity.** A private document linked into a second project said "Only in this project" and search announced "only in A". The row now reads "Not in Library · also in N other project(s)", the search label names the other projects, and the group scope reads "Project documents · not in Library".
+- **Minor, attachment scope.** `navigation_focus()`, `focused_project()` and the saved launch location used the writing scope, which is a chat id for a standalone chat's attachment. They now use the validated `note_project`.

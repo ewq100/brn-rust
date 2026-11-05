@@ -704,7 +704,9 @@ impl ThreadsUi {
     /// Leave a queued edit: the waiting message keeps its saved text and the
     /// composer gets back the draft it held before Edit.
     pub(super) fn cancel_queued_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.editing_queue = None;
+        if let Some(thread) = self.chat_thread().map(str::to_owned) {
+            self.editing_queue.retain(|edit| edit.thread != thread);
+        }
         let text = self.conversation.take_stash(&self.destination());
         self.composer
             .update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));

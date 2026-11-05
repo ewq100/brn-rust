@@ -389,7 +389,8 @@ impl ThreadsUi {
                 // Clear once, after the service accepted it (CHAT-02); a
                 // queued edit gives back the draft it set aside.
                 let restored = if edited {
-                    self.editing_queue = None;
+                    self.editing_queue
+                        .retain(|edit| editing_item.as_deref() != Some(edit.item.as_str()));
                     self.conversation.take_stash(&destination)
                 } else {
                     String::new()
@@ -821,7 +822,10 @@ impl ThreadsUi {
             let draft = self.composer.read(cx).value().to_string();
             self.conversation.stash(destination, draft);
         }
-        self.editing_queue = Some(QueuedEdit {
+        // Each chat keeps its own open edit and set-aside draft, so editing
+        // another chat's waiting message never loses this one's.
+        self.editing_queue.retain(|open| open.thread != edit.thread);
+        self.editing_queue.push(QueuedEdit {
             item: edit.id.clone(),
             thread: edit.thread.clone(),
         });
@@ -1265,22 +1269,16 @@ pub(super) struct ConversationView {
     pub activity_open: bool,
     /// The composer was empty at its last change (re-render on a flip).
     pub composer_empty: bool,
-    /// The draft a queued edit set aside, with its destination.
-    stash: Option<(ComposerDestination, String)>,
+    /// The drafts queued edits set aside, by destination.
+    stash: BTreeMap<ComposerDestination, String>,
 }
 impl ConversationView {
     pub(super) fn stash(&mut self, destination: ComposerDestination, text: String) {
-        self.stash = Some((destination, text));
+        self.stash.insert(destination, text);
     }
-    /// The stashed draft for `destination`, or empty; another
-    /// destination's stash stays.
+    /// The stashed draft for `destination`, or empty; other
+    /// destinations' stashes stay.
     pub(super) fn take_stash(&mut self, destination: &ComposerDestination) -> String {
-        match self.stash.take() {
-            Some((saved, text)) if &saved == destination => text,
-            other => {
-                self.stash = other;
-                String::new()
-            }
-        }
+        self.stash.remove(destination).unwrap_or_default()
     }
 }

@@ -473,7 +473,8 @@ struct ThreadsUi {
     projects_trash: bool,
     /// Session-only disclosures: Done and Cancelled tasks, Background changes.
     open_sections: BTreeSet<&'static str>,
-    editing_queue: Option<QueuedEdit>,
+    /// Open queued-message edits, at most one per chat.
+    editing_queue: Vec<QueuedEdit>,
     search: Entity<InputState>,
     hits: Vec<brn_threads_app::SearchHit>,
     results: search_view::SearchView,
@@ -784,7 +785,7 @@ impl ThreadsUi {
             writing_review_loads: 0,
             projects_trash: false,
             open_sections: BTreeSet::new(),
-            editing_queue: None,
+            editing_queue: Vec::new(),
             search,
             hits: vec![],
             results: search_view::SearchView::default(),
@@ -1187,8 +1188,8 @@ impl ThreadsUi {
     fn queued_edit_for_current_chat(&self) -> Option<&str> {
         let thread = self.chat_thread()?;
         self.editing_queue
-            .as_ref()
-            .filter(|edit| edit.thread == thread)
+            .iter()
+            .find(|edit| edit.thread == thread)
             .map(|edit| edit.item.as_str())
     }
     fn destination(&self) -> ComposerDestination {

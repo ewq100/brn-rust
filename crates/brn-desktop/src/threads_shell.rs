@@ -374,7 +374,7 @@ impl ThreadsUi {
     pub(super) fn navigation_focus(&self) -> Option<TileKind> {
         match self.layout.primary() {
             TileKind::Note | TileKind::Connections | TileKind::Compare
-                if self.note_writing_scope.is_some() =>
+                if self.note_project.is_some() =>
             {
                 Some(TileKind::Projects)
             }
@@ -395,7 +395,7 @@ impl ThreadsUi {
     pub(super) fn focused_project(&self) -> Option<&str> {
         match self.layout.primary() {
             TileKind::Note | TileKind::Connections | TileKind::Compare => {
-                self.note_writing_scope.as_deref()
+                self.note_project.as_deref()
             }
             _ => self.selected_project.as_deref(),
         }

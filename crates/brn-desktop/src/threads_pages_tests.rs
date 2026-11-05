@@ -2072,7 +2072,7 @@ fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContex
         );
         assert_eq!(
             label(window, "launcher-group-project"),
-            "This project · Project only · not in Library"
+            "This project · Project documents · not in Library"
         );
     });
     press(cx, &f, "enter");

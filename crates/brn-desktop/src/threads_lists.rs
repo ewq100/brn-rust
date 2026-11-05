@@ -938,6 +938,8 @@ pub(super) enum LaunchItem {
         project: String,
         title: String,
         project_title: String,
+        /// Other active projects also hold this document.
+        shared: bool,
     },
     /// A saved chat Message the owner search matched; opens its chat.
     Message {
@@ -994,8 +996,17 @@ impl LaunchItem {
             Self::ProjectDoc {
                 title,
                 project_title,
+                shared: false,
                 ..
             } => format!("Project document: {title} · only in {project_title}"),
+            Self::ProjectDoc {
+                title,
+                project_title,
+                shared: true,
+                ..
+            } => format!(
+                "Project document: {title} · in {project_title} and other projects, not in Library"
+            ),
             Self::Message {
                 chat_title,
                 role,
@@ -1038,7 +1049,7 @@ impl LaunchItem {
     pub(super) fn group_scope(&self) -> Option<&'static str> {
         match self {
             Self::Note { .. } => Some("Current knowledge · saved library"),
-            Self::ProjectDoc { .. } => Some("Project only · not in Library"),
+            Self::ProjectDoc { .. } => Some("Project documents · not in Library"),
             Self::Thread { .. } => Some("Conversations"),
             Self::Message { .. } => Some("History · not current knowledge"),
             Self::Command(_) => None,
@@ -1799,18 +1810,31 @@ mod tests {
             project: "p".into(),
             title: "Expansion budget".into(),
             project_title: "Harbor expansion".into(),
+            shared: false,
         };
         let items = launcher("budget", &[], &[], std::slice::from_ref(&budget), &[]);
         assert_eq!(items, std::slice::from_ref(&budget));
         assert_eq!(items[0].group(), "This project");
         assert_eq!(
             items[0].group_scope(),
-            Some("Project only · not in Library")
+            Some("Project documents · not in Library")
         );
         assert_eq!(items[0].meta().as_deref(), Some("Harbor expansion"));
         assert_eq!(
             items[0].accessible_label(),
             "Project document: Expansion budget · only in Harbor expansion"
+        );
+        let shared = LaunchItem::ProjectDoc {
+            id: "doc".into(),
+            project: "p".into(),
+            title: "Expansion budget".into(),
+            project_title: "Harbor expansion".into(),
+            shared: true,
+        };
+        assert_eq!(
+            shared.accessible_label(),
+            "Project document: Expansion budget · in Harbor expansion and other projects, not in Library",
+            "a document linked into another project never claims exclusivity"
         );
         assert!(launcher("tides", &[], &[], std::slice::from_ref(&budget), &[]).is_empty());
         assert!(

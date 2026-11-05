@@ -128,6 +128,15 @@ pub(super) fn project_notice(command: &ProjectCommand, records: &[Record]) -> St
     }
 }
 
+/// How many active projects other than `project` hold `note`.
+fn other_projects_with(records: &[Record], project: &str, note: &str) -> usize {
+    records
+        .iter()
+        .filter(|r| r.id != project && !r.archived && matches!(r.data, RecordData::Project(_)))
+        .filter(|r| project_document_ids(records, r).contains(note))
+        .count()
+}
+
 impl ThreadsUi {
     pub(super) fn open_project_note(
         &mut self,
@@ -197,26 +206,27 @@ impl ThreadsUi {
                 && matches!(r.data, RecordData::Project(_))
         })
     }
-    /// The active project the launcher opens from: the project shown on the
-    /// Projects page, or the project of the open note or chat.
-    fn context_project(&self) -> Option<&Record> {
+    /// The active project the launcher opens from, derived from the visible
+    /// route only: the project page shown, the displayed project document,
+    /// or the displayed chat's project. Global destinations have none, so a
+    /// project document opened earlier never leaks into another context.
+    pub(super) fn context_project(&self) -> Option<&Record> {
         let active = |id: &str| {
             self.records
                 .iter()
                 .find(|r| r.id == id && !r.archived && matches!(r.data, RecordData::Project(_)))
         };
-        self.layout
-            .visible()
-            .contains(&TileKind::Projects)
-            .then(|| self.shown_project())
-            .flatten()
-            .filter(|r| !r.archived)
-            .or_else(|| self.note_writing_scope.as_deref().and_then(active))
-            .or_else(|| {
-                self.chat_thread()
-                    .and_then(|chat| project_for_chat(&self.records, chat))
-                    .and_then(|r| active(&r.id))
-            })
+        match self.layout.primary() {
+            TileKind::Projects => self.shown_project().filter(|r| !r.archived),
+            TileKind::Note | TileKind::Connections | TileKind::Compare => {
+                self.note_project.as_deref().and_then(active)
+            }
+            TileKind::Chat | TileKind::Linked => self
+                .chat_thread()
+                .and_then(|chat| project_for_chat(&self.records, chat))
+                .and_then(|r| active(&r.id)),
+            _ => None,
+        }
     }
     /// The context project's own documents for the launcher. Shared
     /// documents are already listed as articles, so only project-only ones.
@@ -236,6 +246,7 @@ impl ThreadsUi {
                 };
                 data.chat.is_some().then(|| lists::LaunchItem::ProjectDoc {
                     title: title(note),
+                    shared: other_projects_with(&self.records, &record.id, &id) > 0,
                     id,
                     project: record.id.clone(),
                     project_title: p.title.clone(),
@@ -726,8 +737,14 @@ impl ThreadsUi {
             };
             let private = data.chat.is_some();
             let stamp = self.activity.stamp(&id);
-            let mut facts = vec![if private {
+            let others = other_projects_with(&self.records, &record.id, &id);
+            let mut facts = vec![if private && others == 0 {
                 "Only in this project".to_owned()
+            } else if private {
+                format!(
+                    "Not in Library · also in {others} other project{}",
+                    if others == 1 { "" } else { "s" }
+                )
             } else {
                 "Shared · also in Library".to_owned()
             }];

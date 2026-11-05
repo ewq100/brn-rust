@@ -1024,10 +1024,10 @@ fn queue_notices_follow_the_queue_state_and_paused_wins_after_stop(cx: &mut Test
     });
     update(cx, &f, |view, _, _| {
         let item = view.queue_state().queue[0].clone();
-        view.editing_queue = Some(QueuedEdit {
+        view.editing_queue = vec![QueuedEdit {
             item: item.id,
             thread: item.thread,
-        });
+        }];
     });
     assert_eq!(send(cx, "First queued, edited"), "Queued message updated.");
     // Stop pauses the queue before the worker finishes: Paused wins.
@@ -1674,7 +1674,7 @@ fn queue_items_move_down_and_up_and_editing_keeps_the_composer_draft(cx: &mut Te
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert_eq!(view.composer.read(cx).value().as_ref(), "My unsent draft");
-        assert!(view.editing_queue.is_none());
+        assert!(view.editing_queue.is_empty());
     });
     assert_eq!(order(cx), ["Bravo", "Alpha", "Charlie"]);
     click(cx, &f, "queue-edit-1");
@@ -1690,6 +1690,62 @@ fn queue_items_move_down_and_up_and_editing_keeps_the_composer_draft(cx: &mut Te
             f.view.read(cx).composer.read(cx).value().as_ref(),
             "My unsent draft"
         )
+    });
+}
+
+/// Editing one chat's waiting message, then another chat's, keeps both
+/// chats' unsent drafts: each returns after that chat's Save queued or
+/// Cancel edit.
+#[gpui_kit::test]
+fn queued_edits_in_two_chats_keep_each_chats_draft(cx: &mut TestAppContext) {
+    let mut other = String::new();
+    let f = fixture(cx, 1250., 860., |workspace, thread, other_chat| {
+        other = other_chat.to_owned();
+        workspace
+            .queue_message("two-a", thread, "Queued in A")
+            .unwrap();
+        workspace
+            .queue_message("two-b", other_chat, "Queued in B")
+            .unwrap();
+        workspace.pause_queue("two-paused").unwrap();
+    });
+    let value = |view: &ThreadsUi, cx: &App| view.composer.read(cx).value().to_string();
+    update(cx, &f, |view, window, cx| {
+        view.open_thread(&other, window, cx);
+        view.composer
+            .update(cx, |e, cx| e.set_value("B's unsent draft", window, cx));
+        view.open_thread(&f.thread, window, cx);
+        view.composer
+            .update(cx, |e, cx| e.set_value("A's unsent draft", window, cx));
+        let queue = view.queue_state().queue;
+        let a = queue.iter().find(|q| q.thread == f.thread).unwrap().clone();
+        let b = queue.iter().find(|q| q.thread == other).unwrap().clone();
+        view.begin_queued_edit(&a, window, cx);
+        assert_eq!(value(view, cx), "Queued in A");
+        view.begin_queued_edit(&b, window, cx);
+        assert_eq!(value(view, cx), "Queued in B");
+        // Cancel B's edit: B's own draft returns.
+        view.cancel_queued_edit(window, cx);
+        assert_eq!(value(view, cx), "B's unsent draft");
+        // A's edit is still open, with its in-progress text.
+        view.open_thread(&f.thread, window, cx);
+        assert_eq!(value(view, cx), "Queued in A");
+        assert!(view.queued_edit_for_current_chat().is_some());
+        view.composer
+            .update(cx, |e, cx| e.set_value("Queued in A, edited", window, cx));
+    });
+    click(cx, &f, "ask-delegate");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(value(view, cx), "A's unsent draft");
+        assert!(view.editing_queue.is_empty());
+        let texts: Vec<_> = view
+            .queue_state()
+            .queue
+            .into_iter()
+            .map(|q| q.text)
+            .collect();
+        assert_eq!(texts, ["Queued in A, edited", "Queued in B"]);
     });
 }
 
