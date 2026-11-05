@@ -747,3 +747,99 @@ fn native_review_permitted_project_move_before_prepare_is_not_reauthorized(
 ) {
     reviewed_snapshot_handoff_barrier(cx, false);
 }
+
+/// The exact-input review is a permission request in the conversation,
+/// above the composer: it names the tool, destination and chat, Deny
+/// clears it, and Allow binds the exact input once to the composer's
+/// message; Withdraw removes that one-time grant (spec §6.11, AC-23/37).
+#[gpui_kit::test]
+fn the_permission_card_names_the_request_and_allow_or_deny_is_explicit(cx: &mut TestAppContext) {
+    let f = start_fixture(cx, false);
+    let chat = f.chat.clone();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.open_thread(&chat, window, cx);
+            ui.layout.open_primary(TileKind::Chat);
+            ui.composer.update(cx, |editor, cx| {
+                editor.set_value("Look up the synthetic source", window, cx)
+            });
+            cx.notify();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    let choose = |cx: &mut TestAppContext, label: &str| {
+        cx.update_window(f.window, |_, window, cx| window.click("composer-add", cx))
+            .unwrap();
+        cx.run_until_parked();
+        let label = label.to_owned();
+        cx.update_window(f.window, |_, window, cx| {
+            let mut menu = window.within("popup-menu");
+            let index = (0..60usize)
+                .find(|index| {
+                    menu.try_find(*index)
+                        .is_some_and(|row| row.label() == Some(label.as_str()))
+                })
+                .unwrap_or_else(|| panic!("+ menu row {label}"));
+            menu.click(index, cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+    };
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.try_find("permission-card").is_none());
+    })
+    .unwrap();
+    choose(cx, "Review input for public_read…");
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.find("permission-card").visible());
+        assert_eq!(
+            window.find("permission-card-heading").label(),
+            Some("Allow public_read once?")
+        );
+        assert!(window.find("permission-deny").visible());
+        assert!(window.find("permission-allow").visible());
+        window.click("permission-deny", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.try_find("permission-card").is_none());
+        f.view.update(cx, |ui, _| {
+            assert!(ui.mcp_view.pending.is_none() && ui.mcp_view.query.is_none());
+        });
+    })
+    .unwrap();
+    choose(cx, "Review input for public_read…");
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.mcp_view
+                .query
+                .clone()
+                .unwrap()
+                .update(cx, |q, cx| q.set_value("CARD_EXACT_QUERY", window, cx));
+        });
+        window.click("permission-allow", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert_eq!(
+            window.find("permission-card-heading").label(),
+            Some("Allowed once: public_read")
+        );
+        f.view.update(cx, |ui, _| {
+            let pending = ui.mcp_view.pending.as_ref().expect("one-time grant");
+            assert_eq!(pending.input["query"], "CARD_EXACT_QUERY");
+        });
+        window.click("permission-revoke", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        assert!(window.try_find("permission-card").is_none());
+        f.view
+            .update(cx, |ui, _| assert!(ui.mcp_view.pending.is_none()));
+    })
+    .unwrap();
+}

@@ -97,6 +97,31 @@ fn click(cx: &mut TestAppContext, f: &Fixture, id: impl Into<String>) {
     let id = id.into();
     on_window(cx, f, |window, cx| window.click(id, cx));
 }
+/// The open popup menu's row labels.
+fn menu_rows(cx: &mut TestAppContext, f: &Fixture) -> Vec<String> {
+    on_window(cx, f, |window, _| {
+        let menu = window.within("popup-menu");
+        (0..60usize)
+            .filter_map(|index| {
+                menu.try_find(index)
+                    .and_then(|row| row.label().map(str::to_owned))
+            })
+            .collect()
+    })
+}
+/// Choose a popup menu row by its accessible label, as a mouse user would.
+fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
+    on_window(cx, f, |window, cx| {
+        let mut menu = window.within("popup-menu");
+        let index = (0..60usize)
+            .find(|index| {
+                menu.try_find(*index)
+                    .is_some_and(|row| row.label() == Some(label))
+            })
+            .unwrap_or_else(|| panic!("menu row {label} not found"));
+        menu.click(index, cx);
+    });
+}
 /// A synthetic run with its own recorded reason.
 pub(super) fn record_run(
     workspace: &mut Workspace,
@@ -967,8 +992,20 @@ fn queue_notices_follow_the_queue_state_and_paused_wins_after_stop(cx: &mut Test
         cx.notify();
         held
     });
+    // Running with an empty composer, the one primary control is Stop;
+    // with text it is Queue, Stop beside it.
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "run-stop"), "Stop");
+        assert!(window.try_find("ask-delegate").is_none());
+    });
+    update(cx, &f, |view, window, cx| {
+        view.composer
+            .update(cx, |editor, cx| editor.set_value("Draft", window, cx));
+        cx.notify();
+    });
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "ask-delegate"), "Queue");
+        assert_eq!(label(window, "run-stop"), "Stop");
     });
     assert_eq!(
         send(cx, "First queued"),
@@ -1075,23 +1112,21 @@ fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mu
     let next = format!("{card}-next");
     let fresh = "Your message is saved. Continue starts a fresh reply with the saved chat and current notes.";
     let continue_id = format!("continue-{}", f.thread);
+    // Archive lives in the conversation's ⋯ menu.
+    click(cx, &f, "chat-menu");
+    assert!(menu_rows(cx, &f).iter().any(|row| row == "Archive"));
     on_window(cx, &f, |window, _| {
-        assert_eq!(
-            label(window, "resolve-thread"),
-            "Archive this chat. Stops work and pauses the queue."
-        );
         assert!(window.try_find("chat-archived").is_none());
         assert!(window.try_find("reopen-thread").is_none());
         assert_eq!(label(window, next.clone()), fresh);
         assert_eq!(label(window, continue_id.clone()), "Continue");
     });
-    click(cx, &f, "resolve-thread");
+    choose(cx, &f, "Archive");
     let archived =
         "Chat archived. Work stopped and the queue is paused. Tasks keep their progress.";
     cx.read(|cx| assert_eq!(f.view.read(cx).notice.text(), archived));
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "chat-archived"), "Archived");
-        assert!(window.try_find("resolve-thread").is_none());
         assert!(window.try_find("chat-unarchive").is_none());
         assert!(
             window
@@ -1139,7 +1174,7 @@ fn archive_states_its_consequence_and_an_archived_chat_has_one_unarchive(cx: &mu
     });
     click(cx, &f, "reopen-thread");
     on_window(cx, &f, |window, _| {
-        assert!(window.find("resolve-thread").visible());
+        assert!(window.try_find("chat-archived").is_none());
         assert!(window.try_find("composer-destination").is_none());
         assert_eq!(label(window, next.clone()), fresh);
         assert_eq!(label(window, continue_id.clone()), "Continue");
@@ -1169,10 +1204,15 @@ fn the_composer_is_one_row_and_names_the_effort_in_a_narrow_chat(cx: &mut TestAp
         (settings.model.clone(), settings.effort.clone())
     });
     on_window(cx, &f, |window, _| {
-        let row: Vec<_> = ["composer-add", "model-pill", "chat-quiet", "ask-delegate"]
-            .into_iter()
-            .map(|id| (id, window.find(id).bounds()))
-            .collect();
+        let row: Vec<_> = [
+            "composer-add",
+            "composer-context",
+            "model-pill",
+            "ask-delegate",
+        ]
+        .into_iter()
+        .map(|id| (id, window.find(id).bounds()))
+        .collect();
         let centre = |bounds: &Bounds<gpui_kit::Pixels>| bounds.origin.y + bounds.size.height / 2.;
         for (id, bounds) in &row {
             assert!(
@@ -1241,10 +1281,12 @@ fn while_work_runs_send_reads_queue_at_a_wide_chat_and_replies_keep_the_measure(
             .unwrap();
         run = record_run(workspace, thread, RunState::Working, "");
     });
-    let _lease = update(cx, &f, |view, _, cx| {
+    let _lease = update(cx, &f, |view, window, cx| {
         let (_, lease) = hold_worker(view, &f.thread, &run);
         // The conversation as the primary view (was: maximized chat).
         view.layout.open_primary(TileKind::Chat);
+        view.composer
+            .update(cx, |editor, cx| editor.set_value("Next step", window, cx));
         cx.notify();
         lease
     });
@@ -1264,11 +1306,13 @@ fn while_work_runs_send_reads_queue_at_a_wide_chat_and_replies_keep_the_measure(
             label(window, format!("answer-decision-{reply}")),
             "Save as decision…"
         );
-        // The reply's column is at most 680 px of text plus 24 px gutters,
-        // centered in the primary conversation.
+        assert_eq!(label(window, "run-stop"), "Stop");
+        // The reply's column is at most the conversation width of text plus
+        // 24 px gutters, centered in the primary conversation.
         let chat = window.find("tile-chat").bounds();
         let copy = window.find(format!("answer-copy-{reply}")).bounds();
-        let column_right = chat.origin.x + (chat.size.width + px(728.)) / 2.;
+        let column = px(theme::metrics::CONVERSATION_WIDTH + 48.);
+        let column_right = chat.origin.x + (chat.size.width + column) / 2.;
         assert!(chat.size.width > px(1000.), "{chat:?}");
         assert!(
             copy.origin.x + copy.size.width <= column_right + px(1.),
@@ -1465,4 +1509,397 @@ fn editing_a_queued_message_does_not_redirect_the_next_chat_send(cx: &mut TestAp
     });
     drop(sender);
     drop(lease);
+}
+
+/// CHAT-01 with the real editor and key bindings: Shift-↵ adds a line, ↵
+/// queues the whole text once while work runs and clears the composer once,
+/// and ↵ during an IME composition never submits.
+#[gpui_kit::test]
+fn shift_enter_adds_a_line_enter_queues_once_and_ime_composition_never_submits(
+    cx: &mut TestAppContext,
+) {
+    let mut run = String::new();
+    let f = fixture(cx, 1250., 860., |workspace, thread, _| {
+        run = record_run(workspace, thread, RunState::Working, "");
+    });
+    let (_sender, _lease) = update(cx, &f, |view, window, cx| {
+        let held = hold_worker(view, &f.thread, &run);
+        view.composer.focus_handle(cx).focus(window, cx);
+        cx.notify();
+        held
+    });
+    cx.simulate_input(f.window, "Line one");
+    cx.simulate_keystrokes(f.window, "shift-enter");
+    cx.simulate_input(f.window, "Line two");
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(
+            view.composer.read(cx).value().as_ref(),
+            "Line one\nLine two"
+        );
+        assert!(view.queue_state().queue.is_empty(), "Shift-↵ never submits");
+    });
+    cx.simulate_keystrokes(f.window, "enter");
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let queue = view.queue_state().queue;
+        assert_eq!(queue.len(), 1, "{queue:?}");
+        assert_eq!(queue[0].text, "Line one\nLine two");
+        assert_eq!(view.composer.read(cx).value().as_ref(), "");
+    });
+    // An active composition owns ↵.
+    use gpui_kit::EntityInputHandler;
+    update(cx, &f, |view, window, cx| {
+        view.composer.update(cx, |state, cx| {
+            state.replace_and_mark_text_in_range(None, "かな", None, window, cx)
+        });
+    });
+    cx.simulate_keystrokes(f.window, "enter");
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(
+            view.queue_state().queue.len(),
+            1,
+            "composition did not submit"
+        );
+    });
+}
+
+/// ⌘↵ in the composer sends through the window's Ask binding exactly once.
+#[gpui_kit::test]
+fn command_enter_in_the_composer_queues_exactly_once(cx: &mut TestAppContext) {
+    let mut run = String::new();
+    let f = fixture(cx, 1250., 860., |workspace, thread, _| {
+        run = record_run(workspace, thread, RunState::Working, "");
+    });
+    let (_sender, _lease) = update(cx, &f, |view, window, cx| {
+        let held = hold_worker(view, &f.thread, &run);
+        view.composer.focus_handle(cx).focus(window, cx);
+        held
+    });
+    cx.simulate_input(f.window, "Through the shortcut");
+    cx.simulate_keystrokes(f.window, "cmd-enter");
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let queue = view.queue_state().queue;
+        assert_eq!(queue.len(), 1, "{queue:?}");
+        assert_eq!(queue[0].text, "Through the shortcut");
+        assert_eq!(view.composer.read(cx).value().as_ref(), "");
+    });
+}
+
+/// Waiting messages reorder with Move up / Move down controls (no drag),
+/// and editing one keeps the composer's own draft: it comes back after
+/// Save queued and after Cancel edit.
+#[gpui_kit::test]
+fn queue_items_move_down_and_up_and_editing_keeps_the_composer_draft(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |workspace, thread, _| {
+        for (key, text) in [("q-a", "Alpha"), ("q-b", "Bravo"), ("q-c", "Charlie")] {
+            workspace.queue_message(key, thread, text).unwrap();
+        }
+        workspace.pause_queue("q-paused").unwrap();
+    });
+    let order = |cx: &mut TestAppContext| -> Vec<String> {
+        cx.read(|cx| {
+            f.view
+                .read(cx)
+                .queue_state()
+                .queue
+                .into_iter()
+                .map(|q| q.text)
+                .collect()
+        })
+    };
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "queue-down-0"), "Move down");
+        assert!(window.try_find("queue-up-0").is_none());
+        assert!(window.try_find("queue-down-2").is_none());
+    });
+    click(cx, &f, "queue-down-0");
+    assert_eq!(order(cx), ["Bravo", "Alpha", "Charlie"]);
+    click(cx, &f, "queue-down-1");
+    assert_eq!(order(cx), ["Bravo", "Charlie", "Alpha"]);
+    click(cx, &f, "queue-up-2");
+    assert_eq!(order(cx), ["Bravo", "Alpha", "Charlie"]);
+    // Edit keeps the unsent draft aside.
+    update(cx, &f, |view, window, cx| {
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("My unsent draft", window, cx)
+        });
+    });
+    click(cx, &f, "queue-edit-0");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "ask-delegate"), "Save queued");
+        assert!(window.find("queue-edit-cancel").visible());
+    });
+    cx.read(|cx| assert_eq!(f.view.read(cx).composer.read(cx).value().as_ref(), "Bravo"));
+    click(cx, &f, "queue-edit-cancel");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.composer.read(cx).value().as_ref(), "My unsent draft");
+        assert!(view.editing_queue.is_none());
+    });
+    assert_eq!(order(cx), ["Bravo", "Alpha", "Charlie"]);
+    click(cx, &f, "queue-edit-1");
+    update(cx, &f, |view, window, cx| {
+        view.composer.update(cx, |editor, cx| {
+            editor.set_value("Alpha, edited", window, cx)
+        });
+    });
+    click(cx, &f, "ask-delegate");
+    assert_eq!(order(cx), ["Bravo", "Alpha, edited", "Charlie"]);
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).composer.read(cx).value().as_ref(),
+            "My unsent draft"
+        )
+    });
+}
+
+/// The context chip names the scope retrieval actually uses (spec §5): the
+/// saved library for a general chat; a project's documents plus the library
+/// when the project uses BRN knowledge, or only the project when it does
+/// not; private attachments are named as private.
+#[gpui_kit::test]
+fn the_context_chip_names_the_real_scope(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_, _, _| {});
+    let scope = |cx: &mut TestAppContext| cx.read(|cx| f.view.read(cx).context_scope());
+    let general = scope(cx);
+    assert_eq!(general.label, "Saved library");
+    assert!(
+        general
+            .lines
+            .iter()
+            .any(|line| line.starts_with("Your saved library"))
+    );
+    assert!(
+        general
+            .lines
+            .iter()
+            .any(|line| line.starts_with("Not used:"))
+    );
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "composer-context"), "Context: Saved library");
+    });
+    let project = update(cx, &f, |view, _, _| {
+        let project = view
+            .workspace
+            .project_command(
+                "chip-project",
+                ProjectCommand::Create {
+                    title: "Atlas".into(),
+                },
+            )
+            .unwrap();
+        view.refresh();
+        project
+    });
+    let _ = project;
+    let project_id = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .records
+            .iter()
+            .find(|r| matches!(r.data, RecordData::Project(_)))
+            .unwrap()
+            .id
+            .clone()
+    });
+    update(cx, &f, |view, _, _| {
+        view.workspace
+            .project_command(
+                "chip-move",
+                ProjectCommand::MoveChat {
+                    chat: f.thread.clone(),
+                    project: Some(project_id.clone()),
+                },
+            )
+            .unwrap();
+        view.refresh();
+    });
+    let inside = scope(cx);
+    assert_eq!(inside.label, "Project Atlas + library");
+    assert_eq!(inside.project.as_deref(), Some(project_id.as_str()));
+    assert!(
+        inside
+            .lines
+            .iter()
+            .any(|line| line.starts_with("Project Atlas: "))
+    );
+    assert!(
+        inside
+            .lines
+            .iter()
+            .any(|line| line.starts_with("Your saved library"))
+    );
+    update(cx, &f, |view, _, _| {
+        let record = view.workspace.store.record(&project_id).unwrap().unwrap();
+        let RecordData::Project(data) = record.data else {
+            unreachable!()
+        };
+        view.workspace
+            .project_command(
+                "chip-knowledge-off",
+                ProjectCommand::Configure {
+                    project: project_id.clone(),
+                    version: record.version,
+                    title: data.title,
+                    instructions: data.instructions,
+                    use_brn_knowledge: false,
+                },
+            )
+            .unwrap();
+        view.refresh();
+    });
+    let only = scope(cx);
+    assert_eq!(only.label, "Project Atlas");
+    assert!(
+        only.lines
+            .iter()
+            .any(|line| line.starts_with("Saved library: off for this project")),
+        "{only:?}"
+    );
+    assert!(
+        !only
+            .lines
+            .iter()
+            .any(|line| line.starts_with("Your saved library"))
+    );
+}
+
+/// Keep in BRN shows its destination and asks first; Cancel changes
+/// nothing, and confirming promotes the same note out of the chat (§6.8).
+#[gpui_kit::test]
+fn keep_in_brn_names_the_destination_before_it_promotes(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |workspace, thread, _| {
+        let converted = ConversionResult {
+            intent: ImportIntent::FullNote,
+            markdown: "# Venue contract\nSynthetic attached document.".into(),
+            assets: vec![],
+            source_sha256: [3; 32],
+            source_reference: "/missing/venue-contract.md".into(),
+            converter: brn_threads_intake::document_conversion_label("xberg", false).unwrap(),
+            sources: vec![],
+            coverage: brn_threads_intake::Coverage {
+                status: brn_threads_intake::CoverageStatus::Unchecked,
+                checked_items: vec![],
+                gaps: vec![],
+            },
+        };
+        workspace
+            .attach_full("keep-attachment", thread, "Venue contract", &converted)
+            .unwrap();
+    });
+    let note = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .records
+            .iter()
+            .find(|r| matches!(&r.data, RecordData::Note(n) if n.chat.as_deref() == Some(f.thread.as_str())))
+            .unwrap()
+            .id
+            .clone()
+    });
+    let chat_of = |cx: &mut TestAppContext| {
+        cx.read(|cx| {
+            match &f
+                .view
+                .read(cx)
+                .workspace
+                .store
+                .note(&note)
+                .unwrap()
+                .unwrap()
+                .data
+            {
+                RecordData::Note(n) => n.chat.clone(),
+                _ => unreachable!(),
+            }
+        })
+    };
+    click(cx, &f, format!("attachment-keep-{note}"));
+    on_window(cx, &f, |window, _| {
+        let body = label(window, "keep-in-brn-body");
+        assert!(body.contains("into your saved library"), "{body}");
+        assert!(window.find("keep-in-brn-confirm").visible());
+    });
+    click(cx, &f, "keep-in-brn-cancel");
+    assert_eq!(chat_of(cx).as_deref(), Some(f.thread.as_str()));
+    click(cx, &f, format!("attachment-keep-{note}"));
+    click(cx, &f, "keep-in-brn-confirm");
+    assert_eq!(chat_of(cx), None);
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find(format!("attachment-keep-{note}")).is_none());
+    });
+}
+
+/// New chat is a calm start: a short greeting, the composer, at most three
+/// starting actions and, while unchosen, the delegation choice (§4.3).
+#[gpui_kit::test]
+fn the_new_chat_start_has_a_greeting_the_composer_three_actions_and_the_delegation_choice(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx, 1250., 860., |workspace, _, _| {
+        let mut settings = workspace.settings().unwrap();
+        settings.delegation_chosen = false;
+        workspace.configure(settings).unwrap();
+    });
+    update(cx, &f, |view, window, cx| view.new_thread(window, cx));
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "chat-start-heading"),
+            "What are we working on?"
+        );
+        assert!(window.find("composer-box").visible());
+        let actions = window.find("chat-start-actions").bounds();
+        for id in ["start-attach", "start-new-document", "start-web"] {
+            let bounds = window.find(id).bounds();
+            assert!(bounds.top() >= actions.top() && bounds.bottom() <= actions.bottom());
+        }
+        assert!(window.find("delegation-pending").visible());
+        // The composer precedes the actions, below the greeting.
+        let heading = window.find("chat-start-heading").bounds();
+        let composer = window.find("composer-box").bounds();
+        assert!(heading.bottom() <= composer.top() && composer.bottom() <= actions.top());
+    });
+}
+
+/// Activity is a per-conversation disclosure: closed by default, it names
+/// the last recorded run with the provider, model and effort that run saved.
+#[gpui_kit::test]
+fn the_activity_disclosure_names_the_last_recorded_run(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |workspace, thread, _| {
+        record_run(
+            workspace,
+            thread,
+            RunState::Completed,
+            "Answered from 2 notes",
+        );
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("chat-activity-panel").is_none());
+    });
+    click(cx, &f, "chat-activity");
+    let (model, effort) = cx.read(|cx| {
+        let settings = &f.view.read(cx).settings;
+        (settings.model.clone(), settings.effort.clone())
+    });
+    on_window(cx, &f, |window, _| {
+        let last = label(window, "chat-last-work");
+        assert!(last.starts_with("Last reply: Completed"), "{last}");
+        assert!(
+            last.contains(&model) && last.contains(&format!("{effort} effort")),
+            "{last}"
+        );
+        assert!(last.ends_with("Answered from 2 notes"), "{last}");
+        assert!(window.find("chat-quiet").visible());
+    });
+    click(cx, &f, "chat-activity");
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("chat-activity-panel").is_none());
+    });
 }

@@ -9,7 +9,7 @@ use super::skills_view::SkillAction;
 use super::*;
 use gpui_kit::component::input::Textarea;
 use gpui_kit::component::{Icon, Sizable, Size};
-use gpui_kit::{EntityInputHandler, WeakEntity};
+use gpui_kit::{EntityInputHandler, Focusable, WeakEntity};
 
 /// What BRN can use for the current conversation, as its context chip
 /// shows it. Built from the same records the run's scope check reads; it
@@ -191,6 +191,9 @@ impl ThreadsUi {
         let this = cx.entity().downgrade();
         let scope = self.context_scope();
         let announced = format!("Context: {}", scope.label);
+        // Beside a document the chip keeps its icon and announced name; its
+        // menu still lists the whole scope.
+        let narrow = self.chat_narrow;
         button("composer-context")
             .ghost()
             .compact()
@@ -202,7 +205,9 @@ impl ThreadsUi {
             .dropdown_caret(true)
             .accessibility_label(announced.clone())
             .tooltip(format!("{announced} · what BRN can use here"))
-            .child(div().min_w_0().truncate().child(scope.label.clone()))
+            .when(!narrow, |chip| {
+                chip.child(div().min_w_0().truncate().child(scope.label.clone()))
+            })
             .accessible_dropdown_menu(move |mut menu, _, _| {
                 menu = menu.label("BRN can use");
                 for line in &scope.lines {
@@ -398,7 +403,7 @@ impl ThreadsUi {
                     .h(components::tokens::COMPACT_CONTROL)
                     .flex_shrink(1.)
                     .min_w_0()
-                    .max_w(px(160.))
+                    .max_w(px(140.))
                     .dropdown_caret(true)
                     .accessibility_label(format!("Model {model}, effort {effort}"))
                     .tooltip(
@@ -556,8 +561,8 @@ impl ThreadsUi {
                 div()
                     .id("composer-row")
                     .flex()
-                    .flex_wrap()
                     .items_center()
+                    .min_w_0()
                     .gap_1()
                     .child(self.plus_menu(cx))
                     .child(self.context_chip(cx))
@@ -577,6 +582,20 @@ impl ThreadsUi {
             )
             .capture_key_down(
                 cx.listener(|this, event: &gpui_kit::KeyDownEvent, window, cx| {
+                    // Plain ↵ submits here, before the editor sees it, so
+                    // the field never gains the newline ↵ would insert.
+                    let modifiers = &event.keystroke.modifiers;
+                    if event.keystroke.key == "enter"
+                        && !modifiers.shift
+                        && !modifiers.platform
+                        && !modifiers.control
+                        && !modifiers.alt
+                        && this.composer.focus_handle(cx).is_focused(window)
+                    {
+                        cx.stop_propagation();
+                        this.composer_enter(false, false, window, cx);
+                        return;
+                    }
                     if event.keystroke.key == "v"
                         && event.keystroke.modifiers.platform
                         && let Some(item) = cx.read_from_clipboard()

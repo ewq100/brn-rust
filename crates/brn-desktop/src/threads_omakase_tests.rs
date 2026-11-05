@@ -576,7 +576,9 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
         );
         assert!(view.queue_state().paused);
     });
-    click(cx, &f, "resolve-thread");
+    // Archive is in the conversation's ⋯ menu.
+    click(cx, &f, "chat-menu");
+    choose(cx, &f, "Archive");
     cx.read(|cx| {
         assert!(
             f.view
