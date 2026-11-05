@@ -1,33 +1,33 @@
 # Development overview
 
-**Goal:** Reliable bounded wiki-maintenance experiments using retained native AgentBench evidence.
-**Owner attention:** Owner approved PR246 integration. Required exact-head CI and resulting-main verification in progress; no new live experiment budget.
+**Goal:** Complete Windows CI compatibility and merge through the normal checked PR path.
+**Owner attention:** The owner authorized continuing through fixes and normal merge. PR246 advanced main; the integration lead is reconciling its documentation routing without changing benchmark results or granting live experiment budget.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
 Ready eligibility is a conservative state/admission display derived from reported prerequisites and resource waits; actual job and quota availability must still be rechecked.
 
-Task details and full history: [selected work record](active/agentbench/bounded-record.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.
+Task details and full history: [selected work record](active/windows-ci-portability/record.json). Inspect one validated task with `python3 scripts/render-work-overview.py --record PATH_TO_SELECTED_RECORD --task TASK_ID`, replacing PATH_TO_SELECTED_RECORD with the linked selected record path and TASK_ID with an ID shown below. For older IDs, search the linked record by title or ID.
 
 ## Working on
 
-### Harden AgentBench and prepare the first wiki experiment
+### Qualify and integrate Windows compatibility
 
-Task ID: `bounded-agentbench`
-Owner: Sol 6.1 benchmark lead · State: **active** · Last observed: 2026-11-04T14:48:33.108712+00:00
-Activity: Owner approved CI-gated merge; PR246 marked ready. Current run41850510042 has documentation/tooling passed and core/native jobs running or queued. Final authorization-record head must pass its own checks.
-Next: Verify final-head documentation/tooling and five supported platform gates, handle failures, merge normally with expected-head binding, then verify resulting-main CI.
+Task ID: `windows-ci`
+Owner: Windows compatibility lead · State: **active** · Last observed: 2026-11-05T11:54:06.903957+02:00
+Activity: Reviewed currentmain e749a83e integration is ready:3documentation routing conflicts resolved; Rust/native/workflow inputs exactly match Windows-qualified6c6f9d40 and PR246 benchmark/evidence exactly match currentmain. Local334tooling tests(12skips),88benchmark protocol tests(11native/configuration skips),overview and links passed.
+Next: Publish the reviewed normalmerge of currentmain to PR245, require newhead normalPR checks, retain prior3Windows results for byte-identical Rust/native/workflow inputs, then normalmerge and resultingmain verification. Existingfollow-up stays paused while integrationlead owns active work; update that same task if infrastructure waiting requires handoff.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** passed: all3 independent-review findings corrected; final review no substantiated remaining defects (Sol9.0/10)
-- **checks:** passed: native88 (1 optional Inspect skip), tooling334 (11 opt-in skips), six-case/two-arm and two-world native offline, baseline byte identity, markdown/diff/overview; earlier failures preserved.
-- **integration:** Owner authorized normal merge after required exact-head CI. Main protection/rules API currently reports none; documented gates remain mandatory. No bypass, merge or release claimed.
-- **native:** Headless checked seeding/restore/Undo and native BM25 scope retrieval observed; real reader answer quality, dense engine and desktop unverified.
-- **owner acceptance:** Owner approved PR246 for CI-gated integration; live semantic qualification, unseen evaluation and native UI acceptance remain separate.
+- **implementation:** Independent stagedmerge review found no actionable issue. PR246 benchmark/source/evidence exactly preserved; Rust crates/manifests/lockfile/agent/workflow/attributes unchanged from reviewedWindows-qualified6c6f9d40.
+- **checks:** Local334tooling(12skips) and88benchmark protocol(11skips) tests passed; overview/links passed. Newhead normalPR checks required. PriorWindows3 success on6c6f9d40 retained only for verified identical Rust/native/workflow inputs; no newhead native UI or parity claim.
+- **integration:** Not merged. Existing hourlyfollow-up is paused and pins oldhead/base; reconcile and review currentmain locally before updating that same follow-up. No duplicate watcher.
+- **native:** Windows native UI job passed on7c01e10d and Linux/Mac supported jobs passed onf3fd36f8; no new real UI interaction or feature parity claim.
+- **owner acceptance:** No native interaction or feature parity claim; secure credentials, exclusive model installation and owner-only token-output files remain explicitly unavailable on Windows.
 
 </details>
 
@@ -43,4 +43,4 @@ None recorded.
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-11-04T14:48:33.108712+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-05T11:54:06.903957+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.

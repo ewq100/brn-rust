@@ -39,8 +39,10 @@ pub(super) fn script() -> rig::test_utils::SequencedHttpClient {
     ])
 }
 
-/// A synthetic Codex auth file, as `codex_client` accepts it.
+/// Synthetic selected-account bytes. Only Unix authentication consumes these;
+/// other platforms may use the file for tests that refuse before authentication.
 pub(super) fn codex_file(root: &tempfile::TempDir) -> PathBuf {
+    #[cfg(unix)]
     use std::os::unix::fs::PermissionsExt;
     let file = root.path().join("auth.json");
     std::fs::write(
@@ -48,11 +50,13 @@ pub(super) fn codex_file(root: &tempfile::TempDir) -> PathBuf {
         r#"{"auth_mode":"chatgpt","tokens":{"access_token":"synthetic-not-a-credential","account_id":"synthetic"}}"#,
     )
     .unwrap();
+    #[cfg(unix)]
     std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
     file
 }
 
 /// A synthetic OAuth cache in a fresh credentials folder.
+#[cfg(unix)]
 fn credentials_dir(root: &tempfile::TempDir) -> PathBuf {
     use base64::Engine;
     use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
@@ -103,6 +107,7 @@ pub(super) fn configure(request: &ThreadRunRequest, provider: &str) {
         .unwrap();
 }
 
+#[cfg(unix)]
 enum Route {
     CodexFile,
     Credentials,
@@ -111,6 +116,7 @@ enum Route {
 /// A three-turn run through the production path: `prepare_run` chooses the
 /// key, `provider_client` builds the client over the mock transport, and
 /// `run_model` sends the requests.
+#[cfg(unix)]
 async fn production_run(
     route: Route,
     trace: TraceLevel,
@@ -164,6 +170,7 @@ pub(super) fn body(request: &rig::test_utils::CapturedHttpRequest) -> Value {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn codex_runs_pin_one_session_and_an_append_only_prefix_on_either_credential_route() {
     for route in [Route::CodexFile, Route::Credentials] {
         let (thread, requests, _) = production_run(route, TraceLevel::Off).await;
@@ -192,6 +199,7 @@ async fn codex_runs_pin_one_session_and_an_append_only_prefix_on_either_credenti
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn different_chats_get_different_session_ids() {
     let (a, first, _) = production_run(Route::CodexFile, TraceLevel::Off).await;
     let (b, second, _) = production_run(Route::CodexFile, TraceLevel::Off).await;
@@ -274,6 +282,7 @@ async fn copilot_runs_carry_no_cache_key_in_scope_or_body() {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn trace_records_each_turns_cached_input() {
     let (_thread, _requests, result) = production_run(Route::CodexFile, TraceLevel::Summary).await;
     let trace = result.trace.unwrap();
@@ -295,12 +304,14 @@ async fn trace_records_each_turns_cached_input() {
 }
 
 /// A Codex-file run over `replies`, whatever its terminal.
+#[cfg(unix)]
 async fn scripted_run(
     replies: Vec<rig::test_utils::MockHttpResponse>,
 ) -> (Vec<rig::test_utils::CapturedHttpRequest>, ThreadResult) {
     scripted_run_at(replies, TraceLevel::Summary).await
 }
 
+#[cfg(unix)]
 async fn scripted_run_at(
     replies: Vec<rig::test_utils::MockHttpResponse>,
     trace: TraceLevel,
@@ -322,10 +333,12 @@ async fn scripted_run_at(
     (http.requests(), result)
 }
 
+#[cfg(unix)]
 fn streamed(body: String) -> rig::test_utils::MockHttpResponse {
     rig::test_utils::MockHttpResponse::success_typed(body, "text/event-stream")
 }
 
+#[cfg(unix)]
 fn unavailable() -> rig::test_utils::MockHttpResponse {
     rig::test_utils::MockHttpResponse::error(
         rig::http_client::StatusCode::SERVICE_UNAVAILABLE,
@@ -334,6 +347,7 @@ fn unavailable() -> rig::test_utils::MockHttpResponse {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn a_transient_status_mid_run_is_resent_identically_once_and_traced() {
     let (requests, result) = scripted_run(vec![
         streamed(tool_turn(1, "r1")),
@@ -366,6 +380,7 @@ async fn a_transient_status_mid_run_is_resent_identically_once_and_traced() {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn a_repeated_transient_failure_ends_the_run_with_its_safe_detail_in_the_trace() {
     let (requests, result) = scripted_run(vec![
         streamed(tool_turn(1, "r1")),
@@ -395,6 +410,7 @@ async fn a_repeated_transient_failure_ends_the_run_with_its_safe_detail_in_the_t
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn a_failed_turn_after_the_reply_started_is_not_resent() {
     let failed = sse(&[
         json!({"type":"response.failed","sequence_number":1,"response":{
@@ -419,6 +435,7 @@ async fn a_failed_turn_after_the_reply_started_is_not_resent() {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn re_sends_are_reported_without_a_trace() {
     let (requests, result) = scripted_run_at(
         vec![

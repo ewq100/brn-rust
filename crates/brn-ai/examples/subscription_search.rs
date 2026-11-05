@@ -2,8 +2,10 @@
 //! No default query, retries, workspace content, or account override.
 use brn_ai::{Provider, ReasoningEffort, Selection, subscription_search};
 use serde_json::json;
+#[cfg(unix)]
+use std::fs::OpenOptions;
 use std::{
-    fs::{File, OpenOptions},
+    fs::File,
     io::{self, Write},
     path::Path,
     process::ExitCode,

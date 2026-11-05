@@ -239,12 +239,12 @@ mod tests {
         assert_eq!(seen.lock().unwrap().len(), usize::from(RUN_RESENDS));
     }
 
-    fn real_transport() -> (DynHttpClient, Arc<Mutex<Vec<AiFailureDetail>>>) {
+    fn real_transport(timeout: Duration) -> (DynHttpClient, Arc<Mutex<Vec<AiFailureDetail>>>) {
         let seen = Arc::new(Mutex::new(Vec::new()));
         let log = seen.clone();
         let client = rig::rig_reqwest::reqwest::Client::builder()
             .no_proxy()
-            .timeout(Duration::from_millis(300))
+            .timeout(timeout)
             .build()
             .unwrap();
         let wrapped = ResendOnce::wrap(
@@ -289,13 +289,17 @@ mod tests {
             let unused = std::net::TcpListener::bind("127.0.0.1:0").unwrap();
             unused.local_addr().unwrap().port()
         };
-        let (wrapped, seen) = real_transport();
+        // Refusal must finish before the total request deadline. Windows may
+        // report a closed loopback port more slowly than the 300 ms budget used
+        // below to provoke a read timeout. A total timeout carries no proof
+        // that the request was never sent and must remain non-resendable.
+        let (wrapped, seen) = real_transport(Duration::from_secs(10));
         let error = wrapped
             .send_streaming(to(format!("http://127.0.0.1:{port}/responses")))
             .await
             .err()
             .unwrap();
-        assert!(resendable(&error));
+        assert!(resendable(&error), "expected a connect failure: {error:?}");
         let seen = seen.lock().unwrap();
         assert_eq!(seen.len(), 1);
         assert_eq!(
@@ -310,7 +314,7 @@ mod tests {
             read_request(&mut stream);
             drop(stream);
         });
-        let (wrapped, seen) = real_transport();
+        let (wrapped, seen) = real_transport(Duration::from_millis(300));
         let error = wrapped.send_streaming(to(uri)).await.err().unwrap();
         assert!(!resendable(&error));
         assert!(seen.lock().unwrap().is_empty());
@@ -324,7 +328,7 @@ mod tests {
             std::thread::sleep(Duration::from_secs(2));
             drop(stream);
         });
-        let (wrapped, seen) = real_transport();
+        let (wrapped, seen) = real_transport(Duration::from_millis(300));
         let error = wrapped.send_streaming(to(uri)).await.err().unwrap();
         assert!(!resendable(&error));
         assert!(seen.lock().unwrap().is_empty());

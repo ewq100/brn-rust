@@ -38,6 +38,7 @@ impl Drop for OwnedChild {
 #[test]
 fn rejected_tool_arguments_and_partial_text_never_reach_process_stderr() {
     let parent = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    #[cfg(unix)]
     std::fs::set_permissions(parent.path(), std::fs::Permissions::from_mode(0o700)).unwrap();
     let nonce = parent.path().file_name().unwrap().to_str().unwrap();
     let name = format!("r4_private_unknown_{nonce}");

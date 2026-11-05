@@ -58,6 +58,7 @@ pub(crate) fn check() -> Result<(), CliError> {
 
 /// Machine mode only: the first SIGTERM is observed; the handler resets, so a
 /// second SIGTERM kills the process.
+#[cfg(unix)]
 pub(crate) fn install_sigterm() {
     // SAFETY: the handler only touches lock-free atomics; the struct is zeroed
     // and then filled before the call.
@@ -67,6 +68,16 @@ pub(crate) fn install_sigterm() {
         action.sa_flags = libc::SA_RESETHAND | libc::SA_RESTART;
         libc::sigemptyset(&mut action.sa_mask);
         libc::sigaction(libc::SIGTERM, &action, std::ptr::null_mut());
+    }
+}
+
+/// Windows exposes SIGTERM through the C runtime (for `raise`), rather than an
+/// OS termination event. Its `signal` handler resets to SIG_DFL before dispatch.
+#[cfg(not(unix))]
+pub(crate) fn install_sigterm() {
+    // SAFETY: the callback has the required C signature and touches only atomics.
+    unsafe {
+        libc::signal(libc::SIGTERM, on_sigterm as *const () as libc::sighandler_t);
     }
 }
 
@@ -182,4 +193,45 @@ pub(crate) fn start(watch: Watch) {
             }
         }
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn sigterm_cancels_and_resets_in_an_isolated_process() {
+        let output = std::process::Command::new(std::env::current_exe().unwrap())
+            .args([
+                "--exact",
+                "stop::tests::sigterm_child",
+                "--ignored",
+                "--nocapture",
+            ])
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "isolated signal witness failed: {}{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr)
+        );
+    }
+
+    #[test]
+    #[ignore = "isolated subprocess witness only"]
+    fn sigterm_child() {
+        install_sigterm();
+        // SAFETY: dispatch to our installed handler in this isolated test process.
+        assert_eq!(unsafe { libc::raise(libc::SIGTERM) }, 0);
+        assert!(CANCEL.load(SeqCst));
+        assert_eq!(reason(), Some("sigterm"));
+        assert!(check().is_err());
+        assert_eq!(ARMED.load(SeqCst), SIGTERM);
+        // SAFETY: restore the default, observing the already-reset disposition.
+        assert_eq!(
+            unsafe { libc::signal(libc::SIGTERM, libc::SIG_DFL) },
+            libc::SIG_DFL
+        );
+    }
 }

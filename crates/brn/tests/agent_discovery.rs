@@ -50,6 +50,8 @@ fn every_envelope_has_contract_3_page_stop_and_authority() {
 fn enum_values_are_refused_before_the_workspace_opens() {
     let root = Root::new();
     let data = root.join("absent");
+    let source = root.join("doc.md").to_str().unwrap().to_owned();
+    let token = root.join("edit.token").to_str().unwrap().to_owned();
     let cases: &[(&[&str], &str, &str)] = &[
         (
             &[
@@ -89,7 +91,7 @@ fn enum_values_are_refused_before_the_workspace_opens() {
             "--limit must be an integer",
         ),
         (
-            &["intake", "--source", "/abs/doc.md", "--intent", "summary"],
+            &["intake", "--source", source.as_str(), "--intent", "summary"],
             "intent",
             "Choose useful, full, or chat with --thread",
         ),
@@ -132,7 +134,7 @@ fn enum_values_are_refused_before_the_workspace_opens() {
                 "--generation",
                 "-1",
                 "--token-file",
-                "/abs/edit.token",
+                token.as_str(),
             ],
             "generation",
             "--generation must be an integer",

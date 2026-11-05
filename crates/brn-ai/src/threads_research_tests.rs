@@ -172,6 +172,7 @@ async fn helper_dispatch_keeps_append_only_history_under_the_shared_guard() {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn helper_provider_context_limit_is_budget_with_safe_diagnostics_and_no_fallback() {
     let (_root, scope, _) = codex_helper_scope(TraceLevel::Summary);
     let http =
@@ -1160,6 +1161,7 @@ async fn helper_traces_nest_and_keep_text_out_below_full() {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn codex_helpers_use_their_own_cache_key_and_only_the_owner_model() {
     let (root, request, plan) = setup();
     let file = root.path().join("auth.json");
@@ -1220,6 +1222,7 @@ async fn codex_helpers_use_their_own_cache_key_and_only_the_owner_model() {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn copilot_helpers_route_through_the_copilot_client() {
     use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
     let (root, request, plan) = setup();
@@ -1352,6 +1355,7 @@ fn findings_are_bounded() {
     assert!(!parse_valid("submit_findings", &f));
 }
 
+#[cfg(unix)]
 fn codex_helper_scope(trace: TraceLevel) -> (tempfile::TempDir, Arc<Scope>, Record) {
     let (root, mut request, plan) = setup();
     request.trace = trace;
@@ -1372,6 +1376,7 @@ fn codex_helper_scope(trace: TraceLevel) -> (tempfile::TempDir, Arc<Scope>, Reco
     (root, scope, plan)
 }
 
+#[cfg(unix)]
 fn unavailable_503() -> rig::test_utils::MockHttpResponse {
     rig::test_utils::MockHttpResponse::error(
         rig::http_client::StatusCode::SERVICE_UNAVAILABLE,
@@ -1389,6 +1394,7 @@ fn helper_traces(scope: &Scope) -> Vec<trace::HelperTrace> {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn helper_resends_are_recorded_in_the_helper_trace() {
     let (_root, scope, plan) = codex_helper_scope(TraceLevel::Summary);
     let report = findings(vec![citation(
@@ -1438,6 +1444,7 @@ async fn helper_resends_are_recorded_in_the_helper_trace() {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn a_helper_provider_outage_is_unavailable_with_status_but_no_provider_text() {
     let (_root, scope, _) = codex_helper_scope(TraceLevel::Summary);
     let http = rig::test_utils::SequencedHttpClient::new([
@@ -2149,6 +2156,7 @@ async fn a_helper_sub_run_holds_its_parent_lease_and_saves_no_run() {
 }
 
 #[tokio::test]
+#[cfg(unix)]
 async fn copilot_helper_provider_overflow_is_budget_without_unavailability_or_fallback() {
     use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
     let (root, mut request, _plan) = setup();
@@ -2306,5 +2314,41 @@ async fn agentbench_authored_reports_use_native_read_ledger_and_validator() {
         assert!(!out.to_string().contains("SYNTHETIC-PRIVATE-LARCH-29"));
         // Exact quotes establish provenance, not entailment or parent judgment.
         // No assertion here claims H08/H10/H11/H12 was correctly assessed by a model.
+    }
+}
+
+#[cfg(not(unix))]
+#[tokio::test]
+async fn unsupported_helper_credentials_are_unavailable_without_transport_or_storage_changes() {
+    for provider in ["codex", "copilot"] {
+        let (root, request, _) = setup();
+        let dir = root.path().join("synthetic-credentials");
+        std::fs::create_dir(&dir).unwrap();
+        let file = dir.join("auth.json");
+        let bytes = br#"{"tokens":{"access_token":"SYNTHETIC_SECRET"}}"#;
+        std::fs::write(&file, bytes).unwrap();
+        let mut helper = luna();
+        helper.provider = provider.into();
+        if provider == "codex" {
+            helper.auth_file = Some(file.to_str().unwrap().into());
+        } else {
+            helper.credentials_dir = Some(dir.to_str().unwrap().into());
+        }
+        set_helper(&request, Some(helper));
+        let (scope, _) = begin(&request).unwrap();
+        let http = rig::test_utils::SequencedHttpClient::new([]);
+        scope
+            .helper
+            .as_ref()
+            .unwrap()
+            .set_source(HelperSource::Provider(Some(DynHttpClient::new(
+                http.clone(),
+            ))));
+        let out = ask(&scope, vec![question("Read the plan")]).await;
+        assert_eq!(out["reports"][0]["outcome"], "unavailable", "{out}");
+        assert!(http.requests().is_empty());
+        assert_eq!(std::fs::read(&file).unwrap(), bytes);
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 1);
+        assert!(!out.to_string().contains("SYNTHETIC_SECRET"));
     }
 }

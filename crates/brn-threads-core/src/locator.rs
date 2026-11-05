@@ -171,6 +171,7 @@ mod tests {
         assert!(same_locator("synthetic://mail", "synthetic://mail"));
     }
 
+    #[cfg(unix)]
     fn record(id: &str, data: RecordData) -> Record {
         Record {
             id: id.into(),
@@ -180,6 +181,7 @@ mod tests {
         }
     }
 
+    #[cfg(unix)]
     fn source(id: &str, locator: &str) -> Record {
         record(
             id,

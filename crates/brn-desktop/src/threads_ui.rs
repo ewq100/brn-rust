@@ -260,6 +260,7 @@ use brn_writing_ui::markdown::safe_markdown;
 
 // Presentation is shared by every tile. Toolkit controls keep their focus,
 // selected and disabled behavior; prose retains the normal system font.
+#[cfg(unix)]
 fn default_copilot_credentials_dir() -> std::io::Result<PathBuf> {
     use std::os::unix::fs::DirBuilderExt as _;
     let home = std::env::var_os("HOME")
@@ -272,6 +273,27 @@ fn default_copilot_credentials_dir() -> std::io::Result<PathBuf> {
         .mode(0o700)
         .create(&parent)?;
     Ok(parent.join("copilot"))
+}
+
+#[cfg(not(unix))]
+fn default_copilot_credentials_dir() -> std::io::Result<PathBuf> {
+    Err(std::io::Error::new(
+        std::io::ErrorKind::Unsupported,
+        "Secure credential storage is unavailable on this platform.",
+    ))
+}
+
+#[cfg(all(test, not(unix)))]
+mod credential_platform_tests {
+    #[test]
+    fn default_credentials_report_unsupported() {
+        let error = super::default_copilot_credentials_dir().unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::Unsupported);
+        assert_eq!(
+            error.to_string(),
+            "Secure credential storage is unavailable on this platform."
+        );
+    }
 }
 /// The workspace header and the sidebar top share this height; the macOS
 /// traffic lights centre in it.

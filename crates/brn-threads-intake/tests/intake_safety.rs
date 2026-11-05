@@ -73,4 +73,16 @@ fn source_file_read_is_bounded_and_cancelled_before_conversion() {
         brn_threads_intake::read_input_file(root.path(), 6, &running),
         Err(brn_threads_intake::ConversionError::Budget)
     );
+    assert_eq!(
+        brn_threads_intake::read_input_file(&root.path().join("missing.txt"), 6, &running),
+        Err(brn_threads_intake::ConversionError::Io)
+    );
+    assert_eq!(
+        brn_threads_intake::read_input_file(
+            root.path(),
+            6,
+            &std::sync::atomic::AtomicBool::new(true)
+        ),
+        Err(brn_threads_intake::ConversionError::Cancelled)
+    );
 }
