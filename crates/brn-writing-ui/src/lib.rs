@@ -25,4 +25,10 @@ pub mod markdown;
 pub mod components;
 
 #[cfg(feature = "native-ui")]
+pub mod outline;
+
+#[cfg(feature = "native-ui")]
+pub mod canvas;
+
+#[cfg(feature = "native-ui")]
 pub mod theme;

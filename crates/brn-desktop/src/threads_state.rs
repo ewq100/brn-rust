@@ -589,7 +589,6 @@ pub(super) fn linked(records: &[Record], id: &str) -> Vec<String> {
     found
 }
 #[cfg(test)]
-pub(super) use brn_writing_ui::layout::sections;
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1333,16 +1332,6 @@ mod tests {
         };
         assert_eq!(comment_location(&comment, 2, "x õun"), Some(2..6));
         assert_eq!(comment_location(&comment, 3, "x õun"), None);
-    }
-    #[test]
-    fn headings_in_fences_do_not_become_sections() {
-        assert_eq!(
-            sections("# Üks\n```\n# fake\n```\n## Kaks\n")
-                .iter()
-                .map(|(s, _)| s.as_str())
-                .collect::<Vec<_>>(),
-            vec!["Üks", "Kaks"]
-        );
     }
     #[test]
     fn stale_and_deferred_changes_have_distinct_non_success_copy() {

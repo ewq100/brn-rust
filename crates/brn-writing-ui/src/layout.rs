@@ -150,39 +150,6 @@ pub fn unlocated_reason(comment: &Comment, version: u64) -> Unlocated {
 pub fn comment_location(comment: &Comment, version: u64, text: &str) -> Option<Range<usize>> {
     brn_threads_app::exact_writing_range(comment, version, text).map(|(start, end)| start..end)
 }
-/// Navigation only, never a second source-of-truth representation of Markdown.
-pub fn sections(text: &str) -> Vec<(String, Range<usize>)> {
-    let mut offset = 0;
-    let mut fence: Option<(char, usize)> = None;
-    let mut out = Vec::new();
-    for line in text.split_inclusive('\n') {
-        let trimmed = line.trim_start();
-        let marker = trimmed.chars().next().unwrap_or(' ');
-        let run = trimmed.chars().take_while(|c| *c == marker).count();
-        if (marker == '`' || marker == '~') && run >= 3 {
-            if fence.is_some_and(|(c, n)| c == marker && run >= n) {
-                fence = None;
-            } else if fence.is_none() {
-                fence = Some((marker, run));
-            }
-        } else if fence.is_none() {
-            let hashes = line.chars().take_while(|c| *c == '#').count();
-            if (1..=6).contains(&hashes) && line.as_bytes().get(hashes) == Some(&b' ') {
-                let title = line[hashes + 1..]
-                    .trim()
-                    .trim_end_matches('#')
-                    .trim()
-                    .to_owned();
-                if !title.is_empty() {
-                    out.push((title, offset + hashes + 1..offset + line.trim_end().len()));
-                }
-            }
-        }
-        offset += line.len();
-    }
-    out
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

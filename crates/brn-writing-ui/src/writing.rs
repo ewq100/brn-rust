@@ -42,11 +42,9 @@ impl<T: 'static> WritingView<'_, T> {
             24.
         };
         let format = text("Format", UI_TEXT) + 41.;
-        let edit = text("Edit note", UI_TEXT) + 17.;
-        let connections = text("Connections", UI_TEXT) + 17.;
         let format_menu = 50.
             + 8.
-            + text("Write", UI_TEXT)
+            + text("Edit", UI_TEXT)
             + 16.
             + text("Read", UI_TEXT)
             + 17.
@@ -54,13 +52,11 @@ impl<T: 'static> WritingView<'_, T> {
             + text("Outline", UI_TEXT)
             + 41.
             + chip
-            + toggle
-            + edit
-            + connections;
+            + toggle;
         layout::NoteNeeds {
             full: format_menu - format + 136.,
             format_menu,
-            compact: format_menu - edit - connections - 8.,
+            compact: format_menu - 1.,
         }
     }
 
@@ -99,29 +95,6 @@ impl<T: 'static> WritingView<'_, T> {
             .into_any_element(),
         );
         controls.extend(self.comments_toggle(cx));
-        if !fit.actions_in_menu() {
-            let blocked = self.edit_note_blocked();
-            controls.push(
-                pill("edit-note-context", "Edit note")
-                    .disabled(blocked.is_some())
-                    .accessibility_label(match blocked {
-                        Some(reason) => format!("Edit note, unavailable: {reason}"),
-                        None => "Edit note".into(),
-                    })
-                    .tooltip(match blocked {
-                        Some(reason) => format!("Edit note is unavailable: {reason}"),
-                        None => "Give BRN an instruction for this saved note".into(),
-                    })
-                    .on_click(self.on(cx, WritingRequest::EditNote))
-                    .into_any_element(),
-            );
-            controls.push(
-                pill("note-connections", "Connections")
-                    .tooltip("Linked notes and sources of this note")
-                    .on_click(self.on(cx, WritingRequest::Connections))
-                    .into_any_element(),
-            );
-        }
         controls
     }
 
@@ -145,8 +118,9 @@ impl<T: 'static> WritingView<'_, T> {
         let busy = self.worker.is_some();
         let imported = note.import.is_some();
         let protected = note.protected;
-        // A narrow Note keeps Edit note and Connections here instead.
-        let collapsed = self.note_fit.actions_in_menu();
+        // Edit note and Connections live here, beside the other
+        // document-level actions; the toolbar keeps only reading/writing.
+        let collapsed = true;
         let edit_blocked = self.edit_note_blocked();
         Some(Box::new(move |menu: PopupMenu| {
             let mut menu = menu
@@ -246,6 +220,15 @@ impl<T: 'static> WritingView<'_, T> {
                     dirty,
                     false,
                     WritingRequest::ToggleProtection,
+                    dispatch,
+                ))
+                .item(item(
+                    &this,
+                    "Document history",
+                    None,
+                    false,
+                    false,
+                    WritingRequest::History,
                     dispatch,
                 ))
                 .item(item(
@@ -522,11 +505,17 @@ impl<T: 'static> WritingView<'_, T> {
             content = content.child(strip.test_support());
         }
         let editor = if self.note.is_reading() {
-            crate::document::readable_document(&self.note_read_view, self.note_assets())
-                .into_any_element()
+            crate::document::readable_document(
+                &self.note_read_view,
+                self.note_assets(),
+                Some(&self.read_outline),
+            )
+            .into_any_element()
         } else {
+            // A calm writing canvas: the editor draws no box of its own.
             prose_editor(&self.note_editor)
                 .h_full()
+                .appearance(false)
                 .readonly(blocked)
                 .aria_label("Note text")
                 .context_menu(move |menu, _, _| {
@@ -549,7 +538,9 @@ impl<T: 'static> WritingView<'_, T> {
                 })
                 .into_any_element()
         };
-        let centered = self.centered;
+        let _ = self.centered;
+        let outline = self.outline_showing();
+        let outline_docked = outline && self.outline_docks();
         // The text keeps a few lines however many banners a short Note shows,
         // and 120 px beside an open comments section. The section asks for
         // its floor after the reply below gives way, and gives way first,
@@ -574,27 +565,48 @@ impl<T: 'static> WritingView<'_, T> {
             .flex_basis(if stacked { text_prefer } else { px(0.) })
             .flex_shrink(1.)
             .min_h(text_floor)
+            .when(outline_docked, |body| body.child(self.outline_region(cx)));
+        // The temporary contents view takes the document's place; the
+        // document (and its scroll position) stays mounted underneath it.
+        let text = div()
+            .id("note-body")
+            .flex()
+            .flex_1()
+            .min_w_0()
+            .min_h_0()
+            .justify_center()
             .child(
+                reading_column()
+                    .id("note-column")
+                    .child(editor)
+                    .test_support(),
+            )
+            .on_mouse_up(
+                gpui_kit::MouseButton::Left,
+                self.on(cx, WritingRequest::TrackSelection),
+            )
+            .on_key_up(self.on(cx, WritingRequest::TrackSelection))
+            .test_support();
+        body = if outline && !outline_docked {
+            body.child(
                 div()
-                    .id("note-body")
+                    .relative()
                     .flex()
                     .flex_1()
                     .min_w_0()
                     .min_h_0()
-                    .when(centered, |body| body.justify_center())
+                    .child(text)
                     .child(
-                        reading_column()
-                            .id("note-column")
-                            .child(editor)
-                            .test_support(),
-                    )
-                    .on_mouse_up(
-                        gpui_kit::MouseButton::Left,
-                        self.on(cx, WritingRequest::TrackSelection),
-                    )
-                    .on_key_up(self.on(cx, WritingRequest::TrackSelection))
-                    .test_support(),
-            );
+                        div()
+                            .absolute()
+                            .inset_0()
+                            .flex()
+                            .child(self.outline_region(cx)),
+                    ),
+            )
+        } else {
+            body.child(text)
+        };
         if self.comments_beside() {
             body = body.child(self.margin_column(cx));
         }
@@ -1635,7 +1647,13 @@ impl<T: 'static> WritingView<'_, T> {
             }
             saved_inputs = Some(disclosure.test_support());
         }
-        bar = bar.child(self.overall_feedback());
+        // Overall feedback is for Rewrite only: it shows on demand, and
+        // stays while it holds text so nothing typed is hidden.
+        let feedback_held = !self.general_feedback.read(cx).value().trim().is_empty();
+        let feedback_shown = self.feedback_open || feedback_held;
+        if feedback_shown {
+            bar = bar.child(self.overall_feedback());
+        }
         // The first matching row picks the one filled primary; controls of
         // lower matching rows still render once, outline or ghost.
         let busy = self.worker.is_some();
@@ -1849,6 +1867,31 @@ impl<T: 'static> WritingView<'_, T> {
             } else {
                 None
             };
+            secondary.push(
+                pill(
+                    "toggle-feedback",
+                    if feedback_held {
+                        "Feedback added"
+                    } else {
+                        "Feedback"
+                    },
+                )
+                .icon(IconName::MessageSquare)
+                .selected(feedback_shown)
+                .disabled(feedback_held && feedback_shown)
+                .accessibility_label(if feedback_shown {
+                    "Overall feedback for Rewrite, shown"
+                } else {
+                    "Overall feedback for Rewrite"
+                })
+                .tooltip(if feedback_held {
+                    "Feedback for the whole note is included in the next Rewrite"
+                } else {
+                    "Add feedback for the whole note to the next Rewrite"
+                })
+                .on_click(self.on(cx, WritingRequest::ToggleFeedback))
+                .into_any_element(),
+            );
             if let Some(record) = latest_request {
                 let toggle = record.id.clone();
                 let retry = record.id.clone();
@@ -2523,7 +2566,7 @@ impl<T: 'static> WritingView<'_, T> {
                 .aria_label("Final proposed note text")
                 .into_any_element()
         } else if self.review.is_reading() {
-            crate::document::readable_document(&self.candidate_view, self.note_assets())
+            crate::document::readable_document(&self.candidate_view, self.note_assets(), None)
                 .into_any_element()
         } else {
             prose_editor(&self.diff_editor)
@@ -2532,7 +2575,6 @@ impl<T: 'static> WritingView<'_, T> {
                 .aria_label("Proposed changes")
                 .into_any_element()
         };
-        let centered = self.centered;
         // The review text, then comments when they're stacked, then the
         // footer that names exactly what Apply saves; it never folds and
         // never moves. The text asks for 120 px (plus the open section's
@@ -2560,7 +2602,7 @@ impl<T: 'static> WritingView<'_, T> {
                     .flex_1()
                     .min_w_0()
                     .h_full()
-                    .when(centered, |text| text.justify_center())
+                    .justify_center()
                     .child(reading_column().child(body)),
             );
         if self.comments_beside() {
@@ -2683,20 +2725,24 @@ fn text_width(window: &Window, text: &str, size: gpui_kit::Pixels) -> f32 {
     )
 }
 
-/// The widest line of note or review text; wider panels keep 24 px gutters
-/// and leave the rest as margin.
-pub const READING_MEASURE: f32 = 680.;
+/// The widest line of document or review text (spec §8: 680–760); wider
+/// regions keep the page inset and centre the column.
+pub const READING_MEASURE: f32 =
+    crate::theme::metrics::DOCUMENT_WIDTH - 2. * crate::theme::metrics::PAGE_INSET;
 
-/// The note and review text column: at most 680 px of text with 24 px
-/// gutters, filling a narrower panel. Long words and URLs wrap.
+/// The document and review text column: centred, at most
+/// `DOCUMENT_WIDTH` including its page inset, filling a narrower region.
+/// Long words and URLs wrap.
 fn reading_column() -> gpui_kit::Div {
+    use crate::theme::metrics;
     div()
         .flex_1()
         .min_w_0()
         .h_full()
-        .max_w(px(READING_MEASURE) + components::tokens::SPACE_6 * 2.)
-        .px(components::tokens::SPACE_6)
-        .py_2()
+        .max_w(px(metrics::DOCUMENT_WIDTH))
+        .px(px(metrics::PAGE_INSET))
+        .pt_4()
+        .pb_2()
 }
 
 /// A banner's secondary action: a 28 px outline button.

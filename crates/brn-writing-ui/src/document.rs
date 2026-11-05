@@ -1,8 +1,12 @@
 //! Concrete editor and formatted Read presentation over one Markdown buffer.
 use crate::native::*;
-use crate::{components, formatting, layout, theme::pal};
+use crate::{
+    components, formatting, layout,
+    theme::{metrics, pal},
+};
 use brn_threads_app::*;
 use gpui_kit::base::{Disableable, RangeHighlight, Selectable, TextView, TextViewState};
+use gpui_kit::component::button::ButtonVariants;
 use gpui_kit::component::menu::DropdownMenu;
 use gpui_kit::{Context, Entity, Image, Window, prelude::*, px, rgb};
 use std::{collections::BTreeMap, sync::Arc};
@@ -45,35 +49,91 @@ const FORMATS: [(&str, &str, IconName, formatting::Format, &str); 5] = [
     ),
 ];
 
-/// An Outline row reads like its heading, without Markdown emphasis.
-fn outline_label(title: &str) -> String {
-    short(
-        title
-            .strip_prefix("**")
-            .and_then(|value| value.strip_suffix("**"))
-            .unwrap_or(title),
-    )
-}
-
+/// A rendered document (note, proposal result) in the shared article styles
+/// (spec §10.1). `collector` records the headings of its parse for the
+/// outline when this view supplies one.
 pub fn readable_document(
     view: &Entity<TextViewState>,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
+    collector: Option<&crate::outline::HeadingCollector>,
 ) -> TextView {
+    let base = TextView::new(view)
+        .font_family(UI_FONT)
+        .text_size(px(metrics::TEXT_DOCUMENT))
+        .line_height(gpui_kit::relative(metrics::DOCUMENT_LINE_HEIGHT))
+        .w_full()
+        .h_full()
+        .scrollable(true);
+    let view = match collector {
+        Some(collector) => crate::markdown::observed_markdown(base, assets, collector),
+        None => crate::markdown::safe_markdown(base, assets),
+    };
+    view.style(document_style())
+        .code_block_actions(|block, _, _| copy_code_button(block.code()))
+}
+
+/// The article styles: H1–H6 28/22/18/16/16/16 medium at 1.3, 12 between
+/// paragraphs, 24 before and 8 after headings (the paragraph gap above a
+/// heading collapses into its 24), quiet quotes, readable code and tables
+/// whose wide content scrolls inside the table.
+pub fn document_style() -> gpui_kit::base::TextViewStyle {
+    use gpui_kit::{Overflow, StyleRefinement};
     let p = pal();
-    crate::markdown::markdown(view, assets)
-        .font_family("Georgia")
-        .text_base()
-        .style(
-            gpui_kit::base::TextViewStyle::default()
-                .with_foreground(rgb(p.ink).into())
-                .with_muted_foreground(rgb(p.muted).into())
-                .with_link(rgb(p.accent).into())
-                .with_border(rgb(p.border).into())
-                .with_selection(rgb(p.selection).into())
-                .with_code_background(rgb(p.alt).into())
-                .with_dark(p.dark)
-                .with_paragraph_gap(gpui_kit::rems(0.95)),
+    let mut table = StyleRefinement::default();
+    table.overflow.x = Some(Overflow::Scroll);
+    gpui_kit::base::TextViewStyle::default()
+        .with_foreground(rgb(p.ink).into())
+        .with_muted_foreground(rgb(p.muted).into())
+        .with_link(rgb(p.link).into())
+        .with_border(rgb(p.hairline).into())
+        .with_selection(rgb(p.selection).into())
+        .with_code_background(rgb(p.alt).into())
+        .with_dark(p.dark)
+        .with_paragraph_gap(gpui_kit::rems(
+            metrics::DOCUMENT_PARAGRAPH_GAP / metrics::TEXT_DOCUMENT,
+        ))
+        .with_heading(|level| {
+            let size = metrics::DOCUMENT_HEADINGS[usize::from(level.clamp(1, 6)) - 1];
+            StyleRefinement::default()
+                .text_size(px(size))
+                .font_weight(gpui_kit::FontWeight::MEDIUM)
+                .line_height(gpui_kit::relative(metrics::DOCUMENT_HEADING_LINE_HEIGHT))
+                .pt(px(
+                    metrics::DOCUMENT_HEADING_BEFORE - metrics::DOCUMENT_PARAGRAPH_GAP
+                ))
+                .pb(px(metrics::DOCUMENT_HEADING_AFTER))
+        })
+        .with_blockquote_style(StyleRefinement::default().border_color(rgb(p.hairline)))
+        .with_code_block(
+            StyleRefinement::default()
+                .font_family(MONO)
+                .text_size(px(metrics::TEXT_BODY))
+                .rounded(px(metrics::RADIUS_CONTROL)),
         )
+        .with_table(table)
+        .with_table_head(
+            StyleRefinement::default()
+                .font_weight(gpui_kit::FontWeight::SEMIBOLD)
+                .text_color(rgb(p.ink)),
+        )
+        .with_table_cell(StyleRefinement::default().px(px(10.)).py(px(6.)))
+}
+
+/// A code block's Copy: the block's exact code, keyboard reachable.
+fn copy_code_button(code: gpui_kit::SharedString) -> impl IntoElement {
+    use std::hash::{Hash, Hasher};
+    let mut hasher = std::hash::DefaultHasher::new();
+    code.hash(&mut hasher);
+    button(format!("copy-code-{:x}", hasher.finish()))
+        .label("Copy")
+        .compact()
+        .ghost()
+        .h(components::tokens::COMPACT_CONTROL)
+        .accessibility_label("Copy code")
+        .tooltip("Copy this code")
+        .on_click(move |_, _, cx| {
+            cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(code.to_string()));
+        })
 }
 
 /// Why formatting is unavailable while a kept edit blocks the text.
@@ -94,16 +154,16 @@ impl<T: 'static> WritingView<'_, T> {
             components::segmented(
                 "note-mode",
                 vec![
-                    button("note-write")
-                        .label("Write")
-                        .selected(!self.note.is_reading())
-                        .tooltip("Edit the Markdown text")
-                        .on_click(self.on(cx, WritingRequest::NoteReading(false))),
                     button("note-read")
                         .label("Read")
                         .selected(self.note.is_reading())
-                        .tooltip("Read the formatted note; select text to comment")
+                        .tooltip("Read the formatted document; select text to comment")
                         .on_click(self.on(cx, WritingRequest::NoteReading(true))),
+                    button("note-write")
+                        .label("Edit")
+                        .selected(!self.note.is_reading())
+                        .tooltip("Edit the Markdown text")
+                        .on_click(self.on(cx, WritingRequest::NoteReading(false))),
                 ],
             )
             .into_any_element(),
@@ -158,50 +218,9 @@ impl<T: 'static> WritingView<'_, T> {
                 }
             }
         }
-        // One Outline for Write and Read: the same headings and handler.
-        let outline: Vec<(String, std::ops::Range<usize>)> =
-            sections(self.note_editor.read(cx).value().as_ref())
-                .into_iter()
-                .map(|(title, range)| (outline_label(&title), range))
-                .collect();
-        let trigger = if fit.icons() {
-            components::icon_button("note-outline", IconName::TableOfContents, "Outline")
-        } else {
-            pill("note-outline", "Outline")
-                .dropdown_caret(true)
-                .tooltip("Jump to a heading")
-        };
-        controls.push(
-            trigger
-                .dropdown_menu(move |menu, _, _| {
-                    let mut menu = menu.scrollable(outline.len() > 12);
-                    if outline.is_empty() {
-                        return menu.item(item(
-                            &this,
-                            "No headings in this note",
-                            None,
-                            true,
-                            false,
-                            WritingRequest::Noop,
-                            dispatch,
-                        ));
-                    }
-                    for (label, range) in &outline {
-                        let range = range.clone();
-                        menu = menu.item(item(
-                            &this,
-                            label.clone(),
-                            None,
-                            false,
-                            false,
-                            WritingRequest::Reveal(range.clone()),
-                            dispatch,
-                        ));
-                    }
-                    menu
-                })
-                .into_any_element(),
-        );
+        // One Outline toggle for Read and Edit; the region itself is
+        // `canvas::outline_region`.
+        controls.push(self.outline_toggle(fit, cx).into_any_element());
         controls
     }
 }
@@ -343,11 +362,18 @@ impl WritingPanel {
     pub fn sync_read_text<T: 'static>(&mut self, cx: &mut Context<T>) {
         let source = self.note_editor.read(cx).value().to_string();
         if self.read_source != source {
+            // Text that extends the old would be parsed as an appended
+            // fragment; the outline needs one whole parse of the document,
+            // so replace it in full.
+            let extends = !self.read_source.is_empty() && source.starts_with(&self.read_source);
             self.read_source = source.clone();
             self.read_marks_key.clear();
             self.selection = None;
             self.note_read_view.update(cx, |view, cx| {
                 view.clear_selection(cx);
+                if extends {
+                    view.set_text("", cx);
+                }
                 view.set_text(&source, cx);
             });
         }

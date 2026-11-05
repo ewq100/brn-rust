@@ -49,8 +49,29 @@ pub fn stored_image(assets: &BTreeMap<String, Arc<Image>>, uri: &str) -> Arc<Ima
 /// caller's own asset map, and `external_link` gates which links may open.
 /// Callers keep their own fonts, scrolling and caller-scoped asset map.
 pub fn safe_markdown(view: TextView, assets: Arc<BTreeMap<String, Arc<Image>>>) -> TextView {
+    safe_markdown_with(view, assets, MarkdownExtensions::default())
+}
+/// `safe_markdown` whose parse also reports its headings to `collector`
+/// (the reading view's outline). The observer runs first and declines every
+/// node, so the rendered document is the same.
+pub fn observed_markdown(
+    view: TextView,
+    assets: Arc<BTreeMap<String, Arc<Image>>>,
+    collector: &crate::outline::HeadingCollector,
+) -> TextView {
+    safe_markdown_with(
+        view,
+        assets,
+        collector.extensions(MarkdownExtensions::default()),
+    )
+}
+fn safe_markdown_with(
+    view: TextView,
+    assets: Arc<BTreeMap<String, Arc<Image>>>,
+    extensions: MarkdownExtensions,
+) -> TextView {
     view.markdown_extensions(
-        MarkdownExtensions::default()
+        extensions
             .plugin(LiteralHtml { block: true })
             .plugin(LiteralHtml { block: false })
             .parser_revision(1),
