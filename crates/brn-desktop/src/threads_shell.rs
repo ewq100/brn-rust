@@ -75,7 +75,7 @@ pub(super) use brn_writing_ui::native::pill;
 
 /// Collapses whitespace so a title renders on one line; the element
 /// truncates it with an ellipsis instead of cutting the text.
-fn one_line(text: &str) -> String {
+pub(super) fn one_line(text: &str) -> String {
     text.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
@@ -1176,8 +1176,14 @@ impl ThreadsUi {
     }
     /// The local actions the current view supplies to the header slot.
     fn header_actions(&self, cx: &mut Context<Self>) -> Vec<gpui_kit::AnyElement> {
-        let mut out = self.work_status(cx);
         let primary = self.layout.primary();
+        // The open conversation shows its own running line and Stop above
+        // its composer (S3), so its header does not repeat them.
+        let mut out = if primary == TileKind::Chat && self.running_here() {
+            vec![]
+        } else {
+            self.work_status(cx)
+        };
         // Unsaved document work stays visible (and savable) from any view.
         if primary != TileKind::Note
             && self

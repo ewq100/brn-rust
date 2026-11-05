@@ -15,7 +15,7 @@ use gpui_kit::{
     component::{
         Root, TitleBar,
         button::{Button, ButtonVariants as _},
-        input::{EditorState, Input, InputEvent, InputState},
+        input::{Input, InputEvent, InputState, TextareaState},
     },
     div, point,
     prelude::*,
@@ -34,6 +34,8 @@ use tokio_util::sync::CancellationToken;
 mod capture;
 #[path = "threads_chat.rs"]
 mod chat;
+#[path = "threads_composer.rs"]
+mod composer;
 #[path = "threads_run_activity.rs"]
 mod run_activity;
 #[path = "threads_web_search.rs"]
@@ -415,7 +417,7 @@ struct ThreadsUi {
     activity: Activity,
     thread_rows: Vec<ThreadRow>,
     note_rows: Vec<NoteRow>,
-    composer: Entity<EditorState>,
+    composer: Entity<TextareaState>,
     composer_drafts: ComposerDrafts,
     draft_generations: BTreeMap<String, u64>,
     scrollers: std::cell::RefCell<BTreeMap<String, chat::ChatScroller>>,
@@ -476,6 +478,9 @@ struct ThreadsUi {
     progress: String,
     run_activity: RunActivity,
     run_activity_scroll: gpui_kit::ScrollHandle,
+    /// Conversation presentation state (activity disclosure, composer
+    /// emptiness, a queued edit's stashed draft); see `threads_chat.rs`.
+    conversation: chat::ConversationView,
     notice: NoticeState,
     export_status: String,
     copilot_models: Vec<String>,
@@ -516,9 +521,12 @@ impl ThreadsUi {
         let theme = appearance.resolve(os_dark);
         theme::apply(theme, cx);
         let composer = cx.new(|cx| {
-            EditorState::new(window, cx)
+            TextareaState::new(window, cx)
                 .submit_on_enter(true)
-                .line_number(false)
+                .auto_grow(
+                    theme::metrics::COMPOSER_MIN_ROWS,
+                    theme::metrics::COMPOSER_MAX_ROWS,
+                )
                 .placeholder("Ask or delegate…")
         });
         let writing = WritingPanel::new(window, cx);
@@ -585,7 +593,8 @@ impl ThreadsUi {
                 window,
                 |this, editor, event: &InputEvent, _, cx| {
                     if matches!(event, InputEvent::Change) {
-                        this.save_composer(this.destination(), editor.read(cx).value().to_string());
+                        let text = editor.read(cx).value().to_string();
+                        this.composer_changed(text, cx);
                     }
                 },
             ),
@@ -628,8 +637,8 @@ impl ThreadsUi {
                 &composer,
                 window,
                 |this, _, event: &InputEvent, window, cx| {
-                    if matches!(event, InputEvent::PressEnter { shift: false, .. }) {
-                        this.ask(window, cx);
+                    if let InputEvent::PressEnter { shift, secondary } = event {
+                        this.composer_enter(*shift, *secondary, window, cx);
                     }
                 },
             ),
@@ -762,6 +771,7 @@ impl ThreadsUi {
             progress: String::new(),
             run_activity: RunActivity::default(),
             run_activity_scroll: gpui_kit::ScrollHandle::new(),
+            conversation: chat::ConversationView::default(),
             notice: NoticeState::default(),
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
@@ -4916,7 +4926,9 @@ gpui_kit::assets::icon_assets!(
         Italic,
         List,
         TextQuote,
-        Trash
+        Trash,
+        ListChecks,
+        FilePlus
     ]
 );
 
