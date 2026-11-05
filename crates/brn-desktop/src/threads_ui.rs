@@ -1533,7 +1533,7 @@ impl ThreadsUi {
                 .inform("Discarded the open edit. What you typed here is now your unsaved edit."),
             Ok(NoteDiscard::Other { adopted: false }) => self.inform("Discarded the open edit."),
             Ok(NoteDiscard::Newer) => {
-                self.warn("A newer edit exists and was kept. Recover it from Home.")
+                self.warn("A newer edit exists and was kept. Recover it from Inbox → For you.")
             }
             Err(error) => self.fail(error.to_string()),
         }
@@ -4874,7 +4874,7 @@ impl ThreadsUi {
             &text,
         ) {
             Ok(receipt) => {
-                self.inform("Saved your text as a new working note. The original edit stays recoverable from Home.");
+                self.inform("Saved your text as a new working note. The original edit stays recoverable from Inbox → For you.");
                 if let Some(write) = receipt.writes.first() {
                     self.open_note(&write.after.id, None, window, cx);
                 }
