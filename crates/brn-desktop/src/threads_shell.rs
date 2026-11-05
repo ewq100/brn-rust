@@ -114,8 +114,14 @@ pub(super) const KEYS: [(&str, &str); 18] = [
     ("Search", "⌘K · Search in the sidebar"),
     ("New chat", "⌘T or ⌘0 · New chat in the sidebar"),
     ("New note", "⌘N · + in the Library header"),
-    ("Send / new line", "↵ or ⌘↵ / ⇧↵ · send button"),
-    ("Stop", "⌘. · Stop in the header"),
+    (
+        "Send / new line",
+        "↵ or ⌘↵ sends, or queues while BRN works / ⇧↵ adds a line",
+    ),
+    (
+        "Stop",
+        "⌘. · Stop beside the composer, or in the header elsewhere",
+    ),
     ("Focus composer", "⌘L"),
     ("Comment on selection", "⌘/ · selection strip · right-click"),
     ("Rewrite with AI", "⌘⇧R · writing bar · ⋯ menu"),
