@@ -354,7 +354,7 @@ impl<T: 'static> WritingView<'_, T> {
                 ))
                 .item(item(
                     &this,
-                    "Dismiss",
+                    "Discard",
                     None,
                     false,
                     false,
@@ -2097,7 +2097,8 @@ impl<T: 'static> WritingView<'_, T> {
                 })
                 .unwrap_or_default();
             let tracked = diff::tracked(&current, &review.original);
-            format!("+{} −{}", tracked.added, tracked.removed)
+            // Words, not only signs or color: "3 added · 1 removed".
+            format!("{} added · {} removed", tracked.added, tracked.removed)
         });
         let editing = self.review.is_editing();
         let edited = editing || self.review.is_edited();
@@ -2258,8 +2259,8 @@ impl<T: 'static> WritingView<'_, T> {
                     .into_any_element(),
             );
             secondary.push(
-                pill("dismiss-proposal", "Dismiss")
-                    .tooltip("Dismiss this proposal; the note stays unchanged")
+                pill("dismiss-proposal", "Discard")
+                    .tooltip("Discard this proposal; the saved note stays unchanged")
                     .on_click(self.on(cx, WritingRequest::DismissReview))
                     .into_any_element(),
             );
@@ -2613,6 +2614,7 @@ impl<T: 'static> WritingView<'_, T> {
         } else {
             prose_editor(&self.diff_editor)
                 .h_full()
+                .appearance(false)
                 .readonly(true)
                 .aria_label("Proposed changes")
                 .into_any_element()
@@ -2657,6 +2659,7 @@ impl<T: 'static> WritingView<'_, T> {
             .flex_col()
             .min_h_0()
             .child(bar.test_support())
+            .child(self.review_summary(review, writing_evidence.map(|e| e.sources.len()), cx))
             .child(details.test_support())
             .child(self.text_and_comments(document.test_support(), prefer, min, stacked, cx))
             .child(self.writing_activity(cx))
@@ -2676,6 +2679,111 @@ impl<T: 'static> WritingView<'_, T> {
                     .child(footer)
                     .test_support(),
             )
+            .test_support()
+            .into_any_element()
+    }
+
+    /// One quiet line under the review bar: which document, what the
+    /// proposal changes, the sources it records, and whether the saved
+    /// version is still the one it was prepared from. Changes mode adds
+    /// what the marks mean, in words (spec §6.7).
+    fn review_summary(
+        &self,
+        review: &Review,
+        sources: Option<usize>,
+        cx: &mut Context<T>,
+    ) -> gpui_kit::AnyElement {
+        let _ = cx;
+        let p = pal();
+        let mut parts: Vec<String> = vec![];
+        let note = review
+            .note
+            .as_ref()
+            .and_then(|id| self.workspace.store.note(id).ok().flatten());
+        let notes = review
+            .candidate
+            .request
+            .writes
+            .iter()
+            .filter(|write| matches!(write.data, RecordData::Note(_)))
+            .count();
+        match &note {
+            Some(record) if notes <= 1 => parts.push(format!("“{}”", short(&title(record)))),
+            _ => parts.push(format!(
+                "{} changes as one group",
+                review.candidate.request.writes.len()
+            )),
+        }
+        if let Some(record) = &note {
+            let base = review
+                .candidate
+                .request
+                .writes
+                .iter()
+                .find(|write| write.id == record.id)
+                .and_then(|write| write.expected_version);
+            parts.push(match base {
+                Some(base) if base == record.version => {
+                    format!("saved v{base} unchanged until you apply")
+                }
+                Some(base) => format!(
+                    "prepared from v{base}; the saved note is now v{}",
+                    record.version
+                ),
+                None => format!("saved v{} unchanged until you apply", record.version),
+            });
+        }
+        if let Some(count) = sources {
+            parts.push(plural(count, "recorded source"));
+        }
+        let summary = parts.join(" · ");
+        let legend =
+            (review.note.is_some() && !self.review.is_reading() && !self.review.is_editing())
+                .then_some("Added text is underlined · removed text is struck through");
+        div()
+            .id("review-summary")
+            .flex()
+            .flex_wrap()
+            .flex_shrink_0()
+            .gap_x_3()
+            .px_3()
+            .py_1()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
+            .text_color(rgb(p.muted))
+            .border_b_1()
+            .border_color(rgb(p.hairline))
+            .aria_label(match legend {
+                Some(legend) => format!("{summary}. {legend}"),
+                None => summary.clone(),
+            })
+            .child(summary)
+            .children(legend.map(|legend| {
+                div()
+                    .id("review-legend")
+                    .flex()
+                    .gap_2()
+                    .child(
+                        div()
+                            .px_1()
+                            .rounded(px(3.))
+                            .bg(rgb(p.add))
+                            .text_color(rgb(p.ink))
+                            .underline()
+                            .child("Added"),
+                    )
+                    .child(
+                        div()
+                            .px_1()
+                            .rounded(px(3.))
+                            .bg(rgb(p.delete))
+                            .text_color(rgb(p.ink))
+                            .line_through()
+                            .child("Removed"),
+                    )
+                    .aria_label(legend)
+                    .test_support()
+            }))
             .test_support()
             .into_any_element()
     }

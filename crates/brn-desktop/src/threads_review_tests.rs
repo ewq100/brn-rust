@@ -453,7 +453,7 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_620x6
         assert!(
             proposal
                 .label()
-                .is_some_and(|label| label.starts_with("Proposal · whole note · +")),
+                .is_some_and(|label| label.starts_with("Proposal · whole note · ") && label.contains(" added · ") && label.ends_with(" removed")),
             "{proposal:?}"
         );
         assert_eq!(window.find("review-protected").label(), Some("Protected"));
@@ -477,7 +477,7 @@ fn review_bar_keeps_one_row_and_opens_stacked_comments_above_the_footer_at_620x6
             "Edit final text",
             "Inputs",
             "Keep for later",
-            "Dismiss"
+            "Discard"
         ],
         "{rows:?}"
     );
@@ -993,7 +993,7 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
         view.open_review(kept, window, cx)
     });
     on_window(cx, &f, |window, cx| window.click("note-menu", cx));
-    choose(cx, &f, "Dismiss");
+    choose(cx, &f, "Discard");
     cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(view.writing.review.is_none());
