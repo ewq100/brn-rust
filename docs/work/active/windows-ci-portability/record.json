@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-05T11:54:06.903957+02:00",
-    "goal": "Complete Windows CI compatibility and merge through the normal checked PR path.",
-    "owner_attention": "The owner authorized continuing through fixes and normal merge. PR246 advanced main; the integration lead is reconciling its documentation routing without changing benchmark results or granting live experiment budget.",
+    "observed_at": "2026-11-06T13:55:41.368636+02:00",
+    "goal": "Implement #253\u2019s independent Mac updater and qualify disposable package replacement; retain earlier task history.",
+    "owner_attention": "Agent B owns updater/packaging only. Final integrated/native acceptance waits for Agent A\u2019s selected runtime/Copilot candidate and an unlocked Mac. No release publication or new merge authority inferred.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -85,6 +85,50 @@
             ]
           }
         ]
+      },
+      {
+        "id": "mac-updater-253",
+        "title": "Implement and qualify the versioned Mac updater",
+        "owner": "Agent B",
+        "state": "active",
+        "activity": "Implemented bundled built-in-tools updater, alpha packaging and setup instructions. 13 real macOS updater cases passed, including SIGKILL recovery and package tampering. Pinned desktop release build passed; CLI/helpers and final evidence in progress.",
+        "observed_at": "2026-11-06T13:55:41.368636+02:00",
+        "origin": "observed",
+        "next_action": "Finish real BRN package A\u2192B/synthetic-store witness, independent review and focused updater PR; reconcile final candidate with Agent A.",
+        "depends_on": [],
+        "resource_waits": [
+          "Final native installation/reopen/Gatekeeper and Copilot journeys: screen locked and selected Agent A runtime/Copilot candidate unavailable."
+        ],
+        "evidence": [
+          "https://github.com/ewq100/brn-rust/issues/253",
+          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6684116053",
+          "scripts/tests/test_macos_updater.py"
+        ],
+        "gates": {
+          "implementation": "Implemented candidate; independent review pending.",
+          "checks": "13 updater tests passed on macOS arm64/27.2; signed synthetic bundles. Pinned 1.98.1 native-ui release desktop build passed. Real BRN A\u2192B/store and broader checks pending.",
+          "integration": "Dedicated work/mac-updater-253 from main 3b72813d. PR not yet open; not merged; release/preview.json unchanged; no publication.",
+          "native": "Pending: actual Mac reports CGSSessionScreenIsLocked=true. No headless check counted as native acceptance.",
+          "owner_acceptance": "Pending combined selected runtime/Copilot candidate, clean installation, Gatekeeper, final native journeys and owner use."
+        },
+        "attempts": [
+          {
+            "outcome": "Initial cargo invocation unavailable in shell PATH; system Python lacks tomllib.",
+            "change": "Used installed pinned 1.98.1 toolchain and existing Python 3.11 explicitly; no global environment changes.",
+            "evidence": [
+              "scripts/tests/test_macos_updater.py"
+            ]
+          }
+        ],
+        "authority": {
+          "source": "Current user handoff as Agent B for #253 on the Mac mini. Implement/test/update instructions, coordinate A/C, open focused PR and link evidence; follow existing integration/release authority.",
+          "limits": "Synthetic disposable installations/data only; no owner-store inspection, no real credential copying, no release approval/announcement/publication. Agent A owns UI/chat/Rig/Copilot; Agent C owns #255."
+        },
+        "resources": {
+          "lead": "Current user-selected Codex model/effort retained. One read-only independent reviewer after candidate preparation; maximum one helper.",
+          "reuse": "Adapt existing launcher, ad-hoc ZIP packager, approved-manifest immutable release workflow. Use built-in macOS bash/curl/plutil/shasum/ditto/codesign/lipo/otool and same-volume renames. Custom script supplies only explicit update transaction/recovery gap.",
+          "stop": "Reassess on failed preservation/recovery witness or unowned runtime/package interface; never expand into provider implementation."
+        }
       }
     ]
   }

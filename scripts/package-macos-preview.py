@@ -14,7 +14,7 @@ import tarfile
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = re.compile(r"v\d+\.\d+\.\d+-preview\.[1-9]\d*")
+VERSION = re.compile(r"v\d+\.\d+\.\d+-(?:preview|alpha)\.[1-9]\d*")
 
 
 def read_manifest(path):
@@ -186,6 +186,7 @@ def package(binary, stock_helper, brn_helper, manifest_path, source_sha, output_
                  external_pdf_tools=[],
                  notices_index_sha256=digest(notices / "index.json"),
                  bundled_embeddings=False, bundled_provider_credentials=False,
+                 bundle_identifier="dev.brn.threads", updater_sha256=digest(ROOT / "scripts/brn-update"),
                  cargo_lock_sha256=digest(ROOT / "Cargo.lock"),
                  rust_toolchain=(ROOT / "rust-toolchain.toml").read_text())
     with tempfile.TemporaryDirectory(prefix="brn-preview-", dir=output.parent) as scratch:

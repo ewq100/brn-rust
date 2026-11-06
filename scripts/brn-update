@@ -1,0 +1,186 @@
+#!/bin/bash
+# Explicit-version updater. Runtime dependencies are built-in macOS tools only.
+set -euo pipefail
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin
+umask 077
+
+die() { printf 'BRN update: %s\n' "$*" >&2; exit 1; }
+json() { /usr/bin/plutil -extract "$2" raw -o - "$1"; }
+hash() { /usr/bin/shasum -a 256 "$1" | /usr/bin/cut -d ' ' -f 1; }
+running() {
+  /usr/bin/pgrep -x brn-desktop >/dev/null && return 0
+  /bin/ps -axo command= | BRN_UPDATE_LAUNCHER="$app/Contents/MacOS/BRN-Threads" \
+    /usr/bin/awk 'index($0, ENVIRON["BRN_UPDATE_LAUNCHER"]) {found=1} END {exit !found}'
+}
+closed() { if running; then die 'Quit BRN normally (including other BRN windows), then retry. No process was terminated.'; fi; }
+version_ok() { [[ "$1" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-(preview|alpha)\.[1-9][0-9]*$ ]]; }
+integer() { [[ "$1" =~ ^[1-9][0-9]{0,5}$ ]]; }
+
+if [[ "${1:-}" == --help || $# != 1 ]]; then
+  echo 'Usage: "/path/BRN Threads.app/Contents/Resources/bin/brn-update" vX.Y.Z-alpha.N'
+  echo 'Recovery: run the printed staged brn-update path with --recover.'
+  exit 2
+fi
+[[ "$(/usr/bin/uname -s)" == Darwin && "$(/usr/bin/uname -m)" == arm64 ]] || die 'Requires an Apple Silicon Mac.'
+self_dir="$(cd -P "$(dirname "$0")" && pwd)"
+if [[ "$1" == --recover || "$1" == --continue ]]; then
+  txn="$self_dir"
+  [[ ! -L "$txn/app-path" && -f "$txn/app-path" ]] || die 'Run recovery from the staged path printed by the updater.'
+  IFS= read -r app < "$txn/app-path"
+else
+  version_ok "$1" || die 'Specify an explicit vX.Y.Z-alpha.N or vX.Y.Z-preview.N version.'
+  app="$(cd -P "$self_dir/../../.." && pwd)"
+  [[ "$app" == *.app && ! -L "$0" ]] || die 'Run the bundled updater from an installed app.'
+fi
+parent="$(dirname "$app")"
+lock="$parent/.$(basename "$app").update-lock"
+[[ -d "$parent" && -w "$parent" ]] || die 'Installation folder is not writable. Install a copy in ~/Applications and run its bundled command; do not use sudo.'
+[[ ! -L "$app" && ! -L "$lock" ]] || die 'Symlink installation/lock refused.'
+
+if [[ "$1" != --continue && "$1" != --recover ]]; then
+  closed
+  # Prepare everything before atomically publishing the lock (a hard link).
+  # Even SIGKILL at lock acquisition leaves a complete recovery command.
+  txn="$(/usr/bin/mktemp -d "$parent/.$(basename "$app").update-XXXXXX")"
+  printf '%s\n' "$app" > "$txn/app-path"
+  printf '%s\n' "$1" > "$txn/requested"
+  /bin/cp "$0" "$txn/brn-update"
+  /bin/chmod 700 "$txn/brn-update"
+  printf '%s\n' "$$" > "$txn/pid"
+  printf '%s\n' "Recovery after the updater exits: /bin/bash \"$txn/brn-update\" --recover" > "$txn/owner"
+  if ! /bin/ln "$txn/owner" "$lock" 2>/dev/null; then
+    echo "Another update or interrupted transaction owns: $lock" >&2
+    [[ ! -f "$lock" ]] || /bin/cat "$lock" >&2
+    /bin/rm -r "$txn"
+    exit 1
+  fi
+  echo "Recovery after interruption: /bin/bash \"$txn/brn-update\" --recover"
+  exec /bin/bash "$txn/brn-update" --continue
+fi
+
+if [[ "$1" == --recover ]]; then
+  [[ -f "$txn/pid" ]] || die 'Incomplete initialization: preserve this directory and inspect the update lock.'
+  pid="$(/bin/cat "$txn/pid")"
+  [[ "$pid" =~ ^[0-9]+$ ]] || die 'Invalid transaction PID.'
+  if /bin/kill -0 "$pid" 2>/dev/null; then die "Updater PID $pid is still active; wait for it to exit."; fi
+  [[ -f "$lock" ]] && /usr/bin/grep -Fq "$txn/brn-update" "$lock" || die 'Lock belongs to a different transaction; leaving it untouched.'
+  closed
+  /bin/mkdir "$txn/recovering" 2>/dev/null || die 'Recovery already claimed. Preserve this transaction for inspection.'
+  # Never swap an old binary over a potentially opened/migrated installation.
+  if [[ ! -e "$app" && -d "$txn/previous.app" ]]; then
+    /bin/mv "$txn/previous.app" "$app"
+    echo 'Restored the previous app. No workspace or credential files were changed.'
+  elif [[ -d "$app" ]]; then
+    echo 'Installed app retained. No automatic binary/database rollback was attempted.'
+  else
+    die "No installation found. Preserve $txn and reinstall an announced package."
+  fi
+  # Release only the lock that actually identifies this transaction.
+  [[ -f "$lock" ]] && /usr/bin/grep -Fq "$txn/brn-update" "$lock" || die 'Lock belongs to a different transaction; leaving it untouched.'
+  /bin/rm "$lock"
+  echo "Recovery complete. Retained files: $txn"
+  exit 0
+fi
+
+version="$(/bin/cat "$txn/requested")"
+version_ok "$version" || die 'Invalid staged version.'
+cleanup() {
+  code=$?
+  trap - EXIT
+  if [[ ! -e "$app" && -d "$txn/previous.app" ]]; then
+    /bin/mv "$txn/previous.app" "$app" || true
+  fi
+  if ((code == 0)); then
+    /bin/rm "$lock"
+  else
+    echo "Update stopped; retained installation/recovery files in $txn" >&2
+    echo "After this process exits: /bin/bash \"$txn/brn-update\" --recover" >&2
+  fi
+  exit "$code"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM HUP
+
+installed="$app/Contents/Resources/build-manifest.json"
+old_version="$(json "$installed" version)"
+old_build="$(json "$installed" build_number)"
+integer "$old_build" || die 'Installed build number is invalid.'
+[[ "$(json "$app/Contents/Info.plist" CFBundleIdentifier)" == dev.brn.threads ]] || die 'Installed bundle identity differs.'
+echo "Installed: $old_version (build $old_build); requested: $version"
+name="BRN-Threads-$version-macos-arm64"
+base="https://github.com/ewq100/brn-rust/releases/download/$version"
+download() {
+  /usr/bin/curl --fail --location --proto '=https' --proto-redir '=https' \
+    --connect-timeout 20 --max-time 900 --max-filesize 4294967296 --output "$txn/$1" "$base/$1"
+}
+download SHA256SUMS
+download "$name.manifest.json"
+manifest="$txn/$name.manifest.json"
+check_sum() {
+  local file="$1" expected
+  expected="$(/usr/bin/awk -v name="$file" '$2 == name && length($1) == 64 && $1 !~ /[^0-9a-f]/ {print $1}' "$txn/SHA256SUMS")"
+  [[ "$expected" =~ ^[0-9a-f]{64}$ && "$(hash "$txn/$file")" == "$expected" ]] || die "Checksum mismatch or ambiguous/missing checksum: $file"
+}
+check_sum "$name.manifest.json"
+[[ "$(json "$manifest" schema)" == 1 && "$(json "$manifest" enabled)" == true && \
+   "$(json "$manifest" version)" == "$version" && "$(json "$manifest" platform)" == macos-arm64 && \
+   "$(json "$manifest" minimum_macos)" == 15.0 && "$(json "$manifest" signing)" == 'ad-hoc; not notarized' && \
+   "$(json "$manifest" bundle_identifier)" == dev.brn.threads && \
+   "$(json "$manifest" bundled_provider_credentials)" == false && \
+   "$(json "$manifest" archive.name)" == "$name.zip" ]] || die 'Release identity/platform differs.'
+[[ "$(/usr/bin/plutil -type build_number "$manifest")" == integer ]] || die 'Build number must be an integer.'
+[[ "$(json "$manifest" source_sha)" =~ ^[0-9a-f]{40}$ ]] || die 'Invalid source identity.'
+[[ "$(/usr/bin/plutil -extract features json -o - "$manifest" | /usr/bin/tr -d '[:space:]')" == '["native-ui"]' ]] || die 'Unsupported feature selection.'
+new_build="$(json "$manifest" build_number)"
+integer "$new_build" && ((new_build > old_build)) || die 'Requested build must be newer than the installed build.'
+os_major="$(/usr/bin/sw_vers -productVersion | /usr/bin/cut -d . -f 1)"
+((os_major >= 15)) || die 'Requires macOS 15 or newer.'
+download "$name.zip"
+check_sum "$name.zip"
+[[ "$(hash "$txn/$name.zip")" == "$(json "$manifest" archive.sha256)" && \
+   "$(/usr/bin/stat -f %z "$txn/$name.zip")" == "$(json "$manifest" archive.bytes)" ]] || die 'Archive receipt differs.'
+# Reject traversal, links and unexpected top-level entries before extraction.
+/usr/bin/unzip -Z1 "$txn/$name.zip" > "$txn/entries"
+/usr/bin/awk '
+  /\\/ || /^\// || /(^|\/)\.\.?($|\/)/ {bad=1}
+  !/^BRN Threads\.app\// && !/^__MACOSX\// {bad=1}
+  END {exit bad}' "$txn/entries" || die 'Unsafe archive path.'
+/usr/bin/unzip -Z -l "$txn/$name.zip" > "$txn/modes"
+if /usr/bin/grep -q '^l' "$txn/modes"; then die 'Archive symlinks are not permitted.'; fi
+/bin/mkdir "$txn/extracted"
+/usr/bin/ditto -x -k "$txn/$name.zip" "$txn/extracted"
+candidate="$txn/extracted/BRN Threads.app"
+[[ -d "$candidate" && -z "$(/usr/bin/find "$candidate" -type l -print -quit)" ]] || die 'Missing app or symlink in app.'
+plist="$candidate/Contents/Info.plist"
+short_version="${version#v}"
+short_version="${short_version%%-*}"
+[[ "$(json "$plist" CFBundleIdentifier)" == dev.brn.threads && \
+   "$(json "$plist" CFBundleExecutable)" == BRN-Threads && \
+   "$(json "$plist" CFBundlePackageType)" == APPL && \
+   "$(json "$plist" CFBundleShortVersionString)" == "$short_version" && \
+   "$(json "$plist" CFBundleVersion)" == "$new_build" && \
+   "$(json "$plist" LSMinimumSystemVersion)" == 15.0 ]] || die 'Staged bundle identity/build differs.'
+embedded="$candidate/Contents/Resources/build-manifest.json"
+for key in schema enabled version build_number platform minimum_macos source_sha signing cargo_lock_sha256 bundle_identifier updater_sha256 data_directory; do
+  [[ "$(json "$embedded" "$key")" == "$(json "$manifest" "$key")" ]] || die "Embedded receipt differs: $key"
+done
+[[ -x "$candidate/Contents/MacOS/BRN-Threads" && -x "$candidate/Contents/Resources/bin/brn-update" ]] || die 'Launcher/updater is missing.'
+[[ "$(hash "$candidate/Contents/Resources/bin/brn-update")" == "$(json "$manifest" updater_sha256)" ]] || die 'Updater receipt differs.'
+for binary in brn-desktop brn-xberg-helper brn-xberg-helper-brn; do
+  file="$candidate/Contents/Resources/bin/$binary"
+  [[ -x "$file" && "$(/usr/bin/lipo -archs "$file")" == arm64 && \
+     "$(hash "$file")" == "$(json "$manifest" "binaries.$binary.sha256")" && \
+     "$(hash "$file")" == "$(json "$embedded" "binaries.$binary.sha256")" ]] || die "Invalid executable: $binary"
+  [[ "$(/usr/bin/otool -l "$file" | /usr/bin/awk '$1 == "minos" {print $2}')" == 15.0 ]] || die "Unsupported deployment target: $binary"
+  /usr/bin/otool -L "$file" | /usr/bin/awk 'NR > 1 && $1 !~ /^\/usr\/lib\// && $1 !~ /^\/System\/Library\// {bad=1} END {exit bad}' || die "External runtime dependency: $binary"
+done
+/usr/bin/codesign --verify --strict --deep "$candidate"
+closed
+# Same-filesystem renames; the previous app survives errors, signals and SIGKILL.
+/bin/mv "$app" "$txn/previous.app"
+/bin/mv "$candidate" "$app"
+echo "Installed $version (build $new_build). Previous app retained in: $txn/previous.app"
+echo 'Data/settings/credentials were untouched. Old apps may be incompatible after a database migration.'
+printf 'Reopen normally: /usr/bin/open "%s"\n' "$app"
+echo 'macOS may require Privacy & Security → Open Anyway again. No security settings were changed.'
