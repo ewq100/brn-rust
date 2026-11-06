@@ -8,7 +8,8 @@ receipts before approval. It is not an announcement or a published version.
 
 The proposed Apple Silicon/macOS15+ alpha combines the native desktop, Rig0.46,
 GitHub Copilot and the manual versioned updater. Agent A's response-limit
-hardening must be merged and qualified before selecting the source. The app
+hardening264/265 is merged; selected runtime/local package source is
+a921e32533dc03134ed8a2001bd82f27194c3302. The app
 includes both existing document helpers; no additional Copilot CLI/SDK binary,
 provider credentials or embedding model ships in the archive.
 
@@ -23,14 +24,14 @@ Copilot connects through Settings using the tester's own normal device login.
 Local extraction with refinement Off remains offline. Account/model availability
 and policy restrictions remain explicit; no fallback account/provider is implied.
 
-Source and artifacts: pending the selected integrated source and approval PR.
+Local source/artifacts: qualifieda921e325, recorded in the current alpha evidence.
+Actual hosted source/artifacts: pending owner-approved release manifest/workflow.
 Native acceptance: pending one coordinated B/A disposable-profile session.
 
 ## B: v0.2.0-alpha.2 / build4
 
 The proposed increasing build exercises delivery and recoverable replacement
-from command-enabled A. Record any runtime change from A explicitly; none is
-selected by this draft.
+from command-enabled A. Record any runtime change from A explicitly; the local pair uses identical executables and differs only in version/build/receipts.
 
 Save work, make a normal backup and quit BRN normally. For a user-owned
 installation, request the announced version with:

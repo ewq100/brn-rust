@@ -1,0 +1,28 @@
+{
+  "selected_source": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "source_status_before_build": "",
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: aarch64-apple-darwin\nrelease: 1.98.1\nLLVM version: 22.1.8",
+  "cargo": "cargo 1.98.1 (797e8a9bc 2026-08-05)",
+  "macos": "ProductName:\t\tmacOS\nProductVersion:\t\t27.2\nBuildVersion:\t\t26B123",
+  "architecture": "arm64",
+  "cargo_lock_sha256": "3122299c6b07dc65427f6ffba110f571e06ecc08fb8550df4648a08f3dd09959",
+  "target_dir": "/Users/evokessler/Documents/Codex/brn-mac-updater-253/target",
+  "features": [
+    "native-ui"
+  ],
+  "minimum_macos": "15.0",
+  "desktop_jobs": 4,
+  "helper_jobs": 1,
+  "slot_reservation_utc": "2026-11-06T21:47Z to22:30Z maximum; D/E22:30\u201323:00Z or earlier on release",
+  "publication": "NOT approved or published; proposed local manifest versions only",
+  "commands": [
+    "MACOSX_DEPLOYMENT_TARGET=15.0 CARGO_TARGET_DIR=/Users/evokessler/Documents/Codex/brn-mac-updater-253/target cargo rustc --release -p brn-desktop --bin brn-desktop --features native-ui --locked --offline --jobs 4 -- -C link-arg=-mmacosx-version-min=15.0",
+    "MACOSX_DEPLOYMENT_TARGET=15.0 cargo build --release -p brn --locked --offline --jobs 4",
+    "PATH=/opt/homebrew/opt/rustup/bin:$PATH RUSTUP_TOOLCHAIN=1.98.1 MACOSX_DEPLOYMENT_TARGET=15.0 bash scripts/build-document-helpers.sh --offline --jobs 1 --target-root /Users/evokessler/Documents/Codex/brn-mac-updater-253/target/document-helpers"
+  ],
+  "source_status_after_build": "",
+  "helper_first_attempt": "Direct toolchain cargo cannot interpret +1.98.1. Retained failure log; reran same helper command through installed rustup shims, pinned1.98.1; passed.",
+  "desktop_cli_warning": "Existing toolchain rust-objcopy/libLLVM debug-strip warning; both release commands exited0. Packager validated actual binary system-library inventory and signatures.",
+  "slot_released_at": "2026-11-06T21:56:38Z",
+  "D_E_window": "Released immediately through23:00Z; B has no standing reservation after23:00Z. No heavy/native work during window."
+}

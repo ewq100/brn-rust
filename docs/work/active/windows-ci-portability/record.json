@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-06T21:47:17.547992+00:00",
-    "goal": "Finish Mac alpha package/update acceptance after updater258 merge and A response-limit hardening264.",
-    "owner_attention": "A handoff resolved: selected main a921e32533dc03134ed8a2001bd82f27194c3302 (264/265). B preparing immediate exact-source release build; Mac slot21:47–22:30Z maximum; D/E window22:30–23:00Z or earlier on release. Native/publication remain separate.",
+    "observed_at": "2026-11-06T22:02:38.443784+00:00",
+    "goal": "Complete native and approved published-update acceptance for the qualified combined Mac alpha on selected runtimea921e325.",
+    "owner_attention": "A handoff resolved. B built/qualified exacta921e325 local alpha.1/build3 and alpha.2/build4;32tests, relocated imports, local substituted-transport update and full backup/restore pass. Slot released21:56:38Z; D/E free through23:00Z, no B reservation afterward. Native profile/login and explicit release-manifest approval remain.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -214,14 +214,14 @@
         "title": "Implement and qualify the versioned Mac updater",
         "owner": "Agent B",
         "state": "active",
-        "activity": "A264/265 merged; selected source a921e32533dc03134ed8a2001bd82f27194c3302 verified. No build already running at21:46Z process check. B owns bounded Mac heavy slot21:47–22:30Z for desktop/CLI/helpers and headless package qualification, own target. Acceptance records normally reconciled with selected source; compiling from clean exact source follows.",
-        "observed_at": "2026-11-06T21:47:17.547992+00:00",
+        "activity": "Exact selected a921e32533dc03134ed8a2001bd82f27194c3302 compiled cleanly in B target (native-ui,arm64,macOS15+,Rust1.98.1); two helpers built/revalidated; signed local A3/B4 packages qualified.32packaging/updater/preparation cases pass; both helpers8formats/16imports, real local A→B/external-file preservation/B headless reopen and full synthetic backup/restore pass. A dependency resolved; Mac slot RELEASED21:56:38Z before22:30cap. Local deliverables and Shared copy ready; no native/live/stock HTTPS/publication claim.",
+        "observed_at": "2026-11-06T22:02:38.443784+00:00",
         "origin": "observed",
-        "next_action": "Build release native-ui desktop and test-only CLI from clean a921e325 in B target; rebuild both existing helpers, regenerate notices, package proposed alpha.1/3 and alpha.2/4, verify signatures/relocation/helpers/data/recovery. Release slot on completion/blocker, hard D/E window22:30–23:00Z. Then concrete combined native session request; real published stock HTTPS waits approved command-enabled releases.",
+        "next_action": "Owner reviews the draft alpha.1/build3 manifest/notes/publication proposal; do not merge/publish without explicit release approval. Existing workflow must build actual approved main A, then later approved increasing B before unchanged stock HTTPS witness. Arrange one combined B/A native session when disposable profile unlocked/tester Copilot login available. B holds no slot; D/E window free now–23:00Z, then no standing B reservation.",
         "depends_on": [],
         "resource_waits": [
-          "Mac mini last observed locked; clean-profile normal Gatekeeper and tester-owned Copilot login needed after package ready.",
-          "Owner release-manifest approval/publication of command-enabled A/B needed for real stock HTTPS; legacy previews lack updater."
+          "Mac mini screen last observed locked; one disposable-profile native Gatekeeper/launch/Copilot login session needs owner presence. Second Copilot account required for observed account-switch case, otherwise not observed.",
+          "Explicit owner approval and actual immutable publication of command-enabled A/B are required for real stock HTTPS; existing legacy previews lack updater."
         ],
         "evidence": [
           "https://github.com/ewq100/brn-rust/issues/253",
@@ -235,14 +235,16 @@
           "https://github.com/ewq100/brn-rust/actions/runs/42279604581",
           "docs/work/active/windows-ci-portability/evidence/mac-updater-253/release-approval/README.md",
           "docs/work/active/windows-ci-portability/evidence/mac-updater-253/integration-20261106/README.md",
-          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6694348350"
+          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6694348350",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/alpha-a921e325/README.md",
+          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6696862621"
         ],
         "gates": {
           "implementation": "Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.",
-          "checks": "Refreshed combination:349passed+11skipped=360local tooling,fmt/syntax/overview/links clean. All7 hosted PR lanes pass. Current Codex code clean; separate automated security receipt explicitly reports no issues on0438bd60. Full-detail report account login unavailable/not inspected; additional independent full-task security review clear; workflow does not itself grant a fallback waiver. Prior source-bound local transport-substituted A/B and Linux ETXTBSY evidence retained. All4 required resulting-main contexts passed in42279604581, including25 Mac packaging/updater cases and the original Ubuntu fixture test. All3 optional Windows lanes fail in unchanged composer/skills paths, retained visibly.",
-          "integration": "SATISFIED updater source integration: normal merge28051188, tree identical to reviewed0438bd60, all7PR lanes pass in42276377509. All4 required resulting-main42279604581 contexts pass; overall run fails only3 inherited optional Windows lanes; no publication.",
-          "native": "PENDING: last observed locked. Requires final package after264 plus one unlocked clean disposable-profile session with A for normal per-app Gatekeeper approval, launch/update/reopen, synthetic data/settings and Copilot continuity/reconnect. Headless receipts are not native acceptance.",
-          "owner_acceptance": "PENDING: installed final package/Copilot/native owner use before invited distribution; no approved command-enabled A/B published yet."
+          "checks": "Refreshed combination:349passed+11skipped=360local tooling,fmt/syntax/overview/links clean. All7 hosted PR lanes pass. Current Codex code clean; separate automated security receipt explicitly reports no issues on0438bd60. Full-detail report account login unavailable/not inspected; additional independent full-task security review clear; workflow does not itself grant a fallback waiver. Prior source-bound local transport-substituted A/B and Linux ETXTBSY evidence retained. All4 required resulting-main contexts passed in42279604581, including25 Mac packaging/updater cases and the original Ubuntu fixture test. All3 optional Windows lanes fail in unchanged composer/skills paths, retained visibly. Final selecteda921e325: all4 required hosted contexts pass in42294766975;32local packaging/updater/preparation cases pass; relocated helpers8formats/16imports and local real-package A→B/full-restore pass. Original failed verifier assumptions/path failure retained and diagnosed; no production repair or skipped case.",
+          "integration": "SATISFIED updater source integration: normal merge28051188, tree identical to reviewed0438bd60, all7PR lanes pass in42276377509. All4 required resulting-main42279604581 contexts pass; overall run fails only3 inherited optional Windows lanes; no publication. A264/265 handoff resolved; a921e325 is selected and normally reconciled into acceptance branch. Publication proposal stays draft pending explicit owner approval; actual approved main manifest remains legacy until that approval/merge.",
+          "native": "PENDING: exact combined packages ready, screen locked. See current native-session runbook for one B/A disposable-profile Gatekeeper/Copilot/backup/update session. No Mac slot reserved; headless results are not native acceptance.",
+          "owner_acceptance": "PENDING: owner native use before invited distribution. Local alpha.1/build3 and alpha.2/build4 are proposed-version candidates; approved published A/B and stock HTTPS remain outstanding. Release-manifest proposal is draft, no merge/publication authority inferred."
         },
         "attempts": [
           {

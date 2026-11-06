@@ -3,41 +3,36 @@
 Updater PR: [#258](https://github.com/ewq100/brn-rust/pull/258), normally merged as
 `28051188f7d20a817202ddf098dff5dc2f07e653`. Final package acceptance remains active.
 
-## Current package checkpoint — 6 November 2026
+## Current combined package checkpoint — 6 November 2026 UTC
 
-All seven [refreshed PR lanes](https://github.com/ewq100/brn-rust/actions/runs/42276377509)
-passed on `0438bd603a86b48d4956195b89aea0fb54e648d8`. Normal merge
-`28051188` has exactly that qualified tree. [Resulting-main checks](https://github.com/ewq100/brn-rust/actions/runs/42279604581)
-passed all four required contexts. The overall run failed only its three
-informational Windows lanes: inherited composer name-resolution errors and
-skills.rs dead-code Clippy errors, in unchanged files. These remain visible.
-[Captured current receipts](evidence/mac-updater-253/integration-20261106/README.md)
-include the main-run25 packaging/updater checks and the originally failing
-Ubuntu fixture test passing. Fresh independent full integration/security review found no
-findings, with source/mode/deletion preservation and all evidence hashes verified.
-Codex code completed cleanly on0438bd60; its separate automated security receipt
-explicitly reports no issues on that same head. The full-detail Security Report
-requires unavailable browser account login; its contents were not inspected.
-The independent full-task security review is additional evidence. The workflow
-requires any authorized fallback to be recorded; it does not itself grant a
-waiver. The current explicit no-issue receipt establishes current-commit automated
-completion and its public findings summary; private full-detail report access
-remains unavailable.
+A's handoff is complete. Selected runtime/source is
+`a921e32533dc03134ed8a2001bd82f27194c3302` (264/265); no wait for C/D/E.
+B built from that exact clean detached checkout in its own target, then qualified
+signed local alpha.1/build3 and alpha.2/build4 packages. [Current identities,
+receipts, logs, diagnosed verifier failures and scope](evidence/mac-updater-253/alpha-a921e325/README.md).
+All4 selected-main required contexts pass.32local packaging/updater/preparation
+cases, both relocated helpers/all8formats/16imports, real local A→B preservation
+and B headless reopen, and full synthetic backup/restore pass. Transport is still
+substituted for that local update; it is not real published stock HTTPS.
 
-A's [response-limit PR264](https://github.com/ewq100/brn-rust/pull/264) is now open.
-Final package selection waits for its normal merge and A's selected SHA/build slot.
-Its current proposal bounds a model HTTP response to20minutes/64MiB, preserves
-Stop/idle guards and adds Copilot denial/journey coverage; A owns its findings and
-integration. B will not package the earlier unbounded runtime as the final alpha.
-No final package SHA/hash is invented while that dependency is open.
+The Mac heavy slot was released21:56:38Z, before the22:30Z cap; D/E have the free
+window through23:00Z, and B holds no standing reservation afterward. No B build or
+native work is running. The [one combined native-session runbook](evidence/mac-updater-253/alpha-a921e325/native-session.md)
+names exact remaining inputs and owner actions. Screen locked; no native/live
+Copilot acceptance claimed. Local outputs and the disposable-profile Shared copy
+are ready. The local source still has the legacy approved manifest; a draft
+release-manifest/notes proposal must receive explicit owner approval before
+merge/publication. Actual approved A/B artifacts and sources will be built and
+recorded by the existing workflow; no local/hosted ZIP identity is assumed.
 
-[Proposed approval pair](evidence/mac-updater-253/release-approval/README.md):
-alpha.1/build3 then alpha.2/build4, native-ui/macOS15+/arm64/ad-hoc, with proposed
-release notes and a stock HTTPS runbook. The proposal files are outside the actual
-approved manifest and authorize no publication.
-The release workflow must build each actual approved source and verify its
-uploaded assets; the stock witness then fetches those published receipts/ZIPs.
-The previous substituted-transport witness remains separately labelled below.
+## Historical updater integration checkpoint before A's handoff
+
+PR258 merged normally as28051188, exactly reviewed0438bd60. All7 refreshed PR
+lanes and all4 required resulting-main contexts passed;3 inherited optional
+Windows failures remain visible. [Current-source integration receipts](evidence/mac-updater-253/integration-20261106/README.md).
+Codex code and separate security receipt report no issues on0438bd60; private
+full-detail report access requires account login and was not inspected. Independent
+security review is additional evidence; workflow text grants no fallback waiver.
 
 ## Refreshed integration — 6 November 2026
 
