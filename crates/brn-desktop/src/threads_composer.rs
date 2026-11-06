@@ -5,11 +5,10 @@
 use super::components::AccessibleDropdownMenu;
 use super::shell::{item, one_line, pill};
 #[cfg(any(target_os = "macos", target_os = "linux"))]
-use super::skills_view::SkillAction;
 use super::*;
 use gpui_kit::component::input::Textarea;
 use gpui_kit::component::{Icon, Sizable, Size};
-use gpui_kit::{EntityInputHandler, Focusable, WeakEntity};
+use gpui_kit::{EntityInputHandler, Focusable};
 
 /// What BRN can use for the current conversation, as its context chip
 /// shows it. Built from the same records the run's scope check reads; it
@@ -242,9 +241,10 @@ impl ThreadsUi {
             })
             .into_any_element()
     }
-    /// The + menu: attach a document, add useful information, a full note,
-    /// Search the web…, an approved local tool's exact-input review and the
-    /// skill choice (which was a permanent pill row).
+    /// The + menu (§6.1.1): attach a document, add useful information, a
+    /// full note, a new document and an approved local tool's exact-input
+    /// review. Skills are automatic and `/` commands; web access is the
+    /// agent's, so neither has a menu entry here.
     fn plus_menu(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let this = cx.entity().downgrade();
         let busy = self.worker.is_some();
@@ -254,10 +254,8 @@ impl ThreadsUi {
             }
             _ => Vec::new(),
         };
-        #[cfg(any(target_os = "macos", target_os = "linux"))]
-        let skills = self.skill_choices();
         components::icon_button("composer-add", IconName::Plus, "Add to this chat")
-            .tooltip("Attach a document, add information, search the web or choose a skill")
+            .tooltip("Attach a document, add information or start a document")
             .accessible_dropdown_menu(move |mut menu, _, _| {
                 menu = menu
                     .item(item(
@@ -288,14 +286,13 @@ impl ThreadsUi {
                             view.choose_import(ImportIntent::FullNote, None, window, cx)
                         },
                     ))
-                    .separator()
                     .item(item(
                         &this,
-                        "Search the web…",
+                        "New document",
                         None,
                         false,
                         false,
-                        |view, window, cx| view.open_web_search(window, cx),
+                        |view, window, cx| view.new_note(window, cx),
                     ));
                 if !tools.is_empty() {
                     menu = menu.separator().label("Local tools");
@@ -310,10 +307,6 @@ impl ThreadsUi {
                             move |view, window, cx| view.begin_mcp_input(&name, window, cx),
                         ));
                     }
-                }
-                #[cfg(any(target_os = "macos", target_os = "linux"))]
-                {
-                    menu = skills.menu(menu.separator(), &this);
                 }
                 menu
             })
@@ -387,78 +380,6 @@ impl ThreadsUi {
         );
         out
     }
-    /// Model and effort from the configured capabilities (no invented list,
-    /// no silent fallback). Below 420 pt the model control also names the
-    /// effort and its menu holds the effort choices.
-    fn model_controls(&self, cx: &mut Context<Self>) -> Vec<gpui_kit::AnyElement> {
-        let this = cx.entity().downgrade();
-        let model_this = this.clone();
-        let model = self.settings.model.clone();
-        let effort = self.settings.effort.clone();
-        if self.chat_narrow {
-            return vec![
-                button("model-pill")
-                    .compact()
-                    .ghost()
-                    .h(components::tokens::COMPACT_CONTROL)
-                    .flex_shrink(1.)
-                    .min_w_0()
-                    .max_w(px(140.))
-                    .dropdown_caret(true)
-                    .accessibility_label(format!("Model {model}, effort {effort}"))
-                    .tooltip(
-                        "Provider, model and reasoning effort · changes Settings · no fallback",
-                    )
-                    .child(
-                        div()
-                            .flex()
-                            .min_w_0()
-                            .child(div().min_w_0().truncate().child(model))
-                            .child(
-                                div()
-                                    .flex_shrink_0()
-                                    .whitespace_nowrap()
-                                    .child(format!("\u{a0}· {effort}")),
-                            ),
-                    )
-                    .accessible_dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
-                        Some(view) => {
-                            let view = view.read(cx);
-                            view.effort_section(
-                                view.model_menu(menu, &model_this).separator(),
-                                &model_this,
-                            )
-                        }
-                        None => menu,
-                    })
-                    .into_any_element(),
-            ];
-        }
-        let effort_this = this;
-        vec![
-            pill(
-                "model-pill",
-                super::shell::model_display(&self.settings.provider, &model),
-            )
-            .min_w_0()
-            .flex_shrink(1.)
-            .dropdown_caret(true)
-            .tooltip("Provider and model · changes Settings · no fallback")
-            .accessible_dropdown_menu(move |menu, _, cx| match model_this.upgrade() {
-                Some(view) => view.read(cx).model_menu(menu, &model_this),
-                None => menu,
-            })
-            .into_any_element(),
-            pill("effort-pill", effort)
-                .dropdown_caret(true)
-                .tooltip("Reasoning effort")
-                .accessible_dropdown_menu(move |menu, _, cx| match effort_this.upgrade() {
-                    Some(view) => view.read(cx).effort_menu(menu, &effort_this),
-                    None => menu,
-                })
-                .into_any_element(),
-        ]
-    }
     /// The archived chat's one banner, which holds its only Unarchive.
     fn archived_banner_row(&self, chat: &str, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
@@ -514,7 +435,6 @@ impl ThreadsUi {
             .map(str::to_owned);
         let empty = self.composer.read(cx).value().trim().is_empty();
         let editing = self.queued_edit_for_current_chat().is_some();
-        let skill = self.selected_skill_label();
         let field = div()
             .id("composer-box")
             .flex()
@@ -566,9 +486,8 @@ impl ThreadsUi {
                     .gap_1()
                     .child(self.plus_menu(cx))
                     .child(self.context_chip(cx))
-                    .children(skill.map(|label| self.skill_chip(label, cx)))
                     .child(div().flex_1())
-                    .children(self.model_controls(cx))
+                    .child(self.model_control(cx))
                     .children(self.primary_controls(empty, cx))
                     .test_support(),
             )
@@ -634,73 +553,6 @@ impl ThreadsUi {
             .test_support()
             .into_any_element()
     }
-    /// The selected skill's chip, with a Clear. Choosing happens in the +
-    /// menu; the chip keeps the choice visible beside the context.
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
-    fn skill_chip(&self, label: String, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let project = self.skill_project();
-        pill("composer-skill-selected", format!("Skill · {label}"))
-            .icon(IconName::Close)
-            .accessibility_label(format!("Skill {label}, clear"))
-            .tooltip("Clear the selected skill")
-            .min_w_0()
-            .flex_shrink(1.)
-            .on_click(cx.listener(move |this, _, _, cx| {
-                this.skill_action(SkillAction::Clear, "", "", project.clone(), cx)
-            }))
-            .into_any_element()
-    }
-    #[cfg(not(any(target_os = "macos", target_os = "linux")))]
-    fn skill_chip(&self, label: String, _: &mut Context<Self>) -> gpui_kit::AnyElement {
-        components::status_chip("composer-skill-selected", None, None, label).into_any_element()
-    }
-    /// The selected skill for this scope, when its view is current.
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
-    fn selected_skill_label(&self) -> Option<String> {
-        if self.skill_view.project != self.skill_project() {
-            return None;
-        }
-        self.skill_view
-            .rows
-            .iter()
-            .find(|skill| skill.selected && skill.enabled)
-            .map(|skill| {
-                if skill.available {
-                    skill.id.clone()
-                } else {
-                    format!("{} · unavailable", skill.id)
-                }
-            })
-    }
-    #[cfg(not(any(target_os = "macos", target_os = "linux")))]
-    fn selected_skill_label(&self) -> Option<String> {
-        None
-    }
-    /// The skill section of the + menu, captured at render.
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
-    fn skill_choices(&self) -> SkillChoices {
-        let project = self.skill_project();
-        let current = self.skill_view.project == project;
-        SkillChoices {
-            project,
-            rows: if current {
-                self.skill_view
-                    .rows
-                    .iter()
-                    .filter(|skill| skill.enabled)
-                    .map(|skill| SkillChoice {
-                        id: skill.id.clone(),
-                        digest: skill.digest.clone(),
-                        selected: skill.selected,
-                        available: skill.available,
-                    })
-                    .collect()
-            } else {
-                Vec::new()
-            },
-            current,
-        }
-    }
     /// Leave a queued edit: the waiting message keeps its saved text and the
     /// composer gets back the draft it held before Edit.
     pub(super) fn cancel_queued_edit(&mut self, window: &mut Window, cx: &mut Context<Self>) {
@@ -712,66 +564,5 @@ impl ThreadsUi {
             .update(cx, |editor, cx| editor.set_value(text.clone(), window, cx));
         self.save_composer(self.destination(), text);
         cx.notify();
-    }
-}
-
-#[cfg(any(target_os = "macos", target_os = "linux"))]
-struct SkillChoice {
-    id: String,
-    digest: String,
-    selected: bool,
-    available: bool,
-}
-#[cfg(any(target_os = "macos", target_os = "linux"))]
-struct SkillChoices {
-    project: Option<String>,
-    rows: Vec<SkillChoice>,
-    current: bool,
-}
-#[cfg(any(target_os = "macos", target_os = "linux"))]
-impl SkillChoices {
-    fn menu(&self, menu: PopupMenu, this: &WeakEntity<ThreadsUi>) -> PopupMenu {
-        let mut menu = menu.label("Skill");
-        if self.current {
-            for skill in &self.rows {
-                let (id, digest, scope) =
-                    (skill.id.clone(), skill.digest.clone(), self.project.clone());
-                let label = if skill.available {
-                    skill.id.clone()
-                } else {
-                    format!("{} · unavailable", skill.id)
-                };
-                menu = menu.item(item(
-                    this,
-                    label,
-                    None,
-                    !skill.available,
-                    skill.selected,
-                    move |view, _, cx| {
-                        view.skill_action(SkillAction::Select, &id, &digest, scope.clone(), cx)
-                    },
-                ));
-            }
-            let scope = self.project.clone();
-            menu = menu.item(item(
-                this,
-                "No skill",
-                None,
-                false,
-                !self.rows.iter().any(|skill| skill.selected),
-                move |view, _, cx| view.skill_action(SkillAction::Clear, "", "", scope.clone(), cx),
-            ));
-        }
-        menu.item(item(
-            this,
-            "Refresh skills",
-            None,
-            false,
-            false,
-            |view, _, cx| {
-                view.force_refresh_skills();
-                cx.notify();
-            },
-        ))
     }
 }

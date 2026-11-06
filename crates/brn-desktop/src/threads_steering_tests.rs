@@ -944,8 +944,8 @@ fn dismissed_completion_banner_can_be_restored_from_the_workspace_menu(cx: &mut 
             window.try_find("status-model").is_none(),
             "model selection belongs in the composer"
         );
-        // A chat below 420 pt names the effort in the model control, whose
-        // menu holds the effort choices.
+        // The one model control names provider, model and effort; its
+        // picker holds the reasoning choices.
         let settings = f.view.read(cx).settings.clone();
         assert!(f.view.read(cx).chat_narrow);
         assert!(window.find("model-pill").visible());

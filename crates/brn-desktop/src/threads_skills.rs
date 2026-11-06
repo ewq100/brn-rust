@@ -28,8 +28,6 @@ pub(super) enum SkillAction {
     Enable,
     AdoptCurrent,
     Disable,
-    Select,
-    Clear,
     Remove,
     Inspect,
 }
@@ -142,8 +140,6 @@ impl ThreadsUi {
                     matches!(action, SkillAction::Enable | SkillAction::AdoptCurrent),
                 )
                 .map(|_| ()),
-            SkillAction::Select => self.workspace.select_skill(Some(id),project.as_deref()).map(|_|()),
-            SkillAction::Clear => self.workspace.select_skill(None,project.as_deref()).map(|_|()),
             SkillAction::Remove => self.workspace.remove_skill(id.strip_prefix("installed:").unwrap_or(id),digest).map(|_|()),
             SkillAction::Inspect => self.workspace.inspect_skill(id.strip_prefix("installed:").unwrap_or(id)).and_then(|p| {
                 if p.info.digest != digest {
@@ -174,7 +170,7 @@ impl ThreadsUi {
             Ok(_) => {
                 self.skill_view.stamp = None;
                 self.refresh();
-                self.warn("Skill installed locally. Enable it explicitly in the intended scope before selecting or loading it.");
+                self.warn("Skill installed locally. Enable it explicitly in the intended scope before chats can use it.");
             }
             Err(error) => self.fail(error.to_string()),
         }

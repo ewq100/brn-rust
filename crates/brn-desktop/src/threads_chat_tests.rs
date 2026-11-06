@@ -1230,24 +1230,181 @@ fn the_composer_is_one_row_and_names_the_effort_in_a_narrow_chat(cx: &mut TestAp
         assert!(window.try_find("effort-pill").is_none());
         assert_eq!(label(window, "ask-delegate"), "Send");
     });
-    // The model menu holds the effort choices and their handler.
+    // The one picker holds the reasoning choices and their handler.
     click(cx, &f, "model-pill");
-    on_window(cx, &f, |window, cx| {
-        let mut menu = window.within("popup-menu");
-        let index = (0..60usize)
-            .find(|index| {
-                menu.try_find(*index)
-                    .is_some_and(|row| row.label() == Some("high"))
-            })
-            .expect("the model menu lists the reasoning efforts");
-        menu.click(index, cx);
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("model-picker").visible())
     });
-    cx.read(|cx| assert_eq!(f.view.read(cx).settings.effort, "high"));
+    click(cx, &f, "model-effort-high");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings.effort, "high");
+        assert!(
+            !view.model_picker.open,
+            "choosing reasoning closes the picker"
+        );
+    });
     on_window(cx, &f, |window, _| {
         assert_eq!(
             label(window, "model-pill"),
             format!("Model {model}, effort high")
         );
+    });
+}
+
+fn catalogue_option(
+    id: &str,
+    name: &str,
+    efforts: &[brn_ai::ReasoningEffort],
+    default: Option<brn_ai::ReasoningEffort>,
+) -> brn_ai::ModelOption {
+    let mut option = brn_ai::ModelOption::bare(id);
+    option.display_name = Some(name.into());
+    option.efforts = Some(efforts.to_vec());
+    option.default_effort = default;
+    option
+}
+/// A loaded synthetic ChatGPT catalogue: no provider is contacted.
+fn load_synthetic_catalogue(cx: &mut TestAppContext, f: &Fixture) {
+    use brn_ai::ReasoningEffort::{High, Low, Medium};
+    update(cx, f, |view, window, cx| {
+        view.model_picker.chatgpt = model_picker::Catalogue::Loaded(vec![
+            catalogue_option(
+                "synthetic-large",
+                "Synthetic Large",
+                &[Low, Medium, High],
+                Some(Medium),
+            ),
+            catalogue_option(
+                "synthetic-mini",
+                "Synthetic Mini",
+                &[Low, Medium],
+                Some(Medium),
+            ),
+        ]);
+        let mut settings = view.settings.clone();
+        settings.effort = "high".into();
+        view.configure_explicit(settings, window, cx);
+    });
+}
+
+#[gpui_kit::test]
+fn the_model_picker_searches_switches_models_and_adjusts_an_unsupported_effort(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx, 1280., 900., |_, _, _| {});
+    load_synthetic_catalogue(cx, &f);
+    click(cx, &f, "model-pill");
+    on_window(cx, &f, |window, cx| {
+        assert!(window.find("model-picker").visible());
+        assert!(
+            f.view
+                .read(cx)
+                .model_picker
+                .query
+                .focus_handle(cx)
+                .is_focused(window)
+        );
+        assert_eq!(
+            label(window, "model-row-0"),
+            "ChatGPT · Synthetic Large (synthetic-large)"
+        );
+        assert_eq!(
+            label(window, "model-row-1"),
+            "ChatGPT · Synthetic Mini (synthetic-mini)"
+        );
+    });
+    // Search filters by name or id; Return chooses the highlighted model and
+    // moves to its reasoning, adjusting the effort it does not offer.
+    cx.simulate_input(f.window, "mini");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "model-row-0"),
+            "ChatGPT · Synthetic Mini (synthetic-mini)"
+        );
+        assert!(window.try_find("model-row-1").is_none());
+        assert!(window.try_find("model-effort-high").is_none());
+    });
+    on_window(cx, &f, |window, cx| window.press("enter", cx));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings.provider, "chatgpt");
+        assert_eq!(view.settings.model, "synthetic-mini");
+        assert_eq!(view.settings.effort, "medium");
+        assert!(view.model_picker.open);
+        assert_eq!(
+            view.model_picker.section,
+            model_picker::PickerSection::Efforts
+        );
+        assert_eq!(
+            view.notice.text(),
+            "Reasoning set to medium: Synthetic Mini doesn't offer high."
+        );
+    });
+    // Arrows move within reasoning; Return chooses it and closes the picker.
+    on_window(cx, &f, |window, cx| {
+        window.press("up", cx);
+        window.press("enter", cx);
+    });
+    on_window(cx, &f, |window, cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings.effort, "low");
+        assert!(!view.model_picker.open);
+        assert!(view.composer.focus_handle(cx).is_focused(window));
+        assert_eq!(
+            label(window, "model-pill"),
+            "Model ChatGPT · synthetic-mini, effort low"
+        );
+    });
+    // Escape closes without changing the selection.
+    click(cx, &f, "model-pill");
+    on_window(cx, &f, |window, cx| {
+        window.press("down", cx);
+        window.press("escape", cx);
+    });
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert!(!view.model_picker.open);
+        assert_eq!(view.settings.model, "synthetic-mini");
+    });
+}
+
+#[gpui_kit::test]
+fn model_favorites_keep_their_provider_and_survive_a_reopened_workspace(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1280., 900., |_, _, _| {});
+    load_synthetic_catalogue(cx, &f);
+    click(cx, &f, "model-pill");
+    click(cx, &f, "model-favorite-1");
+    click(cx, &f, "model-provider-favorites");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "model-row-0"),
+            "ChatGPT · Synthetic Mini (synthetic-mini), favorite"
+        );
+        assert!(window.try_find("model-row-1").is_none());
+    });
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).workspace.favorite_models().unwrap(),
+            vec![("chatgpt".to_owned(), "synthetic-mini".to_owned())]
+        );
+    });
+    let reopened = Workspace::open(f._root.path().join("chat-polish")).unwrap();
+    assert_eq!(
+        reopened.favorite_models().unwrap(),
+        vec![("chatgpt".to_owned(), "synthetic-mini".to_owned())]
+    );
+    // Removing the star from Favorites removes it from the list.
+    click(cx, &f, "model-favorite-0");
+    cx.read(|cx| {
+        assert!(
+            f.view
+                .read(cx)
+                .workspace
+                .favorite_models()
+                .unwrap()
+                .is_empty()
+        )
     });
 }
 
@@ -1290,16 +1447,19 @@ fn while_work_runs_send_reads_queue_at_a_wide_chat_and_replies_keep_the_measure(
         cx.notify();
         lease
     });
-    let model = cx.read(|cx| {
+    let (model, effort) = cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(!view.chat_narrow);
-        view.settings.model.clone()
+        (view.settings.model.clone(), view.settings.effort.clone())
     });
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "ask-delegate"), "Queue");
-        // No provider is chosen offline: the model alone, no leading "·".
-        assert_eq!(label(window, "model-pill"), model);
-        assert!(window.find("effort-pill").visible());
+        // No provider is chosen offline: the model and effort, no provider.
+        assert_eq!(
+            label(window, "model-pill"),
+            format!("Model {model}, effort {effort}")
+        );
+        assert!(window.try_find("effort-pill").is_none());
         assert!(window.find("chat-steer").visible());
         assert_eq!(label(window, format!("answer-copy-{reply}")), "Copy reply");
         assert_eq!(
@@ -1985,17 +2145,30 @@ fn the_new_chat_start_has_a_greeting_the_composer_three_actions_and_the_delegati
             "What are we working on?"
         );
         assert!(window.find("composer-box").visible());
-        let actions = window.find("chat-start-actions").bounds();
-        for id in ["start-attach", "start-new-document", "start-web"] {
-            let bounds = window.find(id).bounds();
-            assert!(bounds.top() >= actions.top() && bounds.bottom() <= actions.bottom());
+        // The + menu holds attaching and new documents; no row repeats them.
+        for id in [
+            "chat-start-actions",
+            "start-attach",
+            "start-new-document",
+            "start-web",
+        ] {
+            assert!(window.try_find(id).is_none(), "{id} duplicates the + menu");
         }
         assert!(window.find("delegation-pending").visible());
-        // The composer precedes the actions, below the greeting.
         let heading = window.find("chat-start-heading").bounds();
         let composer = window.find("composer-box").bounds();
-        assert!(heading.bottom() <= composer.top() && composer.bottom() <= actions.top());
+        assert!(heading.bottom() <= composer.top());
     });
+    click(cx, &f, "composer-add");
+    assert_eq!(
+        menu_rows(cx, &f),
+        [
+            "Attach document…",
+            "Add useful information…",
+            "Import full note…",
+            "New document"
+        ]
+    );
 }
 
 /// Activity is a per-conversation disclosure: closed by default, it names

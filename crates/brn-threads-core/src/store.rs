@@ -312,6 +312,68 @@ impl Store {
         Ok(())
     }
 
+    /// The owner's favorite chat models as `(provider, model)` pairs, in the
+    /// saved order; empty when none have been saved. Presentation state like
+    /// [`Store::presentation_location`]: it never selects a model, grants a
+    /// route or touches the versioned Settings record.
+    pub fn presentation_model_favorites(&self) -> Result<Vec<(String, String)>> {
+        let exists = self
+            .conn
+            .query_row(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='model_favorites'",
+                [],
+                |_| Ok(()),
+            )
+            .optional()?
+            .is_some();
+        if !exists {
+            return Ok(Vec::new());
+        }
+        let raw = self
+            .conn
+            .query_row(
+                "SELECT favorites FROM model_favorites WHERE id=1",
+                [],
+                |row| row.get::<_, Option<String>>(0),
+            )
+            .optional()?
+            .flatten();
+        // A damaged presentation value is ignored, never fatal.
+        Ok(raw
+            .and_then(|raw| serde_json::from_str(&raw).ok())
+            .unwrap_or_default())
+    }
+
+    /// Replace the favorite chat models (see
+    /// [`Store::presentation_model_favorites`]). Bounded, and durable before
+    /// this returns.
+    pub fn save_presentation_model_favorites(
+        &mut self,
+        favorites: &[(String, String)],
+    ) -> Result<()> {
+        if favorites.len() > 64
+            || favorites.iter().any(|(provider, model)| {
+                provider.is_empty() || model.is_empty() || provider.len() > 64 || model.len() > 256
+            })
+        {
+            return Err(Error::Invalid("unsupported model favorites".into()));
+        }
+        let encoded = serde_json::to_string(favorites)
+            .map_err(|_| Error::Invalid("unsupported model favorites".into()))?;
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(
+            "CREATE TABLE IF NOT EXISTS model_favorites(id INTEGER PRIMARY KEY CHECK(id=1), favorites TEXT)",
+        )?;
+        tx.execute(
+            "INSERT INTO model_favorites(id,favorites) VALUES(1,?1) ON CONFLICT(id) DO UPDATE SET favorites=excluded.favorites",
+            [encoded],
+        )?;
+        tx.commit()?;
+        Ok(())
+    }
+
     /// The caller's actor name, recorded beside every receipt this
     /// connection commits from now on; `None` records none. It is never part
     /// of a request's identity: a replay keeps the first actor.

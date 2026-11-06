@@ -64,21 +64,6 @@ fn native_skill_install_enable_select_disable_and_reopen(cx: &mut TestAppContext
                 cx,
             );
             ui.skill_action(
-                skills_view::SkillAction::Select,
-                &info.id,
-                &info.digest,
-                None,
-                cx,
-            );
-            assert!(
-                ui.workspace
-                    .settings()
-                    .unwrap()
-                    .skills
-                    .iter()
-                    .any(|b| b.id == info.id && b.selected)
-            );
-            ui.skill_action(
                 skills_view::SkillAction::Inspect,
                 &info.id,
                 &info.digest,

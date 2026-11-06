@@ -38,8 +38,6 @@ mod chat;
 mod composer;
 #[path = "threads_run_activity.rs"]
 mod run_activity;
-#[path = "threads_web_search.rs"]
-mod web_search;
 use run_activity::{Event as RunActivityEvent, RunActivity};
 #[path = "threads_changes.rs"]
 mod changes_view;
@@ -82,6 +80,8 @@ mod location;
 mod mcp_tests;
 #[path = "threads_mcp.rs"]
 mod mcp_view;
+#[path = "threads_model_picker.rs"]
+mod model_picker;
 #[path = "threads_notice.rs"]
 mod notice;
 use notice::NoticeState;
@@ -521,7 +521,6 @@ struct ThreadsUi {
     inbox_page: inbox_page::InboxPage,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
     worker: Option<Worker>,
-    web_search: web_search::WebSearch,
     stream: String,
     progress: String,
     run_activity: RunActivity,
@@ -532,6 +531,7 @@ struct ThreadsUi {
     notice: NoticeState,
     export_status: String,
     copilot_models: Vec<String>,
+    model_picker: model_picker::ModelPicker,
     backup_status: String,
     restore: restore_view::RestoreFlow,
     /// The open note's version history, shown in place of the document.
@@ -593,6 +593,8 @@ impl ThreadsUi {
         let launcher_query = cx.new(|cx| {
             InputState::new(window, cx).placeholder("Search articles, files, chats and commands…")
         });
+        let picker_query = cx.new(|cx| InputState::new(window, cx).placeholder("Search models"));
+        let favorite_models = workspace.favorite_models().unwrap_or_default();
         let model = cx.new(|cx| {
             InputState::new(window, cx)
                 .default_value(settings.model.clone())
@@ -711,6 +713,15 @@ impl ThreadsUi {
                 }
             }),
             cx.subscribe_in(
+                &picker_query,
+                window,
+                |this, _, event: &InputEvent, _, cx| {
+                    if matches!(event, InputEvent::Change) {
+                        this.picker_query_changed(cx);
+                    }
+                },
+            ),
+            cx.subscribe_in(
                 &launcher_query,
                 window,
                 |this, input, event: &InputEvent, window, cx| match event {
@@ -820,7 +831,6 @@ impl ThreadsUi {
             inbox_page: inbox_page::InboxPage::default(),
             assets: Arc::new(BTreeMap::new()),
             worker: None,
-            web_search: web_search::WebSearch::default(),
             stream: String::new(),
             progress: String::new(),
             run_activity: RunActivity::default(),
@@ -829,6 +839,7 @@ impl ThreadsUi {
             notice: NoticeState::default(),
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
+            model_picker: model_picker::ModelPicker::new(picker_query, favorite_models),
             backup_status: "No backup created in this session.".into(),
             restore: Default::default(),
             doc_history: None,
@@ -922,7 +933,6 @@ impl ThreadsUi {
             self.candidates = self.workspace.candidates()?;
             self.buffers = self.workspace.store.recovery_buffers()?;
             let settings = self.workspace.settings()?;
-            self.reconcile_web_settings(&settings);
             self.provider_form = ProviderForm::from_settings(&settings);
             self.settings = settings;
             self.topics = self.workspace.topics()?;
@@ -2470,24 +2480,6 @@ impl ThreadsUi {
             self.apply_resolved_theme(os_dark, window, cx);
         }
     }
-    /// Pills change the explicit Settings through the existing configure path.
-    fn set_model(
-        &mut self,
-        provider: &str,
-        model: &str,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        let mut settings = self.settings.clone();
-        settings.provider = provider.into();
-        settings.model = model.into();
-        self.configure_explicit(settings, window, cx);
-    }
-    fn set_effort(&mut self, effort: &str, window: &mut Window, cx: &mut Context<Self>) {
-        let mut settings = self.settings.clone();
-        settings.effort = effort.into();
-        self.configure_explicit(settings, window, cx);
-    }
     fn configure_explicit(
         &mut self,
         settings: WorkspaceSettings,
@@ -2857,7 +2849,6 @@ impl ThreadsUi {
                 self.show_tile(kind, window, cx);
             }
             lists::Command::Keys => self.show_keys(window, cx),
-            lists::Command::WebSearch => self.open_web_search(window, cx),
         }
     }
     fn continue_run(&mut self, thread: String, cx: &mut Context<Self>) {
@@ -2933,7 +2924,6 @@ impl ThreadsUi {
             .map(|_| self.stream.as_str())
     }
     fn poll_worker(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.poll_web_search(cx);
         let Some(worker) = &self.worker else {
             return;
         };
@@ -3028,7 +3018,6 @@ impl ThreadsUi {
                     if let Err(error) = self.workspace.configure(settings.clone()) {
                         self.fail(error.to_string());
                     } else {
-                        self.reconcile_web_settings(&settings);
                         self.settings = settings;
                     }
                 }

@@ -528,11 +528,11 @@ Bind UI actions to typed existing commands/events. A button should not duplicate
 |---|---|
 | Host and services | `crates/brn-desktop/src/threads_ui.rs` |
 | Shell/navigation/layout | `threads_shell.rs`, `threads_layout.rs`, `threads_lists.rs`, `threads_components.rs` in that directory |
-| Chat/run/activity | `threads_chat.rs`, `threads_writing.rs`, `threads_worker.rs`, `threads_run_activity.rs`, `threads_notice.rs` |
+| Chat/run/activity | `threads_chat.rs`, `threads_composer.rs`, `threads_model_picker.rs`, `threads_writing.rs`, `threads_worker.rs`, `threads_run_activity.rs`, `threads_notice.rs` |
 | Projects | `threads_projects.rs` |
 | Search/knowledge | `threads_search.rs`, `threads_search_state.rs`, `threads_connections.rs` |
 | Intake/recovery | `threads_documents.rs`, `threads_inbox.rs`, `threads_capture.rs`, `threads_restore.rs` |
-| Skills/MCP/web | `threads_skills.rs`, `threads_mcp.rs`, `threads_web_search.rs` |
+| Skills/MCP | `threads_skills.rs`, `threads_mcp.rs` |
 | Settings/tasks/changes | `threads_tiles.rs` and their service owners |
 | Shared writing | `crates/brn-writing-ui/src/` including `native.rs`, `writing.rs`, `workbench.rs`, `note.rs`, `review.rs`, `document.rs`, `setup.rs`, `references.rs`, `formatting.rs`, `diff.rs`, `theme.rs` |
 

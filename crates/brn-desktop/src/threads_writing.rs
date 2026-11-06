@@ -346,9 +346,10 @@ impl ThreadsUi {
             .test_support()
             .into_any_element()
     }
-    /// The New chat start surface (§4.3): a short greeting, the composer,
-    /// at most three starting actions and, while unchosen, the delegation
-    /// choice. Existing manual work stays available before choosing.
+    /// The New chat start surface (§4.3): a short greeting, the composer
+    /// and, while unchosen, the delegation choice. The composer's + menu
+    /// holds attaching and new documents; no row repeats them. Existing
+    /// manual work stays available before choosing.
     fn start_surface(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let p = pal();
         let (heading, hint) = match &self.chat {
@@ -360,20 +361,8 @@ impl ThreadsUi {
                 ),
                 "This chat stays linked to the note.",
             ),
-            _ => (
-                "What are we working on?".to_owned(),
-                "Ask anything. Files you attach stay with this chat until you keep them in BRN.",
-            ),
+            _ => ("What are we working on?".to_owned(), "Ask anything."),
         };
-        let action = |id: &'static str, icon: IconName, label: &'static str| {
-            button(id)
-                .outline()
-                .compact()
-                .h(px(theme::metrics::CONTROL_HEIGHT))
-                .icon(icon)
-                .label(label)
-        };
-        let busy = self.worker.is_some();
         let column = super::chat::transcript_column(true)
             .gap_4()
             .py(components::tokens::SPACE_8)
@@ -404,31 +393,6 @@ impl ThreadsUi {
             )
             .children(self.queue_panel(cx))
             .child(self.composer_tile(cx))
-            .child(
-                div()
-                    .id("chat-start-actions")
-                    .flex()
-                    .flex_wrap()
-                    .justify_center()
-                    .gap_2()
-                    .child(
-                        action("start-attach", IconName::Paperclip, "Attach a document")
-                            .disabled(busy)
-                            .on_click(cx.listener(|this, _, window, cx| {
-                                this.choose_chat_attachment(window, cx)
-                            })),
-                    )
-                    .child(
-                        action("start-new-document", IconName::FilePlus, "New document")
-                            .on_click(cx.listener(|this, _, window, cx| this.new_note(window, cx))),
-                    )
-                    .child(
-                        action("start-web", IconName::Globe, "Search the web").on_click(
-                            cx.listener(|this, _, window, cx| this.open_web_search(window, cx)),
-                        ),
-                    )
-                    .test_support(),
-            )
             .when(self.delegation_host() == Some(TileKind::Chat), |column| {
                 column.child(self.working_knowledge(cx))
             });
