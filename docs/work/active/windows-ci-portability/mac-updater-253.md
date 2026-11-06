@@ -299,3 +299,10 @@ login. The Mac reports `CGSSessionScreenIsLocked=true`; no native UI was driven.
 Do not automatically run an old app against a migrated store. Recovery after
 schema changes requires a compatible app plus matching pre-upgrade backup, or a
 forward fix. Retained app bundles alone are not database rollback authority.
+
+## Release proposal
+
+[Draft PR268](https://github.com/ewq100/brn-rust/pull/268) contains the alpha.1/build3
+manifest/notes and exact local evidence. It stops before merge/publication pending
+explicit owner release approval. Its own final-head hosted checks and Codex
+code/security must complete; prior updater receipts are not this proposal review.
