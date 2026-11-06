@@ -246,6 +246,8 @@ struct HelperChoice {
     effort: ReasoningEffort,
     auth_file: Option<PathBuf>,
     credentials_dir: Option<PathBuf>,
+    /// The helper's Copilot account at parent-run start; never switched.
+    account: Option<crate::AccountPin>,
 }
 impl HelperChoice {
     fn from_settings(settings: &HelperSettings) -> Option<Self> {
@@ -270,11 +272,13 @@ impl HelperChoice {
             model: settings.model.clone(),
         };
         selection.validate().ok()?;
+        let credentials_dir = settings.credentials_dir.as_ref().map(PathBuf::from);
         Some(Self {
+            account: super::capture_account(&selection, credentials_dir.as_deref()),
             selection,
             effort,
             auth_file: settings.auth_file.as_ref().map(PathBuf::from),
-            credentials_dir: settings.credentials_dir.as_ref().map(PathBuf::from),
+            credentials_dir,
         })
     }
 }
@@ -732,6 +736,7 @@ fn run_helper<'a>(
                     &choice.selection,
                     choice.auth_file.as_deref(),
                     choice.credentials_dir.as_deref(),
+                    choice.account.as_ref(),
                     child.cache_key.as_deref(),
                     Some(wire_trace::wrap(
                         transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),

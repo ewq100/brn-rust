@@ -1,5 +1,5 @@
 //! Host-owned, tool-free document conversion transport. Source content never supplies authority.
-use crate::auth::OwnedClient;
+use crate::auth::{AccountPin, OwnedClient, copilot_completion};
 use crate::chat::collect_stream;
 use crate::{AiError, AiErrorKind, AiTerminal, Auth, Provider, ReasoningEffort, Selection};
 use brn_threads_intake::ConversionError;
@@ -8,6 +8,7 @@ use rig::agent::MultiTurnStreamItem;
 use rig::completion::{FinishReason, Message, PromptError};
 use rig::http_client::DynHttpClient;
 use std::{
+    path::{Path, PathBuf},
     sync::{Arc, atomic::AtomicBool},
     time::Duration,
 };
@@ -71,12 +72,117 @@ impl From<ConversionError> for ConversionFailure {
     }
 }
 
+/// The account that refines documents, fixed when the job starts. Each
+/// provider uses only its own sign-in: Copilot never falls back to a Codex
+/// login, and a changed Copilot account refuses rather than serves the job.
+#[derive(Clone, Debug)]
+pub enum ConversionAccount {
+    Chatgpt {
+        auth_file: Option<PathBuf>,
+        credentials_dir: Option<PathBuf>,
+    },
+    Copilot {
+        credentials_dir: Option<PathBuf>,
+        account: Option<AccountPin>,
+    },
+    /// The saved provider cannot refine documents.
+    Unsupported,
+}
+impl ConversionAccount {
+    /// Captures the selected account now. Reads only the selected provider's
+    /// own credentials; call it only when refinement is On.
+    pub fn capture(
+        provider: Option<Provider>,
+        auth_file: Option<&Path>,
+        credentials_dir: Option<&Path>,
+    ) -> Self {
+        match provider {
+            Some(Provider::Chatgpt) => Self::Chatgpt {
+                auth_file: auth_file.map(Path::to_owned),
+                credentials_dir: credentials_dir.map(Path::to_owned),
+            },
+            Some(Provider::Copilot) => Self::Copilot {
+                account: credentials_dir
+                    .and_then(|dir| Auth::open(dir).ok()?.copilot_account().ok()),
+                credentials_dir: credentials_dir.map(Path::to_owned),
+            },
+            None => Self::Unsupported,
+        }
+    }
+}
+
+/// The selected account's client for the fixed refinement model.
+async fn conversion_client(
+    account: &ConversionAccount,
+    transport: Option<DynHttpClient>,
+    cancel: &CancellationToken,
+) -> Result<rig_core::DynModel<rig_core::operation::Completion>, AiError> {
+    let with_transport = |auth: Auth| match transport.clone() {
+        Some(http) => auth.with_http(http),
+        None => auth,
+    };
+    match account {
+        ConversionAccount::Chatgpt {
+            auth_file,
+            credentials_dir,
+        } => {
+            let selection = Selection {
+                provider: Provider::Chatgpt,
+                model: MODEL.into(),
+            };
+            let client = if let Some(file) = auth_file {
+                crate::codex_auth::codex_client_pinned(
+                    file,
+                    &selection,
+                    None,
+                    transport
+                        .clone()
+                        .unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
+                    cancel.clone(),
+                )
+                .await?
+            } else if let Some(dir) = credentials_dir {
+                with_transport(Auth::open(dir)?)
+                    .client(&selection, cancel.clone())
+                    .await?
+            } else {
+                return Err(AiError::new(AiErrorKind::ReconnectNeeded));
+            };
+            let OwnedClient::Chatgpt(client) = client.inner else {
+                return Err(AiError::new(AiErrorKind::ModelRefused));
+            };
+            Ok(client.completion(MODEL).into())
+        }
+        ConversionAccount::Copilot {
+            credentials_dir: Some(dir),
+            account: Some(pin),
+        } => {
+            let selection = Selection {
+                provider: Provider::Copilot,
+                model: MODEL.into(),
+            };
+            let auth = with_transport(Auth::open(dir)?);
+            auth.check_copilot_account(pin)?;
+            let client = auth.client(&selection, cancel.clone()).await?;
+            auth.check_copilot_account(pin)?;
+            let OwnedClient::Copilot(client) = client.inner else {
+                return Err(AiError::new(AiErrorKind::ModelRefused));
+            };
+            // Copilot serves GPT-6 Luna on its Responses route only.
+            Ok(copilot_completion(&client, MODEL.into(), true).into())
+        }
+        ConversionAccount::Copilot { .. } | ConversionAccount::Unsupported => {
+            Err(AiError::new(AiErrorKind::ReconnectNeeded))
+        }
+    }
+}
+
 /// The same fixed account/model stream path, with response checking inside its
 /// deadline. The parser supplies no tools, history or write authority.
 pub(crate) async fn conversion_response<T>(
     message: Message,
     preamble: &str,
-    credentials: (Option<&std::path::Path>, Option<&std::path::Path>),
+    account: &ConversionAccount,
     cancel: CancellationToken,
     transport: Option<DynHttpClient>,
     timeout: Duration,
@@ -85,38 +191,11 @@ pub(crate) async fn conversion_response<T>(
     if cancel.is_cancelled() {
         return Err(ConversionFailure::Interrupted);
     }
-    let (auth_file, credentials_dir) = credentials;
     let operation = async {
-        let selection = Selection {
-            provider: Provider::Chatgpt,
-            model: MODEL.into(),
-        };
-        let client = if let Some(file) = auth_file {
-            crate::codex_auth::codex_client_pinned(
-                file,
-                &selection,
-                None,
-                transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
-                cancel.clone(),
-            )
+        let model = conversion_client(account, transport, &cancel)
             .await
-        } else if let Some(dir) = credentials_dir {
-            let auth = Auth::open(dir).map_err(ConversionFailure::Provider)?;
-            let auth = match transport {
-                Some(http) => auth.with_http(http),
-                None => auth,
-            };
-            auth.client(&selection, cancel.clone()).await
-        } else {
-            Err(AiError::new(AiErrorKind::ReconnectNeeded))
-        }
-        .map_err(ConversionFailure::Provider)?;
-        let OwnedClient::Chatgpt(client) = client.inner else {
-            return Err(ConversionFailure::Provider(AiError::new(
-                AiErrorKind::ModelRefused,
-            )));
-        };
-        let agent = rig::AgentBuilder::new(client.completion(MODEL))
+            .map_err(ConversionFailure::Provider)?;
+        let agent = rig::AgentBuilder::new(model)
             .preamble(preamble)
             // Rig's qualified subscription route rejects generation-token caps.
             // Bound candidate bytes, model calls and wall time in the host instead.

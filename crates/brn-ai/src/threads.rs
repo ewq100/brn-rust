@@ -1,5 +1,5 @@
 //! One fresh Rig invocation over BRN-owned state. Tool scope is in-process only.
-use crate::auth::OwnedClient;
+use crate::auth::{AccountPin, OwnedClient};
 use crate::{
     AiAnswer, AiError, AiErrorKind, AiEvent, AiResult, AiTerminal, Auth, Provider, ProviderClient,
     ReasoningEffort, Selection,
@@ -202,6 +202,8 @@ pub struct PreparedThreadRun {
     scope: Arc<Scope>,
     input: String,
     summary_chunks: Vec<String>,
+    /// The Copilot account this run started with; every model call checks it.
+    account: Option<AccountPin>,
 }
 /// Non-authoritative facts shown during an earlier host review. This is neither
 /// a grant nor serialized state; checked attachment must still construct fresh
@@ -2912,12 +2914,26 @@ pub fn prepare_run(mut request: ThreadRunRequest) -> AiResult<PreparedThreadRun>
         source.reference = brn_threads_core::canonical_locator(&source.reference);
     }
     let (scope, input, summary_chunks) = begin_context(&request)?;
+    let account = capture_account(&request.selection, request.credentials_dir.as_deref());
     Ok(PreparedThreadRun {
         request,
         scope,
         input,
         summary_chunks,
+        account,
     })
+}
+
+/// The Copilot account a model operation starts with, captured once so a
+/// later sign-in to another account can never serve it.
+pub(crate) fn capture_account(
+    selection: &Selection,
+    credentials_dir: Option<&std::path::Path>,
+) -> Option<AccountPin> {
+    if selection.provider != Provider::Copilot {
+        return None;
+    }
+    Auth::open(credentials_dir?).ok()?.copilot_account().ok()
 }
 
 /// The current Messages of `chat` in durable receipt order, as a Run sees
@@ -3018,10 +3034,12 @@ pub async fn run_prepared(
 
 /// The provider client for a run. A Codex run's cache key pins its
 /// `session-id` on top of `transport` (the shared HTTP client when `None`).
+#[allow(clippy::too_many_arguments)]
 async fn provider_client(
     selection: &Selection,
     auth_file: Option<&std::path::Path>,
     credentials_dir: Option<&std::path::Path>,
+    account: Option<&AccountPin>,
     cache_key: Option<&str>,
     transport: Option<DynHttpClient>,
     on_resend: crate::resend::OnResend,
@@ -3031,6 +3049,7 @@ async fn provider_client(
         selection,
         auth_file,
         credentials_dir,
+        account,
         cache_key,
         transport,
         on_resend,
@@ -3040,10 +3059,15 @@ async fn provider_client(
     .map(|(client, _)| client)
 }
 
+/// A Copilot client is served only by `account`, the account its operation
+/// started with: a different sign-in before or during authentication, or any
+/// sign-in when none was captured, refuses rather than switches accounts.
+#[allow(clippy::too_many_arguments)]
 async fn provider_client_context(
     selection: &Selection,
     auth_file: Option<&std::path::Path>,
     credentials_dir: Option<&std::path::Path>,
+    account: Option<&AccountPin>,
     cache_key: Option<&str>,
     transport: Option<DynHttpClient>,
     on_resend: crate::resend::OnResend,
@@ -3062,25 +3086,23 @@ async fn provider_client_context(
             .map(|client| (client, None))
     } else if let Some(dir) = credentials_dir {
         let auth = Auth::open(dir)?.with_http(http);
-        let bootstrap_before = if selection.provider == Provider::Copilot {
-            auth.github_token_fingerprint().ok().flatten()
-        } else {
-            None
-        };
+        if selection.provider != Provider::Copilot {
+            let client = auth
+                .client_pinned(selection, cache_key, cancel.clone())
+                .await?;
+            return Ok((client, None));
+        }
+        // No account captured at start (signed out or unreadable then) never
+        // adopts a sign-in made since.
+        let started = account
+            .cloned()
+            .ok_or_else(|| AiError::new(AiErrorKind::ReconnectNeeded))?;
+        auth.check_copilot_account(&started)?;
         let client = auth
             .client_pinned(selection, cache_key, cancel.clone())
             .await?;
-        // Optional context only: never bind a resolved client to a bootstrap
-        // that changed during authentication. Missing/unsafe/changing identity
-        // disables reuse, without changing authentication or chat's outcome.
-        let fingerprint = if selection.provider == Provider::Copilot {
-            auth.github_token_fingerprint()
-                .ok()
-                .flatten()
-                .filter(|after| Some(after) == bootstrap_before.as_ref())
-        } else {
-            None
-        };
+        auth.check_copilot_account(&started)?;
+        let fingerprint = started.fingerprint().map(str::to_owned);
         Ok((client, fingerprint))
     } else {
         Err(AiError::new(AiErrorKind::ReconnectNeeded))
@@ -3098,6 +3120,7 @@ async fn run_prepared_over(
         scope,
         input,
         summary_chunks,
+        account,
     } = prepared;
     let current = {
         let store = scope.store.lock().map_err(storage)?;
@@ -3171,6 +3194,7 @@ async fn run_prepared_over(
                     &request.selection,
                     request.auth_file.as_deref(),
                     request.credentials_dir.as_deref(),
+                    account.as_ref(),
                     None,
                     Some(base_http.clone()),
                     on_resend.clone(),
@@ -3335,6 +3359,7 @@ pub async fn run_prepared_scripted_with_helpers(
         scope,
         input,
         summary_chunks,
+        ..
     } = prepared;
     let cancel = CancellationToken::new();
     if let Err(error) = mcp_runtime::connect(&scope, &cancel).await {
@@ -3419,6 +3444,7 @@ pub async fn run_prepared_scripted_then_abandon(
         scope,
         input,
         summary_chunks,
+        ..
     } = prepared;
     let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
     let (input, _) = continuation::context(&scope, input);

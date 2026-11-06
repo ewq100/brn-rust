@@ -2545,8 +2545,9 @@ mod scoped_read_tools_tests {
                             parameters["properties"]["scope"]["enum"],
                             json!(["current", "source", "history", "all"])
                         );
-                        // Rig's pinned Copilot Responses dialect normalizes
-                        // strict schemas so every property becomes required.
+                        // This offline harness keeps Rig's default strict Copilot
+                        // Responses dialect, which makes every property required.
+                        // Shipped Threads disables it in `auth::copilot_completion`.
                         // Rust omission compatibility remains independently tested.
                         assert_eq!(
                             parameters["required"]

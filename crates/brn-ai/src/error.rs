@@ -35,6 +35,11 @@ impl AiError {
             _ => None,
         }
     }
+    pub(crate) fn account_changed_notice(&self) -> Option<&'static str> {
+        (self.kind == AiErrorKind::ReconnectNeeded && self.detail.as_ref().is_some_and(|d|
+            d.origin == "account_pin" && d.code.as_deref() == Some("account_changed")))
+            .then_some("The signed-in Copilot account changed after this request started. BRN made no model request with the other account; start the request again.")
+    }
     pub(crate) fn skill_unavailable_notice(&self) -> Option<&'static str> {
         (self.kind == AiErrorKind::Other && self.detail.as_ref().is_some_and(|d| d.origin == "skill_catalogue" && d.code.as_deref() == Some("skill_unavailable")))
             .then_some("The requested skill is unavailable. Reinstall its exact approved package or remove its / command before continuing.")
@@ -125,6 +130,9 @@ impl std::fmt::Display for AiError {
             );
         }
         if let Some(notice) = self.skill_unavailable_notice() {
+            return f.write_str(notice);
+        }
+        if let Some(notice) = self.account_changed_notice() {
             return f.write_str(notice);
         }
         if let Some(notice) = self.mcp_unavailable_notice() {

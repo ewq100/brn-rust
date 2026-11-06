@@ -52,6 +52,43 @@ impl ProviderClient {
     }
 }
 
+/// The Copilot account an operation started with: a digest of the checked
+/// GitHub sign-in, or none. Model calls compare it before and after
+/// authentication and refuse another account rather than switch to it.
+#[derive(Clone, PartialEq, Eq)]
+pub struct AccountPin(Option<String>);
+impl AccountPin {
+    pub(crate) fn fingerprint(&self) -> Option<&str> {
+        self.0.as_deref()
+    }
+    /// Whether a GitHub account was signed in when the pin was taken.
+    pub fn is_signed_in(&self) -> bool {
+        self.0.is_some()
+    }
+}
+impl std::fmt::Debug for AccountPin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(if self.0.is_some() {
+            "AccountPin(signed in)"
+        } else {
+            "AccountPin(none)"
+        })
+    }
+}
+
+/// The account changed after its operation started. No model request was
+/// made with the other account.
+pub(crate) fn account_changed() -> AiError {
+    AiError {
+        detail: Some(Box::new(crate::AiFailureDetail {
+            origin: "account_pin".into(),
+            code: Some("account_changed".into()),
+            ..Default::default()
+        })),
+        ..AiError::new(AiErrorKind::ReconnectNeeded)
+    }
+}
+
 impl Provider {
     fn files(self) -> &'static [&'static str] {
         match self {
@@ -97,6 +134,11 @@ pub(crate) fn pinned_session_http(http: DynHttpClient, session: &str) -> AiResul
 /// The Copilot completion model, forced onto the Responses route when asked.
 /// Rig 0.46 selects that route only for Codex IDs, yet Copilot serves some
 /// other models there exclusively.
+///
+/// Tools are sent non-strict on both routes, as on ChatGPT. Rig's Copilot
+/// Responses default sanitizes schemas for strict mode, which turns an open
+/// object such as `prepare_changes` record `data` into `{}` the model cannot
+/// fill. BRN validates every tool call's arguments itself.
 pub(crate) fn copilot_completion(
     client: &openai::OpenAI,
     model: String,
@@ -110,6 +152,9 @@ pub(crate) fn copilot_completion(
                 .with_base_url(config.base_url.clone())
                 .with_route(openai::wire::Route::Responses);
         completion.wire = openai::wire::OpenAiWire::new(provider, model);
+    }
+    if let openai::wire::OpenAiWire::Responses(wire) = &mut completion.wire {
+        wire.strict_tools = false;
     }
     completion
 }
@@ -449,6 +494,20 @@ impl Auth {
         use sha2::{Digest, Sha256};
         self.github_token()
             .map(|token| token.map(|token| format!("{:x}", Sha256::digest(token.as_bytes()))))
+    }
+
+    /// The Copilot account signed in now. Capture it when an operation starts.
+    pub fn copilot_account(&self) -> AiResult<AccountPin> {
+        self.github_token_fingerprint().map(AccountPin)
+    }
+
+    /// Refuses when the signed-in Copilot account is no longer `pin`.
+    pub(crate) fn check_copilot_account(&self, pin: &AccountPin) -> AiResult<()> {
+        if self.copilot_account()? == *pin {
+            Ok(())
+        } else {
+            Err(account_changed())
+        }
     }
 
     async fn github_name(&self) -> AiResult<Option<String>> {
@@ -1170,6 +1229,45 @@ mod portable_tests {
         assert!(!route("gpt-5.6-terra", false));
         assert!(route("gpt-5.6-terra", true));
         assert!(route("gpt-5.3-codex", false));
+    }
+
+    /// Strict sanitizing would send record `data` as `{}`, so every Copilot
+    /// write proposal failed live. Each route keeps BRN's schema as written.
+    #[tokio::test]
+    async fn copilot_tools_keep_open_object_schemas_on_every_route() {
+        use rig::completion::{CompletionRequest, Message, ToolDefinition};
+        use rig::message::ToolName;
+        use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
+        let parameters = serde_json::json!({"type":"object","properties":{
+            "data":{"type":"object","description":"Exactly one typed variant."}},
+            "required":["data"]});
+        for (model, responses) in [
+            ("gpt-5.6-terra", false),
+            ("gpt-5.6-terra", true),
+            ("gpt-5.3-codex", false),
+        ] {
+            let http = SequencedHttpClient::new([MockHttpResponse::error(
+                rig::http_client::StatusCode::BAD_REQUEST,
+                "synthetic",
+            )]);
+            let client = openai::OpenAIConfig::with_key(&copilot::DIALECT, "synthetic")
+                .connect(DynHttpClient::new(http.clone()));
+            let tool = ToolDefinition::new(
+                ToolName::new("prepare_changes").unwrap(),
+                "Prepare changes.",
+                parameters.clone(),
+            );
+            let _ = copilot_completion(&client, model.into(), responses)
+                .call(CompletionRequest::new(Message::user("synthetic")).tool(tool))
+                .await;
+            let body: serde_json::Value = serde_json::from_slice(&http.requests()[0].body).unwrap();
+            let tool = &body["tools"][0];
+            let sent = tool
+                .get("parameters")
+                .or_else(|| tool.pointer("/function/parameters"));
+            assert_eq!(sent, Some(&parameters), "{model} responses={responses}");
+            assert!(!tool.to_string().contains("\"strict\":true"));
+        }
     }
 
     #[test]

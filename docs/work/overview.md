@@ -31,22 +31,22 @@ Gates:
 
 </details>
 
-### Upgrade the runtime to Rig 0.46 and qualify bounded reuse
+### Support Copilot chat, native web search and Luna refinement
 
-Task ID: `rig-046-253`
-Owner: Agent A (runtime) · State: **active** · Last observed: 2026-11-06T17:40:00+02:00
-Activity: Rig 0.45 to 0.46 implemented on work/rig-046-253 from main 2ebcf4c7: minimal 12-package lock delta, explicit serde_json preserve_order/float_roundtrip in production, stall classification, Terra same-model Responses retry, stall/Stop and HookTestHarness tests. Both reuse pilots deferred with evidence; focused survey routed account snapshot, Copilot refinement and search to #252 and the provider operation module to #255.
-Next: Request Codex review of the final head, merge after hosted CI and review pass, then post the runtime checkpoint on #253 for B, D (#254) and E (#256) and retarget the Copilot PR #261 to main.
+Task ID: `copilot-252`
+Owner: Agent A (runtime) · State: **active** · Last observed: 2026-11-06T18:05:00+02:00
+Activity: Implemented on work/copilot-252, now on main after #259: account pin captured at operation start for chat, helpers, web search and refinement; native Copilot hosted web_search adapter on the Rig Responses route with an 8 MiB body cap and honest denial messages; provider-aware Copilot Luna refinement with no Codex fallback; Copilot tools sent non-strict so write proposals work. Live qualification on a Copilot business account passes.
+Next: Request Codex review of the final head, merge PR #261 after hosted CI and review pass, then notify B, D (#254) and E (#256) on #253. Native sign-in, account switching and the remaining acceptance items in the record stay open on #252.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Implemented; Council round 1 complete (Codex 9/10, Kimi K3 9/10, Claude 9/10; no blockers; findings fixed or routed).
-- **checks:** Local fmt, workspace and feature Clippy, all CI-equivalent test lanes passed (workspace 1,513 passed, 9 ignored; brn-ai capability 592 passed, 1 ignored); hosted CI on PR #259.
-- **integration:** Published as PR #259; not merged.
-- **native:** Not run; runtime-only change. Mac native acceptance stays with the alpha candidate.
+- **implementation:** Implemented and qualified live (chat, web search with sources, BRN tools, writes, refinement On/Off, failure messages); Council round 1 complete (Codex 7/10, Kimi K3 8.5/10, Claude 8/10; required fixes made, nits fixed or routed to #255).
+- **checks:** Local tests, Clippy and fmt pass (brn-ai 597 passed, 1 ignored); hosted CI on PR #261.
+- **integration:** Published as PR #261 (part of #252); not merged.
+- **native:** Pending; device sign-in and native account switching need native observation.
 - **owner acceptance:** Not requested.
 
 </details>
@@ -54,9 +54,9 @@ Gates:
 ### Measure and improve development feedback (#255)
 
 Task ID: `development-speed-255`
-Owner: Agent C / Codex GPT-6.1 Sol · State: **active** · Last observed: 2026-11-06T16:57:20.763392+00:00
-Activity: All three corrected-evidence rechecks support no-change/incomplete qualification: Sol 9/10, Opus 8/10, Grok 9/10; no High/Medium findings or security issue. Low provenance/wording fixes applied. Main reconciled; product/config unchanged; publishing the focused PR.
-Next: Publish PR, request current-head Codex review/security, inspect hosted CI and all findings, then normal merge and resulting-main verification.
+Owner: Agent C / Codex GPT-6.1 Sol · State: **active** · Last observed: 2026-11-06T17:01:08.332168+00:00
+Activity: PR #262 is open. All final corrected-evidence reviewers support no-change/incomplete qualification (Sol9/Opus8/Grok9); low documentation fixes applied. Main #261 reconciled; product/config/runtime/CI match main. Final-head CI/Codex/security review next.
+Next: Push reconciled final head, request current-head Codex review, inspect current CI/code/security results and unresolved findings, then normal merge and main verification.
 
 <details>
 <summary>Gate status</summary>
@@ -65,7 +65,7 @@ Gates:
 
 - **implementation:** Documentation/evidence only; no configuration retained because net performance is unqualified within the budget, not proven harmful. Guidance adds ABBA/same-binary checks and limits Cargo-only guards.
 - **checks:** Frozen-source suites/probes and all measurements preserved with causal limits. Final Council Sol9/Opus8/Grok9, noHigh/Medium findings; low fixes applied. Links/overview/16tests/diff pass. Current-head hosted CI/Codex/security pending publication.
-- **integration:** Not published or merged. Preserve Agent B updater and Agent A runtime ownership.
+- **integration:** Published as PR #262; not merged. Normal merge after current-head CI, Codex and security review. Source/config byte-identical to main; frozen measurements remain separate.
 - **native:** Inapplicable: headless build/test tooling scope; existing hosted compatibility checks retained.
 - **owner acceptance:** Current owner assignment authorizes implementation, Council and focused PR; no manual UI acceptance requirement.
 
@@ -81,6 +81,10 @@ None recorded.
 
 ## Completed
 
-None recorded.
+Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-Local page reflects the last saved observations in this record (2026-11-06T16:57:20.763392+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+
+- `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
+
+Local page reflects the last saved observations in this record (2026-11-06T17:01:08.332168+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
