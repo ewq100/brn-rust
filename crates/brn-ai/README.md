@@ -1,6 +1,6 @@
 # BRN AI runtime
 
-The production Threads runtime uses published Rig 0.46.0. No vendored Rig patch is required. Provider routing retains Codex/ChatGPT subscription Responses, OpenAI Responses, and Copilot Chat completions.
+The production Threads runtime uses published Rig 0.46.0. No vendored Rig patch is required. Provider routing retains Codex/ChatGPT subscription Responses, OpenAI Responses, and Copilot (Rig's route choice for chat, Chat completions or Codex-model Responses, then Responses when Copilot refuses a model on Chat; hosted web search and Luna refinement always use Responses).
 
 `subscription_search.rs` is a separate query-only research service through the version-qualified Codex App Server and normal managed ChatGPT login. It verifies effective tool/skill/app isolation, exact selected model/effort, subscription auth mode, deadlines and owned-process cleanup; unsupported routes fail closed without fallback. Ordinary Rig chat is unchanged. `copilot_search.rs` is its Copilot counterpart: one Rig Responses request with only the hosted `web_search` tool on the selected account and model, the query as the only input, and fail-closed refusal of any echoed widening, other tool call or uncited answer. `AccountPin` captures the Copilot account at operation start; chat, helpers, search and refinement refuse a changed account before any request. [Issue243 qualification](../../docs/work/active/subscription-search-mac-acceptance/README.md) records the failed initial live query and offline-only correction.
 

@@ -6,11 +6,19 @@ use crate::auth::{AccountPin, OwnedClient, copilot_completion};
 use crate::error::map_provider;
 use crate::subscription_search::{Provenance, SearchError, SearchResult, Source};
 use crate::{AiError, AiErrorKind, Auth, Provider, ReasoningEffort, Selection};
+use futures::StreamExt;
 use rig::completion::{CompletionRequest, Message, ProviderToolDefinition};
-use rig::http_client::DynHttpClient;
+use rig::http_client::{
+    self, DynHttpClient, HttpClientExt, LazyBody, MultipartForm, Request as HttpRequest, Response,
+    StreamingResponse,
+};
 use rig::rig_reqwest::reqwest::Url;
+use rig_core::wasm_compat::WasmCompatSend;
 use serde_json::{Value, json};
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::{path::PathBuf, time::Duration};
+use tokio_util::bytes::Bytes;
 use tokio_util::sync::CancellationToken;
 
 const LIMIT: Duration = Duration::from_secs(60);
@@ -18,6 +26,8 @@ const MAX_QUERY: usize = 16 * 1024;
 const MAX_ANSWER: usize = 128 * 1024;
 const MAX_SOURCES: usize = 64;
 const MAX_OUTPUT_ITEMS: usize = 256;
+/// Every response body, enforced while it is received and before decoding.
+const MAX_RESPONSE: usize = 8 * 1024 * 1024;
 /// Searches one request may run inside the provider.
 const MAX_CALLS: u64 = 3;
 const URL_BYTES: usize = 2048;
@@ -76,11 +86,15 @@ async fn run(
     cancel: CancellationToken,
     http: Option<DynHttpClient>,
 ) -> Result<SearchResult, SearchError> {
-    let auth = Auth::open(&request.credentials_dir).map_err(search_error)?;
-    let auth = match http {
-        Some(http) => auth.with_http(http),
-        None => auth,
-    };
+    let oversized = Arc::new(AtomicBool::new(false));
+    let http = ByteCap::wrap(
+        http.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
+        MAX_RESPONSE,
+        oversized.clone(),
+    );
+    let auth = Auth::open(&request.credentials_dir)
+        .map_err(search_error)?
+        .with_http(http);
     auth.check_copilot_account(&request.account)
         .map_err(search_error)?;
     let client = auth
@@ -97,7 +111,13 @@ async fn run(
     let response = completion
         .call(search_request(&request))
         .await
-        .map_err(|error| search_error(map_provider(error)))?;
+        .map_err(|error| {
+            if oversized.load(Ordering::SeqCst) {
+                SearchError::MalformedResponse
+            } else {
+                search_error(map_provider(error))
+            }
+        })?;
     let (answer, sources) = checked(&response.raw)?;
     Ok(SearchResult {
         answer,
@@ -107,6 +127,84 @@ async fn run(
             model: request.model,
         },
     })
+}
+
+/// Reads every unary body as a stream and fails once it passes `limit`
+/// bytes, so an oversized reply never reaches memory or the JSON decoder.
+struct ByteCap {
+    inner: DynHttpClient,
+    limit: usize,
+    oversized: Arc<AtomicBool>,
+}
+
+impl ByteCap {
+    fn wrap(inner: DynHttpClient, limit: usize, oversized: Arc<AtomicBool>) -> DynHttpClient {
+        DynHttpClient::new(Self {
+            inner,
+            limit,
+            oversized,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct Refused(&'static str);
+impl std::fmt::Display for Refused {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.0)
+    }
+}
+impl std::error::Error for Refused {}
+const OVERSIZED: Refused = Refused("response body exceeds the search limit");
+const UNARY_ONLY: Refused = Refused("search sends only unary requests");
+
+impl HttpClientExt for ByteCap {
+    fn send<T, U>(
+        &self,
+        req: HttpRequest<T>,
+    ) -> impl Future<Output = http_client::Result<Response<LazyBody<U>>>> + WasmCompatSend + 'static
+    where
+        T: Into<Bytes> + WasmCompatSend,
+        U: From<Bytes> + WasmCompatSend + 'static,
+    {
+        let (inner, limit, oversized) = (self.inner.clone(), self.limit, self.oversized.clone());
+        let req = req.map(Into::<Bytes>::into);
+        async move {
+            let (parts, mut stream) = inner.send_streaming(req).await?.into_parts();
+            let mut body = Vec::new();
+            while let Some(chunk) = stream.next().await {
+                let chunk = chunk?;
+                if body.len() + chunk.len() > limit {
+                    oversized.store(true, Ordering::SeqCst);
+                    return Err(http_client::Error::instance(OVERSIZED));
+                }
+                body.extend_from_slice(&chunk);
+            }
+            let body: LazyBody<U> = Box::pin(async move { Ok(U::from(Bytes::from(body))) });
+            Ok(Response::from_parts(parts, body))
+        }
+    }
+
+    fn send_multipart<U>(
+        &self,
+        _req: HttpRequest<MultipartForm>,
+    ) -> impl Future<Output = http_client::Result<Response<LazyBody<U>>>> + WasmCompatSend + 'static
+    where
+        U: From<Bytes> + WasmCompatSend + 'static,
+    {
+        std::future::ready(Err(http_client::Error::instance(UNARY_ONLY)))
+    }
+
+    fn send_streaming<T>(
+        &self,
+        req: HttpRequest<T>,
+    ) -> impl Future<Output = http_client::Result<StreamingResponse>> + WasmCompatSend
+    where
+        T: Into<Bytes> + WasmCompatSend,
+    {
+        let _ = req;
+        std::future::ready(Err(http_client::Error::instance(UNARY_ONLY)))
+    }
 }
 
 fn search_request(request: &Request) -> CompletionRequest {
@@ -126,11 +224,21 @@ fn search_error(error: AiError) -> SearchError {
     if error.account_changed_notice().is_some() {
         return SearchError::CopilotAccountChanged;
     }
+    let detail = error.detail.as_ref();
     match error.kind {
+        // A signed-in account refused by subscription, permission or policy.
+        AiErrorKind::ReconnectNeeded if detail.and_then(|d| d.status) == Some(403) => {
+            SearchError::CopilotSearchDenied
+        }
         AiErrorKind::ReconnectNeeded | AiErrorKind::CodeExpired => SearchError::CopilotNoLogin,
         AiErrorKind::RateLimited => SearchError::AllowanceLimited,
         AiErrorKind::Network => SearchError::Transport,
-        AiErrorKind::ModelRefused => SearchError::CopilotModelCannotSearch,
+        AiErrorKind::ModelRefused
+            if detail.and_then(|d| d.code.as_deref()) == Some("unsupported_api_for_model") =>
+        {
+            SearchError::CopilotModelCannotSearch
+        }
+        AiErrorKind::ModelRefused => SearchError::CopilotModelUnavailable,
         AiErrorKind::UnsafeCredentials => SearchError::CapabilityBoundaryUnverified,
         _ => SearchError::ProviderFailed,
     }
@@ -162,10 +270,15 @@ fn checked(raw: &Value) -> Result<(String, Vec<Source>), SearchError> {
     let mut cited = Vec::new();
     let mut listed = Vec::new();
     let mut searched = false;
+    let mut calls = 0;
     for item in output {
         match item.get("type").and_then(Value::as_str) {
             Some("reasoning") => {}
             Some("web_search_call") => {
+                calls += 1;
+                if calls > MAX_CALLS {
+                    return Err(SearchError::UnsafeToolUse);
+                }
                 searched |= item.get("status").and_then(Value::as_str) == Some("completed");
                 for source in item
                     .pointer("/action/sources")

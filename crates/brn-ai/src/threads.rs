@@ -3060,8 +3060,8 @@ async fn provider_client(
 }
 
 /// A Copilot client is served only by `account`, the account its operation
-/// started with (captured now when absent): a different sign-in before or
-/// during authentication refuses rather than switches accounts.
+/// started with: a different sign-in before or during authentication, or any
+/// sign-in when none was captured, refuses rather than switches accounts.
 #[allow(clippy::too_many_arguments)]
 async fn provider_client_context(
     selection: &Selection,
@@ -3092,10 +3092,11 @@ async fn provider_client_context(
                 .await?;
             return Ok((client, None));
         }
-        let started = match account {
-            Some(pin) => pin.clone(),
-            None => auth.copilot_account()?,
-        };
+        // No account captured at start (signed out or unreadable then) never
+        // adopts a sign-in made since.
+        let started = account
+            .cloned()
+            .ok_or_else(|| AiError::new(AiErrorKind::ReconnectNeeded))?;
         auth.check_copilot_account(&started)?;
         let client = auth
             .client_pinned(selection, cache_key, cancel.clone())

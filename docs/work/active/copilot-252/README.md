@@ -17,20 +17,27 @@ credentials, API key, development checkout or terminal credential setup.
   compared with the current sign-in; a change refuses with `account_changed`
   (ReconnectNeeded) before any model request. A Copilot client's session token is fixed at
   creation, so a started request cannot move to another account. Re-signing in to the same
-  account also counts as a change (conservative).
+  account also counts as a change (conservative). When no account could be read at start
+  (unreadable credentials), the operation refuses with ReconnectNeeded and never adopts a
+  sign-in made later.
 - **No fallback.** A Copilot selection never reads the Codex auth file; a missing Copilot
   sign-in refuses with zero requests. Settings provider strings map through
   `Provider::from_setting` only (`codex`/`chatgpt`, `copilot`).
 - **Native web search.** `copilot_search.rs` sends one Rig Responses request on the selected
-  account and chat model: `tools:[{"type":"web_search"}]`, `tool_choice:"required"`, bounded
-  `max_tool_calls`, the query as the single input item (no notes, documents, history or BRN
-  instructions) and source inclusion. It refuses any function/MCP/other tool call, echoed
-  tool widening, missing completed search or uncited answer. Sources come from
+  account and chat model: `tools:[{"type":"web_search"}]`, `tool_choice:"required"`,
+  `max_tool_calls` 3 (also enforced locally on the returned search calls), the query as the
+  single input item (no notes, documents or history; only a fixed one-sentence search
+  preamble is sent as instructions) and source inclusion. It refuses any function/MCP/other
+  tool call, echoed tool widening, missing completed search or uncited answer. Sources come from
   `url_citation` annotations and `web_search_call.action.sources`; non-http(s) URLs are
-  dropped. Cancellation, deadlines and query bounds reuse the existing search contract, and
+  dropped. Every response body is capped at 8 MiB while it is received, before JSON
+  decoding, so large reasoning or source metadata cannot exhaust memory. Cancellation, deadlines and query bounds reuse the existing search contract, and
   `Allow web access`, Off/no-dispatch and run-scoped result fencing are unchanged in the
   threads app. Models that reject hosted search (`unsupported_api_for_model`, e.g. Claude)
-  report `CopilotModelCannotSearch`.
+  report `CopilotModelCannotSearch`; other model refusals (e.g. `model_not_found`) report
+  `CopilotModelUnavailable`. HTTP 401 asks to connect Copilot; HTTP 403 from a signed-in
+  account reports `CopilotSearchDenied` (subscription, permission or policy) instead.
+  A Copilot credentials folder without a sign-in shows web access as Unavailable.
 - **Luna refinement.** `ConversionAccount` is captured at document job start from the
   selected provider. Copilot refinement uses `gpt-6-luna`, high effort, on the Copilot
   Responses route; ChatGPT keeps its existing route. Off never opens credentials.
@@ -66,6 +73,7 @@ Integrated-branch run (fresh data folder, `--provider Copilot`, no Codex credent
 | Document intake, refinement On | `gpt-6-luna` (high) | Applied in 4.5 s, settings `ai:true`, structure restored |
 | Web search on a model without hosted search | `claude-sonnet-5.5` | explicit "can't search the web" failure; no model switch |
 | CLI cancellation (SIGTERM) mid-stream | `gpt-6.1-sol` | run ended Interrupted; nothing written |
+| Agent web search after the Council body cap | `gpt-6-luna` | `web_search` succeeded with 13 sources through the byte-capped transport |
 
 Discovered Claude identifiers on this account: `claude-haiku-5.5`, `claude-opus-4.8`,
 `claude-opus-5`, `claude-opus-5.5`, `claude-sonnet-5`, `claude-sonnet-5.5`.
@@ -83,14 +91,35 @@ writing contract test now requires Copilot to receive exactly the Codex schema.
 ## Evidence
 
 Local, stacked on the #259 runtime: `cargo test -p brn-ai -p brn-threads-app -p brn -p brn-desktop`
-all pass (brn-ai 593 passed, 1 ignored); workspace Clippy with `-D warnings`, with and
-without `capability-spike`, and `cargo fmt --check` are clean. Document tests need both
-`BRN_XBERG_HELPER` and `BRN_XBERG_HELPER_BRN`. Council and hosted CI: pending on the PR.
+all pass (brn-ai 597 passed, 1 ignored after Council fixes); workspace Clippy with
+`-D warnings`, with and without `capability-spike`, and `cargo fmt --check` are clean.
+Document tests need both `BRN_XBERG_HELPER` and `BRN_XBERG_HELPER_BRN`. Live runs used debug
+`brn` builds of this branch: the table above through `b42331e0`, the body-cap search row
+after the Council fixes. Council and hosted CI are recorded on PR #261.
+
+Council round 1 fixes: a missing start account now refuses instead of capturing later
+(`copilot_run_without_a_start_account_never_adopts_a_later_sign_in`, red without the fix);
+search bodies are bounded while received (`an_oversized_reply_is_refused_while_it_is_received`);
+the search tests compile on Windows; a credentials folder without a sign-in shows web
+access Unavailable; 403 policy denial and unavailable models get their own messages
+(`policy_denial_and_unavailable_models_are_not_reported_as_sign_in`); more search calls than
+requested are refused (`more_searches_than_requested_are_refused`).
+
+Deferred Council nits, none of which can serve another account: the chat pin and the search
+pin are captured separately at run start, so a sign-in between them only makes search refuse
+as account-changed; non-GPT models still show web access Allowed and each search reports
+that the model cannot search; the opt-in capability probe and provider fixtures build
+Copilot models directly rather than through `copilot_completion`; provider-string parsing
+and the token-digest account pin are candidates for consolidation (#255).
 
 ## Limits
 
 Device sign-in, account switching in the native UI and native observation remain owner or
-native-pending; this record does not claim them.
+native-pending; this record does not claim them. Not yet qualified live on Copilot: a clean
+installed Mac, reconnect after restart, consolidation, referenced writing with
+Discard/Undo/stale refusal, quota or policy denial, and an account without Luna. The
+capability boundary is what BRN requests and verifies in each reply (requested tool set,
+echoed tools, every output item); it cannot observe provider internals beyond that.
 
 A single model turn has no wall-clock or byte bound while bytes keep arriving: idle
 detection does not fire and the 128 KiB answer cap excludes tool-call arguments. Stop

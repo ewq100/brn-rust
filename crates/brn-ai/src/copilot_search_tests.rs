@@ -1,6 +1,5 @@
 use super::*;
 use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
-use std::os::unix::fs::PermissionsExt;
 
 const TOKEN_URL: &str = "https://api.github.com/copilot_internal/v2/token";
 const RESPONSES_URL: &str = "https://example.invalid/responses";
@@ -46,7 +45,11 @@ fn account(token: &[u8]) -> (tempfile::TempDir, PathBuf) {
     Auth::open(&dir).unwrap();
     let path = dir.join("github-token");
     std::fs::write(&path, token).unwrap();
-    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+    }
     (root, dir)
 }
 
@@ -214,6 +217,49 @@ async fn a_model_that_cannot_search_is_reported_without_switching() {
 }
 
 #[tokio::test]
+async fn policy_denial_and_unavailable_models_are_not_reported_as_sign_in() {
+    use rig::http_client::StatusCode;
+    for (status, body, expected) in [
+        (
+            StatusCode::FORBIDDEN,
+            r#"{"error":{"message":"web search is disabled by policy"}}"#,
+            SearchError::CopilotSearchDenied,
+        ),
+        (
+            StatusCode::UNAUTHORIZED,
+            r#"{"error":{"message":"bad credentials"}}"#,
+            SearchError::CopilotNoLogin,
+        ),
+        (
+            StatusCode::BAD_REQUEST,
+            r#"{"error":{"message":"model is not enabled","code":"model_not_found"}}"#,
+            SearchError::CopilotModelUnavailable,
+        ),
+    ] {
+        let (_root, dir) = account(b"SYNTHETIC_GITHUB");
+        let (result, http) = run_with(
+            request(&dir, "q"),
+            vec![session(), MockHttpResponse::error(status, body)],
+        )
+        .await;
+        assert_eq!(result.unwrap_err(), expected, "{status}");
+        assert_eq!(http.requests().len(), 2);
+    }
+}
+
+#[tokio::test]
+async fn more_searches_than_requested_are_refused() {
+    let mut output = searched();
+    let call = output[1].clone();
+    for _ in 0..MAX_CALLS {
+        output.as_array_mut().unwrap().insert(1, call.clone());
+    }
+    let (_root, dir) = account(b"SYNTHETIC_GITHUB");
+    let (result, _) = run_with(request(&dir, "q"), vec![session(), reply(output)]).await;
+    assert_eq!(result.unwrap_err(), SearchError::UnsafeToolUse);
+}
+
+#[tokio::test]
 async fn stop_and_invalid_queries_dispatch_nothing() {
     let (_root, dir) = account(b"SYNTHETIC_GITHUB");
     let http = SequencedHttpClient::new([]);
@@ -231,4 +277,22 @@ async fn stop_and_invalid_queries_dispatch_nothing() {
         assert_eq!(result.unwrap_err(), SearchError::InvalidQuery);
     }
     assert!(http.requests().is_empty());
+}
+
+#[tokio::test]
+async fn an_oversized_reply_is_refused_while_it_is_received() {
+    let (_root, dir) = account(b"SYNTHETIC_GITHUB");
+    let mut output = searched();
+    output.as_array_mut().unwrap().insert(
+        0,
+        json!({"type": "reasoning", "id": "rs_big",
+               "summary": [{"type": "summary_text", "text": "x".repeat(MAX_RESPONSE)}]}),
+    );
+    let (result, http) = run_with(
+        request(&dir, "latest sqlite release"),
+        vec![session(), reply(output)],
+    )
+    .await;
+    assert_eq!(result.unwrap_err(), SearchError::MalformedResponse);
+    assert_eq!(http.requests().len(), 2);
 }

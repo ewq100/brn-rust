@@ -6,10 +6,7 @@ use brn_ai::{
     subscription_search::{Request, SearchError, check_auth_file},
     threads::{RunWebSearch, WebSearchCancel as CancellationToken, WebSearchFuture},
 };
-use std::{
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::{path::PathBuf, sync::Arc};
 
 /// Whether the agent may search the web in one chat. Unavailable states why
 /// the selected route cannot search; it is never treated as the owner's Off.
@@ -32,6 +29,7 @@ enum Route {
         model: String,
         effort: ReasoningEffort,
         credentials_dir: PathBuf,
+        account: AccountPin,
     },
 }
 
@@ -56,16 +54,23 @@ fn route(settings: &WorkspaceSettings) -> Result<Route, RouteError> {
             })
         }
         "copilot" => {
-            // Copilot searches only with the chat's own Copilot sign-in.
+            // Copilot searches only with the chat's own Copilot sign-in, captured
+            // now; no readable signed-in account is unavailable, never Allowed.
             let Some(credentials_dir) = settings.credentials_dir.as_deref().map(PathBuf::from)
             else {
                 return Err(RouteError::Search(SearchError::CopilotNoLogin));
             };
+            let account = Auth::open(&credentials_dir)
+                .and_then(|auth| auth.copilot_account())
+                .ok()
+                .filter(AccountPin::is_signed_in)
+                .ok_or(RouteError::Search(SearchError::CopilotNoLogin))?;
             let (selection, effort) = selected()?;
             Ok(Route::Copilot {
                 model: selection.model,
                 effort,
                 credentials_dir,
+                account,
             })
         }
         _ => Err(RouteError::Search(SearchError::UnsupportedProvider)),
@@ -105,12 +110,6 @@ pub enum PreparedSearch {
     Copilot(copilot_search::Request),
 }
 
-fn copilot_account(credentials_dir: &Path) -> Result<AccountPin, String> {
-    Auth::open(credentials_dir)
-        .and_then(|auth| auth.copilot_account())
-        .map_err(|e| e.to_string())
-}
-
 pub fn prepare(settings: &WorkspaceSettings, query: String) -> Result<PreparedSearch, String> {
     if query.trim().is_empty() || query.len() > 16 * 1024 {
         return Err(SearchError::InvalidQuery.to_string());
@@ -130,8 +129,9 @@ pub fn prepare(settings: &WorkspaceSettings, query: String) -> Result<PreparedSe
             model,
             effort,
             credentials_dir,
+            account,
         } => PreparedSearch::Copilot(copilot_search::Request {
-            account: copilot_account(&credentials_dir)?,
+            account,
             model,
             effort,
             query,
@@ -246,8 +246,9 @@ impl Workspace {
                 model,
                 effort,
                 credentials_dir,
+                account,
             } => SubscriptionWebSearch::Copilot {
-                account: copilot_account(&credentials_dir).ok()?,
+                account,
                 model,
                 effort,
                 credentials_dir,
@@ -291,6 +292,18 @@ mod tests {
         );
         let credentials = root.path().join("copilot");
         settings.credentials_dir = Some(credentials.display().to_string());
+        // A credentials folder without a sign-in is not an account.
+        assert_eq!(
+            prepare(&settings, "public query".into()).unwrap_err(),
+            SearchError::CopilotNoLogin.to_string()
+        );
+        let token = credentials.join("github-token");
+        std::fs::write(&token, "synthetic-github-sign-in").unwrap();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&token, std::fs::Permissions::from_mode(0o600)).unwrap();
+        }
         let PreparedSearch::Copilot(request) = prepare(&settings, "public query".into()).unwrap()
         else {
             panic!("Copilot settings must use the Copilot route");
@@ -379,8 +392,22 @@ mod tests {
             WebAccessState::Unavailable("Connect GitHub Copilot first".into())
         );
         assert!(workspace.web_searcher(&bravo, &copilot).is_none());
-        copilot.credentials_dir = Some(root.path().join("copilot").display().to_string());
+        let copilot_dir = root.path().join("copilot");
+        copilot.credentials_dir = Some(copilot_dir.display().to_string());
         workspace.configure(copilot.clone()).unwrap();
+        // A credentials folder without a sign-in is not an account.
+        assert_eq!(
+            workspace.chat_web_access(Some(&bravo)).unwrap(),
+            WebAccessState::Unavailable("Connect GitHub Copilot first".into())
+        );
+        assert!(workspace.web_searcher(&bravo, &copilot).is_none());
+        let token = copilot_dir.join("github-token");
+        std::fs::write(&token, "synthetic-github-sign-in").unwrap();
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&token, std::fs::Permissions::from_mode(0o600)).unwrap();
+        }
         assert_eq!(
             workspace.chat_web_access(Some(&bravo)).unwrap(),
             WebAccessState::Allowed

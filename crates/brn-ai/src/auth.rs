@@ -61,6 +61,10 @@ impl AccountPin {
     pub(crate) fn fingerprint(&self) -> Option<&str> {
         self.0.as_deref()
     }
+    /// Whether a GitHub account was signed in when the pin was taken.
+    pub fn is_signed_in(&self) -> bool {
+        self.0.is_some()
+    }
 }
 impl std::fmt::Debug for AccountPin {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
