@@ -42,6 +42,39 @@ Update `work_view` at meaningful transitions: selection/assignment, changed read
 
 The local overview reflects last saved observations; a remote copy reflects the last published commit. Neither is a live telemetry stream. When the selected task record identifies a remote owner Page, refresh that same concise summary at meaningful campaign transitions after reconciling actual gates. Read its guidance and current blocks first, use guarded edits, and preserve human additions. Show the refresh time and link source records; the Page is a projection, not another editable task authority. A failed refresh leaves the local work intact and is reported as a remote freshness gap. Existing local campaign execution performs these updates; this does not create a filesystem sync or another scheduled writer. Per-task times and reported/observed origin matter more than page generation time. On stale/unknown activity, inspect the actual job/agent/Git state before claiming execution or dispatching a competing writer. Unknown or unavailable capacity is a named wait.
 
+## Codex pull-request review
+
+Codex adds a separate review pass to the existing development cycle. Its findings do not replace the independent design review, required checks, native interaction or owner acceptance applicable to a change. The [review rules](../../AGENTS.md#code-review-rules) and [BRN threat model](../threat-model.md) provide repository context; keep detailed product contracts in their existing owners.
+
+### Repository settings
+
+Use these settings for `ewq100/brn-rust` in Codex. This table records the agreed policy, not proof that the account settings have been saved or a review has run.
+
+| Setting | Value |
+| --- | --- |
+| Automatic code review | On; All PRs |
+| Code-review trigger | On PR open |
+| Exhaustive review | On for the initial trial |
+| Auto security review | On; All PRs |
+| Security-review trigger | Whenever code review runs |
+| Threat-model file | `docs/threat-model.md` |
+| Minimum automatic security reporting severity | High |
+| Minimum manual security reporting severity | Medium |
+| Path severity overrides | None initially |
+
+The severity thresholds control findings posted to GitHub. Reviews consume allowance/credits; do not infer a fixed cost or complete coverage from Exhaustive review. After the first 5–10 representative PRs, compare useful findings, noise, elapsed time and available usage evidence before deciding whether to keep that trial setting. This is a review checkpoint, not a new schedule or polling service.
+
+### Review and integration
+
+1. Open the PR when the candidate is ready for review. Inspect the automatic review's completion and reviewed commit; opening a PR does not prove review success.
+2. Investigate findings against the changed code. Fix valid defects and record evidence; explain why a finding is inapplicable instead of making an unsupported change. Consolidate duplicate code/security findings.
+3. After the final code changes, request `@codex review` if the current commit is not covered. Check that the accompanying security review also completed; use `@codex security review` if a separate security pass is needed. Avoid duplicate requests for the same unchanged candidate and never post a fix-trigger command merely to request review.
+4. Before normal integration, record the reviewed commit, material finding dispositions and applicable check results in the existing PR/task record. A later code change needs another review of its effect. An empty comment thread or a reaction alone is not a completed clean review; inspect the task/full report. If review is unavailable, record the blocker and use the existing authorized independent-review path without claiming a Codex pass or bypassing repository protection.
+
+Keep the threat model current when data exposure, credentials, external tools, converter restrictions or deployment assumptions change. It is review context and grants no execution authority. Already-sent external processing may continue after Stop.
+
+Configuration and manual commands follow the official [GitHub review guide](https://learn.chatgpt.com/docs/third-party/github) and [Security Review guide](https://learn.chatgpt.com/docs/security/security-review).
+
 ## Instruction maintenance
 
 Use the [instruction audit](../work/active/vacation-campaign/instruction-audit.md) when configuration changes or recurring guidance conflicts occur. Ordinary tasks follow the short route; do not reload the full adoption report, skill inventory or evidence archive. Load the next relevant specialist skill, preserving the owner's selected scope and continuing authorization. Host-provided instructions/catalogue metadata and memory are distinct from editable project rules; local file size is not total injected context or measured token savings.
