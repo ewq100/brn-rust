@@ -1,0 +1,117 @@
+[
+  {
+    "id": "0567d771-d5ea-463e-85dc-f4c277d9e689:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Message": {
+        "thread": "2a948442-ba18-4822-874c-9051862c6635:0",
+        "role": "assistant",
+        "text": "Updated the saved **Cedar renovation** wiki with sections for budget and payment, schedule, and materials by room. It preserves the EUR 12,000 budget, EUR 2,400 deposit, tentative completion date, and bathroom waterproof-membrane exception.\n\nThe existing note had no recorded underlying source links, so the wiki flags that the original evidence could not be rechecked. Unrelated records were left unchanged."
+      }
+    }
+  },
+  {
+    "id": "10ede663-5e5b-4605-ba91-a77257c3e852:0",
+    "version": 4,
+    "archived": false,
+    "data": {
+      "Run": {
+        "instruction": "10ede663-5e5b-4605-ba91-a77257c3e852:1",
+        "thread": "2a948442-ba18-4822-874c-9051862c6635:0",
+        "provider": "Codex",
+        "model": "gpt-6.1-terra",
+        "guide_identity": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "budget": 8,
+        "effort": "medium",
+        "loaded_skills": [
+          "maintain-notes"
+        ],
+        "loaded_skill_details": [
+          {
+            "id": "maintain-notes",
+            "origin": "builtin",
+            "project": null,
+            "package_digest": "65778c6e5873551db81451838dba4b1dc455a3a05a01111c98dd03aea18cab2d",
+            "file": "SKILL.md",
+            "file_digest": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020"
+          }
+        ],
+        "fence": 3,
+        "state": "Completed",
+        "progress": "",
+        "operations": [
+          "bb16dc5f-60aa-47f3-8430-11b14d9ba982"
+        ],
+        "sources": []
+      }
+    }
+  },
+  {
+    "id": "10ede663-5e5b-4605-ba91-a77257c3e852:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Message": {
+        "thread": "2a948442-ba18-4822-874c-9051862c6635:0",
+        "role": "owner",
+        "text": "Create a useful saved wiki for Cedar renovation from the saved evidence. Preserve the material exception, quantities, tentative status and source links. Any useful organization is acceptable. Leave unrelated records unchanged."
+      }
+    }
+  },
+  {
+    "id": "2a948442-ba18-4822-874c-9051862c6635:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Thread": {
+        "title": "Evaluation case",
+        "state": "Open",
+        "attention": []
+      }
+    }
+  },
+  {
+    "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+    "version": 2,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Cedar renovation",
+        "markdown": "# Cedar renovation\n\n## Budget and payment\n\n- **Budget:** EUR 12,000, per the owner decision dated 2026-10-01.\n- **Deposit paid:** EUR 2,400.\n\n## Schedule\n\n- **Target completion:** 2027-02-15. This is a target, not a signed commitment.\n\n## Materials by room\n\n- **Bathroom:** a waterproof membrane is required.\n- **Dry rooms:** primer only; the bathroom membrane requirement is the exception.\n\n## Evidence and limitations\n\nThis page is organized from the previously saved Cedar renovation note. No underlying source links were recorded with that note, so the original evidence cannot be rechecked from the available records.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Unrelated stable record",
+        "markdown": "# Unrelated stable record\n\nThe garden gate inspection is unrelated and must remain unchanged.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "4e0932a8-62f7-4556-b8ab-333fe48c4860:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "ChatControl": {
+        "queue": [],
+        "pending": null,
+        "paused": false,
+        "quiet": false
+      }
+    }
+  }
+]

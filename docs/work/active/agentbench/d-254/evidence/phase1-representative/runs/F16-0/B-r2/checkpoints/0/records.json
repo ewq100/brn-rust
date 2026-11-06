@@ -1,0 +1,57 @@
+[
+  {
+    "id": "6feaa5a7-c6a1-4a5b-9a70-b3825feca09c:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Atlas instrument maintenance",
+        "markdown": "# Atlas instrument maintenance\n\nLab procedure dated 2026-08-01: this batch contains 48 sensors.\nTwelve sensors have completed calibration.\nPlanned calibration date: 2027-04-05; no test certificate has been issued.\nDry probes may use mode A. Wet probes require isolated mode B; never apply mode A to wet probes.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "6feaa5a7-c6a1-4a5b-9a70-b3825feca09c:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Unrelated stable record",
+        "markdown": "# Unrelated stable record\n\nUnrelated storage cabinet range is 18–22 C and must remain unchanged.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "a0ee0167-b7b0-4cbf-ade8-5c20cff89474:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "ChatControl": {
+        "queue": [],
+        "pending": null,
+        "paused": false,
+        "quiet": false
+      }
+    }
+  },
+  {
+    "id": "f8e8433c-f705-4e29-98f6-1046a4c1e963:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Thread": {
+        "title": "Evaluation case",
+        "state": "Open",
+        "attention": []
+      }
+    }
+  }
+]

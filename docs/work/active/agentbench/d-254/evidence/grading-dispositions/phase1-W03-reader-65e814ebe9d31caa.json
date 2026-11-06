@@ -1,0 +1,9 @@
+{
+  "kind": "reader-setup-never-dispatched",
+  "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W03/readers/65e814ebe9d31caa",
+  "request_path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W03/evaluation-operations/phase1-W03-reader-65e814ebe9d31caa.json",
+  "request_sha256": "92a0708c7a41dc9753e7efdbb71a738ecdb75c58266f7757e89c250972ef6cd6",
+  "actual_HTTP": 0,
+  "reason": "Guard receipt parentreadersdirectory missing before install/spawn. No deadlinefile, nativefolder, or modelreservation existed. Preserve marker/request; replacement uses distinctsetup-correctionidentity after parent-directoryfix.",
+  "at": "2026-11-06T22:58:43.192944+00:00"
+}

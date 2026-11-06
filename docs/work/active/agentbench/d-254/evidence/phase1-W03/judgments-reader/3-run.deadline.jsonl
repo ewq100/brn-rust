@@ -1,0 +1,5 @@
+{"event": "claimed", "utc": "2026-11-06T22:59:51.063401+00:00", "elapsed_seconds": 0.0001077920023817569, "identity": {"operation": "phase1-W03-reader-3", "role": "grader", "original_deadline": "2026-11-06T23:11:10.355811+00:00"}, "deadline_seconds": 90}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:51.093736+00:00", "elapsed_seconds": 0.030450541991740465, "launch": 1}
+{"event": "launched", "utc": "2026-11-06T22:59:51.097367+00:00", "elapsed_seconds": 0.03408670797944069, "launch": 1, "pid": 26860}
+{"event": "session_closed", "utc": "2026-11-06T22:59:57.996092+00:00", "elapsed_seconds": 6.932867333001923, "pid": 26860}
+{"event": "terminal", "utc": "2026-11-06T22:59:57.996376+00:00", "elapsed_seconds": 6.933142583002336, "status": "completed", "exit_code": 0, "cleanup_errors": []}

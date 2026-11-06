@@ -1,0 +1,215 @@
+{
+  "format": 1,
+  "kind": "measured-reader",
+  "status": "complete",
+  "qualified": false,
+  "measured_answer": true,
+  "answer_quality": null,
+  "mode": "wiki-only",
+  "question": "Can a volunteer extend a drill loan when someone is waiting?",
+  "checkpoint_records_sha256": "de2dca49953aa3e32617f6650e40f25558f1f8634fa09bf836eb9c3d53099ec0",
+  "checkpoint_backup_sha256": "443fa53895e509e8f8464739729216fdcfa5ad93c9874b575c80d0c066879748",
+  "reader_config_sha256": "9d68d6cd3d967a07324c6ebeb2019db1d2b3d22c4d568256670c7400175263df",
+  "cli_binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "article_allowlist": [
+    {
+      "id": "2b74eaf8-57ea-4c3f-aa63-90b655c4905a:0",
+      "version": 2
+    }
+  ],
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "cost": null,
+  "retrieval": "native search_notes and read_note on an isolated checkpoint clone",
+  "retrieval_assets": "none requested; native build defaults, record features in input lock",
+  "retrieval_probe": {
+    "hits": [
+      {
+        "note": "2b74eaf8-57ea-4c3f-aa63-90b655c4905a:0",
+        "version": 2,
+        "title": "Linden tool library",
+        "start": 23,
+        "end": 510,
+        "quote": "## Borrowing a drill\n\nAccording to the Linden library handover dated 1 July 2026:\n\n- **Loan period:** 7 days. The front desk update of 8 July 2026 says volunteers may extend a loan once by 3 days if nobody is waiting.\n- **Deposit:** \u20ac35, refunded after the drill is returned and inspected.\n- **Battery packs:** Return them separately labelled.\n\nThe handover does not specify opening hours, how to borrow, or rules for other tools. Check with the library for details not covered here.\n\n",
+        "heading_path": "Linden tool library \u203a Borrowing a drill",
+        "snippet": "Borrowing a drill According to the Linden library handover dated 1 July 2026: - **Loan period:** 7 days. The front desk update of 8 July 2026 says volunteers may extend a loan once by 3 days if nobody is waiting. - **Deposit:** \u20ac35, refunded after the drill is returned and inspected. - **Battery\u2026",
+        "highlights": [
+          {
+            "start": 10,
+            "end": 11
+          },
+          {
+            "start": 12,
+            "end": 17
+          },
+          {
+            "start": 82,
+            "end": 86
+          },
+          {
+            "start": 147,
+            "end": 157
+          },
+          {
+            "start": 162,
+            "end": 168
+          },
+          {
+            "start": 169,
+            "end": 170
+          },
+          {
+            "start": 171,
+            "end": 175
+          },
+          {
+            "start": 201,
+            "end": 203
+          },
+          {
+            "start": 204,
+            "end": 211
+          },
+          {
+            "start": 254,
+            "end": 259
+          },
+          {
+            "start": 260,
+            "end": 262
+          }
+        ],
+        "matches": 1,
+        "inbound_links": 0,
+        "protected": false,
+        "imported": false,
+        "evidence": false,
+        "archived": false
+      }
+    ],
+    "total": 1,
+    "offset": 0,
+    "reachable": 1,
+    "cursor": null,
+    "semantic": "none",
+    "messages": [],
+    "message_total": 0,
+    "message_cursor": null,
+    "shown": 1
+  },
+  "reader_thread": "4cf04564-d7cc-4fbe-9a51-4f8ef5bf6ea7:0",
+  "identity_verified": true,
+  "native_retrieval_observed": true,
+  "answer": "No\u2014under the saved rule, a volunteer may extend a drill loan **once by 3 days only if nobody is waiting**. If someone is waiting, that condition is not met.\n\nThe note attributes this rule to the front desk update of 8 July 2026, but cautions that the details are **not independently verified current policy**.\n\nSource: *Linden tool library*, note `2b74eaf8-57ea-4c3f-aa63-90b655c4905a:0`, version **2**, \u201cBorrowing a drill.\u201d",
+  "terminal": "Completed",
+  "trace": {
+    "format": 1,
+    "level": "full",
+    "guide": "brn-threads-guidance-25:2b5a351333dbee376302ffa810a146f97375f7d0218285d48c105d1e466923d1",
+    "search": true,
+    "rounds": 2,
+    "max_rounds": 8,
+    "model_turns": 3,
+    "wire_requests": [
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      },
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      },
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      }
+    ],
+    "wire_requests_dropped": 0,
+    "model_call_budget": {
+      "limit": 12,
+      "started": 3,
+      "refused": false
+    },
+    "returned_models": [
+      "gpt-6.1-sol",
+      "gpt-6.1-sol",
+      "gpt-6.1-sol"
+    ],
+    "stopped": null,
+    "usage": {
+      "input": 23888,
+      "output": 220,
+      "cached_input": 18432
+    },
+    "turn_usage": [
+      {
+        "input": 7707,
+        "output": 37,
+        "cached_input": 3072
+      },
+      {
+        "input": 7935,
+        "output": 61,
+        "cached_input": 7552
+      },
+      {
+        "input": 8246,
+        "output": 122,
+        "cached_input": 7808
+      }
+    ],
+    "elapsed_ms": 10946,
+    "calls": [
+      {
+        "seq": 1,
+        "round": 1,
+        "tool": "search_notes",
+        "args": {
+          "query_hash": "24674602f13c",
+          "words": 6,
+          "query": "Linden drill loan extension waiting volunteer",
+          "limit": 6,
+          "mode": "hybrid",
+          "cursor": false
+        },
+        "outcome": "success",
+        "bytes": 621,
+        "ms": 14,
+        "result": {
+          "total": 1,
+          "shown": 1,
+          "ids": [
+            "2b74eaf8-57ea-4c3f-aa63-90b655c4905a:0"
+          ],
+          "semantic": "none"
+        }
+      },
+      {
+        "seq": 2,
+        "round": 2,
+        "tool": "read_note",
+        "args": {
+          "id": "2b74eaf8-57ea-4c3f-aa63-90b655c4905a:0",
+          "version": 2,
+          "start": 0,
+          "section": false,
+          "max_bytes": 12000
+        },
+        "outcome": "success",
+        "bytes": 887,
+        "ms": 1,
+        "result": {
+          "outcome": "Read",
+          "returned_bytes": 652,
+          "next_start": false
+        }
+      }
+    ],
+    "dropped_calls": 0
+  },
+  "native_result": "runs/READER-0/fixed-reader-r1/result.json",
+  "native_result_sha256": "8387965e2bf543b0b1d4809354c74a30db7bb0b48db530c6f8585ac6b7f779f8"
+}

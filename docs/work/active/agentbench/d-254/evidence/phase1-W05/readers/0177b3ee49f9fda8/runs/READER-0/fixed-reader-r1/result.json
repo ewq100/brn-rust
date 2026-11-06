@@ -1,0 +1,271 @@
+{
+  "format": 2,
+  "case": "READER",
+  "scale": 0,
+  "arm": "fixed-reader",
+  "repetition": 1,
+  "slot": "fixed-reader-r1",
+  "attempt": 1,
+  "label": null,
+  "status": "complete",
+  "failure": null,
+  "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "provider": "Codex",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "helper": null,
+  "model_dir": null,
+  "trace_level": "full",
+  "steps": [
+    {
+      "index": 1,
+      "kind": "ask",
+      "thread": "eb1776d1-fc92-4cd1-8b3f-98d616d01bcd:0",
+      "operations": [],
+      "sources": [],
+      "loaded_skills": [],
+      "budget": {
+        "requested": 8,
+        "sent": 8,
+        "observed": 8
+      },
+      "reservation": {
+        "reserved": 12,
+        "total_reserved": 12,
+        "remaining": 0
+      },
+      "terminal": "Completed",
+      "answer": "Before processing a refrigerated saline sample:\n- **The reference blank must pass** before starting.\n- **The sample must reach 18 °C before reagent is added.**\n- **Method B must be used—never method A.** If the sample is also cloudy, duplicate runs are required.\n\nThe saved procedure does not specify the blank pass criteria, warming method, or warming time; consult the applicable method instructions. Validation remains pending.\n\nSource: *Aster water trial — operator procedure*, note `646c90ef-59c9-436c-92bd-a53512a57257:0`, **version 2**, “Before starting” and “Run checklist.”",
+      "trace": {
+        "format": 1,
+        "level": "full",
+        "guide": "brn-threads-guidance-25:a9a9351de4f0c2dc31955556e5bf696cc460f085a6b53ba746e3f5061092db43",
+        "search": true,
+        "rounds": 2,
+        "max_rounds": 8,
+        "model_turns": 3,
+        "wire_requests": [
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          }
+        ],
+        "wire_requests_dropped": 0,
+        "model_call_budget": {
+          "limit": 12,
+          "started": 3,
+          "refused": false
+        },
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "stopped": null,
+        "usage": {
+          "input": 24541,
+          "output": 234,
+          "cached_input": 15360
+        },
+        "turn_usage": [
+          {
+            "input": 7716,
+            "output": 36,
+            "cached_input": 0
+          },
+          {
+            "input": 7932,
+            "output": 57,
+            "cached_input": 7552
+          },
+          {
+            "input": 8893,
+            "output": 141,
+            "cached_input": 7808
+          }
+        ],
+        "elapsed_ms": 10919,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "efd8edf464a0",
+              "words": 4,
+              "query": "refrigerated saline sample processed",
+              "limit": 6,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 661,
+            "ms": 8,
+            "result": {
+              "total": 1,
+              "shown": 1,
+              "ids": [
+                "646c90ef-59c9-436c-92bd-a53512a57257:0"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 2,
+            "round": 2,
+            "tool": "read_note",
+            "args": {
+              "id": "646c90ef-59c9-436c-92bd-a53512a57257:0",
+              "version": 2,
+              "start": 0,
+              "section": false,
+              "max_bytes": 12000
+            },
+            "outcome": "success",
+            "bytes": 3846,
+            "ms": 2,
+            "result": {
+              "outcome": "Read",
+              "returned_bytes": 3572,
+              "next_start": false
+            }
+          }
+        ],
+        "dropped_calls": 0
+      },
+      "run": "6b8d05d3-9685-4777-9723-1f6e888c272d:0"
+    }
+  ],
+  "checks": [],
+  "metrics": {},
+  "safety": [],
+  "passed": null,
+  "commands": [
+    {
+      "command": "restore",
+      "seconds": 0.129,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.098,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "settings",
+      "seconds": 0.113,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "delegation",
+      "seconds": 0.104,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-create",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-settings",
+      "seconds": 0.109,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-link",
+      "seconds": 0.122,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-chat",
+      "seconds": 0.111,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "search",
+      "seconds": 0.127,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "configure",
+      "seconds": 0.119,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.129,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.108,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "ask",
+      "seconds": 11.05,
+      "exit": 0,
+      "status": "Completed"
+    },
+    {
+      "command": "read",
+      "seconds": 0.124,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.129,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.121,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    }
+  ],
+  "planned": null,
+  "checkpoints": [
+    {
+      "step": 0,
+      "backup_sha256": "d8093e14d72dd810bb900829421e4692a3bfa798dc051c6c1deb026bb1ea06fd",
+      "records_sha256": "d1d9bfc40531507f0b2f7ee662a93fd33f22ae3e5a0637d44347ba75a14c6438"
+    },
+    {
+      "step": 1,
+      "backup_sha256": "dee046efede36ebcaf6c292374764a8ef9e8eea5576fb6f0276af4f47c64fafe",
+      "records_sha256": "aed9d16fab0b118913220570ba6142ee61ddfd5dcd1f68962aa6c2adaa9281c1"
+    }
+  ]
+}

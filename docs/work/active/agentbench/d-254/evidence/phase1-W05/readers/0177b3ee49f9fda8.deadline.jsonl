@@ -1,0 +1,53 @@
+{"event": "claimed", "utc": "2026-11-06T22:59:58.697351+00:00", "elapsed_seconds": 0.00013341600424610078, "identity": {"operation": "phase1-W05-reader-0177b3ee49f9fda8", "role": "phase1", "original_deadline": "2026-11-06T23:11:10.355811+00:00"}, "deadline_seconds": 120}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:58.807120+00:00", "elapsed_seconds": 0.10991183301666752, "launch": 1}
+{"event": "launched", "utc": "2026-11-06T22:59:58.811495+00:00", "elapsed_seconds": 0.11429529101587832, "launch": 1, "pid": 26901}
+{"event": "session_closed", "utc": "2026-11-06T22:59:58.927742+00:00", "elapsed_seconds": 0.2305305410118308, "pid": 26901}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:58.934470+00:00", "elapsed_seconds": 0.23725554102566093, "launch": 2}
+{"event": "launched", "utc": "2026-11-06T22:59:58.936567+00:00", "elapsed_seconds": 0.239373416028684, "launch": 2, "pid": 26906}
+{"event": "session_closed", "utc": "2026-11-06T22:59:59.026051+00:00", "elapsed_seconds": 0.3288433330017142, "pid": 26906}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:59.032631+00:00", "elapsed_seconds": 0.33541716600302607, "launch": 3}
+{"event": "launched", "utc": "2026-11-06T22:59:59.034731+00:00", "elapsed_seconds": 0.3375272910052445, "launch": 3, "pid": 26911}
+{"event": "session_closed", "utc": "2026-11-06T22:59:59.138795+00:00", "elapsed_seconds": 0.44158779102144763, "pid": 26911}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:59.145523+00:00", "elapsed_seconds": 0.44831029101624154, "launch": 4}
+{"event": "launched", "utc": "2026-11-06T22:59:59.148954+00:00", "elapsed_seconds": 0.4517513750179205, "launch": 4, "pid": 26916}
+{"event": "session_closed", "utc": "2026-11-06T22:59:59.242790+00:00", "elapsed_seconds": 0.5455834160093218, "pid": 26916}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:59.251636+00:00", "elapsed_seconds": 0.5544241250026971, "launch": 5}
+{"event": "launched", "utc": "2026-11-06T22:59:59.255282+00:00", "elapsed_seconds": 0.5580889160046354, "launch": 5, "pid": 26921}
+{"event": "session_closed", "utc": "2026-11-06T22:59:59.347592+00:00", "elapsed_seconds": 0.6503863329999149, "pid": 26921}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:59.353934+00:00", "elapsed_seconds": 0.6567227500199806, "launch": 6}
+{"event": "launched", "utc": "2026-11-06T22:59:59.357783+00:00", "elapsed_seconds": 0.6605919580033515, "launch": 6, "pid": 26926}
+{"event": "session_closed", "utc": "2026-11-06T22:59:59.456604+00:00", "elapsed_seconds": 0.7594043750141282, "pid": 26926}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:59.466317+00:00", "elapsed_seconds": 0.7691102500248235, "launch": 7}
+{"event": "launched", "utc": "2026-11-06T22:59:59.473195+00:00", "elapsed_seconds": 0.7760267080157064, "launch": 7, "pid": 26931}
+{"event": "session_closed", "utc": "2026-11-06T22:59:59.578287+00:00", "elapsed_seconds": 0.8810840410005767, "pid": 26931}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:59.584764+00:00", "elapsed_seconds": 0.8875556250277441, "launch": 8}
+{"event": "launched", "utc": "2026-11-06T22:59:59.589087+00:00", "elapsed_seconds": 0.8918966250203084, "launch": 8, "pid": 26936}
+{"event": "session_closed", "utc": "2026-11-06T22:59:59.689517+00:00", "elapsed_seconds": 0.9923148750094697, "pid": 26936}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:59.695909+00:00", "elapsed_seconds": 0.9987004160066135, "launch": 9}
+{"event": "launched", "utc": "2026-11-06T22:59:59.700373+00:00", "elapsed_seconds": 1.0031747910252307, "launch": 9, "pid": 26941}
+{"event": "session_closed", "utc": "2026-11-06T22:59:59.816976+00:00", "elapsed_seconds": 1.1197767500125337, "pid": 26941}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:59.823740+00:00", "elapsed_seconds": 1.126533875009045, "launch": 10}
+{"event": "launched", "utc": "2026-11-06T22:59:59.827261+00:00", "elapsed_seconds": 1.1300756660057232, "launch": 10, "pid": 26953}
+{"event": "session_closed", "utc": "2026-11-06T22:59:59.936003+00:00", "elapsed_seconds": 1.23880225000903, "pid": 26953}
+{"event": "launch_intent", "utc": "2026-11-06T22:59:59.943016+00:00", "elapsed_seconds": 1.245811250002589, "launch": 11}
+{"event": "launched", "utc": "2026-11-06T22:59:59.947352+00:00", "elapsed_seconds": 1.2501665000163484, "launch": 11, "pid": 26958}
+{"event": "session_closed", "utc": "2026-11-06T23:00:00.065731+00:00", "elapsed_seconds": 1.3685317080235109, "pid": 26958}
+{"event": "launch_intent", "utc": "2026-11-06T23:00:00.072759+00:00", "elapsed_seconds": 1.3755554580129683, "launch": 12}
+{"event": "launched", "utc": "2026-11-06T23:00:00.077110+00:00", "elapsed_seconds": 1.3799294580239803, "launch": 12, "pid": 26963}
+{"event": "session_closed", "utc": "2026-11-06T23:00:00.174098+00:00", "elapsed_seconds": 1.4769002910179552, "pid": 26963}
+{"event": "launch_intent", "utc": "2026-11-06T23:00:00.182051+00:00", "elapsed_seconds": 1.4848494580073748, "launch": 13}
+{"event": "launched", "utc": "2026-11-06T23:00:00.184287+00:00", "elapsed_seconds": 1.4871019160200376, "launch": 13, "pid": 26968}
+{"event": "session_closed", "utc": "2026-11-06T23:00:11.225393+00:00", "elapsed_seconds": 12.528295875003096, "pid": 26968}
+{"event": "launch_intent", "utc": "2026-11-06T23:00:11.239909+00:00", "elapsed_seconds": 12.542805250006495, "launch": 14}
+{"event": "launched", "utc": "2026-11-06T23:00:11.242169+00:00", "elapsed_seconds": 12.545085583027685, "launch": 14, "pid": 27016}
+{"event": "session_closed", "utc": "2026-11-06T23:00:11.349237+00:00", "elapsed_seconds": 12.6521365410008, "pid": 27016}
+{"event": "launch_intent", "utc": "2026-11-06T23:00:11.355971+00:00", "elapsed_seconds": 12.65886591601884, "launch": 15}
+{"event": "launched", "utc": "2026-11-06T23:00:11.358238+00:00", "elapsed_seconds": 12.661143083008938, "launch": 15, "pid": 27033}
+{"event": "session_closed", "utc": "2026-11-06T23:00:11.478547+00:00", "elapsed_seconds": 12.781446416018298, "pid": 27033}
+{"event": "launch_intent", "utc": "2026-11-06T23:00:11.485526+00:00", "elapsed_seconds": 12.788422666024417, "launch": 16}
+{"event": "launched", "utc": "2026-11-06T23:00:11.487583+00:00", "elapsed_seconds": 12.790497791022062, "launch": 16, "pid": 27038}
+{"event": "session_closed", "utc": "2026-11-06T23:00:11.599572+00:00", "elapsed_seconds": 12.902474666014314, "pid": 27038}
+{"event": "launch_intent", "utc": "2026-11-06T23:00:11.608375+00:00", "elapsed_seconds": 12.911273083009291, "launch": 17}
+{"event": "launched", "utc": "2026-11-06T23:00:11.610664+00:00", "elapsed_seconds": 12.913579708023462, "launch": 17, "pid": 27043}
+{"event": "session_closed", "utc": "2026-11-06T23:00:11.706813+00:00", "elapsed_seconds": 13.009715333027998, "pid": 27043}
+{"event": "terminal", "utc": "2026-11-06T23:00:11.708383+00:00", "elapsed_seconds": 13.011279125028523, "status": "completed", "exit_code": 0, "cleanup_errors": []}

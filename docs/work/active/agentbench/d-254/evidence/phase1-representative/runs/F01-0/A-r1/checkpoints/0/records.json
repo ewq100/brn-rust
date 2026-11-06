@@ -1,0 +1,57 @@
+[
+  {
+    "id": "2a948442-ba18-4822-874c-9051862c6635:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Thread": {
+        "title": "Evaluation case",
+        "state": "Open",
+        "attention": []
+      }
+    }
+  },
+  {
+    "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Cedar renovation",
+        "markdown": "# Cedar renovation\n\nOwner decision dated 2026-10-01: the budget is EUR 12000.\nDeposit paid: EUR 2400.\nThe target completion date is 2027-02-15; it is not a signed commitment.\nThe bathroom requires a waterproof membrane; dry rooms need primer only.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Unrelated stable record",
+        "markdown": "# Unrelated stable record\n\nThe garden gate inspection is unrelated and must remain unchanged.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "4e0932a8-62f7-4556-b8ab-333fe48c4860:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "ChatControl": {
+        "queue": [],
+        "pending": null,
+        "paused": false,
+        "quiet": false
+      }
+    }
+  }
+]

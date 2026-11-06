@@ -1,0 +1,5 @@
+{"event": "claimed", "utc": "2026-11-06T22:49:16.456340+00:00", "elapsed_seconds": 7.708399789407849e-05, "identity": {"operation": "phase1-W03-semantic-deadline-correction-0", "role": "grader", "original_deadline": "2026-11-06T23:11:10.355811+00:00"}, "deadline_seconds": 90}
+{"event": "launch_intent", "utc": "2026-11-06T22:49:16.487503+00:00", "elapsed_seconds": 0.03124858401133679, "launch": 1}
+{"event": "launched", "utc": "2026-11-06T22:49:16.491495+00:00", "elapsed_seconds": 0.035241250006947666, "launch": 1, "pid": 23909}
+{"event": "session_closed", "utc": "2026-11-06T22:50:01.681385+00:00", "elapsed_seconds": 45.22458525002003, "pid": 23909}
+{"event": "terminal", "utc": "2026-11-06T22:50:01.681720+00:00", "elapsed_seconds": 45.22491225000704, "status": "failed", "exit_code": 1, "cleanup_errors": []}

@@ -1,0 +1,34 @@
+[
+  {
+    "attempt": "runs/W03-0/A-r1/result.json",
+    "question_id": "W03-Q1",
+    "measurement": {
+      "path": "readers/65e814ebe9d31caa-setup-correction/reader-result.json",
+      "sha256": "caecac3d107b24d97248df12ef472cc1ce4afe60148599c4cdc5f4d70ed1876e"
+    }
+  },
+  {
+    "attempt": "runs/W03-0/A-r2/result.json",
+    "question_id": "W03-Q1",
+    "measurement": {
+      "path": "readers/2bedd1953754549d-setup-correction/reader-result.json",
+      "sha256": "603b10ca4967c84941da9238e132c73b526788ecb9b601d644a5b8dd8565925a"
+    }
+  },
+  {
+    "attempt": "runs/W03-0/B-r1/result.json",
+    "question_id": "W03-Q1",
+    "measurement": {
+      "path": "readers/739f1211028725d6-setup-correction/reader-result.json",
+      "sha256": "5bd35eaf6384e978782027c1a41dc9bc67d7b7e53e16d56836ffd6bc94d3b340"
+    }
+  },
+  {
+    "attempt": "runs/W03-0/B-r2/result.json",
+    "question_id": "W03-Q1",
+    "measurement": {
+      "path": "readers/b297b4e2ab3e4bf4-setup-correction/reader-result.json",
+      "sha256": "94bc568e4f1b4b022bf612606cf0398f62f81ee938251d885deb8ce0c780c6c3"
+    }
+  }
+]

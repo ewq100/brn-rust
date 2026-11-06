@@ -95,21 +95,20 @@ Gates:
 ### Compare Terra/Sol and improve maintained knowledge (#254)
 
 Task ID: `knowledge-quality-254`
-Owner: Agent D · State: **active** · Last observed: 2026-11-06T22:17:36.661891+00:00
-Activity: Source-bound D CLI/seeder and fixed no-tool judge qualified; BRN catalogue supports both exact models medium. W03 pairedscreen4histories/16events completed with0transport/0safety and mechanicalchecks passing; semantic/reader quality pending. Shared D/E MacBook slot yielded to E at22:16:46Z.
-Next: After E window, continue frozen W05/Fscreen, real fixed readers/independent grades and separate withheldPhase1. Then implement/test actual retentioncandidate with protectedPhase2allocation.
-Resource waits: E live/candidatecompilewindow on sameMacBook; D phase1clock ends23:10Z; wholecycle00:30:06Z
+Owner: Agent D · State: **active** · Last observed: 2026-11-06T23:14:47.922233+00:00
+Activity: Visible Terra/Sol screen complete:40candidate events, Sol16/20 andTerra20/20 Completed;8real fixed-reader answers independently graded4/4. Saved-state grades unknown after3bounded failures. Phase2 provisionalSolmedium, single-factor retentioncandidate built/sourcebound and paired baseline/candidate development running.
+Next: Complete Phase2paired development, then protected broad/fresh evaluator confirmation; retain accepted baseline unless frozen improvement criteria qualify.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** pending: actual knowledge-improvement loop required after comparison
+- **implementation:** Retention candidate1 implemented in separate worktree at45610287; exact combined build pinned, sameSolmedium andsettings for botharms.
 - **checks:** Qualified source-bound cleanlocal CLI/seeder/defaultfeatures;2judge wire tests,2runtimecallcap,4responseguard,9documentrefine,93nativeAgentBench(1optionalInspectskip),W03/W05two-armoffline allpass. Initial invalid cacheclean and excludedcachedbuild preserved.
 - **integration:** Comparison and improvement PRs authorized; no merge/default change/publication
 - **native:** Headless synthetic only; desktop observation outside assignment
-- **owner acceptance:** Fresh evaluation-only role prepared2distinct2history packs; procedural withholding/shared filesystem, per owner clarification. Actual model/knowledge outcomes and final acceptance still pending.
+- **owner acceptance:** Prepared distinct withheld packs; same-machine procedural separation, no technical isolation. Phase1unseen notrun within originalclock, comparison inconclusive. Phase2fresh pending.
 
 </details>
 
@@ -128,15 +127,6 @@ Waiting:
 
 - resource: Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.
 - resource: Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
-
-### Compare Terra/Sol and improve maintained knowledge (#254)
-
-Task ID: `knowledge-quality-254`
-Owner: Agent D
-
-Waiting:
-
-- resource: E live/candidatecompilewindow on sameMacBook; D phase1clock ends23:10Z; wholecycle00:30:06Z
 
 ## Completed
 

@@ -1,0 +1,11 @@
+{
+  "kind": "uncertain-read-only-grader-contained",
+  "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W03/judgments-semantic-two-packet/0-run",
+  "deadline_receipt_sha256": "68d7b89eccb0ff53a906d898f70bf06eacfa6b5e568af2829f5d87c0526f6efa",
+  "reservation_retained": true,
+  "actual_HTTP": 1,
+  "token_usage": null,
+  "money_cost": null,
+  "reason": "Two-packet semanticjudgmentalso reached frozen45s; bulksemanticqualificationfailed. No nativeeffects,processreaped. No furtherbulksemanticretries; dimensionsremainunknown. Continue realfixedreaders andboundedone-answergrade withinoriginalallocation; phase1inconclusive,Phase2provisionalSolmedium.",
+  "at": "2026-11-06T22:56:57.904335+00:00"
+}

@@ -1,0 +1,12 @@
+{
+  "kind": "uncertain-read-only-grader-contained",
+  "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W03/judgments-semantic/0-run",
+  "deadline_receipt_sha256": "164957f87280aea6f0f180fd5c15be71bd1fed370f02a66aabb2b418be16cdca",
+  "reservation_retained": true,
+  "actual_HTTP": null,
+  "maximum_HTTP": 1,
+  "token_usage": null,
+  "money_cost": null,
+  "reason": "Outer Guard seconds60 killed at30 due to30s cleanup reserve; intended model deadline45. Owned session cleanup succeeded. Pure grader has no BRN store, function/provider tools, or external effect capability beyond one provider inference. Unknown prior provider processing retained, no candidate rerun. New request gets distinct identity and corrected outer90s bound.",
+  "at": "2026-11-06T22:48:02.869828+00:00"
+}

@@ -1,0 +1,207 @@
+{
+  "format": 1,
+  "kind": "measured-reader",
+  "status": "complete",
+  "qualified": false,
+  "measured_answer": true,
+  "answer_quality": null,
+  "mode": "wiki-only",
+  "question": "Can a volunteer extend a drill loan when someone is waiting?",
+  "checkpoint_records_sha256": "aa6455bc80c092100e9e8216a10600fcb94d099c51737ae561820a6f14f3db59",
+  "checkpoint_backup_sha256": "fc87ad8564f36163137741f8d702633bf9d33d77b5ea88e40e856857ce092169",
+  "reader_config_sha256": "9d68d6cd3d967a07324c6ebeb2019db1d2b3d22c4d568256670c7400175263df",
+  "cli_binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "article_allowlist": [
+    {
+      "id": "01ecae1a-826c-417e-ae22-4b101fde6965:0",
+      "version": 2
+    }
+  ],
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "cost": null,
+  "retrieval": "native search_notes and read_note on an isolated checkpoint clone",
+  "retrieval_assets": "none requested; native build defaults, record features in input lock",
+  "retrieval_probe": {
+    "hits": [
+      {
+        "note": "01ecae1a-826c-417e-ae22-4b101fde6965:0",
+        "version": 2,
+        "title": "Linden tool library",
+        "start": 476,
+        "end": 743,
+        "quote": "### Return checklist\n\n- Return the drill within the 7-day loan period, unless a volunteer has granted the one-time 3-day extension because nobody is waiting.\n- Return battery packs separately labelled.\n- Allow for a return inspection before the deposit is refunded.\n\n",
+        "heading_path": "Linden tool library \u203a Borrowing a drill \u203a Return checklist",
+        "snippet": "Return checklist - Return the drill within the 7-day loan period, unless a volunteer has granted the one-time 3-day extension because nobody is waiting. - Return battery packs separately labelled. - Allow for a return inspection before the deposit is refunded.",
+        "highlights": [
+          {
+            "start": 30,
+            "end": 35
+          },
+          {
+            "start": 53,
+            "end": 57
+          },
+          {
+            "start": 73,
+            "end": 74
+          },
+          {
+            "start": 75,
+            "end": 84
+          },
+          {
+            "start": 116,
+            "end": 125
+          },
+          {
+            "start": 141,
+            "end": 143
+          },
+          {
+            "start": 144,
+            "end": 151
+          },
+          {
+            "start": 209,
+            "end": 210
+          },
+          {
+            "start": 248,
+            "end": 250
+          }
+        ],
+        "matches": 4,
+        "inbound_links": 0,
+        "protected": false,
+        "imported": false,
+        "evidence": false,
+        "archived": false
+      }
+    ],
+    "total": 1,
+    "offset": 0,
+    "reachable": 1,
+    "cursor": null,
+    "semantic": "none",
+    "messages": [],
+    "message_total": 0,
+    "message_cursor": null,
+    "shown": 1
+  },
+  "reader_thread": "9357c5c5-77f3-4069-bb3a-3de95beda868:0",
+  "identity_verified": true,
+  "native_retrieval_observed": true,
+  "answer": "No. The saved policy allows volunteers to extend a drill loan **once by 3 days only if nobody is waiting**. If someone is waiting, that extension is not permitted; the standard loan period is **7 days**.\n\nSource: *Linden tool library*, note `01ecae1a-826c-417e-ae22-4b101fde6965:0`, **version 2**, \u201cBorrowing a drill\u201d (recording the 8 July 2026 front desk update).",
+  "terminal": "Completed",
+  "trace": {
+    "format": 1,
+    "level": "full",
+    "guide": "brn-threads-guidance-25:45b4c06352e5de7feac3af5dbd94afb9fd8b2b655cfcc3d59b1a734ed1c4755c",
+    "search": true,
+    "rounds": 2,
+    "max_rounds": 8,
+    "model_turns": 3,
+    "wire_requests": [
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      },
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      },
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      }
+    ],
+    "wire_requests_dropped": 0,
+    "model_call_budget": {
+      "limit": 12,
+      "started": 3,
+      "refused": false
+    },
+    "returned_models": [
+      "gpt-6.1-sol",
+      "gpt-6.1-sol",
+      "gpt-6.1-sol"
+    ],
+    "stopped": null,
+    "usage": {
+      "input": 24107,
+      "output": 203,
+      "cached_input": 15360
+    },
+    "turn_usage": [
+      {
+        "input": 7717,
+        "output": 36,
+        "cached_input": 0
+      },
+      {
+        "input": 7938,
+        "output": 58,
+        "cached_input": 7552
+      },
+      {
+        "input": 8452,
+        "output": 109,
+        "cached_input": 7808
+      }
+    ],
+    "elapsed_ms": 9418,
+    "calls": [
+      {
+        "seq": 1,
+        "round": 1,
+        "tool": "search_notes",
+        "args": {
+          "query_hash": "c42c1b7a2060",
+          "words": 5,
+          "query": "drill loan extension waiting volunteer",
+          "limit": 6,
+          "mode": "hybrid",
+          "cursor": false
+        },
+        "outcome": "success",
+        "bytes": 616,
+        "ms": 16,
+        "result": {
+          "total": 1,
+          "shown": 1,
+          "ids": [
+            "01ecae1a-826c-417e-ae22-4b101fde6965:0"
+          ],
+          "semantic": "none"
+        }
+      },
+      {
+        "seq": 2,
+        "round": 2,
+        "tool": "read_note",
+        "args": {
+          "id": "01ecae1a-826c-417e-ae22-4b101fde6965:0",
+          "version": 2,
+          "start": 0,
+          "section": false,
+          "max_bytes": 12000
+        },
+        "outcome": "success",
+        "bytes": 1733,
+        "ms": 2,
+        "result": {
+          "outcome": "Read",
+          "returned_bytes": 1486,
+          "next_start": false
+        }
+      }
+    ],
+    "dropped_calls": 0
+  },
+  "native_result": "runs/READER-0/fixed-reader-r1/result.json",
+  "native_result_sha256": "11663a3bfdd011d14853a69d1186bb017b20e1bcce42fdd8a58db41b745028e8"
+}

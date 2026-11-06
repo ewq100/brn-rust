@@ -1,0 +1,17 @@
+{
+  "id": "phase1-W03-reader-b297b4e2ab3e4bf4-setup-correction",
+  "kind": "reader",
+  "role": "phase1",
+  "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W03/readers/b297b4e2ab3e4bf4-setup-correction",
+  "seconds": 120,
+  "minimum_seconds": 90,
+  "checkpoint": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W03/runs/W03-0/B-r2/checkpoints/4",
+  "question": "Can a volunteer extend a drill loan when someone is waiting?",
+  "records": [
+    {
+      "id": "c016b5e0-44df-4fc0-a3b7-a6793f944985:0",
+      "version": 2
+    }
+  ],
+  "binary": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn"
+}

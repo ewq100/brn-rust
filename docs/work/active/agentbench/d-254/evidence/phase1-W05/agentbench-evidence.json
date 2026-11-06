@@ -1,0 +1,268 @@
+{
+  "version": 1,
+  "suite_sha256": "2ed1d2b91791d87bf89e90383626d337158cd372d599c765cd885c30c6e2a53f",
+  "attempts": [
+    {
+      "id": "runs/W05-0/A-r1/result.json",
+      "result": "runs/W05-0/A-r1/result.json",
+      "result_sha256": "d4f9cf54f236abd0b9265e660f15f73e7abd24fd4dd215eed53fe8c6ba75fbf6",
+      "configuration": "A",
+      "scenario": "W05",
+      "repetition": 1,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed",
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 1,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 1,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 143470,
+        "cached_input": 120064,
+        "output": 2994,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 83843,
+        "cost": null,
+        "model_calls": 12,
+        "tool_calls": 14,
+        "tool_rounds": 10,
+        "uncached_input": 23406
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 12
+      }
+    },
+    {
+      "id": "runs/W05-0/A-r2/result.json",
+      "result": "runs/W05-0/A-r2/result.json",
+      "result_sha256": "296b1f373434b7fda586df373059e70c2d683908e80843879c455017561bce74",
+      "configuration": "A",
+      "scenario": "W05",
+      "repetition": 2,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed",
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 1,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 1,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 130749,
+        "cached_input": 114816,
+        "output": 3023,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 82715,
+        "cost": null,
+        "model_calls": 11,
+        "tool_calls": 13,
+        "tool_rounds": 9,
+        "uncached_input": 15933
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 11
+      }
+    },
+    {
+      "id": "runs/W05-0/B-r1/result.json",
+      "result": "runs/W05-0/B-r1/result.json",
+      "result_sha256": "a143f72449887cbb980a98a4d3feff07e415be642a05a800ad29b22f0b5a1ee0",
+      "configuration": "B",
+      "scenario": "W05",
+      "repetition": 1,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed",
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 1,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 1,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 104828,
+        "cached_input": 72064,
+        "output": 1615,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 43886,
+        "cost": null,
+        "model_calls": 9,
+        "tool_calls": 14,
+        "tool_rounds": 7,
+        "uncached_input": 32764
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-terra",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra"
+        ],
+        "sent_requests": 9
+      }
+    },
+    {
+      "id": "runs/W05-0/B-r2/result.json",
+      "result": "runs/W05-0/B-r2/result.json",
+      "result_sha256": "952f03118bc37e48f13199dd15518b0c6d85f226dcdf2463cacc5930906d03d2",
+      "configuration": "B",
+      "scenario": "W05",
+      "repetition": 2,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed",
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 1,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 1,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 104812,
+        "cached_input": 90880,
+        "output": 1917,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 50006,
+        "cost": null,
+        "model_calls": 9,
+        "tool_calls": 13,
+        "tool_rounds": 7,
+        "uncached_input": 13932
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-terra",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra"
+        ],
+        "sent_requests": 9
+      }
+    }
+  ],
+  "gold_sha256": "452a65d94584d7cc7a3319d33a7de8245e1aadc3036e3f8da99cb8c3ca628fa7",
+  "fixture_sha256": "12cb8030a6dc941c99ef821aa8b1c35fe290c794b1f871b5db9e59658ac01a3d",
+  "native_manifest_sha256": "d473b68c81c18d188bb31d565a1cb27fca5619d96efccbfcfcaba5113f51ae16",
+  "unindexed_attempts": [],
+  "limitations": [
+    "Requested identity is not wire-observed identity.",
+    "No live grader or helper qualification.",
+    "Native evidence remains private."
+  ]
+}

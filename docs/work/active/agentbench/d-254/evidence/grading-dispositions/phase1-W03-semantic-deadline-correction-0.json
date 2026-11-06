@@ -1,0 +1,11 @@
+{
+  "kind": "uncertain-read-only-grader-contained",
+  "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W03/judgments-semantic-deadline-correction/0-run",
+  "deadline_receipt_sha256": "4dc2238daca2db3f91d0949ec6307c1b8118e6d3783f732ad298329cee81b11e",
+  "reservation_retained": true,
+  "actual_HTTP": 1,
+  "token_usage": null,
+  "money_cost": null,
+  "reason": "Four-packet high-effort judgment reached original45s internaldeadline. No judgment saved, no native effects, owned process reaped. Reassessed after2failures: reduce only semantic batchsize to2, withinpredeclaredmax8. Packet/rubric/model/effort/time unchanged. New distinct operations; oldattemptnotreplayed.",
+  "at": "2026-11-06T22:52:18.047585+00:00"
+}

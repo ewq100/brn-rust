@@ -1,0 +1,80 @@
+{
+  "format": 2,
+  "status": "incomplete",
+  "qualified": false,
+  "provider": "independent-review",
+  "grades": [],
+  "checkpoint_grades": [],
+  "grader_failures": [],
+  "missing_packets": [
+    "1698c86a1a6e9185f31f9867722cf07e473e1e510b5f34603e733c00f92b81ea",
+    "3151394c1f57bd1a8933abb9ccfdb55bc6783a5d28bedbc1879137ff2b8c437c",
+    "368078f53266ed4c7abd60595d1841d8d635690c227e6f3be77a93bfd35e285e",
+    "39aa16e309ff73fceb925e2f71b67ab8e857e577ca03ee9a3972981befa0916f",
+    "3d7c7cd5339f6a839a2fbc21a154168611293f3dda1d2db5fe055285b2ec6133",
+    "488144dc2cd861c578b439d55b036c66c1995112a1112f9b955486c6c00b0a2c",
+    "56a5bdc10903d2d34a9b292f9f681a00afde142d073736a121c3e5f94ccd8694",
+    "646f62ce7f6aad315d8e91edcf0d8ac263fc5ec3dcd1cec31d3dd4dee19aa209",
+    "8f2b1458589a0574474adcfe0409aaf617a821faef688afbedf6b5da9781543d",
+    "904313fb320802f6a80bd1ef6eda8bd9a5f2f80258599136081052f21db56e9d",
+    "9a2fa007b7528c65da706c440b99ea71a93e79e62d6f8565077d9fd05f2ab441",
+    "c13840f1fa7f3b8787030334fdcc2d0bd79c80e7040fc1286e51506bf1ec9dd6",
+    "d2d81851fd9e2f8c665610d6cb68e6e7d8c95139746d920a48113eeb7c167476",
+    "d37d4548a8e326f533a885ca44d4aa2de1d911d06a0992dea26834e2ee099d53",
+    "d453cea43af77ddcd267e4cb56de7c404e14a45dda5e26d7de18036b7f6ac87b",
+    "d98a505d27b1a68b4de87b8e53b04ca15e28219d102bde1afa4692cb08026bfa"
+  ],
+  "uncaptured_attempts": [],
+  "checkpoint_plans": {
+    "runs/W03-0/A-r1/result.json": {
+      "required": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "uncaptured": [],
+      "aggregation": "minimum",
+      "execution_status": "complete"
+    },
+    "runs/W03-0/A-r2/result.json": {
+      "required": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "uncaptured": [],
+      "aggregation": "minimum",
+      "execution_status": "complete"
+    },
+    "runs/W03-0/B-r1/result.json": {
+      "required": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "uncaptured": [],
+      "aggregation": "minimum",
+      "execution_status": "complete"
+    },
+    "runs/W03-0/B-r2/result.json": {
+      "required": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "uncaptured": [],
+      "aggregation": "minimum",
+      "execution_status": "complete"
+    }
+  },
+  "infrastructure_attempts": [],
+  "candidate_calls": 0,
+  "cost": null,
+  "revision": "d0a6175428e1c606bb4f7172d86c570231031ae514d5dd210cfc424cc79a8e86:wiki-reviewer-v1",
+  "reviewer_config_sha256": "d0a6175428e1c606bb4f7172d86c570231031ae514d5dd210cfc424cc79a8e86",
+  "review_identity_status": "independently supplied review; runtime identity not attested by importer"
+}

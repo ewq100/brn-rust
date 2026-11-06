@@ -1,0 +1,11 @@
+{
+  "at": "2026-11-06T23:11:37.124019+00:00",
+  "source_sha256": {
+    "/Users/evokessler/repos/brn-agent-d-254/benchmarks/brn_agent/experiments/d254/supervise.py": "7feda2adf65b0356172bb8fd6aff8d86285635daef344a4c1e0225ac10d3da0f",
+    "/Users/evokessler/repos/brn-agent-d-254/benchmarks/brn_agent/experiments/d254/supervise_outputs.py": "92db03aa10664cd73492c88cd48a7a345a60532d16aafe914502fe636702ea99",
+    "/Users/evokessler/repos/brn-agent-d-254/benchmarks/brn_agent/experiments/d254/evaluate_outputs.py": "1372f8dc72a53d35adadbdda977d814aa28a7e27554f0ab82aacd90ff94f9249"
+  },
+  "same_process_all_arms": true,
+  "failed_receipts_retained": true,
+  "change": "One fixed-reader packet per no-tool grader call; missing saved-state semantics remains unknown; narrow proven never-dispatched reader setup and reaped read-only grader dispositions. Original native supervisor unchanged."
+}

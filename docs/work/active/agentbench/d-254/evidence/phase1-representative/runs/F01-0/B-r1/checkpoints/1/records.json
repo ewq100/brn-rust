@@ -1,0 +1,144 @@
+[
+  {
+    "id": "2a948442-ba18-4822-874c-9051862c6635:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Thread": {
+        "title": "Evaluation case",
+        "state": "Open",
+        "attention": []
+      }
+    }
+  },
+  {
+    "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Cedar renovation",
+        "markdown": "# Cedar renovation\n\nOwner decision dated 2026-10-01: the budget is EUR 12000.\nDeposit paid: EUR 2400.\nThe target completion date is 2027-02-15; it is not a signed commitment.\nThe bathroom requires a waterproof membrane; dry rooms need primer only.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Unrelated stable record",
+        "markdown": "# Unrelated stable record\n\nThe garden gate inspection is unrelated and must remain unchanged.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "4b80e991-3343-4764-a639-b48f144c1fb8:0",
+    "version": 4,
+    "archived": false,
+    "data": {
+      "Run": {
+        "instruction": "4b80e991-3343-4764-a639-b48f144c1fb8:1",
+        "thread": "2a948442-ba18-4822-874c-9051862c6635:0",
+        "provider": "Codex",
+        "model": "gpt-6.1-terra",
+        "guide_identity": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "budget": 8,
+        "effort": "medium",
+        "loaded_skills": [
+          "maintain-notes"
+        ],
+        "loaded_skill_details": [
+          {
+            "id": "maintain-notes",
+            "origin": "builtin",
+            "project": null,
+            "package_digest": "65778c6e5873551db81451838dba4b1dc455a3a05a01111c98dd03aea18cab2d",
+            "file": "SKILL.md",
+            "file_digest": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020"
+          }
+        ],
+        "fence": 3,
+        "state": "Completed",
+        "progress": "",
+        "operations": [
+          "90c71953-ad9f-48da-9a0b-74fe14a1e0d5"
+        ],
+        "sources": []
+      }
+    }
+  },
+  {
+    "id": "4b80e991-3343-4764-a639-b48f144c1fb8:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Message": {
+        "thread": "2a948442-ba18-4822-874c-9051862c6635:0",
+        "role": "owner",
+        "text": "Create a useful saved wiki for Cedar renovation from the saved evidence. Preserve the material exception, quantities, tentative status and source links. Any useful organization is acceptable. Leave unrelated records unchanged."
+      }
+    }
+  },
+  {
+    "id": "4e0932a8-62f7-4556-b8ab-333fe48c4860:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "ChatControl": {
+        "queue": [],
+        "pending": null,
+        "paused": false,
+        "quiet": false
+      }
+    }
+  },
+  {
+    "id": "8e0aedbf-e413-4a79-b3d4-2777fffae334:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Message": {
+        "thread": "2a948442-ba18-4822-874c-9051862c6635:0",
+        "role": "assistant",
+        "text": "Created the [Cedar renovation project wiki](90c71953-ad9f-48da-9a0b-74fe14a1e0d5:0) and linked it to the saved evidence. It preserves the budget and deposit amounts, the tentative completion date, and the bathroom waterproof-membrane exception.\n\nThe saved evidence had no external source links, so the underlying originals could not be rechecked. Unrelated records were left unchanged."
+      }
+    }
+  },
+  {
+    "id": "90c71953-ad9f-48da-9a0b-74fe14a1e0d5:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Cedar renovation — project wiki",
+        "markdown": "# Cedar renovation — project wiki\n\n## Budget and payment\n- **Budget:** EUR 12,000, recorded as an owner decision dated 2026-10-01.\n- **Deposit paid:** EUR 2,400.\n\n## Schedule\n- **Target completion:** 2027-02-15. This is a target, **not a signed commitment**.\n\n## Materials by room\n- **Bathroom:** requires a waterproof membrane.\n- **Dry rooms:** need primer only. The bathroom is the material exception; do not apply the dry-room primer-only specification to it.\n\n## Evidence and limitations\nBased on the saved [Cedar renovation evidence](3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0), version 1. No original external source links are recorded on that note, so the underlying originals could not be rechecked.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "90c71953-ad9f-48da-9a0b-74fe14a1e0d5:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Link": {
+        "from": "90c71953-ad9f-48da-9a0b-74fe14a1e0d5:0",
+        "to": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+        "relation": "source"
+      }
+    }
+  }
+]

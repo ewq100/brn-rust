@@ -1,0 +1,27 @@
+{
+  "at": "2026-11-06T22:42:38.514716+00:00",
+  "artifacts": [
+    {
+      "target": "brn_ai",
+      "features": [
+        "scripted-runs"
+      ],
+      "fresh": false,
+      "executable": null
+    },
+    {
+      "target": "wiki_eval_seed",
+      "features": [],
+      "fresh": false,
+      "executable": "/private/tmp/brn-agent-d-254-target/debug/examples/wiki_eval_seed"
+    },
+    {
+      "target": "brn",
+      "features": [],
+      "fresh": false,
+      "executable": "/private/tmp/brn-agent-d-254-target/debug/brn"
+    }
+  ],
+  "correction": "CLI features empty, but combined CLI+seeder build unifies brn-ai scripted-runs via example dev dependency. The ordinary CLI does not expose test injection; live wire traces are real Codex calls. Preserve this feature closure for candidate builds; do not claim a pure library-default or native-desktop qualification.",
+  "original_build_receipt_and_messages_unchanged": true
+}

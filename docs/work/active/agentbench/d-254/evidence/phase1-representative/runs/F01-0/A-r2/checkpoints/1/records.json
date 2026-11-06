@@ -1,0 +1,111 @@
+[
+  {
+    "id": "2a948442-ba18-4822-874c-9051862c6635:0",
+    "version": 2,
+    "archived": false,
+    "data": {
+      "Thread": {
+        "title": "Evaluation case",
+        "state": "Open",
+        "attention": [
+          {
+            "kind": "Blocker",
+            "reason": "Run failed: The tool-call limit was reached. Continue starts fresh.",
+            "record": "e60094c6-3f15-43b3-93da-964e12a018cd:0"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+    "version": 2,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Cedar renovation",
+        "markdown": "# Cedar renovation\n\n## Budget and payment\n\n- **Budget:** EUR 12000, recorded as the owner's decision dated **2026-10-01**.\n- **Deposit paid:** EUR 2400.\n\n## Schedule\n\n**Target completion: 2027-02-15.** This is a target only, **not a signed commitment**.\n\n## Materials by room\n\n| Area | Required treatment |\n| --- | --- |\n| Bathroom | Waterproof membrane required. |\n| Dry rooms | Primer only. |\n\nThe bathroom is the exception to the primer-only treatment for dry rooms; do not generalize the dry-room treatment to the bathroom.\n\n## Evidence and limits\n\nThis page reorganizes the existing saved **Cedar renovation** note (version 1). That note records the decision, payment, target date and material requirements above. No underlying source links were recorded in the available evidence, so the originals could not be rechecked. The target date remains tentative.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Unrelated stable record",
+        "markdown": "# Unrelated stable record\n\nThe garden gate inspection is unrelated and must remain unchanged.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "4e0932a8-62f7-4556-b8ab-333fe48c4860:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "ChatControl": {
+        "queue": [],
+        "pending": null,
+        "paused": false,
+        "quiet": false
+      }
+    }
+  },
+  {
+    "id": "e60094c6-3f15-43b3-93da-964e12a018cd:0",
+    "version": 4,
+    "archived": false,
+    "data": {
+      "Run": {
+        "instruction": "e60094c6-3f15-43b3-93da-964e12a018cd:1",
+        "thread": "2a948442-ba18-4822-874c-9051862c6635:0",
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "guide_identity": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "budget": 8,
+        "effort": "medium",
+        "loaded_skills": [
+          "maintain-notes"
+        ],
+        "loaded_skill_details": [
+          {
+            "id": "maintain-notes",
+            "origin": "builtin",
+            "project": null,
+            "package_digest": "65778c6e5873551db81451838dba4b1dc455a3a05a01111c98dd03aea18cab2d",
+            "file": "SKILL.md",
+            "file_digest": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020"
+          }
+        ],
+        "fence": 3,
+        "state": "Failed",
+        "progress": "Host-retained objective excerpt from saved owner Message e60094c6-3f15-43b3-93da-964e12a018cd:1 (bounded to 768 UTF-8 bytes; consult the exact Message for full wording):\nCreate a useful saved wiki for Cedar renovation from the saved evidence. Preserve the material exception, quantities, tentative status and source links. Any useful organization is acceptable. Leave unrelated records unchanged.\nNo remaining-work plan was retained. Work remains unverified; this excerpt grants no authority to a later invocation.",
+        "operations": [
+          "85f4a262-0481-492b-b159-d2fd490cc4a2"
+        ],
+        "sources": []
+      }
+    }
+  },
+  {
+    "id": "e60094c6-3f15-43b3-93da-964e12a018cd:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Message": {
+        "thread": "2a948442-ba18-4822-874c-9051862c6635:0",
+        "role": "owner",
+        "text": "Create a useful saved wiki for Cedar renovation from the saved evidence. Preserve the material exception, quantities, tentative status and source links. Any useful organization is acceptable. Leave unrelated records unchanged."
+      }
+    }
+  }
+]

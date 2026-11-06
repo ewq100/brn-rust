@@ -1,0 +1,271 @@
+{
+  "format": 2,
+  "case": "READER",
+  "scale": 0,
+  "arm": "fixed-reader",
+  "repetition": 1,
+  "slot": "fixed-reader-r1",
+  "attempt": 1,
+  "label": null,
+  "status": "complete",
+  "failure": null,
+  "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "provider": "Codex",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "helper": null,
+  "model_dir": null,
+  "trace_level": "full",
+  "steps": [
+    {
+      "index": 1,
+      "kind": "ask",
+      "thread": "9357c5c5-77f3-4069-bb3a-3de95beda868:0",
+      "operations": [],
+      "sources": [],
+      "loaded_skills": [],
+      "budget": {
+        "requested": 8,
+        "sent": 8,
+        "observed": 8
+      },
+      "reservation": {
+        "reserved": 12,
+        "total_reserved": 12,
+        "remaining": 0
+      },
+      "terminal": "Completed",
+      "answer": "No. The saved policy allows volunteers to extend a drill loan **once by 3 days only if nobody is waiting**. If someone is waiting, that extension is not permitted; the standard loan period is **7 days**.\n\nSource: *Linden tool library*, note `01ecae1a-826c-417e-ae22-4b101fde6965:0`, **version 2**, “Borrowing a drill” (recording the 8 July 2026 front desk update).",
+      "trace": {
+        "format": 1,
+        "level": "full",
+        "guide": "brn-threads-guidance-25:45b4c06352e5de7feac3af5dbd94afb9fd8b2b655cfcc3d59b1a734ed1c4755c",
+        "search": true,
+        "rounds": 2,
+        "max_rounds": 8,
+        "model_turns": 3,
+        "wire_requests": [
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          }
+        ],
+        "wire_requests_dropped": 0,
+        "model_call_budget": {
+          "limit": 12,
+          "started": 3,
+          "refused": false
+        },
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "stopped": null,
+        "usage": {
+          "input": 24107,
+          "output": 203,
+          "cached_input": 15360
+        },
+        "turn_usage": [
+          {
+            "input": 7717,
+            "output": 36,
+            "cached_input": 0
+          },
+          {
+            "input": 7938,
+            "output": 58,
+            "cached_input": 7552
+          },
+          {
+            "input": 8452,
+            "output": 109,
+            "cached_input": 7808
+          }
+        ],
+        "elapsed_ms": 9418,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "c42c1b7a2060",
+              "words": 5,
+              "query": "drill loan extension waiting volunteer",
+              "limit": 6,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 616,
+            "ms": 16,
+            "result": {
+              "total": 1,
+              "shown": 1,
+              "ids": [
+                "01ecae1a-826c-417e-ae22-4b101fde6965:0"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 2,
+            "round": 2,
+            "tool": "read_note",
+            "args": {
+              "id": "01ecae1a-826c-417e-ae22-4b101fde6965:0",
+              "version": 2,
+              "start": 0,
+              "section": false,
+              "max_bytes": 12000
+            },
+            "outcome": "success",
+            "bytes": 1733,
+            "ms": 2,
+            "result": {
+              "outcome": "Read",
+              "returned_bytes": 1486,
+              "next_start": false
+            }
+          }
+        ],
+        "dropped_calls": 0
+      },
+      "run": "6e7921e2-f2db-4e5a-abd0-14fc37a41082:0"
+    }
+  ],
+  "checks": [],
+  "metrics": {},
+  "safety": [],
+  "passed": null,
+  "commands": [
+    {
+      "command": "restore",
+      "seconds": 0.144,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.106,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "settings",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "delegation",
+      "seconds": 0.119,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-create",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-settings",
+      "seconds": 0.107,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-link",
+      "seconds": 0.156,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-chat",
+      "seconds": 0.123,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "search",
+      "seconds": 0.119,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "configure",
+      "seconds": 0.101,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.128,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.104,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "ask",
+      "seconds": 9.546,
+      "exit": 0,
+      "status": "Completed"
+    },
+    {
+      "command": "read",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.137,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.108,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.104,
+      "exit": 0,
+      "status": "ok"
+    }
+  ],
+  "planned": null,
+  "checkpoints": [
+    {
+      "step": 0,
+      "backup_sha256": "e54517d88102dcf07543de4d3ccc78c616d46cffa1e321aa81e392e99ef0decd",
+      "records_sha256": "a8b69a878c173a5749d1d25fddc584f54550de9892d9f1765a284c135001d77b"
+    },
+    {
+      "step": 1,
+      "backup_sha256": "4f67a961b547688b437200576e267bdb9c4d905a647fbfbd0746ecfc9563357f",
+      "records_sha256": "71b75338975de6d2fbbbf83381b8376a3b88e8be1ebed00263bc35d413b93448"
+    }
+  ]
+}

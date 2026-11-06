@@ -1,0 +1,103 @@
+[
+  {
+    "id": "6feaa5a7-c6a1-4a5b-9a70-b3825feca09c:0",
+    "version": 2,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Atlas instrument maintenance",
+        "markdown": "Lab procedure dated 2026-08-01: this batch contains 48 sensors.\nTwelve sensors have completed calibration.\nPlanned calibration date: 2027-04-05; no test certificate has been issued.\nDry probes may use mode A. Wet probes require isolated mode B; never apply mode A to wet probes.\nOwner qualification: do not calibrate wet probes until the isolation check is signed.",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "6feaa5a7-c6a1-4a5b-9a70-b3825feca09c:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Unrelated stable record",
+        "markdown": "# Unrelated stable record\n\nUnrelated storage cabinet range is 18–22 C and must remain unchanged.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "934834e5-f92e-4bbd-bff6-d59d13ced4ee:0",
+    "version": 2,
+    "archived": false,
+    "data": {
+      "Run": {
+        "instruction": "934834e5-f92e-4bbd-bff6-d59d13ced4ee:1",
+        "thread": "f8e8433c-f705-4e29-98f6-1046a4c1e963:0",
+        "provider": "Codex",
+        "model": "gpt-6.1-terra",
+        "guide_identity": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "budget": 8,
+        "effort": "medium",
+        "loaded_skills": [],
+        "fence": 2,
+        "state": "Completed",
+        "progress": "",
+        "operations": [],
+        "sources": []
+      }
+    }
+  },
+  {
+    "id": "934834e5-f92e-4bbd-bff6-d59d13ced4ee:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Message": {
+        "thread": "f8e8433c-f705-4e29-98f6-1046a4c1e963:0",
+        "role": "owner",
+        "text": "A stale save was refused after the owner added an isolation prerequisite. Read the actual current note, retain that prerequisite, and explain which save succeeded and which was refused. Do not retry the obsolete edit or claim calibration completed."
+      }
+    }
+  },
+  {
+    "id": "a0ee0167-b7b0-4cbf-ade8-5c20cff89474:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "ChatControl": {
+        "queue": [],
+        "pending": null,
+        "paused": false,
+        "quiet": false
+      }
+    }
+  },
+  {
+    "id": "a7786b2d-7074-430c-8c07-95a026956879:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Message": {
+        "thread": "f8e8433c-f705-4e29-98f6-1046a4c1e963:0",
+        "role": "assistant",
+        "text": "The **owner’s save succeeded**: the current *Atlas instrument maintenance* note is version 2, and its history records that revision as “Owner Save.” It retains the added prerequisite: **do not calibrate wet probes until the isolation check is signed**. Wet probes also require isolated mode B; mode A must never be used on them.\n\nThe **obsolete save based on the earlier version was refused as stale**. I did not retry it or change the note. The note records that 12 of 48 sensors had completed calibration, but it does not establish that the planned calibration was completed; no test certificate has been issued."
+      }
+    }
+  },
+  {
+    "id": "f8e8433c-f705-4e29-98f6-1046a4c1e963:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Thread": {
+        "title": "Evaluation case",
+        "state": "Open",
+        "attention": []
+      }
+    }
+  }
+]

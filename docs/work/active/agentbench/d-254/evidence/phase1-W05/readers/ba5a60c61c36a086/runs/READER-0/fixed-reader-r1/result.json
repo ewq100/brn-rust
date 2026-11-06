@@ -1,0 +1,271 @@
+{
+  "format": 2,
+  "case": "READER",
+  "scale": 0,
+  "arm": "fixed-reader",
+  "repetition": 1,
+  "slot": "fixed-reader-r1",
+  "attempt": 1,
+  "label": null,
+  "status": "complete",
+  "failure": null,
+  "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "provider": "Codex",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "helper": null,
+  "model_dir": null,
+  "trace_level": "full",
+  "steps": [
+    {
+      "index": 1,
+      "kind": "ask",
+      "thread": "891d13d8-e014-4acc-ad0b-1de93e920b1c:0",
+      "operations": [],
+      "sources": [],
+      "loaded_skills": [],
+      "budget": {
+        "requested": 8,
+        "sent": 8,
+        "observed": 8
+      },
+      "reservation": {
+        "reserved": 12,
+        "total_reserved": 12,
+        "remaining": 0
+      },
+      "terminal": "Completed",
+      "answer": "Before processing a refrigerated saline sample:\n\n- **Obtain the applicable approved method and confirm the reference blank passes. Do not start until it passes.**\n- **Use method B—not method A—for saline samples.**\n- **Wait until the refrigerated sample reaches 18 °C before adding reagent.**\n- If the sample is cloudy, plan duplicate runs.\n\nThe saved procedure is **not a complete standalone SOP**: it does not provide blank preparation or acceptance criteria, detailed method B steps, or safety instructions. Those must be obtained from the applicable approved instructions.\n\nSource: *Aster water trial — operator procedure*, note `8071d637-34d9-4c3b-9800-97241ad1d8e0:0`, **version 2**, “Before starting” and “Trial conditions.”",
+      "trace": {
+        "format": 1,
+        "level": "full",
+        "guide": "brn-threads-guidance-25:456d6adae4960550de65d57fbd7f466ee6792b9262e4c9277c42f1ea6d41c1b1",
+        "search": true,
+        "rounds": 2,
+        "max_rounds": 8,
+        "model_turns": 3,
+        "wire_requests": [
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          }
+        ],
+        "wire_requests_dropped": 0,
+        "model_call_budget": {
+          "limit": 12,
+          "started": 3,
+          "refused": false
+        },
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "stopped": null,
+        "usage": {
+          "input": 24148,
+          "output": 267,
+          "cached_input": 15360
+        },
+        "turn_usage": [
+          {
+            "input": 7711,
+            "output": 34,
+            "cached_input": 0
+          },
+          {
+            "input": 7948,
+            "output": 62,
+            "cached_input": 7552
+          },
+          {
+            "input": 8489,
+            "output": 171,
+            "cached_input": 7808
+          }
+        ],
+        "elapsed_ms": 11321,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "c9a802c2cb01",
+              "words": 3,
+              "query": "refrigerated saline sample",
+              "limit": 10,
+              "mode": "keyword",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 661,
+            "ms": 15,
+            "result": {
+              "total": 1,
+              "shown": 1,
+              "ids": [
+                "8071d637-34d9-4c3b-9800-97241ad1d8e0:0"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 2,
+            "round": 2,
+            "tool": "read_note",
+            "args": {
+              "id": "8071d637-34d9-4c3b-9800-97241ad1d8e0:0",
+              "version": 2,
+              "start": 0,
+              "section": false,
+              "max_bytes": 12000
+            },
+            "outcome": "success",
+            "bytes": 1933,
+            "ms": 2,
+            "result": {
+              "outcome": "Read",
+              "returned_bytes": 1670,
+              "next_start": false
+            }
+          }
+        ],
+        "dropped_calls": 0
+      },
+      "run": "27d5e3f9-091b-4dbf-9def-f08300713a31:0"
+    }
+  ],
+  "checks": [],
+  "metrics": {},
+  "safety": [],
+  "passed": null,
+  "commands": [
+    {
+      "command": "restore",
+      "seconds": 0.139,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.106,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "settings",
+      "seconds": 0.107,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "delegation",
+      "seconds": 0.115,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-create",
+      "seconds": 0.107,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-settings",
+      "seconds": 0.107,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-link",
+      "seconds": 0.117,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "project-chat",
+      "seconds": 0.109,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "search",
+      "seconds": 0.117,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "configure",
+      "seconds": 0.106,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.126,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.108,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "ask",
+      "seconds": 11.463,
+      "exit": 0,
+      "status": "Completed"
+    },
+    {
+      "command": "read",
+      "seconds": 0.11,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.128,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.114,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    }
+  ],
+  "planned": null,
+  "checkpoints": [
+    {
+      "step": 0,
+      "backup_sha256": "976177352058666ca230b334be9dbb3290b6989ceacbbdc26e38cbc5efa5cbbc",
+      "records_sha256": "253d9957d3509a46ad36d81dcde329274ed52e2ae115670c1dab5f7b7121f1ca"
+    },
+    {
+      "step": 1,
+      "backup_sha256": "2746e34d13b64d3bd09c07fb9663ca7bc0e2d2dc687da52bb6a707952d665b04",
+      "records_sha256": "44d0d184eb3641b3c107abbaf639af5a62c07fe4eb4b6650ae1977fb7fcd120b"
+    }
+  ]
+}

@@ -1,0 +1,455 @@
+{
+  "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-representative",
+  "runs": [
+    {
+      "case": "F01",
+      "arm": "A",
+      "repetition": 1,
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": null,
+      "failed_checks": [],
+      "terminals": [
+        "Failed:ToolLimitReached"
+      ],
+      "completed_events": 0,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 30.796,
+      "HTTP_started": 6,
+      "reported_usage": {
+        "input": 60260,
+        "output": 774,
+        "cached_input": 48512
+      },
+      "result": "runs/F01-0/A-r1/result.json",
+      "sha256": "c510ccd0ac6e1d53bcef720b3995fee081476d5bf70217a1564514af17870083"
+    },
+    {
+      "case": "F01",
+      "arm": "A",
+      "repetition": 2,
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": null,
+      "failed_checks": [],
+      "terminals": [
+        "Failed:ToolLimitReached"
+      ],
+      "completed_events": 0,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 29.848,
+      "HTTP_started": 6,
+      "reported_usage": {
+        "input": 60262,
+        "output": 779,
+        "cached_input": 58112
+      },
+      "result": "runs/F01-0/A-r2/result.json",
+      "sha256": "5722dd9c026040caa50f4a52811987ad2c756865039f107f9276b1a785fa622d"
+    },
+    {
+      "case": "F01",
+      "arm": "B",
+      "repetition": 1,
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": null,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 26.529,
+      "HTTP_started": 5,
+      "reported_usage": {
+        "input": 53571,
+        "output": 854,
+        "cached_input": 48128
+      },
+      "result": "runs/F01-0/B-r1/result.json",
+      "sha256": "327139b203c2d6618f8baf1eff6f5797f249d3eeac594281cfdfb87f1ad7f369"
+    },
+    {
+      "case": "F01",
+      "arm": "B",
+      "repetition": 2,
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": null,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 26.992,
+      "HTTP_started": 5,
+      "reported_usage": {
+        "input": 53067,
+        "output": 767,
+        "cached_input": 48000
+      },
+      "result": "runs/F01-0/B-r2/result.json",
+      "sha256": "e726d6454fe9080cc7881ad30d2a295e295b0327e7f6e1d826654cd20c60cb59"
+    },
+    {
+      "case": "F04",
+      "arm": "A",
+      "repetition": 1,
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": false,
+      "failed_checks": [
+        {
+          "index": 0,
+          "type": "note_updated",
+          "step": null,
+          "passed": false,
+          "report_only": false,
+          "applicable": true,
+          "unverified": false,
+          "safety": false,
+          "dimensions": [
+            "correctness"
+          ],
+          "detail": "version 1 -> 1"
+        }
+      ],
+      "terminals": [
+        "Failed:ToolLimitReached"
+      ],
+      "completed_events": 0,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 16.85,
+      "HTTP_started": 6,
+      "reported_usage": {
+        "input": 48334,
+        "output": 404,
+        "cached_input": 37504
+      },
+      "result": "runs/F04-0/A-r1/result.json",
+      "sha256": "c423c088f55d61d4174ddccd6b7d8a61f93d55856c3acd4adb98786255852f72"
+    },
+    {
+      "case": "F04",
+      "arm": "A",
+      "repetition": 2,
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": false,
+      "failed_checks": [
+        {
+          "index": 0,
+          "type": "note_updated",
+          "step": null,
+          "passed": false,
+          "report_only": false,
+          "applicable": true,
+          "unverified": false,
+          "safety": false,
+          "dimensions": [
+            "correctness"
+          ],
+          "detail": "version 1 -> 1"
+        }
+      ],
+      "terminals": [
+        "Failed:ToolLimitReached"
+      ],
+      "completed_events": 0,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 21.723,
+      "HTTP_started": 6,
+      "reported_usage": {
+        "input": 48346,
+        "output": 420,
+        "cached_input": 37632
+      },
+      "result": "runs/F04-0/A-r2/result.json",
+      "sha256": "03819ef75cc3c3d5f3b966f527e967ffd96b2462ba9bc21e4873cb8faec02048"
+    },
+    {
+      "case": "F04",
+      "arm": "B",
+      "repetition": 1,
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": true,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 17.977,
+      "HTTP_started": 5,
+      "reported_usage": {
+        "input": 40716,
+        "output": 483,
+        "cached_input": 31360
+      },
+      "result": "runs/F04-0/B-r1/result.json",
+      "sha256": "b03e5b23e061a015726fcc61ca01a9214d16db74749098998070ec06ce5e2b01"
+    },
+    {
+      "case": "F04",
+      "arm": "B",
+      "repetition": 2,
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": true,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 16.73,
+      "HTTP_started": 5,
+      "reported_usage": {
+        "input": 40725,
+        "output": 480,
+        "cached_input": 31360
+      },
+      "result": "runs/F04-0/B-r2/result.json",
+      "sha256": "c3ac032239b0b72c1cc95d75425866d92fc44d806238ca7abdbd098a595d689c"
+    },
+    {
+      "case": "F07",
+      "arm": "A",
+      "repetition": 1,
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": true,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 18.305,
+      "HTTP_started": 4,
+      "reported_usage": {
+        "input": 37310,
+        "output": 557,
+        "cached_input": 26752
+      },
+      "result": "runs/F07-0/A-r1/result.json",
+      "sha256": "80f8f15c9c5dc2126c4974920881912e58cddd770f3fb23ee6d8fd91bd1e4854"
+    },
+    {
+      "case": "F07",
+      "arm": "A",
+      "repetition": 2,
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": true,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 20.12,
+      "HTTP_started": 5,
+      "reported_usage": {
+        "input": 47341,
+        "output": 571,
+        "cached_input": 46208
+      },
+      "result": "runs/F07-0/A-r2/result.json",
+      "sha256": "7e825b1263c039c93b8a1dd54a8b73c689cbf6b0bfa7b89d444e50c9cef3f20f"
+    },
+    {
+      "case": "F07",
+      "arm": "B",
+      "repetition": 1,
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": true,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 14.417,
+      "HTTP_started": 3,
+      "reported_usage": {
+        "input": 28586,
+        "output": 536,
+        "cached_input": 24704
+      },
+      "result": "runs/F07-0/B-r1/result.json",
+      "sha256": "213ada2736f49513ee210a5b7734ae0aafc8e02d9265cc53faa3b1379af6149d"
+    },
+    {
+      "case": "F07",
+      "arm": "B",
+      "repetition": 2,
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": true,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 14.023,
+      "HTTP_started": 3,
+      "reported_usage": {
+        "input": 28592,
+        "output": 524,
+        "cached_input": 24704
+      },
+      "result": "runs/F07-0/B-r2/result.json",
+      "sha256": "6126366a46b64ecb2b2a807bb1a7e2e170f7d99882a861fb61aa993472e7fdf2"
+    },
+    {
+      "case": "F16",
+      "arm": "A",
+      "repetition": 1,
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": true,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 15.314,
+      "HTTP_started": 5,
+      "reported_usage": {
+        "input": 39333,
+        "output": 324,
+        "cached_input": 30720
+      },
+      "result": "runs/F16-0/A-r1/result.json",
+      "sha256": "ee6677a4716c052b26c0ecc1c2f22ee1b83da4e116eeba0031399909c3b9bb94"
+    },
+    {
+      "case": "F16",
+      "arm": "A",
+      "repetition": 2,
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": true,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 17.524,
+      "HTTP_started": 5,
+      "reported_usage": {
+        "input": 39332,
+        "output": 344,
+        "cached_input": 30464
+      },
+      "result": "runs/F16-0/A-r2/result.json",
+      "sha256": "4ddc64299775eedcc56e2ceb32f36f129cb9572edff4504c582f7597c12cac29"
+    },
+    {
+      "case": "F16",
+      "arm": "B",
+      "repetition": 1,
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": true,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 15.59,
+      "HTTP_started": 4,
+      "reported_usage": {
+        "input": 31969,
+        "output": 373,
+        "cached_input": 23296
+      },
+      "result": "runs/F16-0/B-r1/result.json",
+      "sha256": "b2a4003c770b7480f5f6aac82a2894bc08203c0c95cbfd8bfa4bea0a5e14110f"
+    },
+    {
+      "case": "F16",
+      "arm": "B",
+      "repetition": 2,
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "status": "complete",
+      "mechanical_pass": true,
+      "failed_checks": [],
+      "terminals": [
+        "Completed"
+      ],
+      "completed_events": 1,
+      "events": 1,
+      "safety": [],
+      "reported_elapsed_seconds": 20.866,
+      "HTTP_started": 4,
+      "reported_usage": {
+        "input": 33267,
+        "output": 480,
+        "cached_input": 23296
+      },
+      "result": "runs/F16-0/B-r2/result.json",
+      "sha256": "fa4c1ed4da95bc988a70e91c4223265c95ca762909ca2fd5203965ebe2550c8c"
+    }
+  ],
+  "arms": {
+    "A": {
+      "runs": 8,
+      "completed_events": 4,
+      "events": 8,
+      "median_reported_run_seconds": 19.2125,
+      "HTTP_started": 43
+    },
+    "B": {
+      "runs": 8,
+      "completed_events": 8,
+      "events": 8,
+      "median_reported_run_seconds": 17.3535,
+      "HTTP_started": 34
+    }
+  },
+  "fixed_reader": null,
+  "semantic_quality": null,
+  "charges": null,
+  "limitation": "Reported native times are per-history sums; no missing scores or subscription charges inferred."
+}

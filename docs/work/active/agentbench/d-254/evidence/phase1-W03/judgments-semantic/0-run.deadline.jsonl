@@ -1,0 +1,4 @@
+{"event": "claimed", "utc": "2026-11-06T22:44:04.974958+00:00", "elapsed_seconds": 9.487499482929707e-05, "identity": {"operation": "phase1-W03-semantic-0", "role": "grader", "original_deadline": "2026-11-06T23:11:10.355811+00:00"}, "deadline_seconds": 60}
+{"event": "launch_intent", "utc": "2026-11-06T22:44:05.002713+00:00", "elapsed_seconds": 0.027858040994033217, "launch": 1}
+{"event": "launched", "utc": "2026-11-06T22:44:05.006610+00:00", "elapsed_seconds": 0.031760332989506423, "launch": 1, "pid": 22663}
+{"event": "terminal", "utc": "2026-11-06T22:44:35.094229+00:00", "elapsed_seconds": 30.119012457987992, "status": "deadline", "exit_code": 124, "cleanup_errors": [], "remote_outcome": "uncertain for in-flight calls; no automatic replay"}

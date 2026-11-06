@@ -1,0 +1,595 @@
+{
+  "format": 2,
+  "case": "F01",
+  "scale": 0,
+  "arm": "A",
+  "repetition": 2,
+  "slot": "A-r2",
+  "attempt": 1,
+  "label": null,
+  "status": "complete",
+  "failure": null,
+  "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "provider": "Codex",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "helper": null,
+  "model_dir": null,
+  "trace_level": "full",
+  "steps": [
+    {
+      "index": 1,
+      "kind": "ask",
+      "thread": "case",
+      "terminal": "Failed:ToolLimitReached",
+      "answer": "",
+      "trace": {
+        "format": 1,
+        "level": "full",
+        "guide": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "search": true,
+        "rounds": 6,
+        "max_rounds": 8,
+        "model_turns": 6,
+        "wire_requests": [
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          }
+        ],
+        "wire_requests_dropped": 0,
+        "model_call_budget": {
+          "limit": 6,
+          "started": 6,
+          "refused": true
+        },
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "stopped": "model_call_budget",
+        "usage": {
+          "input": 60262,
+          "output": 779,
+          "cached_input": 58112
+        },
+        "turn_usage": [
+          {
+            "input": 7374,
+            "output": 21,
+            "cached_input": 7168
+          },
+          {
+            "input": 9628,
+            "output": 32,
+            "cached_input": 9472
+          },
+          {
+            "input": 9832,
+            "output": 163,
+            "cached_input": 9728
+          },
+          {
+            "input": 10673,
+            "output": 35,
+            "cached_input": 9856
+          },
+          {
+            "input": 10898,
+            "output": 490,
+            "cached_input": 10624
+          },
+          {
+            "input": 11857,
+            "output": 38,
+            "cached_input": 11264
+          }
+        ],
+        "elapsed_ms": 29848,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "read_skill",
+            "args": {
+              "name": "maintain-notes"
+            },
+            "outcome": "success",
+            "bytes": 11222,
+            "ms": 6,
+            "result": null
+          },
+          {
+            "seq": 2,
+            "round": 2,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "997ea72fef26",
+              "words": 1,
+              "query": "Cedar",
+              "limit": 20,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 535,
+            "ms": 11,
+            "result": {
+              "total": 1,
+              "shown": 1,
+              "ids": [
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 3,
+            "round": 3,
+            "tool": "read_records",
+            "args": {
+              "id_count": 1,
+              "ids": [
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+              ],
+              "catalog": false
+            },
+            "outcome": "success",
+            "bytes": 630,
+            "ms": 0,
+            "result": {
+              "rows": 1,
+              "ids": [
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+              ],
+              "truncated": false
+            }
+          },
+          {
+            "seq": 4,
+            "round": 3,
+            "tool": "note_connections",
+            "args": {
+              "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+              "hops": 1,
+              "sources": true
+            },
+            "outcome": "success",
+            "bytes": 193,
+            "ms": 1,
+            "result": {
+              "neighbours": 0,
+              "ids": []
+            }
+          },
+          {
+            "seq": 5,
+            "round": 3,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "b1bd206baa6e",
+              "words": 3,
+              "query": "renovation membrane primer",
+              "limit": 20,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 535,
+            "ms": 2,
+            "result": {
+              "total": 1,
+              "shown": 1,
+              "ids": [
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 6,
+            "round": 3,
+            "tool": "read_records",
+            "args": {
+              "id_count": 0,
+              "ids": [],
+              "catalog": false,
+              "query": {
+                "query_hash": "997ea72fef26",
+                "words": 1,
+                "query": "Cedar"
+              }
+            },
+            "outcome": "success",
+            "bytes": 731,
+            "ms": 0,
+            "result": {
+              "rows": 2,
+              "ids": [
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+                "e60094c6-3f15-43b3-93da-964e12a018cd:1"
+              ],
+              "truncated": false
+            }
+          },
+          {
+            "seq": 7,
+            "round": 4,
+            "tool": "read_records",
+            "args": {
+              "id_count": 0,
+              "ids": [],
+              "catalog": true
+            },
+            "outcome": "success",
+            "bytes": 501,
+            "ms": 0,
+            "result": {
+              "rows": 3,
+              "ids": [
+                "2a948442-ba18-4822-874c-9051862c6635:0",
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:1"
+              ],
+              "truncated": false
+            }
+          },
+          {
+            "seq": 8,
+            "round": 5,
+            "tool": "prepare_changes",
+            "args": {
+              "writes": {
+                "Note": 1
+              },
+              "inputs": 1
+            },
+            "outcome": "success",
+            "bytes": 1630,
+            "ms": 5,
+            "result": {
+              "operation": "85f4a262-0481-492b-b159-d2fd490cc4a2"
+            }
+          },
+          {
+            "seq": 9,
+            "round": 6,
+            "tool": "apply_changes",
+            "args": {
+              "operation": "85f4a262-0481-492b-b159-d2fd490cc4a2"
+            },
+            "outcome": "Applied",
+            "bytes": 2331,
+            "ms": 4,
+            "result": null
+          }
+        ],
+        "dropped_calls": 0,
+        "failure": {
+          "kind": "tool_limit_reached",
+          "retry_after_seconds": null
+        }
+      },
+      "operations": [
+        "85f4a262-0481-492b-b159-d2fd490cc4a2"
+      ],
+      "sources": [],
+      "loaded_skills": [
+        "maintain-notes"
+      ],
+      "budget": {
+        "requested": 8,
+        "sent": 8,
+        "observed": 8
+      },
+      "reservation": {
+        "reserved": 6,
+        "total_reserved": 60,
+        "remaining": 540
+      },
+      "failure": {
+        "kind": "tool_limit_reached",
+        "retry_after_seconds": null
+      },
+      "run": "e60094c6-3f15-43b3-93da-964e12a018cd:0",
+      "receipts": [
+        {
+          "operation": "85f4a262-0481-492b-b159-d2fd490cc4a2",
+          "undo_of": null,
+          "writes": [
+            {
+              "kind": "Note",
+              "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+              "version": 2,
+              "before_version": 1,
+              "archived": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "checks": [],
+  "metrics": {
+    "trace": true,
+    "per_step": [
+      {
+        "trace": true,
+        "kind": "ask",
+        "first_hit_round": null,
+        "target_rank": null,
+        "first_target_read_round": null,
+        "searches": 2,
+        "reformulations": 1,
+        "catalog_dumps": 1,
+        "literal_scans": 1,
+        "bytes_read": 3125,
+        "wasted_reads": 1,
+        "trap_reads": 0,
+        "private_exposures": 0,
+        "search_share": 0.5,
+        "budget_exhausted": true,
+        "terminal": "Failed:ToolLimitReached",
+        "stopped": "model_call_budget",
+        "rounds": 6,
+        "model_turns": 6,
+        "elapsed_ms": 29848,
+        "dropped_calls": 0,
+        "tokens": 61041,
+        "tool_counts": {
+          "read_skill": 1,
+          "search_notes": 2,
+          "read_records": 3,
+          "note_connections": 1,
+          "prepare_changes": 1,
+          "apply_changes": 1
+        },
+        "calls": 9,
+        "helper_runs": 0,
+        "helper_outcomes": {},
+        "citations": {
+          "exact": 0,
+          "relocated": 0,
+          "stale": 0,
+          "mismatch": 0,
+          "rejected": 0
+        },
+        "helper_tokens": 0,
+        "helper_usage": {
+          "input": 0,
+          "output": 0,
+          "cached_input": 0
+        },
+        "peak_turn_input": 11857
+      }
+    ],
+    "searches": 2,
+    "reformulations": 1,
+    "catalog_dumps": 1,
+    "literal_scans": 1,
+    "bytes_read": 3125,
+    "wasted_reads": 1,
+    "trap_reads": 0,
+    "private_exposures": 0,
+    "rounds": 6,
+    "model_turns": 6,
+    "elapsed_ms": 29848,
+    "calls": 9,
+    "helper_runs": 0,
+    "helper_tokens": 0,
+    "first_hit_round": null,
+    "target_rank": null,
+    "first_target_read_round": null,
+    "budget_exhausted": true,
+    "peak_turn_input": 11857,
+    "citations": {
+      "exact": 0,
+      "relocated": 0,
+      "stale": 0,
+      "mismatch": 0,
+      "rejected": 0
+    },
+    "helper_outcomes": {},
+    "tokens": 61041,
+    "dropped_calls": 0,
+    "search_share": {
+      "ask": 0.5
+    }
+  },
+  "safety": [],
+  "passed": null,
+  "commands": [
+    {
+      "command": "configure",
+      "seconds": 0.106,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "document-conversion",
+      "seconds": 0.12,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "delegation",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.111,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "knowledge-check",
+      "seconds": 0.115,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.125,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.103,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "ask",
+      "seconds": 29.975,
+      "exit": 0,
+      "status": "Failed:ToolLimitReached"
+    },
+    {
+      "command": "read",
+      "seconds": 0.112,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.12,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.12,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "knowledge-check",
+      "seconds": 0.103,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "history",
+      "seconds": 0.109,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "operation",
+      "seconds": 0.113,
+      "exit": 0,
+      "status": "ok"
+    }
+  ],
+  "planned": 2,
+  "stage": "complete",
+  "copy": "clone",
+  "checkpoints": [
+    {
+      "step": 0,
+      "backup_sha256": "766472a6ccaa82d29bd8096ea5706ce32aa424a42712217627164b0fc4825e1d",
+      "records_sha256": "3911be9dde03d7527978fa54f76077746851fcf973850c2a0b4ac4f30247a4de"
+    },
+    {
+      "step": 1,
+      "backup_sha256": "96d049325d805a57c87956a45a11ba1e10230785b9bd9403246a58e04a3d1c2c",
+      "records_sha256": "9b45e5530bf848d25d43d14c757fe406d4d7256ae62b8e549e01a39d32b8054a"
+    }
+  ],
+  "provider_resends": {
+    "count": 0,
+    "details": []
+  },
+  "undo": {},
+  "kc": {
+    "before": {
+      "notes": 2,
+      "links": 0,
+      "counts": {
+        "Orphan": 2
+      },
+      "findings": [
+        {
+          "kind": "Orphan",
+          "records": [
+            "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+          ],
+          "detail": "“Cedar renovation” has no links to or from other notes"
+        },
+        {
+          "kind": "Orphan",
+          "records": [
+            "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:1"
+          ],
+          "detail": "“Unrelated stable record” has no links to or from other notes"
+        }
+      ]
+    },
+    "after": {
+      "notes": 2,
+      "links": 0,
+      "counts": {
+        "Orphan": 2
+      },
+      "findings": [
+        {
+          "kind": "Orphan",
+          "records": [
+            "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+          ],
+          "detail": "“Cedar renovation” has no links to or from other notes"
+        },
+        {
+          "kind": "Orphan",
+          "records": [
+            "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:1"
+          ],
+          "detail": "“Unrelated stable record” has no links to or from other notes"
+        }
+      ]
+    }
+  },
+  "loaded_skills": [
+    "maintain-notes"
+  ],
+  "unverified": []
+}

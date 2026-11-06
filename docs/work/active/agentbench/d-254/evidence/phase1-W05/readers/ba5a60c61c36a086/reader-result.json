@@ -1,0 +1,191 @@
+{
+  "format": 1,
+  "kind": "measured-reader",
+  "status": "complete",
+  "qualified": false,
+  "measured_answer": true,
+  "answer_quality": null,
+  "mode": "wiki-only",
+  "question": "What must happen before a refrigerated saline sample can be processed?",
+  "checkpoint_records_sha256": "bf5d799d29baf5060ef6f08f638246470c87d523d7a13bcf7ba40cab91c8e93e",
+  "checkpoint_backup_sha256": "0f83eb96216fd770a22121228aeda56f13da651320d33e9c8de30afe1e55e7c7",
+  "reader_config_sha256": "9d68d6cd3d967a07324c6ebeb2019db1d2b3d22c4d568256670c7400175263df",
+  "cli_binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "article_allowlist": [
+    {
+      "id": "8071d637-34d9-4c3b-9800-97241ad1d8e0:0",
+      "version": 2
+    }
+  ],
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "cost": null,
+  "retrieval": "native search_notes and read_note on an isolated checkpoint clone",
+  "retrieval_assets": "none requested; native build defaults, record features in input lock",
+  "retrieval_probe": {
+    "hits": [
+      {
+        "note": "8071d637-34d9-4c3b-9800-97241ad1d8e0:0",
+        "version": 2,
+        "title": "Aster water trial \u2014 operator procedure",
+        "start": 721,
+        "end": 1071,
+        "quote": "## Trial conditions\n4. For refrigerated samples, **wait until the sample reaches 18 \u00b0C before adding reagent** (trial lead, 2026-05-09). Use **2.5 mL reagent per 500 mL sample**. Follow the applicable method for details not specified in the notes.\n5. Hold at **18\u201322 \u00b0C for 40 minutes**. Perform the required duplicate runs for a cloudy sample.\n\n",
+        "heading_path": "Aster water trial \u2014 operator procedure \u203a Trial conditions",
+        "snippet": "Trial conditions 4. For refrigerated samples, **wait until the sample reaches 18 \u00b0C before adding reagent** (trial lead, 2026-05-09). Use **2.5 mL reagent per 500 mL sample**. Follow the applicable method for details not specified in the notes. 5. Hold at **18\u201322 \u00b0C for 40 minutes**. Perform\u2026",
+        "highlights": [
+          {
+            "start": 24,
+            "end": 36
+          },
+          {
+            "start": 37,
+            "end": 44
+          },
+          {
+            "start": 63,
+            "end": 69
+          },
+          {
+            "start": 85,
+            "end": 91
+          },
+          {
+            "start": 167,
+            "end": 173
+          }
+        ],
+        "matches": 5,
+        "inbound_links": 0,
+        "protected": false,
+        "imported": false,
+        "evidence": false,
+        "archived": false
+      }
+    ],
+    "total": 1,
+    "offset": 0,
+    "reachable": 1,
+    "cursor": null,
+    "semantic": "none",
+    "messages": [],
+    "message_total": 0,
+    "message_cursor": null,
+    "shown": 1
+  },
+  "reader_thread": "891d13d8-e014-4acc-ad0b-1de93e920b1c:0",
+  "identity_verified": true,
+  "native_retrieval_observed": true,
+  "answer": "Before processing a refrigerated saline sample:\n\n- **Obtain the applicable approved method and confirm the reference blank passes. Do not start until it passes.**\n- **Use method B\u2014not method A\u2014for saline samples.**\n- **Wait until the refrigerated sample reaches 18 \u00b0C before adding reagent.**\n- If the sample is cloudy, plan duplicate runs.\n\nThe saved procedure is **not a complete standalone SOP**: it does not provide blank preparation or acceptance criteria, detailed method B steps, or safety instructions. Those must be obtained from the applicable approved instructions.\n\nSource: *Aster water trial \u2014 operator procedure*, note `8071d637-34d9-4c3b-9800-97241ad1d8e0:0`, **version 2**, \u201cBefore starting\u201d and \u201cTrial conditions.\u201d",
+  "terminal": "Completed",
+  "trace": {
+    "format": 1,
+    "level": "full",
+    "guide": "brn-threads-guidance-25:456d6adae4960550de65d57fbd7f466ee6792b9262e4c9277c42f1ea6d41c1b1",
+    "search": true,
+    "rounds": 2,
+    "max_rounds": 8,
+    "model_turns": 3,
+    "wire_requests": [
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      },
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      },
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      }
+    ],
+    "wire_requests_dropped": 0,
+    "model_call_budget": {
+      "limit": 12,
+      "started": 3,
+      "refused": false
+    },
+    "returned_models": [
+      "gpt-6.1-sol",
+      "gpt-6.1-sol",
+      "gpt-6.1-sol"
+    ],
+    "stopped": null,
+    "usage": {
+      "input": 24148,
+      "output": 267,
+      "cached_input": 15360
+    },
+    "turn_usage": [
+      {
+        "input": 7711,
+        "output": 34,
+        "cached_input": 0
+      },
+      {
+        "input": 7948,
+        "output": 62,
+        "cached_input": 7552
+      },
+      {
+        "input": 8489,
+        "output": 171,
+        "cached_input": 7808
+      }
+    ],
+    "elapsed_ms": 11321,
+    "calls": [
+      {
+        "seq": 1,
+        "round": 1,
+        "tool": "search_notes",
+        "args": {
+          "query_hash": "c9a802c2cb01",
+          "words": 3,
+          "query": "refrigerated saline sample",
+          "limit": 10,
+          "mode": "keyword",
+          "cursor": false
+        },
+        "outcome": "success",
+        "bytes": 661,
+        "ms": 15,
+        "result": {
+          "total": 1,
+          "shown": 1,
+          "ids": [
+            "8071d637-34d9-4c3b-9800-97241ad1d8e0:0"
+          ],
+          "semantic": "none"
+        }
+      },
+      {
+        "seq": 2,
+        "round": 2,
+        "tool": "read_note",
+        "args": {
+          "id": "8071d637-34d9-4c3b-9800-97241ad1d8e0:0",
+          "version": 2,
+          "start": 0,
+          "section": false,
+          "max_bytes": 12000
+        },
+        "outcome": "success",
+        "bytes": 1933,
+        "ms": 2,
+        "result": {
+          "outcome": "Read",
+          "returned_bytes": 1670,
+          "next_start": false
+        }
+      }
+    ],
+    "dropped_calls": 0
+  },
+  "native_result": "runs/READER-0/fixed-reader-r1/result.json",
+  "native_result_sha256": "606d55ecc9ef9241e0ea0c08227e709a03fde6bc0945c674470fd96de21a3c67"
+}

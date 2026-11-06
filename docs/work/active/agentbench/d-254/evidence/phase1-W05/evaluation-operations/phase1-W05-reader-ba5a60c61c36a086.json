@@ -1,0 +1,17 @@
+{
+  "id": "phase1-W05-reader-ba5a60c61c36a086",
+  "kind": "reader",
+  "role": "phase1",
+  "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W05/readers/ba5a60c61c36a086",
+  "seconds": 120,
+  "minimum_seconds": 90,
+  "checkpoint": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W05/runs/W05-0/B-r1/checkpoints/2",
+  "question": "What must happen before a refrigerated saline sample can be processed?",
+  "records": [
+    {
+      "id": "8071d637-34d9-4c3b-9800-97241ad1d8e0:0",
+      "version": 2
+    }
+  ],
+  "binary": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn"
+}

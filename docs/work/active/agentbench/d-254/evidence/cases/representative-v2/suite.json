@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "revision": "authored-full-v2:screen:F01,F04,F07,F16",
+  "fixture_sha256": "5b076c1f19c901c71480a124992d70bb2833d749c2577b3d72c4ce344d516242",
+  "weights": {
+    "creation": 20,
+    "maintenance": 25,
+    "research": 15,
+    "writing": 10,
+    "intake": 10,
+    "actions": 10,
+    "context": 5,
+    "recovery": 5
+  },
+  "scenarios": [
+    {
+      "id": "F01",
+      "category": "creation",
+      "weight": 1,
+      "repetitions": 2,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F04",
+      "category": "writing",
+      "weight": 1,
+      "repetitions": 2,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F07",
+      "category": "context",
+      "weight": 1,
+      "repetitions": 2,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "cedar",
+      "events": 1,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1
+      ]
+    },
+    {
+      "id": "F16",
+      "category": "recovery",
+      "weight": 1,
+      "repetitions": 2,
+      "criteria": [
+        "factual_correctness",
+        "task_outcome",
+        "authority_and_truthfulness"
+      ],
+      "world": "atlas",
+      "events": 4,
+      "coverage": "partial",
+      "scenario_revision": "authored-full-v2",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        4
+      ]
+    }
+  ],
+  "gold_sha256": "3786b70dbd7d700781221304473ca72ba3b115cf557f1293de34e0cf6b07fd25"
+}

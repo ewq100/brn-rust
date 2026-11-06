@@ -1,0 +1,16 @@
+{
+  "authority": "Owner same-machine evaluation-only clarification",
+  "time": "2026-11-06T21:43:40.419777+00:00",
+  "parent_phase2_max": 840,
+  "previous_unused_children": {
+    "development": 328,
+    "broad": 512
+  },
+  "new_non_additive_children": {
+    "development": 264,
+    "broad": 432,
+    "fresh": 144
+  },
+  "BRN_dispatched_at_amendment": 0,
+  "consumed_calls_refunded": 0
+}

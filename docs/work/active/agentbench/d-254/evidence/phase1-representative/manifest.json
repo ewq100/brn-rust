@@ -1,0 +1,81 @@
+{
+  "format": 2,
+  "fixture_sha256": "5b076c1f19c901c71480a124992d70bb2833d749c2577b3d72c4ce344d516242",
+  "seed": 1,
+  "live": true,
+  "gold_sha256": "3786b70dbd7d700781221304473ca72ba3b115cf557f1293de34e0cf6b07fd25",
+  "provenance": {
+    "kind": "harness-checkout",
+    "binary_source_binding": "unverified",
+    "files": {
+      "scripts/evaluate_wiki_v2.py": "e42b7cbda4154a6f7fb20f17d9ad3bc4cfd961d357db097041965ffd05350c82",
+      "scripts/evaluate-wiki-guidance.py": "514d80d33574b47788bea3c60f53bd7a38d7ba3b9df1ee12320bb2c5a83fa47d",
+      "Cargo.lock": "3122299c6b07dc65427f6ffba110f571e06ecc08fb8550df4648a08f3dd09959",
+      "agent/BRN.md": "8ffaa02a0fce0fcc0818bf25ad66d6954172a8af093965d1e481834c4d07c8db",
+      "agent/roles/research-scout.md": "2c72fe74b0f1d30063a9a9576f1692c46c47a1081d5af418310ddcefe9ec8ccf",
+      "agent/skill-examples/document-review/SKILL.md": "be8af6de3d6fb0d550aa0c4104877a1edf7744b3d473537ec9e04dc8285734f1",
+      "agent/skill-examples/document-review/references/checklist.md": "ae0752ca2a1cbe7f7760281b4eb94889585cbf41c925217ada931f049d8a7a1e",
+      "agent/skills/intake/SKILL.md": "775393f6d998aad89d8f41872965880b1de0212ec6eecba6afad3753f899cdc8",
+      "agent/skills/maintain-notes/SKILL.md": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020",
+      "agent/skills/prepare-reply/SKILL.md": "102d2b830bb6402476884993bd9b0ca087cf4cb4283821ebb980ae8e0f2f76b7",
+      "agent/skills/resolve-conflict/SKILL.md": "89659b077b0beaf921d0134fcc36830b45e23c9c2f1a5e82c44dc49240494310",
+      "benchmarks/brn_agent/bench.py": "21485a99919e9e098f8c7e9f2c13f14d0433131fc89c971f06ec96309e6f1987",
+      "benchmarks/brn_agent/calibration.py": "2224c88c630e83398830891700838e5afe15510febe54021ea6cb4e12bf23663",
+      "benchmarks/brn_agent/check_status.py": "bc3cd27647fb347590e4226b83957c4e350ae38426ae60554e23ecc529f9b55f",
+      "benchmarks/brn_agent/diagnostics.py": "09a8c929947d1a1fa57b98a14dee3ce5f5ff7bc731c5932707595d6e090a3d16",
+      "benchmarks/brn_agent/evidence.py": "4e9c4366bd63d8eeb78aa714ff2da8d8aff38ababd9e450aac3e7dc2c7519ba0",
+      "benchmarks/brn_agent/external.py": "3adc78b3cd1c05bc39b725fcedfee7302ca691c60a7aab7099a121abbaceacf0",
+      "benchmarks/brn_agent/freeze.py": "e915828e42d36c3fcde73788d05e22ea846f8cf78f03fbd3d32c917427a945f6",
+      "benchmarks/brn_agent/helper_execution.py": "aa758ba384986978fe62321ab1fdd8b6133e7d40f219cef317558600fdeeb610",
+      "benchmarks/brn_agent/host_checks.py": "d9cf897e8f1c0c89f7c296e80a1ad9ae45d12b9941f4be0477ed1fa3ecfcbc30",
+      "benchmarks/brn_agent/inspect_task.py": "21078deecf0544b4e61e1f13c62bba47f40e2300738ba31e4cefc7d6bbaf30f5",
+      "benchmarks/brn_agent/judgment.py": "8c3bdde1ea066ccc71b8a9e15a5da70a9c8fc02b2cd71a4260da3a7cd06fceae",
+      "benchmarks/brn_agent/legacy_proof.py": "bf660d9a9e359e36cfa1a681019786f2b01e0adda0159814e6456d150ea80b24",
+      "benchmarks/brn_agent/limits.py": "b7bca49de333feb00e92aa147a3147933b02801921aa0c4fc8c05b506f86eb77",
+      "benchmarks/brn_agent/proof.py": "f8f22f2341ac88e7e96e20ab0d138fa100a6c5d0a472b2c8fc09b31aa1da66f4",
+      "benchmarks/brn_agent/reader.py": "fdaa18f59f8b4c0733c82515754a7116387831618bd8790f1527808eb773e04c",
+      "benchmarks/brn_agent/reader_grading.py": "6dabfca2aa6c26aba5d902eda273deb8f76045a5c9bd9e3266e647d6435f40d3",
+      "benchmarks/brn_agent/reporting.py": "b7b2b6603fbd94f4deb294bbc64d6d91e7876f2a1d317d03897784e1bf8f2e76",
+      "benchmarks/brn_agent/scenario_checks.py": "2a25839145356b0bc1dc6b618afc9fd37fb5118a9b4af78b29220bfa5149ddf4",
+      "benchmarks/brn_agent/score.py": "7ce0ba5a50e1c631e430767f2be3712574693d2c357c70ee36dd26af8df34ea9",
+      "benchmarks/brn_agent/semantic.py": "7e9da0d07339f2ddf3dc9e9fe5cdf0764130f0c11d0abf32d8adf17757f6be85",
+      "benchmarks/brn_agent/wiki_challenge.py": "ecb752f59a7f6e732a0c2014d8034f488bd304d72d24a94f1accf69ec966d83d",
+      "benchmarks/brn_agent/judgment_fixtures/calibration-development.json": "f7b43852ff2461c46e6e4f82b7a566013a26fabe6225070e32a4d38b1f2a71cb",
+      "benchmarks/brn_agent/judgment_fixtures/calibration-held-out.json": "5f2df6baf875da8114d0c3029539880c0e80d1d7aac1e41ef6554f78c51350a1",
+      "benchmarks/brn_agent/judgment_fixtures/defect-rubric.json": "3ddbc8c217a2a2cb3ff6f178dc83aaa6e19bf821dd166f538efdebc158909e08",
+      "benchmarks/brn_agent/judgment_fixtures/helpers.json": "0b64371ea0c9a667840d327fb9ef4a1e12d39212ff753b4caeedfb71b3ea83c1",
+      "benchmarks/brn_agent/judgment_fixtures/manifest.json": "d8fe91b0821f4e5abf77edb552d5f6cabe22cd62a56cc77548d733b380da3a25"
+    },
+    "retrieval": "arm model_dir and native configuration; retrieval asset bytes not attested"
+  },
+  "repetitions": 2,
+  "scale": null,
+  "model_call_limit": 6,
+  "max_total_model_calls": 600,
+  "cases": [
+    "F01",
+    "F04",
+    "F07",
+    "F16"
+  ],
+  "arms": [
+    {
+      "name": "A",
+      "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+      "provider": "Codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "helper": null,
+      "model_dir": null
+    },
+    {
+      "name": "B",
+      "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+      "provider": "Codex",
+      "model": "gpt-6.1-terra",
+      "effort": "medium",
+      "helper": null,
+      "model_dir": null
+    }
+  ]
+}

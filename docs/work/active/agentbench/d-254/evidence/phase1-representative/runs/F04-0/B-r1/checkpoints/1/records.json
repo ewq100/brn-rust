@@ -1,0 +1,105 @@
+[
+  {
+    "id": "3fd5ff8e-8f19-41d5-a3fc-0e10df7f094c:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Thread": {
+        "title": "Evaluation case",
+        "state": "Open",
+        "attention": []
+      }
+    }
+  },
+  {
+    "id": "86073a4f-9443-4e8e-9769-d74280dafeb6:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Message": {
+        "thread": "3fd5ff8e-8f19-41d5-a3fc-0e10df7f094c:0",
+        "role": "assistant",
+        "text": "Updated the existing **Cedar renovation** plan for the contractor. It preserves the budget, deposit, dates and work requirements, and explicitly states that the target completion date is not a signed commitment."
+      }
+    }
+  },
+  {
+    "id": "89029c80-a8f1-42ba-9624-d0c251d02439:0",
+    "version": 3,
+    "archived": false,
+    "data": {
+      "Run": {
+        "instruction": "89029c80-a8f1-42ba-9624-d0c251d02439:1",
+        "thread": "3fd5ff8e-8f19-41d5-a3fc-0e10df7f094c:0",
+        "provider": "Codex",
+        "model": "gpt-6.1-terra",
+        "guide_identity": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "budget": 8,
+        "effort": "medium",
+        "loaded_skills": [],
+        "fence": 2,
+        "state": "Completed",
+        "progress": "",
+        "operations": [
+          "f1391f9a-b31d-4255-95ad-9409f1d4e79e"
+        ],
+        "sources": []
+      }
+    }
+  },
+  {
+    "id": "89029c80-a8f1-42ba-9624-d0c251d02439:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Message": {
+        "thread": "3fd5ff8e-8f19-41d5-a3fc-0e10df7f094c:0",
+        "role": "owner",
+        "text": "Rewrite the existing plan for a contractor: concise paragraphs and an explicit unresolved-commitment statement. Edit only the existing plan. Preserve every material fact and number; do not create new decisions or promises."
+      }
+    }
+  },
+  {
+    "id": "b7eb8610-bf0c-4a34-b7c2-87b92a39c7cc:0",
+    "version": 2,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Cedar renovation",
+        "markdown": "# Cedar renovation\n\nThe owner decided on 2026-10-01 that the budget is EUR 12000. A deposit of EUR 2400 has been paid.\n\nThe bathroom requires a waterproof membrane; dry rooms need primer only.\n\nThe target completion date is 2027-02-15. **Unresolved commitment:** This target is not a signed commitment.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "b7eb8610-bf0c-4a34-b7c2-87b92a39c7cc:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Unrelated stable record",
+        "markdown": "# Unrelated stable record\n\nThe garden gate inspection is unrelated and must remain unchanged.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "d4b47526-d528-4adc-a3a4-0207905b703b:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "ChatControl": {
+        "queue": [],
+        "pending": null,
+        "paused": false,
+        "quiet": false
+      }
+    }
+  }
+]

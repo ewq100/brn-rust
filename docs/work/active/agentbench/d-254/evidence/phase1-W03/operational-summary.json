@@ -1,0 +1,158 @@
+[
+  {
+    "arm": "A",
+    "repetition": 1,
+    "status": "complete",
+    "terminals": [
+      "Completed",
+      "Completed",
+      "Completed",
+      "Completed"
+    ],
+    "HTTP_attempts": 17,
+    "resends": {
+      "count": 0,
+      "details": []
+    },
+    "safety": [],
+    "usage": [
+      {
+        "input": 60997,
+        "output": 835,
+        "cached_input": 40704
+      },
+      {
+        "input": 30676,
+        "output": 270,
+        "cached_input": 26240
+      },
+      {
+        "input": 26513,
+        "output": 177,
+        "cached_input": 24064
+      },
+      {
+        "input": 60877,
+        "output": 934,
+        "cached_input": 51840
+      }
+    ]
+  },
+  {
+    "arm": "A",
+    "repetition": 2,
+    "status": "complete",
+    "terminals": [
+      "Completed",
+      "Completed",
+      "Completed",
+      "Completed"
+    ],
+    "HTTP_attempts": 17,
+    "resends": {
+      "count": 0,
+      "details": []
+    },
+    "safety": [],
+    "usage": [
+      {
+        "input": 61010,
+        "output": 836,
+        "cached_input": 55424
+      },
+      {
+        "input": 19381,
+        "output": 261,
+        "cached_input": 15232
+      },
+      {
+        "input": 26789,
+        "output": 185,
+        "cached_input": 24320
+      },
+      {
+        "input": 72572,
+        "output": 922,
+        "cached_input": 58880
+      }
+    ]
+  },
+  {
+    "arm": "B",
+    "repetition": 1,
+    "status": "complete",
+    "terminals": [
+      "Completed",
+      "Completed",
+      "Completed",
+      "Completed"
+    ],
+    "HTTP_attempts": 13,
+    "resends": {
+      "count": 0,
+      "details": []
+    },
+    "safety": [],
+    "usage": [
+      {
+        "input": 61588,
+        "output": 764,
+        "cached_input": 47104
+      },
+      {
+        "input": 19531,
+        "output": 194,
+        "cached_input": 15232
+      },
+      {
+        "input": 19724,
+        "output": 164,
+        "cached_input": 15360
+      },
+      {
+        "input": 45368,
+        "output": 384,
+        "cached_input": 30848
+      }
+    ]
+  },
+  {
+    "arm": "B",
+    "repetition": 2,
+    "status": "complete",
+    "terminals": [
+      "Completed",
+      "Completed",
+      "Completed",
+      "Completed"
+    ],
+    "HTTP_attempts": 13,
+    "resends": {
+      "count": 0,
+      "details": []
+    },
+    "safety": [],
+    "usage": [
+      {
+        "input": 61738,
+        "output": 813,
+        "cached_input": 54016
+      },
+      {
+        "input": 19576,
+        "output": 233,
+        "cached_input": 15232
+      },
+      {
+        "input": 19810,
+        "output": 192,
+        "cached_input": 14080
+      },
+      {
+        "input": 45317,
+        "output": 373,
+        "cached_input": 34304
+      }
+    ]
+  }
+]

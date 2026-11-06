@@ -1,0 +1,12 @@
+{
+  "id": "phase1-W03-reader-2",
+  "kind": "grader",
+  "role": "grader",
+  "phase": "phase1",
+  "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W03/judgments-reader/2-run",
+  "seconds": 90,
+  "minimum_seconds": 45,
+  "binary": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/agentbench-judge",
+  "packet": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-W03/judgments-reader/2-packets.json",
+  "instructions": "/Users/evokessler/Documents/Codex/brn-agent-d-254/grader-instructions.txt"
+}

@@ -1,0 +1,116 @@
+[
+  {
+    "id": "3fd5ff8e-8f19-41d5-a3fc-0e10df7f094c:0",
+    "version": 2,
+    "archived": false,
+    "data": {
+      "Thread": {
+        "title": "Evaluation case",
+        "state": "Open",
+        "attention": [
+          {
+            "kind": "Review",
+            "reason": "Review prepared changes",
+            "record": "7b1f6c82-38c8-4f59-9c55-76fd1848ec57"
+          },
+          {
+            "kind": "Blocker",
+            "reason": "Run failed: The tool-call limit was reached. Continue starts fresh.",
+            "record": "c4fda5fa-b4ab-4c97-aa61-e7a77e1059a3:0"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "b7eb8610-bf0c-4a34-b7c2-87b92a39c7cc:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Cedar renovation",
+        "markdown": "# Cedar renovation\n\nOwner decision dated 2026-10-01: the budget is EUR 12000.\nDeposit paid: EUR 2400.\nThe target completion date is 2027-02-15; it is not a signed commitment.\nThe bathroom requires a waterproof membrane; dry rooms need primer only.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "b7eb8610-bf0c-4a34-b7c2-87b92a39c7cc:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Unrelated stable record",
+        "markdown": "# Unrelated stable record\n\nThe garden gate inspection is unrelated and must remain unchanged.\n",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "c4fda5fa-b4ab-4c97-aa61-e7a77e1059a3:0",
+    "version": 4,
+    "archived": false,
+    "data": {
+      "Run": {
+        "instruction": "c4fda5fa-b4ab-4c97-aa61-e7a77e1059a3:1",
+        "thread": "3fd5ff8e-8f19-41d5-a3fc-0e10df7f094c:0",
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "guide_identity": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "budget": 8,
+        "effort": "medium",
+        "loaded_skills": [
+          "maintain-notes"
+        ],
+        "loaded_skill_details": [
+          {
+            "id": "maintain-notes",
+            "origin": "builtin",
+            "project": null,
+            "package_digest": "65778c6e5873551db81451838dba4b1dc455a3a05a01111c98dd03aea18cab2d",
+            "file": "SKILL.md",
+            "file_digest": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020"
+          }
+        ],
+        "fence": 3,
+        "state": "Failed",
+        "progress": "Host-retained objective excerpt from saved owner Message c4fda5fa-b4ab-4c97-aa61-e7a77e1059a3:1 (bounded to 768 UTF-8 bytes; consult the exact Message for full wording):\nRewrite the existing plan for a contractor: concise paragraphs and an explicit unresolved-commitment statement. Edit only the existing plan. Preserve every material fact and number; do not create new decisions or promises.\nNo remaining-work plan was retained. Work remains unverified; this excerpt grants no authority to a later invocation.",
+        "operations": [
+          "7b1f6c82-38c8-4f59-9c55-76fd1848ec57"
+        ],
+        "sources": []
+      }
+    }
+  },
+  {
+    "id": "c4fda5fa-b4ab-4c97-aa61-e7a77e1059a3:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Message": {
+        "thread": "3fd5ff8e-8f19-41d5-a3fc-0e10df7f094c:0",
+        "role": "owner",
+        "text": "Rewrite the existing plan for a contractor: concise paragraphs and an explicit unresolved-commitment statement. Edit only the existing plan. Preserve every material fact and number; do not create new decisions or promises."
+      }
+    }
+  },
+  {
+    "id": "d4b47526-d528-4adc-a3a4-0207905b703b:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "ChatControl": {
+        "queue": [],
+        "pending": null,
+        "paused": false,
+        "quiet": false
+      }
+    }
+  }
+]

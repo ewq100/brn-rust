@@ -1,0 +1,22 @@
+{
+  "source_revision": "0c10bdb775bb8f0f8982e4f2a2927be37169b9c8",
+  "runtime_baseline": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "source_delta": "Only capability-spike gated benchmark grader/export/example; production default-feature runtime behavior unchanged. No candidate guide patch yet.",
+  "features": "default; no native-retrieval; no embedding assets",
+  "toolchain": "rustc 1.98.1 (48a229cea 2026-09-01)",
+  "target": "/private/tmp/brn-agent-d-254-target",
+  "jobs": 2,
+  "cache": "APFS clone E third-party cache; all9 D workspace packages cargo-cleaned before qualifying build; initial invalid clean/cached build excluded",
+  "build_log_sha256": "32928d62a009df3529035b8df79a22abe99f2ddb6a95887a52221867ffd16b8b",
+  "artifact_messages_sha256": "9cc98023be77286e427c863ccf305bae589e5ead032d3f4a868adcd8655a6029",
+  "artifacts": {
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/wiki_eval_seed": "4a23729e1706e74c210d0ef6d870632585b5a05d5934d4459f212a44325c44c2",
+    "/Users/evokessler/repos/brn-agent-d-254/Cargo.lock": "3122299c6b07dc65427f6ffba110f571e06ecc08fb8550df4648a08f3dd09959",
+    "/Users/evokessler/repos/brn-agent-d-254/rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0",
+    "/Users/evokessler/repos/brn-agent-d-254/agent/skills/maintain-notes/SKILL.md": "406e0a32b053a3096b2ef0b70c11139f6df7309a67979dd252702c15b049d020"
+  },
+  "observed_at": "2026-11-06T22:01:39.419721+00:00",
+  "RUSTFLAGS": null,
+  "CARGO_INCREMENTAL": null
+}

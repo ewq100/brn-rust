@@ -1,0 +1,203 @@
+{
+  "format": 1,
+  "kind": "measured-reader",
+  "status": "complete",
+  "qualified": false,
+  "measured_answer": true,
+  "answer_quality": null,
+  "mode": "wiki-only",
+  "question": "What must happen before a refrigerated saline sample can be processed?",
+  "checkpoint_records_sha256": "ffc0cc248ec6654819a59c8e49a88548ec8d9117e478d3970e8f037df4244b2e",
+  "checkpoint_backup_sha256": "4afc8a996bdbc1570d7292c5bb59982797482d498d47fa5093ab6ae3334042d8",
+  "reader_config_sha256": "9d68d6cd3d967a07324c6ebeb2019db1d2b3d22c4d568256670c7400175263df",
+  "cli_binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "article_allowlist": [
+    {
+      "id": "2c274ec6-131e-4e50-9d92-90ce5cccc037:0",
+      "version": 2
+    }
+  ],
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "cost": null,
+  "retrieval": "native search_notes and read_note on an isolated checkpoint clone",
+  "retrieval_assets": "none requested; native build defaults, record features in input lock",
+  "retrieval_probe": {
+    "hits": [
+      {
+        "note": "2c274ec6-131e-4e50-9d92-90ce5cccc037:0",
+        "version": 2,
+        "title": "Aster water trial \u2014 operator working procedure",
+        "start": 452,
+        "end": 1206,
+        "quote": "## Before starting\n\n- Identify whether the sample is saline and whether it is cloudy.\n- **Saline sample: use method B, never method A.** The saved notes do not specify the method for non-saline samples or provide the method B instructions; consult the applicable detailed method.\n- **Start only after the reference blank passes.** The saved notes do not define blank preparation or pass criteria. If a pass cannot be established under the applicable method, do not start.\n- **Refrigerated samples must reach 18 \u00b0C before adding reagent** (trial lead, 2026-05-09, as reported by the owner). This pre-addition requirement is separate from the 18\u201322 \u00b0C, 40-minute hold below.\n- For a cloudy sample, plan duplicate runs; this is required, not optional.\n\n",
+        "heading_path": "Aster water trial \u2014 operator working procedure \u203a Before starting",
+        "snippet": "Before starting - Identify whether the sample is saline and whether it is cloudy. - **Saline sample: use method B, never method A.** The saved notes do not specify the method for non-saline samples or provide the method B instructions; consult the applicable detailed method. - **Start only after\u2026",
+        "highlights": [
+          {
+            "start": 0,
+            "end": 6
+          },
+          {
+            "start": 39,
+            "end": 45
+          },
+          {
+            "start": 49,
+            "end": 55
+          },
+          {
+            "start": 86,
+            "end": 92
+          },
+          {
+            "start": 93,
+            "end": 99
+          },
+          {
+            "start": 128,
+            "end": 129
+          },
+          {
+            "start": 183,
+            "end": 189
+          },
+          {
+            "start": 190,
+            "end": 197
+          }
+        ],
+        "matches": 7,
+        "inbound_links": 0,
+        "protected": false,
+        "imported": false,
+        "evidence": false,
+        "archived": false
+      }
+    ],
+    "total": 1,
+    "offset": 0,
+    "reachable": 1,
+    "cursor": null,
+    "semantic": "none",
+    "messages": [],
+    "message_total": 0,
+    "message_cursor": null,
+    "shown": 1
+  },
+  "reader_thread": "0ee2afcb-742c-4535-804f-3b4271714f46:0",
+  "identity_verified": true,
+  "native_retrieval_observed": true,
+  "answer": "Before processing a **refrigerated saline sample**:\n\n- **Let it reach 18 \u00b0C before adding reagent.** This is separate from the later 18\u201322 \u00b0C, 40-minute hold.\n- **Confirm the reference blank has passed** before starting.\n- **Use method B, never method A**, because the sample is saline. The applicable detailed method must be available.\n- If the sample is also **cloudy**, duplicate runs are required.\n\nThe saved procedure does **not** specify the blank\u2019s pass criteria or the detailed method B instructions; those must be obtained from the applicable method. Validation also remains pending.\n\nSource: *Aster water trial \u2014 operator working procedure*, note `2c274ec6-131e-4e50-9d92-90ce5cccc037:0`, **version 2**, \u201cBefore starting\u201d and \u201cRun checklist.\u201d",
+  "terminal": "Completed",
+  "trace": {
+    "format": 1,
+    "level": "full",
+    "guide": "brn-threads-guidance-25:32fb87caa88bfefe18e832fc6684506d80c0f53973f36351fb0130ed2438d6f8",
+    "search": true,
+    "rounds": 2,
+    "max_rounds": 8,
+    "model_turns": 3,
+    "wire_requests": [
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      },
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      },
+      {
+        "api": "responses",
+        "model": "gpt-6.1-sol",
+        "effort": "medium"
+      }
+    ],
+    "wire_requests_dropped": 0,
+    "model_call_budget": {
+      "limit": 12,
+      "started": 3,
+      "refused": false
+    },
+    "returned_models": [
+      "gpt-6.1-sol",
+      "gpt-6.1-sol",
+      "gpt-6.1-sol"
+    ],
+    "stopped": null,
+    "usage": {
+      "input": 24584,
+      "output": 280,
+      "cached_input": 15360
+    },
+    "turn_usage": [
+      {
+        "input": 7709,
+        "output": 36,
+        "cached_input": 0
+      },
+      {
+        "input": 7921,
+        "output": 59,
+        "cached_input": 7552
+      },
+      {
+        "input": 8954,
+        "output": 185,
+        "cached_input": 7808
+      }
+    ],
+    "elapsed_ms": 10626,
+    "calls": [
+      {
+        "seq": 1,
+        "round": 1,
+        "tool": "search_notes",
+        "args": {
+          "query_hash": "d676ae88362f",
+          "words": 4,
+          "query": "refrigerated saline sample processing",
+          "limit": 6,
+          "mode": "hybrid",
+          "cursor": false
+        },
+        "outcome": "success",
+        "bytes": 684,
+        "ms": 17,
+        "result": {
+          "total": 1,
+          "shown": 1,
+          "ids": [
+            "2c274ec6-131e-4e50-9d92-90ce5cccc037:0"
+          ],
+          "semantic": "none"
+        }
+      },
+      {
+        "seq": 2,
+        "round": 2,
+        "tool": "read_note",
+        "args": {
+          "id": "2c274ec6-131e-4e50-9d92-90ce5cccc037:0",
+          "version": 2,
+          "start": 0,
+          "section": false,
+          "max_bytes": 10000
+        },
+        "outcome": "success",
+        "bytes": 4188,
+        "ms": 1,
+        "result": {
+          "outcome": "Read",
+          "returned_bytes": 3898,
+          "next_start": false
+        }
+      }
+    ],
+    "dropped_calls": 0
+  },
+  "native_result": "runs/READER-0/fixed-reader-r1/result.json",
+  "native_result_sha256": "a85bd467cd3d0f9850dfb33be18a15ad8c02f3e41933fc97536156492e4b9b1c"
+}

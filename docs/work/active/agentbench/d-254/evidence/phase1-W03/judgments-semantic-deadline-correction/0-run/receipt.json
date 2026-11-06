@@ -1,0 +1,1 @@
+{"format":1,"kind":"frozen-packet-judgment","provider":"Codex","model":"gpt-6.1-sol","effort":"high","tools":[],"elapsed_ms":45002,"model_call_budget":{"limit":1,"started":1,"refused":false},"wire_requests":[{"api":"responses","model":"gpt-6.1-sol","effort":"high"}],"status":"timeout"}

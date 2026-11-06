@@ -1,0 +1,600 @@
+{
+  "format": 2,
+  "case": "F01",
+  "scale": 0,
+  "arm": "B",
+  "repetition": 2,
+  "slot": "B-r2",
+  "attempt": 1,
+  "label": null,
+  "status": "complete",
+  "failure": null,
+  "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "provider": "Codex",
+  "model": "gpt-6.1-terra",
+  "effort": "medium",
+  "helper": null,
+  "model_dir": null,
+  "trace_level": "full",
+  "steps": [
+    {
+      "index": 1,
+      "kind": "ask",
+      "thread": "case",
+      "terminal": "Completed",
+      "answer": "Updated the saved **Cedar renovation** wiki with sections for budget and payment, schedule, and materials by room. It preserves the EUR 12,000 budget, EUR 2,400 deposit, tentative completion date, and bathroom waterproof-membrane exception.\n\nThe existing note had no recorded underlying source links, so the wiki flags that the original evidence could not be rechecked. Unrelated records were left unchanged.",
+      "trace": {
+        "format": 1,
+        "level": "full",
+        "guide": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "search": true,
+        "rounds": 4,
+        "max_rounds": 8,
+        "model_turns": 5,
+        "wire_requests": [
+          {
+            "api": "responses",
+            "model": "gpt-6.1-terra",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-terra",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-terra",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-terra",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-terra",
+            "effort": "medium"
+          }
+        ],
+        "wire_requests_dropped": 0,
+        "model_call_budget": {
+          "limit": 6,
+          "started": 5,
+          "refused": false
+        },
+        "returned_models": [
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra",
+          "gpt-6.1-terra"
+        ],
+        "stopped": null,
+        "usage": {
+          "input": 53067,
+          "output": 767,
+          "cached_input": 48000
+        },
+        "turn_usage": [
+          {
+            "input": 7375,
+            "output": 123,
+            "cached_input": 7296
+          },
+          {
+            "input": 10292,
+            "output": 161,
+            "cached_input": 7296
+          },
+          {
+            "input": 11085,
+            "output": 356,
+            "cached_input": 10368
+          },
+          {
+            "input": 11846,
+            "output": 40,
+            "cached_input": 11264
+          },
+          {
+            "input": 12469,
+            "output": 87,
+            "cached_input": 11776
+          }
+        ],
+        "elapsed_ms": 26992,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "987a78d53525",
+              "words": 2,
+              "query": "Cedar renovation",
+              "limit": 20,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 535,
+            "ms": 11,
+            "result": {
+              "total": 1,
+              "shown": 1,
+              "ids": [
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 2,
+            "round": 1,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "45bd92a7ba68",
+              "words": 3,
+              "query": "Cedar materials quantity",
+              "limit": 20,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 535,
+            "ms": 1,
+            "result": {
+              "total": 1,
+              "shown": 1,
+              "ids": [
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 3,
+            "round": 1,
+            "tool": "read_records",
+            "args": {
+              "id_count": 0,
+              "ids": [],
+              "catalog": false,
+              "query": {
+                "query_hash": "e416bb181506",
+                "words": 1,
+                "query": "Cedar"
+              }
+            },
+            "outcome": "success",
+            "bytes": 731,
+            "ms": 0,
+            "result": {
+              "rows": 2,
+              "ids": [
+                "10ede663-5e5b-4605-ba91-a77257c3e852:1",
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+              ],
+              "truncated": false
+            }
+          },
+          {
+            "seq": 4,
+            "round": 1,
+            "tool": "read_skill",
+            "args": {
+              "name": "maintain-notes"
+            },
+            "outcome": "success",
+            "bytes": 11222,
+            "ms": 4,
+            "result": null
+          },
+          {
+            "seq": 5,
+            "round": 2,
+            "tool": "read_records",
+            "args": {
+              "id_count": 1,
+              "ids": [
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+              ],
+              "catalog": false
+            },
+            "outcome": "success",
+            "bytes": 630,
+            "ms": 1,
+            "result": {
+              "rows": 1,
+              "ids": [
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+              ],
+              "truncated": false
+            }
+          },
+          {
+            "seq": 6,
+            "round": 2,
+            "tool": "note_connections",
+            "args": {
+              "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+              "hops": 2,
+              "sources": true
+            },
+            "outcome": "success",
+            "bytes": 233,
+            "ms": 2,
+            "result": {
+              "neighbours": 0,
+              "ids": []
+            }
+          },
+          {
+            "seq": 7,
+            "round": 2,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "8fbc28f8be17",
+              "words": 4,
+              "query": "bathroom waterproof membrane primer",
+              "limit": 20,
+              "mode": "keyword",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 455,
+            "ms": 1,
+            "result": {
+              "total": 1,
+              "shown": 1,
+              "ids": [
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 8,
+            "round": 2,
+            "tool": "read_records",
+            "args": {
+              "id_count": 0,
+              "ids": [],
+              "catalog": true
+            },
+            "outcome": "success",
+            "bytes": 501,
+            "ms": 0,
+            "result": {
+              "rows": 3,
+              "ids": [
+                "2a948442-ba18-4822-874c-9051862c6635:0",
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+                "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:1"
+              ],
+              "truncated": false
+            }
+          },
+          {
+            "seq": 9,
+            "round": 3,
+            "tool": "prepare_changes",
+            "args": {
+              "writes": {
+                "Note": 1
+              },
+              "inputs": 1
+            },
+            "outcome": "success",
+            "bytes": 1320,
+            "ms": 5,
+            "result": {
+              "operation": "bb16dc5f-60aa-47f3-8430-11b14d9ba982"
+            }
+          },
+          {
+            "seq": 10,
+            "round": 4,
+            "tool": "apply_changes",
+            "args": {
+              "operation": "bb16dc5f-60aa-47f3-8430-11b14d9ba982"
+            },
+            "outcome": "Applied",
+            "bytes": 2021,
+            "ms": 4,
+            "result": null
+          }
+        ],
+        "dropped_calls": 0
+      },
+      "operations": [
+        "bb16dc5f-60aa-47f3-8430-11b14d9ba982"
+      ],
+      "sources": [],
+      "loaded_skills": [
+        "maintain-notes"
+      ],
+      "budget": {
+        "requested": 8,
+        "sent": 8,
+        "observed": 8
+      },
+      "reservation": {
+        "reserved": 6,
+        "total_reserved": 54,
+        "remaining": 546
+      },
+      "run": "10ede663-5e5b-4605-ba91-a77257c3e852:0",
+      "receipts": [
+        {
+          "operation": "bb16dc5f-60aa-47f3-8430-11b14d9ba982",
+          "undo_of": null,
+          "writes": [
+            {
+              "kind": "Note",
+              "id": "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0",
+              "version": 2,
+              "before_version": 1,
+              "archived": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "checks": [],
+  "metrics": {
+    "trace": true,
+    "per_step": [
+      {
+        "trace": true,
+        "kind": "ask",
+        "first_hit_round": null,
+        "target_rank": null,
+        "first_target_read_round": null,
+        "searches": 3,
+        "reformulations": 2,
+        "catalog_dumps": 1,
+        "literal_scans": 1,
+        "bytes_read": 3620,
+        "wasted_reads": 1,
+        "trap_reads": 0,
+        "private_exposures": 0,
+        "search_share": 0.6,
+        "budget_exhausted": false,
+        "terminal": "Completed",
+        "stopped": null,
+        "rounds": 4,
+        "model_turns": 5,
+        "elapsed_ms": 26992,
+        "dropped_calls": 0,
+        "tokens": 53834,
+        "tool_counts": {
+          "search_notes": 3,
+          "read_records": 3,
+          "read_skill": 1,
+          "note_connections": 1,
+          "prepare_changes": 1,
+          "apply_changes": 1
+        },
+        "calls": 10,
+        "helper_runs": 0,
+        "helper_outcomes": {},
+        "citations": {
+          "exact": 0,
+          "relocated": 0,
+          "stale": 0,
+          "mismatch": 0,
+          "rejected": 0
+        },
+        "helper_tokens": 0,
+        "helper_usage": {
+          "input": 0,
+          "output": 0,
+          "cached_input": 0
+        },
+        "peak_turn_input": 12469
+      }
+    ],
+    "searches": 3,
+    "reformulations": 2,
+    "catalog_dumps": 1,
+    "literal_scans": 1,
+    "bytes_read": 3620,
+    "wasted_reads": 1,
+    "trap_reads": 0,
+    "private_exposures": 0,
+    "rounds": 4,
+    "model_turns": 5,
+    "elapsed_ms": 26992,
+    "calls": 10,
+    "helper_runs": 0,
+    "helper_tokens": 0,
+    "first_hit_round": null,
+    "target_rank": null,
+    "first_target_read_round": null,
+    "budget_exhausted": false,
+    "peak_turn_input": 12469,
+    "citations": {
+      "exact": 0,
+      "relocated": 0,
+      "stale": 0,
+      "mismatch": 0,
+      "rejected": 0
+    },
+    "helper_outcomes": {},
+    "tokens": 53834,
+    "dropped_calls": 0,
+    "search_share": {
+      "ask": 0.6
+    }
+  },
+  "safety": [],
+  "passed": null,
+  "commands": [
+    {
+      "command": "configure",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "document-conversion",
+      "seconds": 0.106,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "delegation",
+      "seconds": 0.119,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.113,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "knowledge-check",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.132,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.114,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "ask",
+      "seconds": 27.116,
+      "exit": 0,
+      "status": "Completed"
+    },
+    {
+      "command": "read",
+      "seconds": 0.117,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.128,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.126,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.105,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "knowledge-check",
+      "seconds": 0.104,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "history",
+      "seconds": 0.119,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "operation",
+      "seconds": 0.107,
+      "exit": 0,
+      "status": "ok"
+    }
+  ],
+  "planned": 2,
+  "stage": "complete",
+  "copy": "clone",
+  "checkpoints": [
+    {
+      "step": 0,
+      "backup_sha256": "3eb9b927fd97b347e77bcbfbf1e559624fe0cda3d90348d635170604c212814f",
+      "records_sha256": "3911be9dde03d7527978fa54f76077746851fcf973850c2a0b4ac4f30247a4de"
+    },
+    {
+      "step": 1,
+      "backup_sha256": "efc248f27796eb861a02ded322080300abd0873848c981c5d03536427e171999",
+      "records_sha256": "e45fe1ca7b424ab9d2c325d5f919bc5a68883c97d551e15adfc1b58674392410"
+    }
+  ],
+  "provider_resends": {
+    "count": 0,
+    "details": []
+  },
+  "undo": {},
+  "kc": {
+    "before": {
+      "notes": 2,
+      "links": 0,
+      "counts": {
+        "Orphan": 2
+      },
+      "findings": [
+        {
+          "kind": "Orphan",
+          "records": [
+            "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+          ],
+          "detail": "“Cedar renovation” has no links to or from other notes"
+        },
+        {
+          "kind": "Orphan",
+          "records": [
+            "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:1"
+          ],
+          "detail": "“Unrelated stable record” has no links to or from other notes"
+        }
+      ]
+    },
+    "after": {
+      "notes": 2,
+      "links": 0,
+      "counts": {
+        "Orphan": 2
+      },
+      "findings": [
+        {
+          "kind": "Orphan",
+          "records": [
+            "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:0"
+          ],
+          "detail": "“Cedar renovation” has no links to or from other notes"
+        },
+        {
+          "kind": "Orphan",
+          "records": [
+            "3ebdfc55-f6a0-4d49-9beb-f9c5638ee3c6:1"
+          ],
+          "detail": "“Unrelated stable record” has no links to or from other notes"
+        }
+      ]
+    }
+  },
+  "loaded_skills": [
+    "maintain-notes"
+  ],
+  "unverified": []
+}

@@ -1,0 +1,7 @@
+{"version": 1, "max_calls": 1592}
+{"identity": "phase1", "calls": 600}
+{"identity": "phase2-development", "calls": 328}
+{"identity": "phase2-broad-regression", "calls": 512}
+{"identity": "grader", "calls": 120}
+{"identity": "Council", "calls": 24}
+{"identity": "contingency", "calls": 8}

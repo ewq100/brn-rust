@@ -1,0 +1,44 @@
+{
+  "parent_shared": 1760,
+  "parent_D": 1592,
+  "non_additive_escrow": "/Users/evokessler/Documents/Codex/brn-agent-d-254/allocation-escrow.jsonl",
+  "canonical_operation_ledgers": {
+    "phase1": {
+      "max_calls": 600,
+      "path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase1-dispatch.jsonl"
+    },
+    "phase2-development": {
+      "max_calls": 264,
+      "path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase2-development-dispatch.jsonl"
+    },
+    "phase2-broad": {
+      "max_calls": 432,
+      "path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase2-broad-dispatch.jsonl"
+    },
+    "phase2-fresh": {
+      "max_calls": 144,
+      "path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase2-fresh-dispatch.jsonl"
+    },
+    "grader": {
+      "max_calls": 120,
+      "path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/grader-dispatch.jsonl"
+    },
+    "Council": {
+      "max_calls": 24,
+      "path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/Council-dispatch.jsonl"
+    },
+    "contingency": {
+      "max_calls": 8,
+      "path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/contingency-dispatch.jsonl"
+    }
+  },
+  "request_caps": {
+    "candidate": 6,
+    "reader": 12,
+    "grader": 1
+  },
+  "grading_role_setup": 12,
+  "further_evaluation_coordinator_requested_max": 24,
+  "grading_model_requests_planned_max": 22,
+  "accounting_limit": "T3 role provider-turn usage unknown; requested max conservatively reserved. HTTP/model counters from native transport remain separate."
+}
