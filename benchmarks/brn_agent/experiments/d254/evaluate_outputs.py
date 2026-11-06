@@ -1,0 +1,158 @@
+"""Bind frozen native outputs to the existing independent grader/reader importers.
+
+No candidate reruns or custom scoring. Model dispatch goes only through supervise;
+the fixed rubric, packets and reviewer instructions remain separately frozen.
+"""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+import random
+import subprocess
+import sys
+
+REPO = Path(__file__).resolve().parents[4]
+sys.path.insert(0,str(REPO/'benchmarks/brn_agent'))
+import semantic
+from evidence import verify_manifest
+BENCH = REPO/'benchmarks/brn_agent/bench.py'
+SUPERVISE = Path(__file__).with_name('supervise.py')
+BATCH_SIZE = 4  # Within the predeclared maximum8; all arms use identical grouping.
+
+def load(path):
+    return json.loads(Path(path).read_text())
+
+def save(path, value):
+    Path(path).write_text(json.dumps(value, indent=2, ensure_ascii=False)+'\n')
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def bench(*args):
+    subprocess.run([sys.executable,str(BENCH),*map(str,args)],check=True,capture_output=True,text=True)
+
+def dispatch(args, operation):
+    path = args.root/'evaluation-operations'/(operation['id']+'.json')
+    path.parent.mkdir(exist_ok=True)
+    save(path,operation)
+    subprocess.run([sys.executable,str(SUPERVISE),'--operation',str(path),
+        '--account-file',str(args.account_file),'--cycle',str(args.task_root/'cycle-start.json'),
+        '--roles',str(args.task_root)],check=True,capture_output=True,text=True)
+
+def grade(args, packets, tag):
+    packets = list(packets)
+    random.Random(25420261106).shuffle(packets)
+    folder = args.root/('judgments-'+tag)
+    folder.mkdir(exist_ok=False)
+    replies=[]
+    for offset in range(0,len(packets),BATCH_SIZE):
+        used_seconds=sum(load(p).get('elapsed_ms',0)/1000 for p in
+            args.task_root.glob('phase*/judgments-*/*-run/receipt.json'))
+        if used_seconds+45>1200:
+            raise RuntimeError('Original20min grading ceiling exhausted')
+        batch=packets[offset:offset+BATCH_SIZE]
+        path=folder/(str(offset//BATCH_SIZE)+'-packets.json')
+        save(path,batch)
+        identity=args.root.name+'-'+tag+'-'+str(offset//BATCH_SIZE)
+        out=folder/(str(offset//BATCH_SIZE)+'-run')
+        dispatch(args,{'id':identity,'kind':'grader','role':'grader','phase':args.phase,
+            'root':str(out),'seconds':60,'minimum_seconds':45,'binary':str(args.judge),
+            'packet':str(path),'instructions':str(args.task_root/'grader-instructions.txt')})
+        receipt=load(out/'receipt.json')
+        try:
+            decoded=json.loads(receipt['result']['text'])
+            if not isinstance(decoded,list):
+                raise ValueError('Expected array')
+            replies.extend(decoded)
+        except (KeyError,ValueError):
+            replies.extend({'id':p['id'],'packet_sha256':p['packet_sha256'],
+                'error':'Grader did not return the frozen JSON reply schema'} for p in batch)
+    save(folder/'replies.json',replies)
+    return folder/'replies.json'
+
+def main():
+    p=argparse.ArgumentParser(description=__doc__)
+    for name in ['root','suite','truth','task-root','binary','judge','account-file']:
+        p.add_argument('--'+name,type=Path,required=True)
+    p.add_argument('--phase',choices=['phase1','phase2'],required=True)
+    p.add_argument('--role',choices=['phase1','phase2-development','phase2-broad','phase2-fresh'],required=True)
+    p.add_argument('--no-readers',action='store_true')
+    args=p.parse_args()
+    evidence=args.root/'agentbench-evidence.json'
+    if evidence.exists():
+        verify_manifest(load(evidence),args.root)
+    else:
+        bench('collect','--root',args.root,'--suite',args.suite)
+    prepared=args.root/'semantic-packets'
+    if prepared.exists():
+        expected=semantic.prepare(args.root,args.suite,evidence,truth_path=args.truth)
+        if load(prepared/'private-result.json') != expected:
+            raise ValueError('Previously prepared evidence changed')
+    else:
+        bench('semantic-prepare','--root',args.root,'--suite',args.suite,'--truth',args.truth,
+              '--evidence',evidence,'--output',prepared)
+    private=load(prepared/'private-result.json')
+    suite=load(args.suite); cases={c['id']:c for c in suite['scenarios']}
+    attempts={a['id']:a for a in load(evidence)['attempts']}
+    packets=load(prepared/'packets.json')
+    for packet in packets:
+        key=private['private_key'][packet['id']]
+        packet['checkpoint_number']=key['checkpoint']
+        packet['criterion_ids']=cases[attempts[key['attempt']]['scenario']]['criteria']
+    replies=grade(args,packets,'semantic')
+    reviewed=args.root/'semantic-reviewed'
+    config=REPO/'benchmarks/brn_agent/wiki_challenge/reviewer.json'
+    bench('semantic-reviewed','--root',args.root,'--suite',args.suite,'--truth',args.truth,
+          '--evidence',evidence,'--prepared',prepared/'private-result.json','--replies',replies,
+          '--revision','wiki-reviewer-v1','--reviewer-config',config,'--output',reviewed)
+    reader_artifact=None
+    if suite.get('score_family')=='wiki-consolidation-v1' and not args.no_readers:
+        truth=load(args.truth); index=[]
+        for attempt in attempts.values():
+            native=load(args.root/attempt['result'])
+            final=max(cases[attempt['scenario']]['grade_checkpoints'])
+            checkpoint=(args.root/attempt['result']).parent/'checkpoints'/str(final)
+            records=load(checkpoint/'records.json')
+            articles=[{'id':r['id'],'version':r['version']} for r in records
+                if not r.get('archived') and 'Note' in r['data']
+                and not r['data']['Note'].get('protected') and r['data']['Note'].get('chat') is None]
+            if not articles:
+                continue  # Missing maintained state stays unmeasured; never use protected raw sources.
+            for q in truth['reader_questions'][attempt['scenario']]:
+                label=hashlib.sha256((attempt['id']+q['id']).encode()).hexdigest()[:16]
+                out=args.root/'readers'/label
+                dispatch(args,{'id':args.root.name+'-reader-'+label,'kind':'reader','role':args.role,
+                    'root':str(out),'seconds':120,'minimum_seconds':90,'checkpoint':str(checkpoint),
+                    'question':q['question'],'records':articles,'binary':str(args.binary)})
+                receipt=out/'reader-result.json'
+                index.append({'attempt':attempt['id'],'question_id':q['id'],
+                    'measurement':{'path':str(receipt.relative_to(args.root)),'sha256':sha(receipt)}})
+        save(args.root/'reader-index.json',index)
+        rp=args.root/'reader-packets'
+        bench('reader-review-prepare','--root',args.root,'--suite',args.suite,'--truth',args.truth,
+            '--evidence',evidence,'--index',args.root/'reader-index.json','--output',rp)
+        rr=grade(args,load(rp/'packets.json'),'reader')
+        ri=args.root/'readers-reviewed'
+        bench('reader-review-import','--root',args.root,'--suite',args.suite,'--truth',args.truth,
+            '--evidence',evidence,'--index',args.root/'reader-index.json',
+            '--prepared',rp/'private-result.json','--replies',rr,'--revision','wiki-reviewer-v1','--output',ri)
+        reader_artifact=ri/'private-result.json'
+    grades=load(reviewed/'grades.json')
+    reports=[]
+    for arm in sorted({a['configuration'] for a in attempts.values()}):
+        arm_grades=[g for g in grades if attempts[g['attempt']]['configuration']==arm]
+        path=args.root/('grades-'+arm+'.json');save(path,arm_grades)
+        out=args.root/('report-'+arm)
+        command=['report','--suite',args.suite,'--truth',args.truth,
+            '--evidence',evidence,'--grades',path,'--configuration',arm,'--output',out]
+        if reader_artifact:
+            command+=['--reader-grades',reader_artifact]
+        bench(*command);reports.append(str(out))
+    save(args.root/'evaluation-summary.json',{'reports':reports,'semantic_packets':len(packets),
+        'reader_measurements':len(index) if reader_artifact else 0,
+        'qualification':'independent frozen judgments; semantic competence and same-family bias remain limitations'})
+    print(json.dumps({'status':'complete','reports':reports,'semantic_packets':len(packets),
+        'reader_measurements':len(index) if reader_artifact else 0}))
+
+if __name__=='__main__':
+    main()

@@ -310,13 +310,13 @@
         "title": "Compare Terra/Sol and improve maintained knowledge (#254)",
         "owner": "Agent D",
         "state": "active",
-        "activity": "Design Council complete: Sol6/10, Opus/Copilot5.5/10 after Kiro monthly-limit failure, Kimi8/10; protected role/native admission and pending in-memory failure witnesses corrected. Independent no-tuning evaluator froze2distinct2history packs; withholding procedural/shared filesystem, owner clarification posted on254. No BRN live calls/build yet.",
-        "observed_at": "2026-11-06T21:58:53.986959+00:00",
+        "activity": "Source-bound D CLI/seeder and fixed no-tool judge qualified; BRN catalogue supports both exact models medium. W03 pairedscreen4histories/16events completed with0transport/0safety and mechanicalchecks passing; semantic/reader quality pending. Shared D/E MacBook slot yielded to E at22:16:46Z.",
+        "observed_at": "2026-11-06T22:17:36.661891+00:00",
         "origin": "observed",
-        "next_action": "Owner hardware correction read on254 comment6696700518: B Macmini, D/E MacBook. E takes first build; D follows with own CLI/seeder/grader build, native qualification and frozen live phases.",
+        "next_action": "After E window, continue frozen W05/Fscreen, real fixed readers/independent grades and separate withheldPhase1. Then implement/test actual retentioncandidate with protectedPhase2allocation.",
         "depends_on": [],
         "resource_waits": [
-          "E first MacBook baseline build, then D own target qualification; live timings serialized D/E"
+          "E live/candidatecompilewindow on sameMacBook; D phase1clock ends23:10Z; wholecycle00:30:06Z"
         ],
         "evidence": [
           "docs/work/active/agentbench/d-254/plan.md",
@@ -327,7 +327,7 @@
         ],
         "gates": {
           "implementation": "pending: actual knowledge-improvement loop required after comparison",
-          "checks": "Offline105 runner/93 AgentBench (11 native/config skips)/12 deadline/2helper-path tests pass;5new admission witnesses pass; cargo metadata/fmt/diff/overview/735Markdown links pass. Native binaries/grader compilation follows E MacBook build.",
+          "checks": "Qualified source-bound cleanlocal CLI/seeder/defaultfeatures;2judge wire tests,2runtimecallcap,4responseguard,9documentrefine,93nativeAgentBench(1optionalInspectskip),W03/W05two-armoffline allpass. Initial invalid cacheclean and excludedcachedbuild preserved.",
           "integration": "Comparison and improvement PRs authorized; no merge/default change/publication",
           "native": "Headless synthetic only; desktop observation outside assignment",
           "owner_acceptance": "Fresh evaluation-only role prepared2distinct2history packs; procedural withholding/shared filesystem, per owner clarification. Actual model/knowledge outcomes and final acceptance still pending."
