@@ -33,6 +33,24 @@ fn management(error: std::io::Error) -> AppError {
 
 #[cfg(any(target_os = "macos", target_os = "linux"))]
 impl Workspace {
+    pub fn reconcile_skill_policy(&mut self) -> AppResult<bool> {
+        let bindings = self.settings()?.skills;
+        let mut changed = false;
+        for mut binding in bindings {
+            if !binding.id.starts_with("installed:") && !binding.enabled {
+                self.commit_skill_policy(SkillPolicyChange::Clear {
+                    id: binding.id,
+                    project: binding.project,
+                })?;
+                changed = true;
+            } else if binding.selected {
+                binding.selected = false;
+                self.commit_skill_policy(SkillPolicyChange::Set(binding))?;
+                changed = true;
+            }
+        }
+        Ok(changed)
+    }
     pub fn skills(&self) -> AppResult<Vec<PackageInfo>> {
         brn_ai::skill_packages::list(&self.store).map_err(management)
     }
@@ -86,6 +104,11 @@ impl Workspace {
         project: Option<&str>,
         enabled: bool,
     ) -> AppResult<ApplyOutcome> {
+        if !id.starts_with("installed:") {
+            return Err(AppError::Invalid(
+                "Built-in skills are always available.".into(),
+            ));
+        }
         if enabled {
             let package = self.inspect_skill(id.strip_prefix("installed:").unwrap_or(id))?;
             if package.info.id != id || package.info.digest != digest {
@@ -108,29 +131,12 @@ impl Workspace {
         id: Option<&str>,
         project: Option<&str>,
     ) -> AppResult<ApplyOutcome> {
-        let digest = if let Some(id) = id {
-            let status = self
-                .scoped_skills(project)?
-                .into_iter()
-                .find(|s| s.id == id)
-                .ok_or_else(|| AppError::Invalid("Select an enabled skill in this scope".into()))?;
-            if !status.enabled {
-                return Err(AppError::Invalid(
-                    "Select an enabled skill in this scope".into(),
-                ));
-            }
-            if !status.available {
-                if let Err(AppError::Io(error)) =
-                    self.inspect_skill(id.strip_prefix("installed:").unwrap_or(id))
-                {
-                    return Err(AppError::Io(error));
-                }
-                return Err(AppError::Unavailable("The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.".into()));
-            }
-            Some(status.digest)
-        } else {
-            None
-        };
+        if id.is_some() {
+            return Err(AppError::Invalid(
+                "Skills are chosen per message: type / in the composer.".into(),
+            ));
+        }
+        let digest = None;
         self.commit_skill_policy(SkillPolicyChange::Select {
             id: id.map(str::to_owned),
             digest,
@@ -256,5 +262,41 @@ impl Workspace {
             total,
             omitted: total.saturating_sub(16),
         })
+    }
+}
+
+/// Slash completion entry derived from the scoped runtime catalogue.
+#[derive(Clone, Debug)]
+pub struct SkillCommand {
+    pub id: String,
+    pub command: String,
+    pub description: String,
+    pub available: bool,
+    pub unavailable: Option<String>,
+}
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+impl Workspace {
+    pub fn skill_commands(&self, project: Option<&str>) -> AppResult<Vec<SkillCommand>> {
+        let mut commands = self
+            .scoped_skills(project)?
+            .into_iter()
+            .filter(|s| s.enabled)
+            .map(|s| SkillCommand {
+                command: s.id.strip_prefix("installed:").unwrap_or(&s.id).to_owned(),
+                id: s.id,
+                description: s
+                    .description
+                    .lines()
+                    .next()
+                    .unwrap_or_default()
+                    .chars()
+                    .take(100)
+                    .collect(),
+                available: s.available,
+                unavailable: s.unavailable,
+            })
+            .collect::<Vec<_>>();
+        commands.sort_by(|a, b| a.command.cmp(&b.command));
+        Ok(commands)
     }
 }
