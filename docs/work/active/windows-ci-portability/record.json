@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-06T17:01:08.332168+00:00",
-    "goal": "Publish and integrate the bounded #255 development-feedback findings and reliable measurement guidance.",
-    "owner_attention": "No default configuration qualified within finite budget. Corrected final Council supports publication; current-head CI/Codex/security and normal merge remain.",
+    "observed_at": "2026-11-06T19:25:36.665742+00:00",
+    "goal": "Qualify cloud Cycle 2 focused-first feedback, then the separately gated shared-provider refactor.",
+    "owner_attention": "Cycle 1 merged as #262 with no retained setting. Cloud Council skill/delegate routes unavailable; required Council review incomplete. Stage 2 awaits A runtime/shared-file handoff and Cycle 2 closeout.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -141,12 +141,12 @@
       {
         "id": "development-speed-255",
         "title": "Measure and improve development feedback (#255)",
-        "owner": "Agent C / Codex GPT-6.1 Sol",
+        "owner": "Agent C / Codex",
         "state": "active",
-        "activity": "PR #262 is open. All final corrected-evidence reviewers support no-change/incomplete qualification (Sol9/Opus8/Grok9); low documentation fixes applied. Main #261 reconciled; product/config/runtime/CI match main. Final-head CI/Codex/security review next.",
-        "observed_at": "2026-11-06T17:01:08.332168+00:00",
+        "activity": "Cycle 1 merged as 6897fe56 (PR262); historical findings retained. Cycle 2 selected on that frozen cloud baseline in isolated agent-c/development-speed-255-cycle2. Existing full gate is build/lint-first; preparing focused-first comparison without runtime/CI changes.",
+        "observed_at": "2026-11-06T19:25:36.665742+00:00",
         "origin": "observed",
-        "next_action": "Push reconciled final head, request current-head Codex review, inspect current CI/code/security results and unresolved findings, then normal merge and main verification.",
+        "next_action": "Validate baseline and finite budget, freeze thresholds, execute matched complete workflows and harmless-failure probe; publish separate Cycle 2 PR with honest Council/CI/review status.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -154,12 +154,13 @@
           "docs/work/active/windows-ci-portability/development-speed-255.md",
           "docs/work/active/windows-ci-portability/development-speed-255-results.json",
           "docs/work/active/windows-ci-portability/development-speed-255-observations.jsonl",
-          "https://github.com/ewq100/brn-rust/pull/262"
+          "https://github.com/ewq100/brn-rust/pull/262",
+          "docs/work/active/windows-ci-portability/development-speed-255-cycle2.md"
         ],
         "gates": {
-          "implementation": "Documentation/evidence only; no configuration retained because net performance is unqualified within the budget, not proven harmful. Guidance adds ABBA/same-binary checks and limits Cargo-only guards.",
-          "checks": "Frozen-source suites/probes and all measurements preserved with causal limits. Final Council Sol9/Opus8/Grok9, noHigh/Medium findings; low fixes applied. Links/overview/16tests/diff pass. Current-head hosted CI/Codex/security pending publication.",
-          "integration": "Published as PR #262; not merged. Normal merge after current-head CI, Codex and security review. Source/config byte-identical to main; frozen measurements remain separate.",
+          "implementation": "Cycle 1 merged; Cycle 2 setup/baseline qualification in progress. No performance change selected.",
+          "checks": "Cycle 2 cloud baseline pending. Council skill and delegate routes unavailable; required diagnosis/review incomplete. Current PR code/security and hosted CI pending.",
+          "integration": "Cycle 1 PR262 merged as 6897fe56. Cycle 2 requires its own PR and normal merge after applicable gates.",
           "native": "Inapplicable: headless build/test tooling scope; existing hosted compatibility checks retained.",
           "owner_acceptance": "Current owner assignment authorizes implementation, Council and focused PR; no manual UI acceptance requirement."
         },

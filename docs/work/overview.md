@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Publish and integrate the bounded #255 development-feedback findings and reliable measurement guidance.
-**Owner attention:** No default configuration qualified within finite budget. Corrected final Council supports publication; current-head CI/Codex/security and normal merge remain.
+**Goal:** Qualify cloud Cycle 2 focused-first feedback, then the separately gated shared-provider refactor.
+**Owner attention:** Cycle 1 merged as #262 with no retained setting. Cloud Council skill/delegate routes unavailable; required Council review incomplete. Stage 2 awaits A runtime/shared-file handoff and Cycle 2 closeout.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -54,18 +54,18 @@ Gates:
 ### Measure and improve development feedback (#255)
 
 Task ID: `development-speed-255`
-Owner: Agent C / Codex GPT-6.1 Sol · State: **active** · Last observed: 2026-11-06T17:01:08.332168+00:00
-Activity: PR #262 is open. All final corrected-evidence reviewers support no-change/incomplete qualification (Sol9/Opus8/Grok9); low documentation fixes applied. Main #261 reconciled; product/config/runtime/CI match main. Final-head CI/Codex/security review next.
-Next: Push reconciled final head, request current-head Codex review, inspect current CI/code/security results and unresolved findings, then normal merge and main verification.
+Owner: Agent C / Codex · State: **active** · Last observed: 2026-11-06T19:25:36.665742+00:00
+Activity: Cycle 1 merged as 6897fe56 (PR262); historical findings retained. Cycle 2 selected on that frozen cloud baseline in isolated agent-c/development-speed-255-cycle2. Existing full gate is build/lint-first; preparing focused-first comparison without runtime/CI changes.
+Next: Validate baseline and finite budget, freeze thresholds, execute matched complete workflows and harmless-failure probe; publish separate Cycle 2 PR with honest Council/CI/review status.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Documentation/evidence only; no configuration retained because net performance is unqualified within the budget, not proven harmful. Guidance adds ABBA/same-binary checks and limits Cargo-only guards.
-- **checks:** Frozen-source suites/probes and all measurements preserved with causal limits. Final Council Sol9/Opus8/Grok9, noHigh/Medium findings; low fixes applied. Links/overview/16tests/diff pass. Current-head hosted CI/Codex/security pending publication.
-- **integration:** Published as PR #262; not merged. Normal merge after current-head CI, Codex and security review. Source/config byte-identical to main; frozen measurements remain separate.
+- **implementation:** Cycle 1 merged; Cycle 2 setup/baseline qualification in progress. No performance change selected.
+- **checks:** Cycle 2 cloud baseline pending. Council skill and delegate routes unavailable; required diagnosis/review incomplete. Current PR code/security and hosted CI pending.
+- **integration:** Cycle 1 PR262 merged as 6897fe56. Cycle 2 requires its own PR and normal merge after applicable gates.
 - **native:** Inapplicable: headless build/test tooling scope; existing hosted compatibility checks retained.
 - **owner acceptance:** Current owner assignment authorizes implementation, Council and focused PR; no manual UI acceptance requirement.
 
@@ -87,4 +87,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
 
-Local page reflects the last saved observations in this record (2026-11-06T17:01:08.332168+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T19:25:36.665742+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
