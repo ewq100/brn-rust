@@ -696,6 +696,7 @@ fn a_compact_review_bar_still_shows_that_it_archives_the_note(cx: &mut TestAppCo
         let archives = window.find("review-archives");
         assert!(archives.visible());
         assert_eq!(archives.label(), Some("Archives this note"));
+        assert_eq!(archives.role(), Some(gpui_kit::Role::Label));
         assert!(
             window
                 .find("review-proposal")
@@ -1197,6 +1198,11 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
                 .label()
                 .is_some_and(|label| label.ends_with("0 added · 0 removed · archives this note"))
         );
+        // A full-width bar exposes the same announced archival label.
+        let archives = window.find("review-archives");
+        assert!(archives.visible());
+        assert_eq!(archives.label(), Some("Archives this note"));
+        assert_eq!(archives.role(), Some(gpui_kit::Role::Label));
         assert_eq!(
             window.find("note-bar").label(),
             Some(

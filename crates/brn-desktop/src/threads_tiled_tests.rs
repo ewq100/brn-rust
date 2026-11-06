@@ -1432,6 +1432,16 @@ fn connections_result_is_cleared_when_project_unlink_revokes_neighbor_visibility
         window.render_frame(cx);
         assert_in_window(window, &f, &unlink_id);
         assert!(window.find(unlink_id.clone()).visible());
+        // Every document row keeps the full width, so their chevrons share
+        // one right edge, and the row's actions sit under it, ending there.
+        let row = window.find(format!("project-doc-{private_note}")).bounds();
+        let other = window.find(format!("project-doc-{centre}")).bounds();
+        let actions = window
+            .find(format!("project-doc-{private_note}-actions"))
+            .bounds();
+        assert_eq!(row.right(), other.right());
+        assert_eq!(actions.right(), row.right());
+        assert!(actions.top() >= row.bottom());
         f.view.read_with(cx, |view, _| {
             assert_eq!(view.layout.visible(), [TileKind::Projects]);
             assert_eq!(view.open_note_id(), Some(centre.as_str()));

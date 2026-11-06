@@ -289,7 +289,7 @@ Task state is independent of conversation state. Archiving a chat does not compl
 
 ### 6.10 Search and contextual details
 
-One global Search entry opens a keyboard-accessible result surface for supported objects. Clearly distinguish current-knowledge results from historical conversation/archive results and identify scope and type. Search must not widen access or promote candidates into current knowledge.
+One global Search entry opens a keyboard-accessible result surface for supported objects. Clearly distinguish current-knowledge results from historical conversation/archive results and identify scope and type. A word found only in a current item's text finds it too, with the matching passage; title matches come first and late results never move the selection. Search must not widen access or promote candidates into current knowledge.
 
 Sources, version history, related records, comparison and global changes should use contextual panels or full focused views where density requires them. Preserve back navigation and reading position. Drawers, menus and dialogs have actual focus and dismissal behavior.
 

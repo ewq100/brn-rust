@@ -13,6 +13,10 @@ use gpui_kit::component::button::{Button, ButtonVariants};
 use gpui_kit::component::menu::PopupMenu;
 use gpui_kit::{Context, SharedString, TestSupportExt, Window, div, prelude::*, px, rgb};
 use std::collections::BTreeSet;
+
+/// The review counts' suffix when a proposal archives the shown note.
+const ARCHIVES_THIS: &str = " · archives this note";
+
 impl<T: 'static> WritingView<'_, T> {
     /// What each Note toolbar arrangement needs for the open note: each
     /// label's measured text plus its control's fixed chrome, as measured on
@@ -2114,7 +2118,7 @@ impl<T: 'static> WritingView<'_, T> {
                         .any(|record| record.id == *id && !record.archived)
             });
             if archives_this {
-                counts.push_str(" · archives this note");
+                counts.push_str(ARCHIVES_THIS);
             }
             (counts, archives_this)
         });
@@ -2171,10 +2175,13 @@ impl<T: 'static> WritingView<'_, T> {
             Some(counts) => format!("Proposal · {} · {counts}", shape.label()),
             None => format!("Proposal · {}", shape.label()),
         };
-        let shown_counts = counts.clone().filter(|_| !fit.actions_in_menu());
+        let shown_counts = counts
+            .as_deref()
+            .filter(|_| !fit.actions_in_menu())
+            .map(|counts| counts.trim_end_matches(ARCHIVES_THIS).to_owned());
         let folded = fit.icons() || (counts.is_some() && shown_counts.is_none());
-        // Archiving changes more than the text, so a folded bar still says so.
-        let archives_shown = archives_this && shown_counts.is_none();
+        // Archiving changes more than the text, so every width says so, in
+        // its own announced label.
         let label = div()
             .id("review-proposal")
             .flex()
@@ -2203,11 +2210,12 @@ impl<T: 'static> WritingView<'_, T> {
             .when_some(shown_counts, |label, counts| {
                 label.child(div().text_color(rgb(p.muted)).child(counts))
             })
-            .when(archives_shown, |label| {
+            .when(archives_this, |label| {
                 label.child(
                     div()
                         .id("review-archives")
                         .text_color(rgb(p.warning))
+                        .role(gpui_kit::Role::Label)
                         .aria_label("Archives this note")
                         .child(if fit.icons() {
                             "· archives"

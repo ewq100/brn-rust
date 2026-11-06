@@ -344,7 +344,7 @@ fn focus_lands_inside_each_destination_panel(cx: &mut TestAppContext) {
 /// so the ring never marks an unselected section. A key press keeps focus on
 /// the pressed section.
 #[gpui_kit::test]
-fn a_clicked_settings_section_takes_the_focus_ring_off_appearance(cx: &mut TestAppContext) {
+fn a_clicked_settings_section_takes_the_focus_ring_from_appearance(cx: &mut TestAppContext) {
     let f = fixture(cx, 1250., 860., |_| {});
     update(cx, &f, |view, window, cx| {
         view.show_tile(TileKind::Settings, window, cx)
@@ -366,6 +366,7 @@ fn a_clicked_settings_section_takes_the_focus_ring_off_appearance(cx: &mut TestA
             window.find("settings-section-appearance").focused(),
             Some(true)
         );
+        assert_eq!(window.find("settings-section-models").focused(), Some(true));
         assert!(
             view.panel_body(TileKind::Settings)
                 .contains_focused(window, cx)

@@ -937,6 +937,14 @@ pub(super) enum LaunchItem {
         /// Other active projects also hold this document.
         shared: bool,
     },
+    /// A current general note the owner search matched by its text rather
+    /// than its title, shown with the matching passage; opens the note.
+    Passage {
+        id: String,
+        title: String,
+        file: bool,
+        snippet: String,
+    },
     /// A saved chat Message the owner search matched; opens its chat.
     Message {
         chat: String,
@@ -955,7 +963,8 @@ impl LaunchItem {
         match self {
             Self::Thread { title, .. }
             | Self::Note { title, .. }
-            | Self::ProjectDoc { title, .. } => title.clone(),
+            | Self::ProjectDoc { title, .. }
+            | Self::Passage { title, .. } => title.clone(),
             Self::Message { snippet, .. } => snippet.clone(),
             Self::Command(command) => command.label(),
         }
@@ -965,6 +974,7 @@ impl LaunchItem {
     pub(super) fn meta(&self) -> Option<String> {
         match self {
             Self::ProjectDoc { project_title, .. } => Some(project_title.clone()),
+            Self::Passage { snippet, .. } => Some(snippet.clone()),
             Self::Message {
                 chat_title, role, ..
             } => Some(format!(
@@ -1003,6 +1013,15 @@ impl LaunchItem {
             } => format!(
                 "Project document: {title} · in {project_title} and other projects, not in Library"
             ),
+            Self::Passage {
+                title,
+                file,
+                snippet,
+                ..
+            } => format!(
+                "{}: {title} · text matches: {snippet}",
+                if *file { "File" } else { "Article" }
+            ),
             Self::Message {
                 chat_title,
                 role,
@@ -1018,7 +1037,8 @@ impl LaunchItem {
         }
     }
     /// Results are ordered articles, files, this project's documents,
-    /// chats, commands, then chat history, so headings follow order.
+    /// chats, commands, then text matches and chat history, so headings
+    /// follow order.
     pub(super) fn group(&self) -> &'static str {
         match self {
             Self::Note { file: false, .. } => "Articles",
@@ -1026,6 +1046,7 @@ impl LaunchItem {
             Self::ProjectDoc { .. } => "This project",
             Self::Thread { .. } => "Chats",
             Self::Command(_) => "Commands",
+            Self::Passage { .. } => "In document text",
             Self::Message { .. } => "In chat history",
         }
     }
@@ -1037,6 +1058,7 @@ impl LaunchItem {
             Self::ProjectDoc { .. } => "project",
             Self::Thread { .. } => "chats",
             Self::Command(_) => "commands",
+            Self::Passage { .. } => "in-documents",
             Self::Message { .. } => "in-chats",
         }
     }
@@ -1044,7 +1066,7 @@ impl LaunchItem {
     /// knowledge, or conversation history that is not current knowledge.
     pub(super) fn group_scope(&self) -> Option<&'static str> {
         match self {
-            Self::Note { .. } => Some("Current knowledge · saved library"),
+            Self::Note { .. } | Self::Passage { .. } => Some("Current knowledge · saved library"),
             Self::ProjectDoc { .. } => Some("Project documents · not in Library"),
             Self::Thread { .. } => Some("Conversations"),
             Self::Message { .. } => Some("History · not current knowledge"),
@@ -1056,8 +1078,9 @@ pub(super) const LAUNCH_LIMIT: usize = 20;
 
 /// Empty queries show recent articles, recent chats, then commands;
 /// otherwise every current article and file, thread (including resolved) and
-/// command whose label matches (at most `LAUNCH_LIMIT`), then the owner
-/// search's matching chat Messages (`messages`, as the Library search lists
+/// command whose label matches (at most `LAUNCH_LIMIT`), then the current
+/// notes the owner search matched only by their text (`passages`), then the
+/// owner search's matching chat Messages (`messages`, as the Library search lists
 /// them under "In chat history"). The Messages arrive after the label
 /// matches, so they come last: an answer landing never moves a row the
 /// selection or ↵ already points at. `notes` holds current general notes
@@ -1068,6 +1091,7 @@ pub(super) fn launcher(
     threads: &[ThreadRow],
     notes: &[NoteRow],
     project: &[LaunchItem],
+    passages: &[brn_threads_app::SearchHit],
     messages: &[brn_threads_app::ChatMessageHit],
 ) -> Vec<LaunchItem> {
     let query = query.trim().to_lowercase();
@@ -1113,7 +1137,7 @@ pub(super) fn launcher(
         highlights: hit.highlights.clone(),
         archived: hit.archived,
     };
-    notes
+    let mut items: Vec<LaunchItem> = notes
         .iter()
         .filter(|row| !row.is_file())
         .map(note)
@@ -1123,11 +1147,38 @@ pub(super) fn launcher(
         .chain(Command::all().into_iter().map(LaunchItem::Command))
         .filter(matches)
         .take(LAUNCH_LIMIT)
-        // The search already matched these; their text need not contain
-        // the query verbatim. The request asks for at most
-        // `LAUNCH_MESSAGES`.
-        .chain(messages.iter().map(message))
-        .collect()
+        .collect();
+    // The search already matched these; their text need not contain the
+    // query verbatim. Only current general notes not already listed by
+    // title, once each; the request asks for at most `LAUNCH_MESSAGES`.
+    let mut listed: std::collections::HashSet<String> = items
+        .iter()
+        .filter_map(|item| match item {
+            LaunchItem::Note { id, .. } => Some(id.clone()),
+            _ => None,
+        })
+        .collect();
+    for hit in passages {
+        let Some(row) = notes.iter().find(|row| row.id == hit.note) else {
+            continue;
+        };
+        if !listed.insert(row.id.clone()) {
+            continue;
+        }
+        let snippet = if hit.snippet.is_empty() {
+            &hit.quote
+        } else {
+            &hit.snippet
+        };
+        items.push(LaunchItem::Passage {
+            id: row.id.clone(),
+            title: row.title.clone(),
+            file: row.is_file(),
+            snippet: snippet.split_whitespace().collect::<Vec<_>>().join(" "),
+        });
+    }
+    items.extend(messages.iter().map(message));
+    items
 }
 
 #[cfg(test)]
@@ -1658,7 +1709,7 @@ mod tests {
         let activity = Activity::default();
         let threads = thread_rows(&records, &activity);
         let notes = note_rows(&records, &activity);
-        let items = launcher("renewal", &threads, &notes, &[], &[]);
+        let items = launcher("renewal", &threads, &notes, &[], &[], &[]);
         assert_eq!(items.len(), 2);
         // Current knowledge first, then conversations.
         assert_eq!(items[0].accessible_label(), "Article: Renewal contract");
@@ -1671,21 +1722,21 @@ mod tests {
         assert_eq!(items[1].accessible_label(), "Chat: Renewal date · archived");
         assert_eq!(items[1].group(), "Chats");
         assert_eq!(
-            launcher("archived", &threads, &notes, &[], &[]),
+            launcher("archived", &threads, &notes, &[], &[], &[]),
             [items[1].clone()],
             "the archived state stays searchable"
         );
         assert!(
-            launcher("raba", &threads, &notes, &[], &[]).contains(&LaunchItem::Command(
+            launcher("raba", &threads, &notes, &[], &[], &[]).contains(&LaunchItem::Command(
                 Command::Theme(Appearance::Legacy(ThemeId::Raba))
             ))
         );
         // The primary System/Light/Dark commands are reachable by name.
         assert!(
-            launcher("system", &threads, &notes, &[], &[])
+            launcher("system", &threads, &notes, &[], &[], &[])
                 .contains(&LaunchItem::Command(Command::Theme(Appearance::System)))
         );
-        let empty = launcher("", &threads, &notes, &[], &[]);
+        let empty = launcher("", &threads, &notes, &[], &[], &[]);
         assert!(
             !empty
                 .iter()
@@ -1720,7 +1771,7 @@ mod tests {
             hit("m1", "Berth survey reply draft 1.4 m", false),
             hit("m2", "Survey reply, kept", true),
         ];
-        let items = launcher("berth", &[], &notes, &[], &messages);
+        let items = launcher("berth", &[], &notes, &[], &[], &messages);
         let groups: Vec<_> = items.iter().map(LaunchItem::group).collect();
         assert_eq!(groups, ["Articles", "In chat history", "In chat history"]);
         assert_eq!(
@@ -1743,18 +1794,18 @@ mod tests {
         ));
         // Without a search answer nothing is invented.
         assert!(
-            launcher("berth", &[], &[], &[], &[]).is_empty(),
+            launcher("berth", &[], &[], &[], &[], &[]).is_empty(),
             "no label matches and no Messages"
         );
         // A word that is a command and also in saved chat text (the theme
         // names are everyday Estonian words): the command keeps its row
         // when the search answers, so ↵ and the selection never move to a
         // Message that arrived later.
-        let before = launcher("raba", &[], &notes, &[], &[]);
+        let before = launcher("raba", &[], &notes, &[], &[], &[]);
         let theme = LaunchItem::Command(Command::Theme(Appearance::Legacy(ThemeId::Raba)));
         assert_eq!(before.first(), Some(&theme));
         let raba = [hit("m3", "Raba walk on Saturday", false)];
-        let after = launcher("raba", &[], &notes, &[], &raba);
+        let after = launcher("raba", &[], &notes, &[], &[], &raba);
         assert_eq!(after[..before.len()], before[..], "earlier rows stay put");
         assert_eq!(after.first(), Some(&theme));
         let groups: Vec<_> = after.iter().map(LaunchItem::group).collect();
@@ -1763,6 +1814,49 @@ mod tests {
             after.last(),
             Some(LaunchItem::Message { message, .. }) if message == "m3"
         ));
+    }
+
+    /// A word only in a note's text finds the note, once, after the label
+    /// matches; a note already listed by title and a non-current note are
+    /// not repeated or invented.
+    #[test]
+    fn launcher_lists_notes_matched_only_by_their_text() {
+        let records = vec![
+            note("alpha", "Atomic Alpha", false),
+            note("lamp", "Lamp decision", false),
+        ];
+        let notes = note_rows(&records, &Activity::default());
+        let hit = |id: &str, snippet: &str| -> SearchHit {
+            serde_json::from_value(serde_json::json!({
+                "note": id, "version": 1, "title": "", "start": 0, "end": 1,
+                "quote": "quote", "snippet": snippet,
+            }))
+            .unwrap()
+        };
+        let passages = [
+            hit("lamp", "Use violet lamps."),
+            hit("alpha", "The lamp is\nblue."),
+            hit("alpha", "A second lamp passage."),
+            hit("candidate", "Never listed."),
+        ];
+        let before = launcher("lamp", &[], &notes, &[], &[], &[]);
+        let items = launcher("lamp", &[], &notes, &[], &passages, &[]);
+        assert_eq!(items[..before.len()], before[..], "earlier rows stay put");
+        let found: Vec<_> = items[before.len()..].to_vec();
+        assert_eq!(
+            found,
+            [LaunchItem::Passage {
+                id: "alpha".into(),
+                title: "Atomic Alpha".into(),
+                file: false,
+                snippet: "The lamp is blue.".into(),
+            }]
+        );
+        assert_eq!(found[0].group(), "In document text");
+        assert_eq!(
+            found[0].accessible_label(),
+            "Article: Atomic Alpha · text matches: The lamp is blue."
+        );
     }
 
     #[test]
@@ -1794,7 +1888,7 @@ mod tests {
         assert!(labels.iter().any(|label| label == "Show or hide outline"));
         assert_eq!(Command::Outline.keystroke(), None);
         assert_eq!(
-            launcher("projects", &[], &[], &[], &[]),
+            launcher("projects", &[], &[], &[], &[], &[]),
             [LaunchItem::Command(Command::OpenTile(TileKind::Projects))]
         );
     }
@@ -1808,7 +1902,7 @@ mod tests {
             project_title: "Harbor expansion".into(),
             shared: false,
         };
-        let items = launcher("budget", &[], &[], std::slice::from_ref(&budget), &[]);
+        let items = launcher("budget", &[], &[], std::slice::from_ref(&budget), &[], &[]);
         assert_eq!(items, std::slice::from_ref(&budget));
         assert_eq!(items[0].group(), "This project");
         assert_eq!(
@@ -1832,9 +1926,9 @@ mod tests {
             "Project document: Expansion budget · in Harbor expansion and other projects, not in Library",
             "a document linked into another project never claims exclusivity"
         );
-        assert!(launcher("tides", &[], &[], std::slice::from_ref(&budget), &[]).is_empty());
+        assert!(launcher("tides", &[], &[], std::slice::from_ref(&budget), &[], &[]).is_empty());
         assert!(
-            launcher("harbor", &[], &[], &[budget], &[]).is_empty(),
+            launcher("harbor", &[], &[], &[budget], &[], &[]).is_empty(),
             "matched by its own title, not its project's"
         );
     }
@@ -1848,7 +1942,7 @@ mod tests {
         let activity = Activity::default();
         let titles = |records: &[Record]| {
             let notes = note_rows(records, &activity);
-            launcher("berth", &[], &notes, &[], &[])
+            launcher("berth", &[], &notes, &[], &[], &[])
                 .iter()
                 .map(LaunchItem::label)
                 .collect::<Vec<_>>()
