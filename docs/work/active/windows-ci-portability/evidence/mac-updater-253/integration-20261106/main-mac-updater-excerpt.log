@@ -1,0 +1,45 @@
+2026-11-06T19:26:26.3730170Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +28051188f7d20a817202ddf098dff5dc2f07e653:refs/remotes/origin/main
+2026-11-06T19:26:30.7431470Z  * [new ref]         28051188f7d20a817202ddf098dff5dc2f07e653 -> origin/main
+2026-11-06T19:26:30.7768300Z 28051188f7d20a817202ddf098dff5dc2f07e653
+2026-11-06T19:26:32.3028800Z 28051188f7d20a817202ddf098dff5dc2f07e653
+2026-11-06T19:28:49.5755420Z ##[group]Run python3 -m unittest scripts.tests.test_macos_packaging scripts.tests.test_macos_updater -v
+2026-11-06T19:28:49.5756170Z [36;1mpython3 -m unittest scripts.tests.test_macos_packaging scripts.tests.test_macos_updater -v[0m
+2026-11-06T19:28:49.5837160Z shell: /bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-06T19:28:49.5837610Z env:
+2026-11-06T19:28:49.5837920Z   CARGO_TERM_COLOR: always
+2026-11-06T19:28:49.5838200Z   CARGO_INCREMENTAL: 0
+2026-11-06T19:28:49.5838540Z   RUST_BACKTRACE: 1
+2026-11-06T19:28:49.5838890Z   BRN_NATIVE_MODEL_DIR: 
+2026-11-06T19:28:49.5839130Z   CACHE_ON_FAILURE: true
+2026-11-06T19:28:49.5839490Z   TMPDIR: /Users/runner/work/_temp/brn-ci-tests.zgNnlL
+2026-11-06T19:28:49.5839970Z ##[endgroup]
+2026-11-06T19:28:50.1837170Z test_either_missing_helper_refuses_before_creating_output (scripts.tests.test_macos_packaging.LauncherTests.test_either_missing_helper_refuses_before_creating_output) ... ok
+2026-11-06T19:28:50.4122130Z test_explicit_launcher_existing_contract (scripts.tests.test_macos_packaging.LauncherTests.test_explicit_launcher_existing_contract) ... ok
+2026-11-06T19:28:50.5143650Z test_invalid_input_and_occupied_output_refuse (scripts.tests.test_macos_packaging.LauncherTests.test_invalid_input_and_occupied_output_refuse) ... ok
+2026-11-06T19:28:50.6051770Z test_missing_bundled_helper_and_failure_are_visible (scripts.tests.test_macos_packaging.LauncherTests.test_missing_bundled_helper_and_failure_are_visible) ... ok
+2026-11-06T19:28:50.7738050Z test_relocation_and_upgrade_keep_recipient_workspace (scripts.tests.test_macos_packaging.LauncherTests.test_relocation_and_upgrade_keep_recipient_workspace) ... ok
+2026-11-06T19:28:55.3843710Z test_actual_macho_signing_extraction_manifest_and_collision (scripts.tests.test_macos_packaging.NativePackageTests.test_actual_macho_signing_extraction_manifest_and_collision) ... ok
+2026-11-06T19:28:58.6816050Z test_bad_downloads_keep_current_app (scripts.tests.test_macos_updater.UpdaterTests.test_bad_downloads_keep_current_app) ... ok
+2026-11-06T19:28:59.1133710Z test_corrupt_zip_with_valid_checksum_refuses (scripts.tests.test_macos_updater.UpdaterTests.test_corrupt_zip_with_valid_checksum_refuses) ... ok
+2026-11-06T19:29:00.2177040Z test_external_library_inventory_refuses (scripts.tests.test_macos_updater.UpdaterTests.test_external_library_inventory_refuses) ... ok
+2026-11-06T19:29:01.6898560Z test_failed_replacement_restores_old_immediately (scripts.tests.test_macos_updater.UpdaterTests.test_failed_replacement_restores_old_immediately) ... ok
+2026-11-06T19:29:02.1942090Z test_interrupted_download_and_concurrent_attempt (scripts.tests.test_macos_updater.UpdaterTests.test_interrupted_download_and_concurrent_attempt) ... ok
+2026-11-06T19:29:02.2471190Z test_launcher_refuses_during_update (scripts.tests.test_macos_updater.UpdaterTests.test_launcher_refuses_during_update) ... ok
+2026-11-06T19:29:02.2881260Z test_nonwritable_folder (scripts.tests.test_macos_updater.UpdaterTests.test_nonwritable_folder) ... ok
+2026-11-06T19:29:02.6884400Z test_recovery_pid_only_sigkill_retains_worker_guard (scripts.tests.test_macos_updater.UpdaterTests.test_recovery_pid_only_sigkill_retains_worker_guard) ... ok
+2026-11-06T19:29:02.9124070Z test_recovery_sigkill_after_claim_can_retry (scripts.tests.test_macos_updater.UpdaterTests.test_recovery_sigkill_after_claim_can_retry) ... ok
+2026-11-06T19:29:03.2511670Z test_recovery_sigkill_after_restore_can_retry (scripts.tests.test_macos_updater.UpdaterTests.test_recovery_sigkill_after_restore_can_retry) ... ok
+2026-11-06T19:29:03.6166520Z test_recovery_sigkill_before_unlock_can_retry (scripts.tests.test_macos_updater.UpdaterTests.test_recovery_sigkill_before_unlock_can_retry) ... ok
+2026-11-06T19:29:03.8603950Z test_running_app_is_not_terminated (scripts.tests.test_macos_updater.UpdaterTests.test_running_app_is_not_terminated) ... ok
+2026-11-06T19:29:05.2680460Z test_sigkill_after_install_retains_new_and_backup (scripts.tests.test_macos_updater.UpdaterTests.test_sigkill_after_install_retains_new_and_backup) ... ok
+2026-11-06T19:29:06.7829980Z test_sigkill_between_renames_restores_old (scripts.tests.test_macos_updater.UpdaterTests.test_sigkill_between_renames_restores_old) ... ok
+2026-11-06T19:29:07.9196030Z test_traversal_and_symlink_archive_entries_refuse_before_extraction (scripts.tests.test_macos_updater.UpdaterTests.test_traversal_and_symlink_archive_entries_refuse_before_extraction) ... ok
+2026-11-06T19:29:08.6293730Z test_unsupported_os_and_architecture (scripts.tests.test_macos_updater.UpdaterTests.test_unsupported_os_and_architecture) ... ok
+2026-11-06T19:29:09.9893800Z test_update_without_developer_tools (scripts.tests.test_macos_updater.UpdaterTests.test_update_without_developer_tools) ... ok
+2026-11-06T19:29:11.2537400Z test_verified_replacement_and_backup (scripts.tests.test_macos_updater.UpdaterTests.test_verified_replacement_and_backup) ... ok
+2026-11-06T19:29:13.9583930Z test_wrong_bundle_or_tampered_signed_app_refuses (scripts.tests.test_macos_updater.UpdaterTests.test_wrong_bundle_or_tampered_signed_app_refuses) ... ok
+2026-11-06T19:29:13.9622710Z 
+2026-11-06T19:29:13.9623090Z ----------------------------------------------------------------------
+2026-11-06T19:29:13.9623750Z Ran 25 tests in 23.799s
+2026-11-06T19:29:13.9624210Z 
+2026-11-06T19:29:13.9625830Z OK

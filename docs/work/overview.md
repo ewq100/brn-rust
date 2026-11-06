@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Finish Mac alpha package/update acceptance after updater258 merge and A response-limit hardening264.
-**Owner attention:** Updater258 merged28051188 with all7 refreshed PR checks. Resulting-main verification running. Final package awaits A264 merged SHA/build slot; native clean profile and release-manifest approval remain separate.
+**Owner attention:** Updater258 merged28051188; all7 refreshed PR lanes and all4 required resulting-main contexts pass. Three inherited optional Windows failures stay visible. Final package awaits A264 merged source/build slot; native clean profile and release-manifest approval remain separate.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -74,9 +74,9 @@ Gates:
 ### Implement and qualify the versioned Mac updater
 
 Task ID: `mac-updater-253`
-Owner: Agent B · State: **active** · Last observed: 2026-11-06T21:29:20.771636+02:00
-Activity: PR258 merged normally as28051188f7d20a817202ddf098dff5dc2f07e653; merged tree exactly matches reviewed0438bd60. All7 refreshed PR lanes pass; independent full integration/security clear. Codex code clean; separate security receipt explicitly reports no issues on0438bd60. Private full report login unavailable/not inspected; additional independent full-task security review clear, no waiver inferred. A264 now supplies response-limit hardening candidate; not selected as final until merged.
-Next: Finish28051188 main checks42279604581; preserve informational Windows failures. Await A264 normal merge/selected SHA and heavy-build slot. Merge that agreed main into this acceptance branch, build native-ui arm64/macOS15+ desktop/CLI plus verified existing helpers, record exact package receipts; then one native session with A and authority-approved published A/B stock HTTPS witness.
+Owner: Agent B · State: **active** · Last observed: 2026-11-06T19:59:32.568699+00:00
+Activity: PR258 merged normally as28051188f7d20a817202ddf098dff5dc2f07e653; merged tree exactly matches reviewed0438bd60. All7 refreshed PR lanes and all4 required resulting-main contexts pass; independent full integration/security clear. Codex code clean; separate security receipt explicitly reports no issues on0438bd60. Private full report login unavailable/not inspected; additional independent full-task security review clear, no waiver inferred. A264 now supplies response-limit hardening candidate; not selected as final until merged.
+Next: Updater source/main checks complete; preserve three informational Windows failures. Await A264 normal merge/selected SHA and heavy-build slot. Merge that agreed main into this acceptance branch, build native-ui arm64/macOS15+ desktop/CLI plus verified existing helpers, record exact package receipts; then one native session with A and authority-approved published A/B stock HTTPS witness.
 Resource waits: A264 selected merged source and heavy-build slot not yet handed off.; Mac mini last observed locked; clean-profile normal Gatekeeper and tester-owned Copilot login needed after package ready.; Owner release-manifest approval/publication of command-enabled A/B needed for real stock HTTPS; legacy previews lack updater.
 
 <details>
@@ -85,8 +85,8 @@ Resource waits: A264 selected merged source and heavy-build slot not yet handed 
 Gates:
 
 - **implementation:** Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.
-- **checks:** Refreshed combination:349passed+11skipped=360local tooling,fmt/syntax/overview/links clean. All7 hosted PR lanes pass. Current Codex code clean; separate automated security receipt explicitly reports no issues on0438bd60. Full-detail report account login unavailable/not inspected; additional independent full-task security review clear; workflow does not itself grant a fallback waiver. Prior source-bound local transport-substituted A/B and Linux ETXTBSY evidence retained. Resulting-main Ubuntu Core/CLI and both required Mac native lanes passed; Mac Core/CLI still running. Known optional Windows composer failure remains visible.
-- **integration:** SATISFIED updater source integration: normal merge28051188, tree identical to reviewed0438bd60, all7PR lanes pass in42276377509. Resulting-main42279604581 in progress; no publication.
+- **checks:** Refreshed combination:349passed+11skipped=360local tooling,fmt/syntax/overview/links clean. All7 hosted PR lanes pass. Current Codex code clean; separate automated security receipt explicitly reports no issues on0438bd60. Full-detail report account login unavailable/not inspected; additional independent full-task security review clear; workflow does not itself grant a fallback waiver. Prior source-bound local transport-substituted A/B and Linux ETXTBSY evidence retained. All4 required resulting-main contexts passed in42279604581, including25 Mac packaging/updater cases and the original Ubuntu fixture test. All3 optional Windows lanes fail in unchanged composer/skills paths, retained visibly.
+- **integration:** SATISFIED updater source integration: normal merge28051188, tree identical to reviewed0438bd60, all7PR lanes pass in42276377509. All4 required resulting-main42279604581 contexts pass; overall run fails only3 inherited optional Windows lanes; no publication.
 - **native:** PENDING: last observed locked. Requires final package after264 plus one unlocked clean disposable-profile session with A for normal per-app Gatekeeper approval, launch/update/reopen, synthetic data/settings and Copilot continuity/reconnect. Headless receipts are not native acceptance.
 - **owner acceptance:** PENDING: installed final package/Copilot/native owner use before invited distribution; no approved command-enabled A/B published yet.
 
@@ -117,4 +117,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
 
-Local page reflects the last saved observations in this record (2026-11-06T21:29:20.771636+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T19:59:32.568699+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

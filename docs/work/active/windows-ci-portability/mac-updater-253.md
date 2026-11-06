@@ -8,17 +8,21 @@ Updater PR: [#258](https://github.com/ewq100/brn-rust/pull/258), normally merged
 All seven [refreshed PR lanes](https://github.com/ewq100/brn-rust/actions/runs/42276377509)
 passed on `0438bd603a86b48d4956195b89aea0fb54e648d8`. Normal merge
 `28051188` has exactly that qualified tree. [Resulting-main checks](https://github.com/ewq100/brn-rust/actions/runs/42279604581)
-have passed Ubuntu Core/CLI and both required Mac native lanes; Mac Core/CLI is
-still running at this checkpoint. Inherited informational Windows failures
-remain visible. Fresh independent full integration/security review found no
+passed all four required contexts. The overall run failed only its three
+informational Windows lanes: inherited composer name-resolution errors and
+skills.rs dead-code Clippy errors, in unchanged files. These remain visible.
+[Captured current receipts](evidence/mac-updater-253/integration-20261106/README.md)
+include the main-run25 packaging/updater checks and the originally failing
+Ubuntu fixture test passing. Fresh independent full integration/security review found no
 findings, with source/mode/deletion preservation and all evidence hashes verified.
 Codex code completed cleanly on0438bd60; its separate automated security receipt
 explicitly reports no issues on that same head. The full-detail Security Report
 requires unavailable browser account login; its contents were not inspected.
 The independent full-task security review is additional evidence. The workflow
 requires any authorized fallback to be recorded; it does not itself grant a
-waiver. The current explicit no-issue receipt establishes automated completion
-and findings coverage; private full-detail report access remains unavailable.
+waiver. The current explicit no-issue receipt establishes current-commit automated
+completion and its public findings summary; private full-detail report access
+remains unavailable.
 
 A's [response-limit PR264](https://github.com/ewq100/brn-rust/pull/264) is now open.
 Final package selection waits for its normal merge and A's selected SHA/build slot.
@@ -54,8 +58,9 @@ B owns PR follow-through and resulting-main verification. One fresh independent
 integration/security review covers this combined candidate; retain the prior
 whole-updater review only for verified unchanged source. Request current-head
 Codex code/security review and inspect actual reviewed identities/reports. If
-current security reporting remains unavailable, name it and record the workflow's
-authorized independent fallback without claiming an automated-security pass.
+current security reporting remains unavailable, name the missing evidence and
+record only an actually authorized fallback; do not infer a waiver from workflow
+text or claim an automated-security pass without its current receipt.
 
 The final release package waits for A's response-limit hardening and agreed
 integrated SHA. Build-slot coordination and the combined native-session request
