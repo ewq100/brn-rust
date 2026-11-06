@@ -4,7 +4,7 @@ Open the [development overview](work/overview.md) for current work, next actions
 
 Current assignment: [Windows CI compatibility and normal integration](work/active/windows-ci-portability/record.json), with [the initial reviewed boundaries](work/active/windows-ci-portability/handoff.md) and [hosted retry evidence](work/active/windows-ci-portability/retry-20261104.md). The owner has authorized continuing through the remaining failures and merging through the normal checked PR path. Current main includes PR244 and PR246 through `e749a83e`; that source is integrated into the Windows candidate. Exact-head Windows verification and resulting-main verification are separate gates. The generated overview records observed activity rather than live job state.
 
-Mac alpha runtime (#253): the [Rig 0.46 upgrade record](work/active/rig046-upgrade/README.md) holds versions, runtime qualification, both reuse-pilot deferrals and the [focused survey](work/active/rig046-upgrade/survey.md). Copilot chat, web search and Luna refinement (#252) follow in a separate PR on that runtime.
+Mac alpha runtime (#253): the [Rig 0.46 upgrade record](work/active/rig046-upgrade/README.md) holds versions, runtime qualification, both reuse-pilot deferrals and the [focused survey](work/active/rig046-upgrade/survey.md). Copilot chat, web search and Luna refinement (#252) are recorded in the [Copilot record](work/active/copilot-252/README.md), with native and owner acceptance gaps listed there.
 
 The [subscription search/Mac acceptance record](work/active/subscription-search-mac-acceptance/record.json) is retained as earlier source-bound evidence. Its pre-merge labels are historical; PR244 is now merged. Live allocations remain closed and native acceptance gaps remain separate.
 

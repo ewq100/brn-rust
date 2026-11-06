@@ -1,6 +1,7 @@
 //! Opt-in, synthetic qualification of the authenticated subscription routes.
 
 use crate::auth::OwnedClient;
+use crate::copilot_search::citation_url;
 use crate::error::map_provider;
 use crate::{AiError, AiErrorKind, Provider, ProviderClient, Selection};
 use base64::Engine as _;
@@ -11,7 +12,6 @@ use rig::completion::{
 };
 use rig::message::{ImageDetail, ImageMediaType, Text, ToolCall, ToolResultContent, UserContent};
 use rig::providers::copilot;
-use rig::rig_reqwest::reqwest::Url;
 use rig::streaming::{Item, StreamEvent};
 use rig::{DynModel, operation::Completion};
 use serde::{Deserialize, Serialize};
@@ -20,6 +20,7 @@ use tokio_util::sync::CancellationToken;
 
 const TEXT_BYTES: usize = 64 * 1024;
 const CITATIONS: usize = 16;
+#[cfg(test)]
 const URL_BYTES: usize = 2048;
 const TITLE_BYTES: usize = 256;
 const NOTE_PATH: &str = "probe.md";
@@ -436,42 +437,6 @@ fn record_citations(report: &mut ProbeReport, text: &Text) {
         } else if report.citations.len() < CITATIONS {
             report.citations.push(ProbeCitation { url, title });
         }
-    }
-}
-
-fn citation_url(value: &str) -> Option<String> {
-    if value.len() > URL_BYTES
-        || value.trim() != value
-        || value.chars().any(char::is_control)
-        || value.as_bytes().windows(3).any(|part| {
-            part[0] == b'%'
-                && hex(part[1])
-                    .zip(hex(part[2]))
-                    .is_some_and(|(high, low)| (high * 16 + low).is_ascii_control())
-        })
-    {
-        return None;
-    }
-    let url = Url::parse(value).ok()?;
-    let authority = value.split_once("://")?.1.split(['/', '?', '#']).next()?;
-    if !matches!(url.scheme(), "http" | "https")
-        || url.host_str().is_none()
-        || !url.username().is_empty()
-        || url.password().is_some()
-        || authority.contains('@')
-    {
-        return None;
-    }
-    let url = url.to_string();
-    (url.len() <= URL_BYTES).then_some(url)
-}
-
-fn hex(byte: u8) -> Option<u8> {
-    match byte {
-        b'0'..=b'9' => Some(byte - b'0'),
-        b'a'..=b'f' => Some(byte - b'a' + 10),
-        b'A'..=b'F' => Some(byte - b'A' + 10),
-        _ => None,
     }
 }
 

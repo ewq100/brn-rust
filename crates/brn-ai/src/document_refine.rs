@@ -1,5 +1,8 @@
 //! Optional source-bound formatting; no source re-extraction or write authority.
-use crate::conversion::{ConversionFailure, ConversionProgress, conversion_response};
+use crate::Provider;
+use crate::conversion::{
+    ConversionAccount, ConversionFailure, ConversionProgress, conversion_response,
+};
 use brn_threads_core::{DocumentConversionSettings, DocumentConverter};
 use brn_threads_intake::{
     ConversionRequest, ConversionResult, Converter, CoverageGap, CoverageStatus, DocumentHelpers,
@@ -8,7 +11,7 @@ use brn_threads_intake::{
 use rig::{completion::Message, http_client::DynHttpClient};
 use serde::{Deserialize, Serialize};
 use std::{
-    path::{Path, PathBuf},
+    path::PathBuf,
     sync::{
         Arc,
         atomic::{AtomicBool, Ordering},
@@ -30,6 +33,8 @@ pub struct DocumentConversionJob {
     pub intent: ImportIntent,
     pub bytes: Vec<u8>,
     pub source_reference: String,
+    /// The saved chat provider; refinement uses only that provider's sign-in.
+    pub provider: Option<Provider>,
     pub auth_file: Option<PathBuf>,
     pub credentials_dir: Option<PathBuf>,
 }
@@ -101,6 +106,15 @@ async fn convert_job(
     timeout: Duration,
 ) -> Result<ConversionResult, ConversionFailure> {
     interrupted(&cancel, &conversion_cancel)?;
+    // The refining account is fixed when the job starts. No Auth construction
+    // or credential inspection occurs when refinement is Off.
+    let account = job.settings.ai.then(|| {
+        ConversionAccount::capture(
+            job.provider,
+            job.auth_file.as_deref(),
+            job.credentials_dir.as_deref(),
+        )
+    });
     let observed = cancel.clone();
     let flag = conversion_cancel.clone();
     let _watcher = Watcher(tokio::spawn(async move {
@@ -133,20 +147,11 @@ async fn convert_job(
     .map_err(|_| ConversionFailure::Worker)?;
     let converted = converted?;
     interrupted(&cancel, &conversion_cancel)?;
-    // No Auth construction or credential inspection occurs on the Off branch.
-    if !job.settings.ai {
+    let Some(account) = account else {
         return Ok(converted);
-    }
+    };
     emit(ConversionProgress::Converting);
-    let result = refine(
-        converted,
-        job.auth_file.as_deref(),
-        job.credentials_dir.as_deref(),
-        cancel.clone(),
-        transport,
-        timeout,
-    )
-    .await?;
+    let result = refine(converted, &account, cancel.clone(), transport, timeout).await?;
     if serde_json::to_vec(&result)
         .map_err(|_| ConversionFailure::InvalidCandidate)?
         .len()
@@ -160,16 +165,14 @@ async fn convert_job(
 }
 pub async fn refine_document(
     converted: ConversionResult,
-    auth_file: Option<&Path>,
-    credentials_dir: Option<&Path>,
+    account: &ConversionAccount,
     cancel: CancellationToken,
 ) -> Result<ConversionResult, ConversionFailure> {
-    refine(converted, auth_file, credentials_dir, cancel, None, TIMEOUT).await
+    refine(converted, account, cancel, None, TIMEOUT).await
 }
 async fn refine(
     mut converted: ConversionResult,
-    auth_file: Option<&Path>,
-    credentials_dir: Option<&Path>,
+    account: &ConversionAccount,
     cancel: CancellationToken,
     transport: Option<DynHttpClient>,
     timeout: Duration,
@@ -195,7 +198,7 @@ async fn refine(
     let response: Refinement = conversion_response(
         Message::user(prompt),
         PREAMBLE,
-        (auth_file, credentials_dir),
+        account,
         cancel.clone(),
         transport,
         timeout,

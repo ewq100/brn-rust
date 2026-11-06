@@ -83,6 +83,11 @@ pub enum SearchError {
     EmptyResults,
     ProviderFailed,
     ProviderWarning(PrivateWarning),
+    CopilotNoLogin,
+    CopilotAccountChanged,
+    CopilotModelCannotSearch,
+    CopilotSearchDenied,
+    CopilotModelUnavailable,
 }
 impl SearchError {
     /// Sensitive, untrusted text. Only an explicitly requested private diagnostic
@@ -122,13 +127,18 @@ impl fmt::Display for SearchError {
             Self::AllowanceLimited => "Search stopped because the subscription reported a usage or spending limit. BRN will not purchase credits, consume a reset or switch accounts.",
             Self::UnsupportedVersion => "This Codex App Server version is not qualified for isolated web search.",
             Self::CapabilityBoundaryUnverified => "BRN could not verify the isolated search capability boundary; no search was sent.",
-            Self::Transport => "The Codex App Server could not be started or disconnected.",
-            Self::MalformedResponse => "The Codex App Server returned an invalid or oversized response.",
+            Self::Transport => "The search provider could not be reached, or the Codex App Server could not be started or disconnected.",
+            Self::MalformedResponse => "The search provider returned an invalid or oversized response.",
             Self::UnsafeToolUse => "Search stopped because the provider requested an unavailable capability.",
             Self::UnexpectedNotification { .. } => unreachable!(),
             Self::EmptyResults => "The search did not return a cited answer with native source URLs.",
             Self::ProviderFailed => "The subscription provider could not complete the search.",
             Self::ProviderWarning(_) => "Web search stopped because the subscription provider reported a warning. Private diagnostics can retain its details.",
+            Self::CopilotNoLogin => "Connect GitHub Copilot in BRN before searching.",
+            Self::CopilotAccountChanged => "The signed-in Copilot account changed after this request started. BRN did not search with the other account; start the request again.",
+            Self::CopilotModelCannotSearch => "The selected Copilot model cannot search the web on Copilot. BRN will not switch models; choose a Copilot GPT model to search.",
+            Self::CopilotSearchDenied => "Copilot refused web search for this account; a subscription, permission or organisation policy may not allow it. BRN will not switch accounts or providers.",
+            Self::CopilotModelUnavailable => "The selected Copilot model is unavailable on this account. BRN will not switch models; choose another model from this account.",
         })
     }
 }
