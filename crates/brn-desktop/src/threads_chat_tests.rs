@@ -1411,6 +1411,67 @@ fn model_favorites_keep_their_provider_and_survive_a_reopened_workspace(cx: &mut
 }
 
 #[gpui_kit::test]
+fn keyboard_reasoning_applies_the_highlighted_model_with_its_level(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1280., 900., |_, _, _| {});
+    load_synthetic_catalogue(cx, &f);
+    click(cx, &f, "model-pill");
+    // Highlight Synthetic Mini, Tab to its reasoning and choose a level
+    // without first pressing Return on the model.
+    on_window(cx, &f, |window, cx| {
+        window.press("down", cx);
+        window.press("tab", cx);
+    });
+    cx.read(|cx| {
+        let picker = &f.view.read(cx).model_picker;
+        assert_eq!(picker.section, model_picker::PickerSection::Efforts);
+        assert_eq!(picker.index, 1);
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("model-effort-high").is_none());
+    });
+    on_window(cx, &f, |window, cx| window.press("enter", cx));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings.provider, "chatgpt");
+        assert_eq!(view.settings.model, "synthetic-mini");
+        assert_eq!(view.settings.effort, "medium");
+        assert!(!view.model_picker.open);
+    });
+}
+
+#[gpui_kit::test]
+fn a_favorite_the_loaded_catalogue_no_longer_offers_cannot_be_chosen(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1280., 900., |_, _, _| {});
+    load_synthetic_catalogue(cx, &f);
+    update(cx, &f, |view, _, _| {
+        view.model_picker.favorites = vec![("chatgpt".into(), "retired-model".into())];
+    });
+    let before = cx.read(|cx| f.view.read(cx).settings.model.clone());
+    click(cx, &f, "model-pill");
+    click(cx, &f, "model-provider-favorites");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "model-row-0"),
+            "ChatGPT · retired-model, not offered, favorite"
+        );
+        assert!(window.try_find("model-effort-low").is_none());
+    });
+    click(cx, &f, "model-row-0");
+    on_window(cx, &f, |window, cx| window.press("enter", cx));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings.model, before, "a stale favorite is not saved");
+        assert_eq!(
+            view.notice.text(),
+            "ChatGPT doesn't offer retired-model on this account."
+        );
+    });
+    // Its star still removes it.
+    click(cx, &f, "model-favorite-0");
+    cx.read(|cx| assert!(f.view.read(cx).model_picker.favorites.is_empty()));
+}
+
+#[gpui_kit::test]
 fn while_work_runs_send_reads_queue_at_a_wide_chat_and_replies_keep_the_measure(
     cx: &mut TestAppContext,
 ) {
@@ -2505,7 +2566,9 @@ fn allow_subscription_web(workspace: &mut Workspace) {
     settings.provider = "codex".into();
     settings.model = "gpt-6-sol".into();
     settings.effort = "medium".into();
-    settings.auth_file = Some("/synthetic/brn-test/auth.json".into());
+    // The managed login's path, computed only; no credential is read.
+    settings.auth_file =
+        brn_ai::subscription_search::managed_auth_file().map(|path| path.display().to_string());
     workspace.configure(settings).unwrap();
 }
 
@@ -2575,6 +2638,20 @@ fn allow_web_access_is_saved_per_chat_and_for_the_next_new_chat(cx: &mut TestApp
             WebAccessState::Off
         );
         assert_eq!(view.web_access(), WebAccessState::Allowed, "consumed once");
+    });
+
+    // Sending to an existing chat leaves a pending new-chat Off untouched.
+    update(cx, &f, |view, window, cx| {
+        view.toggle_web_access(cx);
+        assert_eq!(view.web_access(), WebAccessState::Off);
+        view.open_thread(&other, window, cx);
+        assert_eq!(view.composer_chat("Queued elsewhere").unwrap(), other);
+        assert_eq!(
+            view.workspace.chat_web_access(Some(&other)).unwrap(),
+            WebAccessState::Allowed
+        );
+        view.new_thread(window, cx);
+        assert_eq!(view.web_access(), WebAccessState::Off, "still pending");
     });
 }
 

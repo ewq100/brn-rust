@@ -8,6 +8,7 @@ use super::shell::{one_line, provider_key};
 use super::*;
 use brn_ai::{ModelOption, ReasoningEffort};
 use components::tokens;
+use gpui_kit::component::input;
 use gpui_kit::component::{Icon, Sizable, Size};
 use gpui_kit::{MouseButton, Point};
 
@@ -225,11 +226,17 @@ pub(super) struct PickerRow {
     pub model: String,
     pub label: String,
     pub option: Option<ModelOption>,
+    /// The provider's loaded catalogue does not offer this model (a stale
+    /// favorite): kept so its star can be removed, but not selectable.
+    pub missing: bool,
     pub favorite: bool,
     pub current: bool,
 }
 
 impl PickerRow {
+    pub(super) fn selectable(&self) -> bool {
+        !self.missing && selectable(self.option.as_ref())
+    }
     /// The accessible name keeps provider and model identity together.
     pub(super) fn accessible_label(&self) -> String {
         let mut label = format!("{} · {}", provider_name(self.provider), self.label);
@@ -238,6 +245,9 @@ impl PickerRow {
         }
         if self.current {
             label.push_str(", current");
+        }
+        if self.missing {
+            label.push_str(", not offered");
         }
         if self.favorite {
             label.push_str(", favorite");
@@ -273,6 +283,7 @@ pub(super) fn picker_rows(
             model: model.to_owned(),
             label,
             option: option.cloned(),
+            missing: option.is_none() && matches!(picker.catalogue(provider), Catalogue::Loaded(_)),
             favorite: picker.is_favorite(provider, model),
             current: provider == current_provider && model == current_model,
         }
@@ -339,6 +350,13 @@ impl ThreadsUi {
         let model = self.settings.model.clone();
         let focus = self.picker_focus_row(cx);
         match focus {
+            Some(row) if !row.current && row.missing => (
+                Efforts {
+                    levels: Vec::new(),
+                    reported: true,
+                },
+                self.settings.effort.clone(),
+            ),
             Some(row) if !row.current => (
                 supported_efforts(row.option.as_ref()),
                 effort_after_switch(&self.settings.effort, row.option.as_ref()),
@@ -494,6 +512,15 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        if row.missing {
+            self.warn(format!(
+                "{} doesn't offer {} on this account.",
+                provider_name(row.provider),
+                row.label
+            ));
+            cx.notify();
+            return;
+        }
         if !selectable(row.option.as_ref()) {
             self.warn(format!(
                 "{} offers no reasoning level BRN can request.",
@@ -520,6 +547,9 @@ impl ThreadsUi {
         self.sync_effort_index(cx);
         cx.notify();
     }
+    /// Choose a reasoning level for the model the reasoning column
+    /// describes: the highlighted model and the level in one Settings
+    /// change, then close.
     pub(super) fn choose_picker_effort(
         &mut self,
         effort: ReasoningEffort,
@@ -527,6 +557,13 @@ impl ThreadsUi {
         cx: &mut Context<Self>,
     ) {
         let mut settings = self.settings.clone();
+        if let Some(row) = self.picker_focus_row(cx).filter(|row| !row.current) {
+            if !row.selectable() {
+                return self.choose_picker_model(&row, window, cx);
+            }
+            settings.provider = row.provider.into();
+            settings.model = row.model;
+        }
         settings.effort = effort_name(effort).into();
         self.configure_explicit(settings, window, cx);
         self.close_model_picker(window, cx);
@@ -858,7 +895,7 @@ impl ThreadsUi {
         }
         for (index, row) in rows.iter().enumerate() {
             let selected = index == self.model_picker.index;
-            let disabled = busy || !selectable(row.option.as_ref());
+            let disabled = busy || !row.selectable();
             let show_provider = self.model_picker.tab == PickerTab::Favorites;
             let choose = row.clone();
             let provider = row.provider;
@@ -904,6 +941,15 @@ impl ThreadsUi {
                     )
                 })
                 .child(div().flex_1().min_w_0().truncate().child(row.label.clone()))
+                .when(row.missing, |line| {
+                    line.child(
+                        div()
+                            .flex_shrink_0()
+                            .text_size(SMALL_TEXT)
+                            .text_color(rgb(p.muted))
+                            .child("Not offered"),
+                    )
+                })
                 .when(row.label != row.model, |line| {
                     line.child(
                         div()
@@ -1000,17 +1046,18 @@ impl ThreadsUi {
                 .child(name)
                 .when(!busy, |row| {
                     row.on_click(cx.listener(move |this, _, window, cx| {
-                        let focus = this.picker_focus_row(cx);
-                        if let Some(row) = focus.filter(|row| !row.current) {
-                            this.choose_picker_model(&row, window, cx);
-                        }
                         this.choose_picker_effort(level, window, cx)
                     }))
                 })
                 .test_support(),
             );
         }
-        let note = if efforts.levels.is_empty() {
+        let note = if let Some(row) = focus.as_ref().filter(|row| row.missing) {
+            Some(format!(
+                "{} doesn't offer this model on this account.",
+                provider_name(row.provider)
+            ))
+        } else if efforts.levels.is_empty() {
             Some("No reasoning level BRN can request.".to_owned())
         } else if !efforts.reported {
             Some(match focus.as_ref().map(|row| row.provider) {
@@ -1101,15 +1148,23 @@ impl ThreadsUi {
                     .shadow_lg()
                     .text_color(rgb(p.ink))
                     .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
+                    // The search field binds Tab and Shift-Tab to indent
+                    // actions, which run before key-down listeners.
+                    .capture_action(cx.listener(|this, _: &input::IndentInline, _, cx| {
+                        cx.stop_propagation();
+                        this.cycle_picker_section(1, cx)
+                    }))
+                    .capture_action(cx.listener(|this, _: &input::OutdentInline, _, cx| {
+                        cx.stop_propagation();
+                        this.cycle_picker_section(-1, cx)
+                    }))
                     // The search field owns these keys; the picker claims them first.
                     .capture_key_down(cx.listener(
                         |this, event: &gpui_kit::KeyDownEvent, window, cx| {
-                            let shift = event.keystroke.modifiers.shift;
                             match event.keystroke.key.as_str() {
                                 "escape" => this.close_model_picker(window, cx),
                                 "down" => this.move_picker(1, cx),
                                 "up" => this.move_picker(-1, cx),
-                                "tab" => this.cycle_picker_section(if shift { -1 } else { 1 }, cx),
                                 "enter" => this.confirm_picker(window, cx),
                                 _ => return,
                             }

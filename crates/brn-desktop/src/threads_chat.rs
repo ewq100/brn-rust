@@ -349,20 +349,21 @@ impl ThreadsUi {
             )),
         }
     }
-    fn composer_chat(&mut self, prompt: &str) -> AppResult<String> {
-        match self.chat.clone() {
+    pub(super) fn composer_chat(&mut self, prompt: &str) -> AppResult<String> {
+        let chat = match self.chat.clone() {
             ChatTarget::Thread(id) => {
                 if self.thread_resolved(&id) {
                     return Err(AppError::Invalid(
                         "Unarchive this chat before sending".into(),
                     ));
                 }
-                Ok(id)
+                return Ok(id);
             }
             ChatTarget::NewForNote(note) => self.ensure_writing_thread(&note),
             ChatTarget::New => self.workspace.new_thread(&short(prompt)).map(|r| r.id),
-        }
-        .inspect(|chat| self.adopt_new_chat_web(chat))
+        };
+        // The pending new-chat choice belongs to the chat this send creates.
+        chat.inspect(|chat| self.adopt_new_chat_web(chat))
     }
     pub(super) fn enqueue_composer(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let prompt = self.composer.read(cx).value().to_string();

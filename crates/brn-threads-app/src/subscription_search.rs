@@ -3,7 +3,7 @@
 use crate::{AppError, RecordData, Workspace, WorkspaceSettings, resolve_run_selection};
 use brn_ai::{
     Provider, ReasoningEffort, Selection,
-    subscription_search::{Request, SearchError},
+    subscription_search::{Request, SearchError, check_auth_file},
     threads::{RunWebSearch, WebSearchCancel as CancellationToken, WebSearchFuture},
 };
 use std::{path::PathBuf, sync::Arc};
@@ -29,18 +29,16 @@ fn route(
         return Err(RouteError::Search(SearchError::UnsupportedProvider));
     }
     // Chat's credentials-folder route can select a different account. Never
-    // silently substitute the host's managed login for that saved selection.
-    if settings.auth_file.is_none() {
+    // silently substitute the host's managed login for that saved selection,
+    // and offer search only on the account path the adapter accepts.
+    let Some(auth_file) = settings.auth_file.as_deref().map(PathBuf::from) else {
         return Err(RouteError::Search(SearchError::UnsupportedAuthPath));
-    }
+    };
+    check_auth_file(&auth_file).map_err(RouteError::Search)?;
     let (selection, effort) =
         resolve_run_selection(settings, None).map_err(|e| RouteError::Selection(e.to_string()))?;
     debug_assert_eq!(selection.provider, Provider::Chatgpt);
-    Ok((
-        selection,
-        effort,
-        settings.auth_file.clone().map(Into::into),
-    ))
+    Ok((selection, effort, Some(auth_file)))
 }
 
 enum RouteError {
@@ -204,6 +202,16 @@ mod tests {
                 .display()
                 .to_string(),
         );
+        workspace.configure(settings.clone()).unwrap();
+        // Search runs only through the managed login's auth.json, so another
+        // account file is Unavailable before the tool is offered.
+        assert_eq!(
+            workspace.chat_web_access(Some(&alpha)).unwrap(),
+            WebAccessState::Unavailable("Needs the managed Codex login".into())
+        );
+        assert!(workspace.web_searcher(&alpha, &settings).is_none());
+        settings.auth_file =
+            brn_ai::subscription_search::managed_auth_file().map(|path| path.display().to_string());
         workspace.configure(settings.clone()).unwrap();
 
         assert_eq!(

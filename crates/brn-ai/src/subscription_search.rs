@@ -154,6 +154,22 @@ fn check(cancel: &CancellationToken, deadline: Instant) -> Result<(), SearchErro
         Ok(())
     }
 }
+/// The managed Codex login's `auth.json`: `$CODEX_HOME/auth.json`, else
+/// `~/.codex/auth.json`. The path is computed, never read.
+pub fn managed_auth_file() -> Option<PathBuf> {
+    std::env::var_os("CODEX_HOME")
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|p| PathBuf::from(p).join(".codex")))
+        .map(|home| home.join("auth.json"))
+}
+/// Search runs only through the managed Codex login; any other account path
+/// is unsupported rather than substituted.
+pub fn check_auth_file(path: &Path) -> Result<(), SearchError> {
+    match managed_auth_file() {
+        Some(managed) if path.is_absolute() && path == managed => Ok(()),
+        _ => Err(SearchError::UnsupportedAuthPath),
+    }
+}
 fn run(
     request: Request,
     cancel: CancellationToken,
@@ -171,13 +187,7 @@ fn run(
         .validate()
         .map_err(|_| SearchError::InvalidModel)?;
     if let Some(path) = &request.auth_file {
-        let home = std::env::var_os("CODEX_HOME")
-            .map(PathBuf::from)
-            .or_else(|| std::env::var_os("HOME").map(|p| PathBuf::from(p).join(".codex")))
-            .ok_or(SearchError::UnsupportedAuthPath)?;
-        if !path.is_absolute() || path != &home.join("auth.json") {
-            return Err(SearchError::UnsupportedAuthPath);
-        }
+        check_auth_file(path)?;
     }
     let cwd = Scratch::new()?;
     let version = version(&cancel, deadline)?;
