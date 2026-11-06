@@ -33,7 +33,7 @@ Both model arms use the same binary and inputs. Only main model changes:
 Codex `gpt-6.1-sol` vs `gpt-6.1-terra`, medium, helpers off, AI conversion off.
 Common enforced HTTP model-attempt cap6/event; requested ask tool-round budget8
 is separate. Intake has no tool-round-budget flag; sent/observed rounds remain
-unset/unknown. Candidate command40s; timeout is censored latency at40s plus a
+unset/unknown. Candidate command60s; timeout is censored latency at60s plus a
 completion failure, never silently omitted. No priority service tier requested;
 report observed identity/settings or unknown.
 
@@ -79,8 +79,7 @@ No automatic resume/retry; each operation/root/identity is exclusive.
 
 Before each block require enough original remaining time for its frozen minimum,
 grading and30s cleanup; otherwise record not-run. These finite time boundaries
-can curtail worst-case work: Phase1 planned generation worst case56min before
-grading; Phase2 worst case96min before grading, beyond its90min cap. Report any
+can curtail worst-case work: Phase1 and Phase2 worst-case command totals exceed their phase caps. Report any
 curtailment; do not discard failures, extend time or claim complete confirmation.
 Prioritize protected confirmation over extra tuning. Genuine observed faster
 completion may fit; no worst-case completion guarantee is made.
@@ -183,3 +182,5 @@ Separate knowledge-improvement PR with actual focused change, measured keep/reje
 broader/fresh confirmation, preserved baseline/rejected attempts, full accounting.
 Finish applicable checks and bounded final Council evidence/code review. No merge,
 release/publication, app default change or inference to Copilot rollout.
+
+Pre-live final operational choice (before any D model results): common candidate command60s in both phases to avoid an artificial40s censoring floor. Phase/whole clocks and request allocations are unchanged; hard deadlines may curtail work. Freeze this choice with binary/settings/cases before dispatch.

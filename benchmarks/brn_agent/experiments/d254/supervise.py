@@ -157,7 +157,7 @@ def main(argv=None):
                 '--root', str(root), '--seeder', op['seeder'], '--cases', op['cases'],
                 '--repetitions', str(op['repetitions']), '--provider', 'Codex', '--effort', 'medium',
                 '--auth-file', str(args.account_file), '--model-call-limit', '6',
-                '--max-total-model-calls', str(op['max_calls']), '--timeout', '40']
+                '--max-total-model-calls', str(op['max_calls']), '--timeout', '60']
             for arm in op['arms']:
                 command += ['--arm', arm]
             for key, flag in [('stock_helper','--stock-helper'), ('brn_helper','--brn-helper')]:
