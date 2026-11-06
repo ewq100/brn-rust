@@ -275,6 +275,8 @@ mod tests {
         );
     }
 
+    // Copilot sign-in storage is Unix-only; Windows refuses it before any effect.
+    #[cfg(unix)]
     #[test]
     fn copilot_searches_only_with_the_chats_own_sign_in() {
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
@@ -299,7 +301,6 @@ mod tests {
         );
         let token = credentials.join("github-token");
         std::fs::write(&token, "synthetic-github-sign-in").unwrap();
-        #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
             std::fs::set_permissions(&token, std::fs::Permissions::from_mode(0o600)).unwrap();
@@ -331,6 +332,8 @@ mod tests {
         }
     }
 
+    // Copilot sign-in storage is Unix-only; Windows refuses it before any effect.
+    #[cfg(unix)]
     #[test]
     fn chat_web_access_is_per_chat_and_unavailable_routes_never_search() {
         let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
@@ -403,7 +406,6 @@ mod tests {
         assert!(workspace.web_searcher(&bravo, &copilot).is_none());
         let token = copilot_dir.join("github-token");
         std::fs::write(&token, "synthetic-github-sign-in").unwrap();
-        #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
             std::fs::set_permissions(&token, std::fs::Permissions::from_mode(0o600)).unwrap();

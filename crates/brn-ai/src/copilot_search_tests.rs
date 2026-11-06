@@ -45,7 +45,6 @@ fn account(token: &[u8]) -> (tempfile::TempDir, PathBuf) {
     Auth::open(&dir).unwrap();
     let path = dir.join("github-token");
     std::fs::write(&path, token).unwrap();
-    #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
         std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();

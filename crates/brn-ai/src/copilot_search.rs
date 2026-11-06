@@ -391,6 +391,7 @@ fn hex(byte: u8) -> Option<u8> {
     }
 }
 
-#[cfg(test)]
+// The fixtures need a signed-in credential folder, which is Unix-only.
+#[cfg(all(test, unix))]
 #[path = "copilot_search_tests.rs"]
 mod tests;

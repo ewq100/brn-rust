@@ -100,7 +100,8 @@ after the Council fixes. Council and hosted CI are recorded on PR #261.
 Council round 1 fixes: a missing start account now refuses instead of capturing later
 (`copilot_run_without_a_start_account_never_adopts_a_later_sign_in`, red without the fix);
 search bodies are bounded while received (`an_oversized_reply_is_refused_while_it_is_received`);
-the search tests compile on Windows; a credentials folder without a sign-in shows web
+the search tests that need a signed-in credential folder run on Unix only, because Windows
+credential storage refuses before any effect; a credentials folder without a sign-in shows web
 access Unavailable; 403 policy denial and unavailable models get their own messages
 (`policy_denial_and_unavailable_models_are_not_reported_as_sign_in`); more search calls than
 requested are refused (`more_searches_than_requested_are_refused`).
