@@ -1,0 +1,7 @@
+Native Steer recheck, build 055a4288, Light 1280x900, fresh synthetic data, Codex gpt-6.1-sol low.
+New chat -> "Write 30 short numbered tips for a fictional harbour festival. No tools or changes." -> Enter
+While streaming (tip 12): typed "Instead write just 3 tips about tide safety." -> pressed Steer (AX button "Steer").
+Stored owner messages in threads.sqlite3 for this chat (count by text):
+1  Write 30 short numbered tips for a fictional harbour festival. No tools or changes.
+1  Instead write just 3 tips about tide safety.
+Assistant messages: 2 (partial list stopped at tip 21; then 3 tide-safety tips).
