@@ -1,0 +1,13 @@
+{
+  "scope": "Packaging inventory preparation only; no compilation/native/update/publication run",
+  "production_base": "28051188f7d20a817202ddf098dff5dc2f07e653",
+  "release_candidate_selected": false,
+  "depends_on": "A264 selected merged source/build slot; revalidate inventory against final locks/graphs",
+  "offline_first_attempt": "Failed: missing cached rig0.46.0; pinned locked target fetch performed, identical offline cargo tree then passed",
+  "cargo_lock_sha256": "3122299c6b07dc65427f6ffba110f571e06ecc08fb8550df4648a08f3dd09959",
+  "desktop_native_ui_target_graph_sha256": "bc4901c9c3f538d91b616e8ad955e02845726c4aaf8d33fb13e7a1dc498f6d03",
+  "stock_helper_graph_sha256": "5756281c7a60b2173d0307253df30599b28d5e579dbd7953622a753f3d50a498",
+  "adapted_helper_graph_sha256": "763a015fc0f791fdd07c589ba777d66ac33abcd470d81e56e775afac8f7e564c",
+  "notices_index_sha256": "016d7a8d77c0ddc955e682e6eaeba0543b0bde28f8707fd39f6095fbe56c02f9",
+  "notice_file_count": 689
+}

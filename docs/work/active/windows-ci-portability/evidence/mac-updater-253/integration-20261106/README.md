@@ -50,3 +50,10 @@ independent behavioral review. The actual release manifest is unchanged.
 
 The raw Mac excerpt contains GitHub log whitespace; it is compressed unchanged
 so source diff whitespace checks remain clean. No log line was normalized.
+
+[Package inventory preparation](package-inventory-preparation.json) records the
+current main native-ui dependency graph, helper graphs and regenerated notices
+index. An initial offline graph failed because Rig0.46 was not cached; pinned
+locked target fetch supplied it, then the identical offline check passed.
+No compilation occurred. Revalidate these inputs against A's actual selected
+merged source before building; this is not a final package receipt.
