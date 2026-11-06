@@ -1,0 +1,11 @@
+{
+  "source_inputs": "standalone helper trees byte-identical from2ebcf4c7 to a921e325 per A; exact artifacts rehashed locally",
+  "stock": {
+    "path": "/private/tmp/brn-rig046-helpers/artifacts/brn-xberg-helper",
+    "sha256": "79739f93f9f329969724a4e379c3bbe6db4b03276583cd6469e13a1a2886ee10"
+  },
+  "adapted": {
+    "path": "/private/tmp/brn-rig046-helpers/artifacts/brn-xberg-helper-brn",
+    "sha256": "542b849c5395f105734c914fb51e81809acbf5ea6db43334cde2866650c580ed"
+  }
+}

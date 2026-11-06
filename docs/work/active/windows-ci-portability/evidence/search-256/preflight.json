@@ -1,0 +1,63 @@
+{
+  "observed_at": "2026-11-06T21:41:21.013147+00:00",
+  "baseline": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "files": {
+    "/Users/evokessler/Documents/Codex/brn-agent-e-256/reservations.jsonl": "654b0bd73f71b4783d6efd27afe1464c797407f0759ae5fa067ade7dfedf7fc1",
+    "/Users/evokessler/Documents/Codex/brn-shared-de-20261106/reservations.jsonl": "a43eeee1af62a8a114be0d1a15897c4928a82179a5e5e7173f0bcda7aca8c418",
+    "/Users/evokessler/Documents/Codex/brn-agent-e-256/screening.json": "276b15d2a6671f244b265c0f94f5125fe8cd78e151dc1cf67783bda9ab4b5520",
+    "/Users/evokessler/Documents/Codex/brn-agent-e-256/confirmation.json": "d1e706923b34ea68b19eac2bd4df8da6f9d24f5f40da8d5378b17115405439fa"
+  },
+  "BRN_provider_requests": 0,
+  "grader_provider_requests": 0,
+  "Council_requested_Codex_reservations": 12,
+  "Council_Codex_actual_requests": null,
+  "Council_all_actual_tokens": null,
+  "Kiro_failure": "Monthly usage limit;request fc1a3275-8479-45f5-b480-faebe2f93792;named Copilot Opus fallback completed",
+  "tests": {
+    "evaluator": {
+      "passed": 105
+    },
+    "AgentBench_before_additions": {
+      "run": 88,
+      "skipped": 11
+    },
+    "deadline": {
+      "passed": 11
+    },
+    "read_only_oracle": {
+      "passed": 5
+    },
+    "AgentBench_with_native_CLI": {
+      "run": 97,
+      "skipped": 6
+    },
+    "AI_initial": {
+      "passed": 608,
+      "failed": 4,
+      "ignored": 1,
+      "cause": "missing helper overrides"
+    },
+    "AI_helper_recheck": {
+      "passed": 9
+    },
+    "Rig_shadow_wire": {
+      "passed": 23
+    },
+    "oracle_admission": {
+      "passed": 9
+    }
+  },
+  "build": "Qualified baseline default-feature CLI+seeder;own target;see build-baseline.json",
+  "live": "Not started;D holds MacBook build slot for fixedgraderqualification",
+  "money_cost": null,
+  "pending": [
+    "B slot handoff",
+    "source-bound baseline CLI/seeder and qualified fixed grader",
+    "native witnesses and immutable input receipt",
+    "baseline and candidate trials",
+    "independent answer grades and reserved confirmation",
+    "Rig shadow compilation/report with actual usage limits",
+    "final Council and focused PR",
+    "D four-way combination before joint adoption"
+  ]
+}

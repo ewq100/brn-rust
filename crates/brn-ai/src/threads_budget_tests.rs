@@ -2428,3 +2428,140 @@ fn rig_whole_request_estimate_pilot_is_not_an_upper_bound_for_admission() {
         "Rig's catalog carries API limits, not the subscription route window"
     );
 }
+
+/// Shadow-only protocol diagnostic. The supplied Usage is explicitly synthetic;
+/// it proves anchor/reset semantics, never accuracy against a live provider.
+#[test]
+fn rig_next_request_shadow_requires_a_route_and_account_boundary() {
+    use rig::completion::{Message as ModelMessage, ToolDefinition, Usage};
+    use rig::conversation::Conversation;
+    use rig::message::ToolName;
+    use rig_memory::{Anchor, Prepared, next_request_tokens};
+
+    let (_root, request, _) = tests::fixture();
+    let (scope, _) = begin(&request).unwrap();
+    let prompt = run_preamble(&scope);
+    let tools = budget_tool_definitions(&scope);
+    let definitions = tools
+        .iter()
+        .map(|tool| {
+            Arc::new(ToolDefinition::new(
+                ToolName::new(tool["name"].as_str().unwrap()).unwrap(),
+                tool["description"].as_str().unwrap(),
+                tool["parameters"].clone(),
+            ))
+        })
+        .collect::<Vec<_>>();
+
+    for (label, text) in [
+        (
+            "English",
+            "Source reports a conditional delivery on Monday. ".repeat(2000),
+        ),
+        (
+            "Estonian",
+            "Õunapuu jõeäärne mõisaõu; tingimuslik tarne. ".repeat(2000),
+        ),
+        (
+            "JSON",
+            json!({"untrusted":"\"quote\" \\ path\n".repeat(2000)}).to_string(),
+        ),
+    ] {
+        let mut history = Conversation::new();
+        history.push(ModelMessage::user(&text));
+        let sent = Prepared {
+            model: "gpt-6.1-sol",
+            prompt: Some(&prompt),
+            tools: &definitions,
+            history: &history,
+        }
+        .start();
+        let reply = history.push(ModelMessage::assistant(
+            "Synthetic reply, not observed usage.",
+        ));
+        let anchor = Anchor {
+            usage: Usage::new().input_tokens(50_000).output_tokens(100),
+            through: reply,
+        };
+        history.push(ModelMessage::user("Continue with the same saved evidence."));
+        let prepared = Prepared {
+            model: "gpt-6.1-sol",
+            prompt: Some(&prompt),
+            tools: &definitions,
+            history: &history,
+        };
+        let before = serde_json::to_vec(history.messages()).unwrap();
+        let whole = prepared.whole_tokens();
+        let anchored = next_request_tokens(Some(&anchor), Some(sent), &prepared);
+        assert!(anchored > 50_100);
+        assert_eq!(next_request_tokens(None, Some(sent), &prepared), whole);
+
+        let other_model = Prepared {
+            model: "gpt-6.1-terra",
+            ..prepared
+        };
+        let other_prompt = Prepared {
+            prompt: Some("Changed prompt"),
+            ..prepared
+        };
+        let other_tools = Prepared {
+            tools: &[],
+            ..prepared
+        };
+        for changed in [other_model, other_prompt, other_tools] {
+            assert_eq!(
+                next_request_tokens(Some(&anchor), Some(sent), &changed),
+                changed.whole_tokens()
+            );
+        }
+
+        // Rig does not accept provider/account in Prepared: identical fields
+        // would wrongly retain an anchor across either external change. A
+        // caller must clear anchor/sent; public catalog IDs cannot establish it.
+        assert_eq!(
+            next_request_tokens(Some(&anchor), Some(sent), &prepared),
+            anchored
+        );
+        assert_eq!(next_request_tokens(None, None, &prepared), whole);
+        assert_eq!(serde_json::to_vec(history.messages()).unwrap(), before);
+        let brn = context_budget::estimate(&json!({
+            "instructions":prompt, "tools":tools, "history":history.messages(),
+        }));
+        println!(
+            "{}",
+            json!({"case":label,"brn_bytes":brn,"rig_whole":whole,
+            "rig_next_synthetic_anchor":anchored,"actual_input":null,
+            "accuracy":null,"anchor_usage_kind":"synthetic-protocol-only",
+            "production_admission_changed":false})
+        );
+
+        rig_memory::apply_summary(
+            &mut history,
+            Some(reply),
+            &rig_memory::SummaryState {
+                summary: "Synthetic compaction".into(),
+                ..Default::default()
+            },
+        );
+        let compacted = Prepared {
+            model: "gpt-6.1-sol",
+            prompt: Some(&prompt),
+            tools: &definitions,
+            history: &history,
+        };
+        assert_eq!(
+            next_request_tokens(Some(&anchor), Some(sent), &compacted),
+            compacted.whole_tokens()
+        );
+        let replaced =
+            Conversation::from_messages(history.messages().iter().map(|m| (**m).clone()));
+        let restored = Prepared {
+            history: &replaced,
+            ..compacted
+        };
+        assert_eq!(
+            next_request_tokens(Some(&anchor), Some(sent), &restored),
+            restored.whole_tokens()
+        );
+    }
+}

@@ -1,0 +1,38 @@
+{
+  "AI_full": {
+    "passed": 608,
+    "failed": 4,
+    "ignored": 1,
+    "cause": "Missing explicit document helper paths;original failure retained"
+  },
+  "helper_recheck": {
+    "passed": 9,
+    "failed": 0
+  },
+  "Rig_shadow_and_wire": {
+    "passed": 23,
+    "failed": 0
+  },
+  "AgentBench_native_CLI": {
+    "run": 97,
+    "skipped": 6,
+    "failed": 0
+  },
+  "corpus_cases_offline": 5,
+  "BRN_live_requests": 0,
+  "grader_requests": 0,
+  "logs": {
+    "ai-tests.log": "21cda63dd0b2e633b746612b22867f15e3bf3bc8d7a20e460956adc21d55d69d",
+    "bench-final-offline.log": "29e6c46bff3978d0fe89343c4d2771e4896722da400c7dcbd628f268bbc378aa",
+    "estimator-shadow.log": "ad1bb0b3fdbcd673a395ca3210dff20bd54d97e67e6418f0420fbe28513e5f43",
+    "ai-tests-initial-compile-failure.log": "da2aac8363cd34dda2c1a603b1aeadf76618da59ef2d498c8022f5c8582f0d31",
+    "build-baseline.log": "9c29c2d8768eb7e66f8062a8be70190f8fa22207b840444a62ed1ce5bc994b6a",
+    "bench-tests.log": "64523d4444ba2993ce3de99c7660b8f691bd01161d2ae31d5af353bac8104cd3",
+    "corpus-qualification.log": "9781e4edce56a8b99e0fdea5a933cee74ce644191e99a51b017d348d45e1fe91",
+    "fmt-initial.log": "efe1836c434d47839cad00a1032f6ad92e24d77fc0d673aa50c9c5af08778cc5",
+    "deadline-tests.log": "51000d78ac4e2f6a9fbcaa841ad9fd123a31451aa304a3c3a0233308e747bb68",
+    "bench-native.log": "74811f049261fbc9846774ea3520c16e0385b0c9d7a512d36c68c4890829d1c4",
+    "oracle-tests.log": "ec0b1ba9507df84531013d734727e6b177d0ba8d15c8f62b7dbe994b247c98c3",
+    "refine-helper-recheck.log": "504b46e52af5b1a4fe3963e2da28a513efbf76ba0fb03617bc888e0f641cd7ce"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "source_revision": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "features": "default;no native-retrieval;no dense assets",
+  "command": "cargo build --locked --offline -p brn -p brn-threads-app --bin brn --example wiki_eval_seed",
+  "target": "/Users/evokessler/Documents/Codex/brn-agent-e-256/target",
+  "jobs": 2,
+  "build_log_sha256": "9c29c2d8768eb7e66f8062a8be70190f8fa22207b840444a62ed1ce5bc994b6a",
+  "built_at": "2026-11-06T21:54:31.620242+00:00",
+  "artifacts": {
+    "/Users/evokessler/Documents/Codex/brn-agent-e-256/binaries/brn-baseline": "5497781af9bd72d85ea7dd5d22083972de047aaa58b385140b03b05f0e9ed94d",
+    "/Users/evokessler/Documents/Codex/brn-agent-e-256/binaries/wiki_eval_seed": "4a23729e1706e74c210d0ef6d870632585b5a05d5934d4459f212a44325c44c2",
+    "/Users/evokessler/repos/brn-agent-e-256/Cargo.lock": "3122299c6b07dc65427f6ffba110f571e06ecc08fb8550df4648a08f3dd09959",
+    "/Users/evokessler/repos/brn-agent-e-256/rust-toolchain.toml": "c910997cb152c6dc8ed13b1fdf9fa28a4ed30d6776123e27dd6170e5c66067a0"
+  },
+  "production_Rust_changes": "none;only additional test in threads_budget_tests.rs (cfg test), plus experiment Python/docs",
+  "source_binding": "fresh task-owned target built from isolated checkout;no mixed source cache"
+}

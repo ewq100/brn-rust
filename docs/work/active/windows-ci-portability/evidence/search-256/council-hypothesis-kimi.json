@@ -1,0 +1,86 @@
+{
+  "thread": {
+    "threadId": "thread:delegated-task:command%3Amcp%3Aa9a51c4f-d2f9-4fc7-9eff-eafbdaa00b21%3Adelegate-task%3Ae256-hypothesis-kimi-1",
+    "projectId": "7c55f139-913d-48f3-a5e2-e3140ceeb207",
+    "title": "E256 hypothesis Council kimi",
+    "link": "<t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3Aa9a51c4f-d2f9-4fc7-9eff-eafbdaa00b21%3Adelegate-task%3Ae256-hypothesis-kimi-1>",
+    "createdBy": "agent",
+    "creationSource": "mcp",
+    "status": "completed",
+    "latestRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aa9a51c4f-d2f9-4fc7-9eff-eafbdaa00b21%253Adelegate-task%253Ae256-hypothesis-kimi-1:ordinal:1",
+    "activeRunId": null,
+    "providerInstanceId": "acpRegistry_copilot",
+    "model": "kimi-k3",
+    "runtimeMode": "full-access",
+    "interactionMode": "default",
+    "linkedPullRequest": null,
+    "pullRequests": [],
+    "titleRegeneration": null,
+    "branch": null,
+    "worktreePath": null,
+    "parentThreadId": "2d869410-98be-477b-a334-994e00ee95bb",
+    "relationshipToParent": "subagent",
+    "runCount": 1,
+    "itemCount": 20,
+    "pendingRequestCount": 0,
+    "archived": false,
+    "settled": false,
+    "settledAt": null,
+    "snoozed": false,
+    "snoozedUntil": null,
+    "createdAt": "2026-11-06T21:28:53.407Z",
+    "updatedAt": "2026-11-06T21:39:26.319Z"
+  },
+  "recentRuns": [
+    {
+      "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aa9a51c4f-d2f9-4fc7-9eff-eafbdaa00b21%253Adelegate-task%253Ae256-hypothesis-kimi-1:ordinal:1",
+      "ordinal": 1,
+      "status": "completed",
+      "providerInstanceId": "acpRegistry_copilot",
+      "model": "kimi-k3",
+      "requestedAt": "2026-11-06T21:28:53.409Z",
+      "startedAt": "2026-11-06T21:28:56.269Z",
+      "completedAt": "2026-11-06T21:31:57.755Z"
+    }
+  ],
+  "items": [
+    {
+      "position": 0,
+      "visibility": "local",
+      "sourceThreadId": "thread:delegated-task:command%3Amcp%3Aa9a51c4f-d2f9-4fc7-9eff-eafbdaa00b21%3Adelegate-task%3Ae256-hypothesis-kimi-1",
+      "itemId": "turn-item:message:message%3Adelegated-task%3Acommand%253Amcp%253Aa9a51c4f-d2f9-4fc7-9eff-eafbdaa00b21%253Adelegate-task%253Ae256-hypothesis-kimi-1",
+      "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aa9a51c4f-d2f9-4fc7-9eff-eafbdaa00b21%253Adelegate-task%253Ae256-hypothesis-kimi-1:ordinal:1",
+      "messageId": "message:delegated-task:command%3Amcp%3Aa9a51c4f-d2f9-4fc7-9eff-eafbdaa00b21%3Adelegate-task%3Ae256-hypothesis-kimi-1",
+      "createdBy": "agent",
+      "creationSource": "mcp",
+      "senderThreadId": "2d869410-98be-477b-a334-994e00ee95bb",
+      "type": "user_message",
+      "status": "completed",
+      "title": null,
+      "text": "Act as the review sub-agent for this task.\n\nRead-only bounded Council hypothesis/design review for Agent E issue256. Do not edit, commit, push, publish, access credentials, invoke live providers, or start subagents. Use <=12 model requests and <=600 seconds; minimize tool calls, report observed requests/usage if available or unknown. Review this checkout via absolute paths /Users/evokessler/repos/brn-agent-e-256 (your default cwd may differ): docs/work/active/windows-ci-portability/search-256.md; agent/BRN.md; crates/brn-ai/src/threads_search.rs; relevant read_note schema in crates/brn-ai/src/threads.rs. Baseline a921e325. Task: fixed Sol6.1 medium, synthetic read-only retrieval improvement with paired reps, same corpus/writer/evaluator,120BRN total72screen48reserved,24independent grader,24CodexCouncil escrow. No baseline measurements yet. Screen R8/R10 and general read-only projection of R7; do not open any other case/questions/gold. Two independent confirmation questions stay outside tuning context; do not seek them. Existing section-first instructions/compact catalog exist. Recommend a single focused hypothesis after baseline identifies waste; inspect for methodological or contract risks, especially finite accounting,6call cap,90sec timeout, quality/citation/visibility/abstention gates, incomplete measurements, estimator distinct whole/anchored mechanisms and account/route invalidation. Council is separate from fixed independent answer grader. Return only actionable findings with severity,location,evidence,fix; brief recommendation and score/10. Missing actual usage remains unknown. No requirement to agree.",
+      "textTruncated": false,
+      "nextTextOffset": null,
+      "updatedAt": "2026-11-06T21:28:53.409Z"
+    },
+    {
+      "position": 17,
+      "visibility": "local",
+      "sourceThreadId": "thread:delegated-task:command%3Amcp%3Aa9a51c4f-d2f9-4fc7-9eff-eafbdaa00b21%3Adelegate-task%3Ae256-hypothesis-kimi-1",
+      "itemId": "turn-item:provider:acpRegistry:native-item:provider-instance%3AacpRegistry_copilot%3Ae7903f59-a217-465f-8b9b-730c7c2648f4%3Aturn%3A1%3Aassistant%3Amessage%3Aaca260d2-c850-486d-bf93-4617c016bd80",
+      "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253Aa9a51c4f-d2f9-4fc7-9eff-eafbdaa00b21%253Adelegate-task%253Ae256-hypothesis-kimi-1:ordinal:1",
+      "messageId": "message:provider:acpRegistry:native-item:provider-instance%3AacpRegistry_copilot%3Ae7903f59-a217-465f-8b9b-730c7c2648f4%3Aturn%3A1%3Aassistant%3Amessage%3Aaca260d2-c850-486d-bf93-4617c016bd80",
+      "createdBy": "agent",
+      "creationSource": "provider",
+      "type": "assistant_message",
+      "status": "completed",
+      "title": null,
+      "text": "# Council review — Agent E issue256 (hypothesis/design round)\n\nReviewed `search-256.md`, `record.json` entry, `agent/BRN.md`, `threads_search.rs`, `read_note` schema/impl, and the escrow ledger. HEAD = baseline a921e325; ledger sums correctly (72+48+24+12+12=168). Usage: ~5 model requests, well under the 12-request/600s envelope; observed subscription usage unknown (T3 cannot enforce).\n\n## Findings\n\n**F1 — High — Acceptance metric may be unmeasurable.** `search-256.md` step 4 requires \"≥10% median paired **input** reduction,\" but the doc itself states real usage is unknown and D's discovery yields only a weekly percentage, not request/token counts. If the runner cannot capture per-run provider usage, the primary criterion cannot be evaluated. *Fix:* before dispatch, pre-register the concrete metric source (provider usage field if returned; otherwise a named estimator or admitted-bytes proxy) and record it in the frozen inputs.\n\n**F2 — Medium — Estimator circularity.** Step 6 validates the Rig whole vs usage-anchored estimators while step 4's acceptance may depend on one of them (per F1). Using an estimator under diagnostic as the acceptance ruler couples the two results. *Fix:* declare the acceptance metric independent of the step-6 outcome; if it must use the anchored estimate, state that step-6 failure voids adoption regardless of measured reduction.\n\n**F3 — Medium — Grader accounting arithmetic unstated.** 24 grader BRN ÷ 6-call cap funds 4 grader events, but \"independent anonymous packet review covers every answer\" across 12 screening + 8 confirmation answers. Feasible only if each grader run batches ~5 answers within 6 calls. *Fix:* state the batching explicitly in the plan so \"every answer reviewed\" is auditable against the ledger.\n\n**F4 — Medium — Zero slack under no-rerun rule.** Screening funds exactly 3 cases × 2 reps × 2 arms = 12 runs; any failed/uncertain attempt consumes its reservation with no rerun, making the paired comparison incomplete and unrecoverable. *Fix:* predefine the partial-failure rule now (case dropped → inconclusive, not adoption) so a single truncation cannot be rationalized post hoc.\n\n**F5 — Medium — 6-attempt cap can truncate legitimate R8 runs.** R8 long-note retrieval with helpers off may need search + several `read_note` continuations (128 KiB cap each); each tool round is a provider HTTP call. Cap exhaustion would record \"waste\"/failure that is an artifact of the cap, not retrieval inefficiency. *Fix:* offline cap-free rehearsal per case to confirm ≤6 rounds suffice, and record cap-exhaustion as a distinct outcome class.\n\n**F6 — Low — R7 read-only projection must be in the frozen hashes.** Remapping R7's safety checks and adding no-writes changes the case; ensure the remapped variant (not original R7) is what step 1 hashes. Also note projection findings don't transfer back to R7's write steps.\n\n**F7 — Low — Keyword-only/helpers-off config.** Screening measures a degenerate path vs default product (hybrid when available); an adopted prompt/schema change should be re-checked not to degrade hybrid behavior at confirmation.\n\n## Hypothesis recommendation (conditional, per plan step 3)\n\nDo not pre-commit. From the contract surface, the most plausible waste sources to test against baseline traces, in order: (a) full-`read_note`-from-0 despite search returning passage `start` + `heading_path`; (b) over-large `max_bytes` (up to 131072) when a bounded passage suffices; (c) redundant reformulation searches encouraged by schema text (\"try 2–3 reformulations\") even when `total>0`. The focused candidate should be a **prompt/schema-description-only change** (read-only, no tool behavior change, preserving full-read-before-replacement and snippet-exposure rules in `search_notes`), selected only where baseline traces show the corresponding bytes. Gates (quality/citation/abstention/visibility, reserved confirmation, no private exposure) are well specified — keep them untouched.\n\n## Score: 7/10\n\nMethodology is strong (frozen inputs, paired arms, escrowed accounting, reserved confirmation, separate grader/Council). Deductions are for the unmeasurable-primary-metric risk (F1/F2), unstated grader arithmetic (F3), and zero-slack/cap-truncation exposure (F4/F5) — all fixable in the frozen plan before dispatch at no BRN cost.",
+      "textTruncated": false,
+      "nextTextOffset": null,
+      "updatedAt": "2026-11-06T21:31:51.963Z"
+    }
+  ],
+  "nextPosition": 17,
+  "hasMore": false
+}
+

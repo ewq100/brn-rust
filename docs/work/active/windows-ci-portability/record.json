@@ -304,6 +304,66 @@
             "satisfied": false
           }
         ]
+      },
+      {
+        "id": "search-256",
+        "title": "Improve grounded search efficiency (#256)",
+        "owner": "Agent E",
+        "state": "active",
+        "activity": "Source-bound baseline CLI/seeder built defaultfeatures;5corpus checks and97AgentBench tests(nativeCLI,6skips) pass. FullAI608pass/4missing-helperfail/1ignored;9helper rechecks pass;23Rigshadow/wire checks pass. E released MacBook slot to D, no live yet.",
+        "observed_at": "2026-11-06T22:02:45.465227+00:00",
+        "origin": "observed",
+        "next_action": "Finish source-bound baseline and grader qualification,freeze inputs;coordinate D/E timed slots and run bounded screening.",
+        "depends_on": [],
+        "resource_waits": [
+          "D MacBook grader/CLI build qualification and explicit timing-slot release"
+        ],
+        "evidence": [
+          "https://github.com/ewq100/brn-rust/issues/256",
+          "docs/work/active/windows-ci-portability/search-256.md"
+        ],
+        "gates": {
+          "implementation": "Pending measured baseline and focused candidate selection.",
+          "checks": "Baseline build/source/hash and stable corpus/index hashes recorded. Visibilitytrap0general/1private,cloned fixed-querypagesidentical. Rust initial test compile inference fixed and failure preserved;fullAI helper-envfailures corrected by9targeted passes. Required graderhash/livefreeze pending D.",
+          "integration": "Separate PR authorized. No merge/release/default-model change.",
+          "native": "Headless assignment; no native acceptance claimed.",
+          "owner_acceptance": "Owner clarified same-machine fresh evaluation-only role with questions withheld from tuning supports a limited engineering conclusion, not technical isolation or broad superiority. Measured quality/confirmation gates remain pending."
+        },
+        "attempts": [
+          {
+            "outcome": "Kiro Opus monthly usage limit; no review.",
+            "change": "Named Copilot/Opus fallback6.5/10; ~5requests self-reported,actual tokens unknown.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/search-256.md"
+            ]
+          },
+          {
+            "outcome": "Sol independent hypothesis review7/10;4read-only tool calls,modelrequests and usage unknown.",
+            "change": "Defined aggregation,failed pairs,no-write oracle,account/route anchor resets before live; tests pass.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/search-256.md"
+            ]
+          },
+          {
+            "outcome": "Kimi/Copilot7/10 completed21:31:57Z;notification undelivered. Cancellation at21:39 returned completed, no extra dispatch.",
+            "change": "Usage remains unknown (~5modelrequests self-reported). Retained completed review; no missing-seat claim.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/search-256.md"
+            ]
+          }
+        ],
+        "allocation": {
+          "shared_reservations": 1760,
+          "E_total": 168,
+          "BRN_screening": 72,
+          "BRN_confirmation": 48,
+          "grader": 24,
+          "Codex_Council": 24,
+          "live_seconds": 5400,
+          "Council_seconds": 1800,
+          "refunds": false,
+          "parent_orchestration_HTTP": "Not enforceable or fully observed; external quota consumption reported separately."
+        }
       }
     ]
   }

@@ -1,0 +1,13 @@
+{
+  "R7_general_private_hits": [
+    0,
+    1
+  ],
+  "R8_two_clone_same_page": true,
+  "compared_fields": [
+    "hits",
+    "total",
+    "semantic",
+    "cursor"
+  ]
+}
