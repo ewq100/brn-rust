@@ -556,3 +556,46 @@ fn recovery_copy_fails_closed_for_missing_wrong_kind_archived_and_superseded_bas
     assert_eq!(app.records().unwrap(), records);
     assert_eq!(app.history().unwrap(), history);
 }
+
+#[test]
+fn a_new_writing_conversation_is_named_after_its_document() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let mut app = Workspace::open_without_default_credentials(root.path().join("data")).unwrap();
+    let title = |app: &Workspace, id: &str| match app.store.record(id).unwrap().unwrap().data {
+        RecordData::Thread(thread) => thread.title,
+        other => panic!("{other:?}"),
+    };
+    let note = app.new_note("Harbour plan", "Saved").unwrap();
+    let general = app
+        .ensure_writing_context("general", &note.id, None)
+        .unwrap();
+    assert_eq!(
+        title(&app, general.conversation.as_deref().unwrap()),
+        "About “Harbour plan”"
+    );
+    let project = app
+        .project_command("p", ProjectCommand::Create { title: "P".into() })
+        .unwrap()
+        .writes[0]
+        .after
+        .id
+        .clone();
+    let long = app.new_note(&"Long ".repeat(30), "Saved").unwrap();
+    app.project_command(
+        "p-link",
+        ProjectCommand::LinkDocument {
+            project: project.clone(),
+            note: long.id.clone(),
+        },
+    )
+    .unwrap();
+    let scoped = app
+        .ensure_writing_context("scoped", &long.id, Some(&project))
+        .unwrap();
+    let name = title(&app, scoped.conversation.as_deref().unwrap());
+    assert!(
+        name.starts_with("About “Long Long") && name.ends_with("…”"),
+        "{name}"
+    );
+    assert!(name.chars().count() <= 70, "{name}");
+}

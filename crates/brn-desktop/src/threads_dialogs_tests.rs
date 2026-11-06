@@ -385,6 +385,23 @@ fn a_clicked_settings_section_takes_the_focus_ring_off_appearance(cx: &mut TestA
     });
 }
 
+/// Settings opened at a section lands focus on that section, not the first.
+#[gpui_kit::test]
+fn settings_opened_at_a_section_focuses_that_section(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_| {});
+    update(cx, &f, |view, window, cx| {
+        view.open_settings_section(SettingsSection::Data, window, cx)
+    });
+    next_frame(cx, &f);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(window.find("settings-section-data").focused(), Some(true));
+        assert_ne!(
+            window.find("settings-section-appearance").focused(),
+            Some(true)
+        );
+    });
+}
+
 /// Choose a row of the open popup menu by its accessible label.
 fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
     on_window(cx, f, |window, cx| {

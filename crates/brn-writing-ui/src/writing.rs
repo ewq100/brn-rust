@@ -1875,11 +1875,7 @@ impl<T: 'static> WritingView<'_, T> {
                         .count()
                 })
                 .unwrap_or_default();
-            let scope = format!(
-                "Whole note · {} · {}",
-                plural(included, "comment"),
-                plural(messages, "saved context message")
-            );
+            let (shown, scope) = rewrite_scope(included, messages);
             info.push(
                 // The scope shares the actions' row and truncates (its full
                 // text is in the tooltip) instead of taking a row of its own
@@ -1899,7 +1895,7 @@ impl<T: 'static> WritingView<'_, T> {
                                 .build(window, cx)
                         }
                     })
-                    .child(scope)
+                    .child(shown)
                     .test_support()
                     .into_any_element(),
             );
@@ -2935,6 +2931,23 @@ fn banner_button(id: impl Into<gpui_kit::ElementId>, label: &'static str) -> But
         .h(components::tokens::COMPACT_CONTROL)
 }
 
+/// The Rewrite scope as shown (only what it includes, so it fits a compact
+/// footer) and in full for the tooltip and accessible name.
+pub fn rewrite_scope(comments: usize, messages: usize) -> (String, String) {
+    let full = format!(
+        "Whole note · {} · {}",
+        plural(comments, "comment"),
+        plural(messages, "saved context message")
+    );
+    let mut shown = String::from("Whole note");
+    for (count, noun) in [(comments, "comment"), (messages, "message")] {
+        if count > 0 {
+            shown.push_str(" · ");
+            shown.push_str(&plural(count, noun));
+        }
+    }
+    (shown, full)
+}
 /// "1 comment", "3 comments".
 fn plural(count: usize, noun: &str) -> String {
     format!("{count} {noun}{}", if count == 1 { "" } else { "s" })

@@ -1898,6 +1898,7 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Option<gpui_kit::FocusHandle> {
+        self.focus_steps = 0;
         match self.layout.focus() {
             Some(TileKind::Note) => self.focus_visible_editor(window, cx),
             // An archived chat's composer can't send: its one next step is
@@ -1918,6 +1919,12 @@ impl ThreadsUi {
                 .threads_query
                 .update(cx, |input, cx| input.focus(window, cx)),
             Some(kind) => {
+                if kind == TileKind::Settings {
+                    self.focus_steps = SettingsSection::ALL
+                        .iter()
+                        .position(|section| *section == self.settings_section)
+                        .unwrap_or(0);
+                }
                 self.panel_focus[&kind].focus(window, cx);
                 return Some(self.panel_focus[&kind].clone());
             }
@@ -1961,12 +1968,15 @@ impl ThreadsUi {
     /// archived chat's banner) to its first control, unless focus moved
     /// elsewhere meanwhile.
     fn schedule_focus_first(&mut self, window: &mut Window) {
+        let steps = std::mem::take(&mut self.focus_steps);
         let Some(body) = self.focus_first.take() else {
             return;
         };
         window.on_next_frame(move |window, cx| {
             if body.is_focused(window) {
-                window.focus_next(cx);
+                for _ in 0..=steps {
+                    window.focus_next(cx);
+                }
                 if !body.contains_focused(window, cx) {
                     body.focus(window, cx);
                 }

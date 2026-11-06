@@ -6,7 +6,9 @@ use super::polish_tests::{
     window_bounds,
 };
 use super::*;
-use brn_writing_ui::writing::{COMMENTS_FLOOR, ProposalShape, archive_disclosure, review_footer};
+use brn_writing_ui::writing::{
+    COMMENTS_FLOOR, ProposalShape, archive_disclosure, review_footer, rewrite_scope,
+};
 use gpui_kit::{Focusable, TestAppContext, test::TestWindowExt};
 
 const TEXT: &str = "# Pilot\n\nThe quick brown fox jumps.\n\nKeep this line.";
@@ -401,6 +403,31 @@ fn proposal_shapes_name_the_label_primary_and_exact_footer() {
     assert_eq!(
         review_footer(ProposalShape::Note, true, 2),
         PROTECTED_FOOTER
+    );
+}
+
+/// The Rewrite scope fits a compact footer: zero counts are left out of
+/// the visible text, which the full wording backs in the tooltip.
+#[test]
+fn the_rewrite_scope_shows_only_what_it_includes() {
+    assert_eq!(
+        rewrite_scope(0, 0),
+        (
+            "Whole note".to_owned(),
+            "Whole note · 0 comments · 0 saved context messages".to_owned()
+        )
+    );
+    assert_eq!(rewrite_scope(1, 0).0, "Whole note · 1 comment");
+    assert_eq!(
+        rewrite_scope(2, 3).0,
+        "Whole note · 2 comments · 3 messages"
+    );
+    assert_eq!(
+        rewrite_scope(0, 1),
+        (
+            "Whole note · 1 message".to_owned(),
+            "Whole note · 0 comments · 1 saved context message".to_owned()
+        )
     );
 }
 

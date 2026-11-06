@@ -432,6 +432,9 @@ struct ThreadsUi {
     /// The panel body (or archived chat banner) that took focus; after its
     /// next frame, focus moves to its first control.
     focus_first: Option<gpui_kit::FocusHandle>,
+    /// Further Tab stops past the first control: Settings lands on its
+    /// selected section, which follows the sections before it.
+    focus_steps: usize,
     /// The archived chat's banner, where focus lands instead of the
     /// composer; its Unarchive is the first control inside.
     archived_banner: gpui_kit::FocusHandle,
@@ -753,6 +756,7 @@ impl ThreadsUi {
                 .map(|kind| (kind, cx.focus_handle()))
                 .collect(),
             focus_first: None,
+            focus_steps: 0,
             archived_banner: cx.focus_handle(),
             layout: Layout::default(),
             arrangement: Layout::default().arrange(1280.),
@@ -1071,6 +1075,7 @@ impl ThreadsUi {
         {
             self.archived_banner.focus(window, cx);
             self.focus_first = Some(self.archived_banner.clone());
+            self.focus_steps = 0;
         } else {
             self.composer
                 .update(cx, |editor, cx| editor.focus(window, cx));

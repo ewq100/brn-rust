@@ -11,6 +11,7 @@ use super::components::AccessibleDropdownMenu;
 use super::shell::{item, pill};
 use super::tiles::{new_menu, scroll, thread_menu};
 use super::*;
+use gpui_kit::base::TestTextExt;
 use gpui_kit::component::button::ButtonVariants;
 use gpui_kit::component::input::Input;
 use gpui_kit::component::menu::{ContextMenuExt, PopupMenu};
@@ -328,10 +329,36 @@ pub(super) fn library_row(
     selected: bool,
     tooltip: Option<String>,
 ) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
+    library_row_marked(
+        id,
+        icon,
+        title,
+        description,
+        facts,
+        (marks, &[]),
+        selected,
+        tooltip,
+    )
+}
+
+/// [`library_row`] whose marks carry words: the marks show them, so they
+/// join only the accessible name and tooltip, not the visible facts line.
+#[allow(clippy::too_many_arguments)]
+pub(super) fn library_row_marked(
+    id: impl Into<SharedString>,
+    icon: IconName,
+    title: String,
+    description: String,
+    facts: String,
+    (marks, words): (Vec<gpui_kit::AnyElement>, &[&str]),
+    selected: bool,
+    tooltip: Option<String>,
+) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
     let p = pal();
     let id: SharedString = id.into();
     let announced = [title.as_str(), description.as_str(), facts.as_str()]
         .into_iter()
+        .chain(words.iter().copied())
         .filter(|text| !text.is_empty())
         .collect::<Vec<_>>()
         .join(" · ");
@@ -395,9 +422,10 @@ pub(super) fn library_row(
                 })
                 .when(!facts.is_empty(), |column| {
                     column.child(
-                        row_meta(facts)
+                        row_meta(facts.clone())
                             .id(SharedString::from(format!("{id}-facts")))
-                            .test_support(),
+                            .test_support()
+                            .test_text(facts),
                     )
                 }),
         )
@@ -1110,9 +1138,8 @@ impl ThreadsUi {
         let id = note.id.clone();
         let row_id = format!("note-{id}");
         let stamp = self.activity.stamp(&id).to_owned();
-        let mut facts = row_facts(note, &stamp, self.activity.delegated(&id));
+        let facts = row_facts(note, &stamp, self.activity.delegated(&id));
         let (marks, words) = self.note_marks(&row_id, note);
-        facts.extend(words.into_iter().map(str::to_owned));
         let icon = if note.is_file() {
             IconName::Paperclip
         } else {
@@ -1123,13 +1150,13 @@ impl ThreadsUi {
         let (open, menu_id) = (id.clone(), id.clone());
         let tooltip = (!stamp.is_empty())
             .then(|| format!("{} · last change {}", note.title, lists::human_time(&stamp)));
-        library_row(
+        library_row_marked(
             row_id,
             icon,
             note.title.clone(),
             note.description.clone(),
             facts.join(" · "),
-            marks,
+            (marks, &words),
             selected,
             tooltip,
         )

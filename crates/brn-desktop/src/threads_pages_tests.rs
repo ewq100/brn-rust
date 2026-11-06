@@ -319,6 +319,58 @@ fn delegation_and_maintenance_notices_never_show_a_receipt_reason(cx: &mut TestA
     );
 }
 
+/// The Library row's lock says Protected once on screen: the facts line
+/// doesn't repeat it, while the row's accessible name still includes it.
+#[gpui_kit::test]
+fn a_protected_library_row_says_protected_once(cx: &mut TestAppContext) {
+    let mut note = String::new();
+    let f = fixture(cx, 1280., 900., |workspace| {
+        let record = workspace.new_note("Decision", "Decided.").unwrap();
+        let RecordData::Note(mut data) = record.data.clone() else {
+            unreachable!()
+        };
+        data.protected = true;
+        workspace
+            .owner_change(
+                "protect-once",
+                &ChangeRequest {
+                    reason: "Synthetic protection".into(),
+                    inputs: vec![],
+                    writes: vec![Put {
+                        id: record.id.clone(),
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: RecordData::Note(data),
+                    }],
+                },
+            )
+            .unwrap();
+        note = record.id;
+    });
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Notes, window, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        let row = format!("note-{note}");
+        assert_eq!(label(window, format!("{row}-protected")), "Protected");
+        let id = gpui_kit::ElementId::Name(row.clone().into());
+        let painted: Vec<String> = gpui_kit::base::test_support::texts(window)
+            .into_iter()
+            .filter(|text| text.path().contains(&id))
+            .map(|text| text.text().to_owned())
+            .collect();
+        assert!(
+            painted.iter().any(|text| text.starts_with("Saved")),
+            "{painted:?}"
+        );
+        assert!(
+            !painted.iter().any(|text| text.contains("Protected")),
+            "{painted:?}"
+        );
+        assert!(label(window, &row).contains("Protected"));
+    });
+}
+
 /// A protected note's row in the 170 pt Notes list shows the Lock whole
 /// rather than "Protect…"; it is announced as Protected.
 #[gpui_kit::test]
