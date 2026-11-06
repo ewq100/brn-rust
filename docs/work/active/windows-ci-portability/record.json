@@ -370,10 +370,10 @@
         "title": "Compare Terra/Sol and improve maintained knowledge (#254)",
         "owner": "Agent D",
         "state": "blocked",
-        "activity": "Bounded cycle stopped; original baseline retained. Visible model comparison is inconclusive. A retention candidate was implemented and measured, but saved-state quality is unknown and fresh confirmation ended with one uncertain attempt. Final Council Sol 8 / Opus 7 / Kimi 8; offline corrections complete. Two draft evidence PRs are being delivered.",
-        "observed_at": "2026-11-06T23:53:12.013065+00:00",
+        "activity": "Draft PRs #269 (comparison) and #270 (knowledge attempt) delivered. Original baseline retained; no model or guidance adoption. Final quality confirmation is incomplete after the bounded fresh run stopped on an uncertain outcome. Final Council: Sol 8 / Opus 7 / Kimi 8; offline corrections and 99 passing tests complete.",
+        "observed_at": "2026-11-06T23:56:40.971406+00:00",
         "origin": "observed",
-        "next_action": "Review the two evidence PRs. Final quality acceptance remains pending a fresh bounded cycle; no further live dispatch under this stopped allocation.",
+        "next_action": "Review draft PRs #269 and #270. Keep issue #254 open for unresolved quality acceptance; no further live dispatch under the stopped allocation.",
         "depends_on": [],
         "resource_waits": [
           "Frozen cycle stopped after an uncertain outcome; fresh quality confirmation remains pending."
@@ -384,12 +384,16 @@
           "docs/work/active/agentbench/d-254/shared-agreement.json",
           "docs/work/active/agentbench/d-254/design-reviews.json",
           "benchmarks/brn_agent/experiments/d254/supervise.py",
-          "docs/work/active/agentbench/d-254/comparison.md"
+          "docs/work/active/agentbench/d-254/comparison.md",
+          "https://github.com/ewq100/brn-rust/pull/269",
+          "https://github.com/ewq100/brn-rust/pull/270",
+          "docs/work/active/agentbench/d-254/accounting.md",
+          "docs/work/active/agentbench/d-254/review-followups.md"
         ],
         "gates": {
           "implementation": "One retention-guidance factor implemented, built and measured in paired runs; evidence only, no adopted production change.",
           "checks": "Source-bound builds and judge Clippy passed. Post-review native AgentBench: 99 passed, 1 optional Inspect skip. Audit regression failed before and passed after correction; reader setup acceptance/refusal witnesses pass. Original executed source and results preserved.",
-          "integration": "Comparison and improvement PRs authorized; no merge/default change/publication",
+          "integration": "Draft comparison https://github.com/ewq100/brn-rust/pull/269 and stacked knowledge attempt https://github.com/ewq100/brn-rust/pull/270. Hosted CI pending; no merge, default change or release.",
           "native": "Headless synthetic only; desktop observation outside assignment",
           "owner_acceptance": "Not claimed. Both recommendation and knowledge-quality acceptance inconclusive; final fresh confirmation incomplete; no baseline/model default change."
         },

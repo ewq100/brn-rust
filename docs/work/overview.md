@@ -143,9 +143,9 @@ Waiting:
 ### Compare Terra/Sol and improve maintained knowledge (#254)
 
 Task ID: `knowledge-quality-254`
-Owner: Agent D · State: **blocked** · Last observed: 2026-11-06T23:53:12.013065+00:00
-Activity: Bounded cycle stopped; original baseline retained. Visible model comparison is inconclusive. A retention candidate was implemented and measured, but saved-state quality is unknown and fresh confirmation ended with one uncertain attempt. Final Council Sol 8 / Opus 7 / Kimi 8; offline corrections complete. Two draft evidence PRs are being delivered.
-Next: Review the two evidence PRs. Final quality acceptance remains pending a fresh bounded cycle; no further live dispatch under this stopped allocation.
+Owner: Agent D · State: **blocked** · Last observed: 2026-11-06T23:56:40.971406+00:00
+Activity: Draft PRs #269 (comparison) and #270 (knowledge attempt) delivered. Original baseline retained; no model or guidance adoption. Final quality confirmation is incomplete after the bounded fresh run stopped on an uncertain outcome. Final Council: Sol 8 / Opus 7 / Kimi 8; offline corrections and 99 passing tests complete.
+Next: Review draft PRs #269 and #270. Keep issue #254 open for unresolved quality acceptance; no further live dispatch under the stopped allocation.
 Resource waits: Frozen cycle stopped after an uncertain outcome; fresh quality confirmation remains pending.
 
 <details>
@@ -155,7 +155,7 @@ Gates:
 
 - **implementation:** One retention-guidance factor implemented, built and measured in paired runs; evidence only, no adopted production change.
 - **checks:** Source-bound builds and judge Clippy passed. Post-review native AgentBench: 99 passed, 1 optional Inspect skip. Audit regression failed before and passed after correction; reader setup acceptance/refusal witnesses pass. Original executed source and results preserved.
-- **integration:** Comparison and improvement PRs authorized; no merge/default change/publication
+- **integration:** Draft comparison https://github.com/ewq100/brn-rust/pull/269 and stacked knowledge attempt https://github.com/ewq100/brn-rust/pull/270. Hosted CI pending; no merge, default change or release.
 - **native:** Headless synthetic only; desktop observation outside assignment
 - **owner acceptance:** Not claimed. Both recommendation and knowledge-quality acceptance inconclusive; final fresh confirmation incomplete; no baseline/model default change.
 
