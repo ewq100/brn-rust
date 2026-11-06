@@ -21,9 +21,11 @@ fn pick_row(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedString>) 
         .child(div().flex_1().min_w_0().truncate().child(label))
 }
 
-/// A document row's chevron sits 13 pt inside the row (inset and border); a
-/// compact button pads its label 8 pt, so this inset ends both together.
-const PROJECT_DOC_ACTIONS_INSET: f32 = 5.;
+/// A document row's chevron sits 13 pt inside the row (inset and border) and
+/// its glyph paints about 4 pt inside its box; a compact button pads its
+/// label 8 pt, so this inset ends the label's ink at the chevron's ink
+/// (measured natively in Light and Dark).
+const PROJECT_DOC_ACTIONS_INSET: f32 = 9.;
 /// Shown beside Restore project, before the owner chooses it.
 const RESTORE_LINE: &str = "Restoring returns contents and settings. Cancelled tasks stay cancelled; tasks kept outside stay outside. Work stays paused.";
 
