@@ -1275,5 +1275,18 @@
     "executed_source_hashes_preserved": true,
     "new_live_calls": 0,
     "review": "smallleadfixes;notindependentlyre-reviewed duefrozenbudget;finalCouncilgapsremain"
+  },
+  "feature_closure": {
+    "CLI": [],
+    "app": [],
+    "brn_ai": [
+      "scripted-runs"
+    ],
+    "reason": "combined CLI+example build dev-dependency unification",
+    "ordinary_CLI_host_injection_feature": false,
+    "both_measured_commands_identical": true,
+    "preliminary_CLI_only_artifact": "discarded before live",
+    "original_receipts_preserved": true,
+    "per_artifact_full_graph_capture": "not newly attested;read-only retained fingerprints and command evidence"
   }
 }

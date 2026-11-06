@@ -73,9 +73,15 @@ cargo build --locked --offline -p brn -p brn-threads-app \
 ```
 
 The same target selection was used for the candidate to preserve Cargo feature
-unification. A preliminary CLI-only candidate build was discarded before live
-calls; its log remains retained. Rust 1.98.1, the lockfile and default features
-were fixed. No native retrieval or dense assets were selected. Requests could
+unification. The [read-only feature audit](evidence/search-256/build-feature-audit.json)
+retains the cached fingerprint variants and qualification limits; it does not
+rewrite original receipts or claim a new per-artifact graph capture. A preliminary CLI-only candidate build was discarded before live
+calls; its log remains retained. Rust 1.98.1 and the lockfile were fixed. Top-level CLI and app features were
+empty, but the example dev-dependency unified transitive `brn-ai`
+`scripted-runs`. This is not a pure library-default feature closure. The same
+combined selection was used for both measured artifacts. The ordinary CLI did
+not select `scripted-document-tests` host injection; wire traces show actual
+Codex requests. No native retrieval or dense assets were selected. Requests could
 still specify hybrid mode; trace results reported semantic coverage `none`.
 
 | Immutable artifact | SHA-256 |

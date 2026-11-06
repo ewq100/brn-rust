@@ -1,5 +1,12 @@
 # BRN-AgentBench offline implementation
 
+The bounded [search cycle #256](../../docs/work/active/windows-ci-portability/search-256.md)
+retains a rejected candidate, fixed criteria, all-attempt usage and explicit review
+gaps. When freezing a combined CLI/example build, record the transitive feature
+closure as well as top-level flags: example dev-dependencies can unify features
+such as `brn-ai/scripted-runs`. Keep the same build selection across measured arms;
+an empty CLI feature list alone does not establish a pure library-default build.
+
 This implements the recovered October 15 design’s offline scenario and evaluation
 mechanisms. Live qualification and explicitly unsupported integrations remain
 separate. It extends
