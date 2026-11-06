@@ -184,9 +184,40 @@ impl Workspace {
     }
 }
 
+const COMMAND_DESCRIPTION_CHARS: usize = 100;
+
+/// A skill's first description line for the / list, shortened at a word
+/// boundary with an ellipsis so it never ends mid-word.
+fn command_description(description: &str) -> String {
+    let line = description.lines().next().unwrap_or_default().trim();
+    if line.chars().count() <= COMMAND_DESCRIPTION_CHARS {
+        return line.to_owned();
+    }
+    let cut: String = line.chars().take(COMMAND_DESCRIPTION_CHARS).collect();
+    let kept = cut
+        .rfind(char::is_whitespace)
+        .map_or(cut.as_str(), |end| &cut[..end]);
+    let kept = kept.trim_end_matches(|c: char| c.is_whitespace() || matches!(c, ',' | ';' | ':'));
+    format!("{kept}…")
+}
+
 #[cfg(all(test, any(target_os = "macos", target_os = "linux")))]
 mod tests {
     use super::*;
+    #[test]
+    fn command_descriptions_end_at_a_word_with_an_ellipsis() {
+        assert_eq!(
+            command_description("Short line.\nMore detail."),
+            "Short line."
+        );
+        let long = "Process supplied source information or verify a host full-note import, \
+                    preserving useful meaning, context and provenance for later review.";
+        let shown = command_description(long);
+        assert!(shown.chars().count() <= COMMAND_DESCRIPTION_CHARS);
+        assert!(shown.ends_with("meaning…"), "{shown}");
+        assert!(long.starts_with(shown.trim_end_matches('…')));
+        assert_eq!(command_description(&"x".repeat(120)).chars().count(), 101);
+    }
     #[test]
     fn skill_management_preserves_os_faults_and_domain_refusals() {
         for errno in [
@@ -284,14 +315,7 @@ impl Workspace {
             .map(|s| SkillCommand {
                 command: s.id.strip_prefix("installed:").unwrap_or(&s.id).to_owned(),
                 id: s.id,
-                description: s
-                    .description
-                    .lines()
-                    .next()
-                    .unwrap_or_default()
-                    .chars()
-                    .take(100)
-                    .collect(),
+                description: command_description(&s.description),
                 available: s.available,
                 unavailable: s.unavailable,
             })
