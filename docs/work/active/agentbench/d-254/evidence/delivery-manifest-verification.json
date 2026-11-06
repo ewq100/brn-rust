@@ -1,0 +1,33 @@
+{
+  "status": "verified",
+  "results": [
+    {
+      "manifest": "/Users/evokessler/repos/brn-agent-d-254/docs/work/active/agentbench/d-254/evidence/phase1-W03-manifest.json",
+      "verified_files": 121
+    },
+    {
+      "manifest": "/Users/evokessler/repos/brn-agent-d-254/docs/work/active/agentbench/d-254/evidence/phase1-representative-manifest.json",
+      "verified_files": 64
+    },
+    {
+      "manifest": "/Users/evokessler/repos/brn-agent-d-254/docs/work/active/agentbench/d-254/evidence/phase1-W05-manifest.json",
+      "verified_files": 93
+    },
+    {
+      "manifest": "/Users/evokessler/repos/brn-agent-d-254-improvement-report/docs/work/active/agentbench/d-254/evidence/phase1-W03-manifest.json",
+      "verified_files": 121
+    },
+    {
+      "manifest": "/Users/evokessler/repos/brn-agent-d-254-improvement-report/docs/work/active/agentbench/d-254/evidence/phase2-development-manifest.json",
+      "verified_files": 43
+    },
+    {
+      "manifest": "/Users/evokessler/repos/brn-agent-d-254-improvement-report/docs/work/active/agentbench/d-254/evidence/phase1-representative-manifest.json",
+      "verified_files": 64
+    },
+    {
+      "manifest": "/Users/evokessler/repos/brn-agent-d-254-improvement-report/docs/work/active/agentbench/d-254/evidence/phase1-W05-manifest.json",
+      "verified_files": 93
+    }
+  ]
+}

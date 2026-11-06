@@ -95,20 +95,20 @@ Gates:
 ### Compare Terra/Sol and improve maintained knowledge (#254)
 
 Task ID: `knowledge-quality-254`
-Owner: Agent D · State: **active** · Last observed: 2026-11-06T23:14:47.922233+00:00
-Activity: Visible Terra/Sol screen complete:40candidate events, Sol16/20 andTerra20/20 Completed;8real fixed-reader answers independently graded4/4. Saved-state grades unknown after3bounded failures. Phase2 provisionalSolmedium, single-factor retentioncandidate built/sourcebound and paired baseline/candidate development running.
-Next: Complete Phase2paired development, then protected broad/fresh evaluator confirmation; retain accepted baseline unless frozen improvement criteria qualify.
+Owner: Agent D · State: **active** · Last observed: 2026-11-06T23:36:00.246249+00:00
+Activity: Both native phases attempted; no model/guide adoption. Phase1saved-state semantic grading unknown; visible readers8/8score4. Phase2candidate12/12Completed vsbaseline11/12; fresh confirmation partial7attempts/36knownHTTP+1uncertain; nofreshreaders. Guardstop respected, remainingdevelopmentreaders/broadregressions notrun. Finalreview/delivery in progress.
+Next: Bounded final Council review, full limitation/accounting handoff and two separate draftPRs; no further BRN dispatch or baseline replacement.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Retention candidate1 implemented in separate worktree at45610287; exact combined build pinned, sameSolmedium andsettings for botharms.
-- **checks:** Qualified source-bound cleanlocal CLI/seeder/defaultfeatures;2judge wire tests,2runtimecallcap,4responseguard,9documentrefine,93nativeAgentBench(1optionalInspectskip),W03/W05two-armoffline allpass. Initial invalid cacheclean and excludedcachedbuild preserved.
+- **implementation:** Single-factor candidate implemented/built/measured; retained as evidence only, accepted original baseline unchanged.
+- **checks:** Qualified nativeAgentBench97:96pass/1optionalInspectskip; graderClippy pass; original preflight2judge/2callcap/4response/9refine/12deadline/5admission pass. New4output-containment tests pass. FullhostedCI pending.
 - **integration:** Comparison and improvement PRs authorized; no merge/default change/publication
 - **native:** Headless synthetic only; desktop observation outside assignment
-- **owner acceptance:** Prepared distinct withheld packs; same-machine procedural separation, no technical isolation. Phase1unseen notrun within originalclock, comparison inconclusive. Phase2fresh pending.
+- **owner acceptance:** Not claimed. Both recommendation and knowledge-quality acceptance inconclusive; final fresh confirmation incomplete; no baseline/model default change.
 
 </details>
 

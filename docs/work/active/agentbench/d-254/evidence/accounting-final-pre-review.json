@@ -1,0 +1,80 @@
+{
+  "at": "2026-11-06T23:33:48.308234+00:00",
+  "shared_escrow": {
+    "cap": 1760,
+    "D": 1592,
+    "E": 168,
+    "path": "/Users/evokessler/Documents/Codex/brn-shared-de-20261106/reservations.jsonl",
+    "projection_not_additional_budget": true
+  },
+  "D_roles": {
+    "phase1": {
+      "cap": 600,
+      "dispatch_debit": 336,
+      "identities": 48,
+      "actual_HTTP": 202
+    },
+    "phase2-development": {
+      "cap": 264,
+      "dispatch_debit": 144,
+      "identities": 24,
+      "actual_HTTP": 112
+    },
+    "phase2-broad": {
+      "cap": 432,
+      "dispatch_debit": 0,
+      "identities": 0,
+      "actual_HTTP": 0
+    },
+    "phase2-fresh": {
+      "cap": 144,
+      "dispatch_debit": 42,
+      "identities": 7,
+      "actual_HTTP": null,
+      "observed_HTTP": 36,
+      "upper_bound": 42
+    },
+    "grader": {
+      "cap": 120,
+      "dispatch_debit": 31,
+      "identities": 13,
+      "actual_HTTP": null,
+      "observed_direct_HTTP": 10,
+      "uncertain_direct_HTTP_upper": 1,
+      "coordinator_requested_debit": 20,
+      "coordinator_actual_HTTP": null
+    },
+    "Council": {
+      "cap": 24,
+      "dispatch_debit": 24,
+      "identities": 2,
+      "actual_HTTP": null
+    },
+    "contingency": {
+      "cap": 8,
+      "dispatch_debit": 0,
+      "identities": 0,
+      "actual_HTTP": null
+    }
+  },
+  "D_known_direct_HTTP": 360,
+  "D_direct_HTTP_upper_bound": 367,
+  "D_direct_HTTP_total": null,
+  "outside_requests": "T3 evaluation coordinator and Council actual HTTP/provider turns unavailable; requested caps retained. Parent orchestration and E/outside actors are not measured by D native ledgers. No complete account-wide actual-request claim.",
+  "charge": null,
+  "unrun": "Phase1 unseen, Phase2development readers, broader regressions and remaining fresh readers/grades; no capacity refund",
+  "stop": "uncertain fresh candidate at coordinator boundary; no further BRN models",
+  "deadline": {
+    "started_at": "2026-11-06T21:30:06.983387+00:00",
+    "whole_cycle_deadline": "2026-11-07T00:30:06.983387+00:00",
+    "council_total_seconds": 1800,
+    "design_seat_seconds": 600
+  },
+  "quota": {
+    "first_weekly_used_percent": 29,
+    "before_phase2_percent": 34,
+    "before_fresh_percent": 34,
+    "ordinary_allowed": true,
+    "resets_or_purchases": false
+  }
+}
