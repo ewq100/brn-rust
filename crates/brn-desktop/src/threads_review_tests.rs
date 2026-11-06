@@ -1704,6 +1704,7 @@ fn failed_rewrite(cx: &mut TestAppContext, f: &Fixture, thread: &str, reason: &s
                                 progress: reason.into(),
                                 operations: vec![],
                                 sources: vec![],
+                                web_sources: Vec::new(),
                             }),
                         },
                         Put {

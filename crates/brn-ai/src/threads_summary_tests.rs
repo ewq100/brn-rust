@@ -229,6 +229,7 @@ fn next_request(r: &ThreadRunRequest) -> ThreadRunRequest {
         search: None,
         trace: r.trace,
         requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 #[tokio::test]

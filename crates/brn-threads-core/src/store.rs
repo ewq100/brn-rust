@@ -374,6 +374,52 @@ impl Store {
         Ok(())
     }
 
+    /// The owner's **Allow web access** choice for one chat. A chat with no
+    /// saved choice is allowed; whether the route can search is decided
+    /// separately, and Off is never overridden by it.
+    pub fn chat_web_allowed(&self, chat: &str) -> Result<bool> {
+        let exists = self
+            .conn
+            .query_row(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='chat_web_access'",
+                [],
+                |_| Ok(()),
+            )
+            .optional()?
+            .is_some();
+        if !exists {
+            return Ok(true);
+        }
+        Ok(self
+            .conn
+            .query_row(
+                "SELECT allowed FROM chat_web_access WHERE chat=?1",
+                [chat],
+                |row| row.get::<_, bool>(0),
+            )
+            .optional()?
+            .unwrap_or(true))
+    }
+
+    /// Save one chat's **Allow web access** choice; durable before this returns.
+    pub fn save_chat_web_allowed(&mut self, chat: &str, allowed: bool) -> Result<()> {
+        if chat.is_empty() || chat.len() > 256 {
+            return Err(Error::Invalid("unsupported chat".into()));
+        }
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(
+            "CREATE TABLE IF NOT EXISTS chat_web_access(chat TEXT PRIMARY KEY, allowed INTEGER NOT NULL)",
+        )?;
+        tx.execute(
+            "INSERT INTO chat_web_access(chat,allowed) VALUES(?1,?2) ON CONFLICT(chat) DO UPDATE SET allowed=excluded.allowed",
+            params![chat, allowed],
+        )?;
+        tx.commit()?;
+        Ok(())
+    }
+
     /// The caller's actor name, recorded beside every receipt this
     /// connection commits from now on; `None` records none. It is never part
     /// of a request's identity: a replay keeps the first actor.

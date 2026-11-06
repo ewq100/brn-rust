@@ -239,6 +239,7 @@ fn clone_request(request: &ThreadRunRequest) -> ThreadRunRequest {
         search: None,
         trace: TraceLevel::Off,
         requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 

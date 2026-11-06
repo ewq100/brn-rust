@@ -86,6 +86,8 @@ mod model_picker;
 mod notice;
 #[path = "threads_slash.rs"]
 mod slash;
+#[path = "threads_web.rs"]
+mod web;
 use notice::NoticeState;
 #[path = "threads_projects.rs"]
 mod projects_view;
@@ -536,6 +538,8 @@ struct ThreadsUi {
     model_picker: model_picker::ModelPicker,
     /// The composer's / command list (CHAT-08).
     slash: slash::Slash,
+    /// A new chat's **Allow web access** Off, saved when the chat is created.
+    new_chat_web_off: bool,
     backup_status: String,
     restore: restore_view::RestoreFlow,
     /// The open note's version history, shown in place of the document.
@@ -848,6 +852,7 @@ impl ThreadsUi {
             copilot_models: Vec::new(),
             model_picker: model_picker::ModelPicker::new(picker_query, favorite_models),
             slash: slash::Slash::default(),
+            new_chat_web_off: false,
             backup_status: "No backup created in this session.".into(),
             restore: Default::default(),
             doc_history: None,
@@ -2355,6 +2360,11 @@ impl ThreadsUi {
             ChatTarget::NewForNote(note) => self.ensure_writing_thread(&note),
             ChatTarget::New => self.workspace.new_thread(&short(&prompt)).map(|r| r.id),
         };
+        if let Ok(thread) = &thread
+            && !matches!(self.chat, ChatTarget::Thread(_))
+        {
+            self.adopt_new_chat_web(thread);
+        }
         match thread.and_then(|thread| {
             self.workspace
                 .post_message(&thread, &prompt)

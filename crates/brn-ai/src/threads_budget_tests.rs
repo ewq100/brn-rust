@@ -451,6 +451,7 @@ async fn prior_progress_and_operation_receipts_are_bounded_in_the_actual_request
                     progress: format!("progress-{i:03}: {}", "õun English ".repeat(300)),
                     operations: vec![receipt.clone()],
                     sources: vec![],
+                    web_sources: Vec::new(),
                 }),
             }],
         );

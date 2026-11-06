@@ -57,6 +57,7 @@ fn fixture(cx: &mut TestAppContext, state: RunState) -> Fixture {
                         progress: "Synthetic progress".into(),
                         operations: vec![],
                         sources: vec![],
+                        web_sources: Vec::new(),
                     }),
                 }],
                 inputs: vec![],
@@ -1173,6 +1174,7 @@ fn run_template(ui: &ThreadsUi, state: RunState) -> Run {
         progress: "Synthetic progress".into(),
         operations: vec![],
         sources: vec![],
+        web_sources: Vec::new(),
     }
 }
 

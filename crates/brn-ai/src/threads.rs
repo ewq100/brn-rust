@@ -84,8 +84,12 @@ mod research;
 mod threads_text;
 #[path = "threads_trace.rs"]
 mod trace;
+#[path = "threads_web.rs"]
+mod web;
 #[path = "threads_wire_trace.rs"]
 mod wire_trace;
+pub use tokio_util::sync::CancellationToken as WebSearchCancel;
+pub use web::{ACTIVITY as WEB_SEARCH_ACTIVITY, MAX_WEB_SEARCHES, RunWebSearch, WebSearchFuture};
 
 pub use trace::{HelperTrace, RunTrace, SummaryTrace, TraceCall, TraceLevel, TraceUsage};
 #[path = "threads_sources.rs"]
@@ -136,6 +140,9 @@ mod source_tests;
 #[path = "threads_steering_tests.rs"]
 mod steering_tests;
 #[cfg(test)]
+#[path = "threads_web_tests.rs"]
+mod web_tests;
+#[cfg(test)]
 #[path = "threads_writing_tests.rs"]
 mod writing_tests;
 /// Constructed by the trusted request UI/CLI, never accepted from model tools
@@ -169,6 +176,9 @@ pub struct ThreadRunRequest {
     /// Skill ids requested with `/` in this message. They are loaded for this
     /// run only and never change scoped skill policy.
     pub requested_skills: Vec<String>,
+    /// The chat's checked web route. `None` leaves `web_search` unregistered
+    /// and refused; a writing Rewrite or capture never receives it.
+    pub web_search: Option<Arc<dyn RunWebSearch>>,
 }
 pub struct ThreadResult {
     pub terminal_run: Option<(String, u64)>,
@@ -320,6 +330,8 @@ struct Scope {
     decision_target: Mutex<Option<String>>,
     reads: Mutex<reads::ReadLedger>,
     search: Option<Arc<dyn RunNoteSearch>>,
+    /// Set only for a chat run whose owner allowed web access.
+    web: Option<Arc<web::WebRuntime>>,
     trace: Option<Arc<trace::TraceCollector>>,
     max_rounds: u16,
     /// Routes a Codex conversation's model turns to one prompt cache.
@@ -604,6 +616,10 @@ fn validate_arguments(name: &str, args: &Value) -> std::result::Result<(), Argum
                     a.ids.len() <= 100 && a.query.as_ref().is_none_or(|q| q.len() <= 1024)
                 }),
             "Supply ids as an array of at most 100 strings and query as a string of at most 1024 UTF-8 bytes or null; both fields are required and extra fields are not accepted.",
+        ),
+        "web_search" => (
+            web::validate(args),
+            "Supply only query: a non-empty public query of at most 1024 UTF-8 bytes.",
         ),
         "search_notes" => (
             note_search::validate_search(args),
@@ -1017,6 +1033,8 @@ const SEARCH_TOOLS: [(&str, &str); 2] = [
         "Following note connections…",
     ),
 ];
+/// Registered only for chat runs whose owner allowed web access.
+const WEB_TOOL_ACTIVITY: (&str, &str) = (<web::WebSearch as Tool>::NAME, web::ACTIVITY);
 /// Registered only for runs with a helper (`research`) or inside a helper.
 const HELPER_TOOL_ACTIVITY: [(&str, &str); 2] = [
     (
@@ -1033,6 +1051,7 @@ pub fn tool_activity(name: &str) -> Option<&'static str> {
         SEARCH_TOOLS
             .iter()
             .chain(HELPER_TOOL_ACTIVITY.iter())
+            .chain(std::iter::once(&WEB_TOOL_ACTIVITY))
             .find(|(tool, _)| *tool == name)
             .map(|(_, activity)| *activity)
     })
@@ -2496,6 +2515,8 @@ struct BatchHook {
     trace: Option<Arc<trace::TraceCollector>>,
     /// A helper's role tools; a call outside them is an invalid batch.
     allowed: Option<&'static [&'static str]>,
+    /// Whether this run offers `web_search`; otherwise a call is forbidden.
+    web: bool,
     /// Shared helper input-token budget: (spent, cap).
     tokens: Option<(Arc<AtomicU64>, u64)>,
     /// Tool calls dispatched in the current model turn.
@@ -2767,6 +2788,7 @@ impl AgentHook for BatchHook {
             forbidden |= name == PrepareChanges::NAME && !self.prepare.accepts_writing(&args);
             forbidden |= name == note_edit::PrepareNoteEdit::NAME && !self.prepare.local_edits;
             forbidden |= name == "read_skill" && self.skill_refused(&args);
+            forbidden |= name == <web::WebSearch as Tool>::NAME && !self.web;
             match validate_arguments(name, &args).and_then(|()| {
                 if name == PrepareChanges::NAME {
                     self.prepare.validate_proposed_comments(&args)
@@ -3807,6 +3829,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
             progress: String::new(),
             operations: vec![],
             sources: source_ids.clone(),
+            web_sources: Vec::new(),
         }),
     });
     if !already_posted {
@@ -3999,6 +4022,11 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
     let helper = settings
         .and_then(|(_, settings)| settings.helper.clone())
         .filter(|_| writing_snapshot.is_none() && capture_snapshot.is_none());
+    let web = request
+        .web_search
+        .clone()
+        .filter(|_| writing_snapshot.is_none() && capture_snapshot.is_none())
+        .map(|searcher| Arc::new(web::WebRuntime::new(searcher)));
     let scope = Arc::new(Scope {
         call_budget: Arc::new(wire_trace::CallBudget::default()),
         external: Mutex::new(None),
@@ -4025,6 +4053,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         decision_target: Mutex::new(None),
         reads: Mutex::default(),
         search: request.search.clone(),
+        web,
         trace: trace::TraceCollector::new(request.trace).map(Arc::new),
         max_rounds: request.max_tool_rounds,
         cache_key: cache_key(request.selection.provider, &request.thread),
@@ -4458,6 +4487,10 @@ async fn run_model_budgeted(
             builder = builder.tool(research::Research);
         }
     }
+    if let Some(web) = &scope.web {
+        web.bind(cancel.clone());
+        builder = builder.tool(web::WebSearch);
+    }
     if let Some(invocation) = mcp_runtime::invocation(&scope) {
         match invocation.dynamic() {
             Ok(tool) => builder = builder.dynamic_tool(tool),
@@ -4505,6 +4538,7 @@ async fn run_model_budgeted(
             emit: emit.clone(),
             trace: scope.trace.clone(),
             allowed: None,
+            web: scope.web.is_some(),
             tokens: None,
             turn_calls: AtomicU16::new(0),
             corrections: AtomicU16::new(0),
@@ -4734,6 +4768,7 @@ mod tests {
                 search: None,
                 trace: TraceLevel::Off,
                 requested_skills: Vec::new(),
+                web_search: None,
             },
             note,
         )
@@ -6225,6 +6260,7 @@ mod tests {
             search: None,
             trace: TraceLevel::Off,
             requested_skills: Vec::new(),
+            web_search: None,
         }
     }
     fn chat_attention(request: &ThreadRunRequest) -> Vec<Attention> {

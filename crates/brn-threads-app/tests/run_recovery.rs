@@ -98,6 +98,7 @@ fn intake_request(data: &Path, chat: &str) -> ThreadRunRequest {
         search: None,
         trace: brn_ai::threads::TraceLevel::Off,
         requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 

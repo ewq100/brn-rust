@@ -28,6 +28,7 @@ fn next(request: &ThreadRunRequest, prompt: &str) -> ThreadRunRequest {
         search: None,
         trace: TraceLevel::Summary,
         requested_skills: request.requested_skills.clone(),
+        web_search: None,
     }
 }
 fn save(store: &mut Store, writes: Vec<Put>) {
@@ -2236,6 +2237,7 @@ mod capture_runner {
             search: None,
             trace: TraceLevel::Summary,
             requested_skills: Vec::new(),
+            web_search: None,
         })
         .unwrap_or_else(|_| panic!("reserved preparation refused; never retry"));
         if prepared_matches(&prepared, p).is_err() {
@@ -2876,6 +2878,7 @@ mod capture_runner {
                     search: None,
                     trace: TraceLevel::Summary,
                     requested_skills: Vec::new(),
+                    web_search: None,
                 })
                 .unwrap();
                 prepared_matches(&prepared, p).unwrap();

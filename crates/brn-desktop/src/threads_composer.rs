@@ -256,7 +256,7 @@ impl ThreadsUi {
         };
         components::icon_button("composer-add", IconName::Plus, "Add to this chat")
             .tooltip("Attach a document, add information or start a document")
-            .accessible_dropdown_menu(move |mut menu, _, _| {
+            .accessible_dropdown_menu(move |mut menu, _, cx| {
                 menu = menu
                     .item(item(
                         &this,
@@ -294,6 +294,9 @@ impl ThreadsUi {
                         false,
                         |view, window, cx| view.new_note(window, cx),
                     ));
+                if let Some(view) = this.upgrade() {
+                    menu = view.read(cx).web_menu(&this, menu);
+                }
                 if !tools.is_empty() {
                     menu = menu.separator().label("Local tools");
                     for tool in &tools {

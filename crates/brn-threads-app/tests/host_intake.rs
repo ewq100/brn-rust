@@ -144,6 +144,7 @@ fn request(w: &World, source: &str, search: bool) -> ThreadRunRequest {
         search: search.then(|| Arc::new(w.handle.clone()) as _),
         trace: TraceLevel::Full,
         requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 

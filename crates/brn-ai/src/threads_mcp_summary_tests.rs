@@ -45,6 +45,7 @@ async fn chosen_catalogue_changes_identity_and_summary_key_but_same_definition_i
             search: None,
             trace: TraceLevel::Summary,
             requested_skills: Vec::new(),
+            web_search: None,
         };
         let prepared = prepare_run(request)
             .unwrap()

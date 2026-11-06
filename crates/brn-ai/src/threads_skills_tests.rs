@@ -354,6 +354,7 @@ async fn selected_instruction_admission_refuses_intact_oversize_before_dispatch_
         search: None,
         trace: TraceLevel::Summary,
         requested_skills: Vec::new(),
+        web_search: None,
     };
     let http = SequencedHttpClient::new([MockHttpResponse::success_typed(
         cache_tests::final_turn(),

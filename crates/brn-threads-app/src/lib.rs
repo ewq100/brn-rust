@@ -51,6 +51,7 @@ pub use skills::{
     Package as SkillPackage, PackageInfo as SkillPackageInfo,
     RETENTION_NOTICE as SKILL_RETENTION_NOTICE, SkillStatus,
 };
+pub use subscription_search::WebAccessState;
 mod steering;
 mod topics;
 mod writing;

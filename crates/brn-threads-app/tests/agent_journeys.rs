@@ -131,6 +131,7 @@ fn request(data: &Path, chat: &str, handle: &SearchHandle, rounds: u16) -> Threa
         search: Some(Arc::new(handle.clone())),
         trace: brn_ai::threads::TraceLevel::Full,
         requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 

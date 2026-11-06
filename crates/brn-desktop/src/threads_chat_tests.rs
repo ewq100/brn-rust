@@ -162,6 +162,7 @@ pub(super) fn record_run(
                         progress: progress.into(),
                         operations: vec![],
                         sources: vec![],
+                        web_sources: Vec::new(),
                     }),
                 }],
             },
@@ -396,6 +397,7 @@ fn resume_queue_names_the_waiting_messages_while_the_pending_reply_may_still_run
                                 progress: "Started in another window".into(),
                                 operations: vec![],
                                 sources: vec![],
+                                web_sources: Vec::new(),
                             }),
                         },
                         Put {
@@ -2166,7 +2168,9 @@ fn the_new_chat_start_has_a_greeting_the_composer_three_actions_and_the_delegati
             "Attach document…",
             "Add useful information…",
             "Import full note…",
-            "New document"
+            "New document",
+            "Allow web access",
+            "Web unavailable · Not available for this provider",
         ]
     );
 }
@@ -2394,5 +2398,185 @@ fn the_slash_list_completes_a_command_into_only_the_current_message(cx: &mut Tes
     cx.read(|cx| {
         let text = f.view.read(cx).composer.read(cx).value().to_string();
         assert!(!text.contains("/intake"), "composition kept ↵: {text}");
+    });
+}
+
+fn allow_subscription_web(workspace: &mut Workspace) {
+    let mut settings = workspace.settings().unwrap();
+    settings.provider = "codex".into();
+    settings.model = "gpt-6-sol".into();
+    settings.effort = "medium".into();
+    settings.auth_file = Some("/synthetic/brn-test/auth.json".into());
+    workspace.configure(settings).unwrap();
+}
+
+/// CHAT-07: Allow web access is a checked + menu row saved per chat; a new
+/// chat's Off waits for the send that creates it.
+#[gpui_kit::test]
+fn allow_web_access_is_saved_per_chat_and_for_the_next_new_chat(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |workspace, _, _| {
+        allow_subscription_web(workspace)
+    });
+    let checked = |cx: &mut TestAppContext, f: &Fixture| {
+        on_window(cx, f, |window, _| {
+            let menu = window.within("popup-menu");
+            let index = (0..60usize)
+                .find(|index| {
+                    menu.try_find(*index)
+                        .is_some_and(|row| row.label() == Some("Allow web access"))
+                })
+                .expect("web row");
+            menu.find(index).checked()
+        })
+    };
+    click(cx, &f, "composer-add");
+    assert!(menu_rows(cx, &f).contains(&"Allow web access".to_owned()));
+    assert_eq!(checked(cx, &f), Some(true), "chats start Allowed");
+    choose(cx, &f, "Allow web access");
+    let other = cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(
+            view.workspace.chat_web_access(Some(&f.thread)).unwrap(),
+            WebAccessState::Off
+        );
+        view.workspace
+            .store
+            .records()
+            .unwrap()
+            .into_iter()
+            .find(|r| matches!(&r.data, RecordData::Thread(t) if t.title == "Other chat"))
+            .unwrap()
+            .id
+    });
+    cx.read(|cx| {
+        assert_eq!(
+            f.view
+                .read(cx)
+                .workspace
+                .chat_web_access(Some(&other))
+                .unwrap(),
+            WebAccessState::Allowed,
+            "another chat keeps its own state"
+        );
+    });
+    click(cx, &f, "composer-add");
+    assert_ne!(checked(cx, &f), Some(true));
+    cx.simulate_keystrokes(f.window, "escape");
+
+    // A new chat: Off is pending until the chat exists, then saved for it.
+    update(cx, &f, |view, window, cx| view.new_thread(window, cx));
+    update(cx, &f, |view, _, cx| {
+        assert_eq!(view.web_access(), WebAccessState::Allowed);
+        view.toggle_web_access(cx);
+        assert_eq!(view.web_access(), WebAccessState::Off);
+        let chat = view.workspace.new_thread("Fresh").unwrap().id;
+        view.adopt_new_chat_web(&chat);
+        assert_eq!(
+            view.workspace.chat_web_access(Some(&chat)).unwrap(),
+            WebAccessState::Off
+        );
+        assert_eq!(view.web_access(), WebAccessState::Allowed, "consumed once");
+    });
+}
+
+/// An unsupported route is Unavailable with its reason, never Off.
+#[gpui_kit::test]
+fn web_access_states_an_unavailable_route_separately(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_, _, _| {});
+    click(cx, &f, "composer-add");
+    let rows = menu_rows(cx, &f);
+    assert!(rows.contains(&"Allow web access".to_owned()), "{rows:?}");
+    assert!(
+        rows.iter().any(|row| row.starts_with("Web unavailable · ")),
+        "{rows:?}"
+    );
+    update(cx, &f, |view, _, cx| {
+        let before = view.web_access();
+        assert!(matches!(before, WebAccessState::Unavailable(_)));
+        view.toggle_web_access(cx);
+        assert_eq!(view.web_access(), before, "nothing to flip");
+    });
+}
+
+/// The answer cites the pages its own run searched, as openable links.
+#[gpui_kit::test]
+fn an_answer_lists_its_runs_web_sources(cx: &mut TestAppContext) {
+    let mut answer = String::new();
+    let f = fixture(cx, 1250., 860., |workspace, thread, _| {
+        let key = "web-answer";
+        let op = workspace.store.allocate_operation(key).unwrap();
+        let settings = workspace.settings().unwrap();
+        answer = op.creation_id(1);
+        workspace
+            .owner_change(
+                key,
+                &ChangeRequest {
+                    reason: "Synthetic web answer".into(),
+                    inputs: vec![],
+                    writes: vec![
+                        Put {
+                            id: op.creation_id(0),
+                            expected_version: None,
+                            archived: false,
+                            data: RecordData::Run(Run {
+                                loaded_skill_details: vec![],
+                                instruction: None,
+                                queue_claim: None,
+                                thread: thread.into(),
+                                provider: "offline-fixture".into(),
+                                model: settings.model,
+                                guide_identity: "web".into(),
+                                budget: 1,
+                                effort: settings.effort,
+                                loaded_skills: vec![],
+                                fence: 0,
+                                state: RunState::Completed,
+                                progress: String::new(),
+                                operations: vec![],
+                                sources: vec![],
+                                web_sources: vec![
+                                    WebSource {
+                                        url: "https://example.org/release".into(),
+                                        title: Some("Example release notes".into()),
+                                    },
+                                    WebSource {
+                                        url: "https://docs.example.com/a/b?c=d".into(),
+                                        title: None,
+                                    },
+                                ],
+                            }),
+                        },
+                        Put {
+                            id: answer.clone(),
+                            expected_version: None,
+                            archived: false,
+                            data: RecordData::Message(Message {
+                                thread: thread.into(),
+                                role: "assistant".into(),
+                                text: "The release shipped [1].".into(),
+                            }),
+                        },
+                    ],
+                },
+            )
+            .unwrap();
+    });
+    on_window(cx, &f, |window, _| {
+        let list = window.find(format!("answer-web-sources-{answer}"));
+        assert!(list.visible());
+        assert_eq!(list.label(), Some("Web sources"));
+        assert_eq!(
+            window.find(format!("answer-web-source-{answer}-0")).label(),
+            Some("Example release notes · https://example.org/release")
+        );
+        assert_eq!(
+            window.find(format!("answer-web-source-{answer}-1")).label(),
+            Some("docs.example.com · https://docs.example.com/a/b?c=d")
+        );
+        let reply = window.find(format!("answer-copy-{answer}")).bounds();
+        assert!(
+            list.bounds().bottom() <= reply.top(),
+            "sources sit under the answer, above its actions"
+        );
     });
 }

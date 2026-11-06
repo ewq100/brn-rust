@@ -51,6 +51,7 @@ fn request(data: &Path, chat: &str) -> ThreadRunRequest {
         search: None,
         trace: TraceLevel::Full,
         requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 fn proposal(note: &Record) -> ProbeResult<MockCompletionModel> {

@@ -1062,6 +1062,7 @@ pub(super) fn record_rewrite_run(
                             progress: progress.into(),
                             operations: vec![],
                             sources: vec![],
+                            web_sources: Vec::new(),
                         }),
                     }],
                 },

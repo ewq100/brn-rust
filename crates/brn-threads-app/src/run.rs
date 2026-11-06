@@ -103,6 +103,7 @@ impl Workspace {
             ),
             Err(error) => (None, format!("unavailable: {error}")),
         };
+        let web_search = self.web_searcher(&start.thread, &settings);
         let request = ThreadRunRequest {
             request_message: start.request_message,
             queue_claim: start.queue_claim,
@@ -121,6 +122,7 @@ impl Workspace {
             search,
             trace: start.trace,
             requested_skills: start.requested_skills,
+            web_search,
         };
         let prepared = prepare_run(request).map_err(RunPreparationError::Preparation)?;
         Ok(PreparedWorkspaceRun {

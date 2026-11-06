@@ -37,6 +37,7 @@ fn fixture() -> (tempfile::TempDir, Workspace, String, String) {
                     progress: String::new(),
                     operations: vec![],
                     sources: vec![],
+                    web_sources: Vec::new(),
                 }),
             }],
         },

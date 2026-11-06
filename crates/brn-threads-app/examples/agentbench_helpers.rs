@@ -265,6 +265,7 @@ async fn run_case(root: &Path, case: &Value, witness: &str) -> R<Value> {
         search: Some(search),
         trace: TraceLevel::Full,
         requested_skills: Vec::new(),
+        web_search: None,
     })?;
     let result = run_prepared_scripted_with_helpers(prepared, model.clone(), helpers).await?;
     if !matches!(result.answer.terminal, AiTerminal::Completed) {

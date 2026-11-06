@@ -40,6 +40,7 @@ fn working_run(app: &mut Workspace, thread: &str) -> String {
                     progress: String::new(),
                     operations: vec![],
                     sources: vec![],
+                    web_sources: Vec::new(),
                 }),
             }],
         },

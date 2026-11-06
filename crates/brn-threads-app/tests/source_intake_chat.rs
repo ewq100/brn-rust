@@ -71,6 +71,7 @@ fn request_for(data: &std::path::Path, chat: &str, reference: &str) -> ThreadRun
         search: None,
         trace: brn_ai::threads::TraceLevel::Off,
         requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 
@@ -336,6 +337,7 @@ fn seed_older_useful_intake(w: &mut Workspace, locator: &str) -> (String, String
                             progress: String::new(),
                             operations: vec![],
                             sources: vec![source_id.clone()],
+                            web_sources: Vec::new(),
                         }),
                     },
                 ],
