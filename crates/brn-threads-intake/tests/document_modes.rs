@@ -172,7 +172,6 @@ fn wrong_backend_missing_helper_and_cancel_cannot_fall_back() {
 #[test]
 #[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn successful_process_with_wrong_response_identity_is_rejected_and_limits_are_enforced() {
-    use std::os::unix::fs::PermissionsExt;
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let mut converter = Converter {
         temp_root: root.path().join("scratch"),
@@ -193,7 +192,11 @@ fn successful_process_with_wrong_response_identity_is_rejected_and_limits_are_en
         assets: vec![],
         gaps: vec![],
     };
-    let path = root.path().join("synthetic-helper");
+    // Never write an executable while other libtest threads may fork. Linux
+    // can retain that writable inode in a forked child and refuse exec (ETXTBSY).
+    // Only the response data changes; the helper remains a static repository file.
+    let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("tests/fixtures/document-response-helper.sh");
     let paths = DocumentHelpers {
         stock: path.clone(),
         brn: path.clone(),
@@ -208,13 +211,7 @@ fn successful_process_with_wrong_response_identity_is_rejected_and_limits_are_en
             _ => value["engine_identity"] = serde_json::json!("unknown-bundle"),
         }
         let json = serde_json::to_string(&value).unwrap();
-        let quoted = json.replace('\'', "'\\''");
-        std::fs::write(
-            &path,
-            format!("#!/bin/sh\n/bin/cat >/dev/null\nprintf '%s' '{quoted}'\n"),
-        )
-        .unwrap();
-        std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o700)).unwrap();
+        std::fs::write(root.path().join("synthetic-response.json"), json).unwrap();
         let actual =
             converter.convert_document(request(), &paths, "xberg", &AtomicBool::new(false));
         if kind == 0 {

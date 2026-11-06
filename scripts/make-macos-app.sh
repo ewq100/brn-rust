@@ -5,7 +5,7 @@ set -euo pipefail
 usage() {
   cat <<'HELP'
 Usage: make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY --xberg-helper ABSOLUTE_STOCK --xberg-helper-brn ABSOLUTE_ADAPTED --data-dir ABSOLUTE_DIRECTORY
-       make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY --xberg-helper ABSOLUTE_STOCK --xberg-helper-brn ABSOLUTE_ADAPTED --preview-version vX.Y.Z-preview.N [--build-number N]
+       make-macos-app.sh --output ABSOLUTE.app --binary ABSOLUTE_BINARY --xberg-helper ABSOLUTE_STOCK --xberg-helper-brn ABSOLUTE_ADAPTED --preview-version vX.Y.Z-alpha.N [--build-number N]
 
 Creates an unsigned local .app. The specified binary is copied into the bundle.
 An explicit fresh Threads data directory is required.
@@ -41,7 +41,7 @@ for value in "$output" "$binary" "$xberg_helper" "$xberg_helper_brn"; do
   if [[ "$value" != /* ]]; then echo "Required paths must be absolute and nonempty" >&2; exit 2; fi
 done
 if [[ -n "$preview_version" ]]; then
-  if [[ -n "$data_dir" || ! "$preview_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[1-9][0-9]*$ ]]; then echo 'Choose a valid preview version or an explicit data directory' >&2; exit 2; fi
+  if [[ -n "$data_dir" || ! "$preview_version" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-(preview|alpha)\.[1-9][0-9]*$ ]]; then echo 'Choose a valid preview version or an explicit data directory' >&2; exit 2; fi
 elif [[ "$data_dir" != /* ]]; then
   echo 'An absolute --data-dir or --preview-version is required' >&2; exit 2
 fi
@@ -56,6 +56,7 @@ for helper in "$xberg_helper" "$xberg_helper_brn"; do
 done
 mkdir -p "$output/Contents/MacOS" "$output/Contents/Resources/bin"
 cp "$binary" "$output/Contents/Resources/bin/brn-desktop"
+cp "$(cd "$(dirname "$0")" && pwd)/brn-update" "$output/Contents/Resources/bin/brn-update"
 cp "$xberg_helper" "$output/Contents/Resources/bin/brn-xberg-helper"
 cp "$xberg_helper_brn" "$output/Contents/Resources/bin/brn-xberg-helper-brn"
 chmod +x "$output/Contents/Resources/bin/"*
@@ -70,7 +71,7 @@ cat > "$output/Contents/Info.plist" <<'PLIST'
   <key>CFBundlePackageType</key><string>APPL</string>
 PLIST
 short_version=0.1.0
-if [[ -n "$preview_version" ]]; then short_version="${preview_version#v}"; short_version="${short_version%-preview.*}"; fi
+if [[ -n "$preview_version" ]]; then short_version="${preview_version#v}"; short_version="${short_version%%-*}"; fi
 printf '  <key>CFBundleShortVersionString</key><string>%s</string>\n  <key>CFBundleVersion</key><string>%s</string>\n' "$short_version" "$build_number" >> "$output/Contents/Info.plist"
 if [[ -n "$preview_version" ]]; then
   printf '  <key>LSMinimumSystemVersion</key><string>15.0</string>\n' >> "$output/Contents/Info.plist"
@@ -111,6 +112,9 @@ fail() {
 for helper in brn-xberg-helper brn-xberg-helper-brn; do
   [[ -x "$resource_dir/bin/$helper" ]] || fail "Bundled document helper is missing or not executable: $helper"
 done
+app_root="$(cd "$resource_dir/.." && pwd)"
+app_root="$(dirname "$app_root")"
+[[ ! -e "$(dirname "$app_root")/.$(basename "$app_root").update-lock" ]] || fail "An update or recovery is in progress. Finish the terminal update/recovery before reopening BRN."
 args=()
 if [[ -n "$data_dir" ]]; then
   if [[ "$portable_preview" == 0 ]]; then

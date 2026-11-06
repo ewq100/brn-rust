@@ -209,6 +209,102 @@
             ]
           }
         ]
+      },
+      {
+        "id": "mac-updater-253",
+        "title": "Implement and qualify the versioned Mac updater",
+        "owner": "Agent B",
+        "state": "active",
+        "activity": "Resumed normal integration of PR258 with main6897fe56 after Rig259, Copilot261 and development-speed262 merged. Resolving only task/status routing conflicts while preserving all updater source, static Linux fixture repair, raw evidence and other tasks. Prior seven green checks cover an older integration base.",
+        "observed_at": "2026-11-06T21:02:54.795698+02:00",
+        "origin": "observed",
+        "next_action": "Review refreshed combination, run applicable checks, request final-head Codex code/security review and normal merge under standing owner instruction; verify resulting main. Coordinate with A before heavy builds and select final package only after response-limit fixes land. Native clean-profile session and approved published stock HTTPS pair remain separate gates.",
+        "depends_on": [],
+        "resource_waits": [
+          "Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.",
+          "Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending."
+        ],
+        "evidence": [
+          "https://github.com/ewq100/brn-rust/issues/253",
+          "docs/work/active/windows-ci-portability/mac-updater-253.md",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/real-update.json",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/tooling-tests.log",
+          "https://github.com/ewq100/brn-rust/pull/258",
+          "https://github.com/ewq100/brn-rust/actions/runs/42218718106",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/published-preparation.json"
+        ],
+        "gates": {
+          "implementation": "Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.",
+          "checks": "Original tooling corrected:353 total=342 passed+11 skipped. Resumed:360 total=349 passed+11 skipped; intake crate11 passed/1 existing ignored and all-target Clippy passed. Linux baseline/submitted identical code both reproduced ETXTBSY with concurrent forks; static fixture40 plain+400 stressed complete loops passed. Real local signed A\u2192B rerun preserved synthetic files/state/backup. Production build/helper evidence retained unchanged; headless/local transport is not stock published HTTPS or native acceptance. OUTSTANDING: actual approved preview.1/.2 metadata/digests/source-approved receipts verified; preparation blocked because neither includes updater. New preparation plus guarded --stock-transport witness ready for an authority-approved published command-enabled A/B pair. No ZIP/app/updater executed from those legacy releases.",
+          "integration": "Pending refreshed combination: normal merge main6897fe56 into PR258; prior7d2436ee checks tested older base2ebcf4c7. Current standing owner instruction authorizes normal merge after applicable checks/review; native/release acceptance separate.",
+          "native": "Pending: screen remains locked. Local real-package/headless evidence is not native acceptance, clean-Mac Gatekeeper acceptance or a published-release transport witness.",
+          "owner_acceptance": "Pending Agent A selected runtime/Copilot candidate, native install/update/reopen and required Copilot journeys, then owner use before invited distribution."
+        },
+        "attempts": [
+          {
+            "outcome": "Initial cargo invocation unavailable in shell PATH; system Python lacks tomllib.",
+            "change": "Used installed pinned 1.98.1 toolchain and existing Python 3.11 explicitly; no global environment changes.",
+            "evidence": [
+              "scripts/tests/test_macos_updater.py"
+            ]
+          },
+          {
+            "outcome": "Independent review found recipient lipo/otool Xcode-shim dependency and non-repeatable recovery claim; first lockf-supervisor repair still allowed orphan recovery to lose exclusion.",
+            "change": "Use stock codesign identity metadata and verified system-library inventory; shell-held FD lockf guard inherited by filesystem children. SIGKILL/PID-only orphan/concurrent/idempotent recovery regressions passed; independent recheck found no remaining issue.",
+            "evidence": [
+              "scripts/brn-update",
+              "scripts/tests/test_macos_updater.py",
+              "docs/work/active/windows-ci-portability/mac-updater-253.md"
+            ]
+          },
+          {
+            "outcome": "First real-product qualification completed behavioral assertions but failed report emission on project-create result shape (KeyError id).",
+            "change": "Read Project write identity, link project/note, add a real imported figure asset and rerun qualification; real-update.json emitted successfully.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/evidence/mac-updater-253/qualifier-report-failure.log.gz",
+              "docs/work/active/windows-ci-portability/evidence/mac-updater-253/real-update.json"
+            ]
+          },
+          {
+            "outcome": "Hosted Ubuntu Core/CLI42215703623 failed document_modes first valid synthetic response with Unavailable. Original errno was not logged; baseline/submitted test and process hashes identical.",
+            "change": "Separate bounded Ubuntu diagnosis42218718106:40 plain passes each; controlled concurrent forks reproduce errno26 ETXTBSY on both. Replace only mutable executable fixture with static helper and ordinary JSON;40 plain/400 complete stressed fixed loops pass. Preserve all response/budget/cleanup assertions; no skip or production retry.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/42218718106",
+              "docs/work/active/windows-ci-portability/evidence/mac-updater-253/linux-spawn-summary.json",
+              "crates/brn-threads-intake/tests/document_modes.rs"
+            ]
+          },
+          {
+            "outcome": "Only approved published preview.1/.2 available; neither has command-enabled bundle receipt. Historical353 tooling total was wrongly called353 passed.",
+            "change": "Verify actual HTTPS published metadata/receipts against asset digest and approved source; report blocked before ZIP/code. Prepare separate guarded stock transport witness. Correct old count342pass+11skip=353total; resumed349pass+11skip=360total.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/evidence/mac-updater-253/published-preparation.json",
+              "scripts/prepare-published-macos-update.py",
+              "docs/work/active/windows-ci-portability/evidence/mac-updater-253/tooling-tests-resume.log"
+            ]
+          }
+        ],
+        "authority": {
+          "source": "Current owner: continue Agent B PR258 integration through normal merge once applicable gates pass; final package/update/native acceptance in253; coordinate A response-limit fixes and Copilot acceptance.",
+          "limits": "Synthetic disposable installations/data only. No owner-store/credential copying, forced quit, security bypass or publication without existing release-manifest approval. Preserve A/C work."
+        },
+        "resources": {
+          "lead": "Retain selected lead configuration; one fresh read-only independent integration/security reviewer, maximum one helper. Reassess on production conflict, failed preservation witness or unowned runtime/package interface.",
+          "reuse": "Adapt existing launcher, ad-hoc ZIP packager, approved-manifest immutable release workflow. Use built-in macOS bash/curl/plutil/shasum/ditto/codesign/lipo/otool and same-volume renames. Custom script supplies only explicit update transaction/recovery gap.",
+          "stop": "Reassess on failed preservation/recovery witness or unowned runtime/package interface; never expand into provider implementation."
+        },
+        "external_dependencies": [
+          {
+            "issue": "https://github.com/ewq100/brn-rust/issues/252",
+            "condition": "Final candidate includes A response-limit hardening and selected Copilot acceptance handoff; Rig259/Copilot261 merged, no new bundled CLI/SDK required",
+            "satisfied": false
+          },
+          {
+            "issue": "https://github.com/ewq100/brn-rust/issues/253",
+            "condition": "Release-manifest authority approves command-enabled increasing A/B versions and publication; current published previews lack updater",
+            "satisfied": false
+          }
+        ]
       }
     ]
   }

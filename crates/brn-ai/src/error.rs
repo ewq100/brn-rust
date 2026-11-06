@@ -35,6 +35,19 @@ impl AiError {
             _ => None,
         }
     }
+    /// A model response that reached BRN's per-response bound; the guard
+    /// stops the run, so a fresh Continue is the only recovery.
+    pub(crate) fn response_limit_notice(&self) -> Option<&'static str> {
+        let detail = self.detail.as_ref()?;
+        if detail.origin != "response_limit" {
+            return None;
+        }
+        match detail.code.as_deref()? {
+            "brn_response_duration_exceeded" => Some("A model response reached BRN's time limit."),
+            "brn_response_output_exceeded" => Some("A model response reached BRN's size limit."),
+            _ => None,
+        }
+    }
     pub(crate) fn account_changed_notice(&self) -> Option<&'static str> {
         (self.kind == AiErrorKind::ReconnectNeeded && self.detail.as_ref().is_some_and(|d|
             d.origin == "account_pin" && d.code.as_deref() == Some("account_changed")))
