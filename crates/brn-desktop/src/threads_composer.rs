@@ -473,6 +473,7 @@ impl ThreadsUi {
                         .test_support(),
                 )
             })
+            .child(super::slash::bounds_probe(&self.slash.composer_bounds))
             .children(self.slash_menu(cx))
             .child(
                 div()

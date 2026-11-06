@@ -5,7 +5,7 @@
 //! removes it, and nothing persists for the chat, project or later messages.
 //! Built-in skills stay automatically available either way.
 use super::*;
-use gpui_kit::{EntityInputHandler, Focusable};
+use gpui_kit::{Bounds, EntityInputHandler, Focusable, Pixels};
 use std::ops::Range;
 
 /// One choosable command, as the skill catalogue reports it.
@@ -42,6 +42,41 @@ pub(super) struct Slash {
     pub dismissed: Option<usize>,
     /// Keeps the keyboard-selected row in view when the list scrolls.
     pub scroll: gpui_kit::ScrollHandle,
+    /// Last painted bounds of the composer field and of the chat area that
+    /// clips it; the list opens on the side with room.
+    pub composer_bounds: BoundsProbe,
+    pub area_bounds: BoundsProbe,
+}
+
+pub(super) type BoundsProbe = std::rc::Rc<std::cell::Cell<Option<Bounds<Pixels>>>>;
+
+/// An empty layer that records its painted bounds into `probe`.
+pub(super) fn bounds_probe(probe: &BoundsProbe) -> impl IntoElement {
+    let probe = probe.clone();
+    gpui_kit::canvas(move |bounds, _, _| probe.set(Some(bounds)), |_, _, _, _| {})
+        .absolute()
+        .size_full()
+}
+
+const MENU_MAX: f32 = 260.;
+const MENU_MIN: f32 = 96.;
+
+/// Whether the list opens above the composer, and its height limit: above
+/// when that side fits the full list or has at least as much room, else
+/// below; the limit shrinks to the chosen side's room.
+fn menu_placement(
+    composer: Option<Bounds<Pixels>>,
+    area: Option<Bounds<Pixels>>,
+) -> (bool, Pixels) {
+    let (Some(composer), Some(area)) = (composer, area) else {
+        return (true, px(MENU_MAX));
+    };
+    let gap = px(8.);
+    let up = composer.top() - area.top() - gap;
+    let down = area.bottom() - composer.bottom() - gap;
+    let above = up >= px(MENU_MAX) || up >= down;
+    let room = if above { up } else { down };
+    (above, room.min(px(MENU_MAX)).max(px(MENU_MIN)))
 }
 
 fn command_char(c: char) -> bool {
@@ -280,10 +315,10 @@ impl ThreadsUi {
     pub(super) fn slash_menu(&self, cx: &mut Context<Self>) -> Option<gpui_kit::AnyElement> {
         let menu = self.slash.menu.as_ref()?;
         let p = pal();
-        // The New chat start surface centres the composer near the top of
-        // a short window, so the list opens below it there; a docked
-        // composer opens it above, over the transcript.
-        let below = self.chat_thread().is_none() && self.layout.primary() == TileKind::Chat;
+        let (above, max_h) = menu_placement(
+            self.slash.composer_bounds.get(),
+            self.slash.area_bounds.get(),
+        );
         let mut list = div()
             .id("slash-menu")
             .role(gpui_kit::Role::ListBox)
@@ -292,14 +327,14 @@ impl ThreadsUi {
             .absolute()
             .left_0()
             .right_0()
-            .when(below, |list| list.top(gpui_kit::relative(1.)).mt_1())
-            .when(!below, |list| list.bottom(gpui_kit::relative(1.)).mb_1())
+            .when(!above, |list| list.top(gpui_kit::relative(1.)).mt_1())
+            .when(above, |list| list.bottom(gpui_kit::relative(1.)).mb_1())
             .track_scroll(&self.slash.scroll)
             .p_1()
             .flex()
             .flex_col()
             .gap_px()
-            .max_h(px(260.))
+            .max_h(max_h)
             .overflow_y_scroll()
             .bg(rgb(p.surface_raised))
             .border_1()

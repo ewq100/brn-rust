@@ -2455,6 +2455,28 @@ fn the_slash_list_stays_in_the_chat_area_of_a_short_window(cx: &mut TestAppConte
         assert!(last.visible(), "the selected last row scrolls into view");
         assert!(last.bounds().bottom() <= menu.bottom() + px(1.));
     });
+
+    // Without the delegation card the composer sits lower; the list still
+    // fits in the chat area.
+    cx.simulate_keystrokes(f.window, "escape");
+    update(cx, &f, |view, window, cx| {
+        view.settings.delegation_chosen = true;
+        view.composer
+            .update(cx, |state, cx| state.set_value("", window, cx));
+        view.update_slash_menu(window, cx);
+    });
+    cx.simulate_input(f.window, "/");
+    cx.run_until_parked();
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("delegation-choice").is_none());
+        let tile = window.find("tile-chat").bounds();
+        let menu = window.find("slash-menu").bounds();
+        assert!(
+            menu.top() >= tile.top() && menu.bottom() <= tile.bottom(),
+            "{menu:?} vs {tile:?}"
+        );
+        assert!(window.find("slash-row-0").visible());
+    });
 }
 
 fn allow_subscription_web(workspace: &mut Workspace) {

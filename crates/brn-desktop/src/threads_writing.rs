@@ -330,9 +330,11 @@ impl ThreadsUi {
             .child(self.composer_tile(cx));
         div()
             .id("chat-tile")
+            .relative()
             .size_full()
             .flex()
             .flex_col()
+            .child(super::slash::bounds_probe(&self.slash.area_bounds))
             .child(div().flex_1().min_h_0().child(body))
             .child(
                 div()
@@ -398,7 +400,9 @@ impl ThreadsUi {
             });
         div()
             .id("chat-tile")
+            .relative()
             .size_full()
+            .child(super::slash::bounds_probe(&self.slash.area_bounds))
             .child(
                 scroll("thread-conversation")
                     .items_center()
