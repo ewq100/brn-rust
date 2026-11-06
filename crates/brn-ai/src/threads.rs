@@ -6183,8 +6183,7 @@ mod tests {
             stop.cancel();
         });
         let started = std::time::Instant::now();
-        let (answer, sent, _) =
-            silent_run(Some(rig_core::driver::STREAM_IDLE_TIMEOUT), cancel).await;
+        let (answer, sent, _) = silent_run(Some(std::time::Duration::from_secs(10)), cancel).await;
         assert!(
             started.elapsed() < std::time::Duration::from_secs(5),
             "{:?}",

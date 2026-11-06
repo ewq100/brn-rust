@@ -13,7 +13,9 @@ on this runtime. No live provider, account, credential or owner data was used he
   other lock entry changed. Rust 1.98.1 and rmcp 3.5.0 are unchanged.
 - `brn-ai` depends on `rig-memory` directly (`default-features = false`). The 0.46
   `rig` umbrella's `memory` feature pulls `rig-sqlite`, whose `links = "sqlite3"`
-  conflicts with BRN's bundled rusqlite 0.40.2. BRN only uses `rig_memory::recent`.
+  conflicts with BRN's bundled rusqlite 0.40.2. The edge is weak, but Cargo still
+  checks `links` through it: adding `memory` to the facade makes `cargo metadata`
+  fail on `libsqlite3-sys`. BRN only uses `rig_memory::recent`.
 - serde_json: 0.45's provider stack enabled `preserve_order` and `float_roundtrip`
   transitively; 0.46 no longer does. Without them, 4 provider tests failed (tool
   schema and request-body key order). `brn-ai` now enables both explicitly, so a
@@ -24,9 +26,11 @@ on this runtime. No live provider, account, credential or owner data was used he
 
 ## Behavior changes absorbed
 
-- Rig 0.46 sends `reasoning.summary: "auto"` on ChatGPT/Copilot Responses
-  requests. Assertions updated (`provider_formats_tests`, `document_refine_tests`).
-  BRN neither shows nor stores reasoning summaries; no product change.
+- Rig 0.46 sends `reasoning.summary: "auto"` on ChatGPT-backend Responses requests.
+  Assertions updated (`provider_formats_tests`, `document_refine_tests`). BRN already
+  requested it on Copilot Responses. Bounded public summaries appear transiently in the
+  activity trace when Quiet is off; they are distinct from raw reasoning and are never
+  stored as answers. No product change.
 - User agent `rig/0.46.0`; test expectations updated.
 - Provider stalls: Rig 0.46 ends a stream that is silent for `STREAM_IDLE_TIMEOUT`
   (300 s, wall clock) with `ProviderError::Stalled`, which reaches BRN's collector
@@ -40,7 +44,7 @@ on this runtime. No live provider, account, credential or owner data was used he
 |---|---|
 | Terra tool calls keep the same model on Responses | `copilot_terra_tool_run_retries_same_model_on_responses`. Rig's Copilot dialect sends non-`codex` IDs to Chat Completions. Copilot refuses tool calls there with 400 `unsupported_api_for_model`, mapped to `ModelRefused`, and `copilot_responses_retry` retries the same model once on Responses. BRN sets typed generation options only on Responses, so Rig's catalog refusal on Chat never fires first. |
 | Stall after partial output | `stalled_stream_after_partial_output_fails_without_resend`. Partial text is not saved as the answer, the turn fails as `stalled`, and the request is sent exactly once (`ResendOnce` covers only pre-send failures and 503), so uncertain tool side effects are never repeated. |
-| Stop while the stream is silent | `stop_during_silent_stream_interrupts_promptly`. Stop interrupts within 5 s, independent of the 300 s idle timer, with one request sent. |
+| Stop while the stream is silent | `stop_during_silent_stream_interrupts_promptly`. Stop interrupts within 5 s, before a 10 s idle bound (so a broken Stop fails fast as stalled), with one request sent. |
 | Final output | `real_responses_final_replaces_preview_and_is_saved_once`. |
 
 Limitation: a provider that reasons silently for more than 300 s without stream
