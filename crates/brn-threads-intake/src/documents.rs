@@ -150,6 +150,7 @@ impl Converter {
                             locator: "document".into(),
                             detail,
                         })
+                        .chain(linked_figure_gaps(&request))
                         .collect(),
                 },
             };
@@ -171,4 +172,20 @@ impl Converter {
         temp.cleanup()?;
         result
     }
+}
+
+/// A Markdown file's linked figures stay outside conversion, which reads only
+/// the supplied bytes; each one is a named gap rather than a silent loss.
+fn linked_figure_gaps(request: &ConversionRequest<'_>) -> Vec<CoverageGap> {
+    if request.kind != DocumentKind::Markdown {
+        return vec![];
+    }
+    brn_intake::document::linked_markdown_images(&String::from_utf8_lossy(request.bytes))
+        .into_iter()
+        .map(|locator| CoverageGap {
+            kind: GapKind::Limitation,
+            locator,
+            detail: "Linked figure not retained: conversion reads only this file, not the files it links to".into(),
+        })
+        .collect()
 }

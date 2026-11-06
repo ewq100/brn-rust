@@ -5528,6 +5528,58 @@ fn applied_review_with_failed_status_updates_reloads_text_and_keeps_undo(cx: &mu
 }
 
 #[gpui_kit::test]
+fn applied_receipt_keeps_its_committed_version_after_a_later_save(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let committed = cx
+        .update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                view.open_note(&f.a.id, None, window, cx);
+                view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+                let (_, candidate) = proposal(view, &f.a, &f.chat_a, &[], "Rewritten", "receipt-v");
+                view.open_review(candidate.clone(), window, cx);
+                let result = view
+                    .workspace
+                    .review_apply_in_context(candidate.operation.as_str(), None)
+                    .unwrap();
+                view.finish_review_apply(&candidate, result, window, cx);
+                let applied = view.workspace.store.note(&f.a.id).unwrap().unwrap();
+                let RecordData::Note(mut later) = applied.data.clone() else {
+                    unreachable!()
+                };
+                later.markdown = "Owner text after the rewrite".into();
+                view.workspace
+                    .owner_change(
+                        "receipt-v-later-save",
+                        &ChangeRequest {
+                            reason: "Later owner save".into(),
+                            writes: vec![Put {
+                                id: applied.id.clone(),
+                                expected_version: Some(applied.version),
+                                archived: false,
+                                data: RecordData::Note(later),
+                            }],
+                            inputs: vec![],
+                        },
+                    )
+                    .unwrap();
+                view.refresh();
+                view.reload_open_note(window, cx);
+                cx.notify();
+                applied.version
+            })
+        })
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("applied-state").label(),
+            Some(format!("Applied · v{committed}").as_str())
+        );
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
 fn changing_review_member_or_preparing_groups_clears_feedback_selection(cx: &mut TestAppContext) {
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {

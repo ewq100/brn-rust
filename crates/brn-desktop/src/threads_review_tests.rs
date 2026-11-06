@@ -6,7 +6,7 @@ use super::polish_tests::{
     window_bounds,
 };
 use super::*;
-use brn_writing_ui::writing::{COMMENTS_FLOOR, ProposalShape, review_footer};
+use brn_writing_ui::writing::{COMMENTS_FLOOR, ProposalShape, archive_disclosure, review_footer};
 use gpui_kit::{Focusable, TestAppContext, test::TestWindowExt};
 
 const TEXT: &str = "# Pilot\n\nThe quick brown fox jumps.\n\nKeep this line.";
@@ -401,6 +401,38 @@ fn proposal_shapes_name_the_label_primary_and_exact_footer() {
     assert_eq!(
         review_footer(ProposalShape::Note, true, 2),
         PROTECTED_FOOTER
+    );
+}
+
+#[test]
+fn a_proposal_that_archives_or_restores_a_note_says_so() {
+    let saved = |id: &str, title: &str, archived: bool| Record {
+        id: id.into(),
+        version: 3,
+        archived,
+        data: RecordData::Note(Note::working(title, format!("# {title}"))),
+    };
+    let records = vec![
+        saved("alpha", "Alpha", false),
+        saved("beta", "Beta", false),
+        saved("gamma", "Gamma", true),
+    ];
+    let mut alpha = note_put(&records[0], "# Alpha\n\nEdited");
+    let mut beta = note_put(&records[1], "# Beta");
+    assert_eq!(
+        archive_disclosure(&[alpha.clone(), beta.clone()], &records),
+        None
+    );
+    beta.archived = true;
+    assert_eq!(
+        archive_disclosure(&[alpha.clone(), beta.clone()], &records).as_deref(),
+        Some("Applying also archives “Beta”.")
+    );
+    alpha.archived = true;
+    let gamma = note_put(&records[2], "# Gamma");
+    assert_eq!(
+        archive_disclosure(&[alpha, beta, gamma], &records).as_deref(),
+        Some("Applying also archives “Alpha” and “Beta” and restores “Gamma” from the archive.")
     );
 }
 
@@ -1070,6 +1102,28 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
                 "toggle-margin",
                 "apply-final",
             ],
+        );
+    });
+
+    // Archiving a note whose text stays the same is still disclosed.
+    update(cx, &f, |view, window, cx| view.dismiss_review(window, cx));
+    review_writes(cx, &f, "Edit one, archive the other", |_| {
+        let mut archive = note_put(&other, "Second text");
+        archive.archived = true;
+        vec![archive, note_put(&first, REVISED)]
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(
+            window
+                .find("review-proposal")
+                .label()
+                .is_some_and(|label| label.ends_with("0 added · 0 removed · archives this note"))
+        );
+        assert_eq!(
+            window.find("note-bar").label(),
+            Some(
+                "Approving saves exactly these 2 notes, including protected notes. Applying also archives “Second”."
+            )
         );
     });
 

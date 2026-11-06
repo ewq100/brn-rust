@@ -1756,6 +1756,21 @@ impl<T: 'static> WritingView<'_, T> {
                 })
                 .map(|record| record.id.clone())
                 .collect();
+            // The version this rewrite committed, not the note's current one.
+            let committed = self
+                .workspace
+                .store
+                .operation(operation)
+                .ok()
+                .and_then(|id| self.workspace.store.receipt(&id).ok().flatten())
+                .and_then(|receipt| {
+                    receipt
+                        .writes
+                        .into_iter()
+                        .find(|write| write.after.id == note_id)
+                        .map(|write| write.after.version)
+                })
+                .unwrap_or(open.record().version);
             let (request, operation_mark, undo) =
                 (request.clone(), operation.clone(), operation.clone());
             let clear = note_id.clone();
@@ -1766,7 +1781,7 @@ impl<T: 'static> WritingView<'_, T> {
                     Some(IconName::CircleCheck),
                     format!(
                         "Applied · v{}{}",
-                        open.record().version,
+                        committed,
                         if open_ids.is_empty() && !snapshot.comments.is_empty() {
                             format!(
                                 " · {} addressed",
@@ -2093,7 +2108,19 @@ impl<T: 'static> WritingView<'_, T> {
                 .unwrap_or_default();
             let tracked = diff::tracked(&current, &review.original);
             // Words, not only signs or color: "3 added · 1 removed".
-            format!("{} added · {} removed", tracked.added, tracked.removed)
+            let mut counts = format!("{} added · {} removed", tracked.added, tracked.removed);
+            let archives_this = writes.iter().any(|write| {
+                write.id == *id
+                    && write.archived
+                    && self
+                        .records
+                        .iter()
+                        .any(|record| record.id == *id && !record.archived)
+            });
+            if archives_this {
+                counts.push_str(" · archives this note");
+            }
+            counts
         });
         let editing = self.review.is_editing();
         let edited = editing || self.review.is_edited();
@@ -2131,6 +2158,10 @@ impl<T: 'static> WritingView<'_, T> {
                 shape.binding(protected),
                 plural(selected_comments, "captured comment")
             );
+        }
+        let archiving = archive_disclosure(writes, self.records);
+        if let Some(archiving) = &archiving {
+            footer = format!("{footer} {archiving}");
         }
 
         // The Proposal label plus the Protected chip states the review. A
@@ -2449,9 +2480,14 @@ impl<T: 'static> WritingView<'_, T> {
                 }
                 details = details.child(metadata(match &write.data {
                     RecordData::Note(n) => format!(
-                        "Note: {}{}",
+                        "Note: {}{}{}",
                         n.title,
-                        if n.protected { " · protected" } else { "" }
+                        if n.protected { " · protected" } else { "" },
+                        if write.archived {
+                            " · archived on Apply"
+                        } else {
+                            ""
+                        }
                     ),
                     RecordData::Action(a) => brn_threads_app::action_review_text(a),
                     RecordData::Thread(t) => format!("Chat: {}", t.title),
@@ -2999,6 +3035,37 @@ impl ProposalShape {
             ),
         }
     }
+}
+
+/// The sentence that discloses archive changes a proposal makes, which its
+/// text counts never show: "Applying also archives “Beta”."
+pub fn archive_disclosure(writes: &[Put], records: &[Record]) -> Option<String> {
+    let title = |write: &Put| match &write.data {
+        RecordData::Note(note) => format!("“{}”", note.title),
+        _ => "a record".to_owned(),
+    };
+    let (mut archives, mut restores) = (vec![], vec![]);
+    for write in writes {
+        let Some(saved) = records.iter().find(|record| record.id == write.id) else {
+            continue;
+        };
+        match (saved.archived, write.archived) {
+            (false, true) => archives.push(title(write)),
+            (true, false) => restores.push(title(write)),
+            _ => {}
+        }
+    }
+    let mut parts = vec![];
+    if !archives.is_empty() {
+        parts.push(format!("archives {}", archives.join(" and ")));
+    }
+    if !restores.is_empty() {
+        parts.push(format!(
+            "restores {} from the archive",
+            restores.join(" and ")
+        ));
+    }
+    (!parts.is_empty()).then(|| format!("Applying also {}.", parts.join(" and ")))
 }
 
 /// The review footer: the binding sentence first, then the comments that

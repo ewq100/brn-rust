@@ -97,6 +97,45 @@ fn both_helpers_all_eight_use_checked_identity_and_leave_no_scratch() {
 }
 #[test]
 #[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
+fn markdown_linked_figures_are_named_gaps_in_both_helpers() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let converter = Converter {
+        temp_root: root.path().join("scratch"),
+        limits: brn_intake::IntakeLimits {
+            wall_time_ms: 20000,
+            ..Default::default()
+        },
+    };
+    let source =
+        b"# Chart\n\n![Five synthetic values](assets/chart.png)\n\nPlain [link](notes.md).\n";
+    for backend in ["xberg", "xberg_brn"] {
+        let result = converter
+            .convert_document(
+                ConversionRequest {
+                    kind: DocumentKind::Markdown,
+                    bytes: source,
+                    intent: ImportIntent::FullNote,
+                    source_reference: "synthetic://chart.md",
+                },
+                &helpers(),
+                backend,
+                &AtomicBool::new(false),
+            )
+            .unwrap();
+        assert!(result.assets.is_empty());
+        let linked: Vec<_> = result
+            .coverage
+            .gaps
+            .iter()
+            .filter(|gap| gap.detail.starts_with("Linked figure not retained"))
+            .collect();
+        assert_eq!(linked.len(), 1, "{backend}: {:?}", result.coverage.gaps);
+        assert_eq!(linked[0].locator, "assets/chart.png");
+        assert_eq!(linked[0].kind, GapKind::Limitation);
+    }
+}
+#[test]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
 fn wrong_backend_missing_helper_and_cancel_cannot_fall_back() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let converter = Converter {
