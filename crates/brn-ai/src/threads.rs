@@ -111,6 +111,9 @@ mod cache_tests;
 #[cfg(test)]
 #[path = "threads_chat_tests.rs"]
 mod chat_tests;
+#[cfg(all(test, unix))]
+#[path = "threads_copilot_denial_tests.rs"]
+mod copilot_denial_tests;
 #[cfg(test)]
 #[path = "threads_current_inputs_tests.rs"]
 mod current_inputs_tests;
@@ -129,6 +132,9 @@ mod reads_tests;
 #[cfg(test)]
 #[path = "threads_research_tests.rs"]
 mod research_tests;
+#[cfg(test)]
+#[path = "threads_response_limit_tests.rs"]
+mod response_limit_tests;
 
 #[cfg(test)]
 #[path = "threads_cw2_tests.rs"]
@@ -316,6 +322,8 @@ pub fn spawn_prepared(
 }
 struct Scope {
     call_budget: Arc<wire_trace::CallBudget>,
+    /// Bounds every provider response of the run, shared with its helpers.
+    response_limit: Arc<crate::response_limit::ResponseLimit>,
     external: Mutex<Option<Arc<mcp_runtime::Invocation>>>,
     skills: Arc<crate::thread_skills::Catalogue>,
     chat: String,
@@ -3179,11 +3187,11 @@ async fn run_prepared_over(
             trace.retry(detail);
         }
     });
-    let base_http = wire_trace::wrap(
+    let base_http = scope.response_limit.wrap(wire_trace::wrap(
         transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
         &scope.trace,
         &scope.call_budget,
-    );
+    ));
     let mut summary_notice = None;
     let client = match context_budget::preflight(&scope, &input) {
         Err(error) => Err(error),
@@ -3308,6 +3316,7 @@ async fn run_prepared_over(
     if scope.call_budget.refused() {
         answer.terminal = AiTerminal::Failed(AiError::new(AiErrorKind::ToolLimitReached));
     }
+    name_response_limit(&scope, &mut answer);
     watcher.abort();
     // The watcher shares the Scope; waiting for it lets the lease end with the run.
     let _ = watcher.await;
@@ -4069,6 +4078,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         .map(|searcher| Arc::new(web::WebRuntime::new(searcher)));
     let scope = Arc::new(Scope {
         call_budget: Arc::new(wire_trace::CallBudget::default()),
+        response_limit: Arc::default(),
         external: Mutex::new(None),
         skills,
         chat: request.thread.clone(),
@@ -4186,11 +4196,20 @@ fn failed_attention(error: &AiError) -> String {
         _ if error.skill_unavailable_notice().is_some() => {
             (error.skill_unavailable_notice().unwrap(), None)
         }
+        _ if error.response_limit_notice().is_some() => {
+            (error.response_limit_notice().unwrap(), Some(FRESH_RECOVERY))
+        }
         _ if context_budget::is_limit(error) => (
             error
                 .context_limit_notice()
                 .unwrap_or("The request budget was reached."),
             Some(FRESH_RECOVERY),
+        ),
+        // A signed-in account refused by subscription, permission or policy;
+        // reconnecting would not help. The kind stays for the CLI contract.
+        K::ReconnectNeeded if error.detail.as_ref().and_then(|d| d.status) == Some(403) => (
+            "The provider refused this account's request (subscription, permission or policy).",
+            Some("Check the account's access, then Continue."),
         ),
         K::ReconnectNeeded => (
             "The provider account needs reconnecting.",
@@ -4426,6 +4445,16 @@ async fn run_copilot_budgeted(
         return answer;
     }
 }
+/// A run that failed after one of its responses reached a limit names that
+/// limit; the transport error it surfaced as says nothing of the cause. Stop
+/// and success are kept: the limited response itself can produce neither.
+fn name_response_limit(scope: &Scope, answer: &mut AiAnswer) {
+    if matches!(answer.terminal, AiTerminal::Failed(_))
+        && let Some(error) = scope.response_limit.failure()
+    {
+        answer.terminal = AiTerminal::Failed(error);
+    }
+}
 /// One empty Chat refusal may retry the SAME Copilot model on Responses.
 /// Shared by parent/helper chat and the tool-free semantic compactor.
 fn copilot_responses_retry(responses: bool, answer: &AiAnswer, cancel: &CancellationToken) -> bool {
@@ -4596,6 +4625,7 @@ async fn run_model_budgeted(
         .tool_concurrency(1)
         .stream();
     let mut answer = crate::chat::collect_stream(stream, cancel.clone(), emit, limited, None).await;
+    name_response_limit(&scope, &mut answer);
     if exhausted.load(Ordering::SeqCst) != 0 && !cancel.is_cancelled() {
         answer.terminal = AiTerminal::Failed(context_budget::exhausted_failure(
             budget,

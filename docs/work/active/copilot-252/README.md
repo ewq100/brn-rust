@@ -122,7 +122,10 @@ Discard/Undo/stale refusal, quota or policy denial, and an account without Luna.
 capability boundary is what BRN requests and verifies in each reply (requested tool set,
 echoed tools, every output item); it cannot observe provider internals beyond that.
 
-A single model turn has no wall-clock or byte bound while bytes keep arriving: idle
-detection does not fire and the 128 KiB answer cap excludes tool-call arguments. Stop
-still ends such a run. The strict-schema trigger is fixed; a turn bound is follow-up work
-(#255).
+Response bound (release hardening, follow-up PR on `work/response-limits-252`): a model
+response that keeps sending bytes previously had no wall-clock or byte bound, and tool-call
+arguments escaped the 128 KiB answer cap. Each model HTTP response now has 20 minutes and
+64 MiB of wire bytes, enforced while the stream is read; see
+[threads behavior](../../../architecture/threads-behavior.md). This is release hardening for
+#252/#253, not #255 development-speed work; #255 keeps only the provider-module
+consolidation nits above.
