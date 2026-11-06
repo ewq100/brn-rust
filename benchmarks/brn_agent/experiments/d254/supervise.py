@@ -95,6 +95,22 @@ def audit_operations(roles, current=None):
             raise CycleStop('Earlier operation never recorded a terminal outcome')
 
 
+def phase_deadline(roles, phase, now):
+    if phase not in ('phase1', 'phase2'):
+        raise CycleStop('Explicit frozen phase required')
+    path = roles/(phase+'-clock.json')
+    try:
+        with path.open('x') as stream:
+            json.dump({'started_at':now.isoformat(), 'seconds':3600 if phase == 'phase1' else 5400}, stream)
+    except FileExistsError:
+        pass
+    clock = json.loads(path.read_text())
+    expected = 3600 if phase == 'phase1' else 5400
+    if clock.get('seconds') != expected:
+        raise CycleStop('Phase clock differs from original limit')
+    return datetime.datetime.fromisoformat(clock['started_at'])+datetime.timedelta(seconds=expected)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--operation', type=Path, required=True)
@@ -108,12 +124,14 @@ def main(argv=None):
         raise ValueError('Explicit frozen role and account path required')
     now = datetime.datetime.now(datetime.timezone.utc)
     deadline = datetime.datetime.fromisoformat(json.loads(args.cycle.read_text())['whole_cycle_deadline'])
-    remaining = (deadline-now).total_seconds()
-    if remaining < op['minimum_seconds']+30:
-        raise CycleStop('Insufficient original cycle time; operation not admitted')
     root = Path(op['root'])
     roles = args.roles.resolve()
     roles.mkdir(parents=True, exist_ok=True)
+    phase = 'phase1' if role == 'phase1' else 'phase2' if role.startswith('phase2-') else op.get('phase')
+    deadline = min(deadline, phase_deadline(roles, phase, now))
+    remaining = (deadline-now).total_seconds()
+    if remaining < op['minimum_seconds']+30:
+        raise CycleStop('Insufficient original cycle/phase time; operation not admitted')
     audit_operations(roles)
     # Exclusive operation identity also prevents restarting a partially dispatched
     # reader/grader whose runner did not yet get as far as its own reservation.
@@ -149,8 +167,10 @@ def main(argv=None):
         elif op['kind'] == 'reader':
             install_role(role_path, role, op['id'], 12)
             import reader
-            reader.measured(Path(op['checkpoint']), op['question'], op['records'], 'wiki-only',
+            result = reader.measured(Path(op['checkpoint']), op['question'], op['records'], 'wiki-only',
                 Path(op['binary']), root, auth_file=args.account_file, live=True)
+            if result.get('status') != 'complete' or not result.get('measured_answer'):
+                raise CycleStop('Reader identity/retrieval/completion unverified')
             status = 0
         elif op['kind'] == 'grader':
             Reservations(role_path, CAPS[role]).reserve(op['id'], 1)
