@@ -48,3 +48,4 @@ safe within the runtime-upgrade scope.
 | **Account snapshot.** Account identity as part of the frozen operation selection. | Strong | #252 (risk 1) |
 | **Provider-aware refinement.** `conversion_response` takes the operation's selection instead of owning a ChatGPT/Luna choice. | Strong | #252 |
 | **Provider-native search interface.** Separate ChatGPT (Codex App Server) and Copilot adapters behind the existing bounded `SearchResult`. | Strong | #252 |
+| **Catalog-aware Copilot route.** Terra tool runs always spend one refused Chat Completions request before the same-model Responses retry. Sending models whose catalog entry allows tools only on Responses straight there removes it. | Moderate (one extra request per tool run) | #255 follow-up |
