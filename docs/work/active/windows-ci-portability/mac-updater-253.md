@@ -8,13 +8,15 @@ Updater PR: [#258](https://github.com/ewq100/brn-rust/pull/258), normally merged
 All seven [refreshed PR lanes](https://github.com/ewq100/brn-rust/actions/runs/42276377509)
 passed on `0438bd603a86b48d4956195b89aea0fb54e648d8`. Normal merge
 `28051188` has exactly that qualified tree. [Resulting-main checks](https://github.com/ewq100/brn-rust/actions/runs/42279604581)
-are still running at this checkpoint; inherited informational Windows failures
+have passed Ubuntu Core/CLI and both required Mac native lanes; Mac Core/CLI is
+still running at this checkpoint. Inherited informational Windows failures
 remain visible. Fresh independent full integration/security review found no
 findings, with source/mode/deletion preservation and all evidence hashes verified.
-Codex code completed cleanly on0438bd60; security summary completed on the same
-head. The full Security Report requires unavailable browser account login, so no
-clean automated report is claimed. The workflow's explicit independent-security
-fallback and exact observations are [recorded on the PR](https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693227873).
+Codex code completed cleanly on0438bd60; its separate automated security receipt
+explicitly reports no issues on that same head. The full-detail Security Report
+requires unavailable browser account login; its contents were not inspected.
+The workflow's explicit independent-security fallback and exact observations are
+[recorded on the PR](https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693227873).
 
 A's [response-limit PR264](https://github.com/ewq100/brn-rust/pull/264) is now open.
 Final package selection waits for its normal merge and A's selected SHA/build slot.
@@ -24,8 +26,9 @@ integration. B will not package the earlier unbounded runtime as the final alpha
 No final package SHA/hash is invented while that dependency is open.
 
 [Proposed approval pair](evidence/mac-updater-253/release-approval/README.md):
-alpha.1/build3 then alpha.2/build4, native-ui/macOS15+/arm64/ad-hoc. The proposal
-files are outside the actual approved manifest and authorize no publication.
+alpha.1/build3 then alpha.2/build4, native-ui/macOS15+/arm64/ad-hoc, with proposed
+release notes and a stock HTTPS runbook. The proposal files are outside the actual
+approved manifest and authorize no publication.
 The release workflow must build each actual approved source and verify its
 uploaded assets; the stock witness then fetches those published receipts/ZIPs.
 The previous substituted-transport witness remains separately labelled below.
