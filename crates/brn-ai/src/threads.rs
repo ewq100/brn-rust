@@ -166,6 +166,9 @@ pub struct ThreadRunRequest {
     pub search: Option<Arc<dyn RunNoteSearch>>,
     /// Opt-in record of tool use for evaluation; `Off` records nothing.
     pub trace: TraceLevel,
+    /// Skill ids requested with `/` in this message. They are loaded for this
+    /// run only and never change scoped skill policy.
+    pub requested_skills: Vec<String>,
 }
 pub struct ThreadResult {
     pub terminal_run: Option<(String, u64)>,
@@ -3570,8 +3573,9 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         settings.map_or(&[], |(_, s)| s.skills.as_slice()),
         brn_threads_core::project_for_chat(&records, &request.thread).map(|p| p.id.as_str()),
         !request.sources.is_empty(),
+        &request.requested_skills,
     ));
-    if !skills.selected_available() {
+    if !skills.selected_available() || !skills.knows(&request.requested_skills) {
         return Err(crate::thread_skills::unavailable());
     }
     let settings_binding = settings.map(|(r, _)| (r.id.clone(), r.version));
@@ -4729,6 +4733,7 @@ mod tests {
                 sources: vec![],
                 search: None,
                 trace: TraceLevel::Off,
+                requested_skills: Vec::new(),
             },
             note,
         )
@@ -6219,6 +6224,7 @@ mod tests {
             sources: vec![],
             search: None,
             trace: TraceLevel::Off,
+            requested_skills: Vec::new(),
         }
     }
     fn chat_attention(request: &ThreadRunRequest) -> Vec<Attention> {

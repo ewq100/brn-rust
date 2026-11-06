@@ -273,6 +273,7 @@ fn cli_useful_intake(workspace: &mut Workspace, data: &Path, reference: &str) ->
         }],
         search: None,
         trace: brn_ai::threads::TraceLevel::Off,
+        requested_skills: Vec::new(),
     };
     let result = tokio::runtime::Builder::new_current_thread()
         .enable_all()
@@ -439,6 +440,7 @@ fn a_chat_whose_run_is_still_live_is_not_reused(cx: &mut TestAppContext) {
         sources: vec![],
         search: None,
         trace: brn_ai::threads::TraceLevel::Off,
+        requested_skills: Vec::new(),
     })
     .unwrap();
     let second = supply(cx, &f, SOURCE);
@@ -508,6 +510,7 @@ fn killed_run_in(
         sources: vec![],
         search: None,
         trace: brn_ai::threads::TraceLevel::Off,
+        requested_skills: Vec::new(),
     })
     .unwrap();
     let run = live.run_id().to_owned();

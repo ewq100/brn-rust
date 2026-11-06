@@ -84,6 +84,8 @@ mod mcp_view;
 mod model_picker;
 #[path = "threads_notice.rs"]
 mod notice;
+#[path = "threads_slash.rs"]
+mod slash;
 use notice::NoticeState;
 #[path = "threads_projects.rs"]
 mod projects_view;
@@ -532,6 +534,8 @@ struct ThreadsUi {
     export_status: String,
     copilot_models: Vec<String>,
     model_picker: model_picker::ModelPicker,
+    /// The composer's / command list (CHAT-08).
+    slash: slash::Slash,
     backup_status: String,
     restore: restore_view::RestoreFlow,
     /// The open note's version history, shown in place of the document.
@@ -644,10 +648,11 @@ impl ThreadsUi {
             cx.subscribe_in(
                 &composer,
                 window,
-                |this, editor, event: &InputEvent, _, cx| {
+                |this, editor, event: &InputEvent, window, cx| {
                     if matches!(event, InputEvent::Change) {
                         let text = editor.read(cx).value().to_string();
                         this.composer_changed(text, cx);
+                        this.update_slash_menu(window, cx);
                     }
                 },
             ),
@@ -689,10 +694,12 @@ impl ThreadsUi {
             cx.subscribe_in(
                 &composer,
                 window,
-                |this, _, event: &InputEvent, window, cx| {
-                    if let InputEvent::PressEnter { shift, secondary } = event {
+                |this, _, event: &InputEvent, window, cx| match event {
+                    InputEvent::PressEnter { shift, secondary } => {
                         this.composer_enter(*shift, *secondary, window, cx);
                     }
+                    InputEvent::Blur => this.close_slash(cx),
+                    _ => {}
                 },
             ),
             cx.subscribe_in(
@@ -840,6 +847,7 @@ impl ThreadsUi {
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
             model_picker: model_picker::ModelPicker::new(picker_query, favorite_models),
+            slash: slash::Slash::default(),
             backup_status: "No backup created in this session.".into(),
             restore: Default::default(),
             doc_history: None,
@@ -2079,6 +2087,7 @@ impl ThreadsUi {
             _ => None,
         };
         let queue_match = queued.is_some();
+        let requested_skills = self.message_requested_skills(&thread, &prompt);
         let request = brn_threads_app::ThreadRunStart {
             request_message: queued.as_ref().and_then(|q| q.message.clone()).or(posted),
             queue_claim: queued.and_then(|q| q.dispatch),
@@ -2089,6 +2098,7 @@ impl ThreadsUi {
             sources,
             trace: brn_ai::threads::TraceLevel::Off,
             offered_copilot_models: Some(self.copilot_models.clone()),
+            requested_skills,
         };
         self.start_request(
             request,

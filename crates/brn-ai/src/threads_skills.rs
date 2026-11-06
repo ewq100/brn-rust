@@ -65,6 +65,7 @@ impl Catalogue {
         bindings: &[SkillBinding],
         project: Option<&str>,
         sources: bool,
+        requested: &[String],
     ) -> Self {
         let mut ids = guides::CATALOG
             .iter()
@@ -85,7 +86,7 @@ impl Catalogue {
                 .find(|b| b.project.as_deref() == project && b.id == id);
             let builtin = !id.starts_with("installed:");
             let enabled = builtin || binding.is_some_and(|b| b.enabled);
-            let selected = false;
+            let selected = requested.contains(&id);
             let bytes = snapshot(store, &id);
             let actual = bytes
                 .as_ref()
@@ -139,6 +140,10 @@ impl Catalogue {
         self.entries
             .values()
             .all(|e| !e.status.selected || (e.status.enabled && e.status.available))
+    }
+    /// Every requested id names a skill in this scope's catalogue.
+    pub(crate) fn knows(&self, requested: &[String]) -> bool {
+        requested.iter().all(|id| self.entries.contains_key(id))
     }
     pub(crate) fn statuses(&self) -> Vec<SkillStatus> {
         self.entries.values().map(|e| e.status.clone()).collect()
@@ -245,5 +250,5 @@ pub fn scoped_skills(
     bindings: &[SkillBinding],
     project: Option<&str>,
 ) -> Vec<SkillStatus> {
-    Catalogue::freeze(store, bindings, project, false).statuses()
+    Catalogue::freeze(store, bindings, project, false, &[]).statuses()
 }

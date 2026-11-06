@@ -42,7 +42,7 @@ pub(super) fn enabled(
     })
 }
 #[tokio::test]
-async fn selected_exact_body_is_admitted_as_untrusted_user_context_with_stable_raw_http_prefix() {
+async fn requested_exact_body_is_admitted_as_untrusted_user_context_with_stable_raw_http_prefix() {
     let (root, mut request, _) = tests::fixture();
     let info = package(&root, &request);
     let (disabled, _) = begin(&request).unwrap();
@@ -58,6 +58,22 @@ async fn selected_exact_body_is_admitted_as_untrusted_user_context_with_stable_r
     request.auth_file = Some(cache_tests::codex_file(&root));
     cache_tests::configure(&request, "Chatgpt");
     policy(&request, enabled(&info, None, true));
+    let (legacy, legacy_input) = begin(&request).unwrap();
+    assert!(
+        !legacy_input.contains("SELECTED_SKILL_CANARY"),
+        "a saved selection never preloads; skills are requested per message"
+    );
+    finish(
+        &legacy,
+        &AiAnswer {
+            text: String::new(),
+            terminal: AiTerminal::Interrupted,
+        },
+    )
+    .unwrap();
+    request.requested_skills = vec!["installed:missing".into()];
+    assert!(begin(&request).is_err(), "an unknown request is refused");
+    request.requested_skills = vec![info.id.clone()];
     let prepared = prepare_run(request).unwrap();
     let scope = prepared.scope.clone();
     assert!(prepared.input.contains("SELECTED_SKILL_CANARY"));
@@ -279,7 +295,8 @@ fn disable_fences_prepared_scope_and_changed_bytes_cannot_load_or_satisfy_select
 async fn missing_selected_package_refuses_before_any_provider_dispatch_with_safe_notice() {
     let (root, mut request, _) = tests::fixture();
     let info = package(&root, &request);
-    policy(&request, enabled(&info, None, true));
+    policy(&request, enabled(&info, None, false));
+    request.requested_skills = vec![info.id.clone()];
     crate::skill_packages::remove(
         &Store::open(&request.data_dir).unwrap(),
         "review",
@@ -297,7 +314,7 @@ async fn missing_selected_package_refuses_before_any_provider_dispatch_with_safe
             Err(e) => {
                 assert!(
                     e.to_string()
-                        .starts_with("The selected skill is unavailable.")
+                        .starts_with("The requested skill is unavailable.")
                 );
                 assert_eq!(http.requests().len(), 0);
                 return;
@@ -336,6 +353,7 @@ async fn selected_instruction_admission_refuses_intact_oversize_before_dispatch_
         sources: vec![],
         search: None,
         trace: TraceLevel::Summary,
+        requested_skills: Vec::new(),
     };
     let http = SequencedHttpClient::new([MockHttpResponse::success_typed(
         cache_tests::final_turn(),
@@ -361,7 +379,8 @@ async fn selected_instruction_admission_refuses_intact_oversize_before_dispatch_
     std::fs::write(source.join("SKILL.md"), text).unwrap();
     let info =
         crate::skill_packages::install(&Store::open(&next.data_dir).unwrap(), &source).unwrap();
-    policy(&next, enabled(&info, None, true));
+    policy(&next, enabled(&info, None, false));
+    next.requested_skills = vec![info.id.clone()];
     next.max_tool_rounds = 4;
     let prepared = prepare_run(next).unwrap();
     let scope = prepared.scope.clone();
@@ -398,7 +417,7 @@ async fn selected_instruction_admission_refuses_intact_oversize_before_dispatch_
 
 #[tokio::test]
 async fn project_instruction_and_references_cannot_read_foreign_data_or_grant_protected_apply() {
-    let (root, request, _) = tests::fixture();
+    let (root, mut request, _) = tests::fixture();
     let info = package(&root, &request);
     let mut store = Store::open(&request.data_dir).unwrap();
     let project = project_tests::project_command(
@@ -496,7 +515,8 @@ async fn project_instruction_and_references_cannot_read_foreign_data_or_grant_pr
         },
     )
     .unwrap();
-    policy(&request, enabled(&info, Some(project.clone()), true));
+    policy(&request, enabled(&info, Some(project.clone()), false));
+    request.requested_skills = vec![info.id.clone()];
     let (scope, input) = begin(&request).unwrap();
     assert!(input.contains("SELECTED_SKILL_CANARY"));
     assert!(!input.contains("FOREIGN_NAME_CANARY"));
@@ -699,7 +719,7 @@ async fn live_disable_blocks_late_skill_delivery_and_next_dispatch_without_rewri
 }
 
 #[test]
-fn disabled_or_unavailable_legacy_source_preloads_are_not_seeded_or_recorded_as_delivered() {
+fn saved_builtin_disable_or_stale_digest_cannot_withhold_automatic_source_preloads() {
     let (_root, mut request, _) = tests::fixture();
     request.sources.push(TransientSource::text(
         "public:preload",
@@ -743,11 +763,13 @@ fn disabled_or_unavailable_legacy_source_preloads_are_not_seeded_or_recorded_as_
     let RecordData::Run(run) = saved.data else {
         panic!()
     };
-    assert_eq!(run.fence, 1);
-    assert!(run.loaded_skills.is_empty());
-    assert!(run.loaded_skill_details.is_empty());
-    assert!(!run_preamble(scope).contains("Playbook intake (already loaded"));
-    assert!(!run_preamble(scope).contains("Playbook maintain-notes (already loaded"));
+    assert!(
+        ["intake", "maintain-notes"]
+            .iter()
+            .all(|id| run.loaded_skill_details.iter().any(|d| d.id == *id))
+    );
+    assert!(run_preamble(scope).contains("Playbook intake (already loaded"));
+    assert!(run_preamble(scope).contains("Playbook maintain-notes (already loaded"));
 }
 
 #[tokio::test]

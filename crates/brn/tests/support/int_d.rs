@@ -660,7 +660,7 @@ pub(super) fn metadata_copy_context(
             digest: f["skill_digest"].as_str().ok_or("missing digest")?.into(),
             project: Some(project.id.clone()),
             enabled: true,
-            selected: true,
+            selected: false,
         }]
     } else {
         vec![]

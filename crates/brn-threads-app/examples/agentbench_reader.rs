@@ -151,6 +151,7 @@ async fn run(probe: Probe) -> std::result::Result<serde_json::Value, Box<dyn std
         sources: vec![],
         search: None,
         trace: TraceLevel::Full,
+        requested_skills: Vec::new(),
     })?;
     // Provider fixture has only fixed read calls and a supplied terminal response.
     // Arbitrary tools cannot enter this protocol, so it cannot request a write.

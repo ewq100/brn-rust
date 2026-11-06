@@ -228,6 +228,7 @@ impl WritingPanel {
             max_tool_rounds: None,
             trace: TraceLevel::Off,
             offered_copilot_models: Some(offered_copilot_models),
+            requested_skills: Vec::new(),
         })
     }
     pub(crate) fn note_asset_chat(&self) -> Option<&str> {

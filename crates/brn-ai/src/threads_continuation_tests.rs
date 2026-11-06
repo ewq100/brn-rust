@@ -56,6 +56,7 @@ fn next(r: &ThreadRunRequest) -> ThreadRunRequest {
         sources: vec![],
         search: None,
         trace: r.trace,
+        requested_skills: Vec::new(),
     }
 }
 

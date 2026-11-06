@@ -214,7 +214,8 @@ impl ThreadsUi {
             .child(section("Instruction skills — current scope"))
             .child(metadata(project.as_ref().map_or("Scope: general chats".into(),|p|format!("Scope: Project {p}"))))
             .child(metadata(SKILL_RETENTION_NOTICE))
-            .child(metadata("Scoped enablement, selection and loaded identities are canonical and backed up. Missing local bytes remain unavailable after restore; reinstall the exact approved original. Policy changes interrupt active runs; nothing restarts automatically."))
+            .child(metadata("Built-in skills are always available: chats load them when useful. Type / in a message to ask for a skill in that message only."))
+            .child(metadata("Scoped enablement and loaded identities are canonical and backed up. Missing local bytes remain unavailable after restore; reinstall the exact approved original. Policy changes interrupt active runs; nothing restarts automatically."))
             .child(button("skill-install-folder").label("Install workspace-local package…").on_click(cx.listener(|this,_,window,cx|this.choose_skill_folder(window,cx))))
             .child(button("skills-refresh").label("Refresh packages").on_click(cx.listener(|this,_,_,cx|{this.force_refresh_skills();cx.notify();})));
         if let Some(error) = &self.skill_view.error {
@@ -241,19 +242,24 @@ impl ThreadsUi {
                     .iter()
                     .find(|package| package.id == skill.id);
                 let stale_digest = current_package.filter(|package| package.digest != skill.digest);
+                // Built-ins cannot be disabled or pinned (CHAT-08).
+                let builtin = skill.origin == "builtin";
                 let mut item = div()
                     .id(format!("skill-row-{}", skill.id))
                     .flex()
                     .flex_col()
                     .gap_1()
                     .child(section(skill.id.clone()))
-                    .child(metadata(format!(
-                        "{} · {} · Approved digest: {}{}",
-                        skill.origin,
-                        if skill.enabled { "enabled" } else { "disabled" },
-                        skill.digest,
-                        if skill.selected { " · selected" } else { "" }
-                    )))
+                    .child(metadata(if builtin {
+                        format!("Built-in · always available · Digest: {}", skill.digest)
+                    } else {
+                        format!(
+                            "{} · {} · Approved digest: {}",
+                            skill.origin,
+                            if skill.enabled { "enabled" } else { "disabled" },
+                            skill.digest,
+                        )
+                    }))
                     .child(metadata(skill.description.clone()));
                 if let Some(package) = current_package {
                     item = item.child(metadata(format!(
@@ -270,9 +276,9 @@ impl ThreadsUi {
                     item = item.child(metadata(reason.clone()));
                 }
                 let mut actions = div().flex().flex_wrap().gap_1();
-                let mut choices = vec![
-                    (SkillAction::Inspect, "inspect", "Inspect"),
-                    (
+                let mut choices = vec![(SkillAction::Inspect, "inspect", "Inspect")];
+                if !builtin {
+                    choices.push((
                         if skill.enabled {
                             SkillAction::Disable
                         } else {
@@ -280,8 +286,8 @@ impl ThreadsUi {
                         },
                         "enable",
                         if skill.enabled { "Disable" } else { "Enable" },
-                    ),
-                ];
+                    ));
+                }
                 if stale_digest.is_some() && !inactive_project {
                     choices.push((
                         SkillAction::AdoptCurrent,

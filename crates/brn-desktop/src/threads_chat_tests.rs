@@ -2292,3 +2292,107 @@ fn streaming_keeps_the_reading_position_when_scrolled_up(cx: &mut TestAppContext
     on_window(cx, &f, |window, cx| window.simulate_next_frame(cx));
     cx.read(|cx| assert!(state.read(cx).is_following_tail()));
 }
+
+/// CHAT-08/CHAT-A8/CHAT-A13: / at the start of a word lists the actual
+/// skill catalogue; typing narrows it; ↓/↑ move; Escape closes it without
+/// changing the text; slashes inside words never open it; ↵ inserts only
+/// the command text, never sends, and the request is read from that text.
+#[gpui_kit::test]
+fn the_slash_list_completes_a_command_into_only_the_current_message(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_, _, _| {});
+    update(cx, &f, |view, window, cx| {
+        view.composer.focus_handle(cx).focus(window, cx);
+        cx.notify();
+    });
+    let commands = |cx: &mut TestAppContext| {
+        cx.read(|cx| {
+            let view = f.view.read(cx);
+            view.slash.menu.as_ref().map(|menu| {
+                menu.matches
+                    .iter()
+                    .map(|&i| view.slash.commands[i].command.clone())
+                    .collect::<Vec<_>>()
+            })
+        })
+    };
+    cx.simulate_input(f.window, "/");
+    cx.run_until_parked();
+    let all = commands(cx).expect("/ opens the list");
+    for builtin in [
+        "intake",
+        "maintain-notes",
+        "prepare-reply",
+        "resolve-conflict",
+    ] {
+        assert!(all.iter().any(|c| c == builtin), "{builtin} in {all:?}");
+    }
+    cx.simulate_input(f.window, "re");
+    cx.run_until_parked();
+    let narrowed = commands(cx).expect("still open");
+    assert_eq!(narrowed[0], "resolve-conflict", "{narrowed:?}");
+    assert!(narrowed.iter().any(|c| c == "prepare-reply"));
+    cx.simulate_keystrokes(f.window, "down");
+    cx.run_until_parked();
+    cx.read(|cx| assert_eq!(f.view.read(cx).slash.menu.as_ref().unwrap().index, 1));
+    cx.simulate_keystrokes(f.window, "escape");
+    cx.simulate_input(f.window, "s");
+    cx.run_until_parked();
+    assert_eq!(commands(cx), None, "Escape keeps this word's list closed");
+    cx.read(|cx| assert_eq!(f.view.read(cx).composer.read(cx).value().as_ref(), "/res"));
+
+    update(cx, &f, |view, window, cx| {
+        view.composer
+            .update(cx, |state, cx| state.set_value("", window, cx));
+        view.update_slash_menu(window, cx);
+    });
+    cx.simulate_input(f.window, "and/or see /usr/bin");
+    cx.run_until_parked();
+    assert_eq!(commands(cx), None, "slashes in prose and paths are text");
+
+    update(cx, &f, |view, window, cx| {
+        view.composer
+            .update(cx, |state, cx| state.set_value("", window, cx));
+        view.update_slash_menu(window, cx);
+    });
+    cx.simulate_input(f.window, "Please /mai");
+    cx.run_until_parked();
+    assert_eq!(
+        commands(cx).as_deref(),
+        Some(&["maintain-notes".to_owned()][..])
+    );
+    cx.simulate_keystrokes(f.window, "enter");
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let text = view.composer.read(cx).value().to_string();
+        assert_eq!(text, "Please /maintain-notes ");
+        assert!(view.slash.menu.is_none());
+        assert!(view.queue_state().queue.is_empty(), "choosing never sends");
+        let chat = view.chat_thread().unwrap_or_default();
+        assert_eq!(
+            view.message_requested_skills(chat, &text),
+            vec!["maintain-notes".to_owned()]
+        );
+        assert!(
+            view.message_requested_skills(chat, "Please maintain-notes")
+                .is_empty()
+        );
+    });
+
+    // An active IME composition keeps ↵ while the list is open.
+    cx.simulate_input(f.window, "/in");
+    cx.run_until_parked();
+    assert!(commands(cx).is_some());
+    use gpui_kit::EntityInputHandler;
+    update(cx, &f, |view, window, cx| {
+        view.composer.update(cx, |state, cx| {
+            state.replace_and_mark_text_in_range(None, "か", None, window, cx)
+        });
+    });
+    cx.simulate_keystrokes(f.window, "enter");
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let text = f.view.read(cx).composer.read(cx).value().to_string();
+        assert!(!text.contains("/intake"), "composition kept ↵: {text}");
+    });
+}

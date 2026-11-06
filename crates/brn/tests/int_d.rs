@@ -217,11 +217,6 @@ fn checked_source_labelled_pair_reopens_through_cli_with_explicit_scoped_selecti
                     &project.id,
                 ],
             );
-            ok(
-                &root,
-                &data,
-                &["skill-select", "--id", id, "--project", &project.id],
-            );
         }
         let list = ok(
             &root,
@@ -246,9 +241,10 @@ fn checked_source_labelled_pair_reopens_through_cli_with_explicit_scoped_selecti
             .iter()
             .find(|p| p["id"] == id);
         if selected {
-            let policy = policy.expect("explicit scoped enable/select must be visible");
+            let policy = policy.expect("explicit scoped enable must be visible");
             assert_eq!(policy["enabled"], true);
-            assert_eq!(policy["selected"], true);
+            // Skills are requested per message; no selection persists.
+            assert_eq!(policy["selected"], false);
         } else {
             // Owner installation inventory is distinct from canonical scope
             // policy. Absence is disabled; no binding may be auto-created.
@@ -369,7 +365,6 @@ fn closed_copy_metadata_interoperates_for_both_history_arms() {
         if arm == "candidate" {
             app.set_skill_enabled(&info.id, &info.digest, Some(&p.id), true)
                 .unwrap();
-            app.select_skill(Some(&info.id), Some(&p.id)).unwrap();
         }
         let facts = json!({"case":arm,"data_dir":format!("/private/tmp/brn-int-d-qualification-20261017-default/{arm}"),"project":p.id,"chat":t.id,"note":n.id,"note_version":2,"early_message":ids[0],"early_version":1,"proposal_message":ids[40],"history_messages":ids,"selected":arm=="candidate","skill_id":info.id,"skill_digest":info.digest});
         drop(app);

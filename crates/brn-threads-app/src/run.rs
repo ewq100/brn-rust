@@ -14,6 +14,8 @@ pub struct ThreadRunStart {
     pub trace: TraceLevel,
     /// A host's already obtained catalogue, never a model-supplied choice.
     pub offered_copilot_models: Option<Vec<String>>,
+    /// Skill ids the owner requested with `/` in this message only.
+    pub requested_skills: Vec<String>,
 }
 #[derive(Debug, thiserror::Error)]
 pub enum RunSelectionError {
@@ -118,6 +120,7 @@ impl Workspace {
             sources: start.sources,
             search,
             trace: start.trace,
+            requested_skills: start.requested_skills,
         };
         let prepared = prepare_run(request).map_err(RunPreparationError::Preparation)?;
         Ok(PreparedWorkspaceRun {

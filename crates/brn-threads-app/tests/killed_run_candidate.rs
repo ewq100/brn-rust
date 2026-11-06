@@ -119,6 +119,7 @@ fn request(
         sources,
         search: None,
         trace: brn_ai::threads::TraceLevel::Off,
+        requested_skills: Vec::new(),
     }
 }
 
@@ -419,6 +420,7 @@ async fn resume_after_a_killed_queued_run_leaves_one_notice_and_redispatches_onc
     let queued_request = |q: &QueuedMessage| ThreadRunRequest {
         request_message: q.message.clone(),
         queue_claim: q.dispatch.clone(),
+        requested_skills: Vec::new(),
         ..request(&w.data, &q.thread, &q.text, vec![])
     };
     let (id, operation) = killed_run(&w.data, &w.intake, queued_request(&queued)).await;

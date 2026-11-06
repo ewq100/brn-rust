@@ -6,7 +6,7 @@ use super::components::AccessibleDropdownMenu;
 use super::shell::{item, one_line, pill};
 #[cfg(any(target_os = "macos", target_os = "linux"))]
 use super::*;
-use gpui_kit::component::input::Textarea;
+use gpui_kit::component::input::{self, Textarea};
 use gpui_kit::component::{Icon, Sizable, Size};
 use gpui_kit::{EntityInputHandler, Focusable};
 
@@ -436,6 +436,7 @@ impl ThreadsUi {
         let empty = self.composer.read(cx).value().trim().is_empty();
         let editing = self.queued_edit_for_current_chat().is_some();
         let field = div()
+            .relative()
             .id("composer-box")
             .flex()
             .flex_col()
@@ -469,13 +470,21 @@ impl ThreadsUi {
                         .test_support(),
                 )
             })
+            .children(self.slash_menu(cx))
             .child(
-                div().w_full().min_w_0().child(
-                    Textarea::new(&self.composer)
-                        .appearance(false)
-                        .text_size(px(theme::metrics::TEXT_BODY))
-                        .aria_label("Ask or delegate"),
-                ),
+                div()
+                    .w_full()
+                    .min_w_0()
+                    .on_mouse_down(
+                        gpui_kit::MouseButton::Left,
+                        cx.listener(|this, _, _, cx| this.close_slash(cx)),
+                    )
+                    .child(
+                        Textarea::new(&self.composer)
+                            .appearance(false)
+                            .text_size(px(theme::metrics::TEXT_BODY))
+                            .aria_label("Ask or delegate"),
+                    ),
             )
             .child(
                 div()
@@ -499,11 +508,54 @@ impl ThreadsUi {
                     this.attach_chat_path(paths.paths(), window, cx)
                 }),
             )
+            // The editor binds ↑, ↓, ↵, Tab and Escape to its own actions; the
+            // open / list claims them first.
+            .capture_action(cx.listener(|this, _: &input::MoveUp, _, cx| {
+                if this.slash.menu.is_some() {
+                    cx.stop_propagation();
+                    this.move_slash(-1, cx);
+                }
+            }))
+            .capture_action(cx.listener(|this, _: &input::MoveDown, _, cx| {
+                if this.slash.menu.is_some() {
+                    cx.stop_propagation();
+                    this.move_slash(1, cx);
+                }
+            }))
+            // ↵ chooses; Shift-↵ stays a newline and an active IME
+            // composition keeps ↵.
+            .capture_action(cx.listener(|this, action: &input::Enter, window, cx| {
+                if this.slash.menu.is_some()
+                    && !action.shift
+                    && !action.secondary
+                    && this
+                        .composer
+                        .update(cx, |state, cx| state.marked_text_range(window, cx))
+                        .is_none()
+                {
+                    cx.stop_propagation();
+                    this.choose_slash(None, window, cx);
+                }
+            }))
+            .capture_action(cx.listener(|this, _: &input::MoveLeft, _, cx| this.close_slash(cx)))
+            .capture_action(cx.listener(|this, _: &input::MoveRight, _, cx| this.close_slash(cx)))
+            .capture_action(cx.listener(|this, _: &input::IndentInline, window, cx| {
+                if this.slash.menu.is_some() {
+                    cx.stop_propagation();
+                    this.choose_slash(None, window, cx);
+                }
+            }))
+            .capture_action(cx.listener(|this, _: &input::Escape, _, cx| {
+                if this.slash.menu.is_some() {
+                    cx.stop_propagation();
+                    this.dismiss_slash(cx);
+                }
+            }))
             .capture_key_down(
                 cx.listener(|this, event: &gpui_kit::KeyDownEvent, window, cx| {
+                    let modifiers = &event.keystroke.modifiers;
                     // Plain ↵ submits here, before the editor sees it, so
                     // the field never gains the newline ↵ would insert.
-                    let modifiers = &event.keystroke.modifiers;
                     if event.keystroke.key == "enter"
                         && !modifiers.shift
                         && !modifiers.platform

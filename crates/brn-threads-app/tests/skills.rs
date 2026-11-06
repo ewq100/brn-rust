@@ -72,7 +72,7 @@ fn owner_package_reopen_and_real_backup_export_retention_exclusion() {
 }
 
 #[test]
-fn canonical_selection_survives_backup_but_missing_bytes_fail_closed_until_exact_reinstall() {
+fn canonical_enablement_survives_backup_but_missing_bytes_fail_closed_until_exact_reinstall() {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let mut app = Workspace::create_without_default_credentials(
         root.path().join("data"),
@@ -89,7 +89,10 @@ fn canonical_selection_survives_backup_but_missing_bytes_fail_closed_until_exact
     let info = app.install_skill(&source).unwrap();
     app.set_skill_enabled(&info.id, &info.digest, None, true)
         .unwrap();
-    app.select_skill(Some(&info.id), None).unwrap();
+    assert!(
+        app.select_skill(Some(&info.id), None).is_err(),
+        "skills are requested per message, never selected persistently"
+    );
     let binding = app.settings().unwrap().skills;
     let backup = root.path().join("backup.sqlite3");
     app.store.backup(&backup).unwrap();
@@ -107,8 +110,14 @@ fn canonical_selection_survives_backup_but_missing_bytes_fail_closed_until_exact
         .into_iter()
         .find(|s| s.id == info.id)
         .unwrap();
-    assert!(missing.selected && missing.enabled && !missing.available);
-    assert!(restored.select_skill(Some(&info.id), None).is_err());
+    assert!(!missing.selected && missing.enabled && !missing.available);
+    let command = restored
+        .skill_commands(None)
+        .unwrap()
+        .into_iter()
+        .find(|c| c.id == info.id)
+        .unwrap();
+    assert!(!command.available && command.unavailable.is_some());
     assert!(!restored.store.directory().join("skills").exists());
     std::fs::write(source.join("SKILL.md"), format!("{text}Changed version\n")).unwrap();
     let other = restored.install_skill(&source).unwrap();
@@ -131,7 +140,7 @@ fn canonical_selection_survives_backup_but_missing_bytes_fail_closed_until_exact
         .into_iter()
         .find(|s| s.id == info.id)
         .unwrap();
-    assert!(exact.available && exact.selected && exact.enabled);
+    assert!(exact.available && !exact.selected && exact.enabled);
     let export = root.path().join("export");
     let manifest = restored.export_now(&export).unwrap();
     assert!(manifest.files.iter().any(|f| f.record == note.id));
@@ -153,5 +162,84 @@ fn canonical_selection_survives_backup_but_missing_bytes_fail_closed_until_exact
             .search("canonicalrecoveryskillpositive")
             .unwrap()
             .is_empty()
+    );
+}
+
+#[test]
+fn builtin_skills_stay_available_and_legacy_policy_is_reconciled_on_open() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let data = root.path().join("data");
+    let mut app =
+        Workspace::create_without_default_credentials(&data, WorkspacePurpose::Test).unwrap();
+    let digest = app
+        .scoped_skills(None)
+        .unwrap()
+        .into_iter()
+        .find(|s| s.id == "maintain-notes")
+        .unwrap()
+        .digest;
+    assert!(
+        app.set_skill_enabled("maintain-notes", &digest, None, false)
+            .is_err(),
+        "built-in skills cannot be disabled"
+    );
+    let source = root.path().join("package");
+    std::fs::create_dir(&source).unwrap();
+    std::fs::write(
+        source.join("SKILL.md"),
+        "---\nname: synthetic-review\ndescription: Synthetic review.\n---\nBody\n",
+    )
+    .unwrap();
+    let info = app.install_skill(&source).unwrap();
+    for change in [
+        SkillPolicyChange::Set(SkillBinding {
+            id: "maintain-notes".into(),
+            digest,
+            project: None,
+            enabled: false,
+            selected: false,
+        }),
+        SkillPolicyChange::Set(SkillBinding {
+            id: info.id.clone(),
+            digest: info.digest.clone(),
+            project: None,
+            enabled: true,
+            selected: true,
+        }),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let (index, change) = change;
+        let op = app
+            .store
+            .allocate_operation(&format!("legacy skill policy {index}"))
+            .unwrap();
+        app.store
+            .change_skill_policy(&op, &change, &HostAuthority::owner("synthetic owner"))
+            .unwrap();
+    }
+    drop(app);
+    let app = Workspace::open_existing_no_upgrade(&data).unwrap();
+    let skills = app.settings().unwrap().skills;
+    assert!(!skills.iter().any(|b| b.id == "maintain-notes"));
+    assert!(skills.iter().all(|b| !b.selected));
+    let commands = app.skill_commands(None).unwrap();
+    for id in [
+        "intake",
+        "maintain-notes",
+        "prepare-reply",
+        "resolve-conflict",
+    ] {
+        assert!(
+            commands
+                .iter()
+                .any(|c| c.id == id && c.command == id && c.available)
+        );
+    }
+    assert!(
+        commands
+            .iter()
+            .any(|c| c.id == info.id && c.command == "synthetic-review" && c.available)
     );
 }
