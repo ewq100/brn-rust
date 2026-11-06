@@ -896,6 +896,31 @@ fn starting_a_replacement_run_clears_the_old_paused_notice(cx: &mut TestAppConte
 }
 
 #[gpui_kit::test]
+fn the_run_line_stops_saying_starting_once_the_reply_streams(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Working);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.progress = "Starting…".into();
+            f.sender
+                .send(WorkerEvent::Text("1. Arrive early".into()))
+                .unwrap();
+            ui.poll_worker(window, cx);
+            assert_eq!(ui.progress, "Writing…");
+            // A real provider status still replaces it.
+            f.sender
+                .send(WorkerEvent::Progress("Reading Tide tables".into()))
+                .unwrap();
+            f.sender
+                .send(WorkerEvent::Text(" 2. Wear shoes".into()))
+                .unwrap();
+            ui.poll_worker(window, cx);
+            assert_eq!(ui.progress, "Reading Tide tables");
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
 fn dismissed_completion_banner_can_be_restored_from_the_workspace_menu(cx: &mut TestAppContext) {
     let f = fixture(cx, RunState::Completed);
     cx.update_window(f.window, |_, window, cx| {

@@ -2970,6 +2970,10 @@ impl ThreadsUi {
                         .is_some_and(|w| w.cancel.is_cancelled())
                     {
                         self.stream.push_str(&text);
+                        // The reply has begun; "Starting…" would now be stale.
+                        if self.progress == "Starting…" {
+                            self.progress = "Writing…".into();
+                        }
                     }
                 }
                 WorkerEvent::Progress(text) => {
