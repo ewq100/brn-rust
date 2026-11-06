@@ -78,14 +78,15 @@ done
 ''')
         self.curl.chmod(0o700)
         self.updater = self.app / "Contents/Resources/bin/brn-update"
-        self.updater.write_text(self.updater.read_text().replace("/usr/bin/curl", str(self.curl)))
+        if not getattr(self, "stock_transport", False):
+            self.updater.write_text(self.updater.read_text().replace("/usr/bin/curl", str(self.curl)))
 
     def tearDown(self):
         self.assertEqual({p.name: p.read_bytes() for p in self.data.iterdir()}, self.before)
         self.scratch.cleanup()
 
     def run_update(self):
-        return subprocess.run(["/bin/bash", str(self.updater), "v0.2.0-alpha.2"], env=self.env, capture_output=True, text=True, timeout=30)
+        return subprocess.run(["/bin/bash", str(self.updater), getattr(self, "requested_version", "v0.2.0-alpha.2")], env=self.env, capture_output=True, text=True, timeout=1800 if getattr(self, "stock_transport", False) else 30)
 
     def transaction(self):
         return next(self.app.parent.glob(".BRN Threads.app.update-??????"))
@@ -388,20 +389,38 @@ else /bin/mv "$@"; fi
             self.app.parent.chmod(0o700)
 
 
-def qualify_update(delivery_a, delivery_b, host_cli, evidence):
-    """Real BRN A→B and store preservation; only HTTPS transport is substituted.
+def qualify_update(delivery_a, delivery_b, host_cli, evidence, stock_transport=False):
+    """Real BRN A→B and store preservation, using fixture or stock HTTPS transport.
 
+    Stock mode requires prepare-published-macos-update.py's approved ready pair.
+    Default mode substitutes transport for local packages; it proves no delivery.
     Prepare local packages v0.2.0-alpha.1/build101 and alpha.2/build102 with the
     normal packager. These test tags must not be approved/published for this run.
     This is headless evidence, not clean-Mac/Gatekeeper/Copilot acceptance.
     """
     case = UpdaterTests("test_verified_replacement_and_backup")
     case.deliveries = [Path(delivery_a).resolve(), Path(delivery_b).resolve()]
+    case.stock_transport = stock_transport
+    manifests = [json.loads(next(p.glob("*.manifest.json")).read_text()) for p in case.deliveries]
+    case.requested_version = manifests[1]["version"]
+    stock_script = (case.deliveries[0] / "BRN Threads.app/Contents/Resources/bin/brn-update").read_bytes()
+    if stock_transport:
+        assert case.deliveries[0].parent == case.deliveries[1].parent, "Use the approved prepared A/B pair"
+        preparation = json.loads((case.deliveries[0].parent / "preparation.json").read_text())
+        assert preparation["status"] == "ready", "Published artifacts are not ready"
+        for label, delivery, manifest in zip(("A", "B"), case.deliveries, manifests):
+            identity = preparation[label]
+            assert identity["status"] == "ready"
+            assert identity["version"] == manifest["version"] and identity["source_sha"] == manifest["source_sha"]
+            assert identity["manifest_sha256"] == packaging.digest(next(delivery.glob("*.manifest.json")))
+            assert identity["stock_updater_sha256"] == manifest["updater_sha256"]
     # Verify both unmodified source packages before A's transport-only test edit.
     for delivery in case.deliveries:
         subprocess.run(["/usr/bin/codesign", "--verify", "--strict", "--deep", str(delivery / "BRN Threads.app")], check=True)
     case.setUp()
     try:
+        if stock_transport:
+            assert case.updater.read_bytes() == stock_script, "Stock updater was changed"
         workspace = case.data / "Library/Application Support/BRN Threads Preview/workspace"
         cli = str(Path(host_cli).resolve())
         calls = []
@@ -447,7 +466,8 @@ def qualify_update(delivery_a, delivery_b, host_cli, evidence):
 
         result = case.run_update()
         assert result.returncode == 0, (result.stdout, result.stderr)
-        assert case.build() == 102
+        assert case.build() == manifests[1]["build_number"]
+        assert json.loads((case.app / "Contents/Resources/build-manifest.json").read_text())["source_sha"] == manifests[1]["source_sha"]
         assert files() == hashes_before, "Updater changed an external data/settings/credential file"
         startup = subprocess.run([str(case.app / "Contents/Resources/bin/brn-desktop"), "--data-dir", str(workspace), "--headless-check", "startup"], env=case.env, capture_output=True, text=True, timeout=30)
         assert startup.returncode == 0, (startup.stdout, startup.stderr)
@@ -458,7 +478,8 @@ def qualify_update(delivery_a, delivery_b, host_cli, evidence):
         assert call("notes", data=restored) == before["notes"]
         report = {
             "outcome": "passed",
-            "scope": "local real BRN packages, headless A→B/store/backup/restore; HTTPS transport only substituted",
+            "scope": "stock updater real HTTPS A→B/store/backup/restore" if stock_transport else "local real BRN packages, headless A→B/store/backup/restore; HTTPS transport only substituted",
+            "stock_updater_unmodified": stock_transport,
             "limitations": ["Not native acceptance", "Not clean-Mac installation or Gatekeeper acceptance",
                              "Synthetic Copilot selection/credential sentinel only; no live connection",
                              "Not publication or final integrated Agent A candidate"],
@@ -474,7 +495,7 @@ def qualify_update(delivery_a, delivery_b, host_cli, evidence):
             "B_headless_stdout": startup.stdout,
         }
         Path(evidence).write_text(json.dumps(report, indent=2) + "\n")
-        print("Real BRN local A→B, unchanged external files, B headless reopen and backup/restore passed")
+        print("Real BRN " + ("stock HTTPS" if stock_transport else "local") + " A→B, unchanged external files, B headless reopen and backup/restore passed")
     finally:
         # The case's byte sentinels are unchanged; the added real workspace is
         # intentionally retained only until this disposable qualification ends.
@@ -489,9 +510,10 @@ if __name__ == "__main__":
         parser.add_argument("--qualify-update", action="store_true")
         parser.add_argument("--delivery-a", required=True)
         parser.add_argument("--delivery-b", required=True)
+        parser.add_argument("--stock-transport", action="store_true", help="Run A’s unmodified bundled updater over real HTTPS; use only an approved prepared pair")
         parser.add_argument("--host-cli", required=True)
         parser.add_argument("--evidence", required=True)
         args = parser.parse_args()
-        qualify_update(args.delivery_a, args.delivery_b, args.host_cli, args.evidence)
+        qualify_update(args.delivery_a, args.delivery_b, args.host_cli, args.evidence, args.stock_transport)
     else:
         unittest.main()

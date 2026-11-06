@@ -1,0 +1,56 @@
+   Compiling brn-threads-intake v0.1.0 (/Users/evokessler/Documents/Codex/brn-mac-updater-253/crates/brn-threads-intake)
+warning: stripping debug info with `rust-objcopy` failed: signal: 6 (SIGABRT)
+  |
+  = note: dyld[91956]: Library not loaded: @rpath/libLLVM.dylib
+            Referenced from: <AC0D75A8-23BF-301F-B7CE-3E5CC0C1BC06> /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-objcopy
+            Reason: tried: '/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/../lib/libLLVM.dylib' (no such file), '/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/../lib/libLLVM.dylib' (no such file), '/Users/evokessler/Documents/Codex/brn-mac-updater-253/target/debug/deps/libLLVM.dylib' (no such file), '/Users/evokessler/lib/libLLVM.dylib' (no such file), '/usr/local/lib/libLLVM.dylib' (no such file), '/usr/lib/libLLVM.dylib' (no such file, not in dyld cache)
+          
+
+warning: `brn-threads-intake` (test "intake_safety") generated 1 warning
+warning: stripping debug info with `rust-objcopy` failed: signal: 6 (SIGABRT)
+  |
+  = note: dyld[91967]: Library not loaded: @rpath/libLLVM.dylib
+            Referenced from: <AC0D75A8-23BF-301F-B7CE-3E5CC0C1BC06> /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-objcopy
+            Reason: tried: '/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/../lib/libLLVM.dylib' (no such file), '/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/../lib/libLLVM.dylib' (no such file), '/Users/evokessler/Documents/Codex/brn-mac-updater-253/target/debug/deps/libLLVM.dylib' (no such file), '/Users/evokessler/lib/libLLVM.dylib' (no such file), '/usr/local/lib/libLLVM.dylib' (no such file), '/usr/lib/libLLVM.dylib' (no such file, not in dyld cache)
+          
+
+warning: `brn-threads-intake` (test "document_modes") generated 1 warning
+warning: stripping debug info with `rust-objcopy` failed: signal: 6 (SIGABRT)
+  |
+  = note: dyld[91980]: Library not loaded: @rpath/libLLVM.dylib
+            Referenced from: <AC0D75A8-23BF-301F-B7CE-3E5CC0C1BC06> /Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/rust-objcopy
+            Reason: tried: '/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/../lib/libLLVM.dylib' (no such file), '/Users/evokessler/.rustup/toolchains/1.98.1-aarch64-apple-darwin/lib/rustlib/aarch64-apple-darwin/bin/../lib/libLLVM.dylib' (no such file), '/Users/evokessler/Documents/Codex/brn-mac-updater-253/target/debug/deps/libLLVM.dylib' (no such file), '/Users/evokessler/lib/libLLVM.dylib' (no such file), '/usr/local/lib/libLLVM.dylib' (no such file), '/usr/lib/libLLVM.dylib' (no such file, not in dyld cache)
+          
+
+warning: `brn-threads-intake` (lib test) generated 1 warning
+    Finished `test` profile [optimized] target(s) in 1.44s
+     Running unittests src/lib.rs (target/debug/deps/brn_threads_intake-b9d9caa49e5b85c0)
+
+running 5 tests
+test process::tests::process_tree_child ... ignored, subprocess witness only
+test transient::tests::existing_symlinks_and_non_regular_entries_still_fail ... ok
+test transient::tests::missing_scratch_root_and_excess_entries_still_fail ... ok
+test process::tests::cancellation_kills_owned_descendant_and_joins_pipes ... ok
+test transient::tests::concurrent_cache_renames_do_not_fail_scratch_budget_monitoring ... ok
+
+test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/document_modes.rs (target/debug/deps/document_modes-c72e5af2880b1a1c)
+
+running 5 tests
+test pure_validation_precedes_platform_refusal_without_scratch_or_dispatch ... ok
+test successful_process_with_wrong_response_identity_is_rejected_and_limits_are_enforced ... ok
+test wrong_backend_missing_helper_and_cancel_cannot_fall_back ... ok
+test markdown_linked_figures_are_named_gaps_in_both_helpers ... ok
+test both_helpers_all_eight_use_checked_identity_and_leave_no_scratch ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.77s
+
+     Running tests/intake_safety.rs (target/debug/deps/intake_safety-d061575fd2b6b36a)
+
+running 2 tests
+test source_file_read_is_bounded_and_cancelled_before_conversion ... ok
+test restart_expiry_removes_only_owned_old_runs_and_does_not_follow_links ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+

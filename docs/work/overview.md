@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Implement #253’s independent Mac updater and qualify disposable package replacement; retain earlier task history.
-**Owner attention:** Agent B owns updater/packaging only. Final integrated/native acceptance waits for Agent A’s selected runtime/Copilot candidate and an unlocked Mac. No release publication or new merge authority inferred.
+**Owner attention:** Agent B owns updater/packaging only. Published stock HTTPS gate needs an approved command-enabled A/B pair; native session needs unlocked Mac; final integrated acceptance waits for Agent A selected runtime/Copilot. No merge/publication authority inferred.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -34,10 +34,10 @@ Gates:
 ### Implement and qualify the versioned Mac updater
 
 Task ID: `mac-updater-253`
-Owner: Agent B · State: **active** · Last observed: 2026-11-06T14:10:50.977367+02:00
-Activity: Updater and packaging implemented; independent review clear after fixing CLT dependency and interruption/concurrency findings. 353 tooling tests (11 skips), 41 focused checks and real local BRN A→B/synthetic SQLite preservation/backup/restore passed on Mac mini. Packaged startup and both helpers/all eight typed formats also passed. Focused PR258 is open and attached; exact-head hosted CI is in progress.
-Next: Inspect PR258 exact-head hosted gates and hand off final integrated acceptance. Agent A must supply the selected runtime/Copilot SHA and package dependencies; then use an unlocked Mac/clean disposable profile for Gatekeeper, install, real released A→B and native Copilot journeys. No merge or publication authority inferred.
-Resource waits: Mac mini CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
+Owner: Agent B · State: **active** · Last observed: 2026-11-06T14:48:02.198901+02:00
+Activity: PR258 Ubuntu failure reproduced on baseline and submitted PR under controlled Linux fork pressure: ETXTBSY from mutable executable fixture. Stable checked-in helper preserves all cases/limits; 400 stressed fixed loops passed. Mac intake tests/Clippy, 360 tooling total (349 passed,11 skipped), and real local A→B preservation passed. Existing published previews lack updater: actual HTTPS stock gate remains blocked.
+Next: Submit the reviewed correction/evidence and inspect final-head hosted gates plus Codex code/security review. Published stock HTTPS witness separately requires release-authority-approved command-enabled A/B artifacts. Native clean-profile install/Gatekeeper requires unlocked Mac and tester login; final runtime/Copilot journeys require Agent A selected SHA/dependencies. No merge/publication authority inferred.
+Resource waits: Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.; Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
 
 <details>
 <summary>Gate status</summary>
@@ -45,8 +45,8 @@ Resource waits: Mac mini CGSSessionScreenIsLocked=true; native interaction/login
 Gates:
 
 - **implementation:** Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.
-- **checks:** Passed on Mac mini arm64/macOS27.2: pinned1.98.1 native-ui release desktop, CLI and both document helpers; 353 tooling tests (11 skips), 41 focused tests including19 updater cases; real local package A alpha.1/build101→B alpha.2/build102 with byte-identical external files and logical state after B headless reopen, figure asset, backup/fresh restore; both relocated helpers/all8formats and CLI16imports. Test transport substituted; clean-Mac/released HTTPS update not claimed.
-- **integration:** PR258 open, mergeable; not merged or published. Production updater832e8888 unchanged by qualification/evidence-only follow-ups. Exact-head hosted CI in progress. release/preview.json unchanged; no tags, release or announcement.
+- **checks:** Original tooling corrected:353 total=342 passed+11 skipped. Resumed:360 total=349 passed+11 skipped; intake crate11 passed/1 existing ignored and all-target Clippy passed. Linux baseline/submitted identical code both reproduced ETXTBSY with concurrent forks; static fixture40 plain+400 stressed complete loops passed. Real local signed A→B rerun preserved synthetic files/state/backup. Production build/helper evidence retained unchanged; headless/local transport is not stock published HTTPS or native acceptance. OUTSTANDING: actual approved preview.1/.2 metadata/digests/source-approved receipts verified; preparation blocked because neither includes updater. New preparation plus guarded --stock-transport witness ready for an authority-approved published command-enabled A/B pair. No ZIP/app/updater executed from those legacy releases.
+- **integration:** PR258 open, unmerged/unpublished. Normal merge of main e210c2c0 adds current review guidance; final submitted-head hosted gates and Codex code/security completion required. Production updater832e8888 unchanged; release/preview.json unchanged.
 - **native:** Pending: screen remains locked. Local real-package/headless evidence is not native acceptance, clean-Mac Gatekeeper acceptance or a published-release transport witness.
 - **owner acceptance:** Pending Agent A selected runtime/Copilot candidate, native install/update/reopen and required Copilot journeys, then owner use before invited distribution.
 
@@ -65,10 +65,11 @@ Owner: Agent B
 
 Waiting:
 
-- resource: Mac mini CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
+- resource: Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.
+- resource: Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
 
 ## Completed
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-11-06T14:10:50.977367+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T14:48:02.198901+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.

@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "enabled": true,
+  "version": "v0.1.0-preview.1",
+  "build_number": 1,
+  "platform": "macos-arm64",
+  "minimum_macos": "15.0",
+  "features": [
+    "native-ui"
+  ],
+  "notes_file": "docs/development/preview-release.md",
+  "source_sha": "ac314de205c4b81a9537dd2b160c1cc459af7063",
+  "signing": "ad-hoc; not notarized",
+  "binaries": {
+    "brn-desktop": {
+      "sha256": "3a7fa6c1bf81c68cbb14855fa99924ca6644c4a719eb5e92e32bb881613bf965",
+      "architecture": "arm64",
+      "minimum_macos": "15.0",
+      "libraries": [
+        "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+        "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+        "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+        "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+        "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+        "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+        "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+        "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/libobjc.A.dylib",
+        "/System/Library/Frameworks/UserNotifications.framework/Versions/A/UserNotifications",
+        "/System/Library/Frameworks/CoreLocation.framework/Versions/A/CoreLocation",
+        "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+        "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+        "/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData",
+        "/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage",
+        "/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit",
+        "/System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL",
+        "/System/Library/Frameworks/Metal.framework/Versions/A/Metal",
+        "/usr/lib/libsandbox.1.dylib",
+        "/usr/lib/libiconv.2.dylib",
+        "/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync"
+      ],
+      "source_binary_sha256": "e00ae93e0e35bb5043aeda18b7f6b06dbeba6413a2830268a378f33f47f5812f"
+    },
+    "brn-intake-helper": {
+      "sha256": "3a08441a1f571e1f1d1e3b27930d7c7d756edf8f3e639a8d734d753105eef03d",
+      "architecture": "arm64",
+      "minimum_macos": "15.0",
+      "libraries": [
+        "/usr/lib/libsandbox.1.dylib",
+        "/usr/lib/libiconv.2.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "source_binary_sha256": "2dd67d09ae24173206fffa337230bdf861c9afd403af12da8a27e47a363105ae"
+    }
+  },
+  "data_directory": "~/Library/Application Support/BRN Threads Preview/workspace",
+  "qualification": {
+    "native_interaction": "deferred",
+    "live_provider": "deferred",
+    "recovery_acceptance": "pending"
+  },
+  "external_pdf_tools": [
+    "pdftotext",
+    "pdfimages"
+  ],
+  "bundled_embeddings": false,
+  "bundled_provider_credentials": false,
+  "cargo_lock_sha256": "ba007caa7562082fb9bd1e080472ee956284c0b40663e5ba748bc8baecbf7c64",
+  "rust_toolchain": "[toolchain]\nchannel = \"1.98.1\"\nprofile = \"minimal\"\ncomponents = [\"clippy\", \"rustfmt\"]\n",
+  "archive": {
+    "name": "BRN-Threads-v0.1.0-preview.1-macos-arm64.zip",
+    "sha256": "1abd0ff768f0c481b175a4e455e17832e57c7c8a924bd506463e5640d8d504cf",
+    "bytes": 18221073
+  }
+}

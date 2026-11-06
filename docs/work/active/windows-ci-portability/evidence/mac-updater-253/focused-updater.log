@@ -1,0 +1,31 @@
+test_bad_downloads_keep_current_app (scripts.tests.test_macos_updater.UpdaterTests.test_bad_downloads_keep_current_app) ... ok
+test_corrupt_zip_with_valid_checksum_refuses (scripts.tests.test_macos_updater.UpdaterTests.test_corrupt_zip_with_valid_checksum_refuses) ... ok
+test_external_library_inventory_refuses (scripts.tests.test_macos_updater.UpdaterTests.test_external_library_inventory_refuses) ... ok
+test_failed_replacement_restores_old_immediately (scripts.tests.test_macos_updater.UpdaterTests.test_failed_replacement_restores_old_immediately) ... ok
+test_interrupted_download_and_concurrent_attempt (scripts.tests.test_macos_updater.UpdaterTests.test_interrupted_download_and_concurrent_attempt) ... ok
+test_launcher_refuses_during_update (scripts.tests.test_macos_updater.UpdaterTests.test_launcher_refuses_during_update) ... ok
+test_nonwritable_folder (scripts.tests.test_macos_updater.UpdaterTests.test_nonwritable_folder) ... ok
+test_recovery_pid_only_sigkill_retains_worker_guard (scripts.tests.test_macos_updater.UpdaterTests.test_recovery_pid_only_sigkill_retains_worker_guard) ... ok
+test_recovery_sigkill_after_claim_can_retry (scripts.tests.test_macos_updater.UpdaterTests.test_recovery_sigkill_after_claim_can_retry) ... ok
+test_recovery_sigkill_after_restore_can_retry (scripts.tests.test_macos_updater.UpdaterTests.test_recovery_sigkill_after_restore_can_retry) ... ok
+test_recovery_sigkill_before_unlock_can_retry (scripts.tests.test_macos_updater.UpdaterTests.test_recovery_sigkill_before_unlock_can_retry) ... ok
+test_running_app_is_not_terminated (scripts.tests.test_macos_updater.UpdaterTests.test_running_app_is_not_terminated) ... ok
+test_sigkill_after_install_retains_new_and_backup (scripts.tests.test_macos_updater.UpdaterTests.test_sigkill_after_install_retains_new_and_backup) ... ok
+test_sigkill_between_renames_restores_old (scripts.tests.test_macos_updater.UpdaterTests.test_sigkill_between_renames_restores_old) ... ok
+test_traversal_and_symlink_archive_entries_refuse_before_extraction (scripts.tests.test_macos_updater.UpdaterTests.test_traversal_and_symlink_archive_entries_refuse_before_extraction) ... ok
+test_unsupported_os_and_architecture (scripts.tests.test_macos_updater.UpdaterTests.test_unsupported_os_and_architecture) ... ok
+test_update_without_developer_tools (scripts.tests.test_macos_updater.UpdaterTests.test_update_without_developer_tools) ... ok
+test_verified_replacement_and_backup (scripts.tests.test_macos_updater.UpdaterTests.test_verified_replacement_and_backup) ... ok
+test_wrong_bundle_or_tampered_signed_app_refuses (scripts.tests.test_macos_updater.UpdaterTests.test_wrong_bundle_or_tampered_signed_app_refuses) ... ok
+test_ambiguous_or_wrong_route_assets_are_rejected (scripts.tests.test_published_macos_update.PublishedPreparationTests.test_ambiguous_or_wrong_route_assets_are_rejected) ... ok
+test_approved_legacy_pair_is_blocked_without_downloading_or_running_code (scripts.tests.test_published_macos_update.PublishedPreparationTests.test_approved_legacy_pair_is_blocked_without_downloading_or_running_code) ... ok
+test_corrupt_download_is_rejected (scripts.tests.test_published_macos_update.PublishedPreparationTests.test_corrupt_download_is_rejected) ... ok
+test_draft_or_wrong_tag_is_not_approved_artifact (scripts.tests.test_published_macos_update.PublishedPreparationTests.test_draft_or_wrong_tag_is_not_approved_artifact) ... ok
+test_manifest_requires_source_approval (scripts.tests.test_published_macos_update.PublishedPreparationTests.test_manifest_requires_source_approval) ... ok
+test_output_collision_is_refused (scripts.tests.test_published_macos_update.PublishedPreparationTests.test_output_collision_is_refused) ... ok
+test_release_must_name_exact_source_commit (scripts.tests.test_published_macos_update.PublishedPreparationTests.test_release_must_name_exact_source_commit) ... ok
+
+----------------------------------------------------------------------
+Ran 26 tests in 8.782s
+
+OK
