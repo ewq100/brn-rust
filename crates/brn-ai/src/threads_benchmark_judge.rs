@@ -22,17 +22,28 @@ fn request(packet: &str, instructions: &str) -> CompletionRequest {
 /// Fixed Sol/high, no tools, exactly one admitted HTTP model attempt, no resend.
 /// Errors retain the safe error kind and observed request budget, never raw bodies.
 pub async fn judge(auth_file: &Path, packet: &str, instructions: &str) -> Value {
+    judge_over(
+        auth_file,
+        packet,
+        instructions,
+        rig::http_client::DynHttpClient::new(rig::rig_reqwest::shared()),
+    )
+    .await
+}
+
+async fn judge_over(
+    auth_file: &Path,
+    packet: &str,
+    instructions: &str,
+    base_http: rig::http_client::DynHttpClient,
+) -> Value {
     let started = Instant::now();
     let cancel = CancellationToken::new();
     let budget = Arc::new(wire_trace::CallBudget::default());
     budget.set(1).expect("fixed valid budget");
     let trace = TraceCollector::new(TraceLevel::Summary).map(Arc::new);
     let http = crate::response_limit::ResponseLimit::default();
-    let http = Arc::new(http).wrap(wire_trace::wrap(
-        rig::http_client::DynHttpClient::new(rig::rig_reqwest::shared()),
-        &trace,
-        &budget,
-    ));
+    let http = Arc::new(http).wrap(wire_trace::wrap(base_http, &trace, &budget));
     let operation = async {
         if packet.len() > 1024 * 1024 || instructions.len() > 64 * 1024 {
             return Err(AiError::new(AiErrorKind::ToolRejected));
@@ -113,5 +124,48 @@ mod tests {
         assert!(r.additional_params.is_none());
         let encoded = serde_json::to_string(&r).unwrap();
         assert!(encoded.contains("high"));
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn frozen_judgment_uses_one_real_wire_request_and_refuses_tools_or_other_model() {
+        use crate::provider_formats_tests::{success, text_sse, tool_sse};
+        use rig::http_client::DynHttpClient;
+        use rig::test_utils::SequencedHttpClient;
+        use std::os::unix::fs::PermissionsExt;
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let file = root.path().join("auth.json");
+        let bytes = br#"{"auth_mode":"chatgpt","tokens":{"access_token":"SYNTHETIC_ACCESS","account_id":"SYNTHETIC_ACCOUNT"}}"#;
+        std::fs::write(&file, bytes).unwrap();
+        std::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).unwrap();
+        let replies = [
+            (
+                text_sse(true, "[]")
+                    .replace("\"model\":\"synthetic\"", "\"model\":\"gpt-6.1-sol\""),
+                "completed",
+            ),
+            (text_sse(true, "[]"), "failed"),
+            (
+                tool_sse(true, &[("read_note", json!({"id":"synthetic"}))]),
+                "failed",
+            ),
+        ];
+        for (sse, expected) in replies {
+            let http = SequencedHttpClient::new([success(sse)]);
+            let result = judge_over(
+                &file,
+                "SYNTHETIC_PACKET",
+                "Frozen instructions",
+                DynHttpClient::new(http.clone()),
+            )
+            .await;
+            assert_eq!(result["status"], expected, "{result}");
+            assert_eq!(http.requests().len(), 1);
+            assert_eq!(result["model_call_budget"]["started"], 1);
+            assert_eq!(result["wire_requests"][0]["model"], "gpt-6.1-sol");
+            assert_eq!(result["wire_requests"][0]["effort"], "high");
+            assert!(!result.to_string().contains("SYNTHETIC_ACCESS"));
+            assert_eq!(std::fs::read(&file).unwrap(), bytes);
+        }
     }
 }
