@@ -1,10 +1,9 @@
 # Terra and Sol: bounded BRN comparison
 
-Conclusion: insufficient evidence to replace Sol as BRN's main agent. Continue
-Phase 2 with provisional Sol medium. Terra was effective on this visible sample,
+Conclusion: insufficient evidence to replace Sol as BRN's main agent. The later
+Phase 2 used provisional Sol medium. Terra was effective on this visible sample,
 with fewer requests and lower reported time/token totals, but the saved-state
-quality gate is unmeasured and independent unseen comparison was not executed
-within Phase 1's original clock. No default-model change is proposed.
+quality gate is unmeasured and independent unseen comparison was not admitted. No default-model change is proposed.
 
 ## Observed results
 
@@ -38,6 +37,22 @@ excluded protected raw sources. A separate no-tool Sol-high invocation graded
 each anonymous answer against frozen expected answers. All eight returned valid
 hash-bound scores of 4/4. Same-family grading bias remains a limitation.
 
+
+The paired efficiency observations below show both repetitions; Terra was lower
+on both measures in each W03/W05 pair. This does not resolve the missing quality
+gate or unseen comparison.
+
+| Case/repetition | Sol seconds | Terra seconds | Sol input+output | Terra input+output |
+| --- | ---: | ---: | ---: | ---: |
+| W03/1 | 73.247 | 57.544 | 181,279 | 147,717 |
+| W03/2 | 85.506 | 57.904 | 181,956 | 148,052 |
+| W05/1 | 83.843 | 43.886 | 146,464 | 106,443 |
+| W05/2 | 82.715 | 50.006 | 133,772 | 106,729 |
+
+All eight reader grades are at the 4/4 ceiling. Two visible reader questions
+cannot distinguish the models' full knowledge quality. The planned four-packet
+blind consistency check was not run; no grading consistency result is claimed.
+
 ## Missing evidence and failures
 
 Three saved-state grader attempts failed within the finite allocation: an outer
@@ -52,9 +67,15 @@ parent directory did not exist. Its request and explicit zero-dispatch dispositi
 are retained. The replacement has a new identity. No candidate was rerun.
 
 The evaluator prepared distinct withheld packs for both phases before execution.
-Phase 1's pack remains unexecuted: the original 60-minute phase clock expired
-after visible runs and bounded evaluation work. No broad recommendation is made
-from the visible cases. Phase 2 uses a distinct fresh pack, outside tuning.
+Phase 1's pack was not admitted. The clock started at 22:11:10Z and would end at
+23:11:10Z; Phase 2 started at 23:09:19Z, with 1 minute 51 seconds still remaining.
+The phase clocks therefore overlapped, although native model runs did not. The
+remaining time could not admit the confirmation block. The last visible native
+block ended at 22:42:51Z. The following 26 minutes 28 seconds went to fixed readers,
+179 seconds of direct grading, output-controller fault containment, preparation
+and lead work. Prioritizing those tasks left the unseen pack unrun; it was not
+simply dispatched after an already-expired clock. No broad recommendation follows.
+Phase 2 subsequently attempted a distinct fresh pack, outside tuning.
 
 ## Reproduction and qualification
 
@@ -78,5 +99,7 @@ owner acceptance, release or merge is claimed.
 
 Reported usage is subscription transport usage, not a monetary charge. Missing
 usage and outside orchestration requests remain unknown; estimated pilot credits
-in retained legacy output are not observed charges. The task's final accounting
-and Council results accompany the two PRs.
+in retained legacy output are not observed charges. The [final accounting](accounting.md) and [Council findings](review-followups.md)
+accompany the two PRs. The post-run audit-status fix was tested offline; the exact
+executed supervisor is archived with its original hash. It did not replace any
+measured source or alter a retained result.

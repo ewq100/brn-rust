@@ -72,26 +72,6 @@ Gates:
 
 </details>
 
-### Compare Terra/Sol and improve maintained knowledge (#254)
-
-Task ID: `knowledge-quality-254`
-Owner: Agent D · State: **active** · Last observed: 2026-11-06T23:36:00.246249+00:00
-Activity: Both native phases attempted; no model/guide adoption. Phase1saved-state semantic grading unknown; visible readers8/8score4. Phase2candidate12/12Completed vsbaseline11/12; fresh confirmation partial7attempts/36knownHTTP+1uncertain; nofreshreaders. Guardstop respected, remainingdevelopmentreaders/broadregressions notrun. Finalreview/delivery in progress.
-Next: Bounded final Council review, full limitation/accounting handoff and two separate draftPRs; no further BRN dispatch or baseline replacement.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Single-factor candidate implemented/built/measured; retained as evidence only, accepted original baseline unchanged.
-- **checks:** Qualified nativeAgentBench97:96pass/1optionalInspectskip; graderClippy pass; original preflight2judge/2callcap/4response/9refine/12deadline/5admission pass. New4output-containment tests pass. FullhostedCI pending.
-- **integration:** Comparison and improvement PRs authorized; no merge/default change/publication
-- **native:** Headless synthetic only; desktop observation outside assignment
-- **owner acceptance:** Not claimed. Both recommendation and knowledge-quality acceptance inconclusive; final fresh confirmation incomplete; no baseline/model default change.
-
-</details>
-
 ## Next
 
 None recorded.
@@ -159,6 +139,31 @@ Waiting:
 
 - prerequisite development-speed-255: Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (reported satisfied: false; task state: blocked)
 - resource: A explicit shared provider/runtime file-ownership handoff on the selected final runtime.
+
+### Compare Terra/Sol and improve maintained knowledge (#254)
+
+Task ID: `knowledge-quality-254`
+Owner: Agent D · State: **blocked** · Last observed: 2026-11-06T23:53:12.013065+00:00
+Activity: Bounded cycle stopped; original baseline retained. Visible model comparison is inconclusive. A retention candidate was implemented and measured, but saved-state quality is unknown and fresh confirmation ended with one uncertain attempt. Final Council Sol 8 / Opus 7 / Kimi 8; offline corrections complete. Two draft evidence PRs are being delivered.
+Next: Review the two evidence PRs. Final quality acceptance remains pending a fresh bounded cycle; no further live dispatch under this stopped allocation.
+Resource waits: Frozen cycle stopped after an uncertain outcome; fresh quality confirmation remains pending.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** One retention-guidance factor implemented, built and measured in paired runs; evidence only, no adopted production change.
+- **checks:** Source-bound builds and judge Clippy passed. Post-review native AgentBench: 99 passed, 1 optional Inspect skip. Audit regression failed before and passed after correction; reader setup acceptance/refusal witnesses pass. Original executed source and results preserved.
+- **integration:** Comparison and improvement PRs authorized; no merge/default change/publication
+- **native:** Headless synthetic only; desktop observation outside assignment
+- **owner acceptance:** Not claimed. Both recommendation and knowledge-quality acceptance inconclusive; final fresh confirmation incomplete; no baseline/model default change.
+
+</details>
+
+Waiting:
+
+- resource: Frozen cycle stopped after an uncertain outcome; fresh quality confirmation remains pending.
 
 ## Completed
 

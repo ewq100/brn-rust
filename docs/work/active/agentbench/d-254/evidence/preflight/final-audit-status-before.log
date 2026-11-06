@@ -1,0 +1,20 @@
+test_failed_earlier_deadline_prevents_later_operation (test_cycle_admission.CycleAdmissionTests.test_failed_earlier_deadline_prevents_later_operation) ... ok
+test_in_memory_failure_is_saved_before_followup_read_can_launch (test_cycle_admission.CycleAdmissionTests.test_in_memory_failure_is_saved_before_followup_read_can_launch) ... ok
+test_in_progress_failed_event_stops_before_another_launch (test_cycle_admission.CycleAdmissionTests.test_in_progress_failed_event_stops_before_another_launch) ... ok
+test_post_run_audit_rejection_has_failed_terminal_and_nonzero_exit (test_cycle_admission.CycleAdmissionTests.test_post_run_audit_rejection_has_failed_terminal_and_nonzero_exit) ... FAIL
+test_role_debit_does_not_spend_another_role_or_refund_uncertainty (test_cycle_admission.CycleAdmissionTests.test_role_debit_does_not_spend_another_role_or_refund_uncertainty) ... ok
+test_wrong_identity_stops_even_when_native_status_completed (test_cycle_admission.CycleAdmissionTests.test_wrong_identity_stops_even_when_native_status_completed) ... ok
+
+======================================================================
+FAIL: test_post_run_audit_rejection_has_failed_terminal_and_nonzero_exit (test_cycle_admission.CycleAdmissionTests.test_post_run_audit_rejection_has_failed_terminal_and_nonzero_exit)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/evokessler/repos/brn-agent-d-254/benchmarks/brn_agent/tests/test_cycle_admission.py", line 43, in test_post_run_audit_rejection_has_failed_terminal_and_nonzero_exit
+    self.assertNotEqual(result,0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+AssertionError: 0 == 0
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.007s
+
+FAILED (failures=1)

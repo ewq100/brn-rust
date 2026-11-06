@@ -15,6 +15,41 @@ spec.loader.exec_module(outputs)
 
 
 class OutputContainmentTests(unittest.TestCase):
+    def reader_setup(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        folder = Path(temporary.name)
+        root = folder/'never-launched'
+        (folder/'operation-reader.json').write_text(json.dumps({'root':str(root),'role':'phase1'}))
+        request = folder/'request.json'
+        request.write_text(json.dumps({'kind':'reader'}))
+        (folder/'grading-dispositions').mkdir()
+        disposition = folder/'grading-dispositions/reader.json'
+        disposition.write_text(json.dumps({'kind':'reader-setup-never-dispatched',
+            'root':str(root),'request_path':str(request),
+            'request_sha256':hashlib.sha256(request.read_bytes()).hexdigest(),'actual_HTTP':0}))
+        return folder, root, request, disposition
+
+    def test_reader_setup_accepts_only_absent_root_with_bound_reader_request(self):
+        folder, root, _, _ = self.reader_setup()
+        outputs.audit_operations(folder)
+        self.assertFalse(root.exists())
+
+    def test_reader_setup_refuses_existing_root_changed_hash_or_non_reader(self):
+        for mutation in ('root-exists','hash-mismatch','wrong-kind'):
+            with self.subTest(mutation=mutation):
+                folder, root, request, disposition = self.reader_setup()
+                if mutation=='root-exists':
+                    root.mkdir()
+                else:
+                    request.write_text(json.dumps({'kind':'candidate'}))
+                    if mutation=='wrong-kind':
+                        row=json.loads(disposition.read_text())
+                        row['request_sha256']=hashlib.sha256(request.read_bytes()).hexdigest()
+                        disposition.write_text(json.dumps(row))
+                with self.assertRaises(outputs.native_supervisor.CycleStop):
+                    outputs.audit_operations(folder)
+
     def witness(self, role='grader', cleanup=None):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)

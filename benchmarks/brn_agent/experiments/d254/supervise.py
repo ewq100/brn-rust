@@ -182,6 +182,7 @@ def main(argv=None):
         else:
             raise CycleStop('Unknown operation kind')
     except (CycleStop, Exception) as error:
+        status = 1
         guard.record('stopped', error_class=type(error).__name__)
     finally:
         status = guard.finish(status)

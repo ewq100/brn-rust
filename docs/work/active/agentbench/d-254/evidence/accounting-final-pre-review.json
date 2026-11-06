@@ -76,5 +76,16 @@
     "before_fresh_percent": 34,
     "ordinary_allowed": true,
     "resets_or_purchases": false
+  },
+  "post_review_timing": {
+    "direct_grade_seconds": 179.080012457988,
+    "setup_role_seconds": 250.509,
+    "confirmation_role_seconds": 618.373,
+    "conservative_sum_seconds": 1047.962012457988,
+    "confirmation_requested_seconds": 600,
+    "confirmation_reporting_overrun_seconds": 18.373,
+    "nested_fresh_native_seconds": 275.1102076249954,
+    "phase_clock_overlap_seconds": 111,
+    "whole_cycle_time_remaining_at_native_stop_seconds": 3641.861
   }
 }
