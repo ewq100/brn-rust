@@ -1,0 +1,25 @@
+{
+  "created_at": "2026-11-06T21:27:26.457358+00:00",
+  "shared_ceiling": 1760,
+  "D": {
+    "total": 1592,
+    "BRN": 1440,
+    "phase1_BRN_max": 600,
+    "phase2_BRN_reserved": 840,
+    "independent_grader": 120,
+    "Codex_Council": 24,
+    "discovery_uncertain": 8,
+    "live_seconds": 9000,
+    "Council_seconds": 1800
+  },
+  "E": {
+    "total": 168,
+    "BRN": 120,
+    "independent_grader": 24,
+    "Codex_Council": 24,
+    "confirmation_BRN_reserved": 48,
+    "live_seconds": 5400,
+    "Council_seconds": 1800
+  },
+  "limits": "No refunds, resets, paid credits, provider/account/model fallback, or implicit inclusion of outside actors. Host latency serialized; B priority. Parent orchestration session usage external/unbounded by BRN ledger; quota monitor and stop on denial. Council per-seat12 request limit requested, T3 hard enforcement unavailable; missing actual usage remains unknown."
+}

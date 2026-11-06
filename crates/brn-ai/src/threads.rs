@@ -91,6 +91,10 @@ mod trace;
 mod web;
 #[path = "threads_wire_trace.rs"]
 mod wire_trace;
+// Offline experiment support; absent from ordinary application builds.
+#[cfg(feature = "capability-spike")]
+#[path = "threads_benchmark_judge.rs"]
+pub mod benchmark_judge;
 pub use tokio_util::sync::CancellationToken as WebSearchCancel;
 pub use web::{ACTIVITY as WEB_SEARCH_ACTIVITY, MAX_WEB_SEARCHES, RunWebSearch, WebSearchFuture};
 

@@ -92,6 +92,27 @@ Gates:
 
 </details>
 
+### Compare Terra/Sol and improve maintained knowledge (#254)
+
+Task ID: `knowledge-quality-254`
+Owner: Agent D · State: **active** · Last observed: 2026-11-06T21:53:20.125727+00:00
+Activity: Design Council complete: Sol6/10, Opus/Copilot5.5/10 after Kiro monthly-limit failure, Kimi8/10; protected role/native admission and pending in-memory failure witnesses corrected. Independent no-tuning evaluator froze2distinct2history packs; withholding procedural/shared filesystem, owner clarification posted on254. No BRN live calls/build yet.
+Next: Owner hardware correction read on254 comment6696700518: B Macmini, D/E MacBook. E takes first build; D follows with own CLI/seeder/grader build, native qualification and frozen live phases.
+Resource waits: E first MacBook baseline build, then D own target qualification; live timings serialized D/E
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** pending: actual knowledge-improvement loop required after comparison
+- **checks:** 105 runner/88 AgentBench (11 native skips)/12deadline tests pass;5new admission witnesses pass; cargo metadata/fmt/diff/overview pass; native binaries/grader compilation still pending B slot.
+- **integration:** Comparison and improvement PRs authorized; no merge/default change/publication
+- **native:** Headless synthetic only; desktop observation outside assignment
+- **owner acceptance:** pending; unseen ownership not provisioned, no generalization claim permitted
+
+</details>
+
 ## Next
 
 None recorded.
@@ -107,6 +128,15 @@ Waiting:
 
 - resource: Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.
 - resource: Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
+
+### Compare Terra/Sol and improve maintained knowledge (#254)
+
+Task ID: `knowledge-quality-254`
+Owner: Agent D
+
+Waiting:
+
+- resource: E first MacBook baseline build, then D own target qualification; live timings serialized D/E
 
 ## Completed
 

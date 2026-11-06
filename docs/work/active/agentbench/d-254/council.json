@@ -1,0 +1,28 @@
+{
+  "round": 1,
+  "kind": "design",
+  "seats": [
+    {
+      "provider": "codex",
+      "model": "gpt-6.1-sol",
+      "state": "running",
+      "requested_max_requests": 12
+    },
+    {
+      "provider": "acpRegistry_local_acp",
+      "model": "claude-opus-5.5",
+      "state": "failed",
+      "error": "monthly usage limit",
+      "score": null,
+      "actual_requests": null
+    },
+    {
+      "provider": "acpRegistry_copilot",
+      "model": "kimi-k3",
+      "state": "running",
+      "requested_max_requests": 12
+    }
+  ],
+  "fallback": "Kiro/Opus monthly limit; policy-named Copilot/Opus fallback requested",
+  "request_enforcement": "requested only; T3 hard enforcement unavailable"
+}
