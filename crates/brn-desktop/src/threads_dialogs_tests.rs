@@ -108,9 +108,9 @@ fn assert_inside(window: &Window, id: &str, outer: Bounds<gpui_kit::Pixels>) {
         "{id} {bounds:?} inside {outer:?}"
     );
 }
-/// The open dialog's surface (Kit's layer 0).
+/// The open dialog's surface (Kit 0.9 names it `surface` inside `dialog`).
 fn dialog_surface(window: &mut Window) -> Bounds<gpui_kit::Pixels> {
-    window.within("dialog").find(0usize).bounds()
+    window.within("dialog").find("surface").bounds()
 }
 fn note_titles(view: &ThreadsUi) -> Vec<String> {
     view.workspace
@@ -302,7 +302,8 @@ fn focus_lands_inside_each_destination_panel(cx: &mut TestAppContext) {
                 .focus_handle(cx)
                 .is_focused(window)
         );
-        assert_eq!(window.find("chats-recent").focused(), Some(true));
+        // The sidebar's first control, at its top.
+        assert_eq!(window.find("toggle-sidebar").focused(), Some(true));
     });
     update(cx, &f, |view, window, cx| {
         view.show_tile(TileKind::AllThreads, window, cx)
@@ -333,7 +334,7 @@ fn focus_lands_inside_each_destination_panel(cx: &mut TestAppContext) {
     inside(cx, TileKind::Settings);
     on_window(cx, &f, |window, _| {
         assert_eq!(
-            window.find("settings-section-general").focused(),
+            window.find("settings-section-appearance").focused(),
             Some(true)
         );
     });
@@ -343,7 +344,7 @@ fn focus_lands_inside_each_destination_panel(cx: &mut TestAppContext) {
 /// so the ring never marks an unselected section. A key press keeps focus on
 /// the pressed section.
 #[gpui_kit::test]
-fn a_clicked_settings_section_takes_the_focus_ring_off_general(cx: &mut TestAppContext) {
+fn a_clicked_settings_section_takes_the_focus_ring_from_appearance(cx: &mut TestAppContext) {
     let f = fixture(cx, 1250., 860., |_| {});
     update(cx, &f, |view, window, cx| {
         view.show_tile(TileKind::Settings, window, cx)
@@ -351,7 +352,7 @@ fn a_clicked_settings_section_takes_the_focus_ring_off_general(cx: &mut TestAppC
     next_frame(cx, &f);
     on_window(cx, &f, |window, _| {
         assert_eq!(
-            window.find("settings-section-general").focused(),
+            window.find("settings-section-appearance").focused(),
             Some(true)
         );
     });
@@ -362,9 +363,10 @@ fn a_clicked_settings_section_takes_the_focus_ring_off_general(cx: &mut TestAppC
         let view = f.view.read(cx);
         assert_eq!(view.settings_section, SettingsSection::Models);
         assert_ne!(
-            window.find("settings-section-general").focused(),
+            window.find("settings-section-appearance").focused(),
             Some(true)
         );
+        assert_eq!(window.find("settings-section-models").focused(), Some(true));
         assert!(
             view.panel_body(TileKind::Settings)
                 .contains_focused(window, cx)
@@ -384,6 +386,23 @@ fn a_clicked_settings_section_takes_the_focus_ring_off_general(cx: &mut TestAppC
     });
 }
 
+/// Settings opened at a section lands focus on that section, not the first.
+#[gpui_kit::test]
+fn settings_opened_at_a_section_focuses_that_section(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_| {});
+    update(cx, &f, |view, window, cx| {
+        view.open_settings_section(SettingsSection::Data, window, cx)
+    });
+    next_frame(cx, &f);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(window.find("settings-section-data").focused(), Some(true));
+        assert_ne!(
+            window.find("settings-section-appearance").focused(),
+            Some(true)
+        );
+    });
+}
+
 /// Choose a row of the open popup menu by its accessible label.
 fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
     on_window(cx, f, |window, cx| {
@@ -399,18 +418,19 @@ fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
 }
 
 /// A dialog opened from a ⋯, ＋ or row menu item gives focus back to its
-/// panel's landing when Escape closes it, so ⌘K works without a click: the
-/// note text after Edit note… and Discard edit…, the Chats panel after New
-/// note and after a chat row's Move to project….
+/// view's landing when Escape closes it, so ⌘K works without a click: the
+/// note text after Edit note… and Discard edit…, the workspace after the
+/// Library's New note and after a sidebar chat row's Move to project….
 #[gpui_kit::test]
 fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAppContext) {
     let (mut note, mut chat) = (String::new(), String::new());
-    let f = fixture(cx, 900., 600., |workspace| {
+    // Narrow enough that the Note toolbar folds Edit note… into its ⋯.
+    let f = fixture(cx, 620., 600., |workspace| {
         note = workspace.new_note("Menu witness", "Saved text").unwrap().id;
         chat = workspace.new_thread("Row menu chat").unwrap().id;
     });
     update(cx, &f, |view, window, cx| {
-        view.apply_layout(Preset::Write, window, cx);
+        view.relayout(window, cx, Layout::document_with_assistant);
         view.open_note(&note, None, window, cx);
     });
     let escape_returns = |cx: &mut TestAppContext, landing: &dyn Fn(&ThreadsUi, &Window, &App)| {
@@ -427,7 +447,7 @@ fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAp
     let in_note_text = |view: &ThreadsUi, window: &Window, cx: &App| {
         assert!(view.writing.note_editor.focus_handle(cx).is_focused(window));
     };
-    // At 900×600 Edit note… is in the Note ⋯.
+    // In this narrow window Edit note… is in the Note ⋯.
     on_window(cx, &f, |window, cx| window.click("note-menu", cx));
     choose(cx, &f, "Edit note…");
     escape_returns(cx, &in_note_text);
@@ -453,18 +473,21 @@ fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAp
                 .is_some()
         );
     });
-    // The Chats ＋ menu's New note.
+    // The Library header's ＋ menu's New note.
     update(cx, &f, |view, window, cx| {
-        view.show_tile(TileKind::Threads, window, cx)
+        view.show_tile(TileKind::Notes, window, cx)
     });
-    on_window(cx, &f, |window, cx| window.click("threads-new", cx));
+    on_window(cx, &f, |window, cx| window.click("notes-new", cx));
     choose(cx, &f, "New note");
     let in_the_workspace = |view: &ThreadsUi, window: &Window, cx: &App| {
         assert!(view.root_focus.contains_focused(window, cx));
         assert!(window.focused(cx).is_some());
     };
     escape_returns(cx, &in_the_workspace);
-    // A chat row's menu: Move to project…, then Escape moves nothing.
+    // A sidebar chat row's menu: Move to project…, then Escape moves nothing.
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Threads, window, cx)
+    });
     let version = |cx: &mut TestAppContext| {
         cx.read(|cx| {
             let view = f.view.read(cx);
@@ -477,75 +500,81 @@ fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAp
     });
     choose(cx, &f, "Move to project…");
     on_window(cx, &f, |window, _| {
-        assert_eq!(window.find("move-chat-0").label(), Some("Standalone chat"));
+        assert_eq!(
+            window.find("move-chat-0").label(),
+            Some("Standalone chat · current")
+        );
     });
     escape_returns(cx, &in_the_workspace);
     assert_eq!(version(cx), before, "Escape moves nothing");
 }
 
-/// A 170 pt list leaves Maximize to its ⋯ menu so its title stays readable,
-/// and the header ⋯'s Open beside submenu opens a split.
+/// At 900×600 a document opened from a chat stays dominant: the sidebar
+/// shows its rail and the assistant waits as a closed sheet. Opening it
+/// overlays the document without squeezing it, and Escape (or Back to
+/// document) returns without changing the stored preference.
 #[gpui_kit::test]
-fn a_narrow_list_header_keeps_its_title_and_its_menu_opens_beside(cx: &mut TestAppContext) {
+fn a_compact_window_shows_the_assistant_as_a_sheet_and_escape_returns(cx: &mut TestAppContext) {
+    let (mut note, mut chat) = (String::new(), String::new());
     let f = fixture(cx, 900., 600., |workspace| {
-        workspace.new_thread("Header chat").unwrap();
+        note = workspace
+            .new_note("Sheet witness", "Saved text")
+            .unwrap()
+            .id;
+        chat = workspace.new_thread("Sheet chat").unwrap().id;
     });
     update(cx, &f, |view, window, cx| {
-        view.apply_layout(Preset::Write, window, cx);
-        view.show_tile(TileKind::Threads, window, cx);
+        view.open_thread(&chat, window, cx);
+        view.open_note(&note, None, window, cx);
     });
-    on_window(cx, &f, |window, _| {
-        assert!(window.try_find("tile-max-threads").is_none());
-        assert!(window.find("tile-close-threads").visible());
-        assert!(
-            window.find("tile-max-chat").visible(),
-            "wider panels keep it"
-        );
-        let title = window.find("tile-title-threads").bounds();
-        assert!(title.size.width > px(36.), "the title reads: {title:?}");
-    });
-    on_window(cx, &f, |window, cx| window.click("tile-menu-threads", cx));
-    choose(cx, &f, "Maximize");
-    on_window(cx, &f, |window, cx| {
-        assert_eq!(f.view.read(cx).layout.maximized(), Some(TileKind::Threads));
-        assert_eq!(
-            window.find("tile-max-threads").label(),
-            Some("Restore Chats")
-        );
-        window.click("tile-max-threads", cx);
-    });
-    cx.read(|cx| assert_eq!(f.view.read(cx).layout.maximized(), None));
-    // Open beside, from the Chat header's ⋯.
-    on_window(cx, &f, |window, cx| window.click("tile-menu-chat", cx));
-    on_window(cx, &f, |window, cx| {
-        let mut menu = window.within("popup-menu");
-        let index = (0..60usize)
-            .find(|index| {
-                menu.try_find(*index)
-                    .is_some_and(|row| row.label() == Some("Open beside"))
-            })
-            .expect("Open beside row");
-        menu.hover(index, cx);
-    });
-    on_window(cx, &f, |window, cx| {
-        let mut submenu = window.within("submenu");
-        let index = (0..60usize)
-            .find(|index| {
-                submenu
-                    .try_find(*index)
-                    .is_some_and(|row| row.label() == Some("Tasks"))
-            })
-            .expect("Tasks in the Open beside submenu");
-        submenu.click(index, cx);
-    });
+    let note_width = |cx: &mut TestAppContext| {
+        on_window(cx, &f, |window, _| {
+            window.find("tile-note").bounds().size.width
+        })
+    };
     on_window(cx, &f, |window, cx| {
         let view = f.view.read(cx);
-        assert_eq!(
-            view.layout.area(TileKind::Actions),
-            Some(layout::Area::Beside)
+        assert_eq!(view.layout.visible(), [TileKind::Note, TileKind::Chat]);
+        assert_eq!(view.arrangement.sidebar, 56., "the sidebar yields first");
+        assert!(
+            window.try_find("assistant-pane").is_none(),
+            "closed by default"
         );
-        assert!(window.find("tile-split-actions").visible());
     });
+    let alone = note_width(cx);
+    assert!(alone >= px(560.), "{alone:?}");
+    on_window(cx, &f, |window, cx| window.click("toggle-assistant", cx));
+    next_frame(cx, &f);
+    on_window(cx, &f, |window, cx| {
+        let view = f.view.read(cx);
+        assert_inside(window, "assistant-pane", window_bounds(&f));
+        assert!(view.composer.focus_handle(cx).is_focused(window));
+        assert_eq!(
+            window.find("close-assistant").label(),
+            Some("Back to document")
+        );
+    });
+    assert_eq!(
+        note_width(cx),
+        alone,
+        "the sheet does not squeeze the document"
+    );
+    press(cx, &f, "escape");
+    on_window(cx, &f, |window, cx| {
+        let view = f.view.read(cx);
+        assert!(window.try_find("assistant-pane").is_none());
+        assert_eq!(view.layout.focus(), Some(TileKind::Note));
+        assert!(view.layout.contains(TileKind::Chat), "preference kept");
+    });
+    on_window(cx, &f, |window, cx| window.click("toggle-assistant", cx));
+    on_window(cx, &f, |window, cx| window.click("close-assistant", cx));
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("assistant-pane").is_none());
+    });
+    // Expanding the sidebar on purpose keeps it, and the document its region.
+    press(cx, &f, "cmd-\\");
+    cx.read(|cx| assert_eq!(f.view.read(cx).arrangement.sidebar, 224.));
+    assert!(note_width(cx) >= px(560.));
 }
 
 /// A synthetic Working run held by a local worker in this window, which
@@ -667,7 +696,7 @@ fn escape_closes_one_layer_at_a_time_and_never_stops_work(cx: &mut TestAppContex
         view.show_tile(TileKind::Settings, window, cx)
     });
     next_frame(cx, &f);
-    on_window(cx, &f, |window, cx| window.click("status-layout", cx));
+    on_window(cx, &f, |window, cx| window.click("workspace-menu", cx));
     on_window(cx, &f, |window, _| {
         assert!(window.within("popup-menu").try_find(0usize).is_some());
     });
@@ -680,6 +709,9 @@ fn escape_closes_one_layer_at_a_time_and_never_stops_work(cx: &mut TestAppContex
         assert!(f.view.read(cx).layout.settings_open(), "Settings stays");
     });
     // A dialog over Settings closes before Settings does.
+    on_window(cx, &f, |window, cx| {
+        window.click("settings-section-general", cx)
+    });
     on_window(cx, &f, |window, cx| window.click("settings-keys", cx));
     press(cx, &f, "escape");
     on_window(cx, &f, |window, cx| {
@@ -692,44 +724,46 @@ fn escape_closes_one_layer_at_a_time_and_never_stops_work(cx: &mut TestAppContex
     still_working(cx);
 }
 
-/// 900×600 in Write: no horizontal overflow with Chats or Notes in the
-/// navigation area, comments stacked, and the launcher inside the window.
+/// 900×600: a document opens dominant with no horizontal overflow, from
+/// Recent chats (assistant kept, as a closed sheet) or the Library
+/// (assistant closed), and the launcher stays inside the window.
 #[gpui_kit::test]
-fn write_at_900x600_has_no_horizontal_overflow_and_the_launcher_fits(cx: &mut TestAppContext) {
+fn a_document_at_900x600_stays_dominant_and_the_launcher_fits(cx: &mut TestAppContext) {
     let mut note = String::new();
     let f = fixture(cx, 900., 600., |workspace| {
         note = workspace.new_note("Small window", "Saved text").unwrap().id;
         workspace.new_thread("Small chat").unwrap();
     });
     update(cx, &f, |view, window, cx| {
-        view.apply_layout(Preset::Write, window, cx);
+        view.relayout(window, cx, Layout::document_with_assistant);
         view.open_note(&note, None, window, cx);
+        view.relayout(window, cx, |layout| {
+            layout.close_sheet(900.);
+        });
     });
-    for navigation in [TileKind::Threads, TileKind::Notes] {
+    for (navigation, expected) in [
+        (TileKind::Threads, vec![TileKind::Note, TileKind::Chat]),
+        (TileKind::Notes, vec![TileKind::Note]),
+    ] {
         update(cx, &f, |view, window, cx| {
             view.show_tile(navigation, window, cx);
             view.open_note(&note, None, window, cx);
         });
         on_window(cx, &f, |window, cx| {
             let view = f.view.read(cx);
-            let kinds: Vec<TileKind> = view.layout.visible().iter().map(|t| t.kind).collect();
-            assert!(kinds.contains(&navigation), "{kinds:?}");
-            assert!(kinds.contains(&TileKind::Note) && kinds.contains(&TileKind::Chat));
-            assert_eq!(
-                view.writing.margin_mode,
-                layout::MarginMode::Stacked,
+            assert_eq!(view.layout.visible(), expected, "{navigation:?}");
+            assert!(
+                window.try_find("assistant-pane").is_none(),
                 "{navigation:?}"
             );
-            let overflow = view.tile_scroll.max_offset();
-            assert!(
-                overflow.x <= px(0.5),
-                "{navigation:?} overflows: {overflow:?}"
-            );
-            let row = window.find("tile-row").bounds();
-            assert!(row.right() <= px(f.width) + px(0.5), "{row:?}");
-            for kind in kinds {
-                assert_inside(window, &format!("tile-{}", kind.key()), row);
-            }
+            // Comments sit beside the text only while it keeps 560 pt;
+            // beside the expanded sidebar they stack below it (§8).
+            let text = view.writing.note_width - view.writing.margin_mode.width();
+            assert!(text >= 560., "{navigation:?}: {text}");
+            let note = window.find("tile-note").bounds();
+            assert!(note.size.width >= px(560.), "{note:?}");
+            assert!(note.right() <= px(f.width) + px(0.5), "{note:?}");
+            assert!(window.find("sidebar").bounds().right() <= note.left() + px(0.5));
         });
     }
     press(cx, &f, "cmd-k");
@@ -792,20 +826,53 @@ fn the_launcher_keeps_the_keyboard_selection_in_view_at_850x600(cx: &mut TestApp
     }
 }
 
-/// Panel controls name their panel.
+/// Shell controls name what they act on.
 #[gpui_kit::test]
-fn panel_close_and_maximize_controls_name_their_panel(cx: &mut TestAppContext) {
-    let f = fixture(cx, 1400., 1000., |_| {});
+fn shell_controls_name_what_they_act_on(cx: &mut TestAppContext) {
+    let mut note = String::new();
+    let f = fixture(cx, 1400., 1000., |workspace| {
+        note = workspace.new_note("Named note", "Saved text").unwrap().id;
+    });
     on_window(cx, &f, |window, _| {
-        assert_eq!(window.find("tile-close-chat").label(), Some("Close Chat"));
-        assert_eq!(window.find("tile-max-chat").label(), Some("Maximize Chat"));
+        for (id, label) in [
+            ("nav-new-chat", "New chat"),
+            ("launcher", "Search notes, chats and commands"),
+            ("nav-library", "Library"),
+            ("nav-inbox", "Inbox"),
+            ("nav-projects", "Projects"),
+            ("toggle-sidebar", "Collapse sidebar"),
+            ("workspace-menu", "Workspace menu"),
+        ] {
+            assert_eq!(window.find(id).label(), Some(label), "{id}");
+        }
+    });
+    update(cx, &f, |view, window, cx| {
+        view.open_note(&note, None, window, cx)
+    });
+    on_window(cx, &f, |window, _| {
         assert_eq!(
-            window.find("tile-close-threads").label(),
-            Some("Close Chats")
+            window.find("toggle-assistant").label(),
+            Some("Hide assistant")
+        );
+        assert_eq!(
+            window.find("close-assistant").label(),
+            Some("Close assistant")
+        );
+        assert_eq!(
+            window.find("assistant-width").label(),
+            Some("Assistant width")
+        );
+        assert_eq!(
+            window.find("tile-title-note").label(),
+            Some("Note: Named note")
         );
     });
-    on_window(cx, &f, |window, cx| window.click("tile-max-chat", cx));
+    press(cx, &f, "cmd-\\");
     on_window(cx, &f, |window, _| {
-        assert_eq!(window.find("tile-max-chat").label(), Some("Restore Chat"));
+        assert_eq!(
+            window.find("toggle-sidebar").label(),
+            Some("Expand sidebar")
+        );
+        assert_eq!(window.find("nav-library").label(), Some("Library"));
     });
 }

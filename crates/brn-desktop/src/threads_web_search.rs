@@ -216,6 +216,25 @@ mod tests {
     use super::*;
     use gpui_kit::{TestAppContext, test::TestWindowExt};
 
+    /// Search the web… is in the composer's + menu.
+    fn open_from_plus_menu(cx: &mut TestAppContext, window: gpui_kit::AnyWindowHandle) {
+        cx.update_window(window, |_, window, cx| window.click("composer-add", cx))
+            .unwrap();
+        cx.run_until_parked();
+        cx.update_window(window, |_, window, cx| {
+            let mut menu = window.within("popup-menu");
+            let index = (0..60usize)
+                .find(|index| {
+                    menu.try_find(*index)
+                        .is_some_and(|row| row.label() == Some("Search the web…"))
+                })
+                .expect("the + menu offers Search the web…");
+            menu.click(index, cx);
+        })
+        .unwrap();
+        cx.run_until_parked();
+    }
+
     #[gpui_kit::test]
     fn opening_and_dismissing_search_never_writes_or_dispatches(cx: &mut TestAppContext) {
         cx.update(|cx| {
@@ -240,9 +259,7 @@ mod tests {
         cx.run_until_parked();
         let before = cx.read(|cx| view.read(cx).workspace.records().unwrap());
         for dismissal in ["escape", "click"] {
-            cx.update_window(window, |_, window, cx| window.click("search-web", cx))
-                .unwrap();
-            cx.run_until_parked();
+            open_from_plus_menu(cx, window);
             cx.update_window(window, |_, window, cx| {
                 assert!(window.find("web-search-submit").visible());
                 window.click("web-search-submit", cx);
@@ -338,8 +355,8 @@ mod tests {
         });
         cx.run_until_parked();
         let before = cx.read(|cx| view.read(cx).workspace.records().unwrap());
-        cx.update_window(window, |_, window, cx| {
-            window.click("search-web", cx);
+        open_from_plus_menu(cx, window);
+        cx.update_window(window, |_, _, cx| {
             view.update(cx, |ui, cx| {
                 ui.web_search.result = Some(Ok(SearchResult {
                     answer: "Synthetic cited answer".into(),

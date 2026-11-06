@@ -1,9 +1,16 @@
-//! Five appearance themes. Presentation only: nothing here affects authority.
+//! Appearance palettes. Presentation only: nothing here affects authority.
+//!
+//! `Light` and `Dark` are the BRN-UX-002 semantic token pairs
+//! (`docs/product/ux-rebuild/BRN_Design_Tokens.json`). The five named
+//! palettes are the earlier themes, kept as advanced choices. Every palette
+//! fills the same fields so screens never branch on the palette identity.
 use gpui_kit::{App, component::Theme, px, rgb};
 use std::cell::Cell;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum ThemeId {
+    Light,
+    Dark,
     #[default]
     Sammal,
     Laanemeri,
@@ -11,8 +18,105 @@ pub enum ThemeId {
     Virmalised,
     Paber,
 }
+/// The owner's appearance preference (spec §9.1, THEME-01). `System` is a BRN
+/// preference resolved against the operating-system appearance; the toolkit
+/// has no `ThemeMode::System`. `Light` and `Dark` are explicit overrides. The
+/// five earlier palettes stay reachable as an advanced choice under `Legacy`.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Appearance {
+    /// Follow the operating-system light/dark appearance (the new default).
+    #[default]
+    System,
+    /// Always the neutral light tokens.
+    Light,
+    /// Always the neutral dark tokens.
+    Dark,
+    /// One of the earlier named palettes, chosen explicitly.
+    Legacy(ThemeId),
+}
+impl Appearance {
+    /// The three primary choices, in presentation order.
+    pub const PRIMARY: [Self; 3] = [Self::System, Self::Light, Self::Dark];
+    /// The persisted key stored in the presentation preference. Primary keys
+    /// are `system`/`light`/`dark`; a legacy choice persists its palette key.
+    pub fn key(self) -> &'static str {
+        match self {
+            Self::System => "system",
+            Self::Light => "light",
+            Self::Dark => "dark",
+            Self::Legacy(theme) => theme.key(),
+        }
+    }
+    /// Parse a persisted key. Absent or unknown values resolve to `System`
+    /// (the new default) without discarding a saved owner choice we recognize.
+    /// `"light"`/`"dark"` are the primary overrides; a recognized legacy key
+    /// keeps working as a `Legacy` choice so an explicitly saved palette is
+    /// never silently reset.
+    pub fn from_key(key: Option<&str>) -> Self {
+        match key {
+            Some("system") | None => Self::System,
+            Some("light") => Self::Light,
+            Some("dark") => Self::Dark,
+            Some(other) => ThemeId::LEGACY
+                .into_iter()
+                .find(|theme| theme.key() == other)
+                .map(Self::Legacy)
+                .unwrap_or_default(),
+        }
+    }
+    /// The short label for menus and settings rows.
+    pub fn label(self) -> &'static str {
+        match self {
+            Self::System => "System",
+            Self::Light => "Light",
+            Self::Dark => "Dark",
+            Self::Legacy(theme) => theme.label(),
+        }
+    }
+    /// A one-line description for launcher rows and tooltips.
+    pub fn description(self) -> &'static str {
+        match self {
+            Self::System => "follow the operating system",
+            Self::Light => "neutral light",
+            Self::Dark => "neutral dark",
+            Self::Legacy(theme) => theme.description(),
+        }
+    }
+    /// Whether this preference follows the OS appearance (so a live OS change
+    /// must re-apply). Only `System` does.
+    pub fn follows_os(self) -> bool {
+        matches!(self, Self::System)
+    }
+    /// Resolve to the palette to paint. `os_dark` is the current operating
+    /// system appearance, consulted only for `System`.
+    pub fn resolve(self, os_dark: bool) -> ThemeId {
+        match self {
+            Self::System => {
+                if os_dark {
+                    ThemeId::Dark
+                } else {
+                    ThemeId::Light
+                }
+            }
+            Self::Light => ThemeId::Light,
+            Self::Dark => ThemeId::Dark,
+            Self::Legacy(theme) => theme,
+        }
+    }
+}
+
 impl ThemeId {
-    pub const ALL: [Self; 5] = [
+    pub const ALL: [Self; 7] = [
+        Self::Light,
+        Self::Dark,
+        Self::Sammal,
+        Self::Laanemeri,
+        Self::Raba,
+        Self::Virmalised,
+        Self::Paber,
+    ];
+    /// The earlier named palettes, offered under advanced appearance.
+    pub const LEGACY: [Self; 5] = [
         Self::Sammal,
         Self::Laanemeri,
         Self::Raba,
@@ -21,6 +125,8 @@ impl ThemeId {
     ];
     pub fn key(self) -> &'static str {
         match self {
+            Self::Light => "light",
+            Self::Dark => "dark",
             Self::Sammal => "sammal",
             Self::Laanemeri => "laanemeri",
             Self::Raba => "raba",
@@ -30,6 +136,8 @@ impl ThemeId {
     }
     pub fn label(self) -> &'static str {
         match self {
+            Self::Light => "Light",
+            Self::Dark => "Dark",
             Self::Sammal => "Sammal",
             Self::Laanemeri => "Läänemeri",
             Self::Raba => "Raba",
@@ -39,7 +147,9 @@ impl ThemeId {
     }
     pub fn description(self) -> &'static str {
         match self {
-            Self::Sammal => "moss on cream · default",
+            Self::Light => "neutral light",
+            Self::Dark => "neutral dark",
+            Self::Sammal => "moss on cream",
             Self::Laanemeri => "Baltic blue-grey",
             Self::Raba => "dark bog peat · red",
             Self::Virmalised => "dark night · aurora green",
@@ -52,8 +162,13 @@ impl ThemeId {
             .find(|theme| Some(theme.key()) == key)
             .unwrap_or_default()
     }
+    pub fn is_dark(self) -> bool {
+        self.palette().dark
+    }
     pub fn palette(self) -> Palette {
         let base = match self {
+            Self::Light => return Palette::tokens(&LIGHT),
+            Self::Dark => return Palette::tokens(&DARK),
             Self::Sammal => Base {
                 paper: 0xf7f5ee,
                 tile: 0xfffdf7,
@@ -159,9 +274,192 @@ pub struct Palette {
     pub warning_bg: u32,
     pub success_bg: u32,
     pub info_bg: u32,
+    // BRN-UX-002 semantic roles without an earlier field. Earlier fields map
+    // as: canvas = `tile`, text = `ink`, text_muted = `muted`, divider =
+    // `hairline`, control_border = `border`, primary = `accent`, on_primary
+    // = `primary_fg`, surface_subtle = `alt`, and the tone pairs to
+    // `danger`/`danger_bg`, `warning`/`warning_bg`, `success`/`success_bg`.
+    /// Navigation sidebar background.
+    pub sidebar: u32,
+    /// Menus, dialogs and popovers.
+    pub surface_raised: u32,
+    /// Input placeholder text (4.5:1 on inputs).
+    pub placeholder: u32,
+    /// Visible keyboard focus ring (3:1 against its surface).
+    pub focus: u32,
+    /// Link text.
+    pub link: u32,
     pub dark: bool,
 }
+
+/// BRN-UX-002 geometry and type targets in logical pixels, shared by the
+/// desktop shell and the writing surfaces. Starting values; usable width
+/// policy and readability take precedence (spec §8, §10).
+pub mod metrics {
+    pub const SIDEBAR: f32 = 224.;
+    pub const SIDEBAR_MIN: f32 = 208.;
+    pub const SIDEBAR_MAX: f32 = 280.;
+    pub const SIDEBAR_RAIL: f32 = 56.;
+    pub const SIDEBAR_ROW: f32 = 36.;
+    pub const HEADER: f32 = 56.;
+    pub const CONVERSATION_WIDTH: f32 = 720.;
+    pub const CONVERSATION_MIN_WIDTH: f32 = 640.;
+    pub const DOCUMENT_WIDTH: f32 = 760.;
+    pub const DOCUMENT_MIN_WIDTH: f32 = 680.;
+    pub const DOCUMENT_REGION_MIN: f32 = 560.;
+    pub const OUTLINE: f32 = 200.;
+    pub const OUTLINE_MIN: f32 = 180.;
+    pub const OUTLINE_MAX: f32 = 240.;
+    pub const ASSISTANT: f32 = 320.;
+    pub const ASSISTANT_MIN: f32 = 280.;
+    pub const ASSISTANT_MAX: f32 = 400.;
+    pub const PAGE_INSET: f32 = 32.;
+    pub const COMPACT_PAGE_INSET: f32 = 20.;
+    pub const CONTROL_HEIGHT: f32 = 32.;
+    pub const ICON_TARGET: f32 = 30.;
+    pub const DIVIDER: f32 = 1.;
+    pub const RADIUS_CONTROL: f32 = 7.;
+    pub const RADIUS_CARD: f32 = 10.;
+    pub const RADIUS_BUBBLE: f32 = 18.;
+    pub const RADIUS_COMPOSER: f32 = 18.;
+    pub const COMPOSER_MIN_ROWS: usize = 2;
+    pub const COMPOSER_MAX_ROWS: usize = 8;
+    /// Type scale.
+    pub const TEXT_METADATA: f32 = 11.;
+    pub const TEXT_LABEL: f32 = 12.;
+    pub const TEXT_SIDEBAR: f32 = 13.;
+    pub const TEXT_BODY: f32 = 14.;
+    pub const TEXT_DOCUMENT: f32 = 16.;
+    pub const TEXT_SECTION: f32 = 18.;
+    pub const TEXT_CONVERSATION_HEADING: f32 = 20.;
+    pub const TEXT_ARTICLE_HEADING: f32 = 28.;
+    pub const DOCUMENT_LINE_HEIGHT: f32 = 1.7;
+    /// Markdown H1–H6 sizes in the reading view.
+    pub const DOCUMENT_HEADINGS: [f32; 6] = [28., 22., 18., 16., 16., 16.];
+    pub const DOCUMENT_HEADING_LINE_HEIGHT: f32 = 1.3;
+    pub const DOCUMENT_PARAGRAPH_GAP: f32 = 12.;
+    pub const DOCUMENT_HEADING_BEFORE: f32 = 24.;
+    pub const DOCUMENT_HEADING_AFTER: f32 = 8.;
+}
+
+/// One theme's semantic token values, as in `BRN_Design_Tokens.json`.
+struct Tokens {
+    canvas: u32,
+    sidebar: u32,
+    surface_subtle: u32,
+    surface_raised: u32,
+    hover: u32,
+    text: u32,
+    text_muted: u32,
+    placeholder: u32,
+    divider: u32,
+    control_border: u32,
+    primary: u32,
+    on_primary: u32,
+    focus: u32,
+    link: u32,
+    selection: u32,
+    success_text: u32,
+    success_surface: u32,
+    warning_text: u32,
+    warning_surface: u32,
+    danger_text: u32,
+    danger_surface: u32,
+    dark: bool,
+}
+const LIGHT: Tokens = Tokens {
+    canvas: 0xffffff,
+    sidebar: 0xf5f5f3,
+    surface_subtle: 0xfafaf9,
+    surface_raised: 0xffffff,
+    hover: 0xeaeae6,
+    text: 0x242424,
+    text_muted: 0x64645f,
+    placeholder: 0x70706a,
+    divider: 0xdeded9,
+    control_border: 0x85857e,
+    primary: 0x292a28,
+    on_primary: 0xffffff,
+    focus: 0x526a9c,
+    link: 0x315ca0,
+    selection: 0xd7e5fb,
+    success_text: 0x346b54,
+    success_surface: 0xedf5ee,
+    warning_text: 0x7c5c22,
+    warning_surface: 0xf9f3e7,
+    danger_text: 0xa63535,
+    danger_surface: 0xfceeee,
+    dark: false,
+};
+const DARK: Tokens = Tokens {
+    canvas: 0x202020,
+    sidebar: 0x181818,
+    surface_subtle: 0x252525,
+    surface_raised: 0x2a2a28,
+    hover: 0x30302e,
+    text: 0xebebeb,
+    text_muted: 0xb3b3ab,
+    placeholder: 0xa6a69f,
+    divider: 0x3e3e3a,
+    control_border: 0x818179,
+    primary: 0xeeeee9,
+    on_primary: 0x232421,
+    focus: 0x9fb7e5,
+    link: 0xabc7f5,
+    selection: 0x3b5071,
+    success_text: 0xa4d1b9,
+    success_surface: 0x263a2f,
+    warning_text: 0xdec18a,
+    warning_surface: 0x393226,
+    danger_text: 0xf0b4b4,
+    danger_surface: 0x412828,
+    dark: true,
+};
+
 impl Palette {
+    /// A BRN-UX-002 token pair. Roles the token file does not name (pressed
+    /// fills, comment highlights, info tone) derive from the named tokens.
+    fn tokens(t: &Tokens) -> Self {
+        let toward = if t.dark { 0xffffff } else { 0x000000 };
+        let primary_shift = |amount: f32| {
+            // A near-black primary lightens on hover; a near-white one darkens.
+            mix(t.primary, if t.dark { 0x000000 } else { 0xffffff }, amount)
+        };
+        Self {
+            paper: t.canvas,
+            tile: t.canvas,
+            alt: t.surface_subtle,
+            border: t.control_border,
+            ink: t.text,
+            muted: t.text_muted,
+            accent: t.primary,
+            primary_fg: t.on_primary,
+            accent_hover: primary_shift(0.12),
+            accent_active: primary_shift(0.2),
+            hover: t.hover,
+            active: mix(t.hover, toward, 0.06),
+            selection: t.selection,
+            add: t.success_surface,
+            delete: t.danger_surface,
+            comment: mix(t.canvas, 0xf2c14e, if t.dark { 0.22 } else { 0.30 }),
+            comment_strong: mix(t.canvas, 0xf2c14e, if t.dark { 0.34 } else { 0.55 }),
+            hairline: t.divider,
+            danger: t.danger_text,
+            warning: t.warning_text,
+            success: t.success_text,
+            info: t.link,
+            danger_bg: t.danger_surface,
+            warning_bg: t.warning_surface,
+            success_bg: t.success_surface,
+            info_bg: mix(t.canvas, t.link, if t.dark { 0.18 } else { 0.10 }),
+            sidebar: t.sidebar,
+            surface_raised: t.surface_raised,
+            placeholder: t.placeholder,
+            focus: t.focus,
+            link: t.link,
+            dark: t.dark,
+        }
+    }
     fn derive(base: Base) -> Self {
         let toward = if base.dark { 0xffffff } else { 0x000000 };
         // Tones share one hue per role across themes; only light or dark differs.
@@ -200,6 +498,11 @@ impl Palette {
             warning_bg: tint(warning),
             success_bg: tint(success),
             info_bg: tint(info),
+            sidebar: base.alt,
+            surface_raised: base.tile,
+            placeholder: base.muted,
+            focus: base.accent,
+            link: base.accent,
             dark: base.dark,
         }
     }
@@ -235,7 +538,9 @@ pub fn contrast(a: u32, b: u32) -> f32 {
 }
 
 thread_local! {
-    static CURRENT: Cell<ThemeId> = const { Cell::new(ThemeId::Sammal) };
+    // Fallback only: `apply` runs before the first frame. The new default
+    // preference is System, which resolves to Light, so start there.
+    static CURRENT: Cell<ThemeId> = const { Cell::new(ThemeId::Light) };
 }
 
 /// Colors of the theme applied in this UI thread.
@@ -248,6 +553,17 @@ pub fn pal() -> Palette {
 pub fn apply(theme: ThemeId, cx: &mut App) {
     CURRENT.with(|current| current.set(theme));
     let p = theme.palette();
+    // Switch the toolkit's light/dark mode first: it reloads that mode's
+    // registered theme (code highlighting, Base scrollbars), which would
+    // replace colors edited in the same update.
+    let mode = if p.dark {
+        gpui_kit::component::ThemeMode::Dark
+    } else {
+        gpui_kit::component::ThemeMode::Light
+    };
+    if Theme::global(cx).mode != mode {
+        Theme::change(mode, None, cx);
+    }
     Theme::update(cx, |theme| {
         theme.font_family = crate::native::UI_FONT.into();
         theme.font_size = crate::native::PROSE_TEXT;
@@ -344,19 +660,19 @@ pub fn apply(theme: ThemeId, cx: &mut App) {
         colors.accent_foreground = rgb(p.ink).into();
         colors.muted = rgb(p.alt).into();
         colors.muted_foreground = rgb(p.muted).into();
-        colors.ring = rgb(p.accent).into();
+        colors.ring = rgb(p.focus).into();
         colors.caret = rgb(p.accent).into();
         colors.selection = rgb(p.selection).into();
-        colors.link = rgb(p.accent).into();
-        colors.link_hover = rgb(p.accent_hover).into();
-        colors.link_active = rgb(p.accent_active).into();
-        colors.popover = rgb(p.tile).into();
+        colors.link = rgb(p.link).into();
+        colors.link_hover = rgb(mix(p.link, toward, 0.14)).into();
+        colors.link_active = rgb(mix(p.link, toward, 0.26)).into();
+        colors.popover = rgb(p.surface_raised).into();
         colors.popover_foreground = rgb(p.ink).into();
-        colors.title_bar = rgb(p.alt).into();
+        colors.title_bar = rgb(p.sidebar).into();
         colors.title_bar_border = rgb(p.hairline).into();
         colors.window_border = rgb(p.border).into();
         colors.scrollbar = rgb(p.paper).into();
-        colors.sidebar = rgb(p.alt).into();
+        colors.sidebar = rgb(p.sidebar).into();
         colors.sidebar_foreground = rgb(p.ink).into();
         colors.sidebar_border = rgb(p.hairline).into();
         colors.scrollbar_thumb = rgb(p.border).into();
@@ -461,6 +777,47 @@ mod tests {
         }
     }
 
+    /// BRN-UX-002 §9.2: text, metadata, placeholders and links reach 4.5:1
+    /// on the surfaces they sit on; focus and control borders reach 3:1.
+    #[test]
+    fn light_and_dark_meet_the_measured_contrast_targets() {
+        for theme in [ThemeId::Light, ThemeId::Dark] {
+            let p = theme.palette();
+            let surfaces = [
+                ("canvas", p.tile),
+                ("sidebar", p.sidebar),
+                ("subtle", p.alt),
+                ("raised", p.surface_raised),
+                ("hover", p.hover),
+            ];
+            // Placeholders sit on input fills only, not on hovered rows.
+            for bg in [p.tile, p.alt, p.surface_raised] {
+                let ratio = contrast(p.placeholder, bg);
+                assert!(ratio >= 4.5, "{} placeholder: {ratio:.2}", theme.label());
+            }
+            for (surface, bg) in surfaces {
+                for (name, fg, minimum) in [
+                    ("text", p.ink, 4.5),
+                    ("muted", p.muted, 4.5),
+                    ("link", p.link, 4.5),
+                    ("focus", p.focus, 3.0),
+                    ("control border", p.border, 3.0),
+                ] {
+                    let ratio = contrast(fg, bg);
+                    assert!(
+                        ratio >= minimum,
+                        "{} {name} on {surface}: {ratio:.2}",
+                        theme.label()
+                    );
+                }
+            }
+            assert!(contrast(p.primary_fg, p.accent) >= 4.5);
+            assert!(contrast(p.primary_fg, p.accent_active) >= 4.5);
+            assert_ne!(p.sidebar, p.tile, "{} sidebar is distinct", theme.label());
+            assert_eq!(theme.is_dark(), theme == ThemeId::Dark);
+        }
+    }
+
     #[test]
     fn keys_round_trip_and_unknown_values_use_the_default() {
         for theme in ThemeId::ALL {
@@ -470,5 +827,61 @@ mod tests {
         assert_eq!(ThemeId::from_key(Some("neon")), ThemeId::Sammal);
         assert_eq!(ThemeId::Raba.palette().accent, 0xdf6d66);
         assert_eq!(ThemeId::Sammal.palette().accent, 0x416438);
+    }
+
+    #[test]
+    fn appearance_defaults_to_system_and_round_trips_every_key() {
+        // Absent and unknown preferences both become System (the new default),
+        // without discarding a recognized saved choice.
+        assert_eq!(Appearance::from_key(None), Appearance::System);
+        assert_eq!(Appearance::from_key(Some("system")), Appearance::System);
+        assert_eq!(Appearance::from_key(Some("neon")), Appearance::System);
+        assert_eq!(Appearance::default(), Appearance::System);
+        assert_eq!(Appearance::from_key(Some("light")), Appearance::Light);
+        assert_eq!(Appearance::from_key(Some("dark")), Appearance::Dark);
+        // Every primary and legacy key survives a round trip through `key`.
+        for appearance in Appearance::PRIMARY {
+            assert_eq!(Appearance::from_key(Some(appearance.key())), appearance);
+        }
+        for theme in ThemeId::LEGACY {
+            let legacy = Appearance::Legacy(theme);
+            assert_eq!(legacy.key(), theme.key());
+            assert_eq!(Appearance::from_key(Some(theme.key())), legacy);
+        }
+    }
+
+    #[test]
+    fn an_explicitly_saved_legacy_choice_is_not_reset() {
+        // A legacy key the owner saved earlier keeps resolving to that palette,
+        // never silently to System.
+        let saved = Appearance::from_key(Some("virmalised"));
+        assert_eq!(saved, Appearance::Legacy(ThemeId::Virmalised));
+        assert_eq!(saved.resolve(true), ThemeId::Virmalised);
+        assert_eq!(saved.resolve(false), ThemeId::Virmalised);
+        // The neutral token palettes are not offered as legacy keys.
+        assert_eq!(Appearance::from_key(Some("light")), Appearance::Light);
+        assert_ne!(
+            Appearance::from_key(Some("light")),
+            Appearance::Legacy(ThemeId::Light)
+        );
+    }
+
+    #[test]
+    fn system_resolves_against_the_operating_system_appearance() {
+        // System is the only preference that consults the OS, and it resolves
+        // to the neutral token pair matching the OS appearance.
+        assert_eq!(Appearance::System.resolve(false), ThemeId::Light);
+        assert_eq!(Appearance::System.resolve(true), ThemeId::Dark);
+        assert!(Appearance::System.follows_os());
+        // Explicit overrides ignore the OS appearance entirely.
+        for (appearance, expected) in [
+            (Appearance::Light, ThemeId::Light),
+            (Appearance::Dark, ThemeId::Dark),
+            (Appearance::Legacy(ThemeId::Raba), ThemeId::Raba),
+        ] {
+            assert_eq!(appearance.resolve(false), expected);
+            assert_eq!(appearance.resolve(true), expected);
+            assert!(!appearance.follows_os());
+        }
     }
 }

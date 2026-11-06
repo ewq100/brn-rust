@@ -165,7 +165,10 @@ impl Workspace {
         Ok(destination)
     }
 
-    /// Save the appearance preference; deferred while any run is working.
+    /// Save the appearance preference into the versioned Settings record;
+    /// deferred while any run is working. Retained for callers that need an
+    /// ordinary settings revision; the desktop appearance preference now uses
+    /// the non-fencing [`Workspace::save_appearance`] path instead.
     pub fn choose_theme(&mut self, theme: &str) -> AppResult<ApplyOutcome> {
         let op = self
             .store
@@ -173,6 +176,50 @@ impl Workspace {
         Ok(self
             .store
             .choose_theme(&op, theme, &HostAuthority::owner("owner theme choice"))?)
+    }
+
+    /// The owner's saved appearance preference key, or `None` when none has
+    /// been saved through the presentation path. For a workspace last written
+    /// before this path existed, the host may fall back to the legacy
+    /// [`WorkspaceSettings::theme`] value once; see
+    /// [`Workspace::adopt_legacy_theme`].
+    pub fn appearance(&self) -> AppResult<Option<String>> {
+        Ok(self.store.presentation_theme()?)
+    }
+
+    /// Save the owner's appearance preference. Presentation only: it never
+    /// touches the versioned Settings record, never fences or interrupts a
+    /// working run, and persists durably before returning (THEME-02).
+    pub fn save_appearance(&mut self, theme: &str) -> AppResult<()> {
+        Ok(self.store.save_presentation_theme(theme)?)
+    }
+
+    /// The desktop's last workspace location key, if any. Host
+    /// presentation state only: restoring it must never resume work.
+    pub fn last_location(&self) -> AppResult<Option<String>> {
+        Ok(self.store.presentation_location()?)
+    }
+
+    /// Save the desktop's last workspace location key. Presentation only,
+    /// like [`Workspace::save_appearance`].
+    pub fn save_last_location(&mut self, location: &str) -> AppResult<()> {
+        Ok(self.store.save_presentation_location(location)?)
+    }
+
+    /// One-time migration: if no presentation preference has been saved yet but
+    /// the workspace carries a legacy [`WorkspaceSettings::theme`], adopt it as
+    /// the presentation preference so an owner's earlier choice is not reset.
+    /// Returns the adopted key, if any. Never overwrites an existing
+    /// presentation preference.
+    pub fn adopt_legacy_theme(&mut self) -> AppResult<Option<String>> {
+        if self.store.presentation_theme()?.is_some() {
+            return Ok(None);
+        }
+        let Some(legacy) = self.settings()?.theme else {
+            return Ok(None);
+        };
+        self.store.save_presentation_theme(&legacy)?;
+        Ok(Some(legacy))
     }
 
     pub fn pause(&mut self, paused: bool) -> AppResult<ApplyOutcome> {

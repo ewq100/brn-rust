@@ -136,6 +136,14 @@ fn restore_preview_confirm_reopen_and_source_current_workspace_unchanged(cx: &mu
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("restore-confirm").visible());
         assert!(window.find("restore-discard").visible());
+        // What a recovered copy leaves out is said before publishing.
+        assert!(window.find("restore-exceptions").visible());
+        for (i, line) in RESTORE_EXCEPTIONS.iter().enumerate() {
+            assert_eq!(
+                window.find(format!("restore-exception-{i}")).label(),
+                Some(*line)
+            );
+        }
         window.click("restore-confirm", cx);
     })
     .unwrap();
@@ -154,6 +162,10 @@ fn restore_preview_confirm_reopen_and_source_current_workspace_unchanged(cx: &mu
     assert!(Workspace::open(&destination).is_ok());
     assert_eq!(std::fs::read(&f.backup).unwrap(), original);
     assert_eq!(current_records(&f), current);
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("restore-exceptions").visible());
+    })
+    .unwrap();
     let windows_before = cx.read(|cx| cx.windows().len());
     cx.update_window(f.window, |_, window, cx| window.click("restore-open", cx))
         .unwrap();

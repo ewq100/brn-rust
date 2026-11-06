@@ -168,6 +168,7 @@ impl ListRow {
         self
     }
     /// Replaces the tooltip, which otherwise repeats the full text.
+    #[allow(dead_code)]
     pub(super) fn tooltip(mut self, tooltip: impl Into<SharedString>) -> Self {
         self.tooltip = Some(tooltip.into());
         self
@@ -242,19 +243,6 @@ impl ListRow {
                 .test_support(),
         }
     }
-}
-
-/// A 28 px list row (`ListRow` with metadata).
-pub(super) fn list_row(
-    id: impl Into<SharedString>,
-    title: impl Into<SharedString>,
-    meta: impl Into<SharedString>,
-    selected: bool,
-) -> gpui_kit::base::ObservedElement<gpui_kit::Stateful<gpui_kit::Div>> {
-    ListRow::new(id, title)
-        .meta(meta)
-        .selected(selected)
-        .build()
 }
 
 /// A 44 px row whose second line states why it needs attention.

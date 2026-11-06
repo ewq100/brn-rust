@@ -164,6 +164,34 @@ impl DocumentExtraction {
     }
 }
 
+/// Images a Markdown source links to rather than embeds. Conversion reads only
+/// the supplied bytes, so these figures are never retained; each destination
+/// (or reference label, or raw HTML image) names one coverage gap.
+pub fn linked_markdown_images(source: &str) -> Vec<String> {
+    use markdown::{ParseOptions, mdast::Node};
+    fn visit(node: &Node, out: &mut Vec<String>) {
+        match node {
+            Node::Image(image) if !image.url.trim_start().starts_with("data:") => {
+                out.push(image.url.clone())
+            }
+            Node::ImageReference(image) => out.push(format!("[{}]", image.identifier)),
+            Node::Html(html) if html.value.to_ascii_lowercase().contains("<img") => {
+                out.push("HTML image".into())
+            }
+            _ => {}
+        }
+        for child in node.children().into_iter().flatten() {
+            visit(child, out);
+        }
+    }
+    let mut out = Vec::new();
+    if let Ok(ast) = markdown::to_mdast(source, &ParseOptions::gfm()) {
+        visit(&ast, &mut out);
+    }
+    out.truncate(MAX_OCCURRENCES);
+    out
+}
+
 /// Preserve rendered image identities/occurrences through optional refinement.
 /// Retained names come from validated assets. Existing unretained source image
 /// destinations must also stay identical; this does not turn them into assets.

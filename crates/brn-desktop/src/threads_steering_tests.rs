@@ -182,6 +182,23 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
                 ui.worker.as_ref().unwrap().continuation(),
                 Some("New exact instruction · õun")
             );
+            // The continuation reuses the saved owner message rather than posting it again.
+            let owner: Vec<String> = ui
+                .workspace
+                .messages(&f.thread)
+                .unwrap()
+                .into_iter()
+                .filter(|record| {
+                    matches!(&record.data, RecordData::Message(message)
+                    if message.role == "owner" && message.text == "New exact instruction · õun")
+                })
+                .map(|record| record.id)
+                .collect();
+            assert_eq!(owner.len(), 1);
+            assert_eq!(
+                ui.worker.as_ref().unwrap().continuation_message(),
+                Some(owner[0].as_str())
+            );
             assert!(
                 ui.workspace
                     .messages(&f.thread)
@@ -327,7 +344,7 @@ fn stop_during_pending_send_preserves_message_and_cancels_automatic_launch(
     cx.update_window(f.window, |_, window, cx| window.click("chat-steer", cx))
         .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, cx| window.click("stop-work", cx))
+    cx.update_window(f.window, |_, window, cx| window.click("run-stop", cx))
         .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
@@ -505,9 +522,16 @@ fn quiet_display_keeps_stream_and_stop_and_saved_drafts_survive_reopening(cx: &m
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, _| {
+    cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("run-stop").visible());
+        // Quiet lives in the conversation's Activity disclosure.
+        window.click("chat-activity", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
         assert!(window.find("chat-quiet").visible());
+        assert!(window.find("run-stop").visible());
     })
     .unwrap();
     let w = Workspace::open(&f.data).unwrap();
@@ -561,13 +585,15 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        assert!(
-            window
-                .find("worker-status")
-                .label()
-                .unwrap()
-                .contains("Reading a note passage")
-        );
+        // The running conversation shows its status above the composer,
+        // not again in its header; routine steps wait in Activity.
+        assert!(window.try_find("worker-status").is_none());
+        assert!(window.try_find("run-activity").is_none());
+        window.click("chat-activity", cx);
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("run-activity").visible());
         // The live line names the status beside an icon, as the status bar does.
         assert!(
@@ -591,27 +617,38 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         assert!(
-            !window
-                .find("worker-status")
-                .label()
-                .unwrap()
-                .contains("Reading a note passage"),
-            "Quiet must suppress activity in the workspace status bar too"
-        );
-        assert!(
             window
-                .find("worker-status")
+                .find("run-line")
                 .label()
                 .unwrap()
-                .contains("Working quietly")
+                .contains("Working quietly"),
+            "Quiet must suppress activity in the running line"
         );
         assert_eq!(
             window.find("chat-quiet").label(),
             Some("Quiet on · show activity")
         );
         assert!(window.find("run-stop").visible());
-        assert!(window.find("stop-work").visible());
+        assert!(window.try_find("stop-work").is_none());
         assert!(window.try_find("run-activity").is_none());
+        // Another view's header carries the work status, quiet too.
+        f.view.update(cx, |ui, cx| {
+            ui.show_tile(TileKind::Notes, window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
+        let status = window.find("worker-status").label().unwrap().to_owned();
+        assert!(status.contains("Working quietly"), "{status}");
+        assert!(!status.contains("Reading a note passage"), "{status}");
+        assert!(window.find("stop-work").visible());
+        f.view
+            .update(cx, |ui, cx| ui.open_thread(&f.thread, window, cx));
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, _| {
             assert_eq!(ui.stream_for(&f.thread), Some("The answer keeps streaming"));
             assert_eq!(
@@ -691,13 +728,8 @@ fn quiet_toggle_removes_activity_from_every_live_status_without_changing_work(
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("run-activity").visible());
-        assert!(
-            !window
-                .find("run-line")
-                .label()
-                .unwrap()
-                .contains("Unrelated conversion")
-        );
+        // Another worker's progress is not this chat's running line.
+        assert!(window.try_find("run-line").is_none());
         assert!(
             window.try_find("run-stop").is_none(),
             "a completed chat must not offer Stop for another worker"
@@ -864,7 +896,32 @@ fn starting_a_replacement_run_clears_the_old_paused_notice(cx: &mut TestAppConte
 }
 
 #[gpui_kit::test]
-fn dismissed_completion_banner_can_be_restored_from_layout_menu(cx: &mut TestAppContext) {
+fn the_run_line_stops_saying_starting_once_the_reply_streams(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Working);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.progress = "Starting…".into();
+            f.sender
+                .send(WorkerEvent::Text("1. Arrive early".into()))
+                .unwrap();
+            ui.poll_worker(window, cx);
+            assert_eq!(ui.progress, "Writing…");
+            // A real provider status still replaces it.
+            f.sender
+                .send(WorkerEvent::Progress("Reading Tide tables".into()))
+                .unwrap();
+            f.sender
+                .send(WorkerEvent::Text(" 2. Wear shoes".into()))
+                .unwrap();
+            ui.poll_worker(window, cx);
+            assert_eq!(ui.progress, "Reading Tide tables");
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
+fn dismissed_completion_banner_can_be_restored_from_the_workspace_menu(cx: &mut TestAppContext) {
     let f = fixture(cx, RunState::Completed);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
@@ -874,12 +931,15 @@ fn dismissed_completion_banner_can_be_restored_from_layout_menu(cx: &mut TestApp
                 )))
                 .unwrap();
             ui.poll_worker(window, cx);
+            // The chat as the assistant beside a document (under 420 pt).
+            ui.relayout(window, cx, Layout::document_with_assistant);
         });
     })
     .unwrap();
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
-        assert_eq!(window.find("idle-status").label(), Some("Idle"));
+        // Nothing runs or waits: no permanent "Idle" in the header.
+        assert!(window.try_find("idle-status").is_none());
         assert!(
             window.try_find("status-model").is_none(),
             "model selection belongs in the composer"
@@ -904,7 +964,7 @@ fn dismissed_completion_banner_can_be_restored_from_layout_menu(cx: &mut TestApp
         cx.run_until_parked();
         cx.update_window(f.window, |_, window, cx| {
             assert!(window.try_find("workspace-notice").is_none());
-            window.click("status-layout", cx);
+            window.click("workspace-menu", cx);
         })
         .unwrap();
         cx.run_until_parked();
@@ -1131,7 +1191,7 @@ fn a_failed_finish_is_an_error_banner_and_restores_as_an_error(cx: &mut TestAppC
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.try_find("workspace-notice").is_none());
-        window.click("status-layout", cx);
+        window.click("workspace-menu", cx);
     })
     .unwrap();
     cx.run_until_parked();
@@ -1434,7 +1494,7 @@ fn a_refused_stop_renders_as_an_error_banner(cx: &mut TestAppContext) {
     })
     .unwrap();
     cx.run_until_parked();
-    cx.update_window(f.window, |_, window, cx| window.click("stop-work", cx))
+    cx.update_window(f.window, |_, window, cx| window.click("run-stop", cx))
         .unwrap();
     let notice = cx.read(|cx| f.view.read(cx).notice.text().to_owned());
     assert!(!notice.is_empty());

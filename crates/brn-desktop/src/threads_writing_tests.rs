@@ -631,7 +631,9 @@ fn note_and_selected_chat_drafts_and_dirty_buffers_survive_navigation(cx: &mut T
             view.open_note(&f.b.id, None, window, cx);
             assert!(view.writing.comment_anchor.is_none());
             assert!(view.writing.comment_input.read(cx).value().is_empty());
-            assert_eq!(view.composer.read(cx).value().as_ref(), "Chat A draft");
+            // B's own conversation, with its own draft, replaces A's chat.
+            assert_eq!(view.chat_thread(), Some(f.chat_b.as_str()));
+            assert_eq!(view.composer.read(cx).value().as_ref(), "Chat B draft");
             view.writing
                 .comment_input
                 .update(cx, |editor, cx| editor.set_value("B draft", window, cx));
@@ -1629,7 +1631,7 @@ fn archived_writing_chat_preserves_feedback_and_requires_explicit_unarchive(
 }
 
 #[gpui_kit::test]
-fn narrow_workbench_scrolls_tiles_to_usable_chat_and_keeps_one_editor(cx: &mut TestAppContext) {
+fn narrow_workbench_shows_the_chat_as_a_sheet_and_keeps_one_editor(cx: &mut TestAppContext) {
     let f = fixture_size(cx, 760., 820.);
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {
@@ -1648,11 +1650,10 @@ fn narrow_workbench_scrolls_tiles_to_usable_chat_and_keeps_one_editor(cx: &mut T
     let editor = cx.read(|cx| f.view.read(cx).writing.note_editor.clone());
     cx.update_window(f.window, |_, window, cx| {
         assert!(window.find("note-body").bounds().size.width > px(200.));
-        window.scroll(
-            "tile-row",
-            gpui_kit::ScrollDelta::Pixels(point(px(-2000.), px(0.))),
-            cx,
-        );
+        // Too narrow to dock: the chat is the assistant sheet over the note.
+        if window.try_find("assistant-pane").is_none() {
+            window.click("toggle-assistant", cx);
+        }
     })
     .unwrap();
     cx.run_until_parked();
@@ -1679,12 +1680,15 @@ fn browsing_notes_keeps_selected_chat_and_replacing_main_preserves_review_text(
                 editor.set_value("Keep this conversation draft", window, cx)
             });
             view.open_note(&f.b.id, None, window, cx);
+            // Document B's assistant is its own, not A's chat (WRITE-05).
+            assert_ne!(view.chat_thread(), Some(f.chat_a.as_str()));
+            assert_eq!(view.composer.read(cx).value().as_ref(), "");
+            view.open_note(&f.a.id, None, window, cx);
             assert_eq!(view.chat_thread(), Some(f.chat_a.as_str()));
             assert_eq!(
                 view.composer.read(cx).value().as_ref(),
                 "Keep this conversation draft"
             );
-            view.open_note(&f.a.id, None, window, cx);
             let (_, candidate) = proposal(
                 view,
                 &f.a,
@@ -1726,7 +1730,9 @@ fn browsing_notes_keeps_selected_chat_and_replacing_main_preserves_review_text(
 }
 
 #[gpui_kit::test]
-fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mut TestAppContext) {
+fn reopening_current_review_from_a_lone_chat_removes_hidden_composer_focus(
+    cx: &mut TestAppContext,
+) {
     let f = fixture(cx);
     let mut operation = String::new();
     cx.update_window(f.window, |_, window, cx| {
@@ -1742,7 +1748,7 @@ fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mu
                 editor.set_value("Unsubmitted reviewed text", window, cx)
             });
             view.show_tile(TileKind::Chat, window, cx);
-            view.apply_layout(Preset::Solo, window, cx);
+            view.relayout(window, cx, |layout| layout.show_alone(TileKind::Chat));
             assert!(view.composer.focus_handle(cx).is_focused(window));
         });
     })
@@ -1763,7 +1769,7 @@ fn reopening_current_review_from_solo_chat_removes_hidden_composer_focus(cx: &mu
     cx.run_until_parked();
     cx.update_window(f.window, |_, window, cx| {
         let view = f.view.read(cx);
-        assert_eq!(view.layout.maximized(), Some(TileKind::Note));
+        assert_eq!(view.layout.primary(), TileKind::Note);
         assert!(!view.composer.focus_handle(cx).is_focused(window));
         assert!(
             view.writing
@@ -5222,22 +5228,23 @@ fn int_w_general_notes_list_hides_p1_reference_with_scoped_retained_source(
         })
         .unwrap();
         cx.run_until_parked();
-        cx.update_window(f.window, |_, window, _| {
-            assert!(
-                window
-                    .try_find(format!("notes-recent-{}", f.a.id))
-                    .is_some(),
-                "visible general Note remains a real rendered positive control"
-            );
-            assert!(
-                window
-                    .try_find(format!("notes-recent-{}", f.b.id))
-                    .is_none(),
-                "general Notes UI must not reveal a P1-private retained-source reference title"
-            );
-            assert!(window.try_find(format!("notes-kept-{}", f.b.id)).is_none());
-        })
-        .unwrap();
+        // Articles and All files alike: the private reference stays hidden.
+        for tab in ["library-articles", "library-files"] {
+            cx.update_window(f.window, |_, window, cx| window.click(tab, cx))
+                .unwrap();
+            cx.run_until_parked();
+            cx.update_window(f.window, |_, window, _| {
+                assert!(
+                    window.try_find(format!("note-{}", f.a.id)).is_some(),
+                    "visible general Note remains a real rendered positive control"
+                );
+                assert!(
+                    window.try_find(format!("note-{}", f.b.id)).is_none(),
+                    "general Notes UI must not reveal a P1-private retained-source reference title"
+                );
+            })
+            .unwrap();
+        }
         cx.read(|cx| {
             assert!(
                 f.view.read(cx).note_rows.iter().all(|row| row.id != f.b.id),
@@ -5260,7 +5267,8 @@ fn int_w_general_notes_list_hides_p1_reference_with_scoped_retained_source(
 
 #[gpui_kit::test]
 fn review_feedback_selector_and_apply_click_commit_exact_subset_with_undo(cx: &mut TestAppContext) {
-    let f = fixture(cx);
+    // Wide enough for the comments margin beside the docked assistant.
+    let f = fixture_size(cx, 1440., 1100.);
     let mut ids = Vec::new();
     let mut operation = String::new();
     cx.update_window(f.window, |_, window, cx| {
@@ -5520,6 +5528,58 @@ fn applied_review_with_failed_status_updates_reloads_text_and_keeps_undo(cx: &mu
 }
 
 #[gpui_kit::test]
+fn applied_receipt_keeps_its_committed_version_after_a_later_save(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let committed = cx
+        .update_window(f.window, |_, window, cx| {
+            f.view.update(cx, |view, cx| {
+                view.open_note(&f.a.id, None, window, cx);
+                view.select_writing_thread(f.a.id.clone(), f.chat_a.clone(), window, cx);
+                let (_, candidate) = proposal(view, &f.a, &f.chat_a, &[], "Rewritten", "receipt-v");
+                view.open_review(candidate.clone(), window, cx);
+                let result = view
+                    .workspace
+                    .review_apply_in_context(candidate.operation.as_str(), None)
+                    .unwrap();
+                view.finish_review_apply(&candidate, result, window, cx);
+                let applied = view.workspace.store.note(&f.a.id).unwrap().unwrap();
+                let RecordData::Note(mut later) = applied.data.clone() else {
+                    unreachable!()
+                };
+                later.markdown = "Owner text after the rewrite".into();
+                view.workspace
+                    .owner_change(
+                        "receipt-v-later-save",
+                        &ChangeRequest {
+                            reason: "Later owner save".into(),
+                            writes: vec![Put {
+                                id: applied.id.clone(),
+                                expected_version: Some(applied.version),
+                                archived: false,
+                                data: RecordData::Note(later),
+                            }],
+                            inputs: vec![],
+                        },
+                    )
+                    .unwrap();
+                view.refresh();
+                view.reload_open_note(window, cx);
+                cx.notify();
+                applied.version
+            })
+        })
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("applied-state").label(),
+            Some(format!("Applied · v{committed}").as_str())
+        );
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
 fn changing_review_member_or_preparing_groups_clears_feedback_selection(cx: &mut TestAppContext) {
     let f = fixture(cx);
     cx.update_window(f.window, |_, window, cx| {
@@ -5611,7 +5671,8 @@ fn changing_review_member_or_preparing_groups_clears_feedback_selection(cx: &mut
 fn captured_review_card_keeps_original_feedback_and_changed_comment_refuses_apply(
     cx: &mut TestAppContext,
 ) {
-    let f = fixture(cx);
+    // Wide enough for the comments margin beside the docked assistant.
+    let f = fixture_size(cx, 1440., 1100.);
     let mut id = String::new();
     let mut operation = String::new();
     cx.update_window(f.window, |_, window, cx| {
@@ -5702,7 +5763,8 @@ fn captured_review_card_keeps_original_feedback_and_changed_comment_refuses_appl
 
 #[gpui_kit::test]
 fn model_comment_hint_apply_alone_creates_no_addressed_proof(cx: &mut TestAppContext) {
-    let f = fixture(cx);
+    // Wide enough for the comments margin beside the docked assistant.
+    let f = fixture_size(cx, 1440., 1100.);
     let mut id = String::new();
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |view, cx| {

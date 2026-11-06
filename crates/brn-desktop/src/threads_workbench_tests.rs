@@ -317,10 +317,8 @@ fn note_navigation_restores_overall_and_unsent_chat_drafts_without_posting(
         f.view.update(cx, |view, cx| {
             view.open_note(&f.second.id, None, window, cx);
             assert_eq!(view.writing.general_feedback.read(cx).value().as_ref(), "");
-            assert_eq!(
-                view.composer.read(cx).value().as_ref(),
-                "Unsent chat draft for the first note"
-            );
+            // Each document's assistant keeps its own unsent draft.
+            assert_eq!(view.composer.read(cx).value().as_ref(), "");
             view.writing.general_feedback.update(cx, |editor, cx| {
                 editor.set_value("Second note direction", window, cx)
             });
@@ -345,10 +343,7 @@ fn note_navigation_restores_overall_and_unsent_chat_drafts_without_posting(
                 view.writing.general_feedback.read(cx).value().as_ref(),
                 "Second note direction"
             );
-            assert_eq!(
-                view.composer.read(cx).value().as_ref(),
-                "Unsent chat draft for the first note"
-            );
+            assert_eq!(view.composer.read(cx).value().as_ref(), "");
             assert!(!view.layout.contains(TileKind::Chat));
             assert!(
                 view.workspace
@@ -815,7 +810,8 @@ fn repeated_rewrite_requests_preserve_pending_review_and_reading_space(cx: &mut 
         assert_eq!(f.view.read(cx).candidates.len(), 1);
         assert!(window.find("writing-proposals").bounds().size.height <= px(110.));
         assert!(window.find("note-body").bounds().size.height > px(200.));
-        assert!(window.find("overall-feedback").visible());
+        // Overall feedback stays one click away for Rewrite.
+        assert!(window.find("toggle-feedback").visible());
     })
     .unwrap();
 }

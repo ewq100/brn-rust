@@ -1,10 +1,12 @@
 //! Projects navigation and owner dialogs over shared checked operations.
+use super::components::{AccessibleDropdownMenu, tokens};
+use super::library_view::{self, LIBRARY_WIDTH, library_row};
 use super::shell::{item, pill};
-use super::tiles::{PAGE_WIDTH, column, page, row};
+use super::tiles::{column, scroll};
 use super::*;
 use gpui_kit::SharedString;
 use gpui_kit::component::button::ButtonVariants;
-use gpui_kit::component::menu::PopupMenu;
+use gpui_kit::component::menu::{ContextMenuExt, PopupMenu};
 
 /// A dialog pick-list row: a full-width ghost button, so Tab reaches it and
 /// Space chooses it. The title truncates; the full text is its name.
@@ -19,6 +21,11 @@ fn pick_row(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedString>) 
         .child(div().flex_1().min_w_0().truncate().child(label))
 }
 
+/// A document row's chevron sits 13 pt inside the row (inset and border) and
+/// its glyph paints about 4 pt inside its box; a compact button pads its
+/// label 8 pt, so this inset ends the label's ink at the chevron's ink
+/// (measured natively in Light and Dark).
+const PROJECT_DOC_ACTIONS_INSET: f32 = 9.;
 /// Shown beside Restore project, before the owner chooses it.
 const RESTORE_LINE: &str = "Restoring returns contents and settings. Cancelled tasks stay cancelled; tasks kept outside stay outside. Work stays paused.";
 
@@ -89,6 +96,51 @@ fn listed(record: &Record) -> bool {
     )
 }
 
+/// The confirmation for an applied project change names what changed.
+pub(super) fn project_notice(command: &ProjectCommand, records: &[Record]) -> String {
+    let named = |id: &str| {
+        records
+            .iter()
+            .find(|r| r.id == id)
+            .map_or_else(|| "the project".to_owned(), title)
+    };
+    match command {
+        ProjectCommand::WithProgress { command, .. } => project_notice(command, records),
+        ProjectCommand::Create { .. } => "Project created.".into(),
+        ProjectCommand::CreateChat { project, .. } => {
+            format!("Chat started in {}.", named(project))
+        }
+        ProjectCommand::Configure { .. } => "Project settings saved.".into(),
+        ProjectCommand::MoveChat {
+            project: Some(project),
+            ..
+        } => {
+            format!("Chat moved to {}.", named(project))
+        }
+        ProjectCommand::MoveChat { project: None, .. } => "Chat is now standalone.".into(),
+        ProjectCommand::LinkDocument { project, .. } => {
+            format!("Document added to {}.", named(project))
+        }
+        ProjectCommand::UnlinkDocument { project, .. } => {
+            format!("Document unlinked from {}.", named(project))
+        }
+        ProjectCommand::CreateDocument { project, .. } => {
+            format!("Document created in {}.", named(project))
+        }
+        ProjectCommand::Delete { .. } => "Project moved to Trash.".into(),
+        ProjectCommand::Restore { .. } => "Project restored.".into(),
+    }
+}
+
+/// How many active projects other than `project` hold `note`.
+fn other_projects_with(records: &[Record], project: &str, note: &str) -> usize {
+    records
+        .iter()
+        .filter(|r| r.id != project && !r.archived && matches!(r.data, RecordData::Project(_)))
+        .filter(|r| project_document_ids(records, r).contains(note))
+        .count()
+}
+
 impl ThreadsUi {
     pub(super) fn open_project_note(
         &mut self,
@@ -128,6 +180,7 @@ impl ThreadsUi {
         } else {
             command
         };
+        let notice = project_notice(&command, &self.records);
         let receipt = self
             .workspace
             .project_command(&format!("ui:{}", uuid::Uuid::new_v4()), command)?;
@@ -142,7 +195,7 @@ impl ThreadsUi {
             worker.discard_continuation();
         }
         // A returned receipt is an applied change, like ApplyOutcome::Applied.
-        self.confirm("Project saved.");
+        self.confirm(notice);
         self.refresh();
         self.refresh_connections(cx);
         cx.notify();
@@ -156,6 +209,54 @@ impl ThreadsUi {
                 && r.archived == self.projects_trash
                 && matches!(r.data, RecordData::Project(_))
         })
+    }
+    /// The active project the launcher opens from, derived from the visible
+    /// route only: the project page shown, the displayed project document,
+    /// or the displayed chat's project. Global destinations have none, so a
+    /// project document opened earlier never leaks into another context.
+    pub(super) fn context_project(&self) -> Option<&Record> {
+        let active = |id: &str| {
+            self.records
+                .iter()
+                .find(|r| r.id == id && !r.archived && matches!(r.data, RecordData::Project(_)))
+        };
+        match self.layout.primary() {
+            TileKind::Projects => self.shown_project().filter(|r| !r.archived),
+            TileKind::Note | TileKind::Connections | TileKind::Compare => {
+                self.note_project.as_deref().and_then(active)
+            }
+            TileKind::Chat | TileKind::Linked => self
+                .chat_thread()
+                .and_then(|chat| project_for_chat(&self.records, chat))
+                .and_then(|r| active(&r.id)),
+            _ => None,
+        }
+    }
+    /// The context project's own documents for the launcher. Shared
+    /// documents are already listed as articles, so only project-only ones.
+    pub(super) fn launcher_project_documents(&self) -> Vec<lists::LaunchItem> {
+        let Some(record) = self.context_project() else {
+            return vec![];
+        };
+        let RecordData::Project(p) = &record.data else {
+            return vec![];
+        };
+        project_document_ids(&self.records, record)
+            .into_iter()
+            .filter_map(|id| {
+                let note = self.records.iter().find(|r| r.id == id && !r.archived)?;
+                let RecordData::Note(data) = &note.data else {
+                    return None;
+                };
+                data.chat.is_some().then(|| lists::LaunchItem::ProjectDoc {
+                    title: title(note),
+                    shared: other_projects_with(&self.records, &record.id, &id) > 0,
+                    id,
+                    project: record.id.clone(),
+                    project_title: p.title.clone(),
+                })
+            })
+            .collect()
     }
     /// The Projects ⋯'s first section: the selected active project's
     /// actions, Move to Trash… last after a separator.
@@ -226,6 +327,9 @@ impl ThreadsUi {
                 ))
         }))
     }
+    /// Projects: the list of projects (Active or Trash), or the selected
+    /// project's workspace with its compact header, documents and chats,
+    /// and New document / Add document / New chat beside those lists.
     pub(super) fn projects_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let trash = self.projects_trash;
         let shown = self.shown_project();
@@ -252,6 +356,7 @@ impl ThreadsUi {
         if !trash {
             let new = button("project-new")
                 .label("New project")
+                .icon(IconName::Plus)
                 .compact()
                 .h(components::tokens::COMPACT_CONTROL)
                 .on_click(cx.listener(|this, _, window, cx| {
@@ -263,69 +368,7 @@ impl ThreadsUi {
                 new.ghost()
             });
         }
-        let projects: Vec<&Record> = self
-            .records
-            .iter()
-            .filter(|r| r.archived == trash && matches!(r.data, RecordData::Project(_)))
-            .collect();
-        let mut body = column();
-        let mut list = div()
-            .flex()
-            .flex_col()
-            .gap(px(2.))
-            .child(components::section_header(
-                if trash { "In Trash" } else { "Projects" },
-                Some(projects.len()),
-                None,
-            ));
-        if projects.is_empty() {
-            list = list.child(components::empty_state(
-                "projects-empty",
-                if trash {
-                    IconName::Trash
-                } else {
-                    IconName::Folder
-                },
-                if trash {
-                    "Trash is empty"
-                } else {
-                    "No projects yet"
-                },
-                if trash {
-                    "Deleted projects stay recoverable here."
-                } else {
-                    "Group related chats and documents with shared context."
-                },
-                None,
-            ));
-        }
-        for record in &projects {
-            let id = record.id.clone();
-            list = list.child(
-                row(
-                    format!("project-row-{id}"),
-                    title(record),
-                    "",
-                    self.selected_project.as_ref() == Some(&id),
-                )
-                .role(gpui_kit::Role::Button)
-                .on_click(cx.listener(move |this, _, _, cx| {
-                    this.selected_project = Some(id.clone());
-                    cx.notify();
-                })),
-            );
-        }
-        if trash && shown.is_none() && !projects.is_empty() {
-            list = list.child(
-                metadata("Deleted projects stay recoverable here.")
-                    .id("projects-trash-hint")
-                    .px_2()
-                    .pt_1()
-                    .test_support(),
-            );
-        }
-        body = body.child(list);
-        // The page column, as on Home, Tasks and Changes.
+        let inset = self.library_inset();
         let frame = |body: gpui_kit::Div| {
             div()
                 .size_full()
@@ -334,31 +377,61 @@ impl ThreadsUi {
                 .min_h_0()
                 .child(bar)
                 .child(
-                    div()
-                        .flex_1()
-                        .min_h_0()
-                        .child(page("projects-tile", PAGE_WIDTH, body).test_support()),
+                    div().flex_1().min_h_0().child(
+                        scroll("projects-tile")
+                            .items_center()
+                            .px(inset)
+                            .pb_6()
+                            .child(body.w_full().max_w(px(LIBRARY_WIDTH)))
+                            .test_support(),
+                    ),
                 )
                 .into_any_element()
         };
         let Some(record) = shown else {
-            return frame(body);
+            return frame(self.projects_index(trash, cx));
         };
         let RecordData::Project(p) = &record.data else {
-            return frame(body);
+            return frame(self.projects_index(trash, cx));
         };
         let id = record.id.clone();
         let version = record.version;
-        let heading = div().flex().items_center().gap_2().pt_6().min_w_0().child(
-            div()
-                .id("project-title")
-                .flex_1()
-                .min_w_0()
-                .truncate()
-                .text_size(TITLE_TEXT)
-                .font_weight(gpui_kit::FontWeight::SEMIBOLD)
-                .child(p.title.clone()),
-        );
+        let back = pill(
+            "project-back",
+            if trash {
+                "← Trash"
+            } else {
+                "← All projects"
+            },
+        )
+        .tooltip(if trash {
+            "Back to projects in Trash"
+        } else {
+            "Back to all projects"
+        })
+        .on_click(cx.listener(|this, _, _, cx| {
+            this.selected_project = None;
+            cx.notify();
+        }));
+        let heading = div()
+            .flex()
+            .flex_col()
+            .gap_1()
+            .pt(tokens::SPACE_3)
+            .min_w_0()
+            .child(div().flex().child(back))
+            .child(
+                div()
+                    .id("project-title")
+                    .min_w_0()
+                    .truncate()
+                    .text_size(px(theme::metrics::TEXT_CONVERSATION_HEADING))
+                    .font_weight(gpui_kit::FontWeight::MEDIUM)
+                    .text_color(rgb(pal().ink))
+                    .child(p.title.clone())
+                    .test_support(),
+            );
+        let mut body = column();
         if record.archived {
             return frame(
                 body.child(heading)
@@ -370,7 +443,7 @@ impl ThreadsUi {
                             .test_support(),
                     )
                     .child(
-                        div().pt_3().child(
+                        div().pt_3().flex().child(
                             button("project-restore")
                                 .label("Restore project")
                                 .primary()
@@ -392,20 +465,10 @@ impl ThreadsUi {
                     ),
             );
         }
-        let chat_id = id.clone();
-        body = body.child(
-            heading.child(
-                button("project-chat")
-                    .label("New chat")
-                    .primary()
-                    .compact()
-                    .h(components::tokens::COMPACT_CONTROL)
-                    .tooltip("Start a chat that uses this project's instructions and documents")
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.project_name_dialog(Some(chat_id.clone()), true, window, cx)
-                    })),
-            ),
-        );
+        // The compact header: the instructions' first line as the
+        // description, then the knowledge setting and instructions state,
+        // with the settings sheet beside them.
+        let description = lists::note_description(&p.instructions);
         let status = format!(
             "BRN knowledge: {} · {}",
             if p.use_brn_knowledge { "on" } else { "off" },
@@ -415,28 +478,255 @@ impl ThreadsUi {
                 "Project instructions apply to every chat"
             }
         );
-        body = body.child(
-            metadata(status.clone())
-                .id("project-status")
-                .aria_label(status)
-                .pt_1()
-                .test_support(),
+        let settings_id = id.clone();
+        body = body
+            .child(heading)
+            .when(!description.is_empty(), |body| {
+                body.child(
+                    div()
+                        .id("project-description")
+                        .pt_1()
+                        .text_size(px(theme::metrics::TEXT_BODY))
+                        .text_color(rgb(pal().muted))
+                        .line_clamp(2)
+                        .child(description.clone())
+                        .test_support(),
+                )
+            })
+            .child(
+                div()
+                    .flex()
+                    .flex_wrap()
+                    .items_center()
+                    .gap_2()
+                    .pt_2()
+                    .pb(tokens::SPACE_2)
+                    .border_b_1()
+                    .border_color(rgb(pal().hairline))
+                    .child(
+                        metadata(status.clone())
+                            .id("project-status")
+                            .flex_1()
+                            .min_w_0()
+                            .aria_label(status)
+                            .test_support(),
+                    )
+                    .child(
+                        pill("project-settings", "Instructions & settings")
+                            .icon(IconName::Settings)
+                            .tooltip("Project instructions and the BRN knowledge setting")
+                            .on_click(cx.listener(move |this, _, window, cx| {
+                                this.project_settings_dialog(&settings_id, window, cx)
+                            })),
+                    ),
+            );
+        body = body
+            .child(self.project_documents(record, p, cx))
+            .child(self.project_chats(record, p, primary, cx));
+        frame(body)
+    }
+
+    /// The list of projects in the current scope.
+    fn projects_index(&self, trash: bool, cx: &mut Context<Self>) -> gpui_kit::Div {
+        let projects: Vec<&Record> = self
+            .records
+            .iter()
+            .filter(|r| r.archived == trash && matches!(r.data, RecordData::Project(_)))
+            .collect();
+        let p = pal();
+        let mut body = column().child(
+            div()
+                .flex()
+                .flex_col()
+                .gap_1()
+                .pt(tokens::SPACE_6)
+                .pb(tokens::SPACE_2)
+                .child(
+                    div()
+                        .text_size(px(theme::metrics::TEXT_CONVERSATION_HEADING))
+                        .font_weight(gpui_kit::FontWeight::MEDIUM)
+                        .text_color(rgb(p.ink))
+                        .child(if trash {
+                            "Projects in Trash"
+                        } else {
+                            "Projects"
+                        }),
+                )
+                .child(
+                    div()
+                        .text_size(px(theme::metrics::TEXT_LABEL))
+                        .text_color(rgb(p.muted))
+                        .child(if trash {
+                            "Deleted projects stay recoverable here."
+                        } else {
+                            "Chats and documents that share instructions and context."
+                        }),
+                ),
         );
+        body = body.child(components::section_header(
+            if trash { "In Trash" } else { "Active" },
+            Some(projects.len()),
+            None,
+        ));
+        if projects.is_empty() {
+            body = body.child(components::empty_state(
+                "projects-empty",
+                if trash {
+                    IconName::Trash
+                } else {
+                    IconName::Folder
+                },
+                if trash {
+                    "Trash is empty"
+                } else {
+                    "No projects yet"
+                },
+                if trash {
+                    "Deleted projects stay recoverable here."
+                } else {
+                    "Group related chats and documents with shared context. Start with New project."
+                },
+                None,
+            ));
+        }
+        for record in &projects {
+            let RecordData::Project(project) = &record.data else {
+                continue;
+            };
+            let id = record.id.clone();
+            let docs = project_document_ids(&self.records, record).len();
+            let chats = project.chats.len();
+            let mut facts = vec![
+                format!("{docs} document{}", if docs == 1 { "" } else { "s" }),
+                format!("{chats} chat{}", if chats == 1 { "" } else { "s" }),
+                format!(
+                    "BRN knowledge {}",
+                    if project.use_brn_knowledge {
+                        "on"
+                    } else {
+                        "off"
+                    }
+                ),
+            ];
+            if trash {
+                facts.insert(0, "In Trash".into());
+            }
+            body = body.child(
+                library_row(
+                    format!("project-row-{id}"),
+                    if trash {
+                        IconName::Trash
+                    } else {
+                        IconName::Folder
+                    },
+                    title(record),
+                    lists::note_description(&project.instructions),
+                    facts.join(" · "),
+                    vec![],
+                    self.selected_project.as_ref() == Some(&id),
+                    None,
+                )
+                .on_click(cx.listener(move |this, _, _, cx| {
+                    this.selected_project = Some(id.clone());
+                    cx.notify();
+                })),
+            );
+        }
+        if trash && !projects.is_empty() {
+            let hint = "Select a project to review and restore it. Restoring never resumes work.";
+            body = body.child(
+                metadata(hint)
+                    .id("projects-trash-hint")
+                    .aria_label(hint)
+                    .px_3()
+                    .pt_2()
+                    .test_support(),
+            );
+        }
+        body
+    }
+
+    /// The project's documents: linked shared notes and private files, with
+    /// New document and Add document (link or import) beside them.
+    fn project_documents(
+        &self,
+        record: &Record,
+        p: &Project,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
+        let busy = self.worker.is_some();
         let docs = project_document_ids(&self.records, record);
         let documents: Vec<&Record> = self
             .records
             .iter()
             .filter(|r| !r.archived && docs.contains(&r.id))
             .collect();
-        body = body.child(components::section_header(
-            "Documents",
-            Some(documents.len()),
-            None,
-        ));
+        let (new_id, link_id, import_id) =
+            (record.id.clone(), record.id.clone(), record.id.clone());
+        let this = cx.entity().downgrade();
+        let actions = div()
+            .flex()
+            .items_center()
+            .gap_1()
+            .child(
+                pill("project-new-document", "New document")
+                    .icon(IconName::Plus)
+                    .on_click(cx.listener(move |this, _, window, cx| {
+                        this.project_name_dialog(Some(new_id.clone()), false, window, cx)
+                    })),
+            )
+            .child(
+                pill("project-add-document", "Add document")
+                    .icon(IconName::ChevronDown)
+                    .tooltip("Link a saved note, or import a file into this project")
+                    .accessible_dropdown_menu(move |menu, _, _| {
+                        let (link, import) = (link_id.clone(), import_id.clone());
+                        menu.item(item(
+                            &this,
+                            "Link document…",
+                            None,
+                            false,
+                            false,
+                            move |view, window, cx| view.project_link_dialog(&link, window, cx),
+                        ))
+                        .item(item(
+                            &this,
+                            if busy {
+                                "Import file… · wait for current work"
+                            } else {
+                                "Import file…"
+                            },
+                            None,
+                            busy,
+                            false,
+                            move |view, window, cx| {
+                                view.choose_import(
+                                    ImportIntent::FullNote,
+                                    Some(import.clone()),
+                                    window,
+                                    cx,
+                                )
+                            },
+                        ))
+                    }),
+            );
+        let mut block =
+            div()
+                .id("project-documents")
+                .flex()
+                .flex_col()
+                .child(components::section_header(
+                    "Documents",
+                    Some(documents.len()),
+                    Some(actions.into_any_element()),
+                ));
         if documents.is_empty() {
-            body = body.child(
-                metadata("Add one with New document or Link document… in the Projects ⋯ menu.")
-                    .px_2(),
+            block = block.child(
+                metadata("No documents yet. Create one, link a saved note, or import a file.")
+                    .id("project-documents-empty")
+                    .px_3()
+                    .py_2()
+                    .test_support(),
             );
         }
         for note in documents {
@@ -446,17 +736,75 @@ impl ThreadsUi {
             let project = record.id.clone();
             let project_for_open = project.clone();
             let version = note.version;
-            let mut line = div().flex().items_center().gap_1().child(
-                row(format!("project-doc-{id}"), title(note), "", false)
-                    .flex_1()
-                    .on_click(cx.listener(move |this, _, window, cx| {
-                        this.open_project_note(&project_for_open, &id, window, cx)
-                    })),
+            let RecordData::Note(data) = &note.data else {
+                continue;
+            };
+            let private = data.chat.is_some();
+            let stamp = self.activity.stamp(&id);
+            let others = other_projects_with(&self.records, &record.id, &id);
+            let mut facts = vec![if private && others == 0 {
+                "Only in this project".to_owned()
+            } else if private {
+                format!(
+                    "Not in Library · also in {others} other project{}",
+                    if others == 1 { "" } else { "s" }
+                )
+            } else {
+                "Shared · also in Library".to_owned()
+            }];
+            if data.import.as_ref().is_some_and(|import| import.full_note) {
+                facts.push("Full imported reference".into());
+            }
+            if !stamp.is_empty() {
+                facts.push(format!("Saved {}", library_view::day_label(stamp)));
+            }
+            let marks = if data.protected {
+                vec![
+                    components::short_status_chip(
+                        format!("project-doc-{id}-protected"),
+                        Some(Tone::Info),
+                        Some(IconName::Lock),
+                        "",
+                        "Protected",
+                    )
+                    .into_any_element(),
+                ]
+            } else {
+                vec![]
+            };
+            let line = div().flex().flex_col().child(
+                library_row(
+                    format!("project-doc-{id}"),
+                    if private {
+                        IconName::Paperclip
+                    } else {
+                        IconName::FileText
+                    },
+                    title(note),
+                    lists::note_description(&data.markdown),
+                    facts.join(" · "),
+                    marks,
+                    self.open_note_id() == Some(id.as_str()),
+                    None,
+                )
+                .on_click(cx.listener(move |this, _, window, cx| {
+                    this.open_project_note(&project_for_open, &id, window, cx)
+                })),
             );
-            if matches!(&note.data, RecordData::Note(n) if n.chat.is_some()) {
-                line = line.child(
-                    pill(format!("project-keep-{keep}"), "Keep in BRN").on_click(cx.listener(
-                        move |this, _, _, cx| {
+            // Rows keep the full width, so every chevron shares the right
+            // edge; the actions sit under it and end where it ends.
+            let mut actions = div()
+                .id(SharedString::from(format!("project-doc-{keep}-actions")))
+                .flex()
+                .justify_end()
+                .items_center()
+                .gap_1()
+                .pr(px(PROJECT_DOC_ACTIONS_INSET));
+            if private {
+                actions = actions.child(
+                    pill(format!("project-keep-{keep}"), "Keep in BRN")
+                        .tooltip("Keep a copy of this file in your general Library; provenance stays recorded")
+                        .on_click(cx.listener(move |this, _, _, cx| {
                             match this.workspace.keep_in_brn(
                                 &format!("ui:{}", uuid::Uuid::new_v4()),
                                 &keep,
@@ -467,52 +815,124 @@ impl ThreadsUi {
                             };
                             this.refresh();
                             cx.notify();
-                        },
-                    )),
+                        })),
                 );
             }
-            if p.documents.contains(&unlink) {
-                line = line.child(pill(format!("project-unlink-{unlink}"), "Unlink").on_click(
-                    cx.listener(move |this, _, _, cx| {
-                        if let Err(e) = this.apply_project(
-                            ProjectCommand::UnlinkDocument {
-                                project: project.clone(),
-                                note: unlink.clone(),
-                            },
-                            cx,
-                        ) {
-                            this.fail(e.to_string());
-                            cx.notify();
-                        }
-                    }),
-                ));
+            let linked = p.documents.contains(&unlink);
+            let has_actions = private || linked;
+            if linked {
+                actions = actions.child(
+                    pill(format!("project-unlink-{unlink}"), "Unlink")
+                        .tooltip("Remove from this project; the saved note stays in your Library")
+                        .on_click(cx.listener(move |this, _, _, cx| {
+                            if let Err(e) = this.apply_project(
+                                ProjectCommand::UnlinkDocument {
+                                    project: project.clone(),
+                                    note: unlink.clone(),
+                                },
+                                cx,
+                            ) {
+                                this.fail(e.to_string());
+                                cx.notify();
+                            }
+                        })),
+                );
             }
-            body = body.child(line);
+            block = block.child(line.when(has_actions, |line| line.child(actions.test_support())));
         }
+        block.test_support().into_any_element()
+    }
+
+    /// The project's conversations, with New chat beside them.
+    fn project_chats(
+        &self,
+        record: &Record,
+        p: &Project,
+        primary: Option<&'static str>,
+        cx: &mut Context<Self>,
+    ) -> gpui_kit::AnyElement {
         let chats: Vec<&Record> = self
             .records
             .iter()
             .filter(|r| p.chats.contains(&r.id))
             .collect();
-        body = body.child(components::section_header("Chats", Some(chats.len()), None));
+        let chat_id = record.id.clone();
+        let new = button("project-chat")
+            .label("New chat")
+            .icon(IconName::SquarePen)
+            .compact()
+            .h(components::tokens::COMPACT_CONTROL)
+            .tooltip("Start a chat that uses this project's instructions and documents")
+            .on_click(cx.listener(move |this, _, window, cx| {
+                this.project_name_dialog(Some(chat_id.clone()), true, window, cx)
+            }));
+        let new = if primary == Some("project-chat") {
+            new.primary()
+        } else {
+            new.ghost()
+        };
+        let mut block =
+            div()
+                .id("project-chats")
+                .flex()
+                .flex_col()
+                .child(components::section_header(
+                    "Chats",
+                    Some(chats.len()),
+                    Some(new.into_any_element()),
+                ));
         if chats.is_empty() {
-            body = body.child(metadata("Start one with New chat.").px_2());
-        }
-        for chat in chats {
-            let id = chat.id.clone();
-            body = body.child(
-                row(
-                    format!("project-chat-{id}"),
-                    title(chat),
-                    if chat.archived { "Archived" } else { "" },
-                    false,
+            block = block.child(
+                metadata(
+                    "No chats yet. Start one with New chat; it uses this project's instructions.",
                 )
-                .on_click(
-                    cx.listener(move |this, _, window, cx| this.open_thread(&id, window, cx)),
-                ),
+                .id("project-chats-empty")
+                .px_3()
+                .py_2()
+                .test_support(),
             );
         }
-        frame(body)
+        let this = cx.entity().downgrade();
+        for chat in chats {
+            let id = chat.id.clone();
+            let menu_id = id.clone();
+            let row = self.thread_rows.iter().find(|row| row.id == id);
+            let resolved = chat.archived || row.is_some_and(|row| row.resolved);
+            let note = row.and_then(|row| row.note.clone());
+            let mut facts = vec![];
+            if resolved {
+                facts.push("Archived".to_owned());
+            }
+            let stamp = self.activity.stamp(&id);
+            if !stamp.is_empty() {
+                facts.push(format!("Last activity {}", library_view::day_label(stamp)));
+            }
+            let reason = row
+                .and_then(|row| row.reasons.first().cloned())
+                .unwrap_or_default();
+            let this = this.clone();
+            block = block.child(
+                library_row(
+                    format!("project-chat-{id}"),
+                    if resolved {
+                        IconName::Archive
+                    } else {
+                        IconName::MessageSquare
+                    },
+                    title(chat),
+                    reason,
+                    facts.join(" · "),
+                    vec![],
+                    self.chat_thread() == Some(id.as_str()),
+                    None,
+                )
+                .on_click(cx.listener(move |this, _, window, cx| this.open_thread(&id, window, cx)))
+                .context_menu(move |menu, _, _| {
+                    super::tiles::thread_menu(menu, &this, menu_id.clone(), resolved, note.clone())
+                }),
+            );
+        }
+        block.test_support().into_any_element()
     }
     pub(super) fn project_name_dialog(
         &mut self,
@@ -766,6 +1186,8 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
+        // The chat's present place reads "· current" and can't be chosen.
+        let current = project_for_chat(&self.records, chat).map(|r| r.id.clone());
         let choices: Vec<_> = std::iter::once((None, "Standalone chat".to_owned()))
             .chain(
                 self.records
@@ -773,6 +1195,15 @@ impl ThreadsUi {
                     .filter(|r| !r.archived && matches!(r.data, RecordData::Project(_)))
                     .map(|r| (Some(r.id.clone()), title(r))),
             )
+            .map(|(project, label)| {
+                let here = project == current;
+                let label = if here {
+                    format!("{label} · current")
+                } else {
+                    label
+                };
+                (project, label, here)
+            })
             .collect();
         let chat = chat.to_owned();
         let target = cx.entity().downgrade();
@@ -781,10 +1212,10 @@ impl ThreadsUi {
         // press Space. ↵ chooses nothing.
         self.open_dialog(window, cx, move |dialog, window, cx| {
             let mut rows = div().flex().flex_col();
-            for (i, (project, label)) in choices.iter().enumerate() {
+            for (i, (project, label, here)) in choices.iter().enumerate() {
                 let (project, chat, target, error) =
                     (project.clone(), chat.clone(), target.clone(), error.clone());
-                rows = rows.child(pick_row(format!("move-chat-{i}"), label.clone()).on_click(
+                rows = rows.child(pick_row(format!("move-chat-{i}"), label.clone()).disabled(*here).on_click(
                     move |_, window, cx| {
                         let mut result = Err("This window is unavailable.".to_owned());
                         let _ = target.update(cx, |this, cx| {
@@ -947,6 +1378,7 @@ impl ThreadsUi {
             .find(|r| r.id == id)
             .map(title)
             .unwrap_or_else(|| "this project".into());
+        let project_id = id.to_owned();
         let choices = cx.new(|_| BTreeMap::<String, ProjectActionChoice>::new());
         let error = cx.new(|_| String::new());
         let target = cx.entity().downgrade();
@@ -959,7 +1391,10 @@ impl ThreadsUi {
                     .child(text)
                     .test_support()
             };
-            let moved: Vec<String> = preview.removed.iter().filter(|r| listed(r)).map(title).collect();
+            // The project leads; its chats and documents follow.
+            let mut removed: Vec<&Record> = preview.removed.iter().filter(|r| listed(r)).collect();
+            removed.sort_by_key(|r| r.id != project_id);
+            let moved: Vec<String> = removed.into_iter().map(title).collect();
             let kept: Vec<String> = preview.retained.iter().map(title).collect();
             let mut body = div()
                 .flex()

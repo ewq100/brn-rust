@@ -145,47 +145,52 @@ pub fn unlocated_reason(comment: &Comment, version: u64) -> Unlocated {
         }
     }
 }
+/// A located comment the service re-anchored after edits says so, with the
+/// version it was written on, so a moved passage is never shown as if it
+/// were never touched. `None` for a comment still on its own version.
+pub fn moved_anchor(comment: &Comment, version: u64) -> Option<String> {
+    let mapped = comment.mapped_version?;
+    (mapped == version && mapped != comment.base_version).then(|| {
+        format!(
+            "Moved with edits · written on v{}, re-anchored to v{version}",
+            comment.base_version
+        )
+    })
+}
 /// Only an exact supported mapping supplies a current location. Repeated quotes
 /// and changed revisions never trigger a guessed relocation.
 pub fn comment_location(comment: &Comment, version: u64, text: &str) -> Option<Range<usize>> {
     brn_threads_app::exact_writing_range(comment, version, text).map(|(start, end)| start..end)
 }
-/// Navigation only, never a second source-of-truth representation of Markdown.
-pub fn sections(text: &str) -> Vec<(String, Range<usize>)> {
-    let mut offset = 0;
-    let mut fence: Option<(char, usize)> = None;
-    let mut out = Vec::new();
-    for line in text.split_inclusive('\n') {
-        let trimmed = line.trim_start();
-        let marker = trimmed.chars().next().unwrap_or(' ');
-        let run = trimmed.chars().take_while(|c| *c == marker).count();
-        if (marker == '`' || marker == '~') && run >= 3 {
-            if fence.is_some_and(|(c, n)| c == marker && run >= n) {
-                fence = None;
-            } else if fence.is_none() {
-                fence = Some((marker, run));
-            }
-        } else if fence.is_none() {
-            let hashes = line.chars().take_while(|c| *c == '#').count();
-            if (1..=6).contains(&hashes) && line.as_bytes().get(hashes) == Some(&b' ') {
-                let title = line[hashes + 1..]
-                    .trim()
-                    .trim_end_matches('#')
-                    .trim()
-                    .to_owned();
-                if !title.is_empty() {
-                    out.push((title, offset + hashes + 1..offset + line.trim_end().len()));
-                }
-            }
-        }
-        offset += line.len();
-    }
-    out
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn a_re_anchored_comment_says_it_moved_and_an_untouched_one_does_not() {
+        let comment = |mapped: Option<u64>| Comment {
+            note: "note".into(),
+            base_version: 1,
+            quote: "quick".into(),
+            range: Some((4, 9)),
+            mapped_version: mapped,
+            mapped_range: mapped.map(|_| (6, 11)),
+            body: "Sharper".into(),
+            unresolved: false,
+        };
+        assert_eq!(moved_anchor(&comment(None), 1), None);
+        assert_eq!(moved_anchor(&comment(Some(1)), 1), None);
+        assert_eq!(
+            moved_anchor(&comment(Some(3)), 3).as_deref(),
+            Some("Moved with edits · written on v1, re-anchored to v3")
+        );
+        // Mapped to a version that is not shown: not claimed as moved here.
+        assert_eq!(moved_anchor(&comment(Some(2)), 3), None);
+        assert_eq!(comment_location(&comment(Some(3)), 3, "ab  quick"), None);
+        assert_eq!(
+            comment_location(&comment(Some(3)), 3, "abcdefquick"),
+            Some(6..11)
+        );
+    }
     #[test]
     fn note_toolbar_folds_in_order_as_the_note_narrows() {
         for (width, fit) in [

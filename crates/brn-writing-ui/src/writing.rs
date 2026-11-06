@@ -13,6 +13,10 @@ use gpui_kit::component::button::{Button, ButtonVariants};
 use gpui_kit::component::menu::PopupMenu;
 use gpui_kit::{Context, SharedString, TestSupportExt, Window, div, prelude::*, px, rgb};
 use std::collections::BTreeSet;
+
+/// The review counts' suffix when a proposal archives the shown note.
+const ARCHIVES_THIS: &str = " · archives this note";
+
 impl<T: 'static> WritingView<'_, T> {
     /// What each Note toolbar arrangement needs for the open note: each
     /// label's measured text plus its control's fixed chrome, as measured on
@@ -43,10 +47,9 @@ impl<T: 'static> WritingView<'_, T> {
         };
         let format = text("Format", UI_TEXT) + 41.;
         let edit = text("Edit note", UI_TEXT) + 17.;
-        let connections = text("Connections", UI_TEXT) + 17.;
         let format_menu = 50.
             + 8.
-            + text("Write", UI_TEXT)
+            + text("Edit", UI_TEXT)
             + 16.
             + text("Read", UI_TEXT)
             + 17.
@@ -55,12 +58,11 @@ impl<T: 'static> WritingView<'_, T> {
             + 41.
             + chip
             + toggle
-            + edit
-            + connections;
+            + edit;
         layout::NoteNeeds {
             full: format_menu - format + 136.,
             format_menu,
-            compact: format_menu - edit - connections - 8.,
+            compact: format_menu - edit - 8.,
         }
     }
 
@@ -99,6 +101,9 @@ impl<T: 'static> WritingView<'_, T> {
             .into_any_element(),
         );
         controls.extend(self.comments_toggle(cx));
+        // Edit note is an explicit instruction for this saved note
+        // (CHAT-05); it stays in view when the row has room. Connections
+        // and the other document actions live in the document ⋯.
         if !fit.actions_in_menu() {
             let blocked = self.edit_note_blocked();
             controls.push(
@@ -113,12 +118,6 @@ impl<T: 'static> WritingView<'_, T> {
                         None => "Give BRN an instruction for this saved note".into(),
                     })
                     .on_click(self.on(cx, WritingRequest::EditNote))
-                    .into_any_element(),
-            );
-            controls.push(
-                pill("note-connections", "Connections")
-                    .tooltip("Linked notes and sources of this note")
-                    .on_click(self.on(cx, WritingRequest::Connections))
                     .into_any_element(),
             );
         }
@@ -145,7 +144,7 @@ impl<T: 'static> WritingView<'_, T> {
         let busy = self.worker.is_some();
         let imported = note.import.is_some();
         let protected = note.protected;
-        // A narrow Note keeps Edit note and Connections here instead.
+        // A narrow document keeps Edit note here; Connections always is.
         let collapsed = self.note_fit.actions_in_menu();
         let edit_blocked = self.edit_note_blocked();
         Some(Box::new(move |menu: PopupMenu| {
@@ -201,29 +200,28 @@ impl<T: 'static> WritingView<'_, T> {
                     dispatch,
                 ));
             if collapsed {
-                menu = menu
-                    .item(item(
-                        &this,
-                        match edit_blocked {
-                            Some(reason) => format!("Edit note… · {reason}"),
-                            None => "Edit note…".into(),
-                        },
-                        None,
-                        edit_blocked.is_some(),
-                        false,
-                        WritingRequest::EditNote,
-                        dispatch,
-                    ))
-                    .item(item(
-                        &this,
-                        "Connections",
-                        None,
-                        false,
-                        false,
-                        WritingRequest::Connections,
-                        dispatch,
-                    ));
+                menu = menu.item(item(
+                    &this,
+                    match edit_blocked {
+                        Some(reason) => format!("Edit note… · {reason}"),
+                        None => "Edit note…".into(),
+                    },
+                    None,
+                    edit_blocked.is_some(),
+                    false,
+                    WritingRequest::EditNote,
+                    dispatch,
+                ));
             }
+            menu = menu.item(item(
+                &this,
+                "Connections",
+                None,
+                false,
+                false,
+                WritingRequest::Connections,
+                dispatch,
+            ));
             let mut menu = menu
                 .separator()
                 .item(item(
@@ -246,6 +244,15 @@ impl<T: 'static> WritingView<'_, T> {
                     dirty,
                     false,
                     WritingRequest::ToggleProtection,
+                    dispatch,
+                ))
+                .item(item(
+                    &this,
+                    "Document history",
+                    None,
+                    false,
+                    false,
+                    WritingRequest::History,
                     dispatch,
                 ))
                 .item(item(
@@ -351,7 +358,7 @@ impl<T: 'static> WritingView<'_, T> {
                 ))
                 .item(item(
                     &this,
-                    "Dismiss",
+                    "Discard",
                     None,
                     false,
                     false,
@@ -521,12 +528,25 @@ impl<T: 'static> WritingView<'_, T> {
             }
             content = content.child(strip.test_support());
         }
+        // The reading view registers its parser options when it is laid
+        // out. A document opened in Edit lays it out once, hidden, so the
+        // outline is built from that same parse of the buffer.
+        let prime = !self.note.is_reading() && !self.read_primed.replace(true);
+        if self.note.is_reading() {
+            self.read_primed.set(true);
+        }
         let editor = if self.note.is_reading() {
-            crate::document::readable_document(&self.note_read_view, self.note_assets())
-                .into_any_element()
+            crate::document::readable_document(
+                &self.note_read_view,
+                self.note_assets(),
+                Some(&self.read_outline),
+            )
+            .into_any_element()
         } else {
+            // A calm writing canvas: the editor draws no box of its own.
             prose_editor(&self.note_editor)
                 .h_full()
+                .appearance(false)
                 .readonly(blocked)
                 .aria_label("Note text")
                 .context_menu(move |menu, _, _| {
@@ -549,7 +569,9 @@ impl<T: 'static> WritingView<'_, T> {
                 })
                 .into_any_element()
         };
-        let centered = self.centered;
+        let _ = self.centered;
+        let outline = self.outline_showing();
+        let outline_docked = outline && self.outline_docks();
         // The text keeps a few lines however many banners a short Note shows,
         // and 120 px beside an open comments section. The section asks for
         // its floor after the reply below gives way, and gives way first,
@@ -574,27 +596,63 @@ impl<T: 'static> WritingView<'_, T> {
             .flex_basis(if stacked { text_prefer } else { px(0.) })
             .flex_shrink(1.)
             .min_h(text_floor)
+            .when(outline_docked, |body| body.child(self.outline_region(cx)));
+        // The temporary contents view takes the document's place; the
+        // document (and its scroll position) stays mounted underneath it.
+        let text = div()
+            .id("note-body")
+            .flex()
+            .flex_1()
+            .min_w_0()
+            .min_h_0()
+            .justify_center()
             .child(
+                reading_column()
+                    .id("note-column")
+                    .child(editor)
+                    .test_support(),
+            )
+            .on_mouse_up(
+                gpui_kit::MouseButton::Left,
+                self.on(cx, WritingRequest::TrackSelection),
+            )
+            .on_key_up(self.on(cx, WritingRequest::TrackSelection))
+            .when(prime, |text| {
+                text.child(
+                    div()
+                        .absolute()
+                        .w(px(crate::theme::metrics::DOCUMENT_WIDTH))
+                        .h(px(0.))
+                        .overflow_hidden()
+                        .invisible()
+                        .child(crate::document::readable_document(
+                            &self.note_read_view,
+                            self.note_assets(),
+                            Some(&self.read_outline),
+                        )),
+                )
+            })
+            .test_support();
+        body = if outline && !outline_docked {
+            body.child(
                 div()
-                    .id("note-body")
+                    .relative()
                     .flex()
                     .flex_1()
                     .min_w_0()
                     .min_h_0()
-                    .when(centered, |body| body.justify_center())
+                    .child(text)
                     .child(
-                        reading_column()
-                            .id("note-column")
-                            .child(editor)
-                            .test_support(),
-                    )
-                    .on_mouse_up(
-                        gpui_kit::MouseButton::Left,
-                        self.on(cx, WritingRequest::TrackSelection),
-                    )
-                    .on_key_up(self.on(cx, WritingRequest::TrackSelection))
-                    .test_support(),
-            );
+                        div()
+                            .absolute()
+                            .inset_0()
+                            .flex()
+                            .child(self.outline_region(cx)),
+                    ),
+            )
+        } else {
+            body.child(text)
+        };
         if self.comments_beside() {
             body = body.child(self.margin_column(cx));
         }
@@ -821,18 +879,9 @@ impl<T: 'static> WritingView<'_, T> {
             if let Some(record) = self.records.iter().find(|r| r.id == coverage.source)
                 && let RecordData::Source(source) = &record.data
             {
-                let locator = source.locator.clone();
                 actions.push(
                     banner_button("open-import-original", "Open original")
-                        .on_click(move |_, _, cx| {
-                            if std::path::Path::new(&locator).is_absolute() {
-                                cx.open_with_system(std::path::Path::new(&locator));
-                            } else if locator.starts_with("https://")
-                                || locator.starts_with("http://")
-                            {
-                                cx.open_url(&locator);
-                            }
-                        })
+                        .on_click(self.on(cx, WritingRequest::OpenOriginal(source.locator.clone())))
                         .into_any_element(),
                 );
             }
@@ -1355,10 +1404,14 @@ impl<T: 'static> WritingView<'_, T> {
                 "Addressed · history kept".to_owned()
             } else if location.is_none() {
                 unlocated.status.clone()
-            } else if !checked {
-                "Excluded from rewrite".into()
             } else {
-                String::new()
+                let moved = layout::moved_anchor(comment, open.record().version);
+                let excluded = (!checked).then(|| "Excluded from rewrite".to_owned());
+                moved
+                    .into_iter()
+                    .chain(excluded)
+                    .collect::<Vec<_>>()
+                    .join(" · ")
             };
             let quote_label = format!(
                 "“{}{}”",
@@ -1635,7 +1688,13 @@ impl<T: 'static> WritingView<'_, T> {
             }
             saved_inputs = Some(disclosure.test_support());
         }
-        bar = bar.child(self.overall_feedback());
+        // Overall feedback is for Rewrite only: it shows on demand, and
+        // stays while it holds text so nothing typed is hidden.
+        let feedback_held = !self.general_feedback.read(cx).value().trim().is_empty();
+        let feedback_shown = self.feedback_open || feedback_held;
+        if feedback_shown {
+            bar = bar.child(self.overall_feedback());
+        }
         // The first matching row picks the one filled primary; controls of
         // lower matching rows still render once, outline or ghost.
         let busy = self.worker.is_some();
@@ -1701,6 +1760,21 @@ impl<T: 'static> WritingView<'_, T> {
                 })
                 .map(|record| record.id.clone())
                 .collect();
+            // The version this rewrite committed, not the note's current one.
+            let committed = self
+                .workspace
+                .store
+                .operation(operation)
+                .ok()
+                .and_then(|id| self.workspace.store.receipt(&id).ok().flatten())
+                .and_then(|receipt| {
+                    receipt
+                        .writes
+                        .into_iter()
+                        .find(|write| write.after.id == note_id)
+                        .map(|write| write.after.version)
+                })
+                .unwrap_or(open.record().version);
             let (request, operation_mark, undo) =
                 (request.clone(), operation.clone(), operation.clone());
             let clear = note_id.clone();
@@ -1711,7 +1785,7 @@ impl<T: 'static> WritingView<'_, T> {
                     Some(IconName::CircleCheck),
                     format!(
                         "Applied · v{}{}",
-                        open.record().version,
+                        committed,
                         if open_ids.is_empty() && !snapshot.comments.is_empty() {
                             format!(
                                 " · {} addressed",
@@ -1805,11 +1879,7 @@ impl<T: 'static> WritingView<'_, T> {
                         .count()
                 })
                 .unwrap_or_default();
-            let scope = format!(
-                "Whole note · {} · {}",
-                plural(included, "comment"),
-                plural(messages, "saved context message")
-            );
+            let (shown, scope) = rewrite_scope(included, messages);
             info.push(
                 // The scope shares the actions' row and truncates (its full
                 // text is in the tooltip) instead of taking a row of its own
@@ -1829,7 +1899,7 @@ impl<T: 'static> WritingView<'_, T> {
                                 .build(window, cx)
                         }
                     })
-                    .child(scope)
+                    .child(shown)
                     .test_support()
                     .into_any_element(),
             );
@@ -1849,6 +1919,31 @@ impl<T: 'static> WritingView<'_, T> {
             } else {
                 None
             };
+            secondary.push(
+                pill(
+                    "toggle-feedback",
+                    if feedback_held {
+                        "Feedback added"
+                    } else {
+                        "Feedback"
+                    },
+                )
+                .icon(IconName::MessageSquare)
+                .selected(feedback_shown)
+                .disabled(feedback_held && feedback_shown)
+                .accessibility_label(if feedback_shown {
+                    "Overall feedback for Rewrite, shown"
+                } else {
+                    "Overall feedback for Rewrite"
+                })
+                .tooltip(if feedback_held {
+                    "Feedback for the whole note is included in the next Rewrite"
+                } else {
+                    "Add feedback for the whole note to the next Rewrite"
+                })
+                .on_click(self.on(cx, WritingRequest::ToggleFeedback))
+                .into_any_element(),
+            );
             if let Some(record) = latest_request {
                 let toggle = record.id.clone();
                 let retry = record.id.clone();
@@ -2012,8 +2107,25 @@ impl<T: 'static> WritingView<'_, T> {
                 })
                 .unwrap_or_default();
             let tracked = diff::tracked(&current, &review.original);
-            format!("+{} −{}", tracked.added, tracked.removed)
+            // Words, not only signs or color: "3 added · 1 removed".
+            let mut counts = format!("{} added · {} removed", tracked.added, tracked.removed);
+            let archives_this = writes.iter().any(|write| {
+                write.id == *id
+                    && write.archived
+                    && self
+                        .records
+                        .iter()
+                        .any(|record| record.id == *id && !record.archived)
+            });
+            if archives_this {
+                counts.push_str(ARCHIVES_THIS);
+            }
+            (counts, archives_this)
         });
+        let (counts, archives_this) = match counts {
+            Some((counts, archives_this)) => (Some(counts), archives_this),
+            None => (None, false),
+        };
         let editing = self.review.is_editing();
         let edited = editing || self.review.is_edited();
         let grouped = review.groups.groups.len() > 1;
@@ -2051,6 +2163,10 @@ impl<T: 'static> WritingView<'_, T> {
                 plural(selected_comments, "captured comment")
             );
         }
+        let archiving = archive_disclosure(writes, self.records);
+        if let Some(archiving) = &archiving {
+            footer = format!("{footer} {archiving}");
+        }
 
         // The Proposal label plus the Protected chip states the review. A
         // narrower bar keeps the counts, then the shape, in the label's
@@ -2059,8 +2175,13 @@ impl<T: 'static> WritingView<'_, T> {
             Some(counts) => format!("Proposal · {} · {counts}", shape.label()),
             None => format!("Proposal · {}", shape.label()),
         };
-        let shown_counts = counts.clone().filter(|_| !fit.actions_in_menu());
+        let shown_counts = counts
+            .as_deref()
+            .filter(|_| !fit.actions_in_menu())
+            .map(|counts| counts.trim_end_matches(ARCHIVES_THIS).to_owned());
         let folded = fit.icons() || (counts.is_some() && shown_counts.is_none());
+        // Archiving changes more than the text, so every width says so, in
+        // its own announced label.
         let label = div()
             .id("review-proposal")
             .flex()
@@ -2088,6 +2209,21 @@ impl<T: 'static> WritingView<'_, T> {
             })
             .when_some(shown_counts, |label, counts| {
                 label.child(div().text_color(rgb(p.muted)).child(counts))
+            })
+            .when(archives_this, |label| {
+                label.child(
+                    div()
+                        .id("review-archives")
+                        .text_color(rgb(p.warning))
+                        .role(gpui_kit::Role::Label)
+                        .aria_label("Archives this note")
+                        .child(if fit.icons() {
+                            "· archives"
+                        } else {
+                            "· archives this note"
+                        })
+                        .test_support(),
+                )
             })
             .test_support();
         let protected_chip = protected.then(|| {
@@ -2173,8 +2309,8 @@ impl<T: 'static> WritingView<'_, T> {
                     .into_any_element(),
             );
             secondary.push(
-                pill("dismiss-proposal", "Dismiss")
-                    .tooltip("Dismiss this proposal; the note stays unchanged")
+                pill("dismiss-proposal", "Discard")
+                    .tooltip("Discard this proposal; the saved note stays unchanged")
                     .on_click(self.on(cx, WritingRequest::DismissReview))
                     .into_any_element(),
             );
@@ -2368,9 +2504,14 @@ impl<T: 'static> WritingView<'_, T> {
                 }
                 details = details.child(metadata(match &write.data {
                     RecordData::Note(n) => format!(
-                        "Note: {}{}",
+                        "Note: {}{}{}",
                         n.title,
-                        if n.protected { " · protected" } else { "" }
+                        if n.protected { " · protected" } else { "" },
+                        if write.archived {
+                            " · archived on Apply"
+                        } else {
+                            ""
+                        }
                     ),
                     RecordData::Action(a) => brn_threads_app::action_review_text(a),
                     RecordData::Thread(t) => format!("Chat: {}", t.title),
@@ -2523,16 +2664,16 @@ impl<T: 'static> WritingView<'_, T> {
                 .aria_label("Final proposed note text")
                 .into_any_element()
         } else if self.review.is_reading() {
-            crate::document::readable_document(&self.candidate_view, self.note_assets())
+            crate::document::readable_document(&self.candidate_view, self.note_assets(), None)
                 .into_any_element()
         } else {
             prose_editor(&self.diff_editor)
                 .h_full()
+                .appearance(false)
                 .readonly(true)
                 .aria_label("Proposed changes")
                 .into_any_element()
         };
-        let centered = self.centered;
         // The review text, then comments when they're stacked, then the
         // footer that names exactly what Apply saves; it never folds and
         // never moves. The text asks for 120 px (plus the open section's
@@ -2560,7 +2701,7 @@ impl<T: 'static> WritingView<'_, T> {
                     .flex_1()
                     .min_w_0()
                     .h_full()
-                    .when(centered, |text| text.justify_center())
+                    .justify_center()
                     .child(reading_column().child(body)),
             );
         if self.comments_beside() {
@@ -2573,6 +2714,7 @@ impl<T: 'static> WritingView<'_, T> {
             .flex_col()
             .min_h_0()
             .child(bar.test_support())
+            .child(self.review_summary(review, writing_evidence.map(|e| e.sources.len()), cx))
             .child(details.test_support())
             .child(self.text_and_comments(document.test_support(), prefer, min, stacked, cx))
             .child(self.writing_activity(cx))
@@ -2592,6 +2734,111 @@ impl<T: 'static> WritingView<'_, T> {
                     .child(footer)
                     .test_support(),
             )
+            .test_support()
+            .into_any_element()
+    }
+
+    /// One quiet line under the review bar: which document, what the
+    /// proposal changes, the sources it records, and whether the saved
+    /// version is still the one it was prepared from. Changes mode adds
+    /// what the marks mean, in words (spec §6.7).
+    fn review_summary(
+        &self,
+        review: &Review,
+        sources: Option<usize>,
+        cx: &mut Context<T>,
+    ) -> gpui_kit::AnyElement {
+        let _ = cx;
+        let p = pal();
+        let mut parts: Vec<String> = vec![];
+        let note = review
+            .note
+            .as_ref()
+            .and_then(|id| self.workspace.store.note(id).ok().flatten());
+        let notes = review
+            .candidate
+            .request
+            .writes
+            .iter()
+            .filter(|write| matches!(write.data, RecordData::Note(_)))
+            .count();
+        match &note {
+            Some(record) if notes <= 1 => parts.push(format!("“{}”", short(&title(record)))),
+            _ => parts.push(format!(
+                "{} changes as one group",
+                review.candidate.request.writes.len()
+            )),
+        }
+        if let Some(record) = &note {
+            let base = review
+                .candidate
+                .request
+                .writes
+                .iter()
+                .find(|write| write.id == record.id)
+                .and_then(|write| write.expected_version);
+            parts.push(match base {
+                Some(base) if base == record.version => {
+                    format!("saved v{base} unchanged until you apply")
+                }
+                Some(base) => format!(
+                    "prepared from v{base}; the saved note is now v{}",
+                    record.version
+                ),
+                None => format!("saved v{} unchanged until you apply", record.version),
+            });
+        }
+        if let Some(count) = sources {
+            parts.push(plural(count, "recorded source"));
+        }
+        let summary = parts.join(" · ");
+        let legend =
+            (review.note.is_some() && !self.review.is_reading() && !self.review.is_editing())
+                .then_some("Added text is underlined · removed text is struck through");
+        div()
+            .id("review-summary")
+            .flex()
+            .flex_wrap()
+            .flex_shrink_0()
+            .gap_x_3()
+            .px_3()
+            .py_1()
+            .font_family(UI_FONT)
+            .text_size(SMALL_TEXT)
+            .text_color(rgb(p.muted))
+            .border_b_1()
+            .border_color(rgb(p.hairline))
+            .aria_label(match legend {
+                Some(legend) => format!("{summary}. {legend}"),
+                None => summary.clone(),
+            })
+            .child(summary)
+            .children(legend.map(|legend| {
+                div()
+                    .id("review-legend")
+                    .flex()
+                    .gap_2()
+                    .child(
+                        div()
+                            .px_1()
+                            .rounded(px(3.))
+                            .bg(rgb(p.add))
+                            .text_color(rgb(p.ink))
+                            .underline()
+                            .child("Added"),
+                    )
+                    .child(
+                        div()
+                            .px_1()
+                            .rounded(px(3.))
+                            .bg(rgb(p.delete))
+                            .text_color(rgb(p.ink))
+                            .line_through()
+                            .child("Removed"),
+                    )
+                    .aria_label(legend)
+                    .test_support()
+            }))
             .test_support()
             .into_any_element()
     }
@@ -2683,20 +2930,24 @@ fn text_width(window: &Window, text: &str, size: gpui_kit::Pixels) -> f32 {
     )
 }
 
-/// The widest line of note or review text; wider panels keep 24 px gutters
-/// and leave the rest as margin.
-pub const READING_MEASURE: f32 = 680.;
+/// The widest line of document or review text (spec §8: 680–760); wider
+/// regions keep the page inset and centre the column.
+pub const READING_MEASURE: f32 =
+    crate::theme::metrics::DOCUMENT_WIDTH - 2. * crate::theme::metrics::PAGE_INSET;
 
-/// The note and review text column: at most 680 px of text with 24 px
-/// gutters, filling a narrower panel. Long words and URLs wrap.
+/// The document and review text column: centred, at most
+/// `DOCUMENT_WIDTH` including its page inset, filling a narrower region.
+/// Long words and URLs wrap.
 fn reading_column() -> gpui_kit::Div {
+    use crate::theme::metrics;
     div()
         .flex_1()
         .min_w_0()
         .h_full()
-        .max_w(px(READING_MEASURE) + components::tokens::SPACE_6 * 2.)
-        .px(components::tokens::SPACE_6)
-        .py_2()
+        .max_w(px(metrics::DOCUMENT_WIDTH))
+        .px(px(metrics::PAGE_INSET))
+        .pt_4()
+        .pb_2()
 }
 
 /// A banner's secondary action: a 28 px outline button.
@@ -2708,6 +2959,23 @@ fn banner_button(id: impl Into<gpui_kit::ElementId>, label: &'static str) -> But
         .h(components::tokens::COMPACT_CONTROL)
 }
 
+/// The Rewrite scope as shown (only what it includes, so it fits a compact
+/// footer) and in full for the tooltip and accessible name.
+pub fn rewrite_scope(comments: usize, messages: usize) -> (String, String) {
+    let full = format!(
+        "Whole note · {} · {}",
+        plural(comments, "comment"),
+        plural(messages, "saved context message")
+    );
+    let mut shown = String::from("Whole note");
+    for (count, noun) in [(comments, "comment"), (messages, "message")] {
+        if count > 0 {
+            shown.push_str(" · ");
+            shown.push_str(&plural(count, noun));
+        }
+    }
+    (shown, full)
+}
 /// "1 comment", "3 comments".
 fn plural(count: usize, noun: &str) -> String {
     format!("{count} {noun}{}", if count == 1 { "" } else { "s" })
@@ -2808,6 +3076,37 @@ impl ProposalShape {
             ),
         }
     }
+}
+
+/// The sentence that discloses archive changes a proposal makes, which its
+/// text counts never show: "Applying also archives “Beta”."
+pub fn archive_disclosure(writes: &[Put], records: &[Record]) -> Option<String> {
+    let title = |write: &Put| match &write.data {
+        RecordData::Note(note) => format!("“{}”", note.title),
+        _ => "a record".to_owned(),
+    };
+    let (mut archives, mut restores) = (vec![], vec![]);
+    for write in writes {
+        let Some(saved) = records.iter().find(|record| record.id == write.id) else {
+            continue;
+        };
+        match (saved.archived, write.archived) {
+            (false, true) => archives.push(title(write)),
+            (true, false) => restores.push(title(write)),
+            _ => {}
+        }
+    }
+    let mut parts = vec![];
+    if !archives.is_empty() {
+        parts.push(format!("archives {}", archives.join(" and ")));
+    }
+    if !restores.is_empty() {
+        parts.push(format!(
+            "restores {} from the archive",
+            restores.join(" and ")
+        ));
+    }
+    (!parts.is_empty()).then(|| format!("Applying also {}.", parts.join(" and ")))
 }
 
 /// The review footer: the binding sentence first, then the comments that

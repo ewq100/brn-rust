@@ -229,63 +229,52 @@ fn a_needs_you_title_stays_beside_a_long_reason_one_line_each(cx: &mut TestAppCo
     });
     let row = format!("attention-{thread}");
     on_window(cx, &f, |window, _| {
-        // The full text is the row's accessible label (and its tooltip).
+        // The sidebar row is one line; its full text (title and reason) is
+        // its accessible name and tooltip.
         assert_eq!(label(window, &row), format!("Delivery update · {FAILURE}"));
         let frame = window.find(row.clone()).bounds();
         let title = window.find(format!("{row}-title")).bounds();
-        let reason = window.find(format!("{row}-reason")).bounds();
-        assert!(
-            frame.size.width <= px(200.),
-            "the 170 pt Chats list: {frame:?}"
-        );
+        assert!(frame.size.width <= px(224.), "the sidebar row: {frame:?}");
         assert!(
             title.size.width > px(60.),
             "the title keeps its room: {title:?}"
         );
-        // One line each: two lines would be at least twice as tall.
+        assert!(title.size.height < px(28.), "one title line: {title:?}");
+        assert!(frame.size.height <= px(36.5), "a 36 pt row: {frame:?}");
+        // A long chat title stays on one line too.
+        let chat = format!("thread-{long}");
+        assert!(window.find(format!("{chat}-title")).bounds().size.height < px(28.));
+        assert!(label(window, &chat).starts_with("A very long chat title"));
+        assert_eq!(label(window, "nav-inbox"), "Inbox, 1 needs you");
+    });
+    // For you names the chat above its reason, one line each, under Failed.
+    click(cx, &f, "nav-inbox");
+    let inbox = format!("for-you-chat-{thread}-0");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, &inbox),
+            format!("Delivery update · {FAILURE} · Failed")
+        );
+        assert!(
+            window
+                .within("for-you-failed")
+                .find(inbox.clone())
+                .visible()
+        );
+        let frame = window.find(inbox.clone()).bounds();
+        let title = window.find(format!("{inbox}-title")).bounds();
+        let reason = window.find(format!("{inbox}-context")).bounds();
         assert!(title.size.height < px(28.), "one title line: {title:?}");
         assert!(reason.size.height < px(24.), "one reason line: {reason:?}");
         assert!(reason.origin.y >= title.origin.y + title.size.height - px(1.));
         for line in [title, reason] {
             assert!(line.origin.x + line.size.width <= frame.origin.x + frame.size.width + px(1.));
         }
-        assert!(frame.size.height <= px(45.), "two lines high: {frame:?}");
-        // A long chat title stays on one line too.
-        let chat = format!("thread-{long}");
-        assert!(window.find(format!("{chat}-title")).bounds().size.height < px(28.));
-        assert!(label(window, &chat).starts_with("A very long chat title"));
+        assert!(frame.size.height <= px(57.), "two lines high: {frame:?}");
     });
-    // The needs-you menu names the chat and its reason on one line.
-    click(cx, &f, "needs-badge");
-    on_window(cx, &f, |window, _| {
-        let item = window
-            .within("popup-menu")
-            .find(format!("needs-item-{thread}"));
-        assert_eq!(
-            item.label(),
-            Some(format!("Delivery update · {FAILURE}").as_str())
-        );
-        assert_eq!(item.role(), Some(gpui_kit::Role::Label));
-        assert_eq!(
-            item.value(),
-            Some(format!("Delivery update · {FAILURE}").as_str())
-        );
-        assert!(
-            item.bounds().size.height < px(28.),
-            "one line: {:?}",
-            item.bounds()
-        );
-        // The line truncates inside the menu instead of widening it.
-        let menu = window.within("popup-menu").find(1usize).bounds();
-        let line = item.bounds();
-        assert!(
-            line.origin.x + line.size.width <= menu.origin.x + menu.size.width,
-            "{line:?} in {menu:?}"
-        );
-    });
-    choose_needs(cx, &f, &thread);
+    click(cx, &f, inbox.clone());
     cx.read(|cx| assert_eq!(f.view.read(cx).chat_thread(), Some(thread.as_str())));
-    // The open chat's row reports its selection.
+    // The open chat's sidebar row reports its selection.
     on_window(cx, &f, |window, _| {
         assert_eq!(window.find(row.clone()).selected(), Some(true));
         assert_ne!(window.find(format!("thread-{long}")).selected(), Some(true));
@@ -296,7 +285,7 @@ fn a_needs_you_title_stays_beside_a_long_reason_one_line_each(cx: &mut TestAppCo
 #[gpui_kit::test]
 fn delegation_and_maintenance_notices_never_show_a_receipt_reason(cx: &mut TestAppContext) {
     let f = fixture(cx, 1250., 860., |_| {});
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     click(cx, &f, "delegation-review-first");
     let receipts = |cx: &mut TestAppContext| {
         cx.read(|cx| {
@@ -330,10 +319,62 @@ fn delegation_and_maintenance_notices_never_show_a_receipt_reason(cx: &mut TestA
     );
 }
 
+/// The Library row's lock says Protected once on screen: the facts line
+/// doesn't repeat it, while the row's accessible name still includes it.
+#[gpui_kit::test]
+fn a_protected_library_row_says_protected_once(cx: &mut TestAppContext) {
+    let mut note = String::new();
+    let f = fixture(cx, 1280., 900., |workspace| {
+        let record = workspace.new_note("Decision", "Decided.").unwrap();
+        let RecordData::Note(mut data) = record.data.clone() else {
+            unreachable!()
+        };
+        data.protected = true;
+        workspace
+            .owner_change(
+                "protect-once",
+                &ChangeRequest {
+                    reason: "Synthetic protection".into(),
+                    inputs: vec![],
+                    writes: vec![Put {
+                        id: record.id.clone(),
+                        expected_version: Some(record.version),
+                        archived: false,
+                        data: RecordData::Note(data),
+                    }],
+                },
+            )
+            .unwrap();
+        note = record.id;
+    });
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Notes, window, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        let row = format!("note-{note}");
+        assert_eq!(label(window, format!("{row}-protected")), "Protected");
+        let id = gpui_kit::ElementId::Name(row.clone().into());
+        let painted: Vec<String> = gpui_kit::base::test_support::texts(window)
+            .into_iter()
+            .filter(|text| text.path().contains(&id))
+            .map(|text| text.text().to_owned())
+            .collect();
+        assert!(
+            painted.iter().any(|text| text.starts_with("Saved")),
+            "{painted:?}"
+        );
+        assert!(
+            !painted.iter().any(|text| text.contains("Protected")),
+            "{painted:?}"
+        );
+        assert!(label(window, &row).contains("Protected"));
+    });
+}
+
 /// A protected note's row in the 170 pt Notes list shows the Lock whole
 /// rather than "Protect…"; it is announced as Protected.
 #[gpui_kit::test]
-fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppContext) {
+fn the_library_list_marks_protected_notes_with_the_lock(cx: &mut TestAppContext) {
     let mut note = String::new();
     let f = fixture(cx, 900., 600., |workspace| {
         let record = workspace
@@ -361,7 +402,7 @@ fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppConte
         note = record.id;
     });
     update(cx, &f, |view, window, cx| {
-        view.apply_layout(Preset::Write, window, cx);
+        view.relayout(window, cx, Layout::document_with_assistant);
         view.show_tile(TileKind::Notes, window, cx);
         view.search.clone().update(cx, |input, cx| {
             input.set_value("A protected decision with a long title", window, cx);
@@ -373,7 +414,6 @@ fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppConte
         let row = format!("note-{note}");
         let frame = window.find(row.clone()).bounds();
         let lock = window.find(format!("{row}-protected")).bounds();
-        assert!(frame.size.width < px(200.), "the narrow list: {frame:?}");
         assert!(lock.size.width > px(8.) && lock.right() <= frame.right() + px(0.5));
         assert!(label(window, &row).starts_with("A protected decision with a long title"));
         assert!(
@@ -394,9 +434,9 @@ fn a_narrow_notes_list_marks_protected_notes_with_the_lock(cx: &mut TestAppConte
     cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), Some(note.as_str())));
 }
 
-/// U7: a chat that needs you leaves Recent chats, and in each Needs-you
-/// list (the Chats panel and Home) its row keeps the chat title on its first
-/// line with the reason under it; the title-bar menu leads with the title.
+/// U7: a chat that needs you is listed once in Recent chats, marked, with
+/// the title first; the Inbox row keeps the chat title on its first line
+/// with the reason under it.
 /// The reason is seeded here, not the service's wording.
 #[gpui_kit::test]
 fn needs_you_rows_keep_the_chat_title_above_the_reason_in_every_list(cx: &mut TestAppContext) {
@@ -409,11 +449,11 @@ fn needs_you_rows_keep_the_chat_title_above_the_reason_in_every_list(cx: &mut Te
     let two_lines = |window: &mut Window, row: &str| {
         assert_eq!(
             label(window, row),
-            format!("Venue booking · {reason}"),
+            format!("Venue booking · {reason} · Failed"),
             "{row}"
         );
         let title = window.find(format!("{row}-title")).bounds();
-        let second = window.find(format!("{row}-reason")).bounds();
+        let second = window.find(format!("{row}-context")).bounds();
         assert!(title.size.width > px(60.), "{row} title: {title:?}");
         assert!(
             second.top() >= title.bottom() - px(1.),
@@ -423,30 +463,17 @@ fn needs_you_rows_keep_the_chat_title_above_the_reason_in_every_list(cx: &mut Te
     on_window(cx, &f, |window, _| {
         assert!(
             window.try_find(format!("thread-{thread}")).is_none(),
-            "it left Recent chats"
+            "it is listed once, as needing you"
         );
-        two_lines(window, &format!("attention-{thread}"));
+        // The sidebar row is one line that leads with the title; its
+        // accessible name carries the reason.
+        let row = format!("attention-{thread}");
+        assert_eq!(label(window, &row), format!("Venue booking · {reason}"));
+        assert!(window.find(format!("{row}-title")).bounds().size.width > px(60.));
     });
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
-        two_lines(window, &format!("home-attention-{thread}"))
-    });
-    click(cx, &f, "needs-badge");
-    on_window(cx, &f, |window, _| {
-        let item = window
-            .within("popup-menu")
-            .find(format!("needs-item-{thread}"));
-        assert!(
-            item.label().unwrap().starts_with("Venue booking · "),
-            "{:?}",
-            item.label()
-        );
-    });
-}
-fn choose_needs(cx: &mut TestAppContext, f: &Fixture, thread: &str) {
-    let id = format!("needs-item-{thread}");
-    on_window(cx, f, |window, cx| {
-        window.within("popup-menu").click(id, cx)
+        two_lines(window, &format!("for-you-chat-{thread}-0"))
     });
 }
 
@@ -523,42 +550,32 @@ fn review_rows_name_their_target_notes_and_mark_a_protected_one(cx: &mut TestApp
     });
     let expected = "Review changes to Delivery decision: 22 November and Survey";
     on_window(cx, &f, |window, _| {
-        for row in [
-            format!("candidate-{operation}"),
-            format!("attention-{thread}"),
-        ] {
-            let text = label(window, &row);
-            assert!(text.contains(expected), "{row}: {text}");
-            assert!(text.ends_with("· Protected"), "{row}: {text}");
-            assert!(!text.contains("Review · Review prepared changes"), "{text}");
-            assert_eq!(label(window, format!("{row}-protected")), "Protected");
-        }
+        // The sidebar's one-line row names the target notes and Protected.
+        let row = format!("attention-{thread}");
+        let text = label(window, &row);
+        assert!(text.contains(expected), "{row}: {text}");
+        assert!(text.ends_with("· Protected"), "{row}: {text}");
+        assert!(!text.contains("Review · Review prepared changes"), "{text}");
     });
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
-        for row in [
-            format!("home-candidate-{operation}"),
-            format!("home-attention-{thread}"),
-        ] {
-            let text = label(window, &row);
-            assert!(
-                text.contains(expected) && text.ends_with("· Protected"),
-                "{text}"
-            );
-            assert!(window.find(format!("{row}-protected")).visible());
-        }
-    });
-    click(cx, &f, "needs-badge");
-    on_window(cx, &f, |window, _| {
-        assert_eq!(
+        // The chat's review is one For you item: the review, then its chat.
+        let row = format!("for-you-review-{operation}");
+        let text = label(window, &row);
+        assert!(
+            text.contains(expected) && text.ends_with("· Protected"),
+            "{text}"
+        );
+        assert!(text.contains("Proposed in chat · Delivery chat"), "{text}");
+        assert!(window.within("for-you-review").find(row.clone()).visible());
+        assert_eq!(label(window, format!("{row}-state")), "Review · Protected");
+        assert!(window.find(format!("{row}-chat")).visible());
+        assert!(
             window
-                .within("popup-menu")
-                .find(format!("needs-item-{thread}"))
-                .label(),
-            Some(format!("Delivery chat · {expected} · Protected").as_str())
+                .try_find(format!("for-you-chat-{thread}-0"))
+                .is_none()
         );
     });
-    close_menu(cx, &f);
     cx.read(|cx| {
         let view = f.view.read(cx);
         let RecordData::Thread(data) = &view.workspace.store.record(&thread).unwrap().unwrap().data
@@ -584,25 +601,28 @@ fn kept_edits_read_recover_edit_with_an_unsaved_chip(cx: &mut TestAppContext) {
             .unwrap();
         note = saved.id;
     });
+    // Kept edits are recovered from the Inbox.
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
         // R4: the note's title leads, "Recover edit" is the reason line, and
-        // the narrow list shows the Unsaved marker as its icon, announced
-        // and in the tooltip.
-        assert_eq!(
-            label(window, "recover-0"),
-            "Pilot proposal · Recover edit · Unsaved"
-        );
-        assert_eq!(label(window, "recover-0-unsaved"), "Unsaved");
-        let title = window.find("recover-0-title").bounds();
-        let chip = window.find("recover-0-unsaved").bounds();
-        assert!(chip.size.width <= px(36.), "icon form, no text: {chip:?}");
-        // The title keeps most of the 170 pt row (94 px in the test text
-        // system); the marker beside it is the icon alone.
+        // the Unsaved marker follows, announced and in the tooltip.
+        let text = label(window, "for-you-recover-0");
+        assert!(text.starts_with("Pilot proposal · Recover edit"), "{text}");
+        assert!(text.ends_with(" · Unsaved"), "{text}");
+        assert_eq!(label(window, "for-you-recover-0-state"), "Unsaved");
+        let title = window.find("for-you-recover-0-title").bounds();
+        let chip = window.find("for-you-recover-0-state").bounds();
         assert!(title.size.width >= px(90.), "{title:?} {chip:?}");
         assert!(title.right() <= chip.left(), "{title:?} {chip:?}");
-        assert!(window.find("recover-0-reason").visible());
+        assert!(window.find("for-you-recover-0-context").visible());
+        assert!(
+            window
+                .within("for-you-decision")
+                .find("for-you-recover-0")
+                .visible()
+        );
     });
-    click(cx, &f, "recover-0");
+    click(cx, &f, "for-you-recover-0");
     cx.read(|cx| assert_eq!(f.view.read(cx).open_note_id(), Some(note.as_str())));
 }
 
@@ -975,48 +995,17 @@ fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &m
         );
         assert!(!view.queue_state().quiet);
     });
-    // Home leaves bookkeeping out and marks the change that needs refresh.
-    click(cx, &f, "home");
+    // Inbox leaves routine changes and their refresh follow-ups to Recent
+    // changes, and links there; nothing here asks for approval.
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
-        assert!(window.try_find(format!("home-change-{quiet}")).is_none());
-        assert_eq!(
-            label(window, format!("home-change-{op}-refresh")),
-            "Needs refresh"
-        );
-        assert!(window.find("home-open-history").visible());
+        assert!(window.try_find(format!("for-you-review-{quiet}")).is_none());
+        assert!(window.try_find(format!("for-you-review-{op}")).is_none());
+        assert!(window.find("for-you-empty").visible());
+        assert!(window.find("inbox-open-history").visible());
     });
-}
-
-#[gpui_kit::test]
-fn home_shows_the_intro_only_on_first_run(cx: &mut TestAppContext) {
-    let first = fixture(cx, 1250., 860., |_| {});
-    click(cx, &first, "home");
-    on_window(cx, &first, |window, _| {
-        assert!(window.find("home-intro").visible());
-        assert!(window.find("delegation-pending").visible());
-    });
-    let mut note = String::new();
-    let seeded = fixture(cx, 1250., 860., |workspace| {
-        note = workspace
-            .new_note("Pilot proposal", "Saved text")
-            .unwrap()
-            .id;
-    });
-    click(cx, &seeded, "home");
-    on_window(cx, &seeded, |window, _| {
-        assert!(window.try_find("home-intro").is_none());
-        // The pending choice is independent of first run.
-        assert!(window.find("delegation-pending").visible());
-        // Recent notes are rows with a readable time, not buttons.
-        let row = window.find(format!("home-note-{note}"));
-        assert!(row.visible());
-        assert!(
-            row.label().unwrap().starts_with("Pilot proposal · Today"),
-            "{:?}",
-            row.label()
-        );
-        assert_ne!(row.role(), Some(gpui_kit::Role::Button));
-    });
+    click(cx, &f, "inbox-open-history");
+    cx.read(|cx| assert_eq!(f.view.read(cx).layout.focus(), Some(TileKind::History)));
 }
 
 /// The reworked empty states on first run: a title, one sentence naming the
@@ -1038,7 +1027,7 @@ fn first_run_empty_states_name_the_next_step(cx: &mut TestAppContext) {
         (
             TileKind::Projects,
             "projects-empty",
-            "No projects yet · Group related chats and documents with shared context.",
+            "No projects yet · Group related chats and documents with shared context. Start with New project.",
         ),
         (
             TileKind::Connections,
@@ -1068,8 +1057,9 @@ fn first_run_empty_states_name_the_next_step(cx: &mut TestAppContext) {
 fn the_delegation_card_keeps_its_text_inside_a_narrow_chat(cx: &mut TestAppContext) {
     let f = fixture(cx, 900., 600., |_| {});
     update(cx, &f, |view, window, cx| {
-        view.apply_layout(Preset::Write, window, cx);
+        // New chat fills the workspace; then show it as the narrow assistant.
         view.new_thread(window, cx);
+        view.relayout(window, cx, Layout::narrow_assistant);
     });
     on_window(cx, &f, |window, cx| {
         assert!(f.view.read(cx).chat_narrow);
@@ -1104,7 +1094,7 @@ fn delegation_is_two_radios_and_a_switch_in_settings_and_two_quiet_buttons_on_ho
     cx: &mut TestAppContext,
 ) {
     let f = fixture(cx, 1250., 860., |_| {});
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
         for (id, text) in [
             (
@@ -1337,8 +1327,9 @@ fn recent_chats_with_only_archived_chats_points_to_archived(cx: &mut TestAppCont
     });
     assert_eq!(
         recent_empty(cx, &f),
-        "No open chats · Archived chats are under Archived."
+        "No open chats · Archived chats are in All chats."
     );
+    click(cx, &f, "nav-all-chats");
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "resolved-count"), "Archived · 1");
     });
@@ -1355,8 +1346,10 @@ fn preparing_search_shows_a_spinner_with_its_text(cx: &mut TestAppContext) {
     });
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "search-preparing"), "Preparing search…");
-        // The A–Z strip is one row above the list.
-        assert!(window.find("notes-letters").bounds().size.height <= px(32.));
+        // The local views sit in one compact row above the list.
+        assert!(window.find("library-views").bounds().size.height <= px(40.));
+        assert_eq!(label(window, "library-articles"), "Articles · 1");
+        assert_eq!(label(window, "library-files"), "All files · 1");
         assert_eq!(label(window, "topics"), "Topics · Create Topics note");
     });
 }
@@ -1374,10 +1367,10 @@ fn tab_to(cx: &mut TestAppContext, f: &Fixture, id: &str) -> bool {
     })
 }
 
-/// Home's rows are not Tab stops, so every Home item keeps a
-/// keyboard route: a note and its kept edit through ⌘K, a review through
-/// the needs-you badge to its chat and then Tab into the chat's review
-/// card, and a change through ⌘K Changes and its Undo buttons.
+/// Every Inbox item keeps a keyboard route: a note and its kept edit
+/// through ⌘K, a review through its sidebar chat row and then Tab
+/// into the chat's review card, and a change through ⌘K Recent changes and
+/// its Undo buttons.
 #[gpui_kit::test]
 fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
     let (mut kept, mut thread, mut operation) = (String::new(), String::new(), String::new());
@@ -1423,11 +1416,21 @@ fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
             Some(operation.clone()),
         );
     });
-    click(cx, &f, "home");
+    click(cx, &f, "nav-inbox");
     on_window(cx, &f, |window, _| {
-        assert!(window.find("home-recover-0").visible());
-        assert!(window.find(format!("home-candidate-{operation}")).visible());
+        assert!(window.find("for-you-recover-0").visible());
+        assert!(window.find(format!("for-you-review-{operation}")).visible());
     });
+    // For you rows are themselves keyboard stops.
+    update(cx, &f, |view, window, cx| view.focus_root(window, cx));
+    assert!(
+        tab_to(cx, &f, "for-you-recover-0"),
+        "Tab reaches the kept edit"
+    );
+    assert!(
+        tab_to(cx, &f, &format!("for-you-review-{operation}")),
+        "Tab reaches the review"
+    );
     // The note and its kept edit: ⌘K opens the note.
     press(cx, &f, "cmd-k");
     on_window(cx, &f, |window, cx| window.input("Kept plan", cx));
@@ -1444,23 +1447,16 @@ fn each_home_item_keeps_a_keyboard_route(cx: &mut TestAppContext) {
         );
         assert_eq!(view.writing.note_editor.read(cx).value(), "Kept text");
     });
-    // The review: the needs-you badge opens from the keyboard, ↓ ↵ opens
-    // its chat, and Tab reaches the card's Show in note.
+    // The review: the chat that needs you leads Recent chats in the
+    // sidebar; Tab past Projects reaches its row and ↵ opens the chat.
     update(cx, &f, |view, window, cx| view.focus_root(window, cx));
-    assert!(
-        tab_to(cx, &f, "needs-badge"),
-        "Tab reaches the needs-you badge"
-    );
-    press(cx, &f, "enter");
-    // Kit's first ↓ lands on the menu's "Needs you" heading, the next on
-    // the first chat.
-    press(cx, &f, "down");
-    press(cx, &f, "down");
+    assert!(tab_to(cx, &f, "nav-projects"), "Tab reaches Projects");
+    press(cx, &f, "tab");
     press(cx, &f, "enter");
     cx.read(|cx| assert_eq!(f.view.read(cx).chat_thread(), Some(thread.as_str())));
-    // The composer takes Tab for indentation, so ⌘0 moves to Home, beside
-    // the chat, and Tab continues from Home into the chat's review card.
-    press(cx, &f, "cmd-0");
+    // The composer takes Tab for indentation, so continue from the
+    // workspace into the chat's review card.
+    update(cx, &f, |view, window, cx| view.focus_root(window, cx));
     on_window(cx, &f, |window, cx| {
         window.simulate_next_frame(cx);
     });
@@ -1509,7 +1505,6 @@ fn chat_rows_are_named_controls_and_enter_space_select_without_run(cx: &mut Test
             }
         });
         let before = cx.read(|cx| f.view.read(cx).workspace.records().unwrap());
-        click(cx, &f, "chats-recent");
         let row = format!("{}-{chat}", if attention { "attention" } else { "thread" });
         on_window(cx, &f, |window, _| {
             let row = window.find(row.clone());
@@ -1517,9 +1512,9 @@ fn chat_rows_are_named_controls_and_enter_space_select_without_run(cx: &mut Test
             assert!(row.label().unwrap().starts_with("Keyboard chat Ω"));
             assert_eq!(row.selected(), Some(false));
         });
-        // Locate the preceding navigation control by actual keyboard traversal;
-        // panel focus landing need not be the clicked Recent button.
-        assert!(tab_to(cx, &f, "resolved-count"));
+        // Locate the preceding sidebar control by actual keyboard traversal.
+        update(cx, &f, |view, window, cx| view.focus_root(window, cx));
+        assert!(tab_to(cx, &f, "nav-projects"));
         press(cx, &f, "tab");
         press(cx, &f, key);
         cx.read(|cx| {
@@ -1531,7 +1526,7 @@ fn chat_rows_are_named_controls_and_enter_space_select_without_run(cx: &mut Test
         on_window(cx, &f, |window, _| {
             assert_eq!(window.find(row).selected(), Some(true))
         });
-        click(cx, &f, "all-threads");
+        click(cx, &f, "nav-all-chats");
         on_window(cx, &f, |window, _| {
             let row = window.find(format!("all-thread-{chat}"));
             assert_eq!(row.role(), Some(gpui_kit::Role::Button));
@@ -1576,37 +1571,21 @@ fn chat_focus_dispatch_with_tasks_panel_and_split_enter(cx: &mut TestAppContext)
             })
         });
         on_window(cx, &f, |window, _| {
-            assert!(window.find("tile-menu-actions").visible());
-            assert!(window.find("chats-recent").visible());
+            assert!(window.find("inbox-tasks").visible());
+            assert!(window.find("nav-projects").visible());
             eprintln!(
                 "diagnostic redraw={redraw}: a11y_active={}",
                 window.is_a11y_active()
             );
         });
-        // Native evidence first activated Recent through its accessible Click.
-        // TestWindowExt::click dispatches the equivalent pointer event pair;
-        // subsequent navigation uses keys only and never injects row focus.
-        click(cx, &f, "chats-recent");
+        // Keys only from the workspace root to the sidebar control before the
+        // chat row; navigation never injects row focus.
+        update(cx, &f, |view, window, cx| view.focus_root(window, cx));
         let row = format!("thread-{chat}");
-        on_window(cx, &f, |window, cx| {
-            eprintln!("diagnostic after Recent: focus={:?}", window.focused(cx));
+        assert!(tab_to(cx, &f, "nav-projects"), "Tab reaches Projects");
+        on_window(cx, &f, |window, _| {
+            assert!(window.try_find("popup-menu").is_none());
         });
-        for target in ["chats-recent", "all-threads", "resolved-count"] {
-            press(cx, &f, "tab");
-            on_window(cx, &f, |window, cx| {
-                eprintln!(
-                    "diagnostic Tab target={target}: focused={:?}, handle={:?}",
-                    window.find(target.to_owned()).focused(),
-                    window.focused(cx)
-                );
-                assert_eq!(
-                    window.find(target.to_owned()).focused(),
-                    Some(true),
-                    "Tab target {target}"
-                );
-                assert!(window.try_find("popup-menu").is_none());
-            });
-        }
         let archived = on_window(cx, &f, |window, cx| window.focused(cx).unwrap());
         press(cx, &f, "tab");
         let focused = on_window(cx, &f, |window, cx| window.focused(cx).unwrap());
@@ -1676,4 +1655,601 @@ fn chat_focus_dispatch_with_tasks_panel_and_split_enter(cx: &mut TestAppContext)
             assert!(ui.worker.is_none());
         });
     }
+}
+
+/// Tasks: a row opens the detail panel with every recorded fact; completion
+/// is an explicit step there, and a narrow window shows the detail alone.
+#[gpui_kit::test]
+fn a_task_opens_its_detail_panel_and_completes_explicitly(cx: &mut TestAppContext) {
+    let mut id = String::new();
+    let f = fixture(cx, 1400., 900., |workspace| {
+        id = task(workspace, "Send the venue deposit", ActionState::Waiting);
+    });
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::Actions, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        let page = window.find("actions-content").bounds();
+        let lead = window.find("tasks-lead").bounds();
+        assert!(
+            lead.origin.y > page.origin.y,
+            "the lead sits below the inset"
+        );
+        let left = lead.origin.x - page.origin.x;
+        let right = page.origin.x + page.size.width - (lead.origin.x + lead.size.width);
+        assert!((left - right).abs() < px(2.), "the column is centred");
+    });
+    click(cx, &f, format!("task-open-{id}"));
+    on_window(cx, &f, |window, _| {
+        assert!(
+            window.find("actions-list").visible(),
+            "the list stays beside"
+        );
+        assert_eq!(label(window, "task-detail-title"), "Send the venue deposit");
+        assert_eq!(label(window, "task-detail-state"), "Waiting");
+        assert_eq!(label(window, "task-detail-owner"), "Owner: Not reported");
+        assert_eq!(label(window, "task-detail-waiting"), "Waiting on: Nobody");
+        assert_eq!(label(window, "task-detail-follow-up"), "Follow up: No date");
+        assert_eq!(label(window, "task-detail-due"), "Due: 2026-10-15");
+        assert_eq!(
+            label(window, "task-detail-main"),
+            "Confirm done: Send the venue deposit"
+        );
+        assert!(window.find("task-detail-edit").visible());
+    });
+    assert_eq!(task_state(cx, &f, &id), ActionState::Waiting);
+    click(cx, &f, "task-detail-main");
+    assert_eq!(task_state(cx, &f, &id), ActionState::Done);
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "task-detail-state"), "Done");
+        assert_eq!(
+            label(window, "task-detail-evidence"),
+            "Completed: Owner confirmed completion in BRN."
+        );
+    });
+    // Narrow: the detail replaces the list until All tasks.
+    let mut id = String::new();
+    let f = fixture(cx, 900., 600., |workspace| {
+        id = task(workspace, "Send the venue deposit", ActionState::Open);
+    });
+    update(cx, &f, |view, _, cx| {
+        focus_tests::solo(view, TileKind::Actions, cx)
+    });
+    click(cx, &f, format!("task-open-{id}"));
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("actions-list").is_none());
+        assert!(window.find("task-detail").visible());
+    });
+    click(cx, &f, "task-detail-close");
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("task-detail").is_none());
+        assert!(window.find(format!("action-tile-{id}")).visible());
+    });
+}
+
+#[test]
+fn follow_up_dates_are_checked_in_owner_terms() {
+    use super::tasks_view::check_follow_up;
+    assert_eq!(check_follow_up(None), Ok(()));
+    assert_eq!(check_follow_up(Some("2028-02-29")), Ok(()));
+    for bad in ["next Friday", "2027-02-29", "2026-1-5"] {
+        let error = check_follow_up(Some(bad)).unwrap_err();
+        assert!(
+            error.contains("YYYY-MM-DD") && error.contains(bad),
+            "{error}"
+        );
+        assert!(error.ends_with("Nothing was saved."), "{error}");
+    }
+}
+
+/// Settings opens on Appearance beside a list of every section, at both a
+/// roomy and a compact width; shortcuts live in General, and Data names the
+/// data location, export, backup, restore and deleted items separately.
+#[gpui_kit::test]
+fn settings_lists_its_sections_and_data_says_what_each_copy_is(cx: &mut TestAppContext) {
+    for (width, height) in [(1280., 1400.), (900., 600.)] {
+        let f = fixture(cx, width, height, |_| {});
+        update(cx, &f, |view, window, cx| {
+            view.show_tile(TileKind::Settings, window, cx)
+        });
+        on_window(cx, &f, |window, cx| {
+            assert_eq!(
+                f.view.read(cx).settings_section,
+                SettingsSection::Appearance
+            );
+            assert!(window.find("settings-sections").visible());
+            for section in SettingsSection::ALL {
+                assert!(
+                    window
+                        .find(format!("settings-section-{}", section.key()))
+                        .visible(),
+                    "{width}: {}",
+                    section.key()
+                );
+            }
+            assert!(window.find("settings-appearance-page").visible());
+            assert!(window.find("appearance-system").visible());
+            assert!(window.try_find("settings-keys").is_none());
+        });
+        click(cx, &f, "settings-section-general");
+        on_window(cx, &f, |window, _| {
+            assert!(window.find("settings-keys").visible());
+            assert!(window.try_find("appearance-system").is_none());
+        });
+        click(cx, &f, "settings-section-data");
+        on_window(cx, &f, |window, _| {
+            assert_eq!(label(window, "data-location"), f.data.display().to_string());
+            for id in [
+                "data-location-reveal",
+                "backup-now",
+                "restore-select",
+                "export-now",
+                "data-open-trash",
+                "data-open-history",
+            ] {
+                assert!(window.try_find(id).is_some(), "{id}");
+            }
+            // The folder inbox is set up in Inbox → Imports, not here.
+            assert!(window.try_find("inbox-choose-folder").is_none());
+        });
+        if width < 1000. {
+            continue;
+        }
+        // Tall enough that Deleted items is on screen without scrolling.
+        click(cx, &f, "data-open-trash");
+        cx.read(|cx| {
+            let view = f.view.read(cx);
+            assert!(view.projects_trash);
+            assert_eq!(view.layout.focus(), Some(TileKind::Projects));
+        });
+    }
+}
+
+/// Models says plainly when the saved credential location is missing, and
+/// never claims a sign-in it cannot see.
+#[gpui_kit::test]
+fn models_shows_unavailable_credentials_truthfully(cx: &mut TestAppContext) {
+    use super::settings_view::credential_status;
+    let f = fixture(cx, 1280., 860., |_| {});
+    let mut settings = cx.read(|cx| f.view.read(cx).settings.clone());
+    settings.provider = "codex".into();
+    settings.auth_file = Some(f.data.join("missing-auth.json").display().to_string());
+    let (tone, line) = credential_status(&settings);
+    assert_eq!(tone, Tone::Warning);
+    assert!(
+        line.contains("not found") && line.contains("unavailable"),
+        "{line}"
+    );
+    settings.auth_file = Some(f.data.display().to_string());
+    let (tone, line) = credential_status(&settings);
+    assert_eq!(tone, Tone::Success);
+    assert!(line.contains("checked when a chat starts"), "{line}");
+    settings.auth_file = None;
+    assert_eq!(credential_status(&settings).0, Tone::Info);
+    settings.provider = "copilot".into();
+    settings.credentials_dir = None;
+    let (tone, line) = credential_status(&settings);
+    assert_eq!(tone, Tone::Warning);
+    assert!(line.contains("not connected"), "{line}");
+    update(cx, &f, |view, _, cx| {
+        let mut saved = view.settings.clone();
+        saved.auth_file = Some(
+            view.data_dir
+                .join("missing-auth.json")
+                .display()
+                .to_string(),
+        );
+        saved.provider = "codex".into();
+        view.workspace.configure(saved).unwrap();
+        view.refresh();
+        focus_tests::settings(view, SettingsSection::Models, cx)
+    });
+    on_window(cx, &f, |window, _| {
+        let status = label(window, "settings-credential-status");
+        assert!(
+            status.starts_with("Warning: Codex auth file not found"),
+            "{status}"
+        );
+    });
+}
+
+/// S5 Library (spec §6.4, AC-08/09/26): Articles is the default and leaves
+/// out full imported references; All files lists them and retained sources
+/// without a readable import; a source states its availability limit; a
+/// row opens the same note for reading with the assistant closed; Knowledge
+/// checks is in the Library menu; the launcher names type and scope and
+/// lists a project-only document only from its own project.
+#[gpui_kit::test]
+fn library_articles_files_sources_checks_and_search_scope(cx: &mut TestAppContext) {
+    let mut ids = (
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+        String::new(),
+    );
+    let f = fixture(cx, 1280., 900., |workspace| {
+        let article = workspace
+            .new_note(
+                "Harbor delivery",
+                "# Harbor delivery\n\nCurrent plan for the berth.",
+            )
+            .unwrap()
+            .id;
+        let source = |label: &str| {
+            RecordData::Source(Source {
+                chat: None,
+                locator: format!("/nonexistent-brn-fixture/{label}"),
+                label: label.into(),
+                observed_at: "2026-11-01T09:00:00Z".into(),
+                external_version: None,
+                outcome: "converted".into(),
+                gaps: vec![],
+                report: None,
+            })
+        };
+        let owner = HostAuthority::owner("fixture");
+        let op = workspace
+            .store
+            .allocate_operation("s5-library-fixture")
+            .unwrap();
+        let (survey, loose, note) = (op.creation_id(0), op.creation_id(1), op.creation_id(2));
+        let mut reference = Note::working("Harbor survey", "Survey text, kept faithfully.");
+        reference.protected = true;
+        reference.import = Some(ImportCoverage {
+            source: survey.clone(),
+            full_note: true,
+            gaps: vec![],
+            report: None,
+        });
+        let put = |id: &str, data: RecordData| Put {
+            id: id.into(),
+            expected_version: None,
+            archived: false,
+            data,
+        };
+        let request = ChangeRequest {
+            reason: "Synthetic Library fixture".into(),
+            writes: vec![
+                put(&survey, source("harbor-survey.pdf")),
+                put(&loose, source("harbor-tides.csv")),
+                put(&note, RecordData::Note(reference)),
+            ],
+            inputs: vec![],
+        };
+        workspace
+            .store
+            .prepare_owner(&op, &request, &owner)
+            .unwrap();
+        assert!(matches!(
+            workspace.store.apply(&op, &owner).unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        // One ordinary update committed under the standing delegation.
+        workspace
+            .choose_delegation(DelegationChoice::MaintainOrdinaryNotes)
+            .unwrap();
+        let current = workspace.store.record(&article).unwrap().unwrap();
+        let RecordData::Note(mut updated) = current.data.clone() else {
+            unreachable!()
+        };
+        updated.markdown.push_str("\nBerth two opens in May.\n");
+        let op = workspace.store.allocate_operation("s5-delegated").unwrap();
+        workspace
+            .store
+            .prepare(
+                &op,
+                &ChangeRequest {
+                    reason: "Delegated maintenance fixture".into(),
+                    writes: vec![Put {
+                        id: article.clone(),
+                        expected_version: Some(current.version),
+                        archived: false,
+                        data: RecordData::Note(updated),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        assert!(matches!(
+            workspace
+                .store
+                .apply(&op, &HostAuthority::maintenance("fixture"))
+                .unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        let receipt = workspace
+            .project_command(
+                "s5-project",
+                ProjectCommand::Create {
+                    title: "Harbor project".into(),
+                },
+            )
+            .unwrap();
+        let project = receipt.writes[0].after.id.clone();
+        let doc = workspace
+            .project_command(
+                "s5-project-doc",
+                ProjectCommand::CreateDocument {
+                    project: project.clone(),
+                    title: "Harbor private".into(),
+                    markdown: "Only in the project.".into(),
+                },
+            )
+            .unwrap()
+            .writes
+            .iter()
+            .find(|w| matches!(w.after.data, RecordData::Note(_)))
+            .unwrap()
+            .after
+            .id
+            .clone();
+        ids = (article, note, loose, doc, survey, project);
+    });
+    let (article, reference, loose, private, survey, project) = ids;
+    click(cx, &f, "nav-library");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(label(window, "library-articles"), "Articles · 1");
+        assert_eq!(label(window, "library-files"), "All files · 3");
+        assert_eq!(window.find("library-articles").selected(), Some(true));
+        assert!(window.find(format!("note-{article}")).visible());
+        let row = label(window, format!("note-{article}"));
+        assert!(
+            row.contains("Current plan for the berth."),
+            "the row describes it: {row}"
+        );
+        assert!(
+            row.contains("by delegated maintenance"),
+            "the delegated update is named, not called reviewed: {row}"
+        );
+        assert!(window.try_find(format!("note-{reference}")).is_none());
+        assert!(window.try_find(format!("note-{private}")).is_none());
+        let footer = label(window, "library-footer");
+        assert!(footer.contains("not personally reviewed"), "{footer}");
+        assert!(!footer.contains("Approved"), "{footer}");
+    });
+    click(cx, &f, "library-files");
+    on_window(cx, &f, |window, _| {
+        let row = label(window, format!("note-{reference}"));
+        assert!(row.contains("Full imported reference"), "{row}");
+        assert!(row.contains("Protected"), "{row}");
+        assert!(window.find(format!("source-{loose}")).visible());
+        assert!(
+            window.try_find(format!("source-{survey}")).is_none(),
+            "a source with a readable import is reached through that import"
+        );
+        assert!(window.try_find(format!("note-{private}")).is_none());
+    });
+    click(cx, &f, format!("source-{loose}"));
+    cx.read(|cx| {
+        let notice = f.view.read(cx).notice.text().to_owned();
+        assert!(
+            notice.contains("BRN keeps only what it recorded"),
+            "{notice}"
+        );
+    });
+    click(cx, &f, format!("note-{reference}"));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(reference.as_str()));
+        assert_eq!(
+            view.layout.visible(),
+            [TileKind::Note],
+            "a Library article opens for reading with the assistant closed"
+        );
+        assert!(view.writing.note.is_reading(), "Library opens in Read");
+    });
+    // A kept unsaved edit is shown in Write when the row is opened again.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.set_note_reading(false, window, cx);
+            view.writing.note_editor.update(cx, |editor, cx| {
+                editor.set_value("Survey text, kept faithfully. Edited.", window, cx)
+            });
+            view.preserve_visible_note_input(cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    click(cx, &f, "nav-library");
+    click(cx, &f, "library-files");
+    click(cx, &f, format!("note-{reference}"));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(reference.as_str()));
+        assert!(
+            !view.writing.note.is_reading(),
+            "an unsaved edit stays in Write so it is seen first"
+        );
+    });
+    click(cx, &f, "nav-library");
+    click(cx, &f, "library-menu");
+    assert_eq!(
+        menu_rows(cx, &f),
+        ["Knowledge checks", "Recent changes", "Create Topics note"]
+    );
+    choose(cx, &f, "Knowledge checks");
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("library-checks-heading").visible());
+        assert!(window.find("knowledge-run").visible());
+    });
+    click(cx, &f, "library-back");
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("library-articles").visible());
+    });
+    press(cx, &f, "cmd-k");
+    on_window(cx, &f, |window, cx| window.input("harbor", cx));
+    on_window(cx, &f, |window, _| {
+        let labels: Vec<String> = (0..12)
+            .filter_map(|i| window.try_find(format!("launcher-item-{i}")))
+            .filter_map(|row| row.label().map(str::to_owned))
+            .collect();
+        assert!(
+            labels.contains(&"Article: Harbor delivery".to_owned()),
+            "{labels:?}"
+        );
+        assert!(
+            labels.contains(&"File: Harbor survey · full imported reference".to_owned()),
+            "{labels:?}"
+        );
+        assert!(
+            labels.iter().all(|label| !label.contains("Harbor private")),
+            "project-only material stays out of global search: {labels:?}"
+        );
+        assert_eq!(
+            label(window, "launcher-group-files"),
+            "Files · Current knowledge · saved library"
+        );
+    });
+    press(cx, &f, "enter");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(article.as_str()));
+        assert!(
+            view.writing.note.is_reading(),
+            "a found article opens in Read"
+        );
+        assert_eq!(view.layout.visible(), [TileKind::Note]);
+    });
+    // Inside the project, its own documents are found and named as such.
+    click(cx, &f, "nav-projects");
+    click(cx, &f, format!("project-row-{project}"));
+    click(cx, &f, "launcher");
+    on_window(cx, &f, |window, cx| window.input("private", cx));
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "launcher-item-0"),
+            "Project document: Harbor private · only in Harbor project"
+        );
+        assert_eq!(
+            label(window, "launcher-group-project"),
+            "This project · Project documents · not in Library"
+        );
+    });
+    press(cx, &f, "enter");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.open_note_id(), Some(private.as_str()));
+        assert_eq!(view.note_writing_scope.as_deref(), Some(project.as_str()));
+        assert_eq!(
+            view.navigation_focus(),
+            Some(TileKind::Projects),
+            "a project document marks its project, not Library"
+        );
+        assert_eq!(view.focused_project(), Some(project.as_str()));
+        assert_eq!(
+            view.note_title(&private).as_deref(),
+            Some("Harbor private"),
+            "a project-only document is named by title, never by id"
+        );
+    });
+}
+
+/// A second window over the same data, as a relaunch would open it.
+fn relaunch(cx: &mut TestAppContext, data: &std::path::Path) -> Entity<ThreadsUi> {
+    let workspace = Workspace::open(data).unwrap();
+    let data = data.to_path_buf();
+    let (_, view) = cx.update(|cx| {
+        gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| {
+            cx.new(|cx| {
+                let mut ui = ThreadsUi::new(workspace, data, window, cx);
+                ui.poll = None;
+                ui
+            })
+        })
+        .unwrap()
+    });
+    cx.run_until_parked();
+    view
+}
+
+/// AC-01: the last supported workspace restores with its identity on
+/// relaunch; transient surfaces keep the previous location; a location whose
+/// document no longer exists falls back to the new-chat start without a
+/// warning, a task or a scan.
+#[gpui_kit::test]
+fn relaunch_restores_the_last_valid_workspace_location(cx: &mut TestAppContext) {
+    let mut ids = (String::new(), String::new());
+    let f = fixture(cx, 1280., 900., |workspace| {
+        let project = workspace
+            .project_command(
+                "loc-project",
+                ProjectCommand::Create {
+                    title: "Harbor project".into(),
+                },
+            )
+            .unwrap()
+            .writes[0]
+            .after
+            .id
+            .clone();
+        let doc = workspace
+            .project_command(
+                "loc-project-doc",
+                ProjectCommand::CreateDocument {
+                    project: project.clone(),
+                    title: "Run sheet".into(),
+                    markdown: "Only in the project.".into(),
+                },
+            )
+            .unwrap()
+            .writes
+            .iter()
+            .find(|w| matches!(w.after.data, RecordData::Note(_)))
+            .unwrap()
+            .after
+            .id
+            .clone();
+        ids = (project, doc);
+    });
+    let (project, doc) = ids;
+    update(cx, &f, |view, window, cx| {
+        view.open_project_note(&project, &doc, window, cx);
+        view.persist_location();
+        view.open_settings_section(SettingsSection::Appearance, window, cx);
+        view.persist_location();
+    });
+    let reopened = relaunch(cx, &f.data);
+    cx.read(|cx| {
+        let view = reopened.read(cx);
+        assert_eq!(view.open_note_id(), Some(doc.as_str()));
+        assert_eq!(view.note_writing_scope.as_deref(), Some(project.as_str()));
+        assert_eq!(view.layout.primary(), TileKind::Note);
+        assert_eq!(view.navigation_focus(), Some(TileKind::Projects));
+        assert!(view.worker.is_none(), "restoring never starts work");
+        assert!(view.notice.text().is_empty(), "{}", view.notice.text());
+    });
+
+    update(cx, &f, |view, window, cx| {
+        view.open_project(&project, window, cx);
+        view.persist_location();
+    });
+    let reopened = relaunch(cx, &f.data);
+    cx.read(|cx| {
+        let view = reopened.read(cx);
+        assert_eq!(view.layout.primary(), TileKind::Projects);
+        assert_eq!(view.selected_project.as_deref(), Some(project.as_str()));
+    });
+
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Notes, window, cx);
+        view.persist_location();
+    });
+    let reopened = relaunch(cx, &f.data);
+    cx.read(|cx| assert_eq!(reopened.read(cx).layout.primary(), TileKind::Notes));
+
+    update(cx, &f, |view, _, _| {
+        view.workspace
+            .save_last_location(r#"{"kind":"document","note":"missing","project":null}"#)
+            .unwrap();
+    });
+    let reopened = relaunch(cx, &f.data);
+    cx.read(|cx| {
+        let view = reopened.read(cx);
+        assert_eq!(view.layout.primary(), TileKind::Chat);
+        assert!(view.chat_thread().is_none());
+        assert!(view.open_note_id().is_none());
+        assert!(view.notice.text().is_empty(), "{}", view.notice.text());
+    });
 }

@@ -5,6 +5,7 @@ The [Threads target](architecture/threads-target.md) owns product and architectu
 | Need | Read |
 |---|---|
 | Product and selected requirements | [Product overview](product/BRN_PRODUCT_VISION.md), [canonical target](architecture/threads-target.md), [glossary](product/glossary.md) |
+| Selected UX rebuild design | [BRN UX rebuild handoff](product/ux-rebuild/README.md): complete GPUI Kit reference, System/Light/Dark, acceptance cases and build-agent prompt; implementation follows the current owner task |
 | Implementation boundaries | [Architecture](architecture/overview.md), [invariants](architecture/invariants.md), [thread/runtime behavior](architecture/threads-behavior.md), [dependencies](architecture/dependencies.md) |
 | Actual progress and remaining gates | [Development overview](work/overview.md), [status routes](status.md), [roadmap](roadmap.md) |
 | Current assignment | Current user instruction, [selected batch baseline](work/active/knowledge-triage-accessibility-ci/baseline.md) and [selected task route](status.md); proposed programs in the [build sequence](work/active/build-sequence/README.md) do not assign work |

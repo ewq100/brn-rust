@@ -221,7 +221,22 @@ impl WritingPanel {
             .as_ref()
             .map_or_else(|| note.markdown.clone(), |session| session.markdown.clone());
         let current = note.markdown.clone();
-        let presentation = if self.note.is_reading() {
+        // Library articles and found notes open in Read; a recovered edit,
+        // and a reload of the same note, keep or start in Edit.
+        let prefer_reading = std::mem::take(&mut self.prefer_reading);
+        let same = self
+            .note
+            .as_ref()
+            .is_some_and(|open| open.record.id == record.id);
+        if !same {
+            self.outline_view = false;
+        }
+        let reading = if !same && prefer_reading {
+            session.is_none()
+        } else {
+            self.note.is_reading()
+        };
+        let presentation = if reading {
             Presentation::Read
         } else {
             Presentation::Write
@@ -243,6 +258,21 @@ impl WritingPanel {
     /// Establish the durable first-dirty guard before any delayed/full-buffer
     /// work. Refused generations and errors preserve the editor and old base.
     pub fn note_changed(
+        &mut self,
+        workspace: &mut Workspace,
+        text: String,
+    ) -> AppResult<Option<(Tone, &'static str)>> {
+        let result = self.preserve_text(workspace, text);
+        // The header shows a failed preservation as a failed Save (WRITE-02)
+        // until the visible text is kept or matches the note again.
+        self.preserve_failure = match (&result, self.open_note_id()) {
+            (Err(AppError::Core(brn_threads_app::Error::EditSessionOpen { .. })), _) => None,
+            (Err(error), Some(note)) => Some((note.to_owned(), error.to_string())),
+            _ => None,
+        };
+        result
+    }
+    fn preserve_text(
         &mut self,
         workspace: &mut Workspace,
         text: String,
@@ -338,10 +368,35 @@ impl WritingPanel {
         let Some(session) = self.note.as_ref().and_then(|open| open.session()).cloned() else {
             return Ok(None);
         };
-        let outcome = workspace.store.save(&session.id, session.generation)?;
+        // The header reads this attempt's actual state (WRITE-02): Saving
+        // until the checked service answers, then Saved, a conflict that
+        // kept the edit, or a failure that kept it.
+        let attempt = |state| crate::canvas::SaveAttempt {
+            note: session.note.clone(),
+            session: session.id.clone(),
+            state,
+        };
+        self.save_attempt = Some(attempt(crate::canvas::AttemptState::Saving));
+        let outcome = match workspace.store.save(&session.id, session.generation) {
+            Ok(outcome) => outcome,
+            Err(error) => {
+                self.save_attempt = Some(attempt(crate::canvas::AttemptState::Failed(
+                    error.to_string(),
+                )));
+                return Err(error.into());
+            }
+        };
         if matches!(outcome, SaveOutcome::Saved(_)) {
+            self.save_attempt = None;
             self.load_note(workspace, &session.note, Load::Current, window, cx)?;
         } else {
+            let why = match &outcome {
+                SaveOutcome::Stale(_) => "The note changed since this edit began",
+                SaveOutcome::GenerationMismatch(_) => "A newer edit of this note is kept",
+                SaveOutcome::Closed(_) => "This edit is already closed",
+                _ => "Another edit of this note is open",
+            };
+            self.save_attempt = Some(attempt(crate::canvas::AttemptState::Conflict(why.into())));
             self.sync_saved_comparison(workspace, &session.note, cx);
         }
         Ok(Some(outcome))

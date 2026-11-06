@@ -15,7 +15,7 @@ use gpui_kit::{
     component::{
         Root, TitleBar,
         button::{Button, ButtonVariants as _},
-        input::{EditorState, Input, InputEvent, InputState},
+        input::{Input, InputEvent, InputState, TextareaState},
     },
     div, point,
     prelude::*,
@@ -34,33 +34,49 @@ use tokio_util::sync::CancellationToken;
 mod capture;
 #[path = "threads_chat.rs"]
 mod chat;
+#[path = "threads_composer.rs"]
+mod composer;
 #[path = "threads_run_activity.rs"]
 mod run_activity;
 #[path = "threads_web_search.rs"]
 mod web_search;
 use run_activity::{Event as RunActivityEvent, RunActivity};
+#[path = "threads_changes.rs"]
+mod changes_view;
 #[path = "threads_components.rs"]
 mod components;
 #[path = "threads_connections.rs"]
 mod connections_view;
 #[path = "threads_context_actions.rs"]
 mod context_actions;
+#[path = "threads_doc_history.rs"]
+mod doc_history;
 #[path = "threads_documents.rs"]
 mod documents;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_documents_tests.rs"]
 mod documents_tests;
+#[path = "threads_inbox_view.rs"]
+mod inbox_page;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_inbox_tests.rs"]
 mod inbox_tests;
 #[path = "threads_inbox.rs"]
 mod inbox_view;
+#[path = "threads_settings.rs"]
+mod settings_view;
+#[path = "threads_tasks.rs"]
+mod tasks_view;
 use brn_writing_ui::diff;
 use brn_writing_ui::formatting;
 #[path = "threads_layout.rs"]
 mod layout;
+#[path = "threads_library.rs"]
+mod library_view;
 #[path = "threads_lists.rs"]
 mod lists;
+#[path = "threads_location.rs"]
+mod location;
 #[cfg(all(test, feature = "native-test-support"))]
 #[path = "threads_mcp_tests.rs"]
 mod mcp_tests;
@@ -92,7 +108,7 @@ mod worker;
 #[path = "threads_writing.rs"]
 mod writing;
 use components::{IconName, Tone};
-use layout::{Layout, Preset, TileKind};
+use layout::{Layout, TileKind};
 use lists::{Activity, NoteRow, ThreadFilter, ThreadRow};
 use state::{
     ComposerDestination, ComposerDrafts, ContinuePath, ProviderForm, Severity, WorkerKind,
@@ -100,7 +116,7 @@ use state::{
     outcome_message, owner_message_after_latest_run, recovery, refresh_hint, review_label,
     review_summary, save_message,
 };
-use theme::{ThemeId, pal};
+use theme::{Appearance, ThemeId, pal};
 use worker::{EditNoteTarget, Worker, WorkerBatchEnd, WorkerEvent};
 
 #[cfg(all(test, feature = "native-test-support"))]
@@ -182,14 +198,10 @@ gpui_kit::actions!(
         CloseLauncher,
         LauncherNext,
         LauncherPrevious,
-        ToggleThreads,
-        FocusPreviousTile,
-        FocusNextTile,
-        MaximizeTile,
+        ToggleSidebar,
+        FocusPreviousPane,
+        FocusNextPane,
         OpenSettings,
-        LayoutWrite,
-        LayoutChat,
-        LayoutSolo,
         ShowKeys
     ]
 );
@@ -206,6 +218,7 @@ enum ChatTarget {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 enum SettingsSection {
+    Appearance,
     General,
     Models,
     Delegation,
@@ -215,7 +228,8 @@ enum SettingsSection {
     Mcp,
 }
 impl SettingsSection {
-    const ALL: [Self; 7] = [
+    const ALL: [Self; 8] = [
+        Self::Appearance,
         Self::General,
         Self::Models,
         Self::Delegation,
@@ -226,6 +240,7 @@ impl SettingsSection {
     ];
     fn key(self) -> &'static str {
         match self {
+            Self::Appearance => "appearance",
             Self::General => "general",
             Self::Models => "models",
             Self::Delegation => "delegation",
@@ -237,6 +252,7 @@ impl SettingsSection {
     }
     fn label(self) -> &'static str {
         match self {
+            Self::Appearance => "Appearance",
             Self::General => "General",
             Self::Models => "Models",
             Self::Delegation => "Delegation",
@@ -287,14 +303,27 @@ mod credential_platform_tests {
         );
     }
 }
-const TOP_BAR_HEIGHT: gpui_kit::Pixels = components::tokens::TITLE_BAR;
+/// The workspace header and the sidebar top share this height; the macOS
+/// traffic lights centre in it.
+const TOP_BAR_HEIGHT: gpui_kit::Pixels = px(theme::metrics::HEADER);
 fn top_bar_window_options() -> WindowOptions {
     let mut options = TitleBar::window_options();
     if let Some(titlebar) = options.titlebar.as_mut() {
-        // Centre the 16px macOS traffic lights inside the 38px top bar.
+        // Centre the 16px macOS traffic lights inside the 56px header.
         titlebar.traffic_light_position = Some(point(px(12.), (TOP_BAR_HEIGHT - px(16.)) / 2.));
     }
     options
+}
+/// Whether the window's current OS appearance is dark. GPUI reports per-window
+/// appearance (`Dark`/`VibrantDark` are dark); this is the System preference's
+/// only input and the value `observe_window_appearance` delivers live changes
+/// for. Reading the window keeps the resolution correct before the first frame
+/// and after an OS switch.
+fn os_dark(window: &Window) -> bool {
+    matches!(
+        window.appearance(),
+        gpui_kit::WindowAppearance::Dark | gpui_kit::WindowAppearance::VibrantDark
+    )
 }
 /// Tone of an applied change's notice: refresh follow-ups need attention.
 fn apply_tone(outcome: &ApplyOutcome) -> Tone {
@@ -403,16 +432,28 @@ struct ThreadsUi {
     /// The panel body (or archived chat banner) that took focus; after its
     /// next frame, focus moves to its first control.
     focus_first: Option<gpui_kit::FocusHandle>,
+    /// Further Tab stops past the first control: Settings lands on its
+    /// selected section, which follows the sections before it.
+    focus_steps: usize,
     /// The archived chat's banner, where focus lands instead of the
     /// composer; its Unarchive is the first control inside.
     archived_banner: gpui_kit::FocusHandle,
+    /// Shell route and pane preferences; see `threads_layout.rs`.
     layout: Layout,
-    tile_scroll: gpui_kit::ScrollHandle,
-    tile_reveal: Option<(Vec<TileKind>, Option<TileKind>)>,
+    /// What the last frame drew at the window's usable width.
+    arrangement: layout::Arrangement,
+    /// A press in the window-drag region may start moving the window.
+    titlebar_drag: bool,
     chat: ChatTarget,
+    /// The owner's appearance preference (System/Light/Dark/legacy).
+    appearance: Appearance,
+    /// The palette currently painted; resolved from `appearance` and, when the
+    /// preference is System, the live OS window appearance.
     theme: ThemeId,
-    theme_pending: bool,
     settings_section: SettingsSection,
+    /// Each Settings section button's focus, so a click can put the ring on
+    /// the section it chose (kit buttons don't take focus on a click).
+    settings_section_focus: [FocusHandle; SettingsSection::ALL.len()],
     skill_view: skills_view::SkillView,
     mcp_view: mcp_view::McpView,
     records: Vec<Record>,
@@ -422,7 +463,7 @@ struct ThreadsUi {
     activity: Activity,
     thread_rows: Vec<ThreadRow>,
     note_rows: Vec<NoteRow>,
-    composer: Entity<EditorState>,
+    composer: Entity<TextareaState>,
     composer_drafts: ComposerDrafts,
     draft_generations: BTreeMap<String, u64>,
     scrollers: std::cell::RefCell<BTreeMap<String, chat::ChatScroller>>,
@@ -438,7 +479,8 @@ struct ThreadsUi {
     projects_trash: bool,
     /// Session-only disclosures: Done and Cancelled tasks, Background changes.
     open_sections: BTreeSet<&'static str>,
-    editing_queue: Option<QueuedEdit>,
+    /// Open queued-message edits, at most one per chat.
+    editing_queue: Vec<QueuedEdit>,
     search: Entity<InputState>,
     hits: Vec<brn_threads_app::SearchHit>,
     results: search_view::SearchView,
@@ -449,6 +491,8 @@ struct ThreadsUi {
     topics: Option<Topics>,
     graph: connections_view::ConnectionsView,
     knowledge: connections_view::KnowledgeView,
+    /// The Library's local view, order, topic and virtualized list.
+    library: library_view::LibraryState,
     notes_letter: char,
     threads_query: Entity<InputState>,
     thread_filter: ThreadFilter,
@@ -464,8 +508,9 @@ struct ThreadsUi {
     /// Uncommitted Models-section segments, kept apart from runtime settings.
     provider_form: ProviderForm,
     settings: WorkspaceSettings,
-    /// The Chat panel is below 420 pt: the model control also names the
-    /// effort, and the effort control folds into its menu.
+    /// The Chat pane is below 420 pt (the assistant beside a document): the
+    /// model control also names the effort, and the effort control folds
+    /// into its menu.
     chat_narrow: bool,
     /// The window is below 700 pt tall: the chat queue collapses to one row.
     short_window: bool,
@@ -475,6 +520,8 @@ struct ThreadsUi {
     /// Rewrite request → its note's title, for Changes' "May need refresh"
     /// pills (R3), resolved when history refreshes rather than per render.
     refresh_names: BTreeMap<String, String>,
+    /// Inbox session state: the latest Imports attempt and the open task.
+    inbox_page: inbox_page::InboxPage,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
     worker: Option<Worker>,
     web_search: web_search::WebSearch,
@@ -482,11 +529,18 @@ struct ThreadsUi {
     progress: String,
     run_activity: RunActivity,
     run_activity_scroll: gpui_kit::ScrollHandle,
+    /// Conversation presentation state (activity disclosure, composer
+    /// emptiness, a queued edit's stashed draft); see `threads_chat.rs`.
+    conversation: chat::ConversationView,
     notice: NoticeState,
     export_status: String,
     copilot_models: Vec<String>,
     backup_status: String,
     restore: restore_view::RestoreFlow,
+    /// The open note's version history, shown in place of the document.
+    doc_history: Option<doc_history::DocHistory>,
+    /// The last location saved for restoring on launch.
+    saved_location: Option<location::SavedLocation>,
     subscriptions: Vec<Subscription>,
     poll: Option<Task<()>>,
 }
@@ -511,12 +565,23 @@ impl ThreadsUi {
             .settings()
             .expect("workspace settings were checked before opening the window");
         let provider_form = ProviderForm::from_settings(&settings);
-        let theme = ThemeId::from_key(settings.theme.as_deref());
+        // Appearance is host presentation state, saved outside the versioned
+        // Settings record. Adopt a legacy `settings.theme` once so an owner's
+        // earlier choice carries over, then resolve the preference against the
+        // live OS appearance and apply it before the first normal frame so a
+        // dark-mode launch never flashes the light palette (THEME-01, THEME-04).
+        let _ = workspace.adopt_legacy_theme();
+        let appearance = Appearance::from_key(workspace.appearance().ok().flatten().as_deref());
+        let os_dark = os_dark(window);
+        let theme = appearance.resolve(os_dark);
         theme::apply(theme, cx);
         let composer = cx.new(|cx| {
-            EditorState::new(window, cx)
+            TextareaState::new(window, cx)
                 .submit_on_enter(true)
-                .line_number(false)
+                .auto_grow(
+                    theme::metrics::COMPOSER_MIN_ROWS,
+                    theme::metrics::COMPOSER_MAX_ROWS,
+                )
                 .placeholder("Ask or delegate…")
         });
         let writing = WritingPanel::new(window, cx);
@@ -525,13 +590,12 @@ impl ThreadsUi {
         let review_editor = writing.review_editor.clone();
         let comment_input = writing.comment_input.clone();
         let general_feedback = writing.general_feedback.clone();
-        let search = cx.new(|cx| {
-            InputState::new(window, cx).placeholder("Filter titles and search note text")
-        });
+        let search = cx.new(|cx| InputState::new(window, cx).placeholder("Find in your library"));
         let threads_query =
             cx.new(|cx| InputState::new(window, cx).placeholder("Filter chats as you type"));
-        let launcher_query =
-            cx.new(|cx| InputState::new(window, cx).placeholder("Search notes, chats, commands…"));
+        let launcher_query = cx.new(|cx| {
+            InputState::new(window, cx).placeholder("Search articles, files, chats and commands…")
+        });
         let model = cx.new(|cx| {
             InputState::new(window, cx)
                 .default_value(settings.model.clone())
@@ -583,7 +647,8 @@ impl ThreadsUi {
                 window,
                 |this, editor, event: &InputEvent, _, cx| {
                     if matches!(event, InputEvent::Change) {
-                        this.save_composer(this.destination(), editor.read(cx).value().to_string());
+                        let text = editor.read(cx).value().to_string();
+                        this.composer_changed(text, cx);
                     }
                 },
             ),
@@ -626,8 +691,8 @@ impl ThreadsUi {
                 &composer,
                 window,
                 |this, _, event: &InputEvent, window, cx| {
-                    if matches!(event, InputEvent::PressEnter { shift: false, .. }) {
-                        this.ask(window, cx);
+                    if let InputEvent::PressEnter { shift, secondary } = event {
+                        this.composer_enter(*shift, *secondary, window, cx);
                     }
                 },
             ),
@@ -663,6 +728,13 @@ impl ThreadsUi {
                     _ => {}
                 },
             ),
+            // Live OS appearance: re-resolve and re-apply when the preference
+            // is System (THEME-01). An explicit Light/Dark/legacy choice ignores
+            // the OS, so the observer leaves it untouched. Theme changes are
+            // presentation only and never touch run/editor/draft state (THEME-03).
+            cx.observe_window_appearance(window, |this, window, cx| {
+                this.follow_os_appearance(window, cx);
+            }),
         ];
         let poll = cx.spawn_in(window, async move |this, cx| {
             loop {
@@ -687,14 +759,16 @@ impl ThreadsUi {
                 .map(|kind| (kind, cx.focus_handle()))
                 .collect(),
             focus_first: None,
+            focus_steps: 0,
             archived_banner: cx.focus_handle(),
             layout: Layout::default(),
-            tile_scroll: gpui_kit::ScrollHandle::new(),
-            tile_reveal: None,
+            arrangement: Layout::default().arrange(1280.),
+            titlebar_drag: false,
             chat: ChatTarget::New,
+            appearance,
             theme,
-            theme_pending: false,
-            settings_section: SettingsSection::General,
+            settings_section: SettingsSection::Appearance,
+            settings_section_focus: std::array::from_fn(|_| cx.focus_handle()),
             skill_view: skills_view::SkillView::default(),
             mcp_view: mcp_view::McpView::new(window, cx),
             records: vec![],
@@ -719,7 +793,7 @@ impl ThreadsUi {
             writing_review_loads: 0,
             projects_trash: false,
             open_sections: BTreeSet::new(),
-            editing_queue: None,
+            editing_queue: Vec::new(),
             search,
             hits: vec![],
             results: search_view::SearchView::default(),
@@ -728,6 +802,7 @@ impl ThreadsUi {
             topics: None,
             graph: connections_view::ConnectionsView::default(),
             knowledge: connections_view::KnowledgeView::default(),
+            library: library_view::LibraryState::default(),
             notes_letter: 'A',
             threads_query,
             thread_filter: ThreadFilter::All,
@@ -746,6 +821,7 @@ impl ThreadsUi {
             queue_expanded: false,
             writing_threads: BTreeMap::new(),
             refresh_names: BTreeMap::new(),
+            inbox_page: inbox_page::InboxPage::default(),
             assets: Arc::new(BTreeMap::new()),
             worker: None,
             web_search: web_search::WebSearch::default(),
@@ -753,11 +829,14 @@ impl ThreadsUi {
             progress: String::new(),
             run_activity: RunActivity::default(),
             run_activity_scroll: gpui_kit::ScrollHandle::new(),
+            conversation: chat::ConversationView::default(),
             notice: NoticeState::default(),
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
             backup_status: "No backup created in this session.".into(),
             restore: Default::default(),
+            doc_history: None,
+            saved_location: None,
             subscriptions,
             poll: Some(poll),
         };
@@ -773,6 +852,7 @@ impl ThreadsUi {
         this.composer
             .update(cx, |e, cx| e.set_value(home, window, cx));
         this.root_focus.focus(window, cx);
+        this.restore_location(window, cx);
         this
     }
     /// One checked display batch per canonical change; never an Apply/read grant.
@@ -944,12 +1024,7 @@ impl ThreadsUi {
         self.writing.recovery_blocked(&self.buffers)
     }
     fn note_tile_visible(&self) -> bool {
-        !self.layout.settings_open()
-            && self
-                .layout
-                .visible()
-                .iter()
-                .any(|tile| tile.kind == TileKind::Note)
+        self.layout.primary() == TileKind::Note
     }
     fn note_editor_visible(&self) -> bool {
         self.writing
@@ -966,7 +1041,6 @@ impl ThreadsUi {
         self.root_focus.focus(window, cx);
     }
     fn focus_visible_editor(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.tile_reveal = None;
         self.focus_root(window, cx);
         if self.writing.review.is_editing()
             && self.note_tile_visible()
@@ -996,7 +1070,6 @@ impl ThreadsUi {
         }
     }
     fn focus_composer(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.tile_reveal = None;
         self.layout.open(TileKind::Chat);
         // An archived chat's composer can't send: ⌘L and quoting into the
         // chat land on its banner's Unarchive, as opening the chat does (U11).
@@ -1006,6 +1079,7 @@ impl ThreadsUi {
         {
             self.archived_banner.focus(window, cx);
             self.focus_first = Some(self.archived_banner.clone());
+            self.focus_steps = 0;
         } else {
             self.composer
                 .update(cx, |editor, cx| editor.focus(window, cx));
@@ -1038,20 +1112,25 @@ impl ThreadsUi {
     fn report_outcome(&mut self, outcome: &ApplyOutcome) {
         self.set_notice(apply_tone(outcome), outcome_message(outcome));
     }
+    /// The navigation entry point: route `kind` into the shell (primary
+    /// view, assistant beside a document, the sidebar or Settings), then
+    /// focus its visible content.
     fn show_tile(&mut self, kind: TileKind, window: &mut Window, cx: &mut Context<Self>) {
         self.preserve_visible_note_input(cx);
+        let connections = self.layout.contains(TileKind::Connections);
         self.layout.open(kind);
         self.focus_tile_contents(window, cx);
         self.refresh();
-        if kind == TileKind::Connections {
+        // Connections asks for the neighbourhood whenever it comes back
+        // into view, also beside a document the owner returns to.
+        if kind == TileKind::Connections
+            || (!connections && self.layout.contains(TileKind::Connections))
+        {
             self.refresh_connections(cx);
         }
         cx.notify();
     }
-    fn apply_layout(&mut self, preset: Preset, window: &mut Window, cx: &mut Context<Self>) {
-        self.relayout(window, cx, |layout| layout.apply(preset));
-    }
-    /// Change the arrangement, then keep keyboard focus in a visible tile.
+    /// Change the arrangement, then keep keyboard focus in a visible pane.
     fn relayout(
         &mut self,
         window: &mut Window,
@@ -1062,9 +1141,19 @@ impl ThreadsUi {
         change(&mut self.layout);
         self.focus_tile_contents(window, cx);
     }
+    /// The usable client width the pane policy works from.
+    fn usable_width(window: &Window) -> f32 {
+        f32::from(window.viewport_size().width)
+    }
+    /// A content kind is laid out primary and alone, or as a conversation:
+    /// its column centres rather than sitting left of a neighbour.
+    pub(super) fn centered(&self, kind: TileKind) -> bool {
+        self.layout.primary() == kind
+            && (kind == TileKind::Chat || !self.arrangement.support_docked())
+    }
     /// The first-use delegation choice renders in exactly one visible tile.
     fn delegation_host(&self) -> Option<TileKind> {
-        let visible: Vec<TileKind> = self.layout.visible().iter().map(|tile| tile.kind).collect();
+        let visible = self.layout.visible();
         if self.layout.settings_open() && self.settings_section == SettingsSection::Delegation {
             Some(TileKind::Settings)
         } else if self.settings.delegation_chosen {
@@ -1079,6 +1168,19 @@ impl ThreadsUi {
     }
     fn open_note_id(&self) -> Option<&str> {
         self.writing.open_note_id()
+    }
+    /// A note's title from the Library rows, or from the open document when
+    /// it is project-only and therefore absent from the Library.
+    fn note_title(&self, note: &str) -> Option<String> {
+        self.note_rows
+            .iter()
+            .find(|row| row.id == note)
+            .map(|row| row.title.clone())
+            .or_else(|| {
+                (self.open_note_id() == Some(note))
+                    .then(|| self.writing.open_note_title())
+                    .flatten()
+            })
     }
     fn thread_note(&self, thread: &str) -> Option<String> {
         self.thread_rows
@@ -1095,8 +1197,8 @@ impl ThreadsUi {
     fn queued_edit_for_current_chat(&self) -> Option<&str> {
         let thread = self.chat_thread()?;
         self.editing_queue
-            .as_ref()
-            .filter(|edit| edit.thread == thread)
+            .iter()
+            .find(|edit| edit.thread == thread)
             .map(|edit| edit.item.as_str())
     }
     fn destination(&self) -> ComposerDestination {
@@ -1257,6 +1359,8 @@ impl ThreadsUi {
         self.preserve_visible_note_input(cx);
         self.preserve_comment_draft(cx);
         self.focus_root(window, cx);
+        self.doc_history = None;
+        let from_conversation = self.layout.primary() == TileKind::Chat;
         match self
             .writing
             .open_note(&mut self.workspace, id, recovery, window, cx)
@@ -1291,9 +1395,22 @@ impl ThreadsUi {
                     .get(id)
                     .cloned()
                     .map_or_else(|| ChatTarget::NewForNote(id.into()), ChatTarget::Thread);
-                if matches!(self.chat, ChatTarget::New)
-                    && self.composer.read(cx).value().trim().is_empty()
-                {
+                // The assistant beside a document is that document's own chat.
+                // A chat stays only when it is the document's chosen conversation,
+                // or when the document was opened from that conversation (AC-06).
+                // `set_chat` keeps each destination's unsent draft.
+                let keep = match &self.chat {
+                    ChatTarget::Thread(thread) => {
+                        from_conversation
+                            || opened_from == Some(thread.as_str())
+                            || target == ChatTarget::Thread(thread.clone())
+                    }
+                    ChatTarget::NewForNote(note) => note == id,
+                    ChatTarget::New => {
+                        from_conversation && !self.composer.read(cx).value().trim().is_empty()
+                    }
+                };
+                if !keep {
                     self.set_chat(target, window, cx);
                 }
                 self.sync_note_marks(cx);
@@ -1304,23 +1421,32 @@ impl ThreadsUi {
             Err(e) => self.fail(e.to_string()),
         }
     }
-    /// Show a thread in the chat tile; a thread linked to a note also brings
-    /// that note into the note tile when one is open.
+    /// Show a chat. A chat about the open document joins it as its
+    /// assistant (bringing that note in when another one is open); any
+    /// other chat fills the workspace as the conversation.
     fn open_thread(&mut self, id: &str, window: &mut Window, cx: &mut Context<Self>) {
-        if let Some(note) = self.thread_note(id)
+        let note = self.thread_note(id);
+        if let Some(note) = &note
             && self.layout.contains(TileKind::Note)
             && self.open_note_id() != Some(note.as_str())
         {
-            self.open_note_in_context(&note, None, Some(id), window, cx);
+            self.open_note_in_context(note, None, Some(id), window, cx);
         }
         self.set_chat(ChatTarget::Thread(id.into()), window, cx);
-        self.layout.open(TileKind::Chat);
+        if self.layout.primary() == TileKind::Note && note.is_some() {
+            self.layout.open(TileKind::Chat);
+        } else {
+            self.layout.open_primary(TileKind::Chat);
+        }
         self.refresh();
         self.focus_tile_contents(window, cx);
         cx.notify();
     }
+    /// New chat fills the workspace and starts outside the open document.
     fn new_thread(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.preserve_visible_note_input(cx);
         self.set_chat(ChatTarget::New, window, cx);
+        self.layout.open_primary(TileKind::Chat);
         self.focus_composer(window, cx);
     }
     /// Persistent comment highlights on the exact saved text. With a recovered
@@ -1492,7 +1618,7 @@ impl ThreadsUi {
                 .inform("Discarded the open edit. What you typed here is now your unsaved edit."),
             Ok(NoteDiscard::Other { adopted: false }) => self.inform("Discarded the open edit."),
             Ok(NoteDiscard::Newer) => {
-                self.warn("A newer edit exists and was kept. Recover it from Home.")
+                self.warn("A newer edit exists and was kept. Recover it from Inbox → For you.")
             }
             Err(error) => self.fail(error.to_string()),
         }
@@ -1921,6 +2047,17 @@ impl ThreadsUi {
         owner_request: Option<brn_ai::threads::OwnerRequest>,
         cx: &mut Context<Self>,
     ) {
+        self.start_run_with_message(prompt, thread, sources, owner_request, None, cx);
+    }
+    fn start_run_with_message(
+        &mut self,
+        prompt: String,
+        thread: String,
+        sources: Vec<brn_ai::threads::TransientSource>,
+        owner_request: Option<brn_ai::threads::OwnerRequest>,
+        posted: Option<String>,
+        cx: &mut Context<Self>,
+    ) {
         if !self.begin_run_start(cx) {
             return;
         }
@@ -1937,7 +2074,7 @@ impl ThreadsUi {
         };
         let queue_match = queued.is_some();
         let request = brn_threads_app::ThreadRunStart {
-            request_message: queued.as_ref().and_then(|q| q.message.clone()),
+            request_message: queued.as_ref().and_then(|q| q.message.clone()).or(posted),
             queue_claim: queued.and_then(|q| q.dispatch),
             owner_request,
             thread: thread.clone(),
@@ -2134,12 +2271,21 @@ impl ThreadsUi {
             &prompt,
             (!self.stream.is_empty()).then_some(self.stream.as_str()),
         ) {
-            Ok(_) => {
+            Ok(receipt) => {
+                let message = receipt
+                    .writes
+                    .iter()
+                    .find(|write| {
+                        write.before.is_none()
+                            && matches!(&write.after.data, RecordData::Message(m)
+                                if m.role == "owner" && m.thread == thread && m.text == prompt)
+                    })
+                    .map(|write| write.after.id.clone());
                 // The durable commit and run fence precede input clearing and cancellation.
                 let armed = self
                     .worker
                     .as_mut()
-                    .is_some_and(|worker| worker.arm_continuation(prompt).is_ok());
+                    .is_some_and(|worker| worker.arm_continuation(prompt, message).is_ok());
                 self.save_composer(self.destination(), String::new());
                 self.composer
                     .update(cx, |editor, cx| editor.set_value("", window, cx));
@@ -2153,7 +2299,9 @@ impl ThreadsUi {
                 }
                 self.refresh();
             }
-            Err(error) => self.fail(format!("Could not send: {error}. Your text is preserved.")),
+            Err(error) => self.fail(format!(
+                "Could not send: {error}. Your text is preserved; Steer again to retry."
+            )),
         }
         cx.notify();
     }
@@ -2203,7 +2351,9 @@ impl ThreadsUi {
                 self.chat = ChatTarget::Thread(thread.clone());
                 self.start_run(prompt, thread, vec![], owner_request, cx);
             }
-            Err(e) => self.fail(format!("{e}. Your text is preserved.")),
+            Err(e) => self.fail(format!(
+                "Could not send: {e}. Your text is preserved; Send again to retry."
+            )),
         }
         self.refresh();
         cx.notify();
@@ -2263,11 +2413,45 @@ impl ThreadsUi {
         self.refresh();
         cx.notify();
     }
-    fn choose_theme(&mut self, theme: ThemeId, window: &mut Window, cx: &mut Context<Self>) {
+    /// Choose the owner's appearance preference (System/Light/Dark or a legacy
+    /// palette). The resolved palette applies immediately to every BRN surface;
+    /// the preference persists at once through the non-fencing presentation
+    /// path, so a working run is never cancelled or interrupted and we never
+    /// report a save that has not happened (THEME-02). Editor text, drafts,
+    /// selection, focus, scroll, proposals and run state are untouched
+    /// (THEME-03).
+    fn choose_appearance(
+        &mut self,
+        appearance: Appearance,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.appearance = appearance;
+        self.apply_resolved_theme(os_dark(window), window, cx);
+        if let Err(error) = self.workspace.save_appearance(appearance.key()) {
+            // The palette already applies; only the durable save failed.
+            self.fail(format!("Appearance applied but not saved: {error}"));
+        }
+    }
+    /// Re-resolve the current preference against the live OS appearance and
+    /// re-apply when it changed. Only System follows the OS; any explicit
+    /// choice is left as-is so an OS flip cannot override it.
+    fn follow_os_appearance(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if self.appearance.follows_os() {
+            self.apply_resolved_theme(os_dark(window), window, cx);
+        }
+    }
+    /// Resolve the preference to a palette for the given OS appearance, apply it
+    /// to the toolkit and BRN surfaces, and refresh dependent caches (note
+    /// marks, the diff view) so Markdown, selection and review colors move
+    /// together (THEME-04). A no-op when the palette is unchanged.
+    fn apply_resolved_theme(&mut self, os_dark: bool, window: &mut Window, cx: &mut Context<Self>) {
+        let theme = self.appearance.resolve(os_dark);
+        if self.theme == theme {
+            return;
+        }
         self.theme = theme;
         theme::apply(theme, cx);
-        self.theme_pending = self.settings.theme.as_deref() != Some(theme.key());
-        self.persist_theme();
         self.sync_note_marks(cx);
         if self.writing.review.is_some() {
             self.sync_diff(window, cx);
@@ -2275,35 +2459,19 @@ impl ThreadsUi {
         window.refresh();
         cx.notify();
     }
-    /// Settings writes would stop running invocations, so the core defers this
-    /// while any run is working; it is retried when local work finishes.
-    fn persist_theme(&mut self) {
-        if !self.theme_pending {
-            return;
-        }
-        if self
-            .worker
-            .as_ref()
-            .is_some_and(|worker| worker.kind() == WorkerKind::Run)
-        {
-            // The theme already applies; only saving waits, so this is not a warning.
-            self.inform(format!(
-                "{} applied. It is saved for next time when the current work finishes.",
-                self.theme.label()
-            ));
-            return;
-        }
-        match self.workspace.choose_theme(self.theme.key()) {
-            Ok(ApplyOutcome::Applied(_)) => {
-                self.theme_pending = false;
-                self.refresh();
-            }
-            Ok(ApplyOutcome::Deferred { .. }) => self.inform(format!(
-                "{} applied. It is saved for next time once no work is running.",
-                self.theme.label()
-            )),
-            Ok(outcome) => self.report_outcome(&outcome),
-            Err(error) => self.fail(error.to_string()),
+    /// Test seam: the public GPUI test surface cannot flip a window's OS
+    /// appearance (`simulate_appearance_change` is crate-private), so tests
+    /// exercise the live-OS path by driving the same resolution the
+    /// `observe_window_appearance` callback runs. Only System re-applies.
+    #[cfg(all(test, feature = "native-test-support"))]
+    fn simulate_os_appearance(
+        &mut self,
+        os_dark: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        if self.appearance.follows_os() {
+            self.apply_resolved_theme(os_dark, window, cx);
         }
     }
     /// Pills change the explicit Settings through the existing configure path.
@@ -2614,6 +2782,8 @@ impl ThreadsUi {
             self.launcher_query.read(cx).value().as_ref(),
             &self.thread_rows,
             &self.note_rows,
+            &self.launcher_project_documents(),
+            &self.launcher_search.passages,
             &self.launcher_search.messages,
         )
     }
@@ -2652,7 +2822,16 @@ impl ThreadsUi {
         self.close_launcher(window, cx);
         match item {
             lists::LaunchItem::Thread { id, .. } => self.open_thread(&id, window, cx),
-            lists::LaunchItem::Note { id, .. } => self.open_note(&id, None, window, cx),
+            lists::LaunchItem::Note { id, .. } | lists::LaunchItem::Passage { id, .. } => {
+                // A found article opens for reading, assistant closed.
+                self.preserve_visible_note_input(cx);
+                self.layout.open_article();
+                self.open_from_library(&id, window, cx)
+            }
+            lists::LaunchItem::ProjectDoc { id, project, .. } => {
+                self.preserve_visible_note_input(cx);
+                self.open_project_note(&project, &id, window, cx)
+            }
             lists::LaunchItem::Message { chat, message, .. } => {
                 self.open_chat_message(&chat, &message, window, cx)
             }
@@ -2670,12 +2849,20 @@ impl ThreadsUi {
             lists::Command::NewNote => self.new_note(window, cx),
             lists::Command::Rewrite => self.rewrite_note(window, cx),
             lists::Command::Save => self.save(window, cx),
-            lists::Command::Layout(preset) => self.apply_layout(preset, window, cx),
-            lists::Command::Theme(theme) => self.choose_theme(theme, window, cx),
+            lists::Command::Outline => {
+                if self.open_note_id().is_some() {
+                    self.writing_request(WritingRequest::ToggleOutline, window, cx);
+                } else {
+                    self.warn("Open a document to show its outline.");
+                    cx.notify();
+                }
+            }
+            lists::Command::Theme(appearance) => self.choose_appearance(appearance, window, cx),
             lists::Command::OpenTile(kind) => {
                 self.show_tile(kind, window, cx);
             }
             lists::Command::Keys => self.show_keys(window, cx),
+            lists::Command::WebSearch => self.open_web_search(window, cx),
         }
     }
     fn continue_run(&mut self, thread: String, cx: &mut Context<Self>) {
@@ -2793,6 +2980,10 @@ impl ThreadsUi {
                         .is_some_and(|w| w.cancel.is_cancelled())
                     {
                         self.stream.push_str(&text);
+                        // The reply has begun; "Starting…" would now be stale.
+                        if self.progress == "Starting…" {
+                            self.progress = "Writing…".into();
+                        }
                     }
                 }
                 WorkerEvent::Progress(text) => {
@@ -2905,6 +3096,18 @@ impl ThreadsUi {
                         tone = *terminal_tone;
                     }
                     let ok = result.is_ok();
+                    // A scan that finished with failed files is not a success.
+                    if ok
+                        && kind == Some(WorkerKind::Inbox)
+                        && self.workspace.inbox().ok().flatten().is_some_and(|state| {
+                            state
+                                .entries
+                                .iter()
+                                .any(|entry| entry.status == InboxStatus::Failed)
+                        })
+                    {
+                        tone = Tone::Warning;
+                    }
                     if let Some(identity) = &identity {
                         let status = match &run_state {
                             Some(RunState::Working) => "Work ended · status unconfirmed".into(),
@@ -2997,6 +3200,7 @@ impl ThreadsUi {
                     } else {
                         *result
                     };
+                    let mut attempt_error = result.as_ref().err().map(ToString::to_string);
                     match result {
                         Ok(converted) => {
                             if let Some(reference) = reference.as_ref() {
@@ -3041,10 +3245,13 @@ impl ThreadsUi {
                                             self.open_note(&id, None, window, cx);
                                         }
                                     }
-                                    Err(e) => self.fail(e.to_string()),
+                                    Err(e) => {
+                                        attempt_error = Some(e.to_string());
+                                        self.fail(e.to_string());
+                                    }
                                 }
                             } else {
-                                self.useful_intake(
+                                attempt_error = self.useful_intake(
                                     converted,
                                     title,
                                     settings,
@@ -3065,6 +3272,9 @@ impl ThreadsUi {
                         }
                         Err(e) => self.fail(format!("Import stopped: {e}")),
                     }
+                    if reference.is_none() {
+                        self.finish_import_attempt(attempt_error, cancelled);
+                    }
                     if !allow_dispatch && self.worker.is_none() {
                         let _ = self
                             .workspace
@@ -3082,10 +3292,13 @@ impl ThreadsUi {
             return;
         }
         if end == WorkerBatchEnd::Finished {
-            self.persist_theme();
-            if let Some((prompt, thread)) = terminal_continuation {
+            // Appearance now persists immediately through the non-fencing
+            // presentation path, so there is no deferred theme save to retry
+            // when a run finishes (THEME-02).
+            if let Some((prompt, thread, message)) = terminal_continuation {
                 // Launch only after draining the complete old batch, without navigation or grants.
-                self.start_run(prompt, thread, vec![], None, cx);
+                // The Steer receipt already holds the owner message; reuse it.
+                self.start_run_with_message(prompt, thread, vec![], None, message, cx);
             } else if allow_dispatch {
                 self.dispatch_next(cx);
             }
@@ -3135,6 +3348,8 @@ impl ThreadsUi {
         self.fail("Work stopped unexpectedly. Saved progress is kept; retry from the note or continue from the chat.");
         self.refresh();
     }
+    /// Opens the intake chat and starts its run. Returns the service's
+    /// refusal, if any, so the Imports attempt reports it with Retry.
     fn useful_intake(
         &mut self,
         converted: ConversionResult,
@@ -3143,12 +3358,12 @@ impl ThreadsUi {
         project: Option<String>,
         window: &mut Window,
         cx: &mut Context<Self>,
-    ) {
+    ) -> Option<String> {
         let report = match brn_threads_app::import_report_with_conversion(&converted, &settings) {
             Ok(report) => report,
             Err(error) => {
                 self.fail(error.to_string());
-                return;
+                return Some(error.to_string());
             }
         };
         let fingerprint = brn_intake::hex(&converted.source_sha256);
@@ -3196,11 +3411,18 @@ impl ThreadsUi {
                             None,
                             cx,
                         );
+                        None
                     }
-                    Err(e) => self.fail(e.to_string()),
+                    Err(e) => {
+                        self.fail(e.to_string());
+                        Some(e.to_string())
+                    }
                 }
             }
-            Err(e) => self.fail(e.to_string()),
+            Err(e) => {
+                self.fail(e.to_string());
+                Some(e.to_string())
+            }
         }
     }
     fn choose_import(
@@ -3281,6 +3503,19 @@ impl ThreadsUi {
         attachment_chat: Option<String>,
         cx: &mut Context<Self>,
     ) {
+        self.convert_file_scoped(reference_intent, path, intent, attachment_chat, None, cx);
+    }
+    /// `project`: a useful-information import's already-chosen Project
+    /// (`Some(None)` is General); `None` takes the open chat's Project.
+    pub(super) fn convert_file_scoped(
+        &mut self,
+        reference_intent: Option<ReferenceImportIntent>,
+        path: PathBuf,
+        intent: ImportIntent,
+        attachment_chat: Option<String>,
+        project: Option<Option<String>>,
+        cx: &mut Context<Self>,
+    ) {
         if let Some(worker) = &self.worker {
             self.warn(format!(
                 "{} Then choose this file again.",
@@ -3329,7 +3564,11 @@ impl ThreadsUi {
                 return;
             }
         };
-        let useful_project = if intent == ImportIntent::UsefulInformation {
+        let useful_project = if intent != ImportIntent::UsefulInformation {
+            None
+        } else if let Some(project) = project {
+            project
+        } else {
             let rows = match self.workspace.records() {
                 Ok(rows) => rows,
                 Err(error) => {
@@ -3341,8 +3580,6 @@ impl ThreadsUi {
             self.chat_thread()
                 .and_then(|chat| project_for_chat(&rows, chat))
                 .map(|project| project.id.clone())
-        } else {
-            None
         };
         let captured = canonical.document_conversion.clone();
         let auth_file = canonical.auth_file.map(PathBuf::from);
@@ -3870,7 +4107,6 @@ impl ThreadsUi {
                 .as_ref()
                 .is_some_and(|review| review.note.is_some())
         {
-            self.tile_reveal = None;
             self.focus_root(window, cx);
             if self.writing.review.is_reading() {
                 self.writing
@@ -4479,7 +4715,7 @@ impl ThreadsUi {
                 run_id: worker.run_identity().map(|run| run.run_id.as_str()),
             }),
             progress: &self.progress,
-            centered: self.layout.maximized() == Some(TileKind::Note),
+            centered: self.centered(TileKind::Note),
             edit_note_blocked: Self::edit_note_blocked,
             chat_card_stop: Self::chat_card_stop,
             assets_in_chat: Self::assets_in_chat,
@@ -4623,6 +4859,12 @@ impl ThreadsUi {
                 self.writing.show_coverage = !self.writing.show_coverage;
                 cx.notify();
             }
+            WritingRequest::OpenOriginal(locator) => {
+                if let Err(limit) = library_view::open_source_locator(&locator, cx) {
+                    self.warn(limit);
+                    cx.notify();
+                }
+            }
             WritingRequest::NewNote => self.new_note(window, cx),
             WritingRequest::NewWritingThread => self.new_writing_thread(window, cx),
             WritingRequest::ConfirmDiscard => self.confirm_discard(window, cx),
@@ -4692,6 +4934,44 @@ impl ThreadsUi {
             WritingRequest::NoteReading(reading) => self.set_note_reading(reading, window, cx),
             WritingRequest::Format(kind) => self.format_note(kind, window, cx),
             WritingRequest::StopSaved(run) => self.confirm_stop_saved_run(run, window, cx),
+            WritingRequest::ToggleOutline => {
+                let view = self.writing_view();
+                let docks = view.outline_docks();
+                let beside = view.comments_beside();
+                // The contents view never stacks on the assistant sheet, and
+                // it replaces comments beside the text rather than joining them.
+                if self.writing.toggle_outline(docks, window, cx) {
+                    self.layout.close_sheet(Self::usable_width(window));
+                    if beside {
+                        self.writing.margin = Some(false);
+                    }
+                }
+                cx.notify();
+            }
+            WritingRequest::CloseOutline => {
+                self.writing.close_outline(window, cx);
+                cx.notify();
+            }
+            WritingRequest::OutlineGo(target) => {
+                if let Err(why) = self.writing.outline_go(&target, window, cx) {
+                    self.warn(why);
+                }
+                cx.notify();
+            }
+            WritingRequest::OutlineStep(step) => self.writing.outline_step(step, window, cx),
+            WritingRequest::ToggleFeedback => {
+                self.writing.feedback_open = !self.writing.feedback_open;
+                if self.writing.feedback_open {
+                    self.writing
+                        .general_feedback
+                        .update(cx, |input, cx| input.focus(window, cx));
+                }
+                cx.notify();
+            }
+            WritingRequest::History => {
+                self.open_doc_history(cx);
+                self.show_tile(TileKind::Note, window, cx);
+            }
         }
     }
     pub(super) fn note_toolbar_needs(&self, window: &Window) -> layout::NoteNeeds {
@@ -4709,6 +4989,7 @@ impl ThreadsUi {
     pub(super) fn comments_open(&self) -> bool {
         self.writing_view().comments_open()
     }
+    #[cfg(all(test, feature = "native-test-support"))]
     pub(super) fn comments_beside(&self) -> bool {
         self.writing_view().comments_beside()
     }
@@ -4750,6 +5031,9 @@ impl ThreadsUi {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> gpui_kit::AnyElement {
+        if self.doc_history_open() {
+            return self.doc_history_tile(cx);
+        }
         if self.writing.review.is_none() {
             self.sync_read_text(cx);
             self.sync_read_marks(cx);
@@ -4805,7 +5089,7 @@ impl ThreadsUi {
             &text,
         ) {
             Ok(receipt) => {
-                self.inform("Saved your text as a new working note. The original edit stays recoverable from Home.");
+                self.inform("Saved your text as a new working note. The original edit stays recoverable from Inbox → For you.");
                 if let Some(write) = receipt.writes.first() {
                     self.open_note(&write.after.id, None, window, cx);
                 }
@@ -4824,22 +5108,19 @@ fn bindings() -> Vec<KeyBinding> {
         KeyBinding::new("cmd-l", FocusAsk, None),
         KeyBinding::new("cmd-n", NewNote, None),
         KeyBinding::new("cmd-t", NewThread, None),
+        // ⌘0 opens New chat; Home is retired as a destination.
         KeyBinding::new("cmd-0", Home, None),
         KeyBinding::new("cmd-/", CommentSelection, None),
         KeyBinding::new("cmd-shift-r", Rewrite, None),
-        KeyBinding::new("cmd-\\", ToggleThreads, None),
-        KeyBinding::new("cmd-shift-enter", MaximizeTile, None),
+        KeyBinding::new("cmd-\\", ToggleSidebar, None),
         KeyBinding::new("cmd-,", OpenSettings, None),
-        KeyBinding::new("alt-1", LayoutWrite, None),
-        KeyBinding::new("alt-2", LayoutChat, None),
-        KeyBinding::new("alt-3", LayoutSolo, None),
         KeyBinding::new("cmd-q", Quit, None),
     ];
     // Text inputs bind these keys to indent/outdent and code actions. Binding
     // the same keys in the input context later gives BRN's meaning precedence.
     for context in [None, Some("Input")] {
-        bindings.push(KeyBinding::new("cmd-[", FocusPreviousTile, context));
-        bindings.push(KeyBinding::new("cmd-]", FocusNextTile, context));
+        bindings.push(KeyBinding::new("cmd-[", FocusPreviousPane, context));
+        bindings.push(KeyBinding::new("cmd-]", FocusNextPane, context));
         bindings.push(KeyBinding::new("cmd-.", Cancel, context));
     }
     bindings
@@ -4850,6 +5131,8 @@ gpui_kit::assets::icon_assets!(
     BrnIcons,
     [
         MessageSquare,
+        SquarePen,
+        ChevronsLeftRight,
         Lock,
         House,
         ListTodo,
@@ -4867,7 +5150,15 @@ gpui_kit::assets::icon_assets!(
         Italic,
         List,
         TextQuote,
-        Trash
+        Trash,
+        CheckCheck,
+        Circle,
+        Clock,
+        GitPullRequest,
+        Hourglass,
+        Sparkles,
+        ListChecks,
+        FilePlus
     ]
 );
 
@@ -5151,6 +5442,53 @@ mod presentation_tests {
                 "{path}"
             );
         }
+    }
+
+    /// Every icon variant named in the desktop or writing sources must be
+    /// served by BrnAssets; an unbundled icon paints as a blank square.
+    #[test]
+    fn every_icon_named_in_source_is_bundled() {
+        let manifest = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+        let mut used = std::collections::BTreeSet::new();
+        for dir in [manifest.join("src"), manifest.join("../brn-writing-ui/src")] {
+            let mut pending = vec![dir];
+            while let Some(dir) = pending.pop() {
+                for entry in std::fs::read_dir(&dir).unwrap() {
+                    let path = entry.unwrap().path();
+                    if path.is_dir() {
+                        pending.push(path);
+                    } else if path.extension().is_some_and(|ext| ext == "rs") {
+                        let text = std::fs::read_to_string(&path).unwrap();
+                        for (index, _) in text.match_indices("IconName::") {
+                            let name: String = text[index + "IconName::".len()..]
+                                .chars()
+                                .take_while(char::is_ascii_alphanumeric)
+                                .collect();
+                            if name.starts_with(|c: char| c.is_ascii_uppercase()) && name != "ALL" {
+                                used.insert(name);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        assert!(!used.is_empty());
+        let mut missing = Vec::new();
+        for name in &used {
+            let icon = IconName::ALL
+                .iter()
+                .find(|icon| format!("{icon:?}") == *name)
+                .unwrap_or_else(|| panic!("unknown icon {name}"));
+            if !BrnAssets
+                .load(&icon.path())
+                .ok()
+                .flatten()
+                .is_some_and(|svg| !svg.is_empty())
+            {
+                missing.push(name.clone());
+            }
+        }
+        assert!(missing.is_empty(), "add to BrnIcons: {missing:?}");
     }
 
     #[test]

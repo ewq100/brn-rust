@@ -1,0 +1,187 @@
+{
+  "specification": "BRN-UX-002",
+  "version": "1.2",
+  "date": "2026-11-05",
+  "gpui_kit_target": "=0.9.0",
+  "units": "Logical pixels or native points; adapt to platform scaling and measured readability.",
+  "appearance": {
+    "default": "system",
+    "preferences": [
+      "system",
+      "light",
+      "dark"
+    ],
+    "note": "System is a BRN preference resolving to a toolkit light or dark mode; use and verify GPUI Kit 0.9.0 APIs."
+  },
+  "colors": {
+    "light": {
+      "canvas": "#FFFFFF",
+      "sidebar": "#F5F5F3",
+      "surface_subtle": "#FAFAF9",
+      "surface_raised": "#FFFFFF",
+      "hover": "#EAEAE6",
+      "text": "#242424",
+      "text_muted": "#64645F",
+      "placeholder": "#70706A",
+      "divider": "#DEDED9",
+      "control_border": "#85857E",
+      "primary": "#292A28",
+      "on_primary": "#FFFFFF",
+      "focus": "#526A9C",
+      "link": "#315CA0",
+      "selection": "#D7E5FB",
+      "success_text": "#346B54",
+      "success_surface": "#EDF5EE",
+      "warning_text": "#7C5C22",
+      "warning_surface": "#F9F3E7",
+      "danger_text": "#A63535",
+      "danger_surface": "#FCEEEE"
+    },
+    "dark": {
+      "canvas": "#202020",
+      "sidebar": "#181818",
+      "surface_subtle": "#252525",
+      "surface_raised": "#2A2A28",
+      "hover": "#30302E",
+      "text": "#EBEBEB",
+      "text_muted": "#B3B3AB",
+      "placeholder": "#A6A69F",
+      "divider": "#3E3E3A",
+      "control_border": "#818179",
+      "primary": "#EEEEE9",
+      "on_primary": "#232421",
+      "focus": "#9FB7E5",
+      "link": "#ABC7F5",
+      "selection": "#3B5071",
+      "success_text": "#A4D1B9",
+      "success_surface": "#263A2F",
+      "warning_text": "#DEC18A",
+      "warning_surface": "#393226",
+      "danger_text": "#F0B4B4",
+      "danger_surface": "#412828"
+    }
+  },
+  "spacing": [
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40,
+    48
+  ],
+  "type": {
+    "family": "Native system UI font",
+    "metadata": 11,
+    "label": 12,
+    "sidebar": 13,
+    "body": 14,
+    "document": 16,
+    "section_heading": 18,
+    "conversation_heading": 20,
+    "article_heading": 28,
+    "weights": [
+      400,
+      500
+    ],
+    "document_line_height": 1.7,
+    "document_headings": {
+      "h1": 28,
+      "h2": 22,
+      "h3": 18,
+      "h4": 16,
+      "h5": 16,
+      "h6": 16
+    },
+    "document_heading_line_height": 1.3,
+    "document_paragraph_gap": 12,
+    "document_heading_space_before": 24,
+    "document_heading_space_after": 8
+  },
+  "radius": {
+    "control": 7,
+    "result_card": 10,
+    "bubble": 18,
+    "composer": 18
+  },
+  "layout": {
+    "sidebar": 224,
+    "sidebar_range": [
+      208,
+      280
+    ],
+    "sidebar_rail": 56,
+    "header": 56,
+    "conversation_width": [
+      640,
+      720
+    ],
+    "document_reading_width": [
+      680,
+      760
+    ],
+    "outline": 200,
+    "outline_range": [
+      180,
+      240
+    ],
+    "assistant": 320,
+    "assistant_range": [
+      280,
+      400
+    ],
+    "document_region_min": 560,
+    "page_inset": [
+      32,
+      40
+    ],
+    "compact_page_inset": [
+      20,
+      24
+    ],
+    "control_height": [
+      32,
+      36
+    ],
+    "icon_target": [
+      30,
+      32
+    ],
+    "sidebar_row": 36,
+    "composer_rows": [
+      2,
+      8
+    ],
+    "major_divider": 1,
+    "acceptance_viewports": [
+      [
+        1280,
+        900
+      ],
+      [
+        1440,
+        960
+      ],
+      [
+        900,
+        600
+      ]
+    ]
+  },
+  "accessibility": {
+    "normal_text_min_contrast": 4.5,
+    "necessary_control_min_contrast": 3.0,
+    "decorative_dividers_exempt": true,
+    "never_color_only": true,
+    "honor_reduced_motion": true
+  },
+  "notes": [
+    "Shared source for light/dark roles; no scattered screen colors.",
+    "Geometry values are starting targets; usability and service integrity take precedence.",
+    "Do not hard-code sample models, sources, success messages or records.",
+    "Outline width is additional to the document region minimum; use a temporary contents view when usable widths cannot coexist.",
+    "The written revision 1.2 outline rules supplement the unchanged PDF/HTML visual baseline."
+  ]
+}

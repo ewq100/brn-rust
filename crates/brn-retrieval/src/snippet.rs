@@ -54,10 +54,24 @@ fn floor(text: &str, mut i: usize) -> usize {
     i
 }
 
+/// `line` without a leading Markdown heading marker (`## `).
+fn unmarked(line: &str) -> &str {
+    let text = line.trim_start();
+    let hashes = text.len() - text.trim_start_matches('#').len();
+    match text[hashes..].strip_prefix(' ') {
+        Some(rest) if (1..=6).contains(&hashes) => rest,
+        _ => line,
+    }
+}
+
 /// At most `max_bytes` (plus ellipses) of `passage` around the first word
 /// matching `query`; the beginning when no word matches (a title match).
 pub fn snippet(passage: &str, query: &str, max_bytes: usize) -> Snippet {
-    let flat: String = passage.split_whitespace().collect::<Vec<_>>().join(" ");
+    let flat: String = passage
+        .lines()
+        .flat_map(|line| unmarked(line).split_whitespace())
+        .collect::<Vec<_>>()
+        .join(" ");
     let terms = terms(query);
     let first = words(&flat)
         .find(|(_, w)| matches(w, &terms))
@@ -115,6 +129,18 @@ mod tests {
         let s = snippet("short text", "text", 300);
         assert_eq!(s.text, "short text");
         assert_eq!(&s.text[s.highlights[0].clone()], "text");
+    }
+
+    #[test]
+    fn markdown_heading_markers_are_not_shown() {
+        let s = snippet(
+            "# Harbour plan\n\n## Valves\nCheck #3 valves.",
+            "valves",
+            300,
+        );
+        assert_eq!(s.text, "Harbour plan Valves Check #3 valves.");
+        let marked: Vec<&str> = s.highlights.iter().map(|r| &s.text[r.clone()]).collect();
+        assert_eq!(marked, ["Valves", "valves"]);
     }
 
     #[test]

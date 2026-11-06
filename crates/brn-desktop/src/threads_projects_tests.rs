@@ -79,7 +79,7 @@ fn choose(cx: &mut TestAppContext, f: &Fixture, label: &str) {
 }
 /// Run a selected project's action from the Projects ⋯.
 fn project_action(cx: &mut TestAppContext, f: &Fixture, label: &str) {
-    click(cx, f, "tile-menu-projects");
+    click(cx, f, "projects-menu");
     choose(cx, f, label);
 }
 fn create(cx: &mut TestAppContext, f: &Fixture, name: &str) -> String {
@@ -108,6 +108,21 @@ fn project_creation_move_and_settings_preserve_saved_chat_and_draft(cx: &mut Tes
     click(cx, &f, "project-knowledge-toggle");
     click(cx, &f, "project-settings-save");
     cx.read(|cx| { let ui = f.view.read(cx); let r = ui.workspace.store.record(&p).unwrap().unwrap(); assert!(matches!(r.data, RecordData::Project(p) if p.chats == [f.chat.clone()] && !p.use_brn_knowledge && p.instructions == "For beginners, in Estonian")); assert_eq!(ui.composer.read(cx).value(), "Unsent draft · õun"); });
+    // Moving again marks where the chat already is.
+    cx.update_window(f.window, |_, window, cx| {
+        f.view
+            .update(cx, |ui, cx| ui.move_chat_dialog(&f.chat, window, cx))
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(window.find("move-chat-0").label(), Some("Standalone chat"));
+        assert_eq!(
+            window.find("move-chat-1").label(),
+            Some("Japan trip · current")
+        );
+    })
+    .unwrap();
 }
 #[gpui_kit::test]
 fn linked_document_survives_project_delete_and_trash_restore(cx: &mut TestAppContext) {
@@ -185,6 +200,138 @@ fn a_shared_private_document_uses_the_selected_projects_writing_chat(cx: &mut Te
     cx.run_until_parked();
 }
 
+/// Search's project scope follows the visible route: a project document
+/// opened earlier never leaks into Library or New chat, and a private
+/// document held by two projects never claims to be only in one.
+#[gpui_kit::test]
+fn launcher_project_scope_follows_the_visible_route(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            let a = ui
+                .apply_project(
+                    ProjectCommand::Create {
+                        title: "Harbour".into(),
+                    },
+                    cx,
+                )
+                .unwrap()
+                .writes[0]
+                .after
+                .id
+                .clone();
+            let b = ui
+                .apply_project(
+                    ProjectCommand::Create {
+                        title: "Festival".into(),
+                    },
+                    cx,
+                )
+                .unwrap()
+                .writes[0]
+                .after
+                .id
+                .clone();
+            let op = ui
+                .workspace
+                .store
+                .allocate_operation("scoped-private-doc")
+                .unwrap();
+            let (note, attachment) = (op.creation_id(0), op.creation_id(1));
+            let private = |title: &str| {
+                let mut data = Note::working(title, "Private to the chat or projects that hold it");
+                data.chat = Some(f.chat.clone());
+                RecordData::Note(data)
+            };
+            ui.workspace
+                .owner_change(
+                    "scoped-private-doc",
+                    &ChangeRequest {
+                        reason: "Owner attachment".into(),
+                        inputs: vec![],
+                        writes: vec![
+                            Put {
+                                id: note.clone(),
+                                expected_version: None,
+                                archived: false,
+                                data: private("Berth plan"),
+                            },
+                            Put {
+                                id: attachment.clone(),
+                                expected_version: None,
+                                archived: false,
+                                data: private("Chat-only attachment"),
+                            },
+                        ],
+                    },
+                )
+                .unwrap();
+            ui.refresh();
+            ui.apply_project(
+                ProjectCommand::LinkDocument {
+                    project: a.clone(),
+                    note: note.clone(),
+                },
+                cx,
+            )
+            .unwrap();
+            let shared = |ui: &ThreadsUi| -> Vec<bool> {
+                ui.launcher_project_documents()
+                    .into_iter()
+                    .map(|item| match item {
+                        lists::LaunchItem::ProjectDoc { shared, .. } => shared,
+                        other => panic!("{other:?}"),
+                    })
+                    .collect()
+            };
+
+            ui.open_project_note(&a, &note, window, cx);
+            assert_eq!(ui.context_project().map(|r| r.id.clone()), Some(a.clone()));
+            assert_eq!(shared(ui), [false], "only in Harbour");
+
+            ui.apply_project(
+                ProjectCommand::LinkDocument {
+                    project: b.clone(),
+                    note: note.clone(),
+                },
+                cx,
+            )
+            .unwrap();
+            ui.refresh();
+            assert_eq!(shared(ui), [true], "also in Festival: never 'only in'");
+
+            ui.show_tile(TileKind::Notes, window, cx);
+            assert!(ui.context_project().is_none(), "Library is global");
+            assert!(ui.launcher_project_documents().is_empty());
+
+            ui.open_project_note(&a, &note, window, cx);
+            ui.new_thread(window, cx);
+            assert!(ui.context_project().is_none(), "New chat is global");
+            assert!(ui.launcher_project_documents().is_empty());
+
+            ui.open_thread(&f.chat, window, cx);
+            assert!(
+                ui.context_project().is_none(),
+                "a standalone chat has no project"
+            );
+
+            // A standalone chat's attachment is scoped by the chat, not a project.
+            ui.open_note_in_context(&attachment, None, Some(&f.chat), window, cx);
+            assert_eq!(ui.open_note_id(), Some(attachment.as_str()));
+            assert_eq!(ui.note_writing_scope.as_deref(), Some(f.chat.as_str()));
+            assert!(ui.focused_project().is_none());
+            assert_eq!(ui.navigation_focus(), Some(TileKind::Notes));
+            assert!(ui.context_project().is_none());
+
+            ui.show_tile(TileKind::Projects, window, cx);
+            ui.open_project(&b, window, cx);
+            assert_eq!(ui.context_project().map(|r| r.id.clone()), Some(b));
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+}
+
 #[gpui_kit::test]
 fn native_project_delete_preserves_displayed_partial_and_pauses_even_an_empty_queue(
     cx: &mut TestAppContext,
@@ -214,6 +361,64 @@ fn each_projects_view_has_at_most_one_primary() {
     assert_eq!(projects_primary(false, true), Some("project-chat"));
     assert_eq!(projects_primary(true, true), Some("project-restore"));
     assert_eq!(projects_primary(true, false), None);
+}
+
+#[test]
+fn project_notices_name_what_changed() {
+    use projects_view::project_notice;
+    let trip = Record {
+        id: "p".into(),
+        version: 1,
+        archived: false,
+        data: RecordData::Note(Note::working("Japan trip", "text")),
+    };
+    let records = std::slice::from_ref(&trip);
+    let moved = ProjectCommand::MoveChat {
+        chat: "c".into(),
+        project: Some("p".into()),
+    };
+    assert_eq!(project_notice(&moved, records), "Chat moved to Japan trip.");
+    assert_eq!(
+        project_notice(
+            &ProjectCommand::MoveChat {
+                chat: "c".into(),
+                project: None,
+            },
+            records
+        ),
+        "Chat is now standalone."
+    );
+    assert_eq!(
+        project_notice(
+            &ProjectCommand::WithProgress {
+                command: Box::new(moved),
+                run: "r".into(),
+                partial: String::new(),
+            },
+            records
+        ),
+        "Chat moved to Japan trip."
+    );
+    assert_eq!(
+        project_notice(
+            &ProjectCommand::UnlinkDocument {
+                project: "p".into(),
+                note: "n".into(),
+            },
+            records
+        ),
+        "Document unlinked from Japan trip."
+    );
+    assert_eq!(
+        project_notice(
+            &ProjectCommand::Restore {
+                project: "p".into(),
+                version: 1,
+            },
+            records
+        ),
+        "Project restored."
+    );
 }
 
 #[test]
@@ -311,12 +516,23 @@ fn projects_primaries_follow_the_view_and_trash_restores_from_active_and_trash(
             "no primary yet"
         );
         assert!(window.try_find("project-new").is_none());
-        assert!(window.find("projects-trash-hint").visible());
+        let hint = window.find("projects-trash-hint");
+        assert!(hint.visible());
+        // The page's subtitle already says Trash is recoverable.
+        assert_eq!(
+            hint.label(),
+            Some("Select a project to review and restore it. Restoring never resumes work.")
+        );
     })
     .unwrap();
     click(cx, &f, format!("project-row-{p}"));
     cx.update_window(f.window, |_, window, _| {
         assert!(window.find("project-restore").visible());
+        let restore = window.find("project-restore").bounds();
+        assert!(
+            restore.size.width < px(240.),
+            "Restore keeps its natural width: {restore:?}"
+        );
         assert_eq!(
             window.find("project-restore-line").label(),
             Some(
@@ -352,11 +568,22 @@ fn the_projects_page_keeps_its_column_when_maximized(cx: &mut TestAppContext) {
     cx.update_window(f.window, |_, window, _| {
         let page = window.find("projects-tile").bounds();
         assert!(page.size.width > px(1000.), "maximized: {page:?}");
-        // Pages hold one column of at most 720 px, as Home, Tasks and Changes do.
-        for id in [format!("project-row-{p}"), "project-status".into()] {
-            let line = window.find(id.clone()).bounds();
-            assert!(line.size.width <= px(720.), "{id}: {line:?}");
+        // The workspace keeps one column near the reading measure.
+        for id in [
+            "project-title",
+            "project-status",
+            "project-documents",
+            "project-chats",
+        ] {
+            let line = window.find(id).bounds();
+            assert!(line.size.width <= px(760.), "{id}: {line:?}");
         }
+    })
+    .unwrap();
+    click(cx, &f, "project-back");
+    cx.update_window(f.window, |_, window, _| {
+        let line = window.find(format!("project-row-{p}")).bounds();
+        assert!(line.size.width <= px(760.), "{line:?}");
     })
     .unwrap();
 }
@@ -412,6 +639,35 @@ fn project_delete_dialog_confirms_only_by_space_on_its_danger_button(cx: &mut Te
     press(cx, &f, "space");
     assert!(!dialog_open(cx, &f));
     assert!(archived(cx, &f, &p), "Space presses the focused confirm");
+}
+
+/// The Trash review names the project first, then what goes with it.
+#[gpui_kit::test]
+fn the_trash_review_names_the_project_before_its_contents(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let p = create(cx, &f, "Japan trip");
+    cx.update_window(f.window, |_, _, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.apply_project(
+                ProjectCommand::MoveChat {
+                    chat: f.chat.clone(),
+                    project: Some(p.clone()),
+                },
+                cx,
+            )
+            .unwrap();
+        })
+    })
+    .unwrap();
+    cx.run_until_parked();
+    project_action(cx, &f, "Move to Trash…");
+    cx.update_window(f.window, |_, window, _| {
+        assert_eq!(
+            window.find("project-delete-moves").label(),
+            Some("Moves to Trash: Japan trip, Existing conversation.")
+        );
+    })
+    .unwrap();
 }
 
 /// Escape on a dialog opened from a Projects ⋯ item gives focus back to the
@@ -517,27 +773,28 @@ fn project_selection_rows_expose_names_and_selection(cx: &mut TestAppContext) {
     let title = "A full project title that may truncate visually";
     let first = create(cx, &f, title);
     let second = create(cx, &f, "Another project");
+    // Creating opens the new project's workspace; its header names it.
     cx.update_window(f.window, |_, window, _| {
-        let row = window.find(format!("project-row-{first}"));
-        assert_eq!(row.role(), Some(gpui_kit::Role::Button));
-        assert_eq!(row.label(), Some(title));
-        assert_eq!(row.selected(), Some(false));
-        assert_eq!(
-            window.find(format!("project-row-{second}")).selected(),
-            Some(true)
-        );
+        assert!(window.try_find(format!("project-row-{first}")).is_none());
+        assert!(window.find("project-title").visible());
+    })
+    .unwrap();
+    click(cx, &f, "project-back");
+    cx.update_window(f.window, |_, window, _| {
+        for (id, name) in [(&first, title), (&second, "Another project")] {
+            let row = window.find(format!("project-row-{id}"));
+            assert_eq!(row.role(), Some(gpui_kit::Role::Button));
+            let label = row.label().unwrap_or_default();
+            assert!(label.starts_with(name), "{label}");
+            assert!(label.contains("0 documents · 0 chats"), "{label}");
+            assert_eq!(row.selected(), Some(false));
+        }
     })
     .unwrap();
     click(cx, &f, format!("project-row-{first}"));
     cx.update_window(f.window, |_, window, _| {
-        assert_eq!(
-            window.find(format!("project-row-{first}")).selected(),
-            Some(true)
-        );
-        assert_eq!(
-            window.find(format!("project-row-{second}")).selected(),
-            Some(false)
-        );
+        assert!(window.find("project-title").visible());
+        assert!(window.try_find(format!("project-row-{second}")).is_none());
     })
     .unwrap();
     cx.read(|cx| {

@@ -24,12 +24,9 @@ pub(super) fn configure_offline_fixture(workspace: &mut Workspace) {
     workspace.configure(settings).unwrap();
 }
 
-/// Show one tile alone, as the Solo layout does.
+/// Show one view alone in the workspace (no supporting pane).
 pub(super) fn solo(view: &mut ThreadsUi, kind: TileKind, cx: &mut Context<ThreadsUi>) {
-    view.layout.open(kind);
-    if kind != TileKind::Settings && view.layout.maximized() != Some(kind) {
-        view.layout.toggle_maximize(kind);
-    }
+    view.layout.show_alone(kind);
     view.refresh();
     cx.notify();
 }
@@ -698,26 +695,32 @@ fn long_coverage_details_scroll_without_hiding_note_body_or_losing_issues(cx: &m
                 "presentation must preserve all stored issues"
             );
         });
-        // Outline lists the note's heading; choosing it selects that line.
+        // Outline lists the note's heading; choosing it puts the caret at
+        // that heading in the editor.
         cx.update_window(window, |_, window, cx| window.click("note-outline", cx))
+            .unwrap();
+        cx.update_window(window, |_, window, _| window.refresh())
             .unwrap();
         cx.run_until_parked();
         cx.update_window(window, |_, window, cx| {
-            let mut menu = window.within("popup-menu");
             let index = (0..20usize)
                 .find(|index| {
-                    menu.try_find(*index)
-                        .is_some_and(|row| row.label() == Some("Purpose"))
+                    window
+                        .try_find(format!("outline-entry-{index}"))
+                        .and_then(|row| row.label().map(|label| label.starts_with("Purpose,")))
+                        .unwrap_or(false)
                 })
                 .expect("Outline lists the Purpose heading");
-            menu.click(index, cx);
+            window.click(format!("outline-entry-{index}"), cx);
         })
         .unwrap();
         cx.run_until_parked();
         cx.read(|cx| {
             let editor = view.read(cx).writing.note_editor.read(cx);
             let range = editor.selected_range();
-            assert_eq!(editor.value().get(range), Some("Purpose"));
+            let heading = editor.value().find("Purpose").unwrap();
+            let line = editor.value()[..heading].rfind('\n').map_or(0, |at| at + 1);
+            assert_eq!(range, line..line);
         });
     }
 }
@@ -1340,10 +1343,8 @@ fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_or_layout_change(
     cx.run_until_parked();
     let recovery =
         cx.read(|cx| view.read(cx).workspace.store.recovery_buffers().unwrap()[0].clone());
-    cx.update_window(window, |_, window, cx| window.click("home", cx))
-        .unwrap();
-    cx.run_until_parked();
-    cx.update_window(window, |_, window, cx| window.click("layout-solo", cx))
+    // Navigating to the Inbox replaces the document in the workspace.
+    cx.update_window(window, |_, window, cx| window.click("nav-inbox", cx))
         .unwrap();
     cx.run_until_parked();
     cx.update_window(window, |_, window, cx| {
@@ -1354,7 +1355,7 @@ fn hidden_note_editor_cannot_gain_edits_from_tab_after_save_or_layout_change(
     cx.run_until_parked();
     cx.read(|cx| {
         let view = view.read(cx);
-        assert_eq!(view.layout.visible().len(), 1);
+        assert_eq!(view.layout.visible(), [TileKind::Overview]);
         assert_eq!(
             view.writing.note_editor.read(cx).value().as_ref(),
             recovery.markdown

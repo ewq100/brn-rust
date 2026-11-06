@@ -1,4 +1,5 @@
 //! Offline native-state witnesses: picker is not consent, and inbox work cannot dispatch a private queue.
+use super::inbox_page::AttemptState;
 use super::*;
 use gpui_kit::{TestAppContext, test::TestWindowExt};
 struct Fixture {
@@ -81,8 +82,8 @@ fn fixture(cx: &mut TestAppContext) -> Fixture {
                     let mut ui = ThreadsUi::new(workspace, data, window, cx);
                     ui.poll = None;
                     ui.open_thread(&chat, window, cx);
-                    ui.settings_section = SettingsSection::Data;
-                    ui.layout.open(TileKind::Settings);
+                    // The folder inbox lives in Inbox → Imports.
+                    ui.layout.open(TileKind::Imports);
                     ui.workspace
                         .queue_message(
                             "inbox-private-queued",
@@ -167,6 +168,11 @@ fn picker_alone_does_not_authorize_scan_and_general_confirmation_does_not_import
         let general:Vec<_>=records.iter().filter_map(|r|match &r.data{RecordData::Note(n) if n.chat.is_none()=>Some(n),_=>None}).collect();
         assert_eq!(general.len(),1);assert_eq!(general[0].markdown,"Chosen public source only");assert!(general[0].protected);
         assert!(records.iter().all(|r|!matches!(r.data,RecordData::Run(_))));
+        // Rescanning the same bytes skips the committed file and says so.
+        let again=ui.workspace.scan_inbox(&AtomicBool::new(false),|_,_|panic!("unchanged file must not reconvert")).unwrap();
+        assert_eq!((again.imported,again.unchanged,again.failed,again.pending),(1,1,0,0));
+        assert_eq!(again.to_string(),"Inbox: 0 imported, 1 unchanged, 0 failed, 0 pending");
+        assert_eq!(ui.workspace.records().unwrap(),records);
     })).unwrap();
 }
 #[gpui_kit::test]
@@ -219,6 +225,7 @@ fn scan_button_runs_stock_worker_and_reopens_import_without_dispatching_private_
     let bytes = include_bytes!("../../brn-intake/tests/fixtures/harbor.docx");
     let source_path = f.folder.join("harbor.docx");
     std::fs::write(&source_path, bytes).unwrap();
+    std::fs::write(f.folder.join("broken.docx"), b"not a document").unwrap();
     cx.update_window(f.window, |_, window, cx| {
         f.view.update(cx, |ui, cx| {
             ui.workspace
@@ -277,9 +284,24 @@ fn scan_button_runs_stock_worker_and_reopens_import_without_dispatching_private_
         std::thread::sleep(Duration::from_millis(10));
     }
     cx.run_until_parked();
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).notice_tone(),
+            Tone::Warning,
+            "a scan with a failed file is not reported as a success"
+        )
+    });
     let reopened = Workspace::open_existing_no_upgrade(f._root.path().join("data")).unwrap();
-    let state = reopened.inbox().unwrap().unwrap();
-    assert_eq!(state.entries.len(), 1);
+    let mut state = reopened.inbox().unwrap().unwrap();
+    assert_eq!(state.entries.len(), 2);
+    let failed = state
+        .entries
+        .iter()
+        .position(|entry| entry.name == "broken.docx")
+        .unwrap();
+    let failed = state.entries.remove(failed);
+    assert_eq!(failed.status, InboxStatus::Failed, "{failed:?}");
+    assert!(failed.note.is_none());
     assert_eq!(state.entries[0].status, InboxStatus::Imported, "{state:?}");
     let key = state.entries[0].operation_key.as_ref().unwrap();
     let operation = reopened
@@ -351,4 +373,95 @@ fn scan_button_runs_stock_worker_and_reopens_import_without_dispatching_private_
             .contains(&format!("brn-asset://{}", assets[0].0.id))
     );
     assert_eq!(std::fs::read(source_path).unwrap(), bytes);
+}
+/// Drains an import worker to its conversion result and returns the
+/// Project it was scoped to.
+fn converted_project(ui: &mut ThreadsUi) -> Option<String> {
+    let worker = ui.worker.take().expect("import worker started");
+    worker.cancel.cancel();
+    loop {
+        match worker
+            .receiver
+            .recv_timeout(std::time::Duration::from_secs(30))
+            .expect("conversion finishes")
+        {
+            WorkerEvent::Converted { useful_project, .. } => return useful_project,
+            _ => continue,
+        }
+    }
+}
+#[gpui_kit::test]
+fn import_retry_keeps_its_project_and_reports_intake_refusal(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    let source = f.folder.join("useful.txt");
+    std::fs::write(&source, "Synthetic useful text").unwrap();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            let project = ui
+                .chat_thread()
+                .and_then(|chat| project_for_chat(&ui.records, chat))
+                .map(|project| project.id.clone())
+                .expect("fixture opens a Project chat");
+            ui.start_import_attempt(source.clone(), ImportIntent::UsefulInformation, None, cx);
+            let attempt = ui.inbox_page.attempt.clone().unwrap();
+            assert_eq!(attempt.project.as_deref(), Some(project.as_str()));
+            assert_eq!(attempt.destination, "Project Private project");
+            assert_eq!(converted_project(ui).as_deref(), Some(project.as_str()));
+            ui.finish_import_attempt(Some("Synthetic conversion failure".into()), false);
+
+            // Navigating to a general new chat must not rescope the Retry.
+            ui.chat = ChatTarget::New;
+            assert_eq!(ui.import_project(ImportIntent::UsefulInformation), None);
+            ui.retry_import(cx);
+            let retried = ui.inbox_page.attempt.clone().unwrap();
+            assert_eq!(retried.project.as_deref(), Some(project.as_str()));
+            assert_eq!(retried.destination, "Project Private project");
+            assert_eq!(converted_project(ui).as_deref(), Some(project.as_str()));
+            ui.finish_import_attempt(Some("Synthetic conversion failure".into()), false);
+
+            // A Project that disappeared is refused without starting work.
+            ui.inbox_page.attempt.as_mut().unwrap().project = Some("missing-project".into());
+            ui.retry_import(cx);
+            assert!(ui.worker.is_none());
+            match &ui.inbox_page.attempt.as_ref().unwrap().state {
+                AttemptState::Failed(text) => {
+                    assert!(text.contains("no longer available"), "{text}")
+                }
+                state => panic!("{state:?}"),
+            }
+
+            // A successful conversion whose intake the service refuses is a
+            // failed, retryable attempt rather than "Opened a chat".
+            let refused = ui.useful_intake(
+                ConversionResult {
+                    intent: ImportIntent::UsefulInformation,
+                    markdown: "Synthetic useful body".into(),
+                    assets: vec![],
+                    source_sha256: [7; 32],
+                    source_reference: source.to_string_lossy().into_owned(),
+                    converter: brn_threads_intake::document_conversion_label("xberg", false)
+                        .unwrap(),
+                    sources: vec![],
+                    coverage: brn_threads_intake::Coverage {
+                        status: brn_threads_intake::CoverageStatus::Unchecked,
+                        checked_items: vec![],
+                        gaps: vec![],
+                    },
+                },
+                "useful".into(),
+                DocumentConversionSettings::default(),
+                Some("missing-project".into()),
+                window,
+                cx,
+            );
+            assert!(refused.is_some(), "missing Project intake must be refused");
+            ui.inbox_page.attempt.as_mut().unwrap().state = AttemptState::Running;
+            ui.finish_import_attempt(refused, false);
+            assert!(matches!(
+                ui.inbox_page.attempt.as_ref().unwrap().state,
+                AttemptState::Failed(_)
+            ));
+        })
+    })
+    .unwrap();
 }

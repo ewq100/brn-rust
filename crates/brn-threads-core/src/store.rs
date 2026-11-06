@@ -200,6 +200,118 @@ impl Store {
         tx.commit()?;
         Ok(())
     }
+    /// The owner's saved appearance preference key, if any. Absent (a fresh
+    /// workspace, or one saved before this preference existed) reads as `None`,
+    /// which the host resolves to its System default. Presentation only: this
+    /// is never part of a run's authority binding.
+    ///
+    /// The singleton `presentation` table lives outside the versioned records
+    /// so a theme change never bumps the Settings version that working runs
+    /// bind their authority to (THEME-02). Opening a workspace never creates
+    /// it: the first save does, so an open (including an upgrade-mode open
+    /// before its verified snapshot) leaves the database unchanged. The whole
+    /// SQLite file, and so this table, travels with backup and restore.
+    pub fn presentation_theme(&self) -> Result<Option<String>> {
+        let exists = self
+            .conn
+            .query_row(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='presentation'",
+                [],
+                |_| Ok(()),
+            )
+            .optional()?
+            .is_some();
+        if !exists {
+            return Ok(None);
+        }
+        Ok(self
+            .conn
+            .query_row("SELECT theme FROM presentation WHERE id=1", [], |row| {
+                row.get::<_, Option<String>>(0)
+            })
+            .optional()?
+            .flatten())
+    }
+
+    /// Save the owner's appearance preference. This is host-only presentation
+    /// state: it does not touch the versioned Settings record, carries no
+    /// receipt, and never fences or interrupts a working run (THEME-02). A
+    /// durable write completes before this returns, so the host never reports
+    /// a save that has not happened. The key is validated like the earlier
+    /// theme path (non-empty, short, lowercase ASCII with hyphens).
+    pub fn save_presentation_theme(&mut self, theme: &str) -> Result<()> {
+        if theme.is_empty()
+            || theme.len() > 40
+            || !theme
+                .bytes()
+                .all(|byte| byte.is_ascii_lowercase() || byte == b'-')
+        {
+            return Err(Error::Invalid("unsupported theme name".into()));
+        }
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(
+            "CREATE TABLE IF NOT EXISTS presentation(id INTEGER PRIMARY KEY CHECK(id=1), theme TEXT)",
+        )?;
+        tx.execute(
+            "INSERT INTO presentation(id,theme) VALUES(1,?1) ON CONFLICT(id) DO UPDATE SET theme=excluded.theme",
+            [theme],
+        )?;
+        tx.commit()?;
+        Ok(())
+    }
+
+    /// The desktop's last workspace location, an opaque host-owned key, or
+    /// `None` when none has been saved. Like the appearance preference it is
+    /// presentation state outside the versioned records: it carries no
+    /// receipt, never grants anything and never resumes work. Opening a
+    /// workspace never creates its table; the first save does.
+    pub fn presentation_location(&self) -> Result<Option<String>> {
+        let exists = self
+            .conn
+            .query_row(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='workspace_location'",
+                [],
+                |_| Ok(()),
+            )
+            .optional()?
+            .is_some();
+        if !exists {
+            return Ok(None);
+        }
+        Ok(self
+            .conn
+            .query_row(
+                "SELECT location FROM workspace_location WHERE id=1",
+                [],
+                |row| row.get::<_, Option<String>>(0),
+            )
+            .optional()?
+            .flatten())
+    }
+
+    /// Save the desktop's last workspace location (see
+    /// [`Store::presentation_location`]). The key is bounded and durable
+    /// before this returns.
+    pub fn save_presentation_location(&mut self, location: &str) -> Result<()> {
+        if location.is_empty() || location.len() > 4096 {
+            return Err(Error::Invalid("unsupported workspace location".into()));
+        }
+        let tx = self
+            .conn
+            .transaction_with_behavior(TransactionBehavior::Immediate)?;
+        tx.execute_batch(
+            "CREATE TABLE IF NOT EXISTS workspace_location(id INTEGER PRIMARY KEY CHECK(id=1), location TEXT)",
+        )?;
+        tx.execute(
+            "INSERT INTO workspace_location(id,location) VALUES(1,?1) ON CONFLICT(id) DO UPDATE SET location=excluded.location",
+            [location],
+        )?;
+        tx.commit()?;
+        Ok(())
+    }
+
     /// The caller's actor name, recorded beside every receipt this
     /// connection commits from now on; `None` records none. It is never part
     /// of a request's identity: a replay keeps the first actor.

@@ -29,7 +29,7 @@ impl ThreadsUi {
             _ => None,
         };
         let mut panel = div().id("settings-restore").flex().flex_col().gap_2()
-            .child("Restore a full backup")
+            .child(section("Restore a full backup"))
             .child("Create a separate recovery copy. This workspace and the backup file stay unchanged.")
             .child(button("restore-select").label("Choose backup…").outline().disabled(busy)
                 .on_click(cx.listener(|this, _, window, cx| this.choose_restore_source(window, cx))))
@@ -58,7 +58,7 @@ impl ThreadsUi {
             );
         }
         if review {
-            panel = panel.child("Storage integrity and current records checked in a private temporary copy. Restore creates the new folder shown above. Saved discussions, figures, history and unsaved recovery buffers are included. Installed skill files and original documents are not in the backup. The recovered copy requires a new inbox folder choice.")
+            panel = panel.child("Storage integrity and current records checked in a private temporary copy. Restore creates the new folder shown above. Saved discussions, figures, history and unsaved recovery buffers are included. Original documents are not in the backup.")
                 .child(button("restore-confirm").label("Restore this copy").primary().disabled(busy)
                     .on_click(cx.listener(|this, _, _, cx| this.confirm_restore(cx))))
                 .child(button("restore-discard").label("Cancel restore").outline()
@@ -71,6 +71,9 @@ impl ThreadsUi {
                     .outline()
                     .on_click(cx.listener(|this, _, _, cx| this.cancel_restore(cx))),
             );
+        }
+        if review || matches!(self.restore.phase, RestorePhase::Complete(_)) {
+            panel = panel.child(restore_exceptions());
         }
         if matches!(self.restore.phase, RestorePhase::Complete(_)) {
             panel = panel.child(
@@ -322,6 +325,29 @@ impl ThreadsUi {
         }
         cx.notify();
     }
+}
+/// What a recovered copy does not bring back, shown before and after
+/// publishing so nothing is a surprise.
+pub(super) const RESTORE_EXCEPTIONS: [&str; 3] = [
+    "The inbox folder needs to be chosen again in Inbox → Imports.",
+    "Installed skill packages are not in the backup; skills whose package is missing stay unavailable until reinstalled.",
+    "MCP access grants are not restored; each MCP use asks again.",
+];
+fn restore_exceptions() -> gpui_kit::AnyElement {
+    div()
+        .id("restore-exceptions")
+        .flex()
+        .flex_col()
+        .gap_1()
+        .child(subheading("After restore"))
+        .children(RESTORE_EXCEPTIONS.iter().enumerate().map(|(i, line)| {
+            metadata(format!("• {line}"))
+                .id(format!("restore-exception-{i}"))
+                .aria_label(*line)
+                .test_support()
+        }))
+        .test_support()
+        .into_any_element()
 }
 fn one_path(result: Result<Option<Vec<PathBuf>>, String>) -> Result<Option<PathBuf>, String> {
     match result? {

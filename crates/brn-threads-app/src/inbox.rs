@@ -17,16 +17,24 @@ pub struct InboxDocument {
 }
 #[derive(Default, Debug, PartialEq, Eq)]
 pub struct InboxScanSummary {
+    /// Every ledger entry that is a protected full note, including `unchanged`.
     pub imported: usize,
+    /// Imported entries this scan found already committed and skipped.
+    pub unchanged: usize,
     pub failed: usize,
     pub pending: usize,
 }
+/// Ledger detail for a file whose identical import was already committed.
+pub const INBOX_UNCHANGED_DETAIL: &str = "Unchanged; already a protected full note";
 impl std::fmt::Display for InboxScanSummary {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "Inbox: {} imported, {} failed, {} pending",
-            self.imported, self.failed, self.pending
+            "Inbox: {} imported, {} unchanged, {} failed, {} pending",
+            self.imported - self.unchanged,
+            self.unchanged,
+            self.failed,
+            self.pending
         )
     }
 }
@@ -223,6 +231,7 @@ impl Workspace {
                 break;
             }
             let name = state.entries[index].name.clone();
+            let mut unchanged = false;
             let outcome = (|| -> AppResult<Option<String>> {
                 let kind=kind(&name).ok_or_else(||AppError::Invalid("Unsupported file: use PDF, DOCX, PPTX, XLSX, EML, HTML, Markdown or text; folders and links are not followed".into()))?;
                 if used >= MAX_INBOX_SCAN_BYTES {
@@ -272,6 +281,7 @@ impl Workspace {
                     &settings,
                 )? {
                     let receipt = applied_receipt(outcome)?;
+                    unchanged = true;
                     return self
                         .full_import_note_in_scope(&receipt, &hash, None)
                         .map(|note| Some(note.id));
@@ -390,7 +400,12 @@ impl Workspace {
                 Ok(Some(note)) => {
                     entry.status = InboxStatus::Imported;
                     entry.note = Some(note);
-                    entry.detail = "Protected full note in General knowledge".into();
+                    entry.detail = if unchanged {
+                        INBOX_UNCHANGED_DETAIL
+                    } else {
+                        "Protected full note in General knowledge"
+                    }
+                    .into();
                 }
                 Ok(None) => {
                     entry.detail = if cancel.load(Ordering::Acquire) {
@@ -421,6 +436,11 @@ impl Workspace {
                 .entries
                 .iter()
                 .filter(|e| e.status == InboxStatus::Imported)
+                .count(),
+            unchanged: state
+                .entries
+                .iter()
+                .filter(|e| e.status == InboxStatus::Imported && e.detail == INBOX_UNCHANGED_DETAIL)
                 .count(),
             failed: state
                 .entries
@@ -540,6 +560,10 @@ mod tests {
             .scan_inbox_limited(&stop, 64, &mut conversion)
             .unwrap();
         assert_eq!((second.imported, second.failed, second.pending), (3, 1, 0));
+        assert_eq!(
+            second.unchanged, 1,
+            "the first scan's import is skipped, not redone"
+        );
         assert_eq!(calls, vec!["a.txt", "b.txt", "b.txt", "c.txt", "d.txt"]);
         let entries = workspace.inbox().unwrap().unwrap().entries;
         let failed = entries.iter().find(|e| e.name == "c.txt").unwrap();
@@ -647,6 +671,10 @@ mod tests {
             .scan_inbox_limited(&stop, 64, &mut conversion)
             .unwrap();
         assert_eq!((second.imported, second.failed, second.pending), (2, 1, 0));
+        assert_eq!(
+            second.unchanged, 1,
+            "the first scan's import is skipped, not redone"
+        );
         assert_eq!(calls, 2);
         let state = workspace.inbox().unwrap().unwrap();
         let oversized = state.entries.iter().find(|e| e.name == "c.txt").unwrap();

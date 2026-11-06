@@ -20,7 +20,9 @@ mod inbox;
 #[cfg(unix)]
 mod inbox_files;
 mod intake;
-pub use inbox::{INBOX_DESTINATION_NOTICE, InboxDocument, InboxScanSummary};
+pub use inbox::{
+    INBOX_DESTINATION_NOTICE, INBOX_UNCHANGED_DETAIL, InboxDocument, InboxScanSummary,
+};
 mod keyed;
 mod knowledge;
 mod mcp;

@@ -206,53 +206,6 @@ impl ThreadsUi {
         .detach();
     }
     #[cfg(any(target_os = "macos", target_os = "linux"))]
-    pub(super) fn skill_selector(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        let project = self.skill_project();
-        let mut row = div()
-            .id("composer-skill-selector")
-            .flex()
-            .flex_wrap()
-            .gap_1()
-            .child(metadata("Skill:"));
-        if self.skill_view.project == project {
-            for skill in self.skill_view.rows.iter().filter(|s| s.enabled) {
-                let (id, digest, scope) = (skill.id.clone(), skill.digest.clone(), project.clone());
-                let label = if skill.available {
-                    skill.id.clone()
-                } else {
-                    format!("{} · unavailable", skill.id)
-                };
-                row = row.child(
-                    button(format!("composer-skill-{}", skill.id))
-                        .label(label)
-                        .selected(skill.selected)
-                        .disabled(!skill.available)
-                        .on_click(cx.listener(move |this, _, _, cx| {
-                            this.skill_action(SkillAction::Select, &id, &digest, scope.clone(), cx)
-                        })),
-                );
-            }
-            let scope = project.clone();
-            row = row.child(
-                button("composer-skill-none")
-                    .label("None")
-                    .selected(!self.skill_view.rows.iter().any(|s| s.selected))
-                    .on_click(cx.listener(move |this, _, _, cx| {
-                        this.skill_action(SkillAction::Clear, "", "", scope.clone(), cx)
-                    })),
-            );
-        }
-        row = row.child(
-            button("composer-skills-refresh")
-                .label("Refresh skills")
-                .on_click(cx.listener(|this, _, _, cx| {
-                    this.force_refresh_skills();
-                    cx.notify();
-                })),
-        );
-        row.test_support().into_any_element()
-    }
-    #[cfg(any(target_os = "macos", target_os = "linux"))]
     pub(super) fn skills_settings(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let project = self.skill_project();
         let inactive_project = self
@@ -270,6 +223,19 @@ impl ThreadsUi {
             .child(button("skills-refresh").label("Refresh packages").on_click(cx.listener(|this,_,_,cx|{this.force_refresh_skills();cx.notify();})));
         if let Some(error) = &self.skill_view.error {
             panel = panel.child(metadata(error.clone()));
+        }
+        if self.skill_view.project == project
+            && self.skill_view.rows.is_empty()
+            && self.skill_view.error.is_none()
+        {
+            panel = panel.child(
+                div()
+                    .id("skills-empty")
+                    .child(metadata(
+                        "No instruction skills in this scope yet. Chats use BRN's built-in guidance until you install a package.",
+                    ))
+                    .test_support(),
+            );
         }
         if self.skill_view.project == project {
             for skill in &self.skill_view.rows {
@@ -390,16 +356,6 @@ impl ThreadsUi {
     pub(super) fn refresh_skills(&mut self) {
         self.skill_view.project = self.skill_project();
         self.skill_view.loaded = self.current_loaded_skills();
-    }
-    #[cfg(not(any(target_os = "macos", target_os = "linux")))]
-    pub(super) fn skill_selector(&self, _cx: &mut Context<Self>) -> gpui_kit::AnyElement {
-        div()
-            .id("composer-skill-selector")
-            .child(metadata(
-                "Local instruction skill management is unavailable on this platform.",
-            ))
-            .test_support()
-            .into_any_element()
     }
     #[cfg(not(any(target_os = "macos", target_os = "linux")))]
     pub(super) fn skills_settings(&self, _cx: &mut Context<Self>) -> gpui_kit::AnyElement {

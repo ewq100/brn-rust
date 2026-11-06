@@ -316,6 +316,7 @@ impl Workspace {
     ) -> AppResult<ActiveWritingContext> {
         let mut context = self.active_writing_context(note, opened_from)?;
         let rows = self.records()?;
+        let name = writing_conversation_title(&self.writing_note(note, None)?);
         let scope = context
             .scope
             .as_deref()
@@ -339,7 +340,7 @@ impl Workspace {
                     &format!("writing-context:{key}"),
                     ProjectCommand::CreateChat {
                         project: id.clone(),
-                        title: "Writing".into(),
+                        title: name,
                     },
                 )?;
                 receipt
@@ -354,10 +355,8 @@ impl Workspace {
             }
             Some(_) => return Err(AppError::Invalid("Writing scope is inactive".into())),
             None if context.scope.is_none() => {
-                first_record(
-                    self.new_thread_with_key(&format!("writing-context:{key}"), "Writing")?,
-                )?
-                .id
+                first_record(self.new_thread_with_key(&format!("writing-context:{key}"), &name)?)?
+                    .id
             }
             None => return Err(AppError::Invalid("Writing scope is unavailable".into())),
         };
@@ -370,6 +369,26 @@ impl Workspace {
         context.conversation = Some(thread);
         Ok(context)
     }
+}
+/// A writing conversation reads as the document it discusses.
+fn writing_conversation_title(note: &Record) -> String {
+    const MAX: usize = 60;
+    let title = match &note.data {
+        RecordData::Note(note) => note.title.split_whitespace().collect::<Vec<_>>().join(" "),
+        _ => String::new(),
+    };
+    if title.is_empty() {
+        return "Writing".into();
+    }
+    let short = if title.chars().count() > MAX {
+        format!(
+            "{}…",
+            title.chars().take(MAX - 1).collect::<String>().trim_end()
+        )
+    } else {
+        title
+    };
+    format!("About “{short}”")
 }
 impl Workspace {
     /// Read exactly this host-selected writing context, never another setup on a shared Note.

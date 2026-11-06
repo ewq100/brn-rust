@@ -30,6 +30,72 @@ impl MarkdownPlugin for LiteralHtml {
         div().child(node.as_text().to_owned())
     }
 }
+/// An image the caller's stored assets cannot supply renders as a bounded,
+/// labelled placeholder with its alternative text, instead of nothing
+/// (spec §10.1). Images that resolve keep the renderer's own image.
+#[derive(Clone)]
+struct MissingImage {
+    stored: Arc<std::collections::BTreeSet<String>>,
+    /// A paragraph holding only the image becomes a full-width block, so
+    /// its alternative text wraps; an image inside prose stays inline.
+    block: bool,
+}
+impl MarkdownPlugin for MissingImage {
+    fn name(&self) -> &str {
+        if self.block {
+            "brn-missing-image-block"
+        } else {
+            "brn-missing-image"
+        }
+    }
+    fn is_block(&self) -> bool {
+        self.block
+    }
+    fn parse(&self, node: &Node, _: &MarkdownParseContext<'_>) -> Option<MarkdownNode> {
+        let node = match (self.block, node) {
+            (true, Node::Paragraph(paragraph)) => match paragraph.children.as_slice() {
+                [only @ Node::Image(_)] => only,
+                _ => return None,
+            },
+            (true, _) => return None,
+            (false, node) => node,
+        };
+        let Node::Image(image) = node else {
+            return None;
+        };
+        if self.stored.contains(&image.url) {
+            return None;
+        }
+        let alt = image.alt.trim();
+        let text = if alt.is_empty() {
+            "Image unavailable".to_owned()
+        } else {
+            format!("Image unavailable · {alt}")
+        };
+        Some(
+            MarkdownNode::new(self.name(), ())
+                .text(text.clone())
+                .accessibility_label(text),
+        )
+    }
+    fn render(&self, node: &MarkdownNode, _: &mut Window, _: &mut App) -> impl IntoElement {
+        let p = crate::theme::pal();
+        div()
+            .w_full()
+            .my_1()
+            .px_3()
+            .py_2()
+            .rounded(gpui_kit::px(crate::theme::metrics::RADIUS_CONTROL))
+            .border_1()
+            .border_dashed()
+            .border_color(gpui_kit::rgb(p.border))
+            .bg(gpui_kit::rgb(p.alt))
+            .text_color(gpui_kit::rgb(p.muted))
+            .text_size(gpui_kit::px(crate::theme::metrics::TEXT_LABEL + 1.))
+            .whitespace_normal()
+            .child(node.as_text().to_owned())
+    }
+}
 /// Only absolute lowercase http(s) URLs may open externally; every other
 /// scheme stays inert. Unusual casing such as `HTTPS://` fails closed rather
 /// than opening an unexpected URL.
@@ -49,11 +115,50 @@ pub fn stored_image(assets: &BTreeMap<String, Arc<Image>>, uri: &str) -> Arc<Ima
 /// caller's own asset map, and `external_link` gates which links may open.
 /// Callers keep their own fonts, scrolling and caller-scoped asset map.
 pub fn safe_markdown(view: TextView, assets: Arc<BTreeMap<String, Arc<Image>>>) -> TextView {
+    safe_markdown_with(view, assets, MarkdownExtensions::default())
+}
+/// `safe_markdown` whose parse also reports its headings to `collector`
+/// (the reading view's outline). The observer runs first and declines every
+/// node, so the rendered document is the same.
+pub fn observed_markdown(
+    view: TextView,
+    assets: Arc<BTreeMap<String, Arc<Image>>>,
+    collector: &crate::outline::HeadingCollector,
+) -> TextView {
+    safe_markdown_with(
+        view,
+        assets,
+        collector.extensions(MarkdownExtensions::default()),
+    )
+}
+fn safe_markdown_with(
+    view: TextView,
+    assets: Arc<BTreeMap<String, Arc<Image>>>,
+    extensions: MarkdownExtensions,
+) -> TextView {
+    // The placeholder depends on which images are stored, so the parser
+    // revision follows the asset keys.
+    let stored: std::collections::BTreeSet<String> = assets.keys().cloned().collect();
+    let revision = {
+        use std::hash::{Hash, Hasher};
+        let mut hasher = std::hash::DefaultHasher::new();
+        stored.hash(&mut hasher);
+        hasher.finish() | 1
+    };
+    let stored = Arc::new(stored);
     view.markdown_extensions(
-        MarkdownExtensions::default()
+        extensions
             .plugin(LiteralHtml { block: true })
             .plugin(LiteralHtml { block: false })
-            .parser_revision(1),
+            .plugin(MissingImage {
+                stored: stored.clone(),
+                block: true,
+            })
+            .plugin(MissingImage {
+                stored,
+                block: false,
+            })
+            .parser_revision(revision),
     )
     .image_source(move |uri| stored_image(&assets, uri.as_ref()).into())
     .on_link_click(|url, _, _, cx| {

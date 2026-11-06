@@ -53,6 +53,8 @@ impl SearchView {
 pub(super) struct LauncherSearch {
     requests: u64,
     pub(super) pending: bool,
+    /// Current notes matched by their text, best first.
+    pub(super) passages: Vec<SearchHit>,
     pub(super) messages: Vec<ChatMessageHit>,
     task: Option<Task<()>>,
     cancel: Option<CancelOnDrop>,
@@ -280,8 +282,9 @@ impl ThreadsUi {
         self.open_thread(chat, window, cx);
     }
 
-    /// The launcher's query changed: list matching saved chat Messages
-    /// under "In chats", as the Notes search does.
+    /// The launcher's query changed: list current notes matched by their
+    /// text and matching saved chat Messages below the label matches, as
+    /// the Notes search does.
     pub(super) fn launcher_search_changed(
         &mut self,
         query: String,
@@ -293,6 +296,7 @@ impl ThreadsUi {
         let request = search.requests;
         (search.task, search.cancel) = (None, None);
         search.messages.clear();
+        search.passages.clear();
         search.pending = false;
         if query.trim().is_empty() {
             return;
@@ -319,8 +323,11 @@ impl ThreadsUi {
                 search.cancel = None;
                 // A failed search leaves label matches; the Notes search
                 // reports search errors.
-                search.messages = answer
-                    .map(|page| SearchPage::from(page).messages)
+                (search.passages, search.messages) = answer
+                    .map(|page| {
+                        let page = SearchPage::from(page);
+                        (page.hits, page.messages)
+                    })
                     .unwrap_or_default();
                 cx.notify();
             });
@@ -408,12 +415,14 @@ impl ThreadsUi {
         let results = &self.results;
         let typing = results.state.fresh();
         let notes_pending = results.state.pending(Lanes::Notes);
-        let mut block = div()
-            .id("search-results")
-            .flex()
-            .flex_col()
-            .gap_1()
-            .child(section("In note text"));
+        let mut block = div().id("search-results").flex().flex_col().gap_1().child(
+            components::section_header(
+                "In note text",
+                None,
+                Some(metadata("Current knowledge").into_any_element()),
+            )
+            .px_2(),
+        );
         if notes_pending {
             block = block.child(components::loading(
                 "search-status",
@@ -453,6 +462,7 @@ impl ThreadsUi {
             block = block.child(
                 metadata(status)
                     .id("search-status")
+                    .px_2()
                     .font_family(UI_FONT)
                     .test_support(),
             );
@@ -471,14 +481,24 @@ impl ThreadsUi {
         for (index, hit) in self.hits.iter().enumerate() {
             let id = hit.note.clone();
             let range = hit.start..hit.end;
-            let mut facts = Vec::new();
+            // The result type first: an article or a full imported reference.
+            let file = self
+                .note_rows
+                .iter()
+                .find(|row| row.id == hit.note)
+                .is_some_and(NoteRow::is_file);
+            let mut facts = vec![if file {
+                "Full imported reference".to_owned()
+            } else {
+                "Article".to_owned()
+            }];
             if !hit.heading_path.is_empty() {
                 facts.push(format!("§ {}", hit.heading_path));
             }
             if hit.matches > 1 {
                 facts.push(format!("{} passages", hit.matches));
             }
-            if hit.imported {
+            if hit.imported && !file {
                 facts.push("imported".into());
             }
             if hit.protected {
@@ -498,7 +518,7 @@ impl ThreadsUi {
                 )
                 .build()
                 .on_click(cx.listener(move |this, _, window, cx| {
-                    this.open_note(&id, None, window, cx);
+                    this.open_from_library(&id, window, cx);
                     this.reveal(range.clone(), window, cx);
                 })),
             );
@@ -563,12 +583,14 @@ impl ThreadsUi {
         else {
             return div().into_any_element();
         };
-        let mut block = div()
-            .id("search-chats")
-            .flex()
-            .flex_col()
-            .gap_1()
-            .child(section("In chats"));
+        let mut block = div().id("search-chats").flex().flex_col().gap_1().child(
+            components::section_header(
+                "In chats",
+                None,
+                Some(metadata("Chat history · not current knowledge").into_any_element()),
+            )
+            .px_2(),
+        );
         if paging {
             block = block.child(components::loading(
                 "search-chats-status",
@@ -592,6 +614,7 @@ impl ThreadsUi {
             block = block.child(
                 metadata(status)
                     .id("search-chats-status")
+                    .px_2()
                     .font_family(UI_FONT)
                     .test_support(),
             );
