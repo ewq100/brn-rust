@@ -1,198 +1,201 @@
-# Development feedback Cycle 2 — cloud
+# Cloud feedback Cycle 2 (#255)
 
-## Assignment and reconciliation
+**Outcome: no workflow or performance setting retained.** Earlier relevant test
+feedback was observed, but the prescribed repeated, matched comparisons and
+fresh confirmation were not qualified. The cycle stopped on a cache-validity
+failure within its original allocation. This is an incomplete performance
+qualification, not proof that focused-first is universally slower.
 
-Agent C owns [#255](https://github.com/ewq100/brn-rust/issues/255), then
-[the separate provider refactor #263](https://github.com/ewq100/brn-rust/issues/263).
-Cycle 1 ended at merged PR262 (`6897fe56`) with no retained setting; its
-[observations and qualifications](development-speed-255.md) remain unchanged.
-This is a new experiment, not a continuation of its timing allocation.
+Cycle 1 remains complete through PR262, merge `6897fe56`, with its
+[original findings](development-speed-255.md) unchanged. This separate cycle
+changes documentation/evidence only. Production source, Cargo configuration,
+test selection, required CI and B's updater step are unchanged by C.
 
-Frozen baseline: `6897fe56ce9457fa7d60d0354b0ba4627d5049bb`, isolated checkout
-`/workspace/brn-cycle2`, branch `agent-c/development-speed-255-cycle2`.
-The initial cloud checkout was stale (`aebfa12b`) and is untouched. Current
-AGENTS, #253/#255/#263 and selected record were reconciled before edits.
-PR258 belongs to B; preserve its updater/static-helper fix and Mac CI step.
-No shared provider/runtime/CI edits are assigned to this cycle. The old A
-Rig/Copilot completion is not the new response-limit/file-ownership handoff.
-Coordination is [on #253](https://github.com/ewq100/brn-rust/issues/253#issuecomment-6693449661).
+## Source, environment and existing workflow
 
-## Environment and bounded protocol (before candidate results)
+Frozen measurement source: `6897fe56ce9457fa7d60d0354b0ba4627d5049bb`.
+The initial cloud checkout was stale at `aebfa12b` and was left untouched.
+Task checkout: `/workspace/brn-cycle2`, branch
+`agent-c/development-speed-255-cycle2`. Later updater/runtime main changes were
+integrated only after measurements and probe restoration; these observations
+are not relabelled as measurements of that later runtime.
 
-Cloud Linux x86_64, Rust/Cargo 1.98.1, locked root and helper graphs. This
-container has a 4-CPU cgroup quota (5 visible CPUs), 16 GiB memory limit,
-no swap, and about 30 GiB writable disk available at selection. Use 4 Cargo
-jobs, `CARGO_INCREMENTAL=0`, default features, the unchanged test profile,
-fresh synthetic TMPDIR `/var/tmp/brn-cycle2-fixtures`, and no model assets.
-No Mac, native interaction or live product-provider calls. Hosted native/UI/
-retrieval compatibility gates remain separate and unchanged.
+Cloud Linux x86_64; Rust/Cargo 1.98.1; committed root/standalone locks; 4-CPU
+cgroup quota, 16 GiB memory limit, no swap; 4 Cargo jobs; incremental disabled;
+unchanged default/test profiles. Synthetic TMPDIR was
+`/var/tmp/brn-cycle2-fixtures`. Helpers used the maintained one-job builder.
+No owner Mac, native interaction, model assets or live product-provider calls.
 
-Existing guidance permits focused checks, but neither `verify-storage.sh` nor
-the default `verify-end-to-end.sh` runs a focused test before workspace build
-and Clippy. CI similarly builds/lints before workspace tests. Candidate 1 is
-an explicit developer command sequence, not a new script or CI split:
+Focused checks were **already supported** by developer guidance and prior task
+practice. The maintained bulk scripts nevertheless build/lint before tests.
+This experiment used that actual scripted entry point as its comparator; it
+does not claim to invent focused-first development or benefit a developer who
+already ran the relevant tests.
+
+Both workflows completed these unchanged commands:
 
 ```sh
-focused_status=0
-cargo test -p PACKAGE --lib FILTER --locked --offline || focused_status=$?
-# For the headless desktop probe: --bin brn-desktop instead of --lib.
-gate_status=0
-bash scripts/verify-storage.sh &&
-  bash scripts/verify-end-to-end.sh --fixtures-only || gate_status=$?
-if [ "$focused_status" -ne 0 ]; then exit "$focused_status"; fi
-exit "$gate_status"
+bash scripts/verify-storage.sh
+bash scripts/verify-end-to-end.sh --fixtures-only
 ```
 
-Baseline runs the same two scripts without the leading focused command.
-Both arms keep all their steps, default features and tests; no cache reset
-occurs inside a workflow. The complete measured local gate includes format,
-locked helper preparation/staging, workspace build, strict all-target Clippy,
-workspace tests, scripted-document tests/lint, startup and end-to-end fixtures.
-Normal hosted CI supplies its additional production/platform coverage; local
-timings are not hosted CI performance claims.
+They cover formatting, locked helpers/staged siblings, workspace build, strict
+all-target lint, workspace tests, scripted-document tests/lint, startup,
+retirement checks, offline fixtures and the CLI journey. Hosted CI supplies its
+additional platform/production coverage; no hosted speed comparison was made.
 
-One no-op control and three reversible equivalent source edits are prescribed:
+Candidate 1 prepended the existing package-only core test command. Candidate 2
+prepended the matching workspace target kind: library tests for core/AI, binary
+tests for headless UI state. The focused exit status was retained and the full
+gate still invoked after a focused failure. No new runner was shipped.
 
-| Probe | Edit | First relevant result |
+## Protocol and finite allocation
+
+Before candidate results: at most 60 minutes setup, then 90 minutes comparisons,
+16 complete comparison workflows including failed/excluded attempts, plus the
+two controlled-failure observations. One diagnosis and one final Council review
+were allocated at most 30 minutes each; neither could run. At most three
+candidates were allowed; two were examined, and no third was selected.
+
+The trial window began 19:45:47 UTC on 6 November 2026, with an unchanged
+21:15:47 UTC deadline (23:15:47 Tallinn). After baseline validation, thresholds
+were frozen at at least 20% and 5 s earlier first relevant feedback per edit,
+at most 10% median full-gate wall overhead, 15% CPU overhead and 20% RSS/disk
+overhead (75 MiB artifact allowance). Coverage/failure behavior had to remain.
+
+| Probe | Equivalent temporary edit | Intended executed filter |
 | --- | --- | --- |
-| Core | First `stored == canonical` in `locator.rs` reverses operands | `locator::tests::` in core library |
-| Offline AI | First provider inequality in `codex_auth.rs` reverses operands | `codex_auth::portable_tests::` in AI library |
-| Headless UI state | Paused-maintenance literal in `threads_state.rs` becomes equivalent `concat!` | `threads_state::tests::` in desktop binary |
+| Core | Reverse first locator equality operands | `locator::tests::` (4 tests) |
+| Offline AI | Reverse first provider inequality operands | `codex_auth::portable_tests::` (1 test) |
+| Headless UI state | Equivalent paused-maintenance `concat!` literal | `threads_state::tests::` (20 tests) |
 
-Both arms use separate target roots with the same warmed original source and
-same helper bytes. Establish each root with a complete baseline gate. Before
-each edit, restore only differing bytes, compile the restored original build,
-lint and test targets and confirm no-op freshness. Restoration compilation is
-setup, not another full verification comparison: original-source behavior was
-already qualified; each measured edited workflow runs the full gate. Run
-A–B–B–A for each probe, keeping artifact
-hashes, compiler/test summaries and complete output. Measure from the edit to
-the first **completed relevant test**, and through completion of both scripts
-directly in each run. Record process CPU/RSS/I/O and target sizes as well as
-wall time. Work duplicated by the focused command is included. Retain failures,
-interruptions and setup separately. Check nonzero matching tests and actual
-recompilation. A test-only deliberate assertion failure will check focused
-feedback and the full gate's nonzero status in an isolated probe; restore it.
+The plan used no-op controls, A–B–B–A per probe, separate roots A/B (later B2),
+original-source restoration, feature/freshness messages, helper/test hashes and
+direct monotonic timing through both scripts. Root copies preserved mtimes and
+used independent files, not hardlinks. Cache resets never occurred inside a
+workflow. Repetition was later interleaved across probes without changing each
+probe's intended A–B–B–A order, cap or deadline. It was **not completed**.
 
-Finite budget: at most 60 minutes setup/baseline qualification, then at most
-90 minutes timed comparisons, at most 16 complete timed workflows (two no-op,
-twelve edit comparisons, two fresh confirmations), plus two harmless-failure
-observations. Failed/interrupted attempts count. No second candidate without
-a concrete remaining bottleneck and a recorded budget decision. Stop on failed
-baseline qualification after two diagnosed attempts, insufficient disk/time,
-uncontrolled competing work, or unverifiable identity/coverage. There is no
-compiler-flag sweep. Freeze the practical benefit/overhead thresholds after
-baseline validation and before any candidate result. Review budget: one
-diagnosis and one final independent review, at most 30 minutes each; further
-review only for a concrete correctness/evidence finding within that allowance.
+## Observations and decisions
 
-## Council capability
+These are direct complete-workflow observations, not sums of unrelated medians.
+Each row below is a **single pair**, not a repeatable performance result.
 
-Cloud/executor skill catalogs and accessible installed skill paths have no
-Council skill; exposed tools have no Council/T3/Kiro/Copilot delegate route.
-No configured cloud fallback was discovered. Required Council diagnosis and
-review are **incomplete**, not zero-finding reviews. No Mac configuration or
-credentials were copied. Continue unaffected offline work as the issue directs.
-Codex PR code/security review and CI remain separate requirements.
+| Observation | First relevant A / B | Complete gate A / B | Decision |
+| --- | --- | --- | --- |
+| Package-only no-op control | 64.90 / 26.36 s | 75.64 / 105.30 s | Reject unconditional prepend: +39.2% wall, +73.2% child CPU; isolated package resolves an additional graph. |
+| Fixed-environment core edit | 226.84 / 77.28 s | 255.67 / 298.93 s | Unqualified: +16.9% wall, +4.8% child CPU; no balanced repeat/confirmation. A 45.3 s helper rebuild stays included in B. |
 
-## Current result
+Candidate 2's original-source full/library/binary Cargo messages were fresh and
+all common unit feature sets matched. AI retained `scripted-runs`, desktop
+`default`. Its two core test executables had the identical SHA256
+`fdd4d6e6950816ff44e558d57a24981391ad0c815cf2ffbd430cc767c8c6707e`.
+That verifies artifact identity, not cache equivalence or a speedup.
 
-The initial observation launcher could not find `/usr/bin/time`; no gate ran.
-Use a disposable Python observer with monotonic line timestamps and OS child
-resource accounting instead. That failed launch remains a setup attempt.
+The UI pair is excluded from performance comparison: A rebuilt core/AI while
+only desktop source was edited. AI's 273.38 s complete baseline is unpaired.
+All three edited paths executed nonzero intended tests and passing complete
+verification; the UI focused sequence and the later AI focused/full correctness
+check also passed. These correctness results do not complete the timing design.
 
-First cold baseline: **failed**, exit 101 after 832.676 s, first core result at
-822.033 s. Stock/adapted helper builds took 3m43s/3m45s; root build 59.59 s,
-Clippy 34.66 s. `process::tests::cancellation_kills_owned_descendant_and_joins_pipes`
-failed because the killed grandchild remained a zombie adopted by container
-PID 1 (`process::tests:` PID39585, state Z). The environment already supplies
-`/workspace/brn-environment/run-with-reaping.py` for exactly this condition.
-Its `PR_SET_CHILD_SUBREAPER` loop reaps orphaned descendants and preserves the
-command exit status, without retries, signals or test changes. The second
-qualification attempt and both comparison arms will use that existing launcher.
-The first failure stays visible; it is not an intake cancellation repair or a
-passing full gate. The failed gate did not reach scripted-document/startup/
-end-to-end checks. The existing B static-helper race is a different failure.
+## Failures, validity correction and early stop
 
-The second qualification passed: 142.118 s end to end, first core test result
-at 112.871 s, child CPU 152.370 s, maximum child RSS 2,026,932 KiB. This includes
-the helper rebuild, workspace tests, scripted-document tests/lint, startup and
-both fixture scripts (CLI journey: 108 steps, 1266 checks). That qualification's
-fixtures-only subprocess inherited the environment's older helper overrides;
-storage used newly built helpers and staged siblings. Before comparisons the
-observer pins **both** overrides to the selected root's newly built artifacts;
-both controls must pass with those same bytes. No mixed-helper comparison is
-accepted.
+- A missing `/usr/bin/time` caused one failed launch before any gate. The
+  disposable observer instead used monotonic output timestamps and OS counters.
+- The first cold gate failed after 832.68 s: container PID 1 retained a killed
+  descendant as a zombie. The existing cloud subreaper launcher fixed the
+  environment, with assertions/exit propagation unchanged. The successful
+  qualification's fixtures-only child initially inherited older external helper
+  overrides; comparisons then explicitly pinned the newly built helper bytes.
+- The first core pair is excluded: nested environment activation appended native
+  paths twice. Cargo's verbose receipt explicitly reports `PKG_CONFIG_PATH`
+  changed for `aws-lc-sys`. Single activation, a fixed native-environment digest
+  and fresh full/library/binary/helper preflights corrected that setup.
+- One helper preflight stopped before starting a sample. Warm and subsequent
+  fresh helper checks were separated. Helper rebuilds later still occurred;
+  their cause remains unresolved and their time was never subtracted.
+- **Final protocol failure:** separate targets shared one source checkout.
+  Restoring a core edit and warming only B changed the source mtime seen by A.
+  Its subsequent UI-only edit therefore included unintended core/AI rebuilds.
+  Identical source/binary bytes did not establish matched starting caches.
 
-Thresholds frozen after this passing baseline and before candidate results:
-each edit's median first relevant result must improve by at least 20% and 5 s,
-with consistent direction in both balanced repetitions; full-gate median wall
-overhead at most 10%, child CPU overhead at most 15%, maximum child RSS/disk
-overhead at most 20% (allow 75 MiB for one extra test artifact). All test identities,
-features, checks and failure behavior must be preserved. Confirm against the
-original baseline. Gains cannot be inferred from sums of unrelated medians.
+Scheduling stopped at 20:51:45 UTC; the active AI workflow finished normally at
+20:53:16 UTC. Nine of sixteen comparison attempts were used. All remaining
+performance trials were cancelled: completing the required matched repetitions
+and fresh confirmation was no longer justified within the unchanged allocation.
+No trial allowance was reset or extended. Graceful controller stops occurred
+after active observers completed, and no in-flight source was changed.
 
-Root B starts as an independent `cp -a --reflink=auto` copy of A's original-source
-artifacts, followed by the original full gate and freshness checks; no hardlinks
-are used. This matches cached dependencies without another cold dependency build.
-Any relocation/rebuild cost stays in setup evidence. Cold and warm results are
-not compared as candidate gains. The 90-minute trial clock starts at the first
-no-op control, not after preliminary candidate work.
+A future independently allocated comparison needs separate source checkouts, or
+fresh original-source verification of **every affected root immediately before
+each arm/probe**, including untouched earlier-probe dependencies and helpers.
+An initial no-op or restoring only the active root is insufficient. This cycle
+does not spend unused candidate slots or launch that follow-up.
 
-No candidate measurements or speedup are claimed yet. Raw output remains at
-`/workspace/brn-cycle2-evidence`. Stage 2 implementation remains gated by this
-cycle's closeout and A's new merged runtime plus explicit shared-file release;
-B's first-alpha candidate and publication window stay separate.
+## Work, resources and preserved evidence
 
-## Controls and candidate decision
+Twelve instrumented complete workflows comprise three setup gates and nine
+comparison attempts; eleven exited zero and the cold setup gate failed. Their
+direct wall totals are 3,242.39 s and child CPU totals 6,989.46 s. These sums are
+experiment work, not a synthetic end-to-end latency metric.
 
-Trial clock began **19:45:47 UTC**, ending no later than **21:15:47 UTC**.
-The original no-op control passed in 75.641 s, first core result 64.901 s,
-84.849 s CPU. Package-only candidate 1 passed in 105.302 s, first core result
-26.358 s, 146.942 s CPU. Its additional isolated-package dependency graph
-compiled for 26 s; wall overhead 39.2% and CPU overhead 73.2% exceed the frozen
-limits. Reject this as the unconditional sequence. Do not call the first-result
-gain a faster full gate or silently prewarm away its startup cost.
+Across the full observed 87m17s window, container CPU counters increased by
+10,758.79 CPU seconds, including intervening preflights, copies, restorations
+and diagnostics. The 67m29s trial window accounts for 8,898.34 CPU seconds.
+Quota throttling was 45.24 s over the full window. Raw counters preserve scope;
+they are not candidate-only costs. Maximum-child RSS and block I/O are recorded
+per workflow; RSS is not aggregate container peak memory. Retained targets after
+verification occupied about 11 / 7.5 / 9.5 GiB (A / rejected B / B2), including
+experiment setup and receipts, not normal-workflow artifact overhead.
 
-One further candidate is justified by that observed duplication and the remaining
-budget (over 80 minutes at this decision). Candidate 2 keeps workspace feature
-unification but selects the relevant target kind first: `cargo test --workspace
---lib FILTER` for core/AI and `cargo test --workspace --bins FILTER` for headless
-UI state, followed by the same complete gate/status handling. No Cargo/CI/product
-source is changed. Original-source `--no-run --message-format=json` checks found
-**every artifact fresh**, and the core, AI and desktop test executable paths
-exactly match the full workspace gate. AI retains `scripted-runs`; desktop retains
-`default`. This supplies the required matching target/feature identities that
-the narrower package selection did not establish. Raw artifact messages are
-retained. Preserve candidate 1's failed overhead result and its root separately.
-Candidate 2 uses a new independent copy of the original-source artifact root;
-remaining repetition/time limits and thresholds are unchanged. No third candidate
-is planned. The one no-op baseline, twelve ABBA edit workflows and two fresh
-confirmation slots still fit the original 16 timed-workflow cap, including the
-rejected candidate's one no-op observation.
+[Normalized results](development-speed-255-cycle2-results.json) classify every
+complete observation, with commands, raw-log references, tests, wall/CPU/RSS/I/O,
+hashes and exclusions. The [raw archive](evidence/development-speed-255-cycle2/raw.tar.gz)
+contains original logs, Cargo feature messages, preserved failed invocation lists,
+the pre-closeout protocol and correctness receipts. Historical drivers are audit
+material; their known shared-checkout flaw is not a recommended benchmark tool.
+Cargo summaries include setup with compilation/linking; harness execution and
+process-launch events remain separate in raw records. No pure-linker or
+universal/Mac speed claim is made.
 
-### Measurement correction before accepting an edit comparison
+## Coverage and controlled failure
 
-The initial core baseline completed in 362.271 s (first core 332.779 s). The
-initial target-kind candidate completed in 407.267 s (first core 140.694 s).
-These are **excluded from acceptance**, not a matched speedup: the relocated
-candidate helper rebuilt, and the disposable controller sourced environment
-activation a second time after its caller had already sourced it. Activation
-appends native paths; two activations double C/C++ include entries from 2 to 4,
-library and pkg-config entries from 3 to 6, and change PATH. The earlier root
-preflight had run under a single activation. This invalidates a fully warm-cache
-claim; Cargo freshness must be checked in the actual executing environment.
-Both failed comparison attempts remain counted and preserved. The scheduling
-controller was paused while the active observer finished normally, then stopped;
-all Rust bytes were restored. No in-flight source was changed.
+The harmless test-only probe failed exactly once in the focused command and
+once in the unchanged full gate. Both exited 101; the combined focused/full
+pipeline also exited 101 and invoked the full gate after the focused failure.
+No other test failed in that probe. Original bytes were then restored and the
+4 core tests passed. Formatting passes; all three probe file hashes match the
+frozen source. No Rust, Cargo, runtime-guide or CI change remains from C.
 
-Correct the disposable invocation, not product code or global configuration:
-activate once in a fresh shell, pin a digest of native setup variables, warm both
-roots' original production/lint/test/helper graphs there, and inspect full versus
-target-kind Cargo feature messages. Only then resume ABBA. Reallocate the two
-reserved additional confirmation slots to replace the excluded core attempts;
-the last A in each ABBA group provides fresh original-workflow confirmation.
-The 16-workflow cap and 21:15:47 UTC deadline remain unchanged. If all three edits
-cannot be qualified in that budget, retain no workflow change and report the
-incomplete evidence. Post-run hashes added for later observations are collected
-after the measured workflow and cannot qualify missing earlier hash receipts.
+The additional untimed AI driver initially omitted the same required subreaper
+and reproduced the container-zombie failure. That failed receipt is preserved;
+the corrected full gate and fixtures passed under the existing launcher,
+including 108 CLI steps / 1,266 checks. This is correctness evidence after the
+performance stop, not a replacement performance trial.
+
+Local documentation validation: 329 tooling tests passed / 31 skipped (360
+total); Markdown links, generated overview, shell syntax, whitespace and all
+105 archived entry hashes passed. Platform-specific/native fixture skips are
+not passing native evidence. The [local tooling output](evidence/development-speed-255-cycle2/local-tooling.log.gz)
+is retained separately from performance observations.
+
+## Review, integration and next stage
+
+Council is **incomplete**: no installed Council skill was found in cloud/executor
+catalogs or accessible skill paths, and no Council/T3/Kiro/Copilot delegate route
+was exposed. Zero Council sessions ran; actual score is **no score**. This was
+[reported once in coordination](https://github.com/ewq100/brn-rust/issues/253#issuecomment-6693449661).
+No Mac sessions or credentials were copied. Ordinary Codex review is not Council.
+
+Normal hosted platform CI, current-head Codex code/security review and unresolved
+thread checks are tracked by the Cycle 2 PR linked from
+[#255](https://github.com/ewq100/brn-rust/issues/255). Missing Council remains a
+required gate; no waiver or completed merge is claimed by this report.
+
+[Stage 2 (#263)](https://github.com/ewq100/brn-rust/issues/263) has a separate
+read-only caller/policy map, outside these measurements. No implementation branch
+or PR exists yet. A264 merged as `98802606`, and selected A265 is now merged as `a921e325`.
+C still needs explicit release of shared provider/runtime files on that
+reconciled runtime, plus Stage 1 closeout. B's first-alpha candidate,
+publication window and frozen #254/#256 builds remain separate. The refactor's
+maintainability evidence is not counted as a Cycle 2 result.

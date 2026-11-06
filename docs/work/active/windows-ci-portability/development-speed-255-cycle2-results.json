@@ -1,0 +1,373 @@
+{
+  "schema": 1,
+  "source_commit": "6897fe56ce9457fa7d60d0354b0ba4627d5049bb",
+  "outcome": "no workflow/configuration retained; justified protocol stop with incomplete acceptance evidence",
+  "timed_comparison_count": 9,
+  "comparison_cap": 16,
+  "setup_complete_workflows": 3,
+  "failed_launches_without_gate": 1,
+  "preflight_stop_before_sample": 1,
+  "complete_observation_workflows": 12,
+  "failed_complete_observation_workflows": 1,
+  "sum_observed_workflow_wall_s": 3242.390349402,
+  "sum_observed_workflow_child_cpu_s": 6989.460457,
+  "whole_experiment_observed_window": {
+    "start_utc": "2026-11-06T19:25:59.659908+00:00",
+    "end_utc": "2026-11-06T20:53:16.636184+00:00",
+    "wall_s": 5236.976276,
+    "cgroup_cpu_s": 10758.790861,
+    "cgroup_throttled_s": 45.236131,
+    "scope": "entire container counter delta, including setup/restorations/diagnostics between observations; not candidate-only CPU"
+  },
+  "trial_window": {
+    "start_utc": "2026-11-06T19:45:47.798967+00:00",
+    "end_utc": "2026-11-06T20:53:16.636184+00:00",
+    "wall_s": 4048.837217,
+    "cgroup_cpu_s": 8898.337549,
+    "cgroup_throttled_s": 41.026729,
+    "scope": "entire container counter delta, including setup/restorations/diagnostics between observations; not candidate-only CPU"
+  },
+  "original_trial_deadline_utc": "2026-11-06T21:15:47Z",
+  "package_only_control": {
+    "first_relevant_a_s": 64.90069665200008,
+    "first_relevant_b_s": 26.357920420000028,
+    "full_a_s": 75.6405447300001,
+    "full_b_s": 105.30219718500007,
+    "full_wall_overhead_percent": 39.21395934003069,
+    "cpu_a_s": 84.849421,
+    "cpu_b_s": 146.94187300000002,
+    "cpu_overhead_percent": 73.17958245112834,
+    "qualification": "single observations only; no repeatable speedup or universal slowdown established"
+  },
+  "single_fixed_core_pair": {
+    "first_relevant_a_s": 226.8370963729999,
+    "first_relevant_b_s": 77.28434752799967,
+    "full_a_s": 255.66558329999998,
+    "full_b_s": 298.93093492200023,
+    "full_wall_overhead_percent": 16.92263427229952,
+    "cpu_a_s": 690.946138,
+    "cpu_b_s": 724.370807,
+    "cpu_overhead_percent": 4.837521647743825,
+    "qualification": "single observations only; no repeatable speedup or universal slowdown established"
+  },
+  "abba_complete": false,
+  "fresh_confirmation_complete": false,
+  "council": {
+    "sessions_run": 0,
+    "diagnosis": "incomplete: installed skill/cloud routes unavailable",
+    "final_review": "incomplete",
+    "score": "no score"
+  },
+  "limits": [
+    "No UI speedup is inferred from unmatched UI rebuilds, despite identical emitted binaries.",
+    "Helper rebuild cause is unresolved; no causal helper regression or pure-linker speed claim.",
+    "Cargo summaries include setup with compilation/linking; suite execution/launch events are separate in raw records.",
+    "No paired hosted-CI measurement, live provider, owner-Mac or native interaction result."
+  ],
+  "observations": [
+    {
+      "id": "baseline-A",
+      "role": "setup",
+      "qualification": "failed: container PID 1 retained a killed descendant as a zombie",
+      "start_utc": "2026-11-06T19:25:59.659908+00:00",
+      "end_utc": "2026-11-06T19:39:52.382489+00:00",
+      "first_relevant_s": 822.0330441400001,
+      "full_workflow_s": 832.6761781100001,
+      "exit_code": 101,
+      "intended_test_results": 4,
+      "cpu_s": 1591.260034,
+      "maximum_child_rss_kib": 2028240,
+      "input_blocks_512b": 896,
+      "output_blocks_512b": 23713704,
+      "native_setup_sha256": null,
+      "helper_sha256": null,
+      "postrun_test_artifacts": null,
+      "cli_journey_completed": false,
+      "raw_record": "baseline-A.json",
+      "raw_log": "baseline-A.log"
+    },
+    {
+      "id": "baseline-A-reaped",
+      "role": "setup",
+      "qualification": "passed with subreaper; fixtures-only inherited older external helpers; not a comparison",
+      "start_utc": "2026-11-06T19:40:28.787377+00:00",
+      "end_utc": "2026-11-06T19:42:50.911766+00:00",
+      "first_relevant_s": 112.87134165399993,
+      "full_workflow_s": 142.1179408789999,
+      "exit_code": 0,
+      "intended_test_results": 4,
+      "cpu_s": 152.370377,
+      "maximum_child_rss_kib": 2026932,
+      "input_blocks_512b": 8,
+      "output_blocks_512b": 7092488,
+      "native_setup_sha256": null,
+      "helper_sha256": null,
+      "postrun_test_artifacts": null,
+      "cli_journey_completed": true,
+      "raw_record": "baseline-A-reaped.json",
+      "raw_log": "baseline-A-reaped.log"
+    },
+    {
+      "id": "baseline-B-relocated",
+      "role": "setup",
+      "qualification": "passed with current pinned helpers",
+      "start_utc": "2026-11-06T19:43:44.154485+00:00",
+      "end_utc": "2026-11-06T19:44:56.395065+00:00",
+      "first_relevant_s": 61.53041238000014,
+      "full_workflow_s": 71.72775596200017,
+      "exit_code": 0,
+      "intended_test_results": 4,
+      "cpu_s": 94.723589,
+      "maximum_child_rss_kib": 516436,
+      "input_blocks_512b": 16,
+      "output_blocks_512b": 20099008,
+      "native_setup_sha256": null,
+      "helper_sha256": {
+        "BRN_XBERG_HELPER": "96afa9b29e733f24361581160f925170449b9052110be4b991e24305138a1a07",
+        "BRN_XBERG_HELPER_BRN": "5127c0fea3ffdc351c37dd0b1d10af77c75377495beaee074db3a281fb7f6a06"
+      },
+      "postrun_test_artifacts": null,
+      "cli_journey_completed": true,
+      "raw_record": "baseline-B-relocated.json",
+      "raw_log": "baseline-B-relocated.log"
+    },
+    {
+      "id": "noop-A",
+      "role": "control",
+      "qualification": "original full-gate no-op",
+      "start_utc": "2026-11-06T19:45:47.798967+00:00",
+      "end_utc": "2026-11-06T19:47:04.060598+00:00",
+      "first_relevant_s": 64.90069665200008,
+      "full_workflow_s": 75.6405447300001,
+      "exit_code": 0,
+      "intended_test_results": 4,
+      "cpu_s": 84.849421,
+      "maximum_child_rss_kib": 463704,
+      "input_blocks_512b": 0,
+      "output_blocks_512b": 5857872,
+      "native_setup_sha256": null,
+      "helper_sha256": {
+        "BRN_XBERG_HELPER": "96afa9b29e733f24361581160f925170449b9052110be4b991e24305138a1a07",
+        "BRN_XBERG_HELPER_BRN": "5127c0fea3ffdc351c37dd0b1d10af77c75377495beaee074db3a281fb7f6a06"
+      },
+      "postrun_test_artifacts": null,
+      "cli_journey_completed": true,
+      "raw_record": "noop-A.json",
+      "raw_log": "noop-A.log"
+    },
+    {
+      "id": "noop-B",
+      "role": "candidate-1",
+      "qualification": "rejected package-only startup control: extra graph and excessive wall/CPU overhead",
+      "start_utc": "2026-11-06T19:47:04.089714+00:00",
+      "end_utc": "2026-11-06T19:48:50.105241+00:00",
+      "first_relevant_s": 26.357920420000028,
+      "full_workflow_s": 105.30219718500007,
+      "exit_code": 0,
+      "intended_test_results": 8,
+      "cpu_s": 146.94187300000002,
+      "maximum_child_rss_kib": 464664,
+      "input_blocks_512b": 16,
+      "output_blocks_512b": 6137496,
+      "native_setup_sha256": null,
+      "helper_sha256": {
+        "BRN_XBERG_HELPER": "96afa9b29e733f24361581160f925170449b9052110be4b991e24305138a1a07",
+        "BRN_XBERG_HELPER_BRN": "5127c0fea3ffdc351c37dd0b1d10af77c75377495beaee074db3a281fb7f6a06"
+      },
+      "postrun_test_artifacts": null,
+      "cli_journey_completed": true,
+      "raw_record": "noop-B.json",
+      "raw_log": "noop-B.log"
+    },
+    {
+      "id": "core-A-1",
+      "role": "excluded",
+      "qualification": "nested activation changed native setup and cache conditions",
+      "start_utc": "2026-11-06T19:52:32.311377+00:00",
+      "end_utc": "2026-11-06T19:58:35.043411+00:00",
+      "first_relevant_s": 332.77913759499984,
+      "full_workflow_s": 362.2709824450001,
+      "exit_code": 0,
+      "intended_test_results": 4,
+      "cpu_s": 987.159803,
+      "maximum_child_rss_kib": 1771472,
+      "input_blocks_512b": 888,
+      "output_blocks_512b": 11880384,
+      "native_setup_sha256": null,
+      "helper_sha256": {
+        "BRN_XBERG_HELPER": "96afa9b29e733f24361581160f925170449b9052110be4b991e24305138a1a07",
+        "BRN_XBERG_HELPER_BRN": "5127c0fea3ffdc351c37dd0b1d10af77c75377495beaee074db3a281fb7f6a06"
+      },
+      "postrun_test_artifacts": null,
+      "cli_journey_completed": true,
+      "raw_record": "core-A-1.json",
+      "raw_log": "core-A-1.log"
+    },
+    {
+      "id": "core-B-2",
+      "role": "excluded",
+      "qualification": "nested activation and helper freshness not established",
+      "start_utc": "2026-11-06T20:01:30.030684+00:00",
+      "end_utc": "2026-11-06T20:08:17.657288+00:00",
+      "first_relevant_s": 140.69369702599988,
+      "full_workflow_s": 407.2669793750001,
+      "exit_code": 0,
+      "intended_test_results": 8,
+      "cpu_s": 1016.930064,
+      "maximum_child_rss_kib": 2058724,
+      "input_blocks_512b": 765272,
+      "output_blocks_512b": 13019344,
+      "native_setup_sha256": null,
+      "helper_sha256": {
+        "BRN_XBERG_HELPER": "96afa9b29e733f24361581160f925170449b9052110be4b991e24305138a1a07",
+        "BRN_XBERG_HELPER_BRN": "5127c0fea3ffdc351c37dd0b1d10af77c75377495beaee074db3a281fb7f6a06"
+      },
+      "postrun_test_artifacts": null,
+      "cli_journey_completed": true,
+      "raw_record": "core-B-2.json",
+      "raw_log": "core-B-2.log"
+    },
+    {
+      "id": "fixed-core-A-1",
+      "role": "unreplicated",
+      "qualification": "single core observation, not ABBA/confirmation",
+      "start_utc": "2026-11-06T20:24:08.739040+00:00",
+      "end_utc": "2026-11-06T20:28:25.107892+00:00",
+      "first_relevant_s": 226.8370963729999,
+      "full_workflow_s": 255.66558329999998,
+      "exit_code": 0,
+      "intended_test_results": 4,
+      "cpu_s": 690.946138,
+      "maximum_child_rss_kib": 1998772,
+      "input_blocks_512b": 1744,
+      "output_blocks_512b": 9717984,
+      "native_setup_sha256": "71fe9f7d59807a37271b5aeacbdd8c9ba6cfb2d7697d32a007b98597a8ab6286",
+      "helper_sha256": {
+        "BRN_XBERG_HELPER": "96afa9b29e733f24361581160f925170449b9052110be4b991e24305138a1a07",
+        "BRN_XBERG_HELPER_BRN": "5127c0fea3ffdc351c37dd0b1d10af77c75377495beaee074db3a281fb7f6a06"
+      },
+      "postrun_test_artifacts": {
+        "/workspace/brn-cycle2-A/debug/deps/brn_threads_core-0af02a7b76aa863b": "fdd4d6e6950816ff44e558d57a24981391ad0c815cf2ffbd430cc767c8c6707e"
+      },
+      "cli_journey_completed": true,
+      "raw_record": "fixed-core-A-1.json",
+      "raw_log": "fixed-core-A-1.log"
+    },
+    {
+      "id": "fixed-core-B-2",
+      "role": "unreplicated",
+      "qualification": "first feedback earlier, full gate over threshold; helper rebuild cause unresolved",
+      "start_utc": "2026-11-06T20:31:20.395362+00:00",
+      "end_utc": "2026-11-06T20:36:20.028175+00:00",
+      "first_relevant_s": 77.28434752799967,
+      "full_workflow_s": 298.93093492200023,
+      "exit_code": 0,
+      "intended_test_results": 8,
+      "cpu_s": 724.370807,
+      "maximum_child_rss_kib": 2047892,
+      "input_blocks_512b": 108272,
+      "output_blocks_512b": 10858672,
+      "native_setup_sha256": "71fe9f7d59807a37271b5aeacbdd8c9ba6cfb2d7697d32a007b98597a8ab6286",
+      "helper_sha256": {
+        "BRN_XBERG_HELPER": "96afa9b29e733f24361581160f925170449b9052110be4b991e24305138a1a07",
+        "BRN_XBERG_HELPER_BRN": "5127c0fea3ffdc351c37dd0b1d10af77c75377495beaee074db3a281fb7f6a06"
+      },
+      "postrun_test_artifacts": {
+        "/workspace/brn-cycle2-B2/debug/deps/brn_threads_core-0af02a7b76aa863b": "fdd4d6e6950816ff44e558d57a24981391ad0c815cf2ffbd430cc767c8c6707e"
+      },
+      "cli_journey_completed": true,
+      "raw_record": "fixed-core-B-2.json",
+      "raw_log": "fixed-core-B-2.log"
+    },
+    {
+      "id": "fixed-ui-A-1",
+      "role": "excluded",
+      "qualification": "cross-probe shared-source mtime left core/AI stale in inactive root",
+      "start_utc": "2026-11-06T20:41:37.203679+00:00",
+      "end_utc": "2026-11-06T20:46:31.964258+00:00",
+      "first_relevant_s": 242.3784631339995,
+      "full_workflow_s": 294.0600837209995,
+      "exit_code": 0,
+      "intended_test_results": 20,
+      "cpu_s": 719.327058,
+      "maximum_child_rss_kib": 2025812,
+      "input_blocks_512b": 904,
+      "output_blocks_512b": 10855616,
+      "native_setup_sha256": "71fe9f7d59807a37271b5aeacbdd8c9ba6cfb2d7697d32a007b98597a8ab6286",
+      "helper_sha256": {
+        "BRN_XBERG_HELPER": "96afa9b29e733f24361581160f925170449b9052110be4b991e24305138a1a07",
+        "BRN_XBERG_HELPER_BRN": "5127c0fea3ffdc351c37dd0b1d10af77c75377495beaee074db3a281fb7f6a06"
+      },
+      "postrun_test_artifacts": {
+        "/workspace/brn-cycle2-A/debug/deps/brn_desktop-7aff385fc0e94334": "bdc78c67d2bba721e2550b73bcbed6656f328f199d9b94bafc3258d11ecf88bb"
+      },
+      "cli_journey_completed": true,
+      "raw_record": "fixed-ui-A-1.json",
+      "raw_log": "fixed-ui-A-1.log"
+    },
+    {
+      "id": "fixed-ui-B-2",
+      "role": "unpaired",
+      "qualification": "correctness passed; paired UI baseline has unmatched rebuild work",
+      "start_utc": "2026-11-06T20:46:35.141013+00:00",
+      "end_utc": "2026-11-06T20:48:39.190880+00:00",
+      "first_relevant_s": 1.5354094779995648,
+      "full_workflow_s": 123.35276604499995,
+      "exit_code": 0,
+      "intended_test_results": 40,
+      "cpu_s": 134.265798,
+      "maximum_child_rss_kib": 2036764,
+      "input_blocks_512b": 0,
+      "output_blocks_512b": 7022632,
+      "native_setup_sha256": "71fe9f7d59807a37271b5aeacbdd8c9ba6cfb2d7697d32a007b98597a8ab6286",
+      "helper_sha256": {
+        "BRN_XBERG_HELPER": "96afa9b29e733f24361581160f925170449b9052110be4b991e24305138a1a07",
+        "BRN_XBERG_HELPER_BRN": "5127c0fea3ffdc351c37dd0b1d10af77c75377495beaee074db3a281fb7f6a06"
+      },
+      "postrun_test_artifacts": {
+        "/workspace/brn-cycle2-B2/debug/deps/brn_desktop-7aff385fc0e94334": "bdc78c67d2bba721e2550b73bcbed6656f328f199d9b94bafc3258d11ecf88bb"
+      },
+      "cli_journey_completed": true,
+      "raw_record": "fixed-ui-B-2.json",
+      "raw_log": "fixed-ui-B-2.log"
+    },
+    {
+      "id": "fixed-ai-A-1",
+      "role": "unpaired",
+      "qualification": "baseline correctness passed; no candidate/repeat before protocol stop",
+      "start_utc": "2026-11-06T20:48:42.489867+00:00",
+      "end_utc": "2026-11-06T20:53:16.636184+00:00",
+      "first_relevant_s": 211.18198684299932,
+      "full_workflow_s": 273.37840272799986,
+      "exit_code": 0,
+      "intended_test_results": 1,
+      "cpu_s": 646.315495,
+      "maximum_child_rss_kib": 2031640,
+      "input_blocks_512b": 0,
+      "output_blocks_512b": 10405032,
+      "native_setup_sha256": "71fe9f7d59807a37271b5aeacbdd8c9ba6cfb2d7697d32a007b98597a8ab6286",
+      "helper_sha256": {
+        "BRN_XBERG_HELPER": "96afa9b29e733f24361581160f925170449b9052110be4b991e24305138a1a07",
+        "BRN_XBERG_HELPER_BRN": "5127c0fea3ffdc351c37dd0b1d10af77c75377495beaee074db3a281fb7f6a06"
+      },
+      "postrun_test_artifacts": {
+        "/workspace/brn-cycle2-A/debug/deps/brn_ai-36afabbdec3a41f3": "c1e9df5bef229bfab18a57ea43cf5939aa141dc1f077b8f92186e1926e18e012"
+      },
+      "cli_journey_completed": true,
+      "raw_record": "fixed-ai-A-1.json",
+      "raw_log": "fixed-ai-A-1.log"
+    }
+  ],
+  "harmless-statuses": {
+    "focused_exit": 101,
+    "full_gate_exit": 101,
+    "full_gate_invoked_after_focused_failure": true,
+    "pipeline_exit": 101,
+    "only_failure_was_controlled_test": true
+  },
+  "restored-source-sha256": {
+    "crates/brn-threads-core/src/locator.rs": "d232cb246511fdfcdaca74c1a38fa1066a571abc0b550b8bbc2d6c39ba8d071e",
+    "crates/brn-ai/src/codex_auth.rs": "81f650b45cf6b3d0e672ec21e5f717f3691eafab8b5a486540d29d5f96bf3cc0",
+    "crates/brn-desktop/src/threads_state.rs": "5bed7d72b980864acce6e5ddfa8063d3a6fdc6b086d8476f8339074deeb068f0"
+  }
+}
