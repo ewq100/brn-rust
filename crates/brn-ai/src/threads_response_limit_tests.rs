@@ -5,6 +5,7 @@ use super::*;
 use std::sync::atomic::AtomicUsize;
 use std::time::{Duration, Instant};
 
+#[cfg(unix)]
 const TEXT_DELTA: &str = "data: {\"type\":\"response.output_text.delta\",\"delta\":\"x \",\"item_id\":\"msg_l\",\"output_index\":0,\"content_index\":0,\"sequence_number\":1}\n\n";
 const KEEPALIVE: &str = ": keep-alive\n\n";
 
