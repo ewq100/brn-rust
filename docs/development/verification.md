@@ -106,3 +106,8 @@ target roots, record their hashes, and export both `BRN_XBERG_HELPER` and
 built CLI for fixture children that deliberately clear `BRN_*` variables. Missing helpers and skipped tests cannot qualify a faster
 suite. Hosted queue/setup time, required-check completion and aggregate runner
 work are distinct from compilation or test execution.
+
+Alternate arms (for example ABBA) for execution timings and reuse the same built
+artifacts. Before attributing a difference to configuration, rerun identical
+binaries across slots and verify their hashes. A process guard limited to Cargo
+and compiler processes does not establish that the host was otherwise quiet.

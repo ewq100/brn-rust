@@ -2,12 +2,15 @@
 
 ## Outcome
 
-No default performance configuration is retained. The package-only AI test
-optimization trial made compilation faster but made complete workspace feedback
-slower. The second bounded trial (AI codegen-units=512, optimization retained) also
-regressed compilation and was rejected early. Product code, tests,
-features, toolchain, locks and CI gates are preserved. This PR improves the
-measurement/setup guidance and records a reproducible negative result.
+No default performance configuration is retained. AI test opt-level0 repeatedly
+showed faster compilation, but its execution effect remains unresolved: earlier
+runs of identical core binaries were near baseline speed, while later runs were
+substantially slower. The sequential protocol cannot attribute that difference
+to optimization. The budget ended without a qualified net improvement. The
+codegen-units512 arm also showed no benefit, but lacked a contemporaneous control
+in the degraded-host window. Product code, tests, features, toolchain, locks and
+CI gates are preserved. This PR records incomplete performance qualification and
+corrects measurement/setup guidance; it does not prove these levers harmful.
 
 Scope: [#255](https://github.com/ewq100/brn-rust/issues/255), ordered by
 [#253](https://github.com/ewq100/brn-rust/issues/253). Current status/gates live in
@@ -30,13 +33,15 @@ Normal background desktop load remains a limitation. Claims apply to this host,
 source and feature graph; there is no Linux, Windows, product-runtime or hosted
 CI speedup claim.
 
-The accepted comparison dataset is only `baseline-final` / `candidate-final`,
-run under a coordinated quiet slot starting 15:44 UTC, with a process guard that
-cancels its own process group on competing builds. Both arms start in new
-artifact roots and use the same commands, features, helpers and repetition order.
-Older trials below are exploratory/excluded, not pooled into headline medians.
+The final sequential dataset is `baseline-final` / `candidate-final`, starting
+15:44 UTC in a reserved build slot. Both arms use new artifact roots, matching
+commands/features/helpers and repetition order. The guard detects build/compiler
+processes, not all background load, thermal effects or filesystem work. Baseline
+always ran first; there was no alternation. Earlier same-artifact execution is
+therefore essential counterevidence, not an observation to discard.
 
-Seconds: median (range), three repetitions per warm row:
+Observed seconds: median (range), three repetitions per warm row. Differences
+are not causal execution/configuration effects:
 
 | Work | Original test optimization | AI package opt-level=0 |
 | --- | --- | --- |
@@ -53,12 +58,19 @@ the spread is preserved, and a single cold pair is not universal performance
 proof. The AI test executable grows from 44.01 to
 67.68 MiB. Peak RAM was not measured.
 
-The AI edit followed by the complete workspace gate costs approximately
-102.31 → 108.24 s (sum of medians; not a separately timed combined
-sample), **5.8% slower**. AI-only focused feedback gets
-faster, but this is unsuitable as the default for general development and test
-feedback. **Candidate 1 rejected.** No no-op/core/UI speedup is inferred from
-small or overlapping results.
+The AI edit plus workspace arithmetic is102.31→108.24s (+5.8%), a sum of
+medians from this later sequential pair. It is **not a proven regression**. Earlier
+`candidate-runtime` workspace runs were69.90/67.11/67.08s (same1491/0/9), near
+baseline. The CLI, AI test and journey binaries have identical SHA-256 hashes
+across those candidate slots (see results JSON); not every test binary is
+identical—`agent_contract` differs. Identical important binaries ran at baseline
+speed earlier and slower later, which confounds the execution conclusion.
+
+Compilation gains are repeatedly observed on this frozen source. Execution
+qualification and net benefit remain unresolved, so **Candidate1 is not retained
+within the budget**. No no-op/core/UI causal speedup is claimed. The no-op ranges
+are disjoint, but no configuration is compiled during a no-op; host/cache effects
+are a plausible explanation, not an optimization result.
 
 Both final arms passed all three repetitions of the AI suite (598 passed,
 2 retained ignores) and full workspace (1491 passed, 0 failed, 9 retained
@@ -75,8 +87,11 @@ Kept the original optimization/checks and changed only AI codegen units to512.
 Single clean control: 263.03 s versus214.28 s baseline. Three core-edit
 compilations: 28.69, 32.99, 30.38 s (median 30.38),
 versus17.96–21.17 s baseline. First auth edit: 56.16 s versus35.03–36.63 s.
-The owned compiler command included `-C codegen-units=512`. These regressions
-justify early rejection; no gain or full-suite qualification is claimed. No
+The preserved candidate manifest/script configure512CGU and the AI fingerprint
+changes with optimization/checks retained; the observed compiler argv was not
+preserved as a raw log. These are observed slower timings in one unpaired arm, following the degraded
+host window. No benefit was demonstrated, so it was not retained; a causal
+compilation regression is not established. No full-suite qualification is claimed. No
 third candidate was entered: remaining proposals were broader/riskier and the
 finite budget had no justified next trial.
 
@@ -130,7 +145,11 @@ fraction of a second); full-workspace wall rows include that setup and process
 launch overhead. The first complete execution is slower than the next two and
 remains in the range. Source edits must be restored only when bytes differ,
 then compiled; check no-op freshness and exact rebuilt artifact sets before the
-next group. Verify no crate/helper/lock/source drift; confirm against a fresh
+next group. The one-off final-pair script's `finally` restored its candidate
+manifest, not baseline; explicitly restore the original manifest afterward and
+verify source/config hashes, as this work ultimately did. For future execution
+qualification alternate arms (ABBA), reuse/hash the same binaries across slots,
+and control/observe non-compiler host load; Cargo-only guards are insufficient. Verify no crate/helper/lock/source drift; confirm against a fresh
 original-baseline run. Do not run these semantic-equivalence probes on a platform
 where their function is excluded; this cycle qualified the Unix/Mac paths only.
 
@@ -157,8 +176,8 @@ Sol/Opus found that unconditional cleanup rewrote already-restored bytes and
 contaminated the next probe. Fixed, with complete fresh/artifact-set checks,
 before final measurements. All ranked the narrow AI profile lever; Grok required
 more attribution and stricter acceptance. Final attribution is the controlled
-paired outcome, not a guess from normal-library codegen. The execution regression
-makes the initial optimization recommendation unsuitable as a default.
+paired outcome, not a guess from normal-library codegen. Final review exposed conflicting same-binary execution evidence, so the lead
+withdrew the regression claim. The optimization remains unqualified, not disproven.
 
 Retained failures/exclusions: initial AI execution 595 passed/3 helper-Unavailable
 failures/2 ignored; missing helper setup fixed before qualification. Initial
@@ -189,3 +208,15 @@ covers correct freshness, helper identity/staging, failed evidence and comparabl
 cache/feature conditions. Hosted current-head CI, Codex/security review and normal
 integration status are recorded in the existing task/PR; no native or release
 acceptance is claimed for this headless work.
+
+## Review disagreement and disposition
+
+Round2: Sol9/10 found no actionable issue; Grok8/10 endorsed rejection with
+documentation nits; Opus5/10 found the material time-slot/same-binary confound.
+The lead verified identical CLI, AI-test and journey hashes and the earlier
+67-second candidate runs. Opus's claim that every test-binary hash was identical
+is too broad (`agent_contract` differs), but the verified counterevidence is
+sufficient to withdraw causal execution and codegen-regression claims. Scores
+and majority agreement do not resolve this evidence problem. Guidance now adds
+alternation and same-artifact cross-slot checks. No new experiment is authorized
+by this correction; round3 is a bounded recheck of these material corrections.

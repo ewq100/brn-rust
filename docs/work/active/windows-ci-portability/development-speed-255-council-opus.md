@@ -56,3 +56,83 @@ The ranking below rests on two findings. First, a bug in the probe script contam
 - **Replacing the crypto provider (aws-lc):** it's a product and dependency change.
 - **Moving `brn-ai` tests into a separate crate:** this is the one maintainability boundary in play, and I recommend deferring it. One cold measurement plus a noisy AI probe isn't repeated difficulty. Revisit only if the `brn-ai` test unit still dominates the critical path after candidate 1, across two clean measurements.
 
+
+
+# Round 2 — final review
+
+Route: acpRegistry_copilot / claude-opus-5.5
+Options: [{"id":"reasoning_effort","value":"high"}]
+Thread: <t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A0d444406-0a49-4f34-8b58-7d6d083289dd%3Adelegate-task%3A255-final-opus-2>
+
+# Council review round 2 for #255 (HEAD `2283b8d8`): 5/10, changes needed before merge
+
+**Verdict:** Changes needed. Keeping no performance change is acceptable, but the reason given for rejecting Candidate 1 is contradicted by the PR's own preserved evidence.
+
+This was a read-only review. Nothing was edited, built, tested or run against a provider.
+
+## What checks out
+- **Scope:** The diff from `origin/main` to HEAD touches 11 documentation and evidence files only. `crates`, `Cargo.toml`, `Cargo.lock`, `.github`, `agent`, `rust-toolchain.toml` and `.cargo` are byte-identical to main.
+- **Final-pair numbers:** Every number in the markdown table matches `results.json` and `final-pair.log`. The derived figures also hold: test executables 44.01 → 67.68 MiB, combined AI-edit-plus-workspace 102.31 → 108.24 s (+5.8%), and 1491/0/9 test counts in all six workspace runs.
+- **Candidate 2:** The rows for codegen-units=512 match the observations file, and the two excluded rows are marked as excluded.
+
+## Findings
+
+**1. High — The workspace "regression" behind rejecting Candidate 1 is contradicted by identical binaries.**
+- **Where:** `development-speed-255.md` (the 91.79 workspace row, the "5.8% slower" sentence and "Candidate 1 rejected"); `record.json` attempt 4; the overview "Owner attention" line.
+- **Evidence:**
+  - The `candidate-runtime` workspace runs (observations rows 72–74, around 14:12 UTC, no competing builds) took **69.90 / 67.11 / 67.08 s**, all 1491/0/9.
+  - The `candidate-final` runs (around 16:07 UTC) took **148.17 / 91.69 / 91.79 s**.
+  - Both arms ran the same opt0 artifacts:
+    - `debug/brn` SHA-256 `83f19589…` in both.
+    - `brn_ai-0ab1430b85b5c63e` SHA-256 `9c1edc4e…` in both.
+    - The ordered list of test-binary names and hashes is identical (same md5).
+  - The per-binary `finished in` totals were 52.71 s (earlier opt0), 69.41 s (final opt0) and 52.96 s (baseline). The extra time is in subprocess-heavy suites such as `agent_journeys` (5.9 → 9.6 s), `retrieval_eval` and `user_scale`.
+  - So identical binaries ran at baseline speed in one slot and 37% slower in another. The difference comes from the environment or run order, not from the setting.
+- **Why it wasn't caught:** The pair always ran baseline first and candidate second, with no alternation. `quiet.py` only detects `cargo`, `rustc` and `cargo-clippy` processes, so any other host load was invisible to it.
+- **Same issue, smaller:** The AI suite was 10.81–12.57 s earlier and 12.08–12.12 s in the final run, with the same binary.
+- **Disclosure gap:** The markdown mentions "three full reruns" but omits their timings, which contradict the headline.
+- **Proposed fix:**
+  - Restate Candidate 1 as: compilation clearly faster (AI edit 35.3 → 16.4 s, two cold pairs both faster); execution effect **unresolved or confounded**; not retained because it was not qualified within the budget.
+  - Drop "full-suite execution regresses" and "~6% slower" as findings. Cite the 67 s same-binary runs and the time-of-run confound.
+  - Make the same wording change in `record.json` and the overview, and add a protocol note to `results.json`.
+- **Status:** This is an invalid comparison, not a measured lack of improvement.
+
+**2. Medium — Candidate 2's rejection relies on a single arm with no baseline from the same time slot.**
+- **Where:** the Candidate 2 section and `results.json` `.candidate2`.
+- **Evidence:** It ran 16:13–16:26 UTC, right after the slot where identical binaries slowed down. It is compared only with baseline numbers taken about 30–40 minutes earlier. Its cold time (263 s) also sits within the cold spread already recorded (214–245 s).
+- **Proposed fix:** Describe it as "observed slower in one unpaired arm during a degraded-host window; no gain shown; not retained." Do not say it "regressed compilation."
+- **Status:** Missing improvement, weakly evidenced.
+
+**3. Medium — The new measurement guidance misses the lesson this experiment actually taught.**
+- **Where:** `verification.md`, "Measure development feedback."
+- **Gap:** It covers freshness, helper setup and preserving failed attempts. It does not cover run-order and time-slot effects.
+- **Proposed addition (two sentences):**
+  - "Alternate arms (ABBA) for execution timings and reuse the same built artifacts; before attributing a difference to configuration, re-run identical binaries across slots."
+  - "A process guard limited to Cargo does not prove the host was quiet."
+
+**4. Low — The final-pair script restores the candidate manifest, not the baseline.**
+- **Where:** `target/development-speed-255/final-pair.py`, whose `finally` block writes the candidate manifest.
+- **Impact:** It is a local, unshipped one-off, and the current `Cargo.toml` hash matches main. It does affect reproducibility, so mention it in the reproduction notes if those scripts are referenced.
+
+## No-change decision
+Not retaining a default configuration is defensible. Execution qualification and full-suite identity were required gates, and the finite budget ended. The problem is the stated reason.
+
+As written, the documents present measurement noise as a negative result for Candidate 1. Future cycles could then dismiss a lever that has real compile-time gains: roughly 19 s faster per AI edit and about 80–110 s faster cold builds. The cost is 54% larger test executables.
+
+I am not asking for new performance work. If the owner chooses, an ABBA re-run of the preserved artifacts would be the cheapest way to resolve it.
+
+## Security assessment
+No issues found.
+- **Changed files:** Documentation, JSON and JSONL only. Shipped runtime prompts under `agent/`, CI and code are unchanged.
+- **Secrets and private paths:** A scan of the added lines found no credentials, tokens or private absolute paths. Home paths are rendered as `${USER_HOME}`.
+- **Data exposure:** Fixtures are synthetic, with a temp directory outside Git. Raw logs stay local in `target/`.
+- **External actions:** None in the diff. No live provider calls, no billing or security setting changes, no check bypass, no release.
+- **Authority:** The guard script only signals its own process group and does not grant any authority. The evidence makes no unearned ownership or acceptance claims.
+- **Pending gates:** Hosted CI, Codex review and security review are correctly recorded as pending, not passed.
+
+## Score: 5/10
+- **For:** The scope is clean, the bookkeeping is honest about failures, provenance and identity checks are excellent, and the setup and freshness guidance is useful.
+- **Against:** The main conclusion for Candidate 1 rests on a confounded comparison that the PR's own evidence refutes, and Candidate 2's conclusion inherits the same confound.
+
+The evidence is incomplete for any execution claim. It is adequate for the compile-time claims, which hold on this host and source only.
+

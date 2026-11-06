@@ -62,3 +62,49 @@ Defer a crate or test split. The repeated cost is one `cfg(test)` rustc unit plu
 
 Leave the PR258 macOS updater step untouched. Historical CI only says the same test profile sits on the old Mac critical path. It is not a before/after result.
 
+
+
+# Round 2 — final review
+
+Route: acpRegistry_copilot / grok-4.7
+Options: [{"id":"reasoning_effort","value":"xhigh"}]
+Thread: <t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A0d444406-0a49-4f34-8b58-7d6d083289dd%3Adelegate-task%3A255-final-grok-2>
+
+Round 2 review, Grok 4.7. Read-only. HEAD `2283b8d8` versus `origin/main` `7ae7ebf1`. Diff is docs and task routing only. Product crates, `Cargo.toml`, `Cargo.lock`, `.github`, and `agent/` match main. Working tree is clean. I did not rebuild, retest, or treat pending CI, Codex, or security review as passed.
+
+## Score: 8/10
+
+The no-change decision is justified by a valid experiment, not by a failed protocol. Headline numbers match the raw final-pair logs, suite output, artifact profiles, lock hash, and Rig 0.45 fingerprints. Two low documentation nits keep this from 9. They do not reopen measurement.
+
+## Findings
+
+**Low — outcome sentence misstates the no-op result.** `docs/work/active/windows-ci-portability/development-speed-255.md`, Candidate 1 close. It says no no-op/core/UI speedup is inferred from small or overlapping results. Core (`17.96–21.17` vs `17.91–20.62`) and UI overlap. No-op does not: `0.905–1.076` vs `0.299–0.310`. Say no-op compilation was faster, core/UI overlap, and none of that is a retained default because full-suite feedback regressed.
+
+**Low — codegen flag observation is not in the preserved logs.** `development-speed-255-results.json` `flag_evidence`, and the same sentence in the task doc. I found no saved `rustc` argv containing `-C codegen-units=512`. What is preserved is `Cargo.candidate-two.toml`, `candidate-two.py`, opt-level still 1 with assertions and overflow checks, and a changed `brn_ai` fingerprint (`fa4d4d0228d2a525` vs baseline `bbfa16938722e9ba`). Reword to that. Do not rerun.
+
+**Low — task routing is one minute behind HEAD.** `record.json` / generated `docs/work/overview.md`, observed `16:26:54Z`, still say the next action starts with reconciling main. `2283b8d8` at `16:28:01Z` already contains `origin/main`. Update the record and regenerate the overview: main is reconciled; remaining work is this review and normal PR follow-through. Do not mark hosted CI, Codex, or security review passed.
+
+## Decision
+
+Rejecting both candidates is correct. Opt0 makes AI compilation faster (`35.298` to `16.449` s, no range overlap) and the single cold control faster (`214.283` to `133.402` s), but AI suite execution is slower (`10.113` to `12.094` s, no overlap) and the stable workspace repeats are slower (`66.37/67.01` vs `91.69/91.79`). The disclosed median sum, `102.31` to `108.24` s, is about 5.8% slower. The record’s “+6%” is rounding; the task doc has 5.8%. That is enough to refuse a general default.
+
+Codegen-512 is also a valid early reject: cold `263.028` s, all three core edits `28.691/32.987/30.379` s versus baseline max `21.17`, first auth edit `56.157` s. Completed second auth edit `54.851` s is marked excluded and is also slower. The interrupted restore (`exit -2`) is the partial sample. No contradictory win was dropped.
+
+This is a missing improvement, not an invalid experiment. Contaminated trials were preserved and kept out of the headline pair. Do not start another candidate, crate split, CI change, or architecture survey.
+
+## Consistency
+
+Final-pair commands, jobs=4, incremental=1, and `competing: []` match the protocol. Each arm: workspace `1491/0/9` summed from the logs; AI suite `598/0/2`; probes 5, 1, and 20, all nonzero. Stale sets match across all six repeats: core 115, AI 86, UI 1. Cold logs have 383 artifact messages and 378 unique identities. Only `brn_ai` normal/test opt-level changes, 1 to 0; debug assertions and overflow checks stay on. Test executable `46151312` to `70966688` bytes. Frozen lock SHA-256 matches `e210c2c0`. Both cold logs are `rig-core`/`rig` 0.45.0. Current main lock is 0.46.0 and is not used as a performance claim. Probe sources and committed `Cargo.toml` are restored. CI still sets `CARGO_INCREMENTAL: '0'`.
+
+## Guidance
+
+`docs/development/verification.md` is the useful deliverable. It records the failures that actually happened: restore only on byte change, fresh no-op before the next group, compare artifact sets, separate compile from execution, qualify both helpers and stage them beside the CLI, keep incremental-on local times distinct from CI, and preserve failed attempts. That is enough. No shipped benchmark runner is needed.
+
+## Objections
+
+Workspace full ranges overlap only because the first-run outliers were retained (`102.94` and `148.17`). The doc says so. Stable repeats and the AI suite do not overlap. Do not rerun for a combined edit-plus-suite sample or a second cold pair. Non-AI cold units also moved (`aws-lc-sys` `63.96` to `48.98`, `rig-core` `38.7` to `28.36`), which is why one cold pair cannot be a universal claim. The doc already limits it that way.
+
+## Security
+
+No finding. Changed files do not touch the checked writer, credentials, provider transport, MCP dispatch, helper restrictions, or `agent/` prompts. Record limits still forbid production data, live provider calls, billing or security changes, check bypass, force-push, and release. Committed observations use `${REPO}` and contain no home paths, tokens, or credential material. Local logs stay untracked. The auth probe was an operand swap, tests passed, and the source was restored. No new authority or external action.
+

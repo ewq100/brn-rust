@@ -42,3 +42,26 @@ Do not combine default/scripted and capability feature configurations merely bec
 
 Reviewed frozen HEAD `e210c2c0`; no edits, builds, tests, provider calls or delegation performed.
 
+
+
+# Round 2 — final review
+
+Route: codex / gpt-6.1-sol
+Options: [{"id":"reasoningEffort","value":"xhigh"},{"id":"serviceTier","value":"default"}]
+Thread: <t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A0d444406-0a49-4f34-8b58-7d6d083289dd%3Adelegate-task%3A255-final-sol-2>
+
+**No actionable findings. Score: 9/10.** I reviewed HEAD `2283b8d8` against `origin/main` at `7ae7ebf1`, including the evidence, raw logs and probe scripts. Standards and task-scope review pass.
+
+- **Scope:** All 11 changed files are documentation, evidence or routing. Production crates, manifests, lockfile, CI and runtime prompts match main.
+- **Evidence:** Recorded timings, medians and ranges reconcile with observations. All 378 artifact identity/feature keys match; only the two AI optimization profiles differ, retaining assertions and overflow checks. Probe freshness, exact rebuild sets, nonzero test execution and helper/sibling hashes check out.
+- **Decision:** Rejecting both candidates is justified. Opt0 improves focused compilation but worsens complete feedback; CGU512 has sufficient cold/core/auth regression evidence for early rejection. Missing optimization is an acceptable bounded outcome, not an invalid experiment. Excluded failures and partial samples remain visible.
+- **Guidance:** The `docs/development/verification.md:79` capture useful corrections: source restoration, freshness, helper staging, feature identity and compilation versus execution. Deferring a crate/test split is proportionate.
+
+My methodological reservation is limited confidence beyond this experiment: one cold control per arm, sequential arm order and ordinary host noise cannot establish universal performance. The reported 5.8% regression is explicitly a sum of medians, not a directly measured combined sample. These limits are disclosed and do not undermine rejection. Frozen Rig 0.45 results must remain separate from integrated Rig 0.46 claims.
+
+**Security assessment:** Against the threat model, I found no introduced data exposure, credential disclosure, external-action path or authority expansion. Changed evidence normalizes local paths; shipped credential, provider, filesystem, checked-writer and cancellation enforcement remains unchanged. The disclosed cleanup failure is excluded historical evidence, with no mechanism shipped.
+
+Evidence is sufficient for the bounded no-change conclusion. Current-head hosted CI, Codex/security review and integration remain pending; this review does not establish those gates or native/owner acceptance.
+
+Read-only throughout: no edits, builds, tests, provider calls, delegates or watchers.
+

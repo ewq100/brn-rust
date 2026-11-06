@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Publish and integrate the bounded #255 development-feedback findings and reliable measurement guidance.
-**Owner attention:** No performance configuration retained: opt0 regressed full-suite feedback, codegen512 regressed compilation. Final independent review and normal PR/CI follow-through remain.
+**Owner attention:** No default configuration qualified within budget. Final review found same-binary cross-slot execution confounding; causal slowdown claims withdrawn. Corrected methodology/evidence are in final bounded recheck.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -54,17 +54,17 @@ Gates:
 ### Measure and improve development feedback (#255)
 
 Task ID: `development-speed-255`
-Owner: Agent C / Codex GPT-6.1 Sol · State: **active** · Last observed: 2026-11-06T16:26:54.079230+00:00
-Activity: Both bounded candidates rejected; original Cargo/Rust/CI bytes restored and trial processes reaped. Final uncongested opt0 pair preserves all tests but worsens full-suite feedback;512CGU cold/core/auth are slower. Measurement ended within original budget; slot released.
-Next: Reconcile current main, final read-only Council review of no-change/evidence/guidance, focused PR, Codex/security/current-head CI and normal integration.
+Owner: Agent C / Codex GPT-6.1 Sol · State: **active** · Last observed: 2026-11-06T16:49:06.247523+00:00
+Activity: Main reconciled. Round2 Sol9/10/Grok8/10 endorsed initial reading; Opus5/10 identified time-slot confounding. Verified identical CLI/AI/journey hashes ran near baseline earlier; withdrew causal regression claims. Product/config restored, execution qualification unresolved.
+Next: Complete bounded round3 recheck of corrected attribution, then focused no-change PR, current-head CI/Codex/security and normal integration.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** No performance configuration retained. Measurement/helper/freshness guidance corrected; frozen before/after and negative evidence recorded. No product/test/gate changes.
-- **checks:** Original and opt0 final arms each3 workspace1491/0/9 and AI598/0/2; exact nonzero probes/features/checks verified. Candidate2 early rejected on repeated core regression plus cold/auth evidence; later partial samples excluded. Docs/link/overview checks pass; final review/hosted CI pending.
+- **implementation:** Documentation/evidence only; no configuration retained because net performance is unqualified within the budget, not proven harmful. Guidance adds ABBA/same-binary checks and limits Cargo-only guards.
+- **checks:** Recorded final pair has all3 workspace1491/0/9 and AI598/0/2 passes. Earlier same-binary candidate67s versus later92s confounds execution attribution. Compilation gain observed; candidate2 unpaired slower readings not causal proof. Docs/link/overview checks pass; round3 and hosted gates pending.
 - **integration:** Not published or merged. Preserve Agent B updater and Agent A runtime ownership.
 - **native:** Inapplicable: headless build/test tooling scope; existing hosted compatibility checks retained.
 - **owner acceptance:** Current owner assignment authorizes implementation, Council and focused PR; no manual UI acceptance requirement.
@@ -83,4 +83,4 @@ None recorded.
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-11-06T16:26:54.079230+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T16:49:06.247523+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

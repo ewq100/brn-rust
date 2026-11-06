@@ -378,7 +378,7 @@
       "baseline-final",
       "candidate-final"
     ],
-    "measurement_claim": "Only this completed uncontended pair supplies the headline results; prior exploratory/interrupted observations are preserved separately.",
+    "measurement_claim": "All readings retained; final sequential pair and earlier identical-artifact runs together show unresolved execution qualification. No causal execution slowdown or net default improvement claimed.",
     "measurement_end_utc": "2026-11-06T16:25:31.020555+00:00"
   },
   "candidate2": {
@@ -391,9 +391,32 @@
     ],
     "core_median": 30.3786,
     "first_ai_edit_seconds": 56.1573,
-    "outcome": "Rejected early: cold and all3 core edits slower, first auth edit slower. No full-suite performance/acceptance claim.",
-    "flag_evidence": "Observed owned brn_ai rustc with -C codegen-units=512 at16:17UTC",
+    "outcome": "Observed slower in an unpaired arm following the degraded-host window. No benefit demonstrated; not retained within the finite budget, not a proven causal compilation regression.",
+    "flag_evidence": "Preserved Cargo.candidate-two.toml and candidate-two.py configure512CGU; opt-level1/checks retained; brn_ai fingerprint differs. Compiler argv observation was not saved as a raw log.",
     "excluded": "Stop cleanup restored manifest before the final owned process fully stopped; later/partial auth observations excluded. Corrected stop handling, reaped owned process group, restored every source/config byte."
   },
-  "outcome": "No default performance configuration retained; both candidates rejected. Documentation/evidence only."
+  "outcome": "No default configuration retained: compilation gains observed, execution qualification confounded by host/time-slot effects; budget ended without a qualified net improvement.",
+  "methodological_limits": {
+    "order": "Sequential baseline then candidate; no ABBA alternation.",
+    "guard": "Detects build/compiler processes only, not all host load, thermal state or filesystem work.",
+    "contradictory_same_artifact_runs": {
+      "candidate-runtime_workspace_seconds": [
+        69.899171875,
+        67.106825958,
+        67.07699525
+      ],
+      "candidate-final_workspace_seconds": [
+        148.165976542,
+        91.693369458,
+        91.787407458
+      ],
+      "binary_sha256": {
+        "brn": "83f19589e4225447503fb5cb34e3a84e6e173b8dc6ba780869b61bc73454f68c",
+        "brn_ai_test": "9c1edc4ec8f600a9949ff09b6a6b8ff04a4399ea16710f840c76f7b5ea893ca2",
+        "agent_journeys": "c9b3a0dff78fc2d7c2e73bc50607defa90a19634e1b3930c621f7b8496beb4a9"
+      },
+      "identity_limit": "Verified these three binaries; not all test binaries are identical (agent_contract differs).",
+      "conclusion": "Execution/configuration attribution unresolved. Raw differences and sums are observations, not causal regressions."
+    }
+  }
 }
