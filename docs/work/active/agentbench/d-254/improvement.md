@@ -49,6 +49,25 @@ grounding or a quality gain. [Per-run evidence and hashes](evidence/phase2-devel
 preserve terminals, reported usage and actual saved records. One candidate was
 funded; no additional tuning was attempted or silently substituted.
 
+## Unblinded saved-state inspection
+
+After the final Council, the lead inspected all eight exported final development
+articles. Both arms retained the visible W03 loan period, deposit/refund condition,
+separate battery labels and conditional one-time extension. Both retained W05's
+recorded quantities, hold conditions, saline method restriction, blank gate,
+cloudy-sample duplicates, refrigerated-sample prerequisite and provisional
+validation status. The baseline W05 repetition 2 article had already saved its
+update before its final ToolLimitReached terminal; its completed saved content
+explains why the mechanical checks passed despite incomplete agent execution.
+
+The [W03 baseline snapshot](evidence/phase2-development/runs/W03-0/A-r1/checkpoints/4/records.json)
+and [interrupted W05 baseline snapshot](evidence/phase2-development/runs/W05-0/A-r2/checkpoints/2/records.json)
+are examples; the manifest binds all eight histories. This is a post-run,
+unblinded lead observation, outside the frozen independent grading process and
+not reviewed by Council. It assigns no rubric score or saturation result and
+does not establish full grounding, safety, reader usefulness or a retention gain.
+The independent dimensions above therefore remain unmeasured.
+
 ## Fresh confirmation and stop
 
 An independent evaluation-only owner authored and froze a distinct two-history
