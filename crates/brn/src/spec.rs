@@ -1072,6 +1072,7 @@ pub(crate) static COMMANDS: &[Spec] = &[
             "prompt-file",
             "mcp-tool",
             "mcp-input",
+            "skills",
         ],
         &["thread", "prompt"],
         Owner::WithOptions(&["edit-note", "record-decision", "mcp-tool"]),

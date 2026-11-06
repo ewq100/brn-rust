@@ -166,6 +166,8 @@ async fn run(j: Journey<'_>) -> Case {
         sources: vec![],
         search: Some(Arc::new(case.handle.clone())),
         trace: TraceLevel::Full,
+        requested_skills: Vec::new(),
+        web_search: None,
     })
     .unwrap();
     let result = run_prepared_scripted(prepared, model).await.unwrap();
@@ -465,6 +467,8 @@ async fn s2_review_names_the_links_one_change_group_resolves() {
         sources: vec![],
         search: Some(Arc::new(case.handle.clone())),
         trace: TraceLevel::Full,
+        requested_skills: Vec::new(),
+        web_search: None,
     })
     .unwrap();
     let op = Store::open(&case.data)
@@ -560,6 +564,8 @@ async fn revised_permission_and_partial_approval_reach_read_tools_without_writes
             sources: vec![],
             search: Some(Arc::new(case.handle.clone())),
             trace: TraceLevel::Full,
+            requested_skills: Vec::new(),
+            web_search: None,
         })
         .unwrap();
         let model = MockCompletionModel::from_stream_turns([

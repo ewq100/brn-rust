@@ -215,6 +215,7 @@ fn run(
         sources,
         search: Some(search),
         trace: TraceLevel::Summary,
+        requested_skills: Vec::new(),
         ..clone_request(request)
     };
     request.prompt = "Add this source".into();
@@ -237,6 +238,8 @@ fn clone_request(request: &ThreadRunRequest) -> ThreadRunRequest {
         sources: vec![],
         search: None,
         trace: TraceLevel::Off,
+        requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 

@@ -32,6 +32,42 @@ pub async fn codex_client(
     .await
 }
 
+/// The subscription catalogue for the explicitly selected Codex account file.
+pub async fn codex_models(
+    auth_file: &Path,
+    cancel: CancellationToken,
+) -> AiResult<Vec<crate::ModelOption>> {
+    codex_models_over(
+        auth_file,
+        DynHttpClient::new(rig::rig_reqwest::shared()),
+        cancel,
+    )
+    .await
+}
+
+pub(crate) async fn codex_models_over(
+    auth_file: &Path,
+    http: DynHttpClient,
+    cancel: CancellationToken,
+) -> AiResult<Vec<crate::ModelOption>> {
+    // The catalogue needs an authenticated route, not a model; any valid ID
+    // satisfies the selection check without being sent.
+    let selection = Selection {
+        provider: Provider::Chatgpt,
+        model: "catalogue".into(),
+    };
+    let client =
+        codex_client_pinned(auth_file, &selection, None, http.clone(), cancel.clone()).await?;
+    let crate::auth::OwnedClient::Chatgpt(client) = client.inner else {
+        return Err(AiError::new(AiErrorKind::Other));
+    };
+    tokio::select! {
+        biased;
+        _ = cancel.cancelled() => Err(AiError::new(AiErrorKind::Other)),
+        models = crate::auth::subscription_catalogue(&http, &client) => models,
+    }
+}
+
 /// `codex_client` over `http`, with every request's `session-id` fixed to
 /// `session` when given.
 #[cfg(unix)]

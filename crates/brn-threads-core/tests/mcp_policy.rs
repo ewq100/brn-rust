@@ -135,6 +135,7 @@ fn run(store: &mut Store, chat: &str) -> String {
             progress: String::new(),
             operations: vec![],
             sources: vec![],
+            web_sources: Vec::new(),
         }),
     )
     .id

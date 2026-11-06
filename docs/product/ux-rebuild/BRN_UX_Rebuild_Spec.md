@@ -1,8 +1,8 @@
 # BRN UX Rebuild Specification
 
 **Specification:** BRN-UX-002<br>
-**Version:** 1.2<br>
-**Date:** 5 November 2026<br>
+**Version:** 1.3<br>
+**Date:** 6 November 2026 (1.3: chat simplification from [#249](https://github.com/ewq100/brn-rust/issues/249); 1.2: 5 November 2026)<br>
 **Owner:** Evo<br>
 **Audience:** The build agent, implementation agents and independent reviewers<br>
 **Status:** The simple ChatGPT-inspired visual direction is approved. This package defines its implementation target, including light and dark appearance. Native implementation and acceptance remain separate work.
@@ -125,7 +125,7 @@ The map is a minimum. Produce an implementation inventory of every currently sup
 
 ### 4.3 Default and restored state
 
-On first use, present a calm New chat surface with a short greeting, the composer and at most three useful starting actions. Existing manual work must remain available before selecting a maintenance delegation. Provider setup or the existing delegation choice appears when relevant, without a permanent warning dashboard.
+On first use, present a calm New chat surface with a short welcome heading and the composer. Do not repeat the composer's + actions as a row of starting buttons; attaching, creating a document and tool access stay in the + menu (§6.1.1). Existing manual work must remain available before selecting a maintenance delegation. Provider setup or the existing delegation choice appears when relevant, without a permanent warning dashboard.
 
 On later launches, restore the last valid workspace and safe saved layout. Restore an article's draft through the existing recovery mechanism. Restore queued work in its correct paused state. Opening the application or unarchiving a chat must not implicitly resume an agent run.
 
@@ -157,9 +157,9 @@ The primary composer should show a concise context chip, such as “Saved librar
 
 The conversation is centered within a readable column. Assistant messages are predominantly flat prose; user messages may use a soft rounded bubble. Render lists, tables, code and citations through the existing maintained renderer. A document or task result may have one purposeful card. Do not wrap every paragraph or tool event in a card.
 
-The header identifies the conversation and project where relevant. Keep model and effort choices near the composer rather than repeating them in the header and status area. Populate choices from actual supported provider/account capabilities. An unavailable selection produces a clear state; no silent fallback or invented model list.
+The header identifies the conversation and project where relevant. Keep the model choice near the composer rather than repeating it in the header and status area. Populate choices from actual supported provider/account capabilities. An unavailable selection produces a clear state; no silent fallback or invented model list.
 
-The bottom composer contains the current context chip, multiline input, reference/intake action, model controls and one primary Send/Queue/Stop control appropriate to state. It grows to a bounded height and then scrolls internally. The conversation remains reachable above it at the minimum window size.
+The bottom composer contains the multiline input and one control row: one compact + action, a quiet context chip showing the actual scope, one combined provider/model/effort control and one primary Send/Queue/Stop control appropriate to state. The input starts compact, grows to a bounded height and then scrolls internally. Explanations about attachments appear when attachments are present, not as a permanent paragraph above an empty input. The conversation remains reachable above it at the minimum window size.
 
 **CHAT-01:** Enter sends when idle and queues while running; Shift-Enter inserts a newline. Do not submit an active IME composition. Preserve current keyboard behavior where platform conventions require an adaptation.
 
@@ -171,7 +171,19 @@ The bottom composer contains the current context chip, multiline input, referenc
 
 **CHAT-05:** Preserve explicit Edit note, Save as decision and Capture outcomes actions. Edit note binds a specific saved note/version and instruction. Save as decision shows editable title and text before creating the exact protected confirmed note. Captured outcomes remain proposals with their proper scope. These actions must preserve unsent drafts.
 
-**CHAT-06:** Quiet mode, if supported, hides routine intermediate traces while preserving answers, Stop, actionable errors, permissions and reviews. Activity reports real events and receipts, not guessed progress or fabricated success.
+**CHAT-06:** Quiet mode, if supported, hides routine intermediate traces while preserving answers, Stop, actionable errors, permissions and reviews. Activity reports real events and receipts, not guessed progress or fabricated success. Its card has a bounded height; longer steps and details scroll inside it and never paint over the attachments or composer below.
+
+### 6.1.1 Composer tools, web access, skills and model choice
+
+Version 1.3 replaces earlier requirements that kept a separate web query dialog, a persistent skill picker and built-in skill disable controls ([#249](https://github.com/ewq100/brn-rust/issues/249)). Do not reintroduce them.
+
+**+ menu.** One compact + action holds Attach document, Add useful information, Import full note, New document and the **Allow web access** toggle. Approved local MCP tools keep their exact-input review entries. It holds no skill picker, “No skill” or “Refresh skills.”
+
+**CHAT-07 Agent web access.** The agent may call a web-search tool within the same chat and run when useful; an ordinary request needs no query form. The run shows a brief “Searching the web…” activity and the answer cites its web sources close to that answer. **Allow web access** is retained per conversation; new chats start Allowed when the selected subscription route supports search. Allowed permits, but never forces, a search. Off blocks web access for the main agent and every delegated tool path; enforcement is central in the tool runtime, not prompt text. Unavailable (for example GitHub Copilot, or an unsupported account path) is stated separately from Off, with no fallback to another provider, account or billing route. Search reuses the existing subscription-search adapter; only the agent's query is sent, never the whole chat, document or library. Search activity, sources, failures and cancellation belong to the originating chat and run: Stop cancels owned search, and late results never appear in another chat or overwrite a newer run. A search that is refused or fails is reported in Activity as failed, never as a success, and the answer then has no Web sources. Web results are evidence, never instructions.
+
+**CHAT-08 Skills.** BRN's built-in skills are always available for automatic discovery and loading; a normal message can use an appropriate skill without manual selection, and the owner cannot disable built-ins. Typing / at the start of a word opens a searchable list built from the actual skill catalogue with short descriptions; a shortened description ends at a whole word with an ellipsis, and a row wraps it to two lines rather than cutting it again in a narrow chat. The list stays inside the chat area: it opens above the composer when the full list fits there or that side has at least as much room, otherwise below (as under the centred New chat composer in a short window); it shrinks to the room available, scrolls when long and keeps the keyboard-selected row in view. Choosing a command inserts an explicit request for the current message only; it never becomes a persistent mode for the project, other chats or later messages, and the agent may still use other relevant skills. Ordinary slashes in prose, URLs and paths are not commands. Removing the unsent command removes only that request. Existing workspaces with saved disabled built-in bindings or an old persistent selection are reconciled by the service. Installed packages keep truthful validity and availability; loading any skill grants no tool, edit or publication permission.
+
+**CHAT-09 Model picker.** The closed control shows a provider indicator, short model name, current effort where supported and a caret. Opening it shows connected providers and Favorites on the left, searchable models in the middle and the selected model's supported reasoning levels on the right; on a narrow surface the reasoning section moves below the model list. Choices come from actual provider/account/model capability data, never a shared history of model names, and only supported efforts appear. Provider/account/model identity stays together, including in Favorites; the route is clear when a model is offered by several providers. Model and effort change together: an unsupported earlier effort never survives a model switch, and any adjustment is visible. Each run records the provider/model/effort it used; later changes never relabel earlier replies or alter an in-flight request.
 
 ### 6.2 Chat to document
 
@@ -281,15 +293,15 @@ One global Search entry opens a keyboard-accessible result surface for supported
 
 Sources, version history, related records, comparison and global changes should use contextual panels or full focused views where density requires them. Preserve back navigation and reading position. Drawers, menus and dialogs have actual focus and dismissal behavior.
 
-Explicit web search retains an empty query dialog and submits the owner's entered query under current rules. Do not automatically send the entire open document to a web search service. Keep cited ephemeral results and their actual stale/cancellation behavior. [R1]
+Web search in chat is an agent tool governed by CHAT-07 (§6.1.1); there is no separate query dialog in the normal chat flow. Do not automatically send the entire open document, chat or library to a web search service. Web results stay cited and untrusted. [R1]
 
 ### 6.11 Settings and first use
 
 Settings uses a readable local list of sections: Appearance, General, Models, Delegation, Documents, Data, Skills and MCP, combining items only when their meanings remain clear. Reuse existing services and constraints.
 
-Appearance offers System / Light / Dark as the primary choice. Existing additional palettes can remain in an advanced appearance area if still supported; they do not clutter the main shell. Model configuration preserves actual provider/account/model/effort and helper choices. Show unavailable credentials or capabilities truthfully.
+Appearance offers System / Light / Dark as the primary choice. Existing additional palettes can remain in an advanced appearance area if still supported; they do not clutter the main shell. Model configuration preserves actual provider/account/model/effort and helper choices, consistent with the composer picker (CHAT-09). Show unavailable credentials or capabilities truthfully.
 
-Delegation retains the explicit Maintain ordinary notes / Review changes first choice and the unchosen state. Documents retains converter and AI-conversion controls. Data retains export, full backup, restore, data location and recoverable deletion flows. Skills and MCP preserve discovery, enablement, actual availability and exact required approval.
+Delegation retains the explicit Maintain ordinary notes / Review changes first choice and the unchosen state. Documents retains converter and AI-conversion controls. Data retains export, full backup, restore, data location and recoverable deletion flows. Skills show the built-in catalogue as always available, with no Enable/Disable controls for built-ins (CHAT-08); installed packages keep install, inspect, enable, remove and truthful availability. MCP preserves discovery, enablement, actual availability and exact required approval.
 
 After restore, show the real configuration exceptions: local inbox authorization and its ledger require fresh folder/destination confirmation; installed instruction-package bytes are excluded from canonical backup, so missing selected packages remain visibly unavailable; transient MCP execution grants are not restored. Do not silently reinstall packages or reconstruct grants. [R6] [R10]
 
@@ -516,11 +528,11 @@ Bind UI actions to typed existing commands/events. A button should not duplicate
 |---|---|
 | Host and services | `crates/brn-desktop/src/threads_ui.rs` |
 | Shell/navigation/layout | `threads_shell.rs`, `threads_layout.rs`, `threads_lists.rs`, `threads_components.rs` in that directory |
-| Chat/run/activity | `threads_chat.rs`, `threads_writing.rs`, `threads_worker.rs`, `threads_run_activity.rs`, `threads_notice.rs` |
+| Chat/run/activity | `threads_chat.rs`, `threads_composer.rs`, `threads_model_picker.rs`, `threads_writing.rs`, `threads_worker.rs`, `threads_run_activity.rs`, `threads_notice.rs` |
 | Projects | `threads_projects.rs` |
 | Search/knowledge | `threads_search.rs`, `threads_search_state.rs`, `threads_connections.rs` |
 | Intake/recovery | `threads_documents.rs`, `threads_inbox.rs`, `threads_capture.rs`, `threads_restore.rs` |
-| Skills/MCP/web | `threads_skills.rs`, `threads_mcp.rs`, `threads_web_search.rs` |
+| Skills/MCP | `threads_skills.rs`, `threads_mcp.rs` |
 | Settings/tasks/changes | `threads_tiles.rs` and their service owners |
 | Shared writing | `crates/brn-writing-ui/src/` including `native.rs`, `writing.rs`, `workbench.rs`, `note.rs`, `review.rs`, `document.rs`, `setup.rs`, `references.rs`, `formatting.rs`, `diff.rs`, `theme.rs` |
 
@@ -642,7 +654,7 @@ All cases begin **Not run**. Evidence requirements below describe what must be e
 | --- | --- | --- | --- |
 | AC-35 | **Export and backup restore.** Export a Markdown/assets snapshot and create a full backup to fresh test destinations; inject a publication failure; restore a valid backup into an isolated target. | Export and full backup are identified separately. Complete retained data/assets restore according to current contracts. Partial publication is not called successful. Source data and the backup stay intact; supported schema upgrades obey backup-first admission. Restored local inbox folder authorization/ledger requires fresh setup; missing selected instruction-package bytes stay visibly unavailable; transient MCP grants are not restored or silently re-authorized. | N, S, R |
 | AC-36 | **Project movement and deletion.** Move a chat between projects; delete a synthetic project containing a shared document, private files and unfinished tasks; inspect the concrete choices and restore it. | Membership changes fence affected work without leaking private context. The reviewed removed/retained/task set matches the actual operation. Dirty/stale work refuses safely. Shared documents retain identity; cancelled or kept-outside tasks do not silently revive; restore never resumes runs. | N, S, R |
-| AC-37 | **Explicit web and MCP boundaries.** Open web search and submit an explicit test query. Where the existing optional MCP feature is configured, change its discovery endpoint before a prior result returns, then inspect a permission request. | Only the intended search input is used under current rules; ephemeral results stay cited and untrusted. Stale discovery cannot authorize the new endpoint. Exact reviewed input and current scope bind any allowed MCP action; disabled/unavailable integration stays truthful. No new connector scope is required for this case. | N, B, S, R |
+| AC-37 | **Web and MCP boundaries.** With web access Allowed, ask a question that needs current information (CHAT-07); compare Off and an unavailable route. Where the existing optional MCP feature is configured, change its discovery endpoint before a prior result returns, then inspect a permission request. | Only the agent's query is sent; Off and Unavailable dispatch nothing; results stay cited and untrusted. Stale discovery cannot authorize the new endpoint. Exact reviewed input and current scope bind any allowed MCP action; disabled/unavailable integration stays truthful. No new connector scope is required for this case. | N, B, S, R |
 | AC-38 | **Intake intent and coverage.** Use representative currently supported files, including retained figures; compare useful-information intake with full-note import and a controlled partial conversion. | The chosen intent is explicit. A full note remains protected and readable with retained assets. Coverage gaps remain visible; a summary is not labelled a complete import. Converter/AI settings and failures reflect the actual configuration, with no hidden fallback. | N, S, R |
 | AC-39 | **Explicit writing decision and capture actions.** Use Edit note on a saved version, Save as decision on a completed reply, and Capture outcomes in a posted conversation, while preserving an unsent draft. | Each action retains its distinct authority. The decision preview allows the exact title/text review before a protected confirmed note is saved. Capture outputs remain correctly scoped proposals; draft text survives. A general chat or attachment does not supply the same grant. | N, B, S, R |
 | AC-40 | **Knowledge checks and useful navigation.** Open representative broken-link, stale-input and recorded-conflict results; inspect the affected records, related article view and offered repair/follow-up. | Existing checks remain reachable. Actual record identities, evidence and limitations are visible. A repair follows existing authority and review rules. Historical citations retain their meaning, and heuristics are not presented as proof. | N, B, S, R |
@@ -653,6 +665,28 @@ All cases begin **Not run**. Evidence requirements below describe what must be e
 | --- | --- | --- | --- |
 | AC-41 | **Outline navigation and version correctness.** Open the supplied fixture; navigate nested, skipped, duplicate, Unicode and long headings by pointer and keyboard. Scroll, switch documents, rename/remove a heading in an unsaved draft, then save, view history, Apply a proposal, reopen and Undo through existing supported flows. Also use a no-heading variant. | Entries describe the displayed content and reach distinct correct targets below the toolbar. Code fences create no headings. Current-section updates do not steal focus. Old async results/anchors cannot navigate another document or generation. Empty state, optional folding, close/focus return and visibility preferences work. Read/Edit transitions and changes preserve draft and selection state. Existing conflict/review/Undo rules still govern changes. | N, B, S, A; V with VE-08 |
 | AC-42 | **Long-article presentation and compact supporting views.** Read the fixture's prose, nested headings, lists, code, tables, image/caption and citations in Light and Dark at 1280×900 and 900×600. Open Outline, assistant, sources and comments in turn; exercise a controlled missing-image/source condition. | Body width, hierarchy, spacing, contrast, selection and links remain readable. Ordinary prose wraps; wide tables/code scroll locally with keyboard access. Images fit without distortion or theme inversion, and unavailable content is truthful. Supporting views follow §8 without stacked sheets, hidden essential controls or duplicated composers. Returning from a source or compact outline restores the intended position; unsent work and pane preferences survive. | N, V, A; S for source identity/access |
+
+### Chat simplification additions (#249)
+
+These checks come from [#249](https://github.com/ewq100/brn-rust/issues/249) and apply §6.1.1.
+
+| ID | Scenario | Pass condition | Evidence |
+|---|---|---|---|
+| CHAT-A1 | **Clean start.** Open a new chat and an existing conversation. | One composer; no duplicate starting-action row; one combined model control; accurate, inspectable context. | N, V, B |
+| CHAT-A2 | **Automatic web.** Ask an ordinary question that needs current information with web Allowed. | The agent can search within the same run and the answer cites its web sources; no query dialog. | N, B, R |
+| CHAT-A3 | **Web Off.** Turn web access Off for one chat, send, reopen. | Main-agent and delegated paths cannot dispatch a search; the per-chat state persists. | B, S |
+| CHAT-A4 | **Ownership and cancellation.** Stop during a search; switch chats while a result is pending. | Stop cancels owned search; late results never reach another chat or a newer run. | B, S |
+| CHAT-A5 | **Availability.** Select an unsupported provider or account route. | Unavailable is stated honestly and differs from Off; no fallback connection. | N, B |
+| CHAT-A6 | **Automatic skills.** Send a normal message suited to a built-in skill. | The agent can discover and load the skill without a / command. | B, R |
+| CHAT-A7 | **Existing workspaces.** Open a workspace with a disabled built-in binding and an old manual selection. | Built-ins are available; no hidden persistent selection remains. | S, B |
+| CHAT-A8 | **Message-specific command.** Type /, choose a command, send, then send another message. | Completion works; the explicit request belongs only to that message and run and does not disable other skills. | B, R, N |
+| CHAT-A9 | **Skill controls.** Inspect the + menu, composer and Settings. | No built-in disable or persistent selection controls. | N, B |
+| CHAT-A10 | **Model route.** Search models, filter by provider, favorite a model, select it. | Provider/account/model identity is preserved, including in Favorites. | B, N |
+| CHAT-A11 | **Reasoning.** Switch between models with different reasoning support. | Only supported efforts appear; no stale unsupported value is submitted; earlier run labels are unchanged. | B, R |
+| CHAT-A12 | **Existing journeys.** Attachments/Keep, scope inspection, draft recovery, Send/Queue/Stop/Steer, queue editing, Apply/Discard/Undo. | Outcomes unchanged. | B, N |
+| CHAT-A13 | **Keyboard.** / selection, Escape, model-picker navigation, Enter/Shift-Enter, IME composition. | Behaves as specified. | A, B |
+| CHAT-A14 | **Native layout.** New chat, active conversation, + menu, / menu, model picker and inline web activity in Light and Dark at 1280×900 and 900×600. | Before/after evidence without clipping, crowding or unreadable states. | N, V |
+| CHAT-A15 | **Handoff.** Spec, acceptance evidence and PR linked to #249. | Implemented, tested, native-observed, owner-accepted and merged reported separately. | — |
 
 ### Minimum representative visual evidence
 

@@ -31,6 +31,7 @@ fn selection_errors_precede_any_run_write_and_catalogue_never_substitutes() {
         max_tool_rounds: Some(0),
         trace: TraceLevel::Off,
         offered_copilot_models: None,
+        requested_skills: Vec::new(),
     });
     assert!(matches!(
         result,
@@ -57,6 +58,7 @@ async fn shared_preparation_runs_scripted_with_the_same_durable_run_identity() {
             max_tool_rounds: Some(2),
             trace: TraceLevel::Off,
             offered_copilot_models: None,
+            requested_skills: Vec::new(),
         })
         .unwrap();
     let id = prepared.prepared.run_id().to_owned();

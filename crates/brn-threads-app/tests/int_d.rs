@@ -25,6 +25,7 @@ fn start(chat: &str, prompt: &str) -> ThreadRunStart {
         max_tool_rounds: Some(8),
         trace: TraceLevel::Summary,
         offered_copilot_models: None,
+        requested_skills: Vec::new(),
     }
 }
 fn done(text: &str) -> Vec<MockStreamEvent> {
@@ -149,11 +150,9 @@ async fn abandoned_selected_skill_candidate_survives_restore_without_package_and
     let installed = app.install_skill(&source).unwrap();
     app.set_skill_enabled(&installed.id, &installed.digest, Some(&project), true)
         .unwrap();
-    app.select_skill(Some(&installed.id), Some(&project))
-        .unwrap();
-    let prepared = app
-        .prepare_thread_run(start(&chat, c["objective"].as_str().unwrap()))
-        .unwrap();
+    let mut request = start(&chat, c["objective"].as_str().unwrap());
+    request.requested_skills = vec![installed.id.clone()];
+    let prepared = app.prepare_thread_run(request).unwrap();
     let RecordData::Note(mut replacement) = original.data.clone() else {
         panic!()
     };
@@ -236,10 +235,15 @@ async fn abandoned_selected_skill_candidate_survives_restore_without_package_and
         .into_iter()
         .find(|s| s.id == installed.id)
         .unwrap();
-    assert!(retained.enabled && retained.selected && !retained.available);
+    assert!(retained.enabled && !retained.selected && !retained.available);
+    let requested = |prompt: &str| {
+        let mut request = start(&chat, prompt);
+        request.requested_skills = vec![installed.id.clone()];
+        request
+    };
     let refusal =
-        match restored.prepare_thread_run(start(&chat, c["continue_prompt"].as_str().unwrap())) {
-            Ok(_) => panic!("Restored missing exact selection cannot start"),
+        match restored.prepare_thread_run(requested(c["continue_prompt"].as_str().unwrap())) {
+            Ok(_) => panic!("A missing requested package cannot start"),
             Err(e) => e,
         };
     let RunPreparationError::Preparation(error) = refusal else {
@@ -265,7 +269,7 @@ async fn abandoned_selected_skill_candidate_survives_restore_without_package_and
         (&installed.id, &installed.digest)
     );
     let resume = restored
-        .prepare_thread_run(start(&chat, c["continue_prompt"].as_str().unwrap()))
+        .prepare_thread_run(requested(c["continue_prompt"].as_str().unwrap()))
         .unwrap();
     let model = MockCompletionModel::from_stream_turns([
         tools(vec![MockStreamEvent::tool_call(

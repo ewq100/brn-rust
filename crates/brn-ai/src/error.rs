@@ -37,7 +37,7 @@ impl AiError {
     }
     pub(crate) fn skill_unavailable_notice(&self) -> Option<&'static str> {
         (self.kind == AiErrorKind::Other && self.detail.as_ref().is_some_and(|d| d.origin == "skill_catalogue" && d.code.as_deref() == Some("skill_unavailable")))
-            .then_some("The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.")
+            .then_some("The requested skill is unavailable. Reinstall its exact approved package or remove its / command before continuing.")
     }
     pub(crate) fn mcp_unavailable_notice(&self) -> Option<&'static str> {
         (self.kind == AiErrorKind::Other && self.detail.as_ref().is_some_and(|d|
@@ -817,7 +817,7 @@ mod skill_notice_tests {
     use super::*;
     #[test]
     fn only_exact_local_unavailable_tuple_has_package_remediation() {
-        let notice = "The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.";
+        let notice = "The requested skill is unavailable. Reinstall its exact approved package or remove its / command before continuing.";
         let local = |kind, origin: &str, code: Option<&str>| {
             AiError::new(kind).with_detail(AiFailureDetail {
                 origin: origin.into(),

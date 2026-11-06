@@ -6,7 +6,7 @@ use super::*;
 use components::tokens;
 use gpui_kit::component::button::ButtonVariants;
 use gpui_kit::component::kbd::Kbd;
-use gpui_kit::component::menu::{ContextMenuExt, PopupMenu, PopupMenuItem};
+use gpui_kit::component::menu::{ContextMenuExt, PopupMenuItem};
 use gpui_kit::component::tooltip::Tooltip;
 use gpui_kit::component::{Icon, Sizable, Size};
 use gpui_kit::{
@@ -108,7 +108,6 @@ fn command_icon(command: lists::Command) -> IconName {
         lists::Command::Theme(_) => IconName::Palette,
         lists::Command::OpenTile(kind) => kind_icon(kind),
         lists::Command::Keys => IconName::Keyboard,
-        lists::Command::WebSearch => IconName::Globe,
     }
 }
 
@@ -256,11 +255,8 @@ impl ThreadsUi {
     }
 }
 
-/// Below this Chat panel width the model control also names the effort.
+/// Below this Chat panel width the composer controls compact.
 const CHAT_NARROW: f32 = 420.;
-/// Why the model and effort menus' rows are disabled while work runs.
-const BUSY_MENU_REASON: &str = "Available when the current work finishes";
-
 pub(super) fn provider_key(provider: &str) -> &'static str {
     match provider.to_ascii_lowercase().as_str() {
         "codex" | "chatgpt" => "chatgpt",
@@ -280,95 +276,6 @@ pub(super) fn model_display(provider: &str, model: &str) -> String {
 }
 
 impl ThreadsUi {
-    /// Explicit models already configured or used by earlier runs; no fallback.
-    pub(super) fn model_choices(&self) -> Vec<String> {
-        let mut models = vec![self.settings.model.clone()];
-        for record in self.records.iter().rev() {
-            if let RecordData::Run(run) = &record.data
-                && !run.model.trim().is_empty()
-                && !models.contains(&run.model)
-                && models.len() < 6
-            {
-                models.push(run.model.clone());
-            }
-        }
-        models
-    }
-    pub(super) fn model_menu(&self, menu: PopupMenu, this: &WeakEntity<Self>) -> PopupMenu {
-        let busy = self.worker.is_some();
-        let current = provider_key(&self.settings.provider);
-        // Disabled rows say why once, above them.
-        let mut menu = if busy {
-            menu.label(BUSY_MENU_REASON)
-        } else {
-            menu
-        };
-        for (provider, label) in PROVIDERS {
-            menu = menu.label(label);
-            let models = if provider == "copilot" && !self.copilot_models.is_empty() {
-                self.copilot_models.clone()
-            } else {
-                self.model_choices()
-            };
-            for model in models {
-                let selected = provider == current && model == self.settings.model;
-                let chosen = model.clone();
-                menu = menu.item(item(
-                    this,
-                    model,
-                    None,
-                    busy,
-                    selected,
-                    move |view, window, cx| view.set_model(provider, &chosen, window, cx),
-                ));
-            }
-        }
-        menu.separator()
-            .item(item(
-                this,
-                "Load GitHub Copilot models",
-                None,
-                busy,
-                false,
-                |view, _, cx| view.load_copilot_models(cx),
-            ))
-            .item(item(
-                this,
-                "Provider and model settings…",
-                None,
-                false,
-                false,
-                |view, window, cx| {
-                    view.settings_section = SettingsSection::Models;
-                    view.show_tile(TileKind::Settings, window, cx);
-                },
-            ))
-    }
-    pub(super) fn effort_menu(&self, menu: PopupMenu, this: &WeakEntity<Self>) -> PopupMenu {
-        let menu = if self.worker.is_some() {
-            menu.label(BUSY_MENU_REASON)
-        } else {
-            menu
-        };
-        self.effort_section(menu, this)
-    }
-    /// The effort choices; the model menu adds them below 420 pt after its
-    /// own reason line.
-    pub(super) fn effort_section(&self, menu: PopupMenu, this: &WeakEntity<Self>) -> PopupMenu {
-        let busy = self.worker.is_some();
-        let mut menu = menu.label("Reasoning effort");
-        for effort in ["low", "medium", "high"] {
-            menu = menu.item(item(
-                this,
-                effort,
-                None,
-                busy,
-                self.settings.effort == effort,
-                move |view, window, cx| view.set_effort(effort, window, cx),
-            ));
-        }
-        menu
-    }
     /// The destination the sidebar marks as current. A chat is marked by its
     /// own row, Recent changes and Settings by nothing.
     pub(super) fn navigation_focus(&self) -> Option<TileKind> {
@@ -2025,7 +1932,10 @@ impl Render for ThreadsUi {
             // their turn. It never stops work or discards a draft.
             .on_key_down(
                 cx.listener(|view, event: &gpui_kit::KeyDownEvent, window, cx| {
-                    if event.keystroke.key != "escape" || view.launcher_open {
+                    if event.keystroke.key != "escape"
+                        || view.launcher_open
+                        || view.model_picker.open
+                    {
                         return;
                     }
                     let width = Self::usable_width(window);
@@ -2085,6 +1995,8 @@ impl Render for ThreadsUi {
             .on_action(cx.listener(|this, _: &Cancel, window, cx| {
                 if this.launcher_open {
                     this.close_launcher(window, cx);
+                } else if this.model_picker.open {
+                    this.close_model_picker(window, cx);
                 } else if this.layout.settings_open() {
                     this.relayout(window, cx, |layout| layout.close(TileKind::Settings));
                 } else {
@@ -2127,6 +2039,9 @@ impl Render for ThreadsUi {
             .on_action(cx.listener(|this, _: &ShowKeys, window, cx| this.show_keys(window, cx)))
             .child(sidebar)
             .child(workspace);
+        if self.model_picker.open {
+            root = root.child(self.model_picker_overlay(window, cx));
+        }
         if self.launcher_open {
             root = root.child(self.launcher_overlay(window, cx));
         }

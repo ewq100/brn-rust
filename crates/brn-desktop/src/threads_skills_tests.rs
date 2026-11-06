@@ -36,6 +36,16 @@ fn native_skill_install_enable_select_disable_and_reopen(cx: &mut TestAppContext
     cx.run_until_parked();
     cx.update_window(window, |_, window, cx| {
         assert!(window.find("skill-install-folder").visible());
+        // Built-ins are always available: Inspect only, never Disable (CHAT-08).
+        for builtin in [
+            "intake",
+            "maintain-notes",
+            "prepare-reply",
+            "resolve-conflict",
+        ] {
+            assert!(window.find(format!("skill-inspect-{builtin}")).visible());
+            assert!(window.try_find(format!("skill-enable-{builtin}")).is_none());
+        }
         view.update(cx, |ui, cx| ui.skill_folder_chosen(package.clone(), cx));
     })
     .unwrap();
@@ -62,21 +72,6 @@ fn native_skill_install_enable_select_disable_and_reopen(cx: &mut TestAppContext
                 &info.digest,
                 None,
                 cx,
-            );
-            ui.skill_action(
-                skills_view::SkillAction::Select,
-                &info.id,
-                &info.digest,
-                None,
-                cx,
-            );
-            assert!(
-                ui.workspace
-                    .settings()
-                    .unwrap()
-                    .skills
-                    .iter()
-                    .any(|b| b.id == info.id && b.selected)
             );
             ui.skill_action(
                 skills_view::SkillAction::Inspect,
@@ -173,9 +168,9 @@ fn native_inventory_can_enable_one_package_in_each_scope_without_copying_policy(
     workspace
         .set_skill_enabled(&info.id, &info.digest, Some(&p1), true)
         .unwrap();
-    workspace.select_skill(Some(&info.id), Some(&p1)).unwrap();
+    assert!(workspace.select_skill(Some(&info.id), Some(&p1)).is_err());
     let p1_binding = workspace.settings().unwrap().skills[0].clone();
-    assert!(p1_binding.enabled && p1_binding.selected);
+    assert!(p1_binding.enabled && !p1_binding.selected);
     assert_eq!(p1_binding.project.as_deref(), Some(p1.as_str()));
     let (window, view) = cx.update(|cx| {
         gpui_kit::open_window(
@@ -537,9 +532,7 @@ fn native_inactive_project_skill_rows_are_unavailable_without_rejected_enable_ch
 }
 
 #[gpui_kit::test]
-fn native_stale_skill_binding_can_inspect_and_explicitly_enable_current_digest(
-    cx: &mut TestAppContext,
-) {
+fn native_legacy_builtin_binding_cannot_withhold_or_select_a_builtin(cx: &mut TestAppContext) {
     cx.update(gpui_kit::init);
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let data = root.path().join("workspace");
@@ -609,11 +602,15 @@ fn native_stale_skill_binding_can_inspect_and_explicitly_enable_current_digest(
     cx.update_window(window, |_, window, cx| {
         let inspect = window.find("skill-inspect-maintain-notes");
         assert_ne!(inspect.disabled(), Some(true));
-        assert!(window.find("skill-adopt-current-maintain-notes").visible());
-        assert_eq!(
-            window.find("skill-enable-maintain-notes").label(),
-            Some("Disable"),
-            "the former Enable action cannot adopt a different digest"
+        assert!(
+            window
+                .try_find("skill-adopt-current-maintain-notes")
+                .is_none(),
+            "a legacy built-in binding needs no adoption"
+        );
+        assert!(
+            window.try_find("skill-enable-maintain-notes").is_none(),
+            "a built-in offers no Enable or Disable"
         );
         view.update(cx, |ui, _| {
             let row = ui
@@ -622,83 +619,28 @@ fn native_stale_skill_binding_can_inspect_and_explicitly_enable_current_digest(
                 .iter()
                 .find(|row| row.id == current.id)
                 .unwrap();
-            assert!(!row.available && row.enabled && row.selected);
-            assert!(
-                ui.skill_view
-                    .inventory
-                    .iter()
-                    .any(|package| package.id == current.id && package.digest == current.digest)
-            );
-            assert_eq!(
-                ui.workspace
-                    .settings()
-                    .unwrap()
-                    .skills
-                    .into_iter()
-                    .find(|binding| binding.id == current.id && binding.project.is_none())
-                    .unwrap()
-                    .digest,
-                stale_digest
-            );
+            assert!(row.available && row.enabled && !row.selected);
+            assert_eq!(row.digest, current.digest);
         });
         window.click("skill-inspect-maintain-notes", cx);
     })
     .unwrap();
     cx.run_until_parked();
 
-    cx.update_window(window, |_, window, cx| {
-        view.update(cx, |ui, entity_cx| {
+    cx.update_window(window, |_, _, cx| {
+        view.update(cx, |ui, _| {
             let inspection = ui.skill_view.inspection.as_ref().unwrap();
             assert!(inspection.contains(&current.digest));
             assert!(inspection.contains("Reviewing a mechanical knowledge check"));
-            let before = ui.workspace.settings().unwrap().skills;
-            ui.force_refresh_skills();
-            assert_eq!(ui.workspace.settings().unwrap().skills, before);
-
             ui.selected_project = Some(project.clone());
             ui.refresh_skills();
-            ui.skill_action(
-                skills_view::SkillAction::AdoptCurrent,
-                &current.id,
-                &current.digest,
-                None,
-                entity_cx,
-            );
-            assert_eq!(ui.workspace.settings().unwrap().skills, before);
-
-            ui.selected_project = None;
-            ui.refresh_skills();
-            ui.skill_action(
-                skills_view::SkillAction::AdoptCurrent,
-                &current.id,
-                stale_digest,
-                None,
-                entity_cx,
-            );
-            assert_eq!(ui.workspace.settings().unwrap().skills, before);
-        });
-        window.render_frame(cx);
-        window.click("skill-adopt-current-maintain-notes", cx);
-    })
-    .unwrap();
-    cx.run_until_parked();
-
-    cx.update_window(window, |_, _, cx| {
-        view.update(cx, |ui, _| {
-            let binding = ui
-                .workspace
-                .settings()
-                .unwrap()
-                .skills
-                .into_iter()
-                .find(|binding| binding.id == current.id && binding.project.is_none())
+            let row = ui
+                .skill_view
+                .rows
+                .iter()
+                .find(|row| row.id == current.id)
                 .unwrap();
-            assert_eq!(binding.digest, current.digest);
-            assert!(binding.enabled);
-            assert!(
-                !binding.selected,
-                "enable does not select or load the skill"
-            );
+            assert!(row.available && row.enabled && !row.selected);
         });
     })
     .unwrap();

@@ -631,6 +631,7 @@ mod tests {
                 progress: String::new(),
                 operations: vec![],
                 sources: vec![],
+                web_sources: Vec::new(),
             }),
         };
         assert_eq!(
@@ -791,6 +792,7 @@ mod tests {
             progress: progress.into(),
             operations: vec![],
             sources: vec![],
+            web_sources: Vec::new(),
         }
     }
     fn message(id: &str, thread: &str, role: &str) -> Record {
@@ -1406,6 +1408,7 @@ mod tests {
                 progress: String::new(),
                 operations: vec![],
                 sources: vec![],
+                web_sources: Vec::new(),
             }),
         };
         let mut configured = receipt(vec![]);
@@ -1640,6 +1643,7 @@ mod integrity_tests {
                                 progress: "Saved progress".into(),
                                 operations: vec![],
                                 sources: vec![],
+                                web_sources: Vec::new(),
                             }),
                         }],
                         inputs: vec![],

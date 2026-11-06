@@ -307,6 +307,7 @@ mod tests {
                 .map(|id| OperationId((*id).into()))
                 .collect(),
             sources: vec![],
+            web_sources: Vec::new(),
         }
     }
     fn chat(attention: Vec<Attention>, archived: bool) -> Record {

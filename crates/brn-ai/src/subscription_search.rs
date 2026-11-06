@@ -16,7 +16,7 @@ use tokio_util::sync::CancellationToken;
 
 const CODEX: &str =
     "/Applications/ChatGPT.app/Contents/Resources/codex-cli/CodexCLI.app/Contents/MacOS/codex";
-const VERSION: &str = "codex-cli 0.162.0-alpha.17.2";
+const VERSION: &str = "codex-cli 0.167.0-alpha.3.2";
 const MAX_LINE: usize = 1024 * 1024;
 const MAX_TOTAL: usize = 8 * 1024 * 1024;
 const MAX_ANSWER: usize = 128 * 1024;
@@ -154,6 +154,22 @@ fn check(cancel: &CancellationToken, deadline: Instant) -> Result<(), SearchErro
         Ok(())
     }
 }
+/// The managed Codex login's `auth.json`: `$CODEX_HOME/auth.json`, else
+/// `~/.codex/auth.json`. The path is computed, never read.
+pub fn managed_auth_file() -> Option<PathBuf> {
+    std::env::var_os("CODEX_HOME")
+        .map(PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|p| PathBuf::from(p).join(".codex")))
+        .map(|home| home.join("auth.json"))
+}
+/// Search runs only through the managed Codex login; any other account path
+/// is unsupported rather than substituted.
+pub fn check_auth_file(path: &Path) -> Result<(), SearchError> {
+    match managed_auth_file() {
+        Some(managed) if path.is_absolute() && path == managed => Ok(()),
+        _ => Err(SearchError::UnsupportedAuthPath),
+    }
+}
 fn run(
     request: Request,
     cancel: CancellationToken,
@@ -171,13 +187,7 @@ fn run(
         .validate()
         .map_err(|_| SearchError::InvalidModel)?;
     if let Some(path) = &request.auth_file {
-        let home = std::env::var_os("CODEX_HOME")
-            .map(PathBuf::from)
-            .or_else(|| std::env::var_os("HOME").map(|p| PathBuf::from(p).join(".codex")))
-            .ok_or(SearchError::UnsupportedAuthPath)?;
-        if !path.is_absolute() || path != &home.join("auth.json") {
-            return Err(SearchError::UnsupportedAuthPath);
-        }
+        check_auth_file(path)?;
     }
     let cwd = Scratch::new()?;
     let version = version(&cancel, deadline)?;
@@ -209,6 +219,7 @@ fn run(
     )?;
     let mcp = server.rpc("mcpServerStatus/list", json!({}))?;
     verify(&config, &skills, &mcp)?;
+    verify_hooks(&server.rpc("hooks/list", json!({"cwds":[cwd.path()]}))?)?;
     let account = server.rpc("account/read", json!({"refreshToken":false}))?;
     validate_account(&account)?;
     let allowance = server.rpc("account/rateLimits/read", json!({}))?;
@@ -270,6 +281,7 @@ const CONTROLS: &[&str] = &[
     "features.memories=false",
     "features.remote_plugin=false",
     "features.tool_suggest=false",
+    "features.hooks=false",
 ];
 fn object<'a>(v: &'a Value, key: &str) -> Result<&'a serde_json::Map<String, Value>, SearchError> {
     v.get(key)
@@ -347,6 +359,35 @@ fn verify_standalone(features: &serde_json::Map<String, Value>) -> Result<(), Se
         Err(SearchError::CapabilityBoundaryUnverified)
     }
 }
+/// Owner or managed hooks run commands outside the isolated thread. Every listed
+/// hook must be disabled and the listing itself must be clean.
+fn verify_hooks(hooks: &Value) -> Result<(), SearchError> {
+    let entries = hooks
+        .get("data")
+        .and_then(Value::as_array)
+        .ok_or(SearchError::MalformedResponse)?;
+    for e in entries {
+        let clean = |key: &str| {
+            e.get(key)
+                .and_then(Value::as_array)
+                .map(Vec::is_empty)
+                .ok_or(SearchError::MalformedResponse)
+        };
+        if !clean("errors")? || !clean("warnings")? {
+            return Err(SearchError::CapabilityBoundaryUnverified);
+        }
+        for h in e
+            .get("hooks")
+            .and_then(Value::as_array)
+            .ok_or(SearchError::MalformedResponse)?
+        {
+            if h.get("enabled") != Some(&json!(false)) {
+                return Err(SearchError::CapabilityBoundaryUnverified);
+            }
+        }
+    }
+    Ok(())
+}
 fn verify(config: &Value, skills: &Value, mcp: &Value) -> Result<(), SearchError> {
     let c = config.get("config").ok_or(SearchError::MalformedResponse)?;
     let f = object(c, "features")?;
@@ -363,6 +404,7 @@ fn verify(config: &Value, skills: &Value, mcp: &Value) -> Result<(), SearchError
         "memories",
         "remote_plugin",
         "tool_suggest",
+        "hooks",
     ] {
         if f.get(key) != Some(&json!(false)) {
             return Err(SearchError::CapabilityBoundaryUnverified);
@@ -597,7 +639,8 @@ fn validate_pre_turn_notification(
                 _ => Err(SearchError::MalformedResponse),
             }
         }
-        // No item or turn activity is legitimate before our own turn/start.
+        // No item, turn or hook activity is legitimate before our own turn/start.
+        _ if method.starts_with("hook/") => Err(SearchError::UnsafeToolUse),
         _ if method.starts_with("item/") || method.starts_with("turn/") => {
             if method == MODERATION_METADATA {
                 Err(unexpected_notification(method, None))
@@ -1067,6 +1110,7 @@ impl Collector {
                 }
             }
             "error" => return Err(SearchError::ProviderFailed),
+            _ if method.starts_with("hook/") => return Err(SearchError::UnsafeToolUse),
             "item/started" | "item/completed" => {
                 let item = v
                     .pointer("/params/item")
@@ -1135,6 +1179,14 @@ impl Collector {
                     return Err(SearchError::EmptyResults);
                 }
                 return Ok(Some((answer, std::mem::take(&mut self.sources))));
+            }
+            // Read-state and sidebar-section notices are presentation state for
+            // our own thread; they grant no tool, capability or authority.
+            "thread/readState/changed" | "thread/section/changed" => {
+                match (&self.thread_id, v.pointer("/params/threadId")) {
+                    (Some(expected), Some(Value::String(actual))) if actual == expected => (),
+                    _ => return Err(SearchError::MalformedResponse),
+                }
             }
             "remoteControl/status/changed"
             | "account/updated"
@@ -1291,6 +1343,7 @@ mod tests {
             "memories",
             "remote_plugin",
             "tool_suggest",
+            "hooks",
         ] {
             config["config"]["features"][key] = json!(false);
         }
@@ -1308,6 +1361,50 @@ mod tests {
         // matching or category guessing is added to notification handling.
         let error = validate_notification(&json!({"method":"warning","params":{"message":"Under-development features enabled: skip_host_skill_discovery, standalone_web_search."}}), None).unwrap_err();
         assert!(matches!(error, SearchError::ProviderWarning(_)));
+    }
+    #[test]
+    fn owner_and_managed_hooks_must_be_disabled_and_never_run() {
+        assert!(CONTROLS.contains(&"features.hooks=false"));
+        let listed = |hooks: Value, errors: Value, warnings: Value| json!({"data":[{"cwd":"/tmp/x","hooks":hooks,"errors":errors,"warnings":warnings}]});
+        assert_eq!(verify_hooks(&json!({"data":[]})), Ok(()));
+        assert_eq!(
+            verify_hooks(&listed(
+                json!([{"enabled":false,"isManaged":false}]),
+                json!([]),
+                json!([])
+            )),
+            Ok(())
+        );
+        for hooks in [
+            listed(
+                json!([{"enabled":true,"isManaged":true}]),
+                json!([]),
+                json!([]),
+            ),
+            listed(json!([{"isManaged":false}]), json!([]), json!([])),
+            listed(json!([]), json!([{"message":"bad"}]), json!([])),
+            listed(json!([]), json!([]), json!(["unverified"])),
+        ] {
+            assert_eq!(
+                verify_hooks(&hooks),
+                Err(SearchError::CapabilityBoundaryUnverified)
+            );
+        }
+        assert_eq!(
+            verify_hooks(&json!({})),
+            Err(SearchError::MalformedResponse)
+        );
+        for method in ["hook/started", "hook/completed"] {
+            let notice = json!({"method":method,"params":{"threadId":"thread","turnId":"turn"}});
+            assert_eq!(
+                active_collector().event(&notice),
+                Err(SearchError::UnsafeToolUse)
+            );
+            assert_eq!(
+                validate_pre_turn_notification(&notice, Some("thread"), false),
+                Err(SearchError::UnsafeToolUse)
+            );
+        }
     }
     #[test]
     fn account_updates_require_managed_chatgpt_mode() {
@@ -1724,6 +1821,24 @@ mod tests {
             thread_id: Some("thread".into()),
             turn_id: Some("turn".into()),
             ..Collector::default()
+        }
+    }
+    #[test]
+    fn thread_presentation_notices_are_inert_only_for_our_thread() {
+        for method in ["thread/readState/changed", "thread/section/changed"] {
+            let mut c = active_collector();
+            let ours = json!({"method":method,"params":{"threadId":"thread","sectionId":null,"readState":{}}});
+            assert_eq!(c.event(&ours), Ok(None));
+            for params in [json!({"threadId":"other"}), json!({})] {
+                assert_eq!(
+                    active_collector().event(&json!({"method":method,"params":params})),
+                    Err(SearchError::MalformedResponse)
+                );
+            }
+            assert_eq!(
+                Collector::default().event(&ours),
+                Err(SearchError::MalformedResponse)
+            );
         }
     }
     fn moderation(metadata: Value) -> Value {
