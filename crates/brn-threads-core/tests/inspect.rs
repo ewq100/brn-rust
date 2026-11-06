@@ -87,6 +87,7 @@ fn run(thread: &str, state: RunState) -> RecordData {
         progress: "starting".into(),
         operations: vec![],
         sources: vec![],
+        web_sources: Vec::new(),
     })
 }
 

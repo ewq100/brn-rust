@@ -2050,7 +2050,7 @@ mod skill_run_diagnostics {
         ));
         assert_eq!(error.code, Code::Unavailable);
         assert_eq!(error.code.status(), Status::Failed);
-        assert_eq!(error.message,"The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.");
+        assert_eq!(error.message,"The requested skill is unavailable. Reinstall its exact approved package or remove its / command before continuing.");
         for input in [
             AiError::new(AiErrorKind::Other),
             detail(AiErrorKind::Other, "completion", Some("skill_unavailable")),

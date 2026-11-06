@@ -832,8 +832,6 @@ pub(super) enum Command {
     Theme(Appearance),
     OpenTile(TileKind),
     Keys,
-    /// The explicit web search dialog (only the typed query is sent).
-    WebSearch,
 }
 impl Command {
     /// Destinations are named, never "Open tile: …".
@@ -866,7 +864,6 @@ impl Command {
             Self::OpenTile(TileKind::Chat) => "Current chat".into(),
             Self::OpenTile(kind) => kind.label().into(),
             Self::Keys => "Keyboard shortcuts".into(),
-            Self::WebSearch => "Search the web…".into(),
         }
     }
     /// The bound keystroke, shown in launcher rows with Kit's `Kbd`.
@@ -911,7 +908,6 @@ impl Command {
             .map(Self::OpenTile),
         );
         out.push(Self::Keys);
-        out.push(Self::WebSearch);
         out
     }
 }

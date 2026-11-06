@@ -162,6 +162,7 @@ pub(super) fn record_run(
                         progress: progress.into(),
                         operations: vec![],
                         sources: vec![],
+                        web_sources: Vec::new(),
                     }),
                 }],
             },
@@ -396,6 +397,7 @@ fn resume_queue_names_the_waiting_messages_while_the_pending_reply_may_still_run
                                 progress: "Started in another window".into(),
                                 operations: vec![],
                                 sources: vec![],
+                                web_sources: Vec::new(),
                             }),
                         },
                         Put {
@@ -1230,25 +1232,243 @@ fn the_composer_is_one_row_and_names_the_effort_in_a_narrow_chat(cx: &mut TestAp
         assert!(window.try_find("effort-pill").is_none());
         assert_eq!(label(window, "ask-delegate"), "Send");
     });
-    // The model menu holds the effort choices and their handler.
+    // The one picker holds the reasoning choices and their handler.
     click(cx, &f, "model-pill");
-    on_window(cx, &f, |window, cx| {
-        let mut menu = window.within("popup-menu");
-        let index = (0..60usize)
-            .find(|index| {
-                menu.try_find(*index)
-                    .is_some_and(|row| row.label() == Some("high"))
-            })
-            .expect("the model menu lists the reasoning efforts");
-        menu.click(index, cx);
+    on_window(cx, &f, |window, _| {
+        assert!(window.find("model-picker").visible())
     });
-    cx.read(|cx| assert_eq!(f.view.read(cx).settings.effort, "high"));
+    click(cx, &f, "model-effort-high");
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings.effort, "high");
+        assert!(
+            !view.model_picker.open,
+            "choosing reasoning closes the picker"
+        );
+    });
     on_window(cx, &f, |window, _| {
         assert_eq!(
             label(window, "model-pill"),
             format!("Model {model}, effort high")
         );
     });
+}
+
+fn catalogue_option(
+    id: &str,
+    name: &str,
+    efforts: &[brn_ai::ReasoningEffort],
+    default: Option<brn_ai::ReasoningEffort>,
+) -> brn_ai::ModelOption {
+    let mut option = brn_ai::ModelOption::bare(id);
+    option.display_name = Some(name.into());
+    option.efforts = Some(efforts.to_vec());
+    option.default_effort = default;
+    option
+}
+/// A loaded synthetic ChatGPT catalogue: no provider is contacted.
+fn load_synthetic_catalogue(cx: &mut TestAppContext, f: &Fixture) {
+    use brn_ai::ReasoningEffort::{High, Low, Medium};
+    update(cx, f, |view, window, cx| {
+        view.model_picker.chatgpt = model_picker::Catalogue::Loaded(vec![
+            catalogue_option(
+                "synthetic-large",
+                "Synthetic Large",
+                &[Low, Medium, High],
+                Some(Medium),
+            ),
+            catalogue_option(
+                "synthetic-mini",
+                "Synthetic Mini",
+                &[Low, Medium],
+                Some(Medium),
+            ),
+        ]);
+        let mut settings = view.settings.clone();
+        settings.effort = "high".into();
+        view.configure_explicit(settings, window, cx);
+    });
+}
+
+#[gpui_kit::test]
+fn the_model_picker_searches_switches_models_and_adjusts_an_unsupported_effort(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx, 1280., 900., |_, _, _| {});
+    load_synthetic_catalogue(cx, &f);
+    click(cx, &f, "model-pill");
+    on_window(cx, &f, |window, cx| {
+        assert!(window.find("model-picker").visible());
+        assert!(
+            f.view
+                .read(cx)
+                .model_picker
+                .query
+                .focus_handle(cx)
+                .is_focused(window)
+        );
+        assert_eq!(
+            label(window, "model-row-0"),
+            "ChatGPT · Synthetic Large (synthetic-large)"
+        );
+        assert_eq!(
+            label(window, "model-row-1"),
+            "ChatGPT · Synthetic Mini (synthetic-mini)"
+        );
+    });
+    // Search filters by name or id; Return chooses the highlighted model and
+    // moves to its reasoning, adjusting the effort it does not offer.
+    cx.simulate_input(f.window, "mini");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "model-row-0"),
+            "ChatGPT · Synthetic Mini (synthetic-mini)"
+        );
+        assert!(window.try_find("model-row-1").is_none());
+        assert!(window.try_find("model-effort-high").is_none());
+    });
+    on_window(cx, &f, |window, cx| window.press("enter", cx));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings.provider, "chatgpt");
+        assert_eq!(view.settings.model, "synthetic-mini");
+        assert_eq!(view.settings.effort, "medium");
+        assert!(view.model_picker.open);
+        assert_eq!(
+            view.model_picker.section,
+            model_picker::PickerSection::Efforts
+        );
+        assert_eq!(
+            view.notice.text(),
+            "Reasoning set to medium: Synthetic Mini doesn't offer high."
+        );
+    });
+    // Arrows move within reasoning; Return chooses it and closes the picker.
+    on_window(cx, &f, |window, cx| {
+        window.press("up", cx);
+        window.press("enter", cx);
+    });
+    on_window(cx, &f, |window, cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings.effort, "low");
+        assert!(!view.model_picker.open);
+        assert!(view.composer.focus_handle(cx).is_focused(window));
+        assert_eq!(
+            label(window, "model-pill"),
+            "Model ChatGPT · synthetic-mini, effort low"
+        );
+    });
+    // Escape closes without changing the selection.
+    click(cx, &f, "model-pill");
+    on_window(cx, &f, |window, cx| {
+        window.press("down", cx);
+        window.press("escape", cx);
+    });
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert!(!view.model_picker.open);
+        assert_eq!(view.settings.model, "synthetic-mini");
+    });
+}
+
+#[gpui_kit::test]
+fn model_favorites_keep_their_provider_and_survive_a_reopened_workspace(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1280., 900., |_, _, _| {});
+    load_synthetic_catalogue(cx, &f);
+    click(cx, &f, "model-pill");
+    click(cx, &f, "model-favorite-1");
+    click(cx, &f, "model-provider-favorites");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "model-row-0"),
+            "ChatGPT · Synthetic Mini (synthetic-mini), favorite"
+        );
+        assert!(window.try_find("model-row-1").is_none());
+    });
+    cx.read(|cx| {
+        assert_eq!(
+            f.view.read(cx).workspace.favorite_models().unwrap(),
+            vec![("chatgpt".to_owned(), "synthetic-mini".to_owned())]
+        );
+    });
+    let reopened = Workspace::open(f._root.path().join("chat-polish")).unwrap();
+    assert_eq!(
+        reopened.favorite_models().unwrap(),
+        vec![("chatgpt".to_owned(), "synthetic-mini".to_owned())]
+    );
+    // Removing the star from Favorites removes it from the list.
+    click(cx, &f, "model-favorite-0");
+    cx.read(|cx| {
+        assert!(
+            f.view
+                .read(cx)
+                .workspace
+                .favorite_models()
+                .unwrap()
+                .is_empty()
+        )
+    });
+}
+
+#[gpui_kit::test]
+fn keyboard_reasoning_applies_the_highlighted_model_with_its_level(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1280., 900., |_, _, _| {});
+    load_synthetic_catalogue(cx, &f);
+    click(cx, &f, "model-pill");
+    // Highlight Synthetic Mini, Tab to its reasoning and choose a level
+    // without first pressing Return on the model.
+    on_window(cx, &f, |window, cx| {
+        window.press("down", cx);
+        window.press("tab", cx);
+    });
+    cx.read(|cx| {
+        let picker = &f.view.read(cx).model_picker;
+        assert_eq!(picker.section, model_picker::PickerSection::Efforts);
+        assert_eq!(picker.index, 1);
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("model-effort-high").is_none());
+    });
+    on_window(cx, &f, |window, cx| window.press("enter", cx));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings.provider, "chatgpt");
+        assert_eq!(view.settings.model, "synthetic-mini");
+        assert_eq!(view.settings.effort, "medium");
+        assert!(!view.model_picker.open);
+    });
+}
+
+#[gpui_kit::test]
+fn a_favorite_the_loaded_catalogue_no_longer_offers_cannot_be_chosen(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1280., 900., |_, _, _| {});
+    load_synthetic_catalogue(cx, &f);
+    update(cx, &f, |view, _, _| {
+        view.model_picker.favorites = vec![("chatgpt".into(), "retired-model".into())];
+    });
+    let before = cx.read(|cx| f.view.read(cx).settings.model.clone());
+    click(cx, &f, "model-pill");
+    click(cx, &f, "model-provider-favorites");
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            label(window, "model-row-0"),
+            "ChatGPT · retired-model, not offered, favorite"
+        );
+        assert!(window.try_find("model-effort-low").is_none());
+    });
+    click(cx, &f, "model-row-0");
+    on_window(cx, &f, |window, cx| window.press("enter", cx));
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(view.settings.model, before, "a stale favorite is not saved");
+        assert_eq!(
+            view.notice.text(),
+            "ChatGPT doesn't offer retired-model on this account."
+        );
+    });
+    // Its star still removes it.
+    click(cx, &f, "model-favorite-0");
+    cx.read(|cx| assert!(f.view.read(cx).model_picker.favorites.is_empty()));
 }
 
 #[gpui_kit::test]
@@ -1290,16 +1510,19 @@ fn while_work_runs_send_reads_queue_at_a_wide_chat_and_replies_keep_the_measure(
         cx.notify();
         lease
     });
-    let model = cx.read(|cx| {
+    let (model, effort) = cx.read(|cx| {
         let view = f.view.read(cx);
         assert!(!view.chat_narrow);
-        view.settings.model.clone()
+        (view.settings.model.clone(), view.settings.effort.clone())
     });
     on_window(cx, &f, |window, _| {
         assert_eq!(label(window, "ask-delegate"), "Queue");
-        // No provider is chosen offline: the model alone, no leading "·".
-        assert_eq!(label(window, "model-pill"), model);
-        assert!(window.find("effort-pill").visible());
+        // No provider is chosen offline: the model and effort, no provider.
+        assert_eq!(
+            label(window, "model-pill"),
+            format!("Model {model}, effort {effort}")
+        );
+        assert!(window.try_find("effort-pill").is_none());
         assert!(window.find("chat-steer").visible());
         assert_eq!(label(window, format!("answer-copy-{reply}")), "Copy reply");
         assert_eq!(
@@ -1985,17 +2208,32 @@ fn the_new_chat_start_has_a_greeting_the_composer_three_actions_and_the_delegati
             "What are we working on?"
         );
         assert!(window.find("composer-box").visible());
-        let actions = window.find("chat-start-actions").bounds();
-        for id in ["start-attach", "start-new-document", "start-web"] {
-            let bounds = window.find(id).bounds();
-            assert!(bounds.top() >= actions.top() && bounds.bottom() <= actions.bottom());
+        // The + menu holds attaching and new documents; no row repeats them.
+        for id in [
+            "chat-start-actions",
+            "start-attach",
+            "start-new-document",
+            "start-web",
+        ] {
+            assert!(window.try_find(id).is_none(), "{id} duplicates the + menu");
         }
         assert!(window.find("delegation-pending").visible());
-        // The composer precedes the actions, below the greeting.
         let heading = window.find("chat-start-heading").bounds();
         let composer = window.find("composer-box").bounds();
-        assert!(heading.bottom() <= composer.top() && composer.bottom() <= actions.top());
+        assert!(heading.bottom() <= composer.top());
     });
+    click(cx, &f, "composer-add");
+    assert_eq!(
+        menu_rows(cx, &f),
+        [
+            "Attach document…",
+            "Add useful information…",
+            "Import full note…",
+            "New document",
+            "Allow web access",
+            "Web unavailable · Not available for this provider",
+        ]
+    );
 }
 
 /// Activity is a per-conversation disclosure: closed by default, it names
@@ -2118,4 +2356,403 @@ fn streaming_keeps_the_reading_position_when_scrolled_up(cx: &mut TestAppContext
     });
     on_window(cx, &f, |window, cx| window.simulate_next_frame(cx));
     cx.read(|cx| assert!(state.read(cx).is_following_tail()));
+}
+
+/// CHAT-08/CHAT-A8/CHAT-A13: / at the start of a word lists the actual
+/// skill catalogue; typing narrows it; ↓/↑ move; Escape closes it without
+/// changing the text; slashes inside words never open it; ↵ inserts only
+/// the command text, never sends, and the request is read from that text.
+#[gpui_kit::test]
+fn the_slash_list_completes_a_command_into_only_the_current_message(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_, _, _| {});
+    update(cx, &f, |view, window, cx| {
+        view.composer.focus_handle(cx).focus(window, cx);
+        cx.notify();
+    });
+    let commands = |cx: &mut TestAppContext| {
+        cx.read(|cx| {
+            let view = f.view.read(cx);
+            view.slash.menu.as_ref().map(|menu| {
+                menu.matches
+                    .iter()
+                    .map(|&i| view.slash.commands[i].command.clone())
+                    .collect::<Vec<_>>()
+            })
+        })
+    };
+    cx.simulate_input(f.window, "/");
+    cx.run_until_parked();
+    let all = commands(cx).expect("/ opens the list");
+    for builtin in [
+        "intake",
+        "maintain-notes",
+        "prepare-reply",
+        "resolve-conflict",
+    ] {
+        assert!(all.iter().any(|c| c == builtin), "{builtin} in {all:?}");
+    }
+    cx.simulate_input(f.window, "re");
+    cx.run_until_parked();
+    let narrowed = commands(cx).expect("still open");
+    assert_eq!(narrowed[0], "resolve-conflict", "{narrowed:?}");
+    assert!(narrowed.iter().any(|c| c == "prepare-reply"));
+    cx.simulate_keystrokes(f.window, "down");
+    cx.run_until_parked();
+    cx.read(|cx| assert_eq!(f.view.read(cx).slash.menu.as_ref().unwrap().index, 1));
+    cx.simulate_keystrokes(f.window, "escape");
+    cx.simulate_input(f.window, "s");
+    cx.run_until_parked();
+    assert_eq!(commands(cx), None, "Escape keeps this word's list closed");
+    cx.read(|cx| assert_eq!(f.view.read(cx).composer.read(cx).value().as_ref(), "/res"));
+
+    update(cx, &f, |view, window, cx| {
+        view.composer
+            .update(cx, |state, cx| state.set_value("", window, cx));
+        view.update_slash_menu(window, cx);
+    });
+    cx.simulate_input(f.window, "and/or see /usr/bin");
+    cx.run_until_parked();
+    assert_eq!(commands(cx), None, "slashes in prose and paths are text");
+
+    update(cx, &f, |view, window, cx| {
+        view.composer
+            .update(cx, |state, cx| state.set_value("", window, cx));
+        view.update_slash_menu(window, cx);
+    });
+    cx.simulate_input(f.window, "Please /mai");
+    cx.run_until_parked();
+    assert_eq!(
+        commands(cx).as_deref(),
+        Some(&["maintain-notes".to_owned()][..])
+    );
+    cx.simulate_keystrokes(f.window, "enter");
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        let text = view.composer.read(cx).value().to_string();
+        assert_eq!(text, "Please /maintain-notes ");
+        assert!(view.slash.menu.is_none());
+        assert!(view.queue_state().queue.is_empty(), "choosing never sends");
+        let chat = view.chat_thread().unwrap_or_default();
+        assert_eq!(
+            view.message_requested_skills(chat, &text),
+            vec!["maintain-notes".to_owned()]
+        );
+        assert!(
+            view.message_requested_skills(chat, "Please maintain-notes")
+                .is_empty()
+        );
+    });
+
+    // An active IME composition keeps ↵ while the list is open.
+    cx.simulate_input(f.window, "/in");
+    cx.run_until_parked();
+    assert!(commands(cx).is_some());
+    use gpui_kit::EntityInputHandler;
+    update(cx, &f, |view, window, cx| {
+        view.composer.update(cx, |state, cx| {
+            state.replace_and_mark_text_in_range(None, "か", None, window, cx)
+        });
+    });
+    cx.simulate_keystrokes(f.window, "enter");
+    cx.run_until_parked();
+    cx.read(|cx| {
+        let text = f.view.read(cx).composer.read(cx).value().to_string();
+        assert!(!text.contains("/intake"), "composition kept ↵: {text}");
+    });
+}
+
+/// CHAT-08: in a short window the New chat start surface opens the list
+/// below its composer, so no row hides under the header, and ↑/↓ keep the
+/// selected row in view when the list scrolls.
+#[gpui_kit::test]
+fn the_slash_list_stays_in_the_chat_area_of_a_short_window(cx: &mut TestAppContext) {
+    let packages = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let f = fixture(cx, 900., 600., |workspace, _, _| {
+        for n in 1..=4 {
+            let package = packages.path().join(format!("skill-{n}"));
+            std::fs::create_dir(&package).unwrap();
+            std::fs::write(
+                package.join("SKILL.md"),
+                format!(
+                    "---\nname: synthetic-skill-{n}\ndescription: A synthetic skill whose \
+                     description is long enough to wrap onto a second line in a narrow window.\n\
+                     ---\nSynthetic instructions.\n"
+                ),
+            )
+            .unwrap();
+            let info = workspace.install_skill(&package).unwrap();
+            workspace
+                .set_skill_enabled(&info.id, &info.digest, None, true)
+                .unwrap();
+        }
+    });
+    cx.simulate_keystrokes(f.window, "cmd-0");
+    cx.run_until_parked();
+    cx.read(|cx| assert_eq!(f.view.read(cx).chat, ChatTarget::New));
+    update(cx, &f, |view, window, cx| {
+        view.composer.focus_handle(cx).focus(window, cx);
+        cx.notify();
+    });
+    cx.simulate_input(f.window, "/");
+    cx.run_until_parked();
+    let rows = cx.read(|cx| f.view.read(cx).slash.menu.as_ref().unwrap().matches.len());
+    assert!(rows >= 8, "{rows} commands");
+    on_window(cx, &f, |window, _| {
+        let tile = window.find("tile-chat").bounds();
+        let composer = window.find("composer-box").bounds();
+        let menu = window.find("slash-menu").bounds();
+        assert!(menu.top() >= composer.bottom(), "{menu:?} vs {composer:?}");
+        assert!(menu.bottom() <= tile.bottom(), "{menu:?} vs {tile:?}");
+        let first = window.find("slash-row-0");
+        assert!(first.visible() && first.bounds().top() >= tile.top());
+    });
+    cx.simulate_keystrokes(f.window, "up");
+    cx.run_until_parked();
+    on_window(cx, &f, |window, cx| window.simulate_next_frame(cx));
+    on_window(cx, &f, |window, _| {
+        let menu = window.find("slash-menu").bounds();
+        let last = window.find(format!("slash-row-{}", rows - 1));
+        assert!(last.visible(), "the selected last row scrolls into view");
+        assert!(last.bounds().bottom() <= menu.bottom() + px(1.));
+    });
+
+    // The first-use delegation card below the composer sits under the open
+    // list: a click where both overlap reaches the list, not the card.
+    on_window(cx, &f, |window, _| {
+        let menu = window.find("slash-menu").bounds();
+        let choice = window.find("delegation-review-first").bounds();
+        assert!(
+            menu.contains(&choice.center()),
+            "the list covers the card: {menu:?} vs {choice:?}"
+        );
+    });
+    on_window(cx, &f, |window, cx| {
+        window.click("delegation-review-first", cx)
+    });
+    cx.run_until_parked();
+    cx.read(|cx| {
+        assert!(
+            !f.view.read(cx).settings.delegation_chosen,
+            "the card under the list took the click"
+        )
+    });
+
+    // Without the delegation card the composer sits lower; the list still
+    // fits in the chat area.
+    cx.simulate_keystrokes(f.window, "escape");
+    update(cx, &f, |view, window, cx| {
+        view.settings.delegation_chosen = true;
+        view.composer
+            .update(cx, |state, cx| state.set_value("", window, cx));
+        view.update_slash_menu(window, cx);
+    });
+    cx.simulate_input(f.window, "/");
+    cx.run_until_parked();
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("delegation-choice").is_none());
+        let tile = window.find("tile-chat").bounds();
+        let menu = window.find("slash-menu").bounds();
+        assert!(
+            menu.top() >= tile.top() && menu.bottom() <= tile.bottom(),
+            "{menu:?} vs {tile:?}"
+        );
+        assert!(window.find("slash-row-0").visible());
+    });
+}
+
+fn allow_subscription_web(workspace: &mut Workspace) {
+    let mut settings = workspace.settings().unwrap();
+    settings.provider = "codex".into();
+    settings.model = "gpt-6-sol".into();
+    settings.effort = "medium".into();
+    // The managed login's path, computed only; no credential is read.
+    settings.auth_file =
+        brn_ai::subscription_search::managed_auth_file().map(|path| path.display().to_string());
+    workspace.configure(settings).unwrap();
+}
+
+/// CHAT-07: Allow web access is a checked + menu row saved per chat; a new
+/// chat's Off waits for the send that creates it.
+#[gpui_kit::test]
+fn allow_web_access_is_saved_per_chat_and_for_the_next_new_chat(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |workspace, _, _| {
+        allow_subscription_web(workspace)
+    });
+    let checked = |cx: &mut TestAppContext, f: &Fixture| {
+        on_window(cx, f, |window, _| {
+            let menu = window.within("popup-menu");
+            let index = (0..60usize)
+                .find(|index| {
+                    menu.try_find(*index)
+                        .is_some_and(|row| row.label() == Some("Allow web access"))
+                })
+                .expect("web row");
+            menu.find(index).checked()
+        })
+    };
+    click(cx, &f, "composer-add");
+    assert!(menu_rows(cx, &f).contains(&"Allow web access".to_owned()));
+    assert_eq!(checked(cx, &f), Some(true), "chats start Allowed");
+    choose(cx, &f, "Allow web access");
+    let other = cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(
+            view.workspace.chat_web_access(Some(&f.thread)).unwrap(),
+            WebAccessState::Off
+        );
+        view.workspace
+            .store
+            .records()
+            .unwrap()
+            .into_iter()
+            .find(|r| matches!(&r.data, RecordData::Thread(t) if t.title == "Other chat"))
+            .unwrap()
+            .id
+    });
+    cx.read(|cx| {
+        assert_eq!(
+            f.view
+                .read(cx)
+                .workspace
+                .chat_web_access(Some(&other))
+                .unwrap(),
+            WebAccessState::Allowed,
+            "another chat keeps its own state"
+        );
+    });
+    click(cx, &f, "composer-add");
+    assert_ne!(checked(cx, &f), Some(true));
+    cx.simulate_keystrokes(f.window, "escape");
+
+    // A new chat: Off is pending until the chat exists, then saved for it.
+    update(cx, &f, |view, window, cx| view.new_thread(window, cx));
+    update(cx, &f, |view, _, cx| {
+        assert_eq!(view.web_access(), WebAccessState::Allowed);
+        view.toggle_web_access(cx);
+        assert_eq!(view.web_access(), WebAccessState::Off);
+        let chat = view.workspace.new_thread("Fresh").unwrap().id;
+        view.adopt_new_chat_web(&chat);
+        assert_eq!(
+            view.workspace.chat_web_access(Some(&chat)).unwrap(),
+            WebAccessState::Off
+        );
+        assert_eq!(view.web_access(), WebAccessState::Allowed, "consumed once");
+    });
+
+    // Sending to an existing chat leaves a pending new-chat Off untouched.
+    update(cx, &f, |view, window, cx| {
+        view.toggle_web_access(cx);
+        assert_eq!(view.web_access(), WebAccessState::Off);
+        view.open_thread(&other, window, cx);
+        assert_eq!(view.composer_chat("Queued elsewhere").unwrap(), other);
+        assert_eq!(
+            view.workspace.chat_web_access(Some(&other)).unwrap(),
+            WebAccessState::Allowed
+        );
+        view.new_thread(window, cx);
+        assert_eq!(view.web_access(), WebAccessState::Off, "still pending");
+    });
+}
+
+/// An unsupported route is Unavailable with its reason, never Off.
+#[gpui_kit::test]
+fn web_access_states_an_unavailable_route_separately(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 860., |_, _, _| {});
+    click(cx, &f, "composer-add");
+    let rows = menu_rows(cx, &f);
+    assert!(rows.contains(&"Allow web access".to_owned()), "{rows:?}");
+    assert!(
+        rows.iter().any(|row| row.starts_with("Web unavailable · ")),
+        "{rows:?}"
+    );
+    update(cx, &f, |view, _, cx| {
+        let before = view.web_access();
+        assert!(matches!(before, WebAccessState::Unavailable(_)));
+        view.toggle_web_access(cx);
+        assert_eq!(view.web_access(), before, "nothing to flip");
+    });
+}
+
+/// The answer cites the pages its own run searched, as openable links.
+#[gpui_kit::test]
+fn an_answer_lists_its_runs_web_sources(cx: &mut TestAppContext) {
+    let mut answer = String::new();
+    let f = fixture(cx, 1250., 860., |workspace, thread, _| {
+        let key = "web-answer";
+        let op = workspace.store.allocate_operation(key).unwrap();
+        let settings = workspace.settings().unwrap();
+        answer = op.creation_id(1);
+        workspace
+            .owner_change(
+                key,
+                &ChangeRequest {
+                    reason: "Synthetic web answer".into(),
+                    inputs: vec![],
+                    writes: vec![
+                        Put {
+                            id: op.creation_id(0),
+                            expected_version: None,
+                            archived: false,
+                            data: RecordData::Run(Run {
+                                loaded_skill_details: vec![],
+                                instruction: None,
+                                queue_claim: None,
+                                thread: thread.into(),
+                                provider: "offline-fixture".into(),
+                                model: settings.model,
+                                guide_identity: "web".into(),
+                                budget: 1,
+                                effort: settings.effort,
+                                loaded_skills: vec![],
+                                fence: 0,
+                                state: RunState::Completed,
+                                progress: String::new(),
+                                operations: vec![],
+                                sources: vec![],
+                                web_sources: vec![
+                                    WebSource {
+                                        url: "https://example.org/release".into(),
+                                        title: Some("Example release notes".into()),
+                                    },
+                                    WebSource {
+                                        url: "https://docs.example.com/a/b?c=d".into(),
+                                        title: None,
+                                    },
+                                ],
+                            }),
+                        },
+                        Put {
+                            id: answer.clone(),
+                            expected_version: None,
+                            archived: false,
+                            data: RecordData::Message(Message {
+                                thread: thread.into(),
+                                role: "assistant".into(),
+                                text: "The release shipped [1].".into(),
+                            }),
+                        },
+                    ],
+                },
+            )
+            .unwrap();
+    });
+    on_window(cx, &f, |window, _| {
+        let list = window.find(format!("answer-web-sources-{answer}"));
+        assert!(list.visible());
+        assert_eq!(list.label(), Some("Web sources"));
+        assert_eq!(
+            window.find(format!("answer-web-source-{answer}-0")).label(),
+            Some("Example release notes · https://example.org/release")
+        );
+        assert_eq!(
+            window.find(format!("answer-web-source-{answer}-1")).label(),
+            Some("docs.example.com · https://docs.example.com/a/b?c=d")
+        );
+        let reply = window.find(format!("answer-copy-{answer}")).bounds();
+        assert!(
+            list.bounds().bottom() <= reply.top(),
+            "sources sit under the answer, above its actions"
+        );
+    });
 }

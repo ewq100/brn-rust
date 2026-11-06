@@ -205,6 +205,7 @@ fn documents_useful_handoff_keeps_snapshot_and_settings_defer_while_working(
             max_tool_rounds: Some(2),
             trace: brn_ai::threads::TraceLevel::Off,
             offered_copilot_models: None,
+            requested_skills: Vec::new(),
         })
         .unwrap();
     let (window, view) = cx.update(|cx| {

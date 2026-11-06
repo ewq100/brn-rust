@@ -85,6 +85,7 @@ impl ThreadsUi {
             thread:snapshot.thread,prompt:"Propose useful outcomes from the captured posted conversation for owner review; do not apply or archive.".into(),
             request_message:None,queue_claim:None,owner_request:Some(brn_ai::threads::OwnerRequest::CaptureOutcomes{request_message:snapshot.request_message}),
             sources:vec![],max_tool_rounds:None,trace:brn_ai::threads::TraceLevel::Off,offered_copilot_models:Some(self.copilot_models.clone()),
+            requested_skills: Vec::new(),
         },false,None,"Continue Capture from this chat","Capture finished. Review proposed outcomes in Changes; unapplied information remains in chat.",cx);
     }
     pub(super) fn retry_capture(&mut self, request: String, cx: &mut Context<Self>) {

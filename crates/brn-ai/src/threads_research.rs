@@ -437,6 +437,7 @@ pub(super) async fn run_helper_model(
             emit: emit.clone(),
             trace: scope.trace.clone(),
             allowed: Some(&HELPER_TOOLS),
+            web: false,
             tokens: Some((slot.tokens.clone(), MAX_HELPER_INPUT_TOKENS)),
             turn_calls: AtomicU16::new(0),
             corrections: AtomicU16::new(0),
@@ -598,6 +599,8 @@ fn child_scope(parent: &Scope, slot: Arc<ScoutSlot>, provider: Provider) -> Arc<
         decision_target: Mutex::new(None),
         reads: Mutex::default(),
         search: parent.search.clone(),
+        // A helper never searches the web, whatever the parent allows.
+        web: None,
         trace,
         max_rounds: HELPER_ROUNDS,
         cache_key: scout_cache_key(provider, &parent.chat),

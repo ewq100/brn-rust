@@ -73,6 +73,8 @@ fn request(data: &Path, chat: &str) -> ThreadRunRequest {
         sources: vec![],
         search: None,
         trace: TraceLevel::Summary,
+        requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 

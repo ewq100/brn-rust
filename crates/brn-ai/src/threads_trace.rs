@@ -282,6 +282,7 @@ impl TraceCollector {
     fn args(&self, tool: &str, args: &Value) -> Value {
         let n = |key: &str| args.get(key).cloned().unwrap_or(Value::Null);
         match tool {
+            "web_search" => self.query(args.get("query").and_then(Value::as_str).unwrap_or("")),
             "search_notes" => {
                 let mut out = self.query(args.get("query").and_then(Value::as_str).unwrap_or(""));
                 out["limit"] = n("limit");
@@ -397,6 +398,10 @@ impl TraceCollector {
             return json!({"source_identity":value.get("source_identity"),"coverage":value.get("coverage"),"untrusted":true});
         }
         match tool {
+            "web_search" => json!({
+                "sources": value.get("sources").and_then(Value::as_array).map_or(0, Vec::len),
+                "failed": value.get("error").is_some(),
+            }),
             "search_notes" => json!({
                 "total": value.get("total"), "shown": value.get("shown"),
                 "ids": field_ids(value.get("results"), &["id"]),

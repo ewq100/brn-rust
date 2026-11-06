@@ -106,10 +106,32 @@ pub struct LoginPrompt {
     pub user_code: String,
 }
 
-#[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct ModelOption {
     pub id: String,
     pub live_qualified: bool,
+    /// The catalogue's display name, when it reports one.
+    #[serde(default)]
+    pub display_name: Option<String>,
+    /// Reasoning levels the catalogue reports and BRN can request. `None`
+    /// means the provider did not report reasoning support for this model.
+    #[serde(default)]
+    pub efforts: Option<Vec<ReasoningEffort>>,
+    #[serde(default)]
+    pub default_effort: Option<ReasoningEffort>,
+}
+
+impl ModelOption {
+    /// An entry whose catalogue reports only its identifier.
+    pub fn bare(id: impl Into<String>) -> Self {
+        Self {
+            id: id.into(),
+            live_qualified: false,
+            display_name: None,
+            efforts: None,
+            default_effort: None,
+        }
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

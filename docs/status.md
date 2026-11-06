@@ -4,6 +4,8 @@ Open the [development overview](work/overview.md) for current work, next actions
 
 Current assignment: [development feedback speed (#255)](work/active/windows-ci-portability/record.json), task `development-speed-255`. The [frozen cycle and evidence](work/active/windows-ci-portability/development-speed-255.md) record measurements, Council routes and candidate dispositions. Earlier Windows work remains in the same record; saved observations are historical, not live execution.
 
+Mac alpha runtime (#253): the [Rig 0.46 upgrade record](work/active/rig046-upgrade/README.md) holds versions, runtime qualification, both reuse-pilot deferrals and the [focused survey](work/active/rig046-upgrade/survey.md). Copilot chat, web search and Luna refinement (#252) follow in a separate PR on that runtime.
+
 The [subscription search/Mac acceptance record](work/active/subscription-search-mac-acceptance/record.json) is retained as earlier source-bound evidence. Its pre-merge labels are historical; PR244 is now merged. Live allocations remain closed and native acceptance gaps remain separate.
 
 The merged [bounded AgentBench record](work/active/agentbench/bounded-record.json), [readiness limits](work/active/agentbench/bounded-readiness.md) and [prepared first experiment](work/active/agentbench/first-experiment.md) remain separate evidence from PR246. Resuming Windows integration does not grant new live experiment budget or change those results.

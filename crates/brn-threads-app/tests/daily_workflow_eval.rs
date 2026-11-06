@@ -196,6 +196,8 @@ fn request(
         sources,
         search: Some(Arc::new(w.handle.clone())),
         trace: brn_ai::threads::TraceLevel::Summary,
+        requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 

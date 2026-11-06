@@ -1015,6 +1015,7 @@ fn host_run_fence_blocks_superseded_commit_but_receipt_replay_survives_cancellat
             progress: "starting".into(),
             operations: vec![],
             sources: vec![],
+            web_sources: Vec::new(),
         }),
     );
     apply(&mut store, &setup, &request(vec![thread, run]), &owner());
@@ -1503,6 +1504,7 @@ fn seed_run(store: &mut Store, key: &str) -> Record {
             progress: "starting".into(),
             operations: vec![],
             sources: vec![],
+            web_sources: Vec::new(),
         }),
     );
     apply(store, &op, &request(vec![thread, run]), &owner());
@@ -2537,6 +2539,7 @@ fn working_run_start_rechecks_current_selection_and_accepts_planned_settings_ove
         progress: "captured before configure".into(),
         operations: vec![],
         sources: vec![],
+        web_sources: Vec::new(),
     };
     let mut changed = initial;
     changed.model = "selected-new".into();
@@ -2760,6 +2763,7 @@ fn runtime_settings_snapshot_covers_account_changes_and_provider_aliases() {
         progress: "captured selection".into(),
         operations: vec![],
         sources: vec![],
+        web_sources: Vec::new(),
     };
     let start = store
         .allocate_operation("start with captured configuration")

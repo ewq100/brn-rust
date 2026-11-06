@@ -27,6 +27,8 @@ fn next(request: &ThreadRunRequest, prompt: &str) -> ThreadRunRequest {
         sources: vec![],
         search: None,
         trace: TraceLevel::Summary,
+        requested_skills: request.requested_skills.clone(),
+        web_search: None,
     }
 }
 fn save(store: &mut Store, writes: Vec<Put>) {
@@ -326,8 +328,9 @@ async fn long_project_summary_selected_skill_optional_sdk_stop_cold_continue_exa
                 .unwrap();
         skills_tests::policy(
             &request,
-            skills_tests::enabled(&info, Some(project.clone()), true),
+            skills_tests::enabled(&info, Some(project.clone()), false),
         );
+        request.requested_skills = vec![info.id.clone()];
         let policy = server
             .policy(vec![McpAccess::Project(project.clone())])
             .await;
@@ -2233,6 +2236,8 @@ mod capture_runner {
             sources: vec![],
             search: None,
             trace: TraceLevel::Summary,
+            requested_skills: Vec::new(),
+            web_search: None,
         })
         .unwrap_or_else(|_| panic!("reserved preparation refused; never retry"));
         if prepared_matches(&prepared, p).is_err() {
@@ -2872,6 +2877,8 @@ mod capture_runner {
                     sources: vec![],
                     search: None,
                     trace: TraceLevel::Summary,
+                    requested_skills: Vec::new(),
+                    web_search: None,
                 })
                 .unwrap();
                 prepared_matches(&prepared, p).unwrap();

@@ -66,6 +66,7 @@ fn runtime_refresh_checks_family_fence_all_versions_and_preserves_apply_authorit
                     progress: String::new(),
                     operations: vec![original.clone(), replacement.clone()],
                     sources: vec![],
+                    web_sources: Vec::new(),
                 }),
             },
         ],

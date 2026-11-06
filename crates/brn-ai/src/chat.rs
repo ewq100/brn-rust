@@ -269,6 +269,9 @@ mod tests {
         reasoning.native = Some(Native {
             item: serde_json::json!({"type":"reasoning","summary":[],"content":[{"type":"reasoning_text","text":"PRIVATE RAW REASONING"}],"encrypted_content":"PRIVATE CIPHERTEXT"}),
             fingerprint: Fingerprint::of(&reasoning),
+            baseline: None,
+            edited: false,
+            blob_slot: None,
         });
         assert!(public_reasoning_summary(&reasoning).is_none());
         reasoning.native.as_mut().unwrap().item["summary"] =
