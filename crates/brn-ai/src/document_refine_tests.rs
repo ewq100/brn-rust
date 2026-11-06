@@ -568,6 +568,39 @@ async fn copilot_refines_with_its_own_account_and_never_falls_back_to_codex() {
     }
 }
 
+/// A Copilot account without GPT-6 Luna refuses refinement; BRN never
+/// substitutes another model, saves nothing and reports the refusal.
+#[tokio::test]
+#[cfg(unix)]
+async fn copilot_without_luna_refuses_refinement_without_another_model() {
+    let root = root();
+    let dir = copilot_credentials(&root, "synthetic-github-one");
+    let http = SequencedHttpClient::new([
+        copilot_session(),
+        MockHttpResponse::error(
+            rig::http_client::StatusCode::BAD_REQUEST,
+            r#"{"error":{"code":"model_not_found","message":"synthetic"}}"#,
+        ),
+    ]);
+    let account = ConversionAccount::capture(Some(Provider::Copilot), None, Some(&dir));
+    let outcome = refine(
+        result(),
+        &account,
+        CancellationToken::new(),
+        Some(DynHttpClient::new(http.clone())),
+        TIMEOUT,
+    )
+    .await;
+    let Err(ConversionFailure::Provider(error)) = outcome else {
+        panic!("absent Luna must refuse refinement");
+    };
+    assert_eq!(error.kind, crate::AiErrorKind::ModelRefused);
+    let requests = http.requests();
+    assert_eq!(requests.len(), 2);
+    let body: Value = serde_json::from_slice(&requests[1].body).unwrap();
+    assert_eq!(body["model"], "gpt-6-luna");
+}
+
 #[tokio::test]
 #[cfg(target_os = "macos")]
 async fn ai_off_never_reads_the_copilot_account() {
