@@ -451,6 +451,9 @@ struct ThreadsUi {
     /// preference is System, the live OS window appearance.
     theme: ThemeId,
     settings_section: SettingsSection,
+    /// Each Settings section button's focus, so a click can put the ring on
+    /// the section it chose (kit buttons don't take focus on a click).
+    settings_section_focus: [FocusHandle; SettingsSection::ALL.len()],
     skill_view: skills_view::SkillView,
     mcp_view: mcp_view::McpView,
     records: Vec<Record>,
@@ -765,6 +768,7 @@ impl ThreadsUi {
             appearance,
             theme,
             settings_section: SettingsSection::Appearance,
+            settings_section_focus: std::array::from_fn(|_| cx.focus_handle()),
             skill_view: skills_view::SkillView::default(),
             mcp_view: mcp_view::McpView::new(window, cx),
             records: vec![],
@@ -2779,6 +2783,7 @@ impl ThreadsUi {
             &self.thread_rows,
             &self.note_rows,
             &self.launcher_project_documents(),
+            &self.launcher_search.passages,
             &self.launcher_search.messages,
         )
     }
@@ -2817,7 +2822,7 @@ impl ThreadsUi {
         self.close_launcher(window, cx);
         match item {
             lists::LaunchItem::Thread { id, .. } => self.open_thread(&id, window, cx),
-            lists::LaunchItem::Note { id, .. } => {
+            lists::LaunchItem::Note { id, .. } | lists::LaunchItem::Passage { id, .. } => {
                 // A found article opens for reading, assistant closed.
                 self.preserve_visible_note_input(cx);
                 self.layout.open_article();

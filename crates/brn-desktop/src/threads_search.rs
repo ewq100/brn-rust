@@ -53,6 +53,8 @@ impl SearchView {
 pub(super) struct LauncherSearch {
     requests: u64,
     pub(super) pending: bool,
+    /// Current notes matched by their text, best first.
+    pub(super) passages: Vec<SearchHit>,
     pub(super) messages: Vec<ChatMessageHit>,
     task: Option<Task<()>>,
     cancel: Option<CancelOnDrop>,
@@ -280,8 +282,9 @@ impl ThreadsUi {
         self.open_thread(chat, window, cx);
     }
 
-    /// The launcher's query changed: list matching saved chat Messages
-    /// under "In chats", as the Notes search does.
+    /// The launcher's query changed: list current notes matched by their
+    /// text and matching saved chat Messages below the label matches, as
+    /// the Notes search does.
     pub(super) fn launcher_search_changed(
         &mut self,
         query: String,
@@ -293,6 +296,7 @@ impl ThreadsUi {
         let request = search.requests;
         (search.task, search.cancel) = (None, None);
         search.messages.clear();
+        search.passages.clear();
         search.pending = false;
         if query.trim().is_empty() {
             return;
@@ -319,8 +323,11 @@ impl ThreadsUi {
                 search.cancel = None;
                 // A failed search leaves label matches; the Notes search
                 // reports search errors.
-                search.messages = answer
-                    .map(|page| SearchPage::from(page).messages)
+                (search.passages, search.messages) = answer
+                    .map(|page| {
+                        let page = SearchPage::from(page);
+                        (page.hits, page.messages)
+                    })
                     .unwrap_or_default();
                 cx.notify();
             });

@@ -21,8 +21,10 @@ fn pick_row(id: impl Into<gpui_kit::ElementId>, label: impl Into<SharedString>) 
         .child(div().flex_1().min_w_0().truncate().child(label))
 }
 
+/// A document row's chevron sits 13 pt inside the row (inset and border); a
+/// compact button pads its label 8 pt, so this inset ends both together.
+const PROJECT_DOC_ACTIONS_INSET: f32 = 5.;
 /// Shown beside Restore project, before the owner chooses it.
-const PROJECT_DOC_ACTIONS: f32 = 168.;
 const RESTORE_LINE: &str = "Restoring returns contents and settings. Cancelled tasks stay cancelled; tasks kept outside stay outside. Work stays paused.";
 
 /// The Projects page's one filled primary: New project with nothing
@@ -768,7 +770,7 @@ impl ThreadsUi {
             } else {
                 vec![]
             };
-            let line = div().flex().items_center().gap_1().child(
+            let line = div().flex().flex_col().child(
                 library_row(
                     format!("project-doc-{id}"),
                     if private {
@@ -783,19 +785,19 @@ impl ThreadsUi {
                     self.open_note_id() == Some(id.as_str()),
                     None,
                 )
-                .flex_1()
                 .on_click(cx.listener(move |this, _, window, cx| {
                     this.open_project_note(&project_for_open, &id, window, cx)
                 })),
             );
-            // A fixed trailing column keeps every row's chevron aligned.
+            // Rows keep the full width, so every chevron shares the right
+            // edge; the actions sit under it and end where it ends.
             let mut actions = div()
+                .id(SharedString::from(format!("project-doc-{keep}-actions")))
                 .flex()
-                .flex_none()
                 .justify_end()
                 .items_center()
                 .gap_1()
-                .w(px(PROJECT_DOC_ACTIONS));
+                .pr(px(PROJECT_DOC_ACTIONS_INSET));
             if private {
                 actions = actions.child(
                     pill(format!("project-keep-{keep}"), "Keep in BRN")
@@ -814,7 +816,9 @@ impl ThreadsUi {
                         })),
                 );
             }
-            if p.documents.contains(&unlink) {
+            let linked = p.documents.contains(&unlink);
+            let has_actions = private || linked;
+            if linked {
                 actions = actions.child(
                     pill(format!("project-unlink-{unlink}"), "Unlink")
                         .tooltip("Remove from this project; the saved note stays in your Library")
@@ -832,7 +836,7 @@ impl ThreadsUi {
                         })),
                 );
             }
-            block = block.child(line.child(actions));
+            block = block.child(line.when(has_actions, |line| line.child(actions.test_support())));
         }
         block.test_support().into_any_element()
     }

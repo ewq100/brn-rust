@@ -697,8 +697,10 @@ impl ThreadsUi {
     pub(super) fn settings_tile(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         let sections = SettingsSection::ALL
             .into_iter()
-            .map(|item| {
+            .zip(self.settings_section_focus.clone())
+            .map(|(item, focus)| {
                 button(format!("settings-section-{}", item.key()))
+                    .track_focus(&focus)
                     .accessibility_label(item.label())
                     .ghost()
                     .w_full()
@@ -724,12 +726,10 @@ impl ThreadsUi {
                             this.settings_section = item;
                             // Kit buttons don't take focus on a click, so the
                             // ring would stay on the segment focus landed on.
-                            // A pointer click hands focus to the Settings body;
-                            // a key press keeps it on the pressed segment.
+                            // A pointer click moves it to the chosen section;
+                            // a key press already focused it.
                             if !event.is_keyboard() {
-                                this.panel_body(TileKind::Settings)
-                                    .clone()
-                                    .focus(window, cx);
+                                focus.focus(window, cx);
                             }
                             cx.notify();
                         }),
