@@ -55,6 +55,7 @@ fn fixture() -> (
                     progress: "".into(),
                     operations: vec![proposal.clone(), replacement],
                     sources: vec![],
+                    web_sources: Vec::new(),
                 }),
             },
             Put {

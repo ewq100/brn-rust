@@ -14,6 +14,8 @@ pub struct ThreadRunStart {
     pub trace: TraceLevel,
     /// A host's already obtained catalogue, never a model-supplied choice.
     pub offered_copilot_models: Option<Vec<String>>,
+    /// Skill ids the owner requested with `/` in this message only.
+    pub requested_skills: Vec<String>,
 }
 #[derive(Debug, thiserror::Error)]
 pub enum RunSelectionError {
@@ -101,6 +103,7 @@ impl Workspace {
             ),
             Err(error) => (None, format!("unavailable: {error}")),
         };
+        let web_search = self.web_searcher(&start.thread, &settings);
         let request = ThreadRunRequest {
             request_message: start.request_message,
             queue_claim: start.queue_claim,
@@ -118,6 +121,8 @@ impl Workspace {
             sources: start.sources,
             search,
             trace: start.trace,
+            requested_skills: start.requested_skills,
+            web_search,
         };
         let prepared = prepare_run(request).map_err(RunPreparationError::Preparation)?;
         Ok(PreparedWorkspaceRun {

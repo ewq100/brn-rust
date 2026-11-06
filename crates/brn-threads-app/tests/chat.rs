@@ -40,6 +40,7 @@ fn put_run(w: &mut Workspace, q: &QueuedMessage, key: &str) -> Record {
                             progress: String::new(),
                             operations: vec![],
                             sources: vec![],
+                            web_sources: Vec::new(),
                         }),
                     },
                     {

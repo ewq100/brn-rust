@@ -158,6 +158,7 @@ async fn scripted_private_sources_have_separate_import_read_claims_and_owner_app
             max_tool_rounds: Some(4),
             trace: TraceLevel::Full,
             offered_copilot_models: None,
+            requested_skills: Vec::new(),
         })
         .unwrap();
     let mut proposed = snap.change_request("Exact proposed text").unwrap();
@@ -541,6 +542,7 @@ async fn general_writing_uses_real_search_counts_and_never_delivers_new_private_
             max_tool_rounds: Some(4),
             trace: TraceLevel::Full,
             offered_copilot_models: None,
+            requested_skills: Vec::new(),
         })
         .unwrap();
     // A general Note created DURING the run retains a conversation-private
@@ -838,6 +840,7 @@ async fn int_w_f21_private_context_never_enters_p2_or_general_delivery() {
                 max_tool_rounds: Some(4),
                 trace: TraceLevel::Full,
                 offered_copilot_models: None,
+                requested_skills: Vec::new(),
             })
             .unwrap();
         let model = MockCompletionModel::from_stream_turns([
@@ -1069,6 +1072,7 @@ async fn int_w_f21_private_context_never_enters_p2_or_general_delivery() {
                     max_tool_rounds: Some(6),
                     trace: TraceLevel::Full,
                     offered_copilot_models: None,
+                    requested_skills: Vec::new(),
                 })
                 .unwrap();
             let model = MockCompletionModel::from_stream_turns([

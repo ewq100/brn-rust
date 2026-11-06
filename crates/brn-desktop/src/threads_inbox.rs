@@ -311,6 +311,7 @@ impl ThreadsUi {
             let result = (|| -> AppResult<String> {
                 let mut workspace = Workspace::open_existing_no_upgrade(data)?;
                 let canonical = workspace.settings()?;
+                let provider = brn_ai::Provider::from_setting(&canonical.provider);
                 let auth_file = canonical.auth_file.map(PathBuf::from);
                 let credentials_dir = canonical.credentials_dir.map(PathBuf::from);
                 let runtime = tokio::runtime::Builder::new_current_thread()
@@ -341,6 +342,7 @@ impl ThreadsUi {
                                 intent: ImportIntent::FullNote,
                                 bytes: document.bytes,
                                 source_reference: document.source_reference,
+                                provider,
                                 auth_file: auth_file.clone(),
                                 credentials_dir: credentials_dir.clone(),
                             },

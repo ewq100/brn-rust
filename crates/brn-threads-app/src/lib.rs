@@ -45,12 +45,13 @@ mod settings;
 mod skills;
 pub mod subscription_search;
 pub use settings::HELPER_TESTED_NOTE;
-pub use skills::LoadedSkillDetails;
+pub use skills::{LoadedSkillDetails, SkillCommand};
 #[cfg(any(target_os = "macos", target_os = "linux"))]
 pub use skills::{
     Package as SkillPackage, PackageInfo as SkillPackageInfo,
     RETENTION_NOTICE as SKILL_RETENTION_NOTICE, SkillStatus,
 };
+pub use subscription_search::WebAccessState;
 mod steering;
 mod topics;
 mod writing;
@@ -286,6 +287,8 @@ impl Workspace {
         };
         workspace.bootstrap_settings(credentials)?;
         workspace.bootstrap_chat_control()?;
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
+        workspace.reconcile_skill_policy()?;
         Ok(workspace)
     }
     pub fn records(&self) -> AppResult<Vec<Record>> {

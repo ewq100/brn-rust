@@ -67,6 +67,7 @@ async fn fixture(root: &Path) -> std::result::Result<(), Box<dyn std::error::Err
         max_tool_rounds: Some(4),
         trace: TraceLevel::Full,
         offered_copilot_models: None,
+        requested_skills: Vec::new(),
     };
     let read = || call("read", "read_records", json!({"ids":[note.id]}));
     // Replay observed wrong locations, not unknown historical text arguments.

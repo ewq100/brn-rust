@@ -38,8 +38,6 @@ mod chat;
 mod composer;
 #[path = "threads_run_activity.rs"]
 mod run_activity;
-#[path = "threads_web_search.rs"]
-mod web_search;
 use run_activity::{Event as RunActivityEvent, RunActivity};
 #[path = "threads_changes.rs"]
 mod changes_view;
@@ -82,8 +80,14 @@ mod location;
 mod mcp_tests;
 #[path = "threads_mcp.rs"]
 mod mcp_view;
+#[path = "threads_model_picker.rs"]
+mod model_picker;
 #[path = "threads_notice.rs"]
 mod notice;
+#[path = "threads_slash.rs"]
+mod slash;
+#[path = "threads_web.rs"]
+mod web;
 use notice::NoticeState;
 #[path = "threads_projects.rs"]
 mod projects_view;
@@ -524,7 +528,6 @@ struct ThreadsUi {
     inbox_page: inbox_page::InboxPage,
     assets: Arc<BTreeMap<String, Arc<Image>>>,
     worker: Option<Worker>,
-    web_search: web_search::WebSearch,
     stream: String,
     progress: String,
     run_activity: RunActivity,
@@ -535,6 +538,11 @@ struct ThreadsUi {
     notice: NoticeState,
     export_status: String,
     copilot_models: Vec<String>,
+    model_picker: model_picker::ModelPicker,
+    /// The composer's / command list (CHAT-08).
+    slash: slash::Slash,
+    /// A new chat's **Allow web access** Off, saved when the chat is created.
+    new_chat_web_off: bool,
     backup_status: String,
     restore: restore_view::RestoreFlow,
     /// The open note's version history, shown in place of the document.
@@ -596,6 +604,8 @@ impl ThreadsUi {
         let launcher_query = cx.new(|cx| {
             InputState::new(window, cx).placeholder("Search articles, files, chats and commands…")
         });
+        let picker_query = cx.new(|cx| InputState::new(window, cx).placeholder("Search models"));
+        let favorite_models = workspace.favorite_models().unwrap_or_default();
         let model = cx.new(|cx| {
             InputState::new(window, cx)
                 .default_value(settings.model.clone())
@@ -645,10 +655,11 @@ impl ThreadsUi {
             cx.subscribe_in(
                 &composer,
                 window,
-                |this, editor, event: &InputEvent, _, cx| {
+                |this, editor, event: &InputEvent, window, cx| {
                     if matches!(event, InputEvent::Change) {
                         let text = editor.read(cx).value().to_string();
                         this.composer_changed(text, cx);
+                        this.update_slash_menu(window, cx);
                     }
                 },
             ),
@@ -690,10 +701,12 @@ impl ThreadsUi {
             cx.subscribe_in(
                 &composer,
                 window,
-                |this, _, event: &InputEvent, window, cx| {
-                    if let InputEvent::PressEnter { shift, secondary } = event {
+                |this, _, event: &InputEvent, window, cx| match event {
+                    InputEvent::PressEnter { shift, secondary } => {
                         this.composer_enter(*shift, *secondary, window, cx);
                     }
+                    InputEvent::Blur => this.close_slash(cx),
+                    _ => {}
                 },
             ),
             cx.subscribe_in(
@@ -713,6 +726,15 @@ impl ThreadsUi {
                     cx.notify();
                 }
             }),
+            cx.subscribe_in(
+                &picker_query,
+                window,
+                |this, _, event: &InputEvent, _, cx| {
+                    if matches!(event, InputEvent::Change) {
+                        this.picker_query_changed(cx);
+                    }
+                },
+            ),
             cx.subscribe_in(
                 &launcher_query,
                 window,
@@ -824,7 +846,6 @@ impl ThreadsUi {
             inbox_page: inbox_page::InboxPage::default(),
             assets: Arc::new(BTreeMap::new()),
             worker: None,
-            web_search: web_search::WebSearch::default(),
             stream: String::new(),
             progress: String::new(),
             run_activity: RunActivity::default(),
@@ -833,6 +854,9 @@ impl ThreadsUi {
             notice: NoticeState::default(),
             export_status: "No export created in this session.".into(),
             copilot_models: Vec::new(),
+            model_picker: model_picker::ModelPicker::new(picker_query, favorite_models),
+            slash: slash::Slash::default(),
+            new_chat_web_off: false,
             backup_status: "No backup created in this session.".into(),
             restore: Default::default(),
             doc_history: None,
@@ -926,7 +950,6 @@ impl ThreadsUi {
             self.candidates = self.workspace.candidates()?;
             self.buffers = self.workspace.store.recovery_buffers()?;
             let settings = self.workspace.settings()?;
-            self.reconcile_web_settings(&settings);
             self.provider_form = ProviderForm::from_settings(&settings);
             self.settings = settings;
             self.topics = self.workspace.topics()?;
@@ -2073,6 +2096,7 @@ impl ThreadsUi {
             _ => None,
         };
         let queue_match = queued.is_some();
+        let requested_skills = self.message_requested_skills(&thread, &prompt);
         let request = brn_threads_app::ThreadRunStart {
             request_message: queued.as_ref().and_then(|q| q.message.clone()).or(posted),
             queue_claim: queued.and_then(|q| q.dispatch),
@@ -2083,6 +2107,7 @@ impl ThreadsUi {
             sources,
             trace: brn_ai::threads::TraceLevel::Off,
             offered_copilot_models: Some(self.copilot_models.clone()),
+            requested_skills,
         };
         self.start_request(
             request,
@@ -2339,6 +2364,11 @@ impl ThreadsUi {
             ChatTarget::NewForNote(note) => self.ensure_writing_thread(&note),
             ChatTarget::New => self.workspace.new_thread(&short(&prompt)).map(|r| r.id),
         };
+        if let Ok(thread) = &thread
+            && !matches!(self.chat, ChatTarget::Thread(_))
+        {
+            self.adopt_new_chat_web(thread);
+        }
         match thread.and_then(|thread| {
             self.workspace
                 .post_message(&thread, &prompt)
@@ -2473,24 +2503,6 @@ impl ThreadsUi {
         if self.appearance.follows_os() {
             self.apply_resolved_theme(os_dark, window, cx);
         }
-    }
-    /// Pills change the explicit Settings through the existing configure path.
-    fn set_model(
-        &mut self,
-        provider: &str,
-        model: &str,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        let mut settings = self.settings.clone();
-        settings.provider = provider.into();
-        settings.model = model.into();
-        self.configure_explicit(settings, window, cx);
-    }
-    fn set_effort(&mut self, effort: &str, window: &mut Window, cx: &mut Context<Self>) {
-        let mut settings = self.settings.clone();
-        settings.effort = effort.into();
-        self.configure_explicit(settings, window, cx);
     }
     fn configure_explicit(
         &mut self,
@@ -2862,7 +2874,6 @@ impl ThreadsUi {
                 self.show_tile(kind, window, cx);
             }
             lists::Command::Keys => self.show_keys(window, cx),
-            lists::Command::WebSearch => self.open_web_search(window, cx),
         }
     }
     fn continue_run(&mut self, thread: String, cx: &mut Context<Self>) {
@@ -2938,7 +2949,6 @@ impl ThreadsUi {
             .map(|_| self.stream.as_str())
     }
     fn poll_worker(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.poll_web_search(cx);
         let Some(worker) = &self.worker else {
             return;
         };
@@ -3033,7 +3043,6 @@ impl ThreadsUi {
                     if let Err(error) = self.workspace.configure(settings.clone()) {
                         self.fail(error.to_string());
                     } else {
-                        self.reconcile_web_settings(&settings);
                         self.settings = settings;
                     }
                 }
@@ -3582,6 +3591,7 @@ impl ThreadsUi {
                 .map(|project| project.id.clone())
         };
         let captured = canonical.document_conversion.clone();
+        let provider = brn_ai::Provider::from_setting(&canonical.provider);
         let auth_file = canonical.auth_file.map(PathBuf::from);
         let credentials_dir = canonical.credentials_dir.map(PathBuf::from);
         let (sender, receiver) = mpsc::sync_channel(8);
@@ -3614,6 +3624,7 @@ impl ThreadsUi {
                             intent,
                             bytes,
                             source_reference: reference,
+                            provider,
                             auth_file,
                             credentials_dir,
                         },

@@ -100,6 +100,7 @@ fn folder_patch_preserves_current_settings_fences_runs_and_replays_raw_intent_wi
                 progress: "fixture".into(),
                 operations: vec![],
                 sources: vec![],
+                web_sources: Vec::new(),
             }),
         }],
     };

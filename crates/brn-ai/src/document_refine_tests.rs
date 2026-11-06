@@ -6,6 +6,8 @@ use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
 use serde_json::{Value, json};
 #[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
+#[cfg(unix)]
+use std::path::Path;
 #[cfg(target_os = "macos")]
 fn capture(name: &str, value: impl serde::Serialize) {
     if let Some(path) = std::env::var_os("BRN_TASK2_CAPTURES") {
@@ -75,9 +77,32 @@ fn job(
         intent: ImportIntent::FullNote,
         bytes,
         source_reference: "synthetic://document-job".into(),
+        provider: Some(Provider::Chatgpt),
         auth_file: Some(root.path().join("bad-auth-must-not-open")),
         credentials_dir: None,
     }
+}
+#[cfg(unix)]
+fn codex(file: &Path) -> ConversionAccount {
+    ConversionAccount::Chatgpt {
+        auth_file: Some(file.to_owned()),
+        credentials_dir: None,
+    }
+}
+#[cfg(unix)]
+fn copilot_credentials(root: &tempfile::TempDir, token: &str) -> PathBuf {
+    let dir = root.path().join("copilot");
+    crate::Auth::open(&dir).unwrap();
+    let path = dir.join("github-token");
+    std::fs::write(&path, token).unwrap();
+    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)).unwrap();
+    dir
+}
+#[cfg(unix)]
+fn copilot_session() -> MockHttpResponse {
+    MockHttpResponse::success(
+        json!({"token":"synthetic-session","expires_at":4102444800u64,"endpoints":{"api":"https://copilot.example.invalid"}}).to_string(),
+    )
 }
 #[cfg(unix)]
 fn auth(root: &tempfile::TempDir) -> PathBuf {
@@ -225,7 +250,8 @@ async fn ai_on_receives_selected_engine_output_for_every_kind() {
                 json!({"extracted":extracted,"refined":actual,"request_body":body}),
             );
             assert_eq!(body["model"], "gpt-6-luna");
-            assert_eq!(body["reasoning"], json!({"effort":"high"}));
+            // Rig 0.46 asks ChatGPT Responses for a reasoning summary by default.
+            assert_eq!(body["reasoning"], json!({"effort":"high","summary":"auto"}));
             assert!(body.get("max_output_tokens").is_none());
             assert!(
                 body.get("tools")
@@ -274,8 +300,7 @@ async fn invalid_hash_fields_terminal_and_auth_fail_without_candidate() {
         assert!(
             refine(
                 extracted.clone(),
-                Some(&file),
-                None,
+                &codex(&file),
                 CancellationToken::new(),
                 Some(DynHttpClient::new(http.clone())),
                 TIMEOUT
@@ -286,13 +311,21 @@ async fn invalid_hash_fields_terminal_and_auth_fail_without_candidate() {
         assert_eq!(http.requests().len(), 1);
     }
     assert!(matches!(
-        refine_document(extracted.clone(), None, None, CancellationToken::new()).await,
+        refine_document(
+            extracted.clone(),
+            &ConversionAccount::Chatgpt {
+                auth_file: None,
+                credentials_dir: None
+            },
+            CancellationToken::new()
+        )
+        .await,
         Err(ConversionFailure::Provider(_))
     ));
     let cancel = CancellationToken::new();
     cancel.cancel();
     assert!(matches!(
-        refine_document(extracted, Some(&file), None, cancel).await,
+        refine_document(extracted, &codex(&file), cancel).await,
         Err(ConversionFailure::Interrupted)
     ));
 }
@@ -388,8 +421,7 @@ async fn refinement_deadline_stop_refusal_and_failure_have_no_save_or_fallback()
         });
         let actual = refine(
             result(),
-            Some(&file),
-            None,
+            &codex(&file),
             cancel,
             Some(DynHttpClient::new(StalledHttp(http.clone()))),
             Duration::from_millis(100),
@@ -447,8 +479,7 @@ async fn oversized_current_prompt_refuses_before_credentials_or_transport() {
     let http = transport("must not be requested", "completed");
     let outcome = refine(
         extracted,
-        Some(Path::new("/nonexistent-synthetic-auth")),
-        None,
+        &codex(Path::new("/nonexistent-synthetic-auth")),
         CancellationToken::new(),
         Some(DynHttpClient::new(http.clone())),
         TIMEOUT,
@@ -456,4 +487,112 @@ async fn oversized_current_prompt_refuses_before_credentials_or_transport() {
     .await;
     assert!(matches!(outcome, Err(ConversionFailure::Budget)));
     assert!(http.requests().is_empty());
+}
+
+/// Copilot refines with GPT-6 Luna on the selected Copilot account's
+/// Responses route, never with a Codex login left in settings.
+#[tokio::test]
+#[cfg(unix)]
+async fn copilot_refines_with_its_own_account_and_never_falls_back_to_codex() {
+    let root = root();
+    let codex_file = auth(&root);
+    let dir = copilot_credentials(&root, "synthetic-github-one");
+    let extracted = result();
+    let reply = serde_json::to_string(&response(&extracted)).unwrap();
+    let http = SequencedHttpClient::new([
+        copilot_session(),
+        MockHttpResponse::success_typed(completed(&reply, "completed"), "text/event-stream"),
+    ]);
+    let account =
+        ConversionAccount::capture(Some(Provider::Copilot), Some(&codex_file), Some(&dir));
+    let refined = refine(
+        extracted.clone(),
+        &account,
+        CancellationToken::new(),
+        Some(DynHttpClient::new(http.clone())),
+        TIMEOUT,
+    )
+    .await
+    .unwrap();
+    assert_eq!(refined.markdown, extracted.markdown);
+    assert_eq!(
+        refined.converter,
+        document_conversion_label("xberg", true).unwrap()
+    );
+    let requests = http.requests();
+    assert_eq!(requests.len(), 2);
+    assert_eq!(requests[1].uri, "https://copilot.example.invalid/responses");
+    let body: Value = serde_json::from_slice(&requests[1].body).unwrap();
+    assert_eq!(body["model"], "gpt-6-luna");
+    assert_eq!(body["reasoning"]["effort"], "high");
+    assert!(
+        body.get("tools")
+            .is_none_or(|v| v.as_array().is_some_and(Vec::is_empty))
+    );
+    assert!(!String::from_utf8_lossy(&requests[1].body).contains("synthetic-not-a-credential"));
+
+    // Another account signed in after the job started: refuse, send nothing.
+    std::fs::write(dir.join("github-token"), "synthetic-github-two").unwrap();
+    let http = SequencedHttpClient::new([]);
+    let outcome = refine(
+        extracted.clone(),
+        &account,
+        CancellationToken::new(),
+        Some(DynHttpClient::new(http.clone())),
+        TIMEOUT,
+    )
+    .await;
+    let Err(ConversionFailure::Provider(error)) = outcome else {
+        panic!("a changed account must refuse");
+    };
+    assert_eq!(error.kind, crate::AiErrorKind::ReconnectNeeded);
+    assert!(error.to_string().contains("account changed"));
+    assert!(http.requests().is_empty());
+
+    // No Copilot sign-in: Copilot never uses the Codex file instead.
+    for account in [
+        ConversionAccount::capture(Some(Provider::Copilot), Some(&codex_file), None),
+        ConversionAccount::capture(None, Some(&codex_file), Some(&dir)),
+    ] {
+        let http = SequencedHttpClient::new([]);
+        let outcome = refine(
+            extracted.clone(),
+            &account,
+            CancellationToken::new(),
+            Some(DynHttpClient::new(http.clone())),
+            TIMEOUT,
+        )
+        .await;
+        assert!(matches!(outcome, Err(ConversionFailure::Provider(_))));
+        assert!(http.requests().is_empty());
+    }
+}
+
+#[tokio::test]
+#[cfg(target_os = "macos")]
+async fn ai_off_never_reads_the_copilot_account() {
+    let root = root();
+    let missing = root.path().join("copilot-must-not-open");
+    let http = SequencedHttpClient::new([]);
+    let mut input = job(
+        &root,
+        DocumentConverter::Xberg,
+        false,
+        DocumentKind::Text,
+        b"Exact text".to_vec(),
+    );
+    input.provider = Some(Provider::Copilot);
+    input.credentials_dir = Some(missing.clone());
+    convert_job(
+        input,
+        CancellationToken::new(),
+        Arc::new(AtomicBool::new(false)),
+        Arc::new(|_| {}),
+        Some(DynHttpClient::new(http.clone())),
+        TIMEOUT,
+    )
+    .await
+    .unwrap();
+    assert!(http.requests().is_empty());
+    assert!(!missing.exists());
 }

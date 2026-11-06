@@ -49,7 +49,8 @@ pub fn preloaded(sources: bool) -> &'static [&'static str] {
 pub fn preamble(preloaded: &[&str]) -> String {
     let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
     let store = brn_threads_core::Store::open(root.path().join("data")).unwrap();
-    crate::thread_skills::Catalogue::freeze(&store, &[], None, !preloaded.is_empty()).preamble()
+    crate::thread_skills::Catalogue::freeze(&store, &[], None, !preloaded.is_empty(), &[])
+        .preamble()
 }
 
 /// A helper sub-run's complete instructions: its role guide only, so the

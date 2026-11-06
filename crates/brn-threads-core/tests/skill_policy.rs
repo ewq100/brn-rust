@@ -85,6 +85,7 @@ fn scoped_policy_replay_fences_and_preserves_fresh_configuration_and_backup() {
             progress: "partial".into(),
             operations: vec![],
             sources: vec![],
+            web_sources: Vec::new(),
         }),
     );
     let stale = settings(&store);

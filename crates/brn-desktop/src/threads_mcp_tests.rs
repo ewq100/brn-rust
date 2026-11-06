@@ -389,6 +389,7 @@ fn native_exact_input_is_transient_once_and_cleared_on_scope_policy_or_run_chang
                     max_tool_rounds: Some(2),
                     trace: brn_ai::threads::TraceLevel::Off,
                     offered_copilot_models: None,
+                    requested_skills: Vec::new(),
                 })
                 .unwrap();
             // Real checked attachment; no connection is made before worker.
@@ -718,7 +719,8 @@ fn reviewed_snapshot_handoff_barrier(cx: &mut TestAppContext, policy_switch: boo
         }
         // Both changes happened BEFORE prepare; ordinary post-prepare liveness
         // therefore cannot detect that the native owner reviewed the old facts.
-        let prepared = ui.workspace.prepare_thread_run(ThreadRunStart { thread: chat.clone(), prompt: prompt.into(), request_message: None, queue_claim: None, owner_request: None, sources: vec![], max_tool_rounds: Some(2), trace: brn_ai::threads::TraceLevel::Off, offered_copilot_models: None }).unwrap();
+        let prepared = ui.workspace.prepare_thread_run(ThreadRunStart { thread: chat.clone(), prompt: prompt.into(), request_message: None, queue_claim: None, owner_request: None, sources: vec![], max_tool_rounds: Some(2), trace: brn_ai::threads::TraceLevel::Off, offered_copilot_models: None,
+    requested_skills: Vec::new(), }).unwrap();
         let run_id = prepared.prepared.run_id().to_owned();
         let before = ui.workspace.records().unwrap().into_iter().find(|r| r.id==run_id).unwrap();
         let result = reviewed.attach(prepared.prepared);

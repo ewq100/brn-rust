@@ -843,6 +843,7 @@ fn configuration_and_pause_fence_runs_while_thread_resolution_preserves_actions(
         progress: "starting".into(),
         operations: vec![],
         sources: vec![],
+        web_sources: Vec::new(),
     };
     let action = Action {
         kept_outside_project: false,

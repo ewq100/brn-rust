@@ -246,6 +246,8 @@ struct HelperChoice {
     effort: ReasoningEffort,
     auth_file: Option<PathBuf>,
     credentials_dir: Option<PathBuf>,
+    /// The helper's Copilot account at parent-run start; never switched.
+    account: Option<crate::AccountPin>,
 }
 impl HelperChoice {
     fn from_settings(settings: &HelperSettings) -> Option<Self> {
@@ -270,11 +272,13 @@ impl HelperChoice {
             model: settings.model.clone(),
         };
         selection.validate().ok()?;
+        let credentials_dir = settings.credentials_dir.as_ref().map(PathBuf::from);
         Some(Self {
+            account: super::capture_account(&selection, credentials_dir.as_deref()),
             selection,
             effort,
             auth_file: settings.auth_file.as_ref().map(PathBuf::from),
-            credentials_dir: settings.credentials_dir.as_ref().map(PathBuf::from),
+            credentials_dir,
         })
     }
 }
@@ -437,6 +441,7 @@ pub(super) async fn run_helper_model(
             emit: emit.clone(),
             trace: scope.trace.clone(),
             allowed: Some(&HELPER_TOOLS),
+            web: false,
             tokens: Some((slot.tokens.clone(), MAX_HELPER_INPUT_TOKENS)),
             turn_calls: AtomicU16::new(0),
             corrections: AtomicU16::new(0),
@@ -598,6 +603,8 @@ fn child_scope(parent: &Scope, slot: Arc<ScoutSlot>, provider: Provider) -> Arc<
         decision_target: Mutex::new(None),
         reads: Mutex::default(),
         search: parent.search.clone(),
+        // A helper never searches the web, whatever the parent allows.
+        web: None,
         trace,
         max_rounds: HELPER_ROUNDS,
         cache_key: scout_cache_key(provider, &parent.chat),
@@ -729,6 +736,7 @@ fn run_helper<'a>(
                     &choice.selection,
                     choice.auth_file.as_deref(),
                     choice.credentials_dir.as_deref(),
+                    choice.account.as_ref(),
                     child.cache_key.as_deref(),
                     Some(wire_trace::wrap(
                         transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),

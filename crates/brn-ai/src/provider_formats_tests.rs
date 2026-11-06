@@ -28,6 +28,16 @@ fn preamble(body: &Value, provider: Provider, responses: bool) -> String {
     }
 }
 
+/// Expected request reasoning field. Rig 0.46 adds `summary: auto` to every
+/// ChatGPT-backend effort request; Copilot routes send only the effort.
+fn reasoning_body(provider: Provider, responses: bool, effort: &str) -> Value {
+    match (provider, responses) {
+        (Provider::Chatgpt, _) => json!({"effort": effort, "summary": "auto"}),
+        (_, true) => json!({"effort": effort}),
+        (_, false) => json!(effort),
+    }
+}
+
 pub(crate) fn definition(body: &Value, responses: bool, name: &str) -> Option<Value> {
     body["tools"].as_array().unwrap().iter().find_map(|tool| {
         let tool = if responses { tool } else { &tool["function"] };
@@ -90,7 +100,10 @@ mod visual_tests {
                 let body = &bodies[0];
                 assert_eq!(body["model"], model);
                 if responses {
-                    assert_eq!(body["reasoning"], json!({"effort":effort.as_str()}));
+                    assert_eq!(
+                        body["reasoning"],
+                        reasoning_body(provider, responses, effort.as_str())
+                    );
                     assert!(body.get("reasoning_effort").is_none());
                 } else {
                     assert_eq!(body["reasoning_effort"], effort.as_str());
@@ -616,11 +629,7 @@ mod ask_effort_tests {
                             } else {
                                 "reasoning_effort"
                             }],
-                            if responses {
-                                json!({"effort":"medium"})
-                            } else {
-                                json!("medium")
-                            }
+                            reasoning_body(provider, responses, "medium")
                         );
                     }
                 }
@@ -2536,8 +2545,9 @@ mod scoped_read_tools_tests {
                             parameters["properties"]["scope"]["enum"],
                             json!(["current", "source", "history", "all"])
                         );
-                        // Rig's pinned Copilot Responses dialect normalizes
-                        // strict schemas so every property becomes required.
+                        // This offline harness keeps Rig's default strict Copilot
+                        // Responses dialect, which makes every property required.
+                        // Shipped Threads disables it in `auth::copilot_completion`.
                         // Rust omission compatibility remains independently tested.
                         assert_eq!(
                             parameters["required"]
@@ -4039,7 +4049,7 @@ mod subscription_catalog_tests {
             requests[0].headers["user-agent"]
                 .to_str()
                 .unwrap()
-                .starts_with("rig/0.45.0 ")
+                .starts_with("rig/0.46.0 ")
         );
         http.assert_consumed();
     }
@@ -4080,7 +4090,7 @@ mod subscription_catalog_tests {
             assert_eq!(
                 request.headers["user-agent"],
                 format!(
-                    "rig/0.45.0 ({} {}; rig)",
+                    "rig/0.46.0 ({} {}; rig)",
                     std::env::consts::OS,
                     std::env::consts::ARCH
                 )
@@ -4695,11 +4705,7 @@ mod action_proposal_tool_tests {
                 } else {
                     "reasoning_effort"
                 }],
-                if responses {
-                    json!({"effort":"high"})
-                } else {
-                    json!("high")
-                }
+                reasoning_body(provider, responses, "high")
             );
             http.assert_consumed();
         }

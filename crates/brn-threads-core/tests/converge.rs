@@ -271,6 +271,7 @@ fn a_working_run_makes_archive_a_change_with_a_fence() {
             progress: String::new(),
             operations: vec![],
             sources: vec![],
+            web_sources: Vec::new(),
         }),
     );
     let outcome = chat_converging(

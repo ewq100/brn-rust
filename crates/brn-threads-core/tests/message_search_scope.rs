@@ -181,6 +181,7 @@ fn run_data(chat: &str, state: RunState, fence: u64) -> RecordData {
         progress: "retained synthetic progress".into(),
         operations: vec![],
         sources: vec![],
+        web_sources: Vec::new(),
     })
 }
 

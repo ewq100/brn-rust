@@ -206,7 +206,7 @@ def history_context(envelope, facts, corpus):
     if (settings["provider"], settings["model"], settings["effort"], settings["auth_file"]) != ("Codex", "gpt-6.1-sol", "medium", AUTH_REFERENCE) \
             or settings.get("credentials_dir") is not None or settings.get("helper") is not None or settings.get("mcp") is not None:
         raise ValueError("exact reference-only route, helpers/MCP off required")
-    wanted = [{"id": facts["skill_id"], "digest": facts["skill_digest"], "project": facts["project"], "enabled": True, "selected": True}] if facts["case"] == "candidate" else []
+    wanted = [{"id": facts["skill_id"], "digest": facts["skill_digest"], "project": facts["project"], "enabled": True, "selected": False}] if facts["case"] == "candidate" else []
     if facts["case"] not in ("control", "candidate") or facts["selected"] != (facts["case"] == "candidate") or settings.get("skills", []) != wanted:
         raise ValueError("exact scoped selected/installed-alone policy required")
     identities = facts["history_messages"]

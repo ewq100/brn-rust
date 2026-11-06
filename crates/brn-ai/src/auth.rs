@@ -1,6 +1,7 @@
 use crate::error::{map_auth, map_provider, map_transport};
 use crate::{
-    AccountStatus, AiError, AiErrorKind, AiResult, LoginPrompt, ModelOption, Provider, Selection,
+    AccountStatus, AiError, AiErrorKind, AiResult, LoginPrompt, ModelOption, Provider,
+    ReasoningEffort, Selection,
 };
 use rig::http_client::{DynHttpClient, HttpClientExt, HttpMiddleware, NoBody, Request};
 use rig::providers::{chatgpt, copilot, openai};
@@ -51,6 +52,43 @@ impl ProviderClient {
     }
 }
 
+/// The Copilot account an operation started with: a digest of the checked
+/// GitHub sign-in, or none. Model calls compare it before and after
+/// authentication and refuse another account rather than switch to it.
+#[derive(Clone, PartialEq, Eq)]
+pub struct AccountPin(Option<String>);
+impl AccountPin {
+    pub(crate) fn fingerprint(&self) -> Option<&str> {
+        self.0.as_deref()
+    }
+    /// Whether a GitHub account was signed in when the pin was taken.
+    pub fn is_signed_in(&self) -> bool {
+        self.0.is_some()
+    }
+}
+impl std::fmt::Debug for AccountPin {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(if self.0.is_some() {
+            "AccountPin(signed in)"
+        } else {
+            "AccountPin(none)"
+        })
+    }
+}
+
+/// The account changed after its operation started. No model request was
+/// made with the other account.
+pub(crate) fn account_changed() -> AiError {
+    AiError {
+        detail: Some(Box::new(crate::AiFailureDetail {
+            origin: "account_pin".into(),
+            code: Some("account_changed".into()),
+            ..Default::default()
+        })),
+        ..AiError::new(AiErrorKind::ReconnectNeeded)
+    }
+}
+
 impl Provider {
     fn files(self) -> &'static [&'static str] {
         match self {
@@ -94,8 +132,13 @@ pub(crate) fn pinned_session_http(http: DynHttpClient, session: &str) -> AiResul
 }
 
 /// The Copilot completion model, forced onto the Responses route when asked.
-/// Rig 0.45 selects that route only for Codex IDs, yet Copilot serves some
+/// Rig 0.46 selects that route only for Codex IDs, yet Copilot serves some
 /// other models there exclusively.
+///
+/// Tools are sent non-strict on both routes, as on ChatGPT. Rig's Copilot
+/// Responses default sanitizes schemas for strict mode, which turns an open
+/// object such as `prepare_changes` record `data` into `{}` the model cannot
+/// fill. BRN validates every tool call's arguments itself.
 pub(crate) fn copilot_completion(
     client: &openai::OpenAI,
     model: String,
@@ -109,6 +152,9 @@ pub(crate) fn copilot_completion(
                 .with_base_url(config.base_url.clone())
                 .with_route(openai::wire::Route::Responses);
         completion.wire = openai::wire::OpenAiWire::new(provider, model);
+    }
+    if let openai::wire::OpenAiWire::Responses(wire) = &mut completion.wire {
+        wire.strict_tools = false;
     }
     completion
 }
@@ -426,8 +472,8 @@ impl Auth {
                     .data
                     .into_iter()
                     .map(|m| ModelOption {
-                        id: m.id,
-                        live_qualified: false,
+                        display_name: m.name.filter(|name| !name.trim().is_empty()),
+                        ..ModelOption::bare(m.id)
                     })
                     .collect())
             }
@@ -435,80 +481,7 @@ impl Auth {
     }
 
     async fn subscription_models(&self, client: &openai::OpenAI) -> AiResult<Vec<ModelOption>> {
-        // Rig 0.43 encodes the authenticated subscription route correctly, but
-        // its generic decoder expects data(id), rather than Codex models(slug).
-        let encoded = openai::wire::Models::new(client.config().clone())
-            .encode(None, Mode::Unary)
-            .map_err(|_| AiError::new(AiErrorKind::Other))?;
-        let (mut parts, _) = encoded.request.into_parts();
-        // The Models wire supplies URL/auth; Rig's modality encoding omits
-        // subscription identity headers. Reuse its resolved config values.
-        let config = client.config();
-        if let Some(account_id) = &config.account_id {
-            parts.headers.insert(
-                "chatgpt-account-id",
-                account_id
-                    .parse()
-                    .map_err(|_| AiError::new(AiErrorKind::Other))?,
-            );
-        }
-        if let Some(identity) = &config.identity {
-            parts.headers.insert(
-                "originator",
-                identity
-                    .originator
-                    .parse()
-                    .map_err(|_| AiError::new(AiErrorKind::Other))?,
-            );
-            parts.headers.insert(
-                "user-agent",
-                identity
-                    .user_agent
-                    .parse()
-                    .map_err(|_| AiError::new(AiErrorKind::Other))?,
-            );
-        }
-        let separator = if parts.uri.query().is_some() {
-            '&'
-        } else {
-            '?'
-        };
-        parts.uri = format!(
-            "{}{separator}client_version={}",
-            parts.uri, SUBSCRIPTION_CATALOG_COMPATIBILITY_VERSION
-        )
-        .parse()
-        .map_err(|_| AiError::new(AiErrorKind::Other))?;
-        let request = Request::from_parts(parts, NoBody);
-        let response = self
-            .http
-            .send::<_, Vec<u8>>(request)
-            .await
-            .map_err(map_transport)?;
-        let status = response.status();
-        let body = response.into_body().await.map_err(map_transport)?;
-        if !status.is_success() {
-            return Err(map_provider(rig::error::ProviderError::from_http_response(
-                status,
-                String::from_utf8_lossy(&body).into_owned(),
-            )));
-        }
-        let mut catalog: SubscriptionModels =
-            serde_json::from_slice(&body).map_err(|_| AiError::new(AiErrorKind::Other))?;
-        validate_model_ids(catalog.models.iter().map(|m| m.slug.as_str()))?;
-        catalog
-            .models
-            .retain(|m| m.visibility == ModelVisibility::List);
-        // Stable ordering preserves the server's order within a priority.
-        catalog.models.sort_by_key(|m| m.priority);
-        Ok(catalog
-            .models
-            .into_iter()
-            .map(|m| ModelOption {
-                id: m.slug,
-                live_qualified: false,
-            })
-            .collect())
+        subscription_catalogue(&self.http, client).await
     }
 
     fn github_token(&self) -> AiResult<Option<String>> {
@@ -521,6 +494,20 @@ impl Auth {
         use sha2::{Digest, Sha256};
         self.github_token()
             .map(|token| token.map(|token| format!("{:x}", Sha256::digest(token.as_bytes()))))
+    }
+
+    /// The Copilot account signed in now. Capture it when an operation starts.
+    pub fn copilot_account(&self) -> AiResult<AccountPin> {
+        self.github_token_fingerprint().map(AccountPin)
+    }
+
+    /// Refuses when the signed-in Copilot account is no longer `pin`.
+    pub(crate) fn check_copilot_account(&self, pin: &AccountPin) -> AiResult<()> {
+        if self.copilot_account()? == *pin {
+            Ok(())
+        } else {
+            Err(account_changed())
+        }
     }
 
     async fn github_name(&self) -> AiResult<Option<String>> {
@@ -877,6 +864,84 @@ fn github_token_in(dir: &Path) -> AiResult<Option<String>> {
 
 // Strict required projection of the Codex models envelope; unused metadata is
 // ignored. Missing models must never turn an API data envelope into an empty list.
+/// The subscription catalogue's listed models, in its priority order, with
+/// the reasoning levels it reports for each.
+pub(crate) async fn subscription_catalogue(
+    http: &DynHttpClient,
+    client: &openai::OpenAI,
+) -> AiResult<Vec<ModelOption>> {
+    // Rig 0.43 encodes the authenticated subscription route correctly, but
+    // its generic decoder expects data(id), rather than Codex models(slug).
+    let encoded = openai::wire::Models::new(client.config().clone())
+        .encode(None, Mode::Unary)
+        .map_err(|_| AiError::new(AiErrorKind::Other))?;
+    let (mut parts, _) = encoded.request.into_parts();
+    // The Models wire supplies URL/auth; Rig's modality encoding omits
+    // subscription identity headers. Reuse its resolved config values.
+    let config = client.config();
+    if let Some(account_id) = &config.account_id {
+        parts.headers.insert(
+            "chatgpt-account-id",
+            account_id
+                .parse()
+                .map_err(|_| AiError::new(AiErrorKind::Other))?,
+        );
+    }
+    if let Some(identity) = &config.identity {
+        parts.headers.insert(
+            "originator",
+            identity
+                .originator
+                .parse()
+                .map_err(|_| AiError::new(AiErrorKind::Other))?,
+        );
+        parts.headers.insert(
+            "user-agent",
+            identity
+                .user_agent
+                .parse()
+                .map_err(|_| AiError::new(AiErrorKind::Other))?,
+        );
+    }
+    let separator = if parts.uri.query().is_some() {
+        '&'
+    } else {
+        '?'
+    };
+    parts.uri = format!(
+        "{}{separator}client_version={}",
+        parts.uri, SUBSCRIPTION_CATALOG_COMPATIBILITY_VERSION
+    )
+    .parse()
+    .map_err(|_| AiError::new(AiErrorKind::Other))?;
+    let request = Request::from_parts(parts, NoBody);
+    let response = http
+        .send::<_, Vec<u8>>(request)
+        .await
+        .map_err(map_transport)?;
+    let status = response.status();
+    let body = response.into_body().await.map_err(map_transport)?;
+    if !status.is_success() {
+        return Err(map_provider(rig::error::ProviderError::from_http_response(
+            status,
+            String::from_utf8_lossy(&body).into_owned(),
+        )));
+    }
+    let mut catalog: SubscriptionModels =
+        serde_json::from_slice(&body).map_err(|_| AiError::new(AiErrorKind::Other))?;
+    validate_model_ids(catalog.models.iter().map(|m| m.slug.as_str()))?;
+    catalog
+        .models
+        .retain(|m| m.visibility == ModelVisibility::List);
+    // Stable ordering preserves the server's order within a priority.
+    catalog.models.sort_by_key(|m| m.priority);
+    Ok(catalog
+        .models
+        .into_iter()
+        .map(SubscriptionModel::option)
+        .collect())
+}
+
 #[derive(serde::Deserialize)]
 struct SubscriptionModels {
     models: Vec<SubscriptionModel>,
@@ -887,6 +952,55 @@ struct SubscriptionModel {
     slug: String,
     visibility: ModelVisibility,
     priority: i32,
+    #[serde(default)]
+    display_name: Option<String>,
+    #[serde(default)]
+    supported_reasoning_levels: Option<Vec<SubscriptionEffort>>,
+    #[serde(default)]
+    default_reasoning_level: Option<serde_json::Value>,
+}
+
+#[derive(serde::Deserialize)]
+struct SubscriptionEffort {
+    effort: serde_json::Value,
+}
+
+/// The BRN effort for a catalogue level; other levels cannot be requested.
+fn known_effort(value: &serde_json::Value) -> Option<ReasoningEffort> {
+    match value.as_str()? {
+        "low" => Some(ReasoningEffort::Low),
+        "medium" => Some(ReasoningEffort::Medium),
+        "high" => Some(ReasoningEffort::High),
+        _ => None,
+    }
+}
+
+impl SubscriptionModel {
+    fn option(self) -> ModelOption {
+        let efforts = self.supported_reasoning_levels.map(|levels| {
+            let mut efforts: Vec<ReasoningEffort> = Vec::new();
+            for effort in levels
+                .iter()
+                .filter_map(|level| known_effort(&level.effort))
+            {
+                if !efforts.contains(&effort) {
+                    efforts.push(effort);
+                }
+            }
+            efforts
+        });
+        let default_effort = self
+            .default_reasoning_level
+            .as_ref()
+            .and_then(known_effort)
+            .filter(|effort| efforts.as_ref().is_none_or(|known| known.contains(effort)));
+        ModelOption {
+            display_name: self.display_name.filter(|name| !name.trim().is_empty()),
+            efforts,
+            default_effort,
+            ..ModelOption::bare(self.slug)
+        }
+    }
 }
 
 #[derive(PartialEq, Eq, serde::Deserialize)]
@@ -1115,6 +1229,45 @@ mod portable_tests {
         assert!(!route("gpt-5.6-terra", false));
         assert!(route("gpt-5.6-terra", true));
         assert!(route("gpt-5.3-codex", false));
+    }
+
+    /// Strict sanitizing would send record `data` as `{}`, so every Copilot
+    /// write proposal failed live. Each route keeps BRN's schema as written.
+    #[tokio::test]
+    async fn copilot_tools_keep_open_object_schemas_on_every_route() {
+        use rig::completion::{CompletionRequest, Message, ToolDefinition};
+        use rig::message::ToolName;
+        use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
+        let parameters = serde_json::json!({"type":"object","properties":{
+            "data":{"type":"object","description":"Exactly one typed variant."}},
+            "required":["data"]});
+        for (model, responses) in [
+            ("gpt-5.6-terra", false),
+            ("gpt-5.6-terra", true),
+            ("gpt-5.3-codex", false),
+        ] {
+            let http = SequencedHttpClient::new([MockHttpResponse::error(
+                rig::http_client::StatusCode::BAD_REQUEST,
+                "synthetic",
+            )]);
+            let client = openai::OpenAIConfig::with_key(&copilot::DIALECT, "synthetic")
+                .connect(DynHttpClient::new(http.clone()));
+            let tool = ToolDefinition::new(
+                ToolName::new("prepare_changes").unwrap(),
+                "Prepare changes.",
+                parameters.clone(),
+            );
+            let _ = copilot_completion(&client, model.into(), responses)
+                .call(CompletionRequest::new(Message::user("synthetic")).tool(tool))
+                .await;
+            let body: serde_json::Value = serde_json::from_slice(&http.requests()[0].body).unwrap();
+            let tool = &body["tools"][0];
+            let sent = tool
+                .get("parameters")
+                .or_else(|| tool.pointer("/function/parameters"));
+            assert_eq!(sent, Some(&parameters), "{model} responses={responses}");
+            assert!(!tool.to_string().contains("\"strict\":true"));
+        }
     }
 
     #[test]
@@ -1765,6 +1918,61 @@ mod tests {
                 )))
             })
         }
+    }
+
+    #[tokio::test]
+    async fn subscription_catalogue_reports_each_models_supported_reasoning() {
+        let (_root, mut auth) = fixture();
+        chat_cache(&auth, false);
+        let catalogue = serde_json::json!({"models":[
+            {"slug":"later","visibility":"list","priority":2},
+            {"slug":"hidden","visibility":"hide","priority":0,
+             "supported_reasoning_levels":[{"effort":"low","description":"d"}]},
+            {"slug":"first","display_name":"First","visibility":"list","priority":1,
+             "default_reasoning_level":"high",
+             "supported_reasoning_levels":[
+                {"effort":"minimal","description":"d"},{"effort":"high","description":"d"},
+                {"effort":"low","description":"d"},{"effort":"xhigh","description":"d"}]},
+            {"slug":"stale-default","visibility":"list","priority":3,
+             "default_reasoning_level":"medium",
+             "supported_reasoning_levels":[{"effort":"low","description":"d"}]}
+        ]});
+        auth.http = DynHttpClient::new(SequencedHttpClient::new([MockHttpResponse::success(
+            catalogue.to_string(),
+        )]));
+        let models = auth
+            .models(Provider::Chatgpt, CancellationToken::new())
+            .await
+            .unwrap();
+        let summary: Vec<_> = models
+            .iter()
+            .map(|m| {
+                (
+                    m.id.as_str(),
+                    m.display_name.as_deref(),
+                    m.efforts.clone(),
+                    m.default_effort,
+                )
+            })
+            .collect();
+        assert_eq!(
+            summary,
+            [
+                (
+                    "first",
+                    Some("First"),
+                    Some(vec![ReasoningEffort::High, ReasoningEffort::Low]),
+                    Some(ReasoningEffort::High)
+                ),
+                ("later", None, None, None),
+                (
+                    "stale-default",
+                    None,
+                    Some(vec![ReasoningEffort::Low]),
+                    None
+                ),
+            ]
+        );
     }
 
     #[tokio::test]

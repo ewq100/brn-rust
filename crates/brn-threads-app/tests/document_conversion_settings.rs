@@ -276,6 +276,8 @@ fn useful_source_captured_provenance_reopens_restores_and_keeps_identity() {
                 report: Some(report.clone()),
                 assets: vec![],
             }],
+            requested_skills: Vec::new(),
+            web_search: None,
         })
         .unwrap();
         assert!(matches!(

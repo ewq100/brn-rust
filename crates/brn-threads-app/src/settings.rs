@@ -206,6 +206,18 @@ impl Workspace {
         Ok(self.store.save_presentation_location(location)?)
     }
 
+    /// The owner's favorite chat models as `(provider, model)` pairs.
+    /// Presentation only: a favorite never selects a model or grants a route.
+    pub fn favorite_models(&self) -> AppResult<Vec<(String, String)>> {
+        Ok(self.store.presentation_model_favorites()?)
+    }
+
+    /// Replace the favorite chat models. Presentation only, like
+    /// [`Workspace::save_appearance`].
+    pub fn save_favorite_models(&mut self, favorites: &[(String, String)]) -> AppResult<()> {
+        Ok(self.store.save_presentation_model_favorites(favorites)?)
+    }
+
     /// One-time migration: if no presentation preference has been saved yet but
     /// the workspace carries a legacy [`WorkspaceSettings::theme`], adopt it as
     /// the presentation preference so an owner's earlier choice is not reset.

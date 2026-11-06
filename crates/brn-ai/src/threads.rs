@@ -1,5 +1,5 @@
 //! One fresh Rig invocation over BRN-owned state. Tool scope is in-process only.
-use crate::auth::OwnedClient;
+use crate::auth::{AccountPin, OwnedClient};
 use crate::{
     AiAnswer, AiError, AiErrorKind, AiEvent, AiResult, AiTerminal, Auth, Provider, ProviderClient,
     ReasoningEffort, Selection,
@@ -42,6 +42,9 @@ mod continuation;
 #[cfg(all(test, feature = "scripted-runs"))]
 #[path = "threads_continuation_tests.rs"]
 mod continuation_tests;
+#[cfg(test)]
+#[path = "threads_hook_tests.rs"]
+mod hook_tests;
 #[cfg(all(test, any(target_os = "macos", target_os = "linux")))]
 #[path = "threads_skills_tests.rs"]
 mod skills_tests;
@@ -84,8 +87,12 @@ mod research;
 mod threads_text;
 #[path = "threads_trace.rs"]
 mod trace;
+#[path = "threads_web.rs"]
+mod web;
 #[path = "threads_wire_trace.rs"]
 mod wire_trace;
+pub use tokio_util::sync::CancellationToken as WebSearchCancel;
+pub use web::{ACTIVITY as WEB_SEARCH_ACTIVITY, MAX_WEB_SEARCHES, RunWebSearch, WebSearchFuture};
 
 pub use trace::{HelperTrace, RunTrace, SummaryTrace, TraceCall, TraceLevel, TraceUsage};
 #[path = "threads_sources.rs"]
@@ -136,6 +143,9 @@ mod source_tests;
 #[path = "threads_steering_tests.rs"]
 mod steering_tests;
 #[cfg(test)]
+#[path = "threads_web_tests.rs"]
+mod web_tests;
+#[cfg(test)]
 #[path = "threads_writing_tests.rs"]
 mod writing_tests;
 /// Constructed by the trusted request UI/CLI, never accepted from model tools
@@ -166,6 +176,12 @@ pub struct ThreadRunRequest {
     pub search: Option<Arc<dyn RunNoteSearch>>,
     /// Opt-in record of tool use for evaluation; `Off` records nothing.
     pub trace: TraceLevel,
+    /// Skill ids requested with `/` in this message. They are loaded for this
+    /// run only and never change scoped skill policy.
+    pub requested_skills: Vec<String>,
+    /// The chat's checked web route. `None` leaves `web_search` unregistered
+    /// and refused; a writing Rewrite or capture never receives it.
+    pub web_search: Option<Arc<dyn RunWebSearch>>,
 }
 pub struct ThreadResult {
     pub terminal_run: Option<(String, u64)>,
@@ -186,6 +202,8 @@ pub struct PreparedThreadRun {
     scope: Arc<Scope>,
     input: String,
     summary_chunks: Vec<String>,
+    /// The Copilot account this run started with; every model call checks it.
+    account: Option<AccountPin>,
 }
 /// Non-authoritative facts shown during an earlier host review. This is neither
 /// a grant nor serialized state; checked attachment must still construct fresh
@@ -317,6 +335,8 @@ struct Scope {
     decision_target: Mutex<Option<String>>,
     reads: Mutex<reads::ReadLedger>,
     search: Option<Arc<dyn RunNoteSearch>>,
+    /// Set only for a chat run whose owner allowed web access.
+    web: Option<Arc<web::WebRuntime>>,
     trace: Option<Arc<trace::TraceCollector>>,
     max_rounds: u16,
     /// Routes a Codex conversation's model turns to one prompt cache.
@@ -601,6 +621,10 @@ fn validate_arguments(name: &str, args: &Value) -> std::result::Result<(), Argum
                     a.ids.len() <= 100 && a.query.as_ref().is_none_or(|q| q.len() <= 1024)
                 }),
             "Supply ids as an array of at most 100 strings and query as a string of at most 1024 UTF-8 bytes or null; both fields are required and extra fields are not accepted.",
+        ),
+        "web_search" => (
+            web::validate(args),
+            "Supply only query: a non-empty public query of at most 1024 UTF-8 bytes.",
         ),
         "search_notes" => (
             note_search::validate_search(args),
@@ -1014,6 +1038,8 @@ const SEARCH_TOOLS: [(&str, &str); 2] = [
         "Following note connections…",
     ),
 ];
+/// Registered only for chat runs whose owner allowed web access.
+const WEB_TOOL_ACTIVITY: (&str, &str) = (<web::WebSearch as Tool>::NAME, web::ACTIVITY);
 /// Registered only for runs with a helper (`research`) or inside a helper.
 const HELPER_TOOL_ACTIVITY: [(&str, &str); 2] = [
     (
@@ -1030,6 +1056,7 @@ pub fn tool_activity(name: &str) -> Option<&'static str> {
         SEARCH_TOOLS
             .iter()
             .chain(HELPER_TOOL_ACTIVITY.iter())
+            .chain(std::iter::once(&WEB_TOOL_ACTIVITY))
             .find(|(tool, _)| *tool == name)
             .map(|(_, activity)| *activity)
     })
@@ -2456,6 +2483,17 @@ fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>)
     {
         return "Invalid";
     }
+    // A refused or failed search reaches the model as an explanation, but
+    // Activity must not call it a successful search.
+    if name == "web_search"
+        && result.status_name() == "success"
+        && result
+            .output()
+            .as_json()
+            .is_some_and(|v| v.get("error").is_some())
+    {
+        return "failed";
+    }
     if name == "withdraw_proposal" && result.status_name() == "success" {
         return result
             .output()
@@ -2493,6 +2531,8 @@ struct BatchHook {
     trace: Option<Arc<trace::TraceCollector>>,
     /// A helper's role tools; a call outside them is an invalid batch.
     allowed: Option<&'static [&'static str]>,
+    /// Whether this run offers `web_search`; otherwise a call is forbidden.
+    web: bool,
     /// Shared helper input-token budget: (spent, cap).
     tokens: Option<(Arc<AtomicU64>, u64)>,
     /// Tool calls dispatched in the current model turn.
@@ -2764,6 +2804,7 @@ impl AgentHook for BatchHook {
             forbidden |= name == PrepareChanges::NAME && !self.prepare.accepts_writing(&args);
             forbidden |= name == note_edit::PrepareNoteEdit::NAME && !self.prepare.local_edits;
             forbidden |= name == "read_skill" && self.skill_refused(&args);
+            forbidden |= name == <web::WebSearch as Tool>::NAME && !self.web;
             match validate_arguments(name, &args).and_then(|()| {
                 if name == PrepareChanges::NAME {
                     self.prepare.validate_proposed_comments(&args)
@@ -2873,12 +2914,26 @@ pub fn prepare_run(mut request: ThreadRunRequest) -> AiResult<PreparedThreadRun>
         source.reference = brn_threads_core::canonical_locator(&source.reference);
     }
     let (scope, input, summary_chunks) = begin_context(&request)?;
+    let account = capture_account(&request.selection, request.credentials_dir.as_deref());
     Ok(PreparedThreadRun {
         request,
         scope,
         input,
         summary_chunks,
+        account,
     })
+}
+
+/// The Copilot account a model operation starts with, captured once so a
+/// later sign-in to another account can never serve it.
+pub(crate) fn capture_account(
+    selection: &Selection,
+    credentials_dir: Option<&std::path::Path>,
+) -> Option<AccountPin> {
+    if selection.provider != Provider::Copilot {
+        return None;
+    }
+    Auth::open(credentials_dir?).ok()?.copilot_account().ok()
 }
 
 /// The current Messages of `chat` in durable receipt order, as a Run sees
@@ -2979,10 +3034,12 @@ pub async fn run_prepared(
 
 /// The provider client for a run. A Codex run's cache key pins its
 /// `session-id` on top of `transport` (the shared HTTP client when `None`).
+#[allow(clippy::too_many_arguments)]
 async fn provider_client(
     selection: &Selection,
     auth_file: Option<&std::path::Path>,
     credentials_dir: Option<&std::path::Path>,
+    account: Option<&AccountPin>,
     cache_key: Option<&str>,
     transport: Option<DynHttpClient>,
     on_resend: crate::resend::OnResend,
@@ -2992,6 +3049,7 @@ async fn provider_client(
         selection,
         auth_file,
         credentials_dir,
+        account,
         cache_key,
         transport,
         on_resend,
@@ -3001,10 +3059,15 @@ async fn provider_client(
     .map(|(client, _)| client)
 }
 
+/// A Copilot client is served only by `account`, the account its operation
+/// started with: a different sign-in before or during authentication, or any
+/// sign-in when none was captured, refuses rather than switches accounts.
+#[allow(clippy::too_many_arguments)]
 async fn provider_client_context(
     selection: &Selection,
     auth_file: Option<&std::path::Path>,
     credentials_dir: Option<&std::path::Path>,
+    account: Option<&AccountPin>,
     cache_key: Option<&str>,
     transport: Option<DynHttpClient>,
     on_resend: crate::resend::OnResend,
@@ -3023,25 +3086,23 @@ async fn provider_client_context(
             .map(|client| (client, None))
     } else if let Some(dir) = credentials_dir {
         let auth = Auth::open(dir)?.with_http(http);
-        let bootstrap_before = if selection.provider == Provider::Copilot {
-            auth.github_token_fingerprint().ok().flatten()
-        } else {
-            None
-        };
+        if selection.provider != Provider::Copilot {
+            let client = auth
+                .client_pinned(selection, cache_key, cancel.clone())
+                .await?;
+            return Ok((client, None));
+        }
+        // No account captured at start (signed out or unreadable then) never
+        // adopts a sign-in made since.
+        let started = account
+            .cloned()
+            .ok_or_else(|| AiError::new(AiErrorKind::ReconnectNeeded))?;
+        auth.check_copilot_account(&started)?;
         let client = auth
             .client_pinned(selection, cache_key, cancel.clone())
             .await?;
-        // Optional context only: never bind a resolved client to a bootstrap
-        // that changed during authentication. Missing/unsafe/changing identity
-        // disables reuse, without changing authentication or chat's outcome.
-        let fingerprint = if selection.provider == Provider::Copilot {
-            auth.github_token_fingerprint()
-                .ok()
-                .flatten()
-                .filter(|after| Some(after) == bootstrap_before.as_ref())
-        } else {
-            None
-        };
+        auth.check_copilot_account(&started)?;
+        let fingerprint = started.fingerprint().map(str::to_owned);
         Ok((client, fingerprint))
     } else {
         Err(AiError::new(AiErrorKind::ReconnectNeeded))
@@ -3059,6 +3120,7 @@ async fn run_prepared_over(
         scope,
         input,
         summary_chunks,
+        account,
     } = prepared;
     let current = {
         let store = scope.store.lock().map_err(storage)?;
@@ -3132,6 +3194,7 @@ async fn run_prepared_over(
                     &request.selection,
                     request.auth_file.as_deref(),
                     request.credentials_dir.as_deref(),
+                    account.as_ref(),
                     None,
                     Some(base_http.clone()),
                     on_resend.clone(),
@@ -3296,6 +3359,7 @@ pub async fn run_prepared_scripted_with_helpers(
         scope,
         input,
         summary_chunks,
+        ..
     } = prepared;
     let cancel = CancellationToken::new();
     if let Err(error) = mcp_runtime::connect(&scope, &cancel).await {
@@ -3380,6 +3444,7 @@ pub async fn run_prepared_scripted_then_abandon(
         scope,
         input,
         summary_chunks,
+        ..
     } = prepared;
     let input = host_intake::with_context(&scope, input, &CancellationToken::new()).await;
     let (input, _) = continuation::context(&scope, input);
@@ -3570,8 +3635,9 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         settings.map_or(&[], |(_, s)| s.skills.as_slice()),
         brn_threads_core::project_for_chat(&records, &request.thread).map(|p| p.id.as_str()),
         !request.sources.is_empty(),
+        &request.requested_skills,
     ));
-    if !skills.selected_available() {
+    if !skills.selected_available() || !skills.knows(&request.requested_skills) {
         return Err(crate::thread_skills::unavailable());
     }
     let settings_binding = settings.map(|(r, _)| (r.id.clone(), r.version));
@@ -3803,6 +3869,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
             progress: String::new(),
             operations: vec![],
             sources: source_ids.clone(),
+            web_sources: Vec::new(),
         }),
     });
     if !already_posted {
@@ -3995,6 +4062,11 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
     let helper = settings
         .and_then(|(_, settings)| settings.helper.clone())
         .filter(|_| writing_snapshot.is_none() && capture_snapshot.is_none());
+    let web = request
+        .web_search
+        .clone()
+        .filter(|_| writing_snapshot.is_none() && capture_snapshot.is_none())
+        .map(|searcher| Arc::new(web::WebRuntime::new(searcher)));
     let scope = Arc::new(Scope {
         call_budget: Arc::new(wire_trace::CallBudget::default()),
         external: Mutex::new(None),
@@ -4021,6 +4093,7 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         decision_target: Mutex::new(None),
         reads: Mutex::default(),
         search: request.search.clone(),
+        web,
         trace: trace::TraceCollector::new(request.trace).map(Arc::new),
         max_rounds: request.max_tool_rounds,
         cache_key: cache_key(request.selection.provider, &request.thread),
@@ -4454,6 +4527,10 @@ async fn run_model_budgeted(
             builder = builder.tool(research::Research);
         }
     }
+    if let Some(web) = &scope.web {
+        web.bind(cancel.clone());
+        builder = builder.tool(web::WebSearch);
+    }
     if let Some(invocation) = mcp_runtime::invocation(&scope) {
         match invocation.dynamic() {
             Ok(tool) => builder = builder.dynamic_tool(tool),
@@ -4501,6 +4578,7 @@ async fn run_model_budgeted(
             emit: emit.clone(),
             trace: scope.trace.clone(),
             allowed: None,
+            web: scope.web.is_some(),
             tokens: None,
             turn_calls: AtomicU16::new(0),
             corrections: AtomicU16::new(0),
@@ -4635,6 +4713,14 @@ mod tests {
             "outcome unconfirmed"
         );
         assert_eq!(tool_outcome_label("apply_changes", None), "error");
+        let refused = ToolResult::success(ToolOutput::json(
+            json!({"error":"This Codex App Server version is not qualified for isolated web search."}),
+        ));
+        assert_eq!(tool_outcome_label("web_search", Some(&refused)), "failed");
+        let found = ToolResult::success(ToolOutput::json(
+            json!({"untrusted_web_evidence":true,"answer":"A","sources":[]}),
+        ));
+        assert_eq!(tool_outcome_label("web_search", Some(&found)), "success");
         let skipped = ToolResult::skipped("PRIVATE REASON");
         assert_eq!(
             tool_outcome_label("apply_changes", Some(&skipped)),
@@ -4729,6 +4815,8 @@ mod tests {
                 sources: vec![],
                 search: None,
                 trace: TraceLevel::Off,
+                requested_skills: Vec::new(),
+                web_search: None,
             },
             note,
         )
@@ -5918,6 +6006,223 @@ mod tests {
         assert!(uris[1].ends_with("/responses"), "{uris:?}");
     }
 
+    /// Rig 0.46 refuses GPT-6.1 Terra tools on Chat Completions when typed
+    /// options are set; BRN sets none, so Copilot's own route refusal arrives.
+    /// Either refusal must lead to the SAME Terra model on Responses, with tools.
+    #[tokio::test]
+    async fn copilot_terra_tool_run_retries_same_model_on_responses() {
+        let (_root, request, _) = fixture();
+        let (scope, input) = begin(&request).unwrap();
+        let completed = json!({"type":"response.completed","sequence_number":1,"response":{
+            "id":"resp_terra","object":"response","created_at":1,"status":"completed","model":"gpt-6.1-terra",
+            "output":[{"type":"message","id":"msg_terra","status":"completed","role":"assistant","content":[{"type":"output_text","annotations":[],"text":"Terra routed"}]}],
+            "tools":[],"usage":{"input_tokens":1,"output_tokens":1,"total_tokens":2}}});
+        let http = rig::test_utils::SequencedHttpClient::new([
+            rig::test_utils::MockHttpResponse::error(
+                rig::http_client::StatusCode::BAD_REQUEST,
+                json!({"error":{"code":"unsupported_api_for_model","message":"synthetic"}})
+                    .to_string(),
+            ),
+            rig::test_utils::MockHttpResponse::success_typed(
+                format!("data: {completed}\n\ndata: [DONE]\n\n"),
+                "text/event-stream",
+            ),
+        ]);
+        let client = rig::providers::openai::OpenAIConfig::with_key(
+            &rig::providers::copilot::DIALECT,
+            "synthetic-not-a-credential",
+        )
+        .connect(http.clone());
+        let answer = run_copilot(
+            &client,
+            "gpt-6.1-terra".into(),
+            scope,
+            &input,
+            ReasoningEffort::Medium,
+            4,
+            CancellationToken::new(),
+            Arc::new(|_| {}),
+        )
+        .await;
+        assert!(
+            matches!(answer.terminal, AiTerminal::Completed),
+            "{:?}",
+            answer.terminal
+        );
+        assert_eq!(answer.text, "Terra routed");
+        let requests = http.requests();
+        assert_eq!(requests.len(), 2);
+        assert!(requests[0].uri.ends_with("/chat/completions"));
+        assert!(requests[1].uri.ends_with("/responses"));
+        for request in &requests {
+            let body: Value = serde_json::from_slice(&request.body).unwrap();
+            assert_eq!(body["model"], "gpt-6.1-terra");
+            assert!(body["tools"].as_array().is_some_and(|t| !t.is_empty()));
+        }
+    }
+
+    /// A transport whose streamed reply sends `first`, then nothing, never ending.
+    #[derive(Clone, Default)]
+    struct SilentAfter {
+        first: &'static str,
+        sent: Arc<std::sync::atomic::AtomicUsize>,
+    }
+
+    impl rig::http_client::HttpClientExt for SilentAfter {
+        fn send<T, U>(
+            &self,
+            _req: rig::http_client::Request<T>,
+        ) -> impl Future<
+            Output = rig::http_client::Result<
+                rig::http_client::Response<rig::http_client::LazyBody<U>>,
+            >,
+        > + Send
+        + 'static
+        where
+            T: Into<bytes::Bytes> + Send,
+            U: From<bytes::Bytes> + Send + 'static,
+        {
+            std::future::ready(Err(rig::http_client::Error::StreamEnded))
+        }
+
+        fn send_multipart<U>(
+            &self,
+            _req: rig::http_client::Request<rig::http_client::MultipartForm>,
+        ) -> impl Future<
+            Output = rig::http_client::Result<
+                rig::http_client::Response<rig::http_client::LazyBody<U>>,
+            >,
+        > + Send
+        + 'static
+        where
+            U: From<bytes::Bytes> + Send + 'static,
+        {
+            std::future::ready(Err(rig::http_client::Error::StreamEnded))
+        }
+
+        fn send_streaming<T>(
+            &self,
+            _req: rig::http_client::Request<T>,
+        ) -> impl Future<Output = rig::http_client::Result<rig::http_client::StreamingResponse>> + Send
+        where
+            T: Into<bytes::Bytes> + Send,
+        {
+            self.sent.fetch_add(1, Ordering::SeqCst);
+            let body: rig::http_client::BoxedStream = Box::pin(futures::StreamExt::chain(
+                futures::stream::iter([Ok::<_, rig::http_client::Error>(
+                    bytes::Bytes::from_static(self.first.as_bytes()),
+                )]),
+                futures::stream::pending(),
+            ));
+            let response = rig::http_client::Response::builder()
+                .status(200)
+                .header("content-type", "text/event-stream")
+                .body(body)
+                .map_err(rig::http_client::Error::Protocol);
+            std::future::ready(response)
+        }
+    }
+
+    const PARTIAL_DELTA: &str = "data: {\"type\":\"response.output_text.delta\",\"delta\":\"partial \",\"item_id\":\"msg_synthetic\",\"output_index\":0,\"content_index\":0,\"sequence_number\":1}\n\n";
+
+    async fn silent_run(
+        idle: Option<std::time::Duration>,
+        cancel: CancellationToken,
+    ) -> (AiAnswer, usize, Vec<AiEvent>) {
+        let (_root, request, _) = fixture();
+        let (scope, input) = begin(&request).unwrap();
+        let http = SilentAfter {
+            first: PARTIAL_DELTA,
+            ..Default::default()
+        };
+        let client = rig::providers::openai::OpenAIConfig::with_key(
+            &rig::providers::copilot::DIALECT,
+            "synthetic-not-a-credential",
+        )
+        .connect(rig::http_client::DynHttpClient::new(http.clone()));
+        let model = crate::auth::copilot_completion(&client, "synthetic-model".into(), true)
+            .with_idle_timeout(idle);
+        let events = Arc::new(std::sync::Mutex::new(Vec::new()));
+        let seen = events.clone();
+        let answer = run_model(
+            model,
+            scope,
+            &input,
+            ReasoningEffort::Medium,
+            4,
+            true,
+            cancel,
+            Arc::new(move |event| seen.lock().unwrap().push(event)),
+        )
+        .await;
+        let events = events.lock().unwrap().clone();
+        (answer, http.sent.load(Ordering::SeqCst), events)
+    }
+
+    /// Rig 0.46's idle bound ends a stream that went silent after partial
+    /// output. BRN reports a retryable stalled failure, never success, and does
+    /// not re-send a request the provider may already have processed.
+    #[tokio::test]
+    async fn stalled_stream_after_partial_output_fails_without_resend() {
+        let started = std::time::Instant::now();
+        let (answer, sent, events) = silent_run(
+            Some(std::time::Duration::from_millis(200)),
+            CancellationToken::new(),
+        )
+        .await;
+        assert!(started.elapsed() < std::time::Duration::from_secs(10));
+        let AiTerminal::Failed(error) = &answer.terminal else {
+            panic!("{:?}", answer.terminal);
+        };
+        let detail = error.detail.clone().unwrap();
+        assert_eq!(
+            (
+                error.kind,
+                detail.origin.as_str(),
+                detail.phase.as_deref(),
+                detail.retryable
+            ),
+            (AiErrorKind::Other, "stalled", Some("text"), true)
+        );
+        assert_eq!(sent, 1, "a stalled stream is never re-sent");
+        assert!(
+            events
+                .iter()
+                .any(|e| matches!(e, AiEvent::Text(t) if t == "partial ")),
+            "{events:?}"
+        );
+        assert!(
+            !events
+                .iter()
+                .any(|e| matches!(e, AiEvent::AnswerFinalized(_))),
+            "partial output is never finalized: {events:?}"
+        );
+    }
+
+    /// Stop ends a silent stream promptly, without waiting for the idle bound.
+    #[tokio::test]
+    async fn stop_during_silent_stream_interrupts_promptly() {
+        let cancel = CancellationToken::new();
+        let stop = cancel.clone();
+        tokio::spawn(async move {
+            tokio::time::sleep(std::time::Duration::from_millis(150)).await;
+            stop.cancel();
+        });
+        let started = std::time::Instant::now();
+        let (answer, sent, _) = silent_run(Some(std::time::Duration::from_secs(10)), cancel).await;
+        assert!(
+            started.elapsed() < std::time::Duration::from_secs(5),
+            "{:?}",
+            started.elapsed()
+        );
+        assert!(
+            matches!(answer.terminal, AiTerminal::Interrupted),
+            "{:?}",
+            answer.terminal
+        );
+        assert_eq!(sent, 1);
+    }
+
     #[tokio::test]
     async fn real_responses_final_replaces_preview_and_is_saved_once() {
         let (_root, request, _) = fixture();
@@ -6219,6 +6524,8 @@ mod tests {
             sources: vec![],
             search: None,
             trace: TraceLevel::Off,
+            requested_skills: Vec::new(),
+            web_search: None,
         }
     }
     fn chat_attention(request: &ThreadRunRequest) -> Vec<Attention> {

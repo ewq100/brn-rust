@@ -62,6 +62,7 @@ fn fixture(state: RunState, fence: u64) -> (tempfile::TempDir, Store, String, St
                     progress: "retained progress".into(),
                     operations: vec![],
                     sources: vec![],
+                    web_sources: Vec::new(),
                 }),
             },
         ],

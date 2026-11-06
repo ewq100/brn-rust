@@ -2,7 +2,9 @@
 
 Open the [development overview](work/overview.md) for current work, next actions, attention items and a compact completed-task index. It is generated from the selected task record; detailed gates, evidence and attempts remain in that record and its linked receipts. A remote page shows the last published checkpoint, not live agent activity.
 
-Current assignment: Agent B’s [Mac updater task `mac-updater-253`](work/active/windows-ci-portability/record.json), following [#253](https://github.com/ewq100/brn-rust/issues/253). That existing selected record retains earlier Windows history. Updater packaging, automated checks, final integrated native acceptance, owner use, integration and publication remain separate gates. Agent A owns UI/chat, Rig and Copilot; Agent C owns development speed.
+Current assignment: Agent B’s [Mac updater/package integration (#253)](work/active/windows-ci-portability/record.json), task `mac-updater-253`, following [PR #258](https://github.com/ewq100/brn-rust/pull/258). The same record preserves the completed [development-speed cycle (#255)](work/active/windows-ci-portability/development-speed-255.md) and earlier Windows history. Automated integration, native acceptance, owner use and release publication are separate gates.
+
+Mac alpha runtime (#253): the [Rig 0.46 upgrade record](work/active/rig046-upgrade/README.md) holds versions, runtime qualification, both reuse-pilot deferrals and the [focused survey](work/active/rig046-upgrade/survey.md). Copilot chat, web search and Luna refinement (#252) are recorded in the [Copilot record](work/active/copilot-252/README.md), with native and owner acceptance gaps listed there.
 
 The [subscription search/Mac acceptance record](work/active/subscription-search-mac-acceptance/record.json) is retained as earlier source-bound evidence. Its pre-merge labels are historical; PR244 is now merged. Live allocations remain closed and native acceptance gaps remain separate.
 

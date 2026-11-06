@@ -975,7 +975,9 @@ async fn v2_offered_prepare_contract() {
 }
 
 #[tokio::test]
-async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
+/// Copilot receives the Codex schema unchanged; strict sanitizing would erase
+/// open record `data` and make every live write proposal fail.
+async fn prepare_contract_serializes_identically_on_codex_and_copilot_responses() {
     use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
     for mode in ["ordinary", "v1", "v2"] {
         for copilot in [false, true] {
@@ -1057,7 +1059,7 @@ async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
                 .iter()
                 .find(|t| t["name"] == "prepare_changes")
                 .unwrap();
-            assert_eq!(tool["strict"], copilot);
+            assert_eq!(tool["strict"], false);
             if mode == "v2" {
                 // Independent contract checks, in addition to whole-schema equality.
                 let writing = &tool["parameters"]["properties"]["writing"];
@@ -1072,30 +1074,15 @@ async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
                     .iter()
                     .map(|v| v.as_str().unwrap())
                     .collect::<std::collections::BTreeSet<_>>();
-                let expected = if copilot {
-                    vec![
-                        "quotations",
-                        "requirements_reported",
-                        "proposed_addressed_comment_ids",
-                    ]
-                } else {
-                    vec!["quotations", "requirements_reported"]
-                };
-                assert_eq!(required, expected.into_iter().collect());
-                let mut expected_writing =
-                    schema("prepare_changes")["properties"]["writing"].clone();
-                if copilot {
-                    expected_writing["required"] = expected_writing["properties"]
-                        .as_object()
-                        .unwrap()
-                        .keys()
-                        .cloned()
-                        .collect::<Vec<_>>()
-                        .into();
-                }
+                assert_eq!(
+                    required,
+                    ["quotations", "requirements_reported"]
+                        .into_iter()
+                        .collect()
+                );
                 assert_eq!(
                     tool["parameters"]["properties"]["writing"],
-                    expected_writing
+                    schema("prepare_changes")["properties"]["writing"]
                 );
             } else {
                 assert_eq!(
@@ -1104,26 +1091,16 @@ async fn prepare_contract_serializes_on_codex_and_strict_copilot_responses() {
                 );
             }
             assert_eq!(
-                tool["parameters"]["required"]
-                    .as_array()
-                    .unwrap()
-                    .iter()
-                    .any(|v| v == "writing"),
-                copilot
+                tool["parameters"],
+                PrepareChanges::for_scope(&scope).parameters()
             );
-            if !copilot {
-                assert_eq!(
-                    tool["parameters"],
-                    PrepareChanges::for_scope(&scope).parameters()
-                );
-            }
             let refresh = body["tools"]
                 .as_array()
                 .unwrap()
                 .iter()
                 .find(|t| t["name"] == "refresh_candidate")
                 .unwrap();
-            assert_eq!(refresh["strict"], copilot);
+            assert_eq!(refresh["strict"], false);
             assert_eq!(
                 refresh["parameters"]["properties"]
                     .as_object()

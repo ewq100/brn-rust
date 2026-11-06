@@ -70,6 +70,8 @@ fn request_for(data: &std::path::Path, chat: &str, reference: &str) -> ThreadRun
         )],
         search: None,
         trace: brn_ai::threads::TraceLevel::Off,
+        requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 
@@ -335,6 +337,7 @@ fn seed_older_useful_intake(w: &mut Workspace, locator: &str) -> (String, String
                             progress: String::new(),
                             operations: vec![],
                             sources: vec![source_id.clone()],
+                            web_sources: Vec::new(),
                         }),
                     },
                 ],
@@ -761,6 +764,7 @@ fn keep_in_brn_prefers_the_global_source_at_the_real_path() {
 async fn intake_run(data: &std::path::Path, chat: &str, reference: &str, prompt: &str) -> String {
     let prepared = prepare_run(ThreadRunRequest {
         prompt: prompt.into(),
+        requested_skills: Vec::new(),
         ..request_for(data, chat, reference)
     })
     .unwrap();

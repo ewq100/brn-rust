@@ -133,6 +133,7 @@ fn record_run(workspace: &mut Workspace, thread: &str, state: RunState) -> Strin
                         progress: String::new(),
                         operations: vec![],
                         sources: vec![],
+                        web_sources: Vec::new(),
                     }),
                 }],
             },

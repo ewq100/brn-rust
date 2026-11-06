@@ -646,6 +646,7 @@ fn schema_5_upgrade_is_refused_with_a_working_run() {
             progress: "fixture".into(),
             operations: vec![],
             sources: vec![],
+            web_sources: Vec::new(),
         }),
     );
     let data = schema5(store);

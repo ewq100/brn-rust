@@ -451,6 +451,7 @@ async fn prior_progress_and_operation_receipts_are_bounded_in_the_actual_request
                     progress: format!("progress-{i:03}: {}", "õun English ".repeat(300)),
                     operations: vec![receipt.clone()],
                     sources: vec![],
+                    web_sources: Vec::new(),
                 }),
             }],
         );
@@ -2311,5 +2312,119 @@ async fn scoped_prepare_definition_stays_frozen_after_lazy_skill_delivery() {
     assert!(
         run.fence > 1,
         "actual lazy delivery occurred without changing offered schemas"
+    );
+}
+
+/// Rig 0.46 reuse pilot (#253): Rig's whole-request token estimate and catalog
+/// window against BRN's admission estimate, over the actual production system
+/// prompt and offered tools plus synthetic multilingual history.
+#[test]
+fn rig_whole_request_estimate_pilot_is_not_an_upper_bound_for_admission() {
+    use rig::completion::{Message as ModelMessage, ToolDefinition};
+    use rig::message::{AssistantContent, ToolName};
+    let (_root, request, _) = tests::fixture();
+    let (scope, _) = begin(&request).unwrap();
+    let preamble = run_preamble(&scope);
+    let tools = budget_tool_definitions(&scope);
+    let definitions = tools
+        .iter()
+        .map(|t| {
+            Arc::new(ToolDefinition::new(
+                ToolName::new(t["name"].as_str().unwrap()).unwrap(),
+                t["description"].as_str().unwrap(),
+                t["parameters"].clone(),
+            ))
+        })
+        .collect::<Vec<_>>();
+    let rig_tokens = |history: &[ModelMessage]| {
+        let conversation = rig::conversation::Conversation::from_messages(history.to_vec());
+        rig_memory::Prepared {
+            model: "gpt-6.1-sol",
+            prompt: Some(&preamble),
+            tools: &definitions,
+            history: &conversation,
+        }
+        .whole_tokens() as usize
+    };
+    let brn_estimate = |input: &str| {
+        context_budget::estimate(&json!({"instructions":preamble, "tools":tools, "input":input}))
+    };
+    let text = |s: &str| -> Vec<ModelMessage> { vec![ModelMessage::user(s)] };
+    let tool_call = AssistantContent::tool_call(
+        "call_1",
+        ToolName::new("read_records").unwrap(),
+        json!({"ids":["r1"],"query":null}),
+    );
+    let AssistantContent::ToolCall(issued) = &tool_call else {
+        unreachable!()
+    };
+    let result = ModelMessage::tool_result(
+        issued.id.clone(),
+        ToolName::new("read_records").unwrap(),
+        json!({"records":[{"id":"r1","data":{"Note":{"title":"Otsus","markdown":"\"quoted\" \\ path\n".repeat(400)}}}]}).to_string(),
+    );
+    let call =
+        ModelMessage::Assistant(rig::message::AssistantMessage::new(vec![tool_call.clone()]));
+    let base = rig_tokens(&[]);
+    let mut rows = Vec::new();
+    for (label, history, input) in [
+        (
+            "English",
+            text(&"Plain English decision notes. ".repeat(2000)),
+            "Plain English decision notes. ".repeat(2000),
+        ),
+        (
+            "Estonian",
+            text(&"Õunapuu jõeäärne mõisaõu šokolaad. ".repeat(2000)),
+            "Õunapuu jõeäärne mõisaõu šokolaad. ".repeat(2000),
+        ),
+        (
+            "CJK",
+            text(&"会议决定下周一发布。".repeat(2000)),
+            "会议决定下周一发布。".repeat(2000),
+        ),
+        (
+            "Tool result JSON",
+            vec![call.clone(), result.clone()],
+            serde_json::to_string(&[&call, &result]).unwrap(),
+        ),
+    ] {
+        let rig = rig_tokens(&history) - base;
+        let utf8 = input.len();
+        let chars = input.chars().count();
+        let brn = brn_estimate(&input) - brn_estimate("");
+        rows.push(format!(
+            "{label}: utf8={utf8} chars={chars} rig_tokens={rig} brn_bytes={brn}"
+        ));
+        // BRN's admission unit is UTF-8/JSON bytes, an upper bound on any
+        // byte-level BPE token count; Rig's heuristic is 4 bytes per token.
+        assert!(brn >= utf8, "{label}");
+        assert!(
+            rig * 3 < utf8,
+            "{label}: Rig estimates well under one token per byte"
+        );
+        if label == "CJK" {
+            assert!(rig < chars, "Rig allows fewer tokens than CJK characters");
+        }
+    }
+    let catalog = rig::catalog::Catalog::builtin();
+    let rig_limit = catalog
+        .resolve("chatgpt/gpt-6.1-sol")
+        .unwrap()
+        .spec
+        .input_limit()
+        .unwrap() as usize;
+    let sourced = context_budget::Budget::selected(Provider::Chatgpt, "gpt-6.1-sol")
+        .context
+        .unwrap();
+    rows.push(format!(
+        "fixed prompt+tools: rig_tokens={base} brn_bytes={}; window: rig_catalog_input={rig_limit} brn_sourced_context={sourced}",
+        brn_estimate("")
+    ));
+    eprintln!("{}", rows.join("\n"));
+    assert_eq!(sourced, 272_000);
+    assert!(
+        rig_limit > 3 * sourced,
+        "Rig's catalog carries API limits, not the subscription route window"
     );
 }

@@ -65,3 +65,34 @@ fn workspace_location_is_lazy_bounded_and_survives_reopen() {
         Some(r#"{"kind":"page","page":"library"}"#)
     );
 }
+
+#[test]
+fn model_favorites_are_lazy_bounded_ordered_and_survive_reopen() {
+    let root = TempDir::new_in(std::fs::canonicalize(std::env::temp_dir()).unwrap()).unwrap();
+    let directory = root.path().join("data");
+    let mut store = Store::open(&directory).unwrap();
+    assert!(store.presentation_model_favorites().unwrap().is_empty());
+    assert!(
+        !tables(&directory)
+            .iter()
+            .any(|name| name == "model_favorites")
+    );
+    let pair = |p: &str, m: &str| (p.to_owned(), m.to_owned());
+    assert!(
+        store
+            .save_presentation_model_favorites(&[pair("", "m")])
+            .is_err()
+    );
+    assert!(
+        store
+            .save_presentation_model_favorites(&vec![pair("chatgpt", "m"); 65])
+            .is_err()
+    );
+    let favorites = vec![pair("copilot", "gpt-5"), pair("chatgpt", "gpt-6.1-sol")];
+    store.save_presentation_model_favorites(&favorites).unwrap();
+    drop(store);
+    let mut store = Store::open(&directory).unwrap();
+    assert_eq!(store.presentation_model_favorites().unwrap(), favorites);
+    store.save_presentation_model_favorites(&[]).unwrap();
+    assert!(store.presentation_model_favorites().unwrap().is_empty());
+}

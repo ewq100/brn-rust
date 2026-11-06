@@ -187,6 +187,8 @@ fn fresh_queued_preparation_has_no_previous_owner_scope_and_uses_current_input()
         sources: vec![],
         search: None,
         trace: TraceLevel::Off,
+        requested_skills: Vec::new(),
+        web_search: None,
     })
     .unwrap();
     assert_ne!(fresh.run_id(), prepared.run_id());

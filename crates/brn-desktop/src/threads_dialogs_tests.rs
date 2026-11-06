@@ -619,6 +619,7 @@ fn working_run(
                             progress: String::new(),
                             operations: vec![],
                             sources: vec![],
+                            web_sources: Vec::new(),
                         }),
                     }],
                 },

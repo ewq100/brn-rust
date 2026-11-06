@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-06T14:48:02.198901+02:00",
-    "goal": "Implement #253\u2019s independent Mac updater and qualify disposable package replacement; retain earlier task history.",
-    "owner_attention": "Agent B owns updater/packaging only. Published stock HTTPS gate needs an approved command-enabled A/B pair; native session needs unlocked Mac; final integrated acceptance waits for Agent A selected runtime/Copilot. No merge/publication authority inferred.",
+    "observed_at": "2026-11-06T21:02:54.795698+02:00",
+    "goal": "Integrate updater PR258 normally, then prepare final Mac package/update acceptance for253 after A release-critical hardening.",
+    "owner_attention": "B owns updater/package integration. A owns response-limit hardening and Copilot acceptance; coordinate heavy builds. Native and publication remain separate gates.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -87,14 +87,137 @@
         ]
       },
       {
+        "id": "rig-046-253",
+        "title": "Upgrade the runtime to Rig 0.46 and qualify bounded reuse",
+        "owner": "Agent A (runtime)",
+        "state": "complete",
+        "activity": "Rig 0.45 to 0.46 implemented on work/rig-046-253 from main 2ebcf4c7: minimal 12-package lock delta, explicit serde_json preserve_order/float_roundtrip in production, stall classification, Terra same-model Responses retry, stall/Stop and HookTestHarness tests. Both reuse pilots deferred with evidence; focused survey routed account snapshot, Copilot refinement and search to #252 and the provider operation module to #255.",
+        "observed_at": "2026-11-06T18:05:00+02:00",
+        "origin": "observed",
+        "next_action": "None in this task. Runtime checkpoint posted on #253 for B, D (#254) and E (#256); follow-ups routed to #255.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/rig046-upgrade/README.md",
+          "docs/work/active/rig046-upgrade/survey.md",
+          "https://github.com/ewq100/brn-rust/issues/253",
+          "https://github.com/ewq100/brn-rust/pull/259",
+          "https://github.com/ewq100/brn-rust/pull/259"
+        ],
+        "gates": {
+          "implementation": "Implemented; Council round 1 complete (Codex 9/10, Kimi K3 9/10, Claude 9/10; no blockers; findings fixed or routed).",
+          "checks": "Local fmt, workspace and feature Clippy and all CI-equivalent lanes passed (workspace 1,513 passed, 9 ignored); all 7 hosted CI jobs green on bb0cc027; Codex code and security review completed with no findings.",
+          "integration": "Merged as PR #259 into main at 7ae7ebf1.",
+          "native": "Not run; runtime-only change. Mac native acceptance stays with the alpha candidate.",
+          "owner_acceptance": "Not requested."
+        },
+        "attempts": []
+      },
+      {
+        "id": "copilot-252",
+        "title": "Support Copilot chat, native web search and Luna refinement",
+        "owner": "Agent A (runtime)",
+        "state": "active",
+        "activity": "Implemented on work/copilot-252, now on main after #259: account pin captured at operation start for chat, helpers, web search and refinement; native Copilot hosted web_search adapter on the Rig Responses route with an 8 MiB body cap and honest denial messages; provider-aware Copilot Luna refinement with no Codex fallback; Copilot tools sent non-strict so write proposals work. Live qualification on a Copilot business account passes.",
+        "observed_at": "2026-11-06T18:05:00+02:00",
+        "origin": "observed",
+        "next_action": "Request Codex review of the final head, merge PR #261 after hosted CI and review pass, then notify B, D (#254) and E (#256) on #253. Native sign-in, account switching and the remaining acceptance items in the record stay open on #252.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/copilot-252/README.md",
+          "https://github.com/ewq100/brn-rust/issues/252",
+          "https://github.com/ewq100/brn-rust/pull/261"
+        ],
+        "gates": {
+          "implementation": "Implemented and qualified live (chat, web search with sources, BRN tools, writes, refinement On/Off, failure messages); Council round 1 complete (Codex 7/10, Kimi K3 8.5/10, Claude 8/10; required fixes made, nits fixed or routed to #255).",
+          "checks": "Local tests, Clippy and fmt pass (brn-ai 597 passed, 1 ignored); hosted CI on PR #261.",
+          "integration": "Published as PR #261 (part of #252); not merged.",
+          "native": "Pending; device sign-in and native account switching need native observation.",
+          "owner_acceptance": "Not requested."
+        },
+        "attempts": []
+      },
+      {
+        "id": "development-speed-255",
+        "title": "Measure and improve development feedback (#255)",
+        "owner": "Agent C / Codex GPT-6.1 Sol",
+        "state": "active",
+        "activity": "PR #262 is open. All final corrected-evidence reviewers support no-change/incomplete qualification (Sol9/Opus8/Grok9); low documentation fixes applied. Main #261 reconciled; product/config/runtime/CI match main. Final-head CI/Codex/security review next.",
+        "observed_at": "2026-11-06T17:01:08.332168+00:00",
+        "origin": "observed",
+        "next_action": "Push reconciled final head, request current-head Codex review, inspect current CI/code/security results and unresolved findings, then normal merge and main verification.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "https://github.com/ewq100/brn-rust/issues/255",
+          "docs/work/active/windows-ci-portability/development-speed-255.md",
+          "docs/work/active/windows-ci-portability/development-speed-255-results.json",
+          "docs/work/active/windows-ci-portability/development-speed-255-observations.jsonl",
+          "https://github.com/ewq100/brn-rust/pull/262"
+        ],
+        "gates": {
+          "implementation": "Documentation/evidence only; no configuration retained because net performance is unqualified within the budget, not proven harmful. Guidance adds ABBA/same-binary checks and limits Cargo-only guards.",
+          "checks": "Frozen-source suites/probes and all measurements preserved with causal limits. Final Council Sol9/Opus8/Grok9, noHigh/Medium findings; low fixes applied. Links/overview/16tests/diff pass. Current-head hosted CI/Codex/security pending publication.",
+          "integration": "Published as PR #262; not merged. Normal merge after current-head CI, Codex and security review. Source/config byte-identical to main; frozen measurements remain separate.",
+          "native": "Inapplicable: headless build/test tooling scope; existing hosted compatibility checks retained.",
+          "owner_acceptance": "Current owner assignment authorizes implementation, Council and focused PR; no manual UI acceptance requirement."
+        },
+        "attempts": [
+          {
+            "outcome": "Initial auth/UI first repeats contaminated by cleanup mtime; full AI execution had 3 helper-Unavailable failures. No speedup accepted.",
+            "change": "Preserve initial logs, write cleanup only on byte changes, require exact stale artifact sets and fresh no-op builds; build task-owned helpers before runtime comparison.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255.md"
+            ]
+          },
+          {
+            "outcome": "Guarded candidate cold attempt interrupted/excluded at 19.813s after competing Cargo appeared. No candidate measurement accepted.",
+            "change": "Preserve partial candidate target, require new empty target for next clean control, wait for coordinated release; no repeated retries.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255.md"
+            ]
+          },
+          {
+            "outcome": "Fresh confirmation attempts interrupted/refused by unrelated can-project Cargo. Owner selected yield, A had honored C hold.",
+            "change": "Preserve/exclude interrupted attempts and release reservation to A; no further trial until external work finishes and capacity is coordinated. Budget unchanged.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255.md"
+            ]
+          },
+          {
+            "outcome": "Completed uncontended final opt0 pair: faster AI compilation but full workspace median execution+37%; full workspace feedback after AI edit+6%.",
+            "change": "Reject package opt0 as default. Trial only512 codegen units with opt1 retained; stop if three-repeat AI compile ranges overlap baseline, before broader runtime checks.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255-results.json"
+            ]
+          },
+          {
+            "outcome": "512CGU single clean263.03s vs214.28;3 core edits 28.6906,32.9869,30.3786s vs17.96\u201321.17; first auth56.16s vs35.03\u201336.63.",
+            "change": "Reject early; no wider proposal justified in remaining finite budget. Restore original Cargo and Rust; stop only owned trial group. Later partial auth cleanup excluded. Deliver no-change result with evidence.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255-results.json"
+            ]
+          },
+          {
+            "outcome": "Opus identified identical key candidate binaries at near-baseline speed in earlier slot; later sequential slowdown is confounded. Verified3 SHA256 identities; not every test binary is identical.",
+            "change": "Withdraw execution and CGU causal-regression claims; retain observed compile signal and unqualified no-change outcome. Add ABBA/same-binary/host-load guidance; no new measurements. Third review only for this material correction.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255.md",
+              "docs/work/active/windows-ci-portability/development-speed-255-results.json"
+            ]
+          }
+        ]
+      },
+      {
         "id": "mac-updater-253",
         "title": "Implement and qualify the versioned Mac updater",
         "owner": "Agent B",
         "state": "active",
-        "activity": "PR258 Ubuntu failure reproduced on baseline and submitted PR under controlled Linux fork pressure: ETXTBSY from mutable executable fixture. Stable checked-in helper preserves all cases/limits; 400 stressed fixed loops passed. Mac intake tests/Clippy, 360 tooling total (349 passed,11 skipped), and real local A\u2192B preservation passed. Existing published previews lack updater: actual HTTPS stock gate remains blocked.",
-        "observed_at": "2026-11-06T14:48:02.198901+02:00",
+        "activity": "Resumed normal integration of PR258 with main6897fe56 after Rig259, Copilot261 and development-speed262 merged. Resolving only task/status routing conflicts while preserving all updater source, static Linux fixture repair, raw evidence and other tasks. Prior seven green checks cover an older integration base.",
+        "observed_at": "2026-11-06T21:02:54.795698+02:00",
         "origin": "observed",
-        "next_action": "Submit the reviewed correction/evidence and inspect final-head hosted gates plus Codex code/security review. Published stock HTTPS witness separately requires release-authority-approved command-enabled A/B artifacts. Native clean-profile install/Gatekeeper requires unlocked Mac and tester login; final runtime/Copilot journeys require Agent A selected SHA/dependencies. No merge/publication authority inferred.",
+        "next_action": "Review refreshed combination, run applicable checks, request final-head Codex code/security review and normal merge under standing owner instruction; verify resulting main. Coordinate with A before heavy builds and select final package only after response-limit fixes land. Native clean-profile session and approved published stock HTTPS pair remain separate gates.",
         "depends_on": [],
         "resource_waits": [
           "Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.",
@@ -112,7 +235,7 @@
         "gates": {
           "implementation": "Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.",
           "checks": "Original tooling corrected:353 total=342 passed+11 skipped. Resumed:360 total=349 passed+11 skipped; intake crate11 passed/1 existing ignored and all-target Clippy passed. Linux baseline/submitted identical code both reproduced ETXTBSY with concurrent forks; static fixture40 plain+400 stressed complete loops passed. Real local signed A\u2192B rerun preserved synthetic files/state/backup. Production build/helper evidence retained unchanged; headless/local transport is not stock published HTTPS or native acceptance. OUTSTANDING: actual approved preview.1/.2 metadata/digests/source-approved receipts verified; preparation blocked because neither includes updater. New preparation plus guarded --stock-transport witness ready for an authority-approved published command-enabled A/B pair. No ZIP/app/updater executed from those legacy releases.",
-          "integration": "PR258 open, unmerged/unpublished. Normal merge of main e210c2c0 adds current review guidance; final submitted-head hosted gates and Codex code/security completion required. Production updater832e8888 unchanged; release/preview.json unchanged.",
+          "integration": "Pending refreshed combination: normal merge main6897fe56 into PR258; prior7d2436ee checks tested older base2ebcf4c7. Current standing owner instruction authorizes normal merge after applicable checks/review; native/release acceptance separate.",
           "native": "Pending: screen remains locked. Local real-package/headless evidence is not native acceptance, clean-Mac Gatekeeper acceptance or a published-release transport witness.",
           "owner_acceptance": "Pending Agent A selected runtime/Copilot candidate, native install/update/reopen and required Copilot journeys, then owner use before invited distribution."
         },
@@ -161,23 +284,23 @@
           }
         ],
         "authority": {
-          "source": "Current user handoff as Agent B for #253 on the Mac mini. Implement/test/update instructions, coordinate A/C, open focused PR and link evidence; follow existing integration/release authority.",
-          "limits": "Synthetic disposable installations/data only; no owner-store inspection, no real credential copying, no release approval/announcement/publication. Agent A owns UI/chat/Rig/Copilot; Agent C owns #255."
+          "source": "Current owner: continue Agent B PR258 integration through normal merge once applicable gates pass; final package/update/native acceptance in253; coordinate A response-limit fixes and Copilot acceptance.",
+          "limits": "Synthetic disposable installations/data only. No owner-store/credential copying, forced quit, security bypass or publication without existing release-manifest approval. Preserve A/C work."
         },
         "resources": {
-          "lead": "Current user-selected Codex model/effort retained. One read-only independent reviewer after candidate preparation; maximum one helper.",
+          "lead": "Retain selected lead configuration; one fresh read-only independent integration/security reviewer, maximum one helper. Reassess on production conflict, failed preservation witness or unowned runtime/package interface.",
           "reuse": "Adapt existing launcher, ad-hoc ZIP packager, approved-manifest immutable release workflow. Use built-in macOS bash/curl/plutil/shasum/ditto/codesign/lipo/otool and same-volume renames. Custom script supplies only explicit update transaction/recovery gap.",
           "stop": "Reassess on failed preservation/recovery witness or unowned runtime/package interface; never expand into provider implementation."
         },
         "external_dependencies": [
           {
             "issue": "https://github.com/ewq100/brn-rust/issues/252",
-            "condition": "Agent A selected verified runtime/Copilot candidate and runtime package dependencies for final combined acceptance",
+            "condition": "Final candidate includes A response-limit hardening and selected Copilot acceptance handoff; Rig259/Copilot261 merged, no new bundled CLI/SDK required",
             "satisfied": false
           },
           {
             "issue": "https://github.com/ewq100/brn-rust/issues/253",
-            "condition": "Release authority supplies approved published command-enabled increasing A/B pair for real stock updater HTTPS witness; current approved previews lack updater",
+            "condition": "Release-manifest authority approves command-enabled increasing A/B versions and publication; current published previews lack updater",
             "satisfied": false
           }
         ]

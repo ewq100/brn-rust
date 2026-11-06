@@ -125,6 +125,9 @@ impl ThreadsUi {
             .px_3()
             .py_2()
             .max_h(px(220.))
+            // Guidance and MCP details can outgrow the card; they scroll
+            // inside it instead of painting over the attachments below.
+            .overflow_y_scroll()
             .rounded(px(theme::metrics::RADIUS_CARD))
             .border_1()
             .border_color(rgb(p.hairline))
@@ -132,6 +135,7 @@ impl ThreadsUi {
             .child(
                 div()
                     .flex()
+                    .flex_shrink_0()
                     .items_center()
                     .gap_2()
                     .child(subheading("Activity").flex_1())
@@ -345,19 +349,21 @@ impl ThreadsUi {
             )),
         }
     }
-    fn composer_chat(&mut self, prompt: &str) -> AppResult<String> {
-        match self.chat.clone() {
+    pub(super) fn composer_chat(&mut self, prompt: &str) -> AppResult<String> {
+        let chat = match self.chat.clone() {
             ChatTarget::Thread(id) => {
                 if self.thread_resolved(&id) {
                     return Err(AppError::Invalid(
                         "Unarchive this chat before sending".into(),
                     ));
                 }
-                Ok(id)
+                return Ok(id);
             }
             ChatTarget::NewForNote(note) => self.ensure_writing_thread(&note),
             ChatTarget::New => self.workspace.new_thread(&short(prompt)).map(|r| r.id),
-        }
+        };
+        // The pending new-chat choice belongs to the chat this send creates.
+        chat.inspect(|chat| self.adopt_new_chat_web(chat))
     }
     pub(super) fn enqueue_composer(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let prompt = self.composer.read(cx).value().to_string();
@@ -1120,17 +1126,20 @@ impl ThreadsUi {
             return div().into_any_element();
         };
         let p = pal();
-        let key = self
+        let run = self
             .history
             .iter()
             .find(|r| r.writes.iter().any(|w| w.after.id == record.id))
             .and_then(|r| {
                 r.writes.iter().find_map(|w| match w.after.data {
-                    RecordData::Run(_) => Some(format!("response-{}", w.after.id)),
+                    RecordData::Run(_) => Some(w.after.id.clone()),
                     _ => None,
                 })
-            })
-            .unwrap_or_else(|| format!("message-{}", record.id));
+            });
+        let key = run.as_ref().map_or_else(
+            || format!("message-{}", record.id),
+            |run| format!("response-{run}"),
+        );
         // One readable column (CONVERSATION_WIDTH of text plus gutters),
         // centred when the conversation is the primary view.
         let mut column = transcript_column(self.centered(TileKind::Chat))
@@ -1175,47 +1184,50 @@ impl ThreadsUi {
                             .child(metadata("Partial reply · interrupted before it finished")),
                     );
                 }
-                column = column.child(self.safe_message(key, m.text.clone())).child(
-                    div()
-                        .flex()
-                        .items_center()
-                        .gap_1()
-                        .h(components::tokens::ICON_CONTROL)
-                        .child(
-                            components::icon_button(
-                                format!("answer-copy-{}", record.id),
-                                IconName::Copy,
-                                "Copy reply",
-                            )
-                            .flex_shrink_0()
-                            .on_click(cx.listener(
-                                move |_, _, _, cx| {
-                                    cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
-                                        copy.clone(),
-                                    ))
-                                },
-                            )),
-                        )
-                        .when(save_decision, |controls| {
-                            controls.child(
-                                pill(
-                                    format!("answer-decision-{}", record.id),
-                                    "Save as decision…",
+                column = column
+                    .child(self.safe_message(key, m.text.clone()))
+                    .children(self.web_sources(&record.id, run.as_deref()))
+                    .child(
+                        div()
+                            .flex()
+                            .items_center()
+                            .gap_1()
+                            .h(components::tokens::ICON_CONTROL)
+                            .child(
+                                components::icon_button(
+                                    format!("answer-copy-{}", record.id),
+                                    IconName::Copy,
+                                    "Copy reply",
                                 )
-                                .h(components::tokens::ICON_CONTROL)
-                                .text_size(SMALL_TEXT)
                                 .flex_shrink_0()
-                                .tooltip(
-                                    "Review and save this reply as a protected decision in BRN",
-                                )
                                 .on_click(cx.listener(
-                                    move |this, _, window, cx| {
-                                        this.decision_dialog(decision.clone(), window, cx)
+                                    move |_, _, _, cx| {
+                                        cx.write_to_clipboard(gpui_kit::ClipboardItem::new_string(
+                                            copy.clone(),
+                                        ))
                                     },
                                 )),
                             )
-                        }),
-                );
+                            .when(save_decision, |controls| {
+                                controls.child(
+                                    pill(
+                                        format!("answer-decision-{}", record.id),
+                                        "Save as decision…",
+                                    )
+                                    .h(components::tokens::ICON_CONTROL)
+                                    .text_size(SMALL_TEXT)
+                                    .flex_shrink_0()
+                                    .tooltip(
+                                        "Review and save this reply as a protected decision in BRN",
+                                    )
+                                    .on_click(cx.listener(
+                                        move |this, _, window, cx| {
+                                            this.decision_dialog(decision.clone(), window, cx)
+                                        },
+                                    )),
+                                )
+                            }),
+                    );
             }
             CAPTURE_REQUEST_ROLE => {
                 column = column.child(metadata(

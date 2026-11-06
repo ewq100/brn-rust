@@ -306,6 +306,7 @@ fn working_run(store: &mut Store, key: &str) -> Record {
                             progress: String::new(),
                             operations: vec![],
                             sources: vec![],
+                            web_sources: Vec::new(),
                         }),
                     },
                 ],
@@ -503,6 +504,7 @@ fn a_settings_stop_records_interrupted_matching_its_notice() {
                             progress: String::new(),
                             operations: vec![],
                             sources: vec![],
+                            web_sources: Vec::new(),
                         }),
                     },
                     Put {

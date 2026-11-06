@@ -2,6 +2,38 @@
 
 Candidate PR: [#258](https://github.com/ewq100/brn-rust/pull/258), open and unmerged.
 
+## Refreshed integration — 6 November 2026
+
+Normal merge base: `6897fe56ce9457fa7d60d0354b0ba4627d5049bb`, including
+Rig #259 (`7ae7ebf1`), Copilot #261 (`7c5d34b3`) and C's evidence-only #262.
+Current owner instruction authorizes normal PR258 merge after applicable checks
+and reviews. The earlier seven green lanes belong to the older `7d2436ee` /
+`2ebcf4c7` combination and are historical evidence, not refreshed qualification.
+
+Only status routing, the shared task record and generated overview conflicted.
+The resolution keeps main's Windows/C task history, adds B's updater task and
+regenerates the overview. All production updater/packager/launcher bytes, the
+static Linux fixture correction and original raw evidence remain intact.
+Main's Rig/Copilot code and release guidance are preserved. A confirms Copilot
+uses Rig transport and needs no additional CLI/SDK binary in the bundle.
+
+B owns PR follow-through and resulting-main verification. One fresh independent
+integration/security review covers this combined candidate; retain the prior
+whole-updater review only for verified unchanged source. Request current-head
+Codex code/security review and inspect actual reviewed identities/reports. If
+current security reporting remains unavailable, name it and record the workflow's
+authorized independent fallback without claiming an automated-security pass.
+
+The final release package waits for A's response-limit hardening and agreed
+integrated SHA. Build-slot coordination and the combined native-session request
+are posted in #253. Native/session, real stock HTTPS and publication remain
+separate pending gates; no new release manifest approval is inferred. The last
+published releases are legacy previews without updater; the previous local A→B
+witness below explicitly substitutes transport. Proposed alpha versions and
+artifacts must follow the existing manifest approval and immutable workflow.
+
+The following sections are retained dated evidence for the earlier source.
+
 Agent B owns [#253](https://github.com/ewq100/brn-rust/issues/253)'s updater,
 packaging and associated acceptance. The current task is `mac-updater-253` in the
 [existing selected record](record.json). This document is supporting evidence,

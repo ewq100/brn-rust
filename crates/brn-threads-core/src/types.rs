@@ -272,6 +272,17 @@ pub struct Run {
     pub progress: String,
     pub operations: Vec<OperationId>,
     pub sources: Vec<String>,
+    /// Public web pages the agent's own searches returned in this run.
+    /// Untrusted evidence for the owner to inspect, never instructions.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub web_sources: Vec<WebSource>,
+}
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WebSource {
+    pub url: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
 }
 /// Canonical document engine choice; independent of model refinement.
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]

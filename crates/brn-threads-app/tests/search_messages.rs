@@ -65,6 +65,8 @@ fn request(data: &Path, chat: &str, prompt: &str) -> ThreadRunRequest {
         sources: vec![],
         search: None,
         trace: brn_ai::threads::TraceLevel::Off,
+        requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 

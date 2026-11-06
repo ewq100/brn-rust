@@ -228,6 +228,8 @@ fn next_request(r: &ThreadRunRequest) -> ThreadRunRequest {
         sources: vec![],
         search: None,
         trace: r.trace,
+        requested_skills: Vec::new(),
+        web_search: None,
     }
 }
 #[tokio::test]
@@ -1483,6 +1485,37 @@ mod review1 {
                     .any(|n| n.contains("PRIVATE_ERROR_CANARY"))
             );
         }
+    }
+    #[tokio::test]
+    async fn copilot_run_without_a_start_account_never_adopts_a_later_sign_in() {
+        use std::os::unix::fs::PermissionsExt;
+        let (root, mut request, _) = tests::fixture();
+        request.selection.provider = Provider::Copilot;
+        request.selection.model = "gpt-6.1-codex".into();
+        let dir = credentials(&root, Some("synthetic-start-account"));
+        request.credentials_dir = Some(dir.clone());
+        copilot_settings(&request);
+        let token = dir.join("github-token");
+        // Unreadable at start: no account can be captured.
+        std::fs::set_permissions(&token, std::fs::Permissions::from_mode(0o644)).unwrap();
+        let prepared = prepare_run(request).unwrap();
+        assert!(prepared.account.is_none());
+        std::fs::write(&token, "synthetic-later-account").unwrap();
+        std::fs::set_permissions(&token, std::fs::Permissions::from_mode(0o600)).unwrap();
+        let http = SequencedHttpClient::new([exchange("exchanged-later"), done()]);
+        let result = run_prepared_over(
+            prepared,
+            CancellationToken::new(),
+            Arc::new(|_| {}),
+            Some(DynHttpClient::new(http.clone())),
+        )
+        .await
+        .unwrap();
+        assert!(
+            matches!(&result.answer.terminal, AiTerminal::Failed(e) if e.kind == AiErrorKind::ReconnectNeeded)
+        );
+        assert!(http.requests().is_empty());
+        assert!(http.requests().is_empty());
     }
 }
 

@@ -498,17 +498,6 @@ fn scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_afte
             &project,
         ],
     );
-    ok(
-        &root,
-        &data,
-        &[
-            "skill-select",
-            "--id",
-            "installed:run-review",
-            "--project",
-            &project,
-        ],
-    );
     // Explicit owner inventory is global; the separately requested policy is
     // exact scope and cannot disclose P1 enablement/selection in another scope.
     let p2_receipt = ok(&root, &data, &["project-create", "--title", "Other scope"]);
@@ -546,6 +535,8 @@ fn scoped_selected_skill_loads_exact_files_and_run_details_hide_prior_scope_afte
             "Use the selected review instructions",
             "--budget",
             "24",
+            "--skills",
+            "installed:run-review",
         ],
     );
     assert_eq!(result["outcome"], "Completed", "{result}");
@@ -1090,6 +1081,7 @@ async fn native_suggestion_fixture_child() {
             max_tool_rounds: Some(4),
             trace: TraceLevel::Full,
             offered_copilot_models: None,
+            requested_skills: Vec::new(),
         })
         .unwrap();
     let result = run_prepared(
@@ -1293,7 +1285,7 @@ async fn native_suggestion_fixture_child() {
 
 #[cfg(any(target_os = "macos", target_os = "linux"))]
 #[test]
-fn restored_selected_package_without_local_bytes_is_unavailable_before_provider_contact() {
+fn restored_requested_package_without_local_bytes_is_unavailable_before_provider_contact() {
     let root = root();
     let data = root.workspace("original");
     let stub = Stub::start(vec![answer("MUST_NOT_DISPATCH")]);
@@ -1329,11 +1321,6 @@ fn restored_selected_package_without_local_bytes_is_unavailable_before_provider_
             digest,
         ],
     );
-    ok(
-        &root,
-        &data,
-        &["skill-select", "--id", "installed:restore-review"],
-    );
     let canonical = ok(&root, &data, &["settings"]);
     let backup = root.join("skill-backup.sqlite3");
     ok(
@@ -1350,9 +1337,21 @@ fn restored_selected_package_without_local_bytes_is_unavailable_before_provider_
     assert!(!restored.join("skills").exists());
     assert_eq!(ok(&root, &restored, &["settings"]), canonical);
     let before = ok(&root, &restored, &["read", "--id", &note]);
-    let result = ask(&root, &restored, &chat);
+    let result = call(
+        &root,
+        &restored,
+        &[
+            "ask",
+            "--thread",
+            &chat,
+            "--prompt",
+            "Hello",
+            "--skills",
+            "installed:restore-review",
+        ],
+    );
     assert_error(&result, "failed", "unavailable");
-    assert_eq!(result["error"]["message"],"The selected skill is unavailable. Reinstall its exact approved package or change the scoped selection before continuing.");
+    assert_eq!(result["error"]["message"],"The requested skill is unavailable. Reinstall its exact approved package or remove its / command before continuing.");
     assert!(
         stub.requests().is_empty(),
         "no auth, summary or chat dispatch"
@@ -1363,7 +1362,7 @@ fn restored_selected_package_without_local_bytes_is_unavailable_before_provider_
 }
 
 #[test]
-fn every_packaged_builtin_can_be_explicitly_selected_and_is_actually_delivered() {
+fn every_packaged_builtin_can_be_requested_for_one_run_and_is_actually_delivered() {
     let root = root();
     let data = root.workspace("builtins");
     let ids = [
@@ -1385,8 +1384,13 @@ fn every_packaged_builtin_can_be_explicitly_selected_and_is_actually_delivered()
     );
     let chat = configured(&root, &data, &stub);
     for (n, id) in ids.iter().enumerate() {
-        ok(&root, &data, &["skill-select", "--id", id]);
-        let result = ask(&root, &data, &chat);
+        let result = call(
+            &root,
+            &data,
+            &[
+                "ask", "--thread", &chat, "--prompt", "Hello", "--skills", id,
+            ],
+        );
         assert_eq!(result["status"], "ok", "{result}");
         assert_eq!(stub.requests().len(), n + 1);
         assert!(
