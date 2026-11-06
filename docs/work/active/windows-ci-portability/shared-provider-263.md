@@ -91,3 +91,31 @@ command, so these counts are not distinct coverage. An initial passing attempt
 used different activation-default helper binaries; its log remains recorded, but
 the matched baseline uses the exact helpers recorded in Cycle 2. No refactor
 after-result or performance comparison exists yet.
+
+## Preparation publication and remaining handoff
+
+This separate branch is [draft PR267](https://github.com/ewq100/brn-rust/pull/267).
+Preparation commit `1efe4281` has completed [code](https://github.com/ewq100/brn-rust/pull/267#issuecomment-6697023286)
+and [security](https://github.com/ewq100/brn-rust/pull/267#issuecomment-6697056622)
+receipts reporting no findings; zero inline threads were open. The owner-only
+detailed security report was inaccessible through available cloud tools. No
+independent maintenance confirmation variant was supplied. These are preparation
+reviews, not a completed refactor review; later heads require their own checks.
+
+[Local tooling receipts](evidence/shared-provider-263/preparation-tooling.json)
+retain the failed invocation and the corrected 329-passed/31-skipped run. The
+first invocation omitted cloud activation and the existing subreaper, producing
+six locked-archive lookup errors and one orphan-process assertion failure.
+Correcting that invocation required no source or assertion change.
+
+Stage1 resulting-main run [42300540347](https://github.com/ewq100/brn-rust/actions/runs/42300540347)
+has all four required contexts passing. Optional Windows failures remain separate
+in the selected record and #255; no overall-main success is claimed.
+
+A current explicit release of shared source ownership is still required by
+[#263](https://github.com/ewq100/brn-rust/issues/263). B has built its separate
+fixed `a921e325` alpha artifacts; [PR268](https://github.com/ewq100/brn-rust/pull/268)
+contains its release-approval work. Its Mac resource-slot release does not supply
+A source ownership. No shared runtime file was edited while that prerequisite
+was unresolved. Resume this same draft after the handoff; reconcile B task-record
+changes and its publication window before integration.
