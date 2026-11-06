@@ -2456,6 +2456,27 @@ fn the_slash_list_stays_in_the_chat_area_of_a_short_window(cx: &mut TestAppConte
         assert!(last.bounds().bottom() <= menu.bottom() + px(1.));
     });
 
+    // The first-use delegation card below the composer sits under the open
+    // list: a click where both overlap reaches the list, not the card.
+    on_window(cx, &f, |window, _| {
+        let menu = window.find("slash-menu").bounds();
+        let choice = window.find("delegation-review-first").bounds();
+        assert!(
+            menu.contains(&choice.center()),
+            "the list covers the card: {menu:?} vs {choice:?}"
+        );
+    });
+    on_window(cx, &f, |window, cx| {
+        window.click("delegation-review-first", cx)
+    });
+    cx.run_until_parked();
+    cx.read(|cx| {
+        assert!(
+            !f.view.read(cx).settings.delegation_chosen,
+            "the card under the list took the click"
+        )
+    });
+
     // Without the delegation card the composer sits lower; the list still
     // fits in the chat area.
     cx.simulate_keystrokes(f.window, "escape");

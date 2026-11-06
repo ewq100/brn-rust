@@ -402,7 +402,9 @@ impl ThreadsUi {
                     .test_support(),
             );
         }
-        Some(list.into_any_element())
+        // Painted after the rest of the chat so content laid out later, such
+        // as the first-use delegation card below the composer, cannot cover it.
+        Some(gpui_kit::deferred(list).with_priority(1).into_any_element())
     }
 }
 
