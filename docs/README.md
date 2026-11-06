@@ -11,6 +11,7 @@ The [Threads target](architecture/threads-target.md) owns product and architectu
 | Machine, checks and integration | [Setup](development/setup.md), [verification](development/verification.md), [tooling](development/tooling.md), [workflow](development/workflow.md) |
 | Selected agent-first workstream | [Owner plan](work/active/agent-first-simplification/plan.md), [dated reconciliation](work/active/agent-first-simplification/reconciliation.md); follow current task authority, not the historical Mac campaign |
 | Codebase health and design review | [Strategic programming](development/strategic-programming.md) |
+| Pull-request review and security context | [Codex review workflow](development/workflow.md#codex-pull-request-review), [threat model](threat-model.md) |
 | Product decision audit | [Canonical decision backlog](work/active/daily-use-reliability/decision-backlog.md), [documentation reconciliation](work/active/daily-use-reliability/documentation-audit.md) |
 | Component contracts | READMEs in the workspace crates listed by [Cargo.toml](../Cargo.toml) |
 | Historical plans, reviews and proofs | [Archive index](archive/README.md) |
