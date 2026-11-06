@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 PATH = Path(__file__).resolve().parents[1]/'experiments/d254/supervise.py'
 spec = importlib.util.spec_from_file_location('d254_supervise', PATH)
@@ -12,6 +13,37 @@ spec.loader.exec_module(cycle)
 
 
 class CycleAdmissionTests(unittest.TestCase):
+    def test_post_run_audit_rejection_has_failed_terminal_and_nonzero_exit(self):
+        import datetime
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            operation = {'id':'audit-rejection','kind':'candidate','role':'phase1',
+                'root':str(root/'run'),'minimum_seconds':1,'seconds':90,
+                'model_call_limit':6,'max_calls':6,'fixture':'unused','truth':'unused',
+                'seeder':'unused','cases':'unused','repetitions':1,'arms':[],
+                'stock_helper':'unused','brn_helper':'unused'}
+            (root/'operation.json').write_text(json.dumps(operation))
+            deadline = datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(hours=1)
+            (root/'cycle.json').write_text(json.dumps({'whole_cycle_deadline':deadline.isoformat()}))
+            def install_without_processes(guard):
+                guard.timer = SimpleNamespace(cancel=lambda:None)
+                guard.hard_timer = SimpleNamespace(cancel=lambda:None)
+            with mock.patch.object(cycle.native,'main',return_value=0), \
+                    mock.patch.object(cycle,'audit',side_effect=cycle.CycleStop('rejected final sample')), \
+                    mock.patch.object(cycle,'audit_operations'), \
+                    mock.patch.object(cycle,'install_role'), \
+                    mock.patch.object(cycle,'active_audit',return_value=lambda:None), \
+                    mock.patch.object(cycle.Guard,'install',install_without_processes):
+                result = cycle.main(['--operation',str(root/'operation.json'),
+                    '--account-file',str(root/'unused-account'),'--cycle',str(root/'cycle.json'),
+                    '--roles',str(root/'roles')])
+            rows = [json.loads(x) for x in (root/'run.deadline.jsonl').read_text().splitlines()]
+            terminal = next(x for x in rows if x['event']=='terminal')
+            self.assertNotEqual(result,0)
+            self.assertNotEqual(terminal['exit_code'],0)
+            self.assertEqual(terminal['status'],'failed')
+
     def test_in_memory_failure_is_saved_before_followup_read_can_launch(self):
         from types import SimpleNamespace
         original = cycle.native.Sample.run_step

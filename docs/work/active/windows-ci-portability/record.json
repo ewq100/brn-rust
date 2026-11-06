@@ -369,13 +369,15 @@
         "id": "knowledge-quality-254",
         "title": "Compare Terra/Sol and improve maintained knowledge (#254)",
         "owner": "Agent D",
-        "state": "active",
-        "activity": "Both native phases attempted; no model/guide adoption. Phase1saved-state semantic grading unknown; visible readers8/8score4. Phase2candidate12/12Completed vsbaseline11/12; fresh confirmation partial7attempts/36knownHTTP+1uncertain; nofreshreaders. Guardstop respected, remainingdevelopmentreaders/broadregressions notrun. Finalreview/delivery in progress.",
-        "observed_at": "2026-11-06T23:36:00.246249+00:00",
+        "state": "blocked",
+        "activity": "Bounded cycle stopped; original baseline retained. Visible model comparison is inconclusive. A retention candidate was implemented and measured, but saved-state quality is unknown and fresh confirmation ended with one uncertain attempt. Final Council Sol 8 / Opus 7 / Kimi 8; offline corrections complete. Two draft evidence PRs are being delivered.",
+        "observed_at": "2026-11-06T23:53:12.013065+00:00",
         "origin": "observed",
-        "next_action": "Bounded final Council review, full limitation/accounting handoff and two separate draftPRs; no further BRN dispatch or baseline replacement.",
+        "next_action": "Review the two evidence PRs. Final quality acceptance remains pending a fresh bounded cycle; no further live dispatch under this stopped allocation.",
         "depends_on": [],
-        "resource_waits": [],
+        "resource_waits": [
+          "Frozen cycle stopped after an uncertain outcome; fresh quality confirmation remains pending."
+        ],
         "evidence": [
           "docs/work/active/agentbench/d-254/plan.md",
           "docs/work/active/agentbench/d-254/codex-discovery.json",
@@ -385,8 +387,8 @@
           "docs/work/active/agentbench/d-254/comparison.md"
         ],
         "gates": {
-          "implementation": "Single-factor candidate implemented/built/measured; retained as evidence only, accepted original baseline unchanged.",
-          "checks": "Qualified nativeAgentBench97:96pass/1optionalInspectskip; graderClippy pass; original preflight2judge/2callcap/4response/9refine/12deadline/5admission pass. New4output-containment tests pass. FullhostedCI pending.",
+          "implementation": "One retention-guidance factor implemented, built and measured in paired runs; evidence only, no adopted production change.",
+          "checks": "Source-bound builds and judge Clippy passed. Post-review native AgentBench: 99 passed, 1 optional Inspect skip. Audit regression failed before and passed after correction; reader setup acceptance/refusal witnesses pass. Original executed source and results preserved.",
           "integration": "Comparison and improvement PRs authorized; no merge/default change/publication",
           "native": "Headless synthetic only; desktop observation outside assignment",
           "owner_acceptance": "Not claimed. Both recommendation and knowledge-quality acceptance inconclusive; final fresh confirmation incomplete; no baseline/model default change."

@@ -1,6 +1,6 @@
 {
   "round": 2,
-  "kind": "design complete; final pending",
+  "kind": "design and final complete",
   "seats": [
     {
       "provider": "codex",
@@ -47,5 +47,36 @@
     "acpRegistry_copilot/kimi-k3 high"
   ],
   "all_routes_requested_cap": 96,
-  "actual_requests": null
+  "actual_requests": null,
+  "round2": [
+    {
+      "provider": "codex",
+      "model": "gpt-6.1-sol",
+      "score": 8,
+      "state": "completed",
+      "tool_calls": 6,
+      "actual_requests": null,
+      "completed_at": "2026-11-06T23:39:35.524Z"
+    },
+    {
+      "provider": "acpRegistry_copilot",
+      "model": "claude-opus-5.5",
+      "score": 7,
+      "state": "completed",
+      "tool_calls": 6,
+      "actual_requests": null,
+      "completed_at": "2026-11-06T23:40:48.240Z"
+    },
+    {
+      "provider": "acpRegistry_copilot",
+      "model": "kimi-k3",
+      "score": 8,
+      "state": "completed",
+      "tool_calls": 6,
+      "actual_requests": null,
+      "completed_at": "2026-11-06T23:38:46.593Z"
+    }
+  ],
+  "post_review_fixes": "Lead corrected audit exit status, added offline regression/reader-setup tests, disclosed sequencing/time deviations and verified evidence paths; no further Council/model calls or live rerun.",
+  "round3": "Not funded or requested"
 }
