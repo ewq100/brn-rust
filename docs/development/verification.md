@@ -111,3 +111,24 @@ Alternate arms (for example ABBA) for execution timings and reuse the same built
 artifacts. Before attributing a difference to configuration, rerun identical
 binaries across slots and verify their hashes. A process guard limited to Cargo
 and compiler processes does not establish that the host was otherwise quiet.
+
+Separate target roots do not isolate source timestamps in a shared checkout.
+After restoring an edit, an inactive root can rebuild unchanged earlier-probe
+dependencies during the next probe. Use independent source checkouts or warm
+every affected root against the restored source. Require freshness immediately
+before each arm and probe, including its build, lint, test and helper graphs;
+an initial no-op or matching executable hashes alone is insufficient.
+
+Freeze the effective native build environment too: compiler/linker selection,
+`PKG_CONFIG_PATH`, include paths and library paths can invalidate caches despite
+identical Rust versions. Activation scripts may append paths when sourced again.
+Check freshness in the same environment that executes the measured commands.
+
+A package-only test invocation can resolve a different dependency-feature graph
+from the complete workspace gate. Compare actual Cargo artifact feature/profile
+messages for common units, not only package names or executable filenames. A
+selected filter must execute nonzero tests. A focused-first experiment must still
+invoke the normal full gate after a focused failure and preserve a nonzero result
+from either stage. The [cloud Cycle 2 record](../work/active/windows-ci-portability/development-speed-255-cycle2.md)
+reports the observed gains, rejected/incomplete qualification and no retained
+workflow change; focused checks were already supported and are not a new default.
