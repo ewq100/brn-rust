@@ -415,6 +415,8 @@ def qualify_update(delivery_a, delivery_b, host_cli, evidence):
         call("init", "--purpose", "test")
         note = call("note-create", "--title", "Synthetic update note", "--text", "Harbor water: 12 cm. Preserve UTF-8: õ ü.")
         project = call("project-create", "--title", "Synthetic update project")
+        project_id = next(write["after"]["id"] for write in project["writes"] if "Project" in write.get("after", {}).get("data", {}))
+        call("project-link", "--project", project_id, "--note", note["id"])
         chat = call("thread-start", "--title", "Synthetic update chat")
         call("queue", "--thread", chat["id"], "--text", "Unsent synthetic work; never dispatch")
         call("configure", "--provider", "Copilot", "--model", "synthetic-unavailable-model", "--effort", "low")
@@ -432,6 +434,7 @@ def qualify_update(delivery_a, delivery_b, host_cli, evidence):
             shutil.copy2(case.app / "Contents/Resources/bin" / name, cli_dir / name)
         cli = str(cli_dir / "brn")
         call("intake", "--source", str(source), "--intent", "full", "--title", "Synthetic imported source", "--key", "update-import")
+        call("intake", "--source", str(ROOT / "crates/brn-intake/tests/fixtures/harbor.docx"), "--intent", "full", "--title", "Synthetic figures", "--key", "update-figures")
         backup = case.root / "pre-update.sqlite3"
         call("backup", "--destination", str(backup))
         inspections = ("notes", "records", "history", "settings", "recovery", "projects", "threads")
@@ -439,6 +442,9 @@ def qualify_update(delivery_a, delivery_b, host_cli, evidence):
         def files():
             return {str(p.relative_to(case.data)): packaging.digest(p) for p in case.data.rglob("*") if p.is_file()}
         hashes_before = files()
+        assets = [record for record in before["records"] if "Asset" in record.get("data", {})]
+        assert assets, "Real synthetic figure asset was not retained"
+
         result = case.run_update()
         assert result.returncode == 0, (result.stdout, result.stderr)
         assert case.build() == 102
@@ -450,7 +456,23 @@ def qualify_update(delivery_a, delivery_b, host_cli, evidence):
         restored = case.root / "restored-workspace"
         call("restore", "--source", str(backup), data=restored)
         assert call("notes", data=restored) == before["notes"]
-        report = {"outcome": "passed", "scope": "local real BRN packages, headless A→B/store/backup/restore; HTTPS transport only substituted", "limitations": ["Not native acceptance", "Not clean-Mac installation or Gatekeeper acceptance", "Synthetic Copilot selection/credential sentinel only; no live connection", "Not publication or final integrated Agent A candidate"], "packages": [json.loads(next(p.glob("*.manifest.json")).read_text()) for p in case.deliveries], "checks": {"external_files_unchanged_before_B_reopen": True, "logical_state_unchanged_after_B_headless_startup": True, "previous_app_retained": (case.transaction() / "previous.app").is_dir(), "pre_update_backup_restored_to_fresh_store": True}, "synthetic": {"note_id": note["id"], "project_id": project["id"], "thread_id": chat["id"], "inspection_commands": list(inspections), "file_hashes_before_update": hashes_before}, "commands": calls, "update_stdout": result.stdout, "update_stderr": result.stderr, "B_headless_stdout": startup.stdout}
+        report = {
+            "outcome": "passed",
+            "scope": "local real BRN packages, headless A→B/store/backup/restore; HTTPS transport only substituted",
+            "limitations": ["Not native acceptance", "Not clean-Mac installation or Gatekeeper acceptance",
+                             "Synthetic Copilot selection/credential sentinel only; no live connection",
+                             "Not publication or final integrated Agent A candidate"],
+            "packages": [json.loads(next(p.glob("*.manifest.json")).read_text()) for p in case.deliveries],
+            "checks": {"external_files_unchanged_before_B_reopen": True,
+                       "logical_state_unchanged_after_B_headless_startup": True,
+                       "previous_app_retained": (case.transaction() / "previous.app").is_dir(),
+                       "pre_update_backup_restored_to_fresh_store": True},
+            "synthetic": {"note_id": note["id"], "project_id": project_id, "thread_id": chat["id"],
+                          "asset_count": len(assets), "inspection_commands": list(inspections),
+                          "file_hashes_before_update": hashes_before},
+            "commands": calls, "update_stdout": result.stdout, "update_stderr": result.stderr,
+            "B_headless_stdout": startup.stdout,
+        }
         Path(evidence).write_text(json.dumps(report, indent=2) + "\n")
         print("Real BRN local A→B, unchanged external files, B headless reopen and backup/restore passed")
     finally:

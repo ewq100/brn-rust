@@ -7,7 +7,7 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-06T13:55:41.368636+02:00",
+    "observed_at": "2026-11-06T14:09:04.385761+02:00",
     "goal": "Implement #253\u2019s independent Mac updater and qualify disposable package replacement; retain earlier task history.",
     "owner_attention": "Agent B owns updater/packaging only. Final integrated/native acceptance waits for Agent A\u2019s selected runtime/Copilot candidate and an unlocked Mac. No release publication or new merge authority inferred.",
     "tasks": [
@@ -91,25 +91,26 @@
         "title": "Implement and qualify the versioned Mac updater",
         "owner": "Agent B",
         "state": "active",
-        "activity": "Implemented bundled built-in-tools updater, alpha packaging and setup instructions. 13 real macOS updater cases passed, including SIGKILL recovery and package tampering. Pinned desktop release build passed; CLI/helpers and final evidence in progress.",
-        "observed_at": "2026-11-06T13:55:41.368636+02:00",
+        "activity": "Updater and packaging implemented; independent review clear after fixing CLT dependency and interruption/concurrency findings. 353 tooling tests (11 skips), 41 focused checks and real local BRN A\u2192B/synthetic SQLite preservation/backup/restore passed on Mac mini. Packaged startup and both helpers/all eight typed formats also passed. Focused PR being published.",
+        "observed_at": "2026-11-06T14:09:04.385761+02:00",
         "origin": "observed",
-        "next_action": "Finish real BRN package A\u2192B/synthetic-store witness, independent review and focused updater PR; reconcile final candidate with Agent A.",
+        "next_action": "Open focused updater PR, inspect exact-head hosted gates and hand off final integrated acceptance. Agent A must supply the selected runtime/Copilot SHA and package dependencies; then use an unlocked Mac/clean disposable profile for Gatekeeper, install, real released A\u2192B and native Copilot journeys. No merge or publication authority inferred.",
         "depends_on": [],
         "resource_waits": [
-          "Final native installation/reopen/Gatekeeper and Copilot journeys: screen locked and selected Agent A runtime/Copilot candidate unavailable."
+          "Mac mini CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending."
         ],
         "evidence": [
           "https://github.com/ewq100/brn-rust/issues/253",
-          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6684116053",
-          "scripts/tests/test_macos_updater.py"
+          "docs/work/active/windows-ci-portability/mac-updater-253.md",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/real-update.json",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/tooling-tests.log"
         ],
         "gates": {
-          "implementation": "Implemented candidate; independent review pending.",
-          "checks": "13 updater tests passed on macOS arm64/27.2; signed synthetic bundles. Pinned 1.98.1 native-ui release desktop build passed. Real BRN A\u2192B/store and broader checks pending.",
-          "integration": "Dedicated work/mac-updater-253 from main 3b72813d. PR not yet open; not merged; release/preview.json unchanged; no publication.",
-          "native": "Pending: actual Mac reports CGSSessionScreenIsLocked=true. No headless check counted as native acceptance.",
-          "owner_acceptance": "Pending combined selected runtime/Copilot candidate, clean installation, Gatekeeper, final native journeys and owner use."
+          "implementation": "Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.",
+          "checks": "Passed on Mac mini arm64/macOS27.2: pinned1.98.1 native-ui release desktop, CLI and both document helpers; 353 tooling tests (11 skips), 41 focused tests including19 updater cases; real local package A alpha.1/build101\u2192B alpha.2/build102 with byte-identical external files and logical state after B headless reopen, figure asset, backup/fresh restore; both relocated helpers/all8formats and CLI16imports. Test transport substituted; clean-Mac/released HTTPS update not claimed.",
+          "integration": "Not merged; work/mac-updater-253 from main3b72813d, production updater/package candidate832e8888 plus test reporter/evidence only. Exact-head hosted checks pending. release/preview.json unchanged; no tags, release, announcement or publication.",
+          "native": "Pending: screen remains locked. Local real-package/headless evidence is not native acceptance, clean-Mac Gatekeeper acceptance or a published-release transport witness.",
+          "owner_acceptance": "Pending Agent A selected runtime/Copilot candidate, native install/update/reopen and required Copilot journeys, then owner use before invited distribution."
         },
         "attempts": [
           {
@@ -117,6 +118,23 @@
             "change": "Used installed pinned 1.98.1 toolchain and existing Python 3.11 explicitly; no global environment changes.",
             "evidence": [
               "scripts/tests/test_macos_updater.py"
+            ]
+          },
+          {
+            "outcome": "Independent review found recipient lipo/otool Xcode-shim dependency and non-repeatable recovery claim; first lockf-supervisor repair still allowed orphan recovery to lose exclusion.",
+            "change": "Use stock codesign identity metadata and verified system-library inventory; shell-held FD lockf guard inherited by filesystem children. SIGKILL/PID-only orphan/concurrent/idempotent recovery regressions passed; independent recheck found no remaining issue.",
+            "evidence": [
+              "scripts/brn-update",
+              "scripts/tests/test_macos_updater.py",
+              "docs/work/active/windows-ci-portability/mac-updater-253.md"
+            ]
+          },
+          {
+            "outcome": "First real-product qualification completed behavioral assertions but failed report emission on project-create result shape (KeyError id).",
+            "change": "Read Project write identity, link project/note, add a real imported figure asset and rerun qualification; real-update.json emitted successfully.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/evidence/mac-updater-253/qualifier-report-failure.log.gz",
+              "docs/work/active/windows-ci-portability/evidence/mac-updater-253/real-update.json"
             ]
           }
         ],
@@ -128,7 +146,14 @@
           "lead": "Current user-selected Codex model/effort retained. One read-only independent reviewer after candidate preparation; maximum one helper.",
           "reuse": "Adapt existing launcher, ad-hoc ZIP packager, approved-manifest immutable release workflow. Use built-in macOS bash/curl/plutil/shasum/ditto/codesign/lipo/otool and same-volume renames. Custom script supplies only explicit update transaction/recovery gap.",
           "stop": "Reassess on failed preservation/recovery witness or unowned runtime/package interface; never expand into provider implementation."
-        }
+        },
+        "external_dependencies": [
+          {
+            "issue": "https://github.com/ewq100/brn-rust/issues/252",
+            "condition": "Agent A selected verified runtime/Copilot candidate and runtime package dependencies for final combined acceptance",
+            "satisfied": false
+          }
+        ]
       }
     ]
   }
