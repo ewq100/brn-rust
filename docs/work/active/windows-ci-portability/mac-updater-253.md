@@ -102,7 +102,7 @@ The helper now reads that write identity; the subsequent whole witness passed.
 
 Submitted `2c074469` failed [Ubuntu Core/CLI](https://github.com/ewq100/brn-rust/actions/runs/42215703623/job/127885365948)
 at `document_modes.rs:221`: the first valid synthetic helper response returned
-`Unavailable`. The [original excerpt](evidence/mac-updater-253/hosted-ubuntu-failure.log)
+`Unavailable`. The [original excerpt](evidence/mac-updater-253/hosted-ubuntu-failure.log.gz)
 does not contain the OS error; that original errno cannot be recovered.
 
 The baseline `3b72813d` and submitted PR have identical test SHA256
@@ -133,7 +133,7 @@ The task-only diagnostic workflow is never merged into this PR.
 
 On the Mac mini, the original exact test passed. After correction the complete
 intake crate passed (11 passed, one existing ignored test), and targeted all-target
-Clippy with warnings denied passed: [test log](evidence/mac-updater-253/mac-fixed-intake.log),
+Clippy with warnings denied passed: [test log](evidence/mac-updater-253/mac-fixed-intake.log.gz),
 [Clippy](evidence/mac-updater-253/intake-clippy.log).
 The resumed full tooling run counted 360 total: 349 passed and 11 skipped
 ([log](evidence/mac-updater-253/tooling-tests-resume.log)). The 19 updater and
