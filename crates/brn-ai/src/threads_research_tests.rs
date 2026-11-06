@@ -744,6 +744,34 @@ async fn helpers_are_read_only_and_cannot_spawn_helpers() {
     );
 }
 
+/// Counts dispatched web queries; a helper must never reach it.
+#[derive(Default)]
+struct CountingWeb(AtomicU64);
+impl RunWebSearch for CountingWeb {
+    fn search(&self, _query: String, _cancel: CancellationToken) -> WebSearchFuture {
+        self.0.fetch_add(1, Ordering::SeqCst);
+        Box::pin(async { Err(crate::subscription_search::SearchError::Timeout) })
+    }
+}
+
+#[tokio::test]
+async fn a_helper_never_searches_the_web_even_when_its_chat_allows_it() {
+    let (_root, mut request, _plan) = setup();
+    let web = Arc::new(CountingWeb::default());
+    request.web_search = Some(web.clone());
+    let (scope, _) = begin(&request).unwrap();
+    assert!(scope.web.is_some(), "the parent run is offered web_search");
+    let helper = MockCompletionModel::from_stream_turns(vec![vec![
+        MockStreamEvent::tool_call("w", "web_search", json!({"query":"latest release"})),
+        tokens(10),
+    ]]);
+    scripted(&scope, vec![Ok(helper.clone())]);
+    let out = ask(&scope, vec![question("What changed upstream?")]).await;
+    assert_eq!(out["reports"][0]["outcome"], "failed", "{out}");
+    assert!(!tool_names(&helper).iter().any(|name| name == "web_search"));
+    assert_eq!(web.0.load(Ordering::SeqCst), 0, "no query is dispatched");
+}
+
 #[tokio::test]
 async fn the_helper_is_never_offered_withdraw_proposal() {
     let (_root, request, _plan) = setup();
