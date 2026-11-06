@@ -7,7 +7,7 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-06T15:27:00+02:00",
+    "observed_at": "2026-11-06T18:05:00+02:00",
     "goal": "Complete Windows CI compatibility and merge through the normal checked PR path.",
     "owner_attention": "The owner authorized continuing through fixes and normal merge. PR246 advanced main; the integration lead is reconciling its documentation routing without changing benchmark results or granting live experiment budget.",
     "tasks": [
@@ -90,23 +90,24 @@
         "id": "rig-046-253",
         "title": "Upgrade the runtime to Rig 0.46 and qualify bounded reuse",
         "owner": "Agent A (runtime)",
-        "state": "active",
+        "state": "complete",
         "activity": "Rig 0.45 to 0.46 implemented on work/rig-046-253 from main 2ebcf4c7: minimal 12-package lock delta, explicit serde_json preserve_order/float_roundtrip in production, stall classification, Terra same-model Responses retry, stall/Stop and HookTestHarness tests. Both reuse pilots deferred with evidence; focused survey routed account snapshot, Copilot refinement and search to #252 and the provider operation module to #255.",
-        "observed_at": "2026-11-06T17:40:00+02:00",
+        "observed_at": "2026-11-06T18:05:00+02:00",
         "origin": "observed",
-        "next_action": "Request Codex review of the final head, merge after hosted CI and review pass, then post the runtime checkpoint on #253 for B, D (#254) and E (#256) and retarget the Copilot PR #261 to main.",
+        "next_action": "None in this task. Runtime checkpoint posted on #253 for B, D (#254) and E (#256); follow-ups routed to #255.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/rig046-upgrade/README.md",
           "docs/work/active/rig046-upgrade/survey.md",
           "https://github.com/ewq100/brn-rust/issues/253",
+          "https://github.com/ewq100/brn-rust/pull/259",
           "https://github.com/ewq100/brn-rust/pull/259"
         ],
         "gates": {
           "implementation": "Implemented; Council round 1 complete (Codex 9/10, Kimi K3 9/10, Claude 9/10; no blockers; findings fixed or routed).",
-          "checks": "Local fmt, workspace and feature Clippy, all CI-equivalent test lanes passed (workspace 1,513 passed, 9 ignored; brn-ai capability 592 passed, 1 ignored); hosted CI on PR #259.",
-          "integration": "Published as PR #259; not merged.",
+          "checks": "Local fmt, workspace and feature Clippy and all CI-equivalent lanes passed (workspace 1,513 passed, 9 ignored); all 7 hosted CI jobs green on bb0cc027; Codex code and security review completed with no findings.",
+          "integration": "Merged as PR #259 into main at 7ae7ebf1.",
           "native": "Not run; runtime-only change. Mac native acceptance stays with the alpha candidate.",
           "owner_acceptance": "Not requested."
         },
@@ -117,20 +118,21 @@
         "title": "Support Copilot chat, native web search and Luna refinement",
         "owner": "Agent A (runtime)",
         "state": "active",
-        "activity": "Implemented on work/copilot-252 stacked on #259: account pin captured at operation start for chat, helpers, web search and refinement; native Copilot hosted web_search adapter on the Rig Responses route; provider-aware Copilot Luna refinement with no Codex fallback; Copilot tools sent non-strict so write proposals work. Local checks and live qualification on a Copilot business account pass.",
-        "observed_at": "2026-11-06T17:30:00+02:00",
+        "activity": "Implemented on work/copilot-252, now on main after #259: account pin captured at operation start for chat, helpers, web search and refinement; native Copilot hosted web_search adapter on the Rig Responses route with an 8 MiB body cap and honest denial messages; provider-aware Copilot Luna refinement with no Codex fallback; Copilot tools sent non-strict so write proposals work. Live qualification on a Copilot business account passes.",
+        "observed_at": "2026-11-06T18:05:00+02:00",
         "origin": "observed",
-        "next_action": "Rebase on the merged Rig runtime (#259), publish the PR, run Council review and hosted CI, then merge and notify B.",
+        "next_action": "Request Codex review of the final head, merge PR #261 after hosted CI and review pass, then notify B, D (#254) and E (#256) on #253. Native sign-in, account switching and the remaining acceptance items in the record stay open on #252.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/copilot-252/README.md",
-          "https://github.com/ewq100/brn-rust/issues/252"
+          "https://github.com/ewq100/brn-rust/issues/252",
+          "https://github.com/ewq100/brn-rust/pull/261"
         ],
         "gates": {
-          "implementation": "Implemented and qualified live (chat, web search with sources, BRN tools, writes, refinement On/Off, failure messages); Council pending.",
-          "checks": "Local tests, Clippy and fmt pass; hosted CI pending.",
-          "integration": "Not published or merged.",
+          "implementation": "Implemented and qualified live (chat, web search with sources, BRN tools, writes, refinement On/Off, failure messages); Council round 1 complete (Codex 7/10, Kimi K3 8.5/10, Claude 8/10; required fixes made, nits fixed or routed to #255).",
+          "checks": "Local tests, Clippy and fmt pass (brn-ai 597 passed, 1 ignored); hosted CI on PR #261.",
+          "integration": "Published as PR #261 (part of #252); not merged.",
           "native": "Pending; device sign-in and native account switching need native observation.",
           "owner_acceptance": "Not requested."
         },

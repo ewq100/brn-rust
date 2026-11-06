@@ -31,41 +31,21 @@ Gates:
 
 </details>
 
-### Upgrade the runtime to Rig 0.46 and qualify bounded reuse
-
-Task ID: `rig-046-253`
-Owner: Agent A (runtime) · State: **active** · Last observed: 2026-11-06T17:40:00+02:00
-Activity: Rig 0.45 to 0.46 implemented on work/rig-046-253 from main 2ebcf4c7: minimal 12-package lock delta, explicit serde_json preserve_order/float_roundtrip in production, stall classification, Terra same-model Responses retry, stall/Stop and HookTestHarness tests. Both reuse pilots deferred with evidence; focused survey routed account snapshot, Copilot refinement and search to #252 and the provider operation module to #255.
-Next: Request Codex review of the final head, merge after hosted CI and review pass, then post the runtime checkpoint on #253 for B, D (#254) and E (#256) and retarget the Copilot PR #261 to main.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Implemented; Council round 1 complete (Codex 9/10, Kimi K3 9/10, Claude 9/10; no blockers; findings fixed or routed).
-- **checks:** Local fmt, workspace and feature Clippy, all CI-equivalent test lanes passed (workspace 1,513 passed, 9 ignored; brn-ai capability 592 passed, 1 ignored); hosted CI on PR #259.
-- **integration:** Published as PR #259; not merged.
-- **native:** Not run; runtime-only change. Mac native acceptance stays with the alpha candidate.
-- **owner acceptance:** Not requested.
-
-</details>
-
 ### Support Copilot chat, native web search and Luna refinement
 
 Task ID: `copilot-252`
-Owner: Agent A (runtime) · State: **active** · Last observed: 2026-11-06T17:30:00+02:00
-Activity: Implemented on work/copilot-252 stacked on #259: account pin captured at operation start for chat, helpers, web search and refinement; native Copilot hosted web_search adapter on the Rig Responses route; provider-aware Copilot Luna refinement with no Codex fallback; Copilot tools sent non-strict so write proposals work. Local checks and live qualification on a Copilot business account pass.
-Next: Rebase on the merged Rig runtime (#259), publish the PR, run Council review and hosted CI, then merge and notify B.
+Owner: Agent A (runtime) · State: **active** · Last observed: 2026-11-06T18:05:00+02:00
+Activity: Implemented on work/copilot-252, now on main after #259: account pin captured at operation start for chat, helpers, web search and refinement; native Copilot hosted web_search adapter on the Rig Responses route with an 8 MiB body cap and honest denial messages; provider-aware Copilot Luna refinement with no Codex fallback; Copilot tools sent non-strict so write proposals work. Live qualification on a Copilot business account passes.
+Next: Request Codex review of the final head, merge PR #261 after hosted CI and review pass, then notify B, D (#254) and E (#256) on #253. Native sign-in, account switching and the remaining acceptance items in the record stay open on #252.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Implemented and qualified live (chat, web search with sources, BRN tools, writes, refinement On/Off, failure messages); Council pending.
-- **checks:** Local tests, Clippy and fmt pass; hosted CI pending.
-- **integration:** Not published or merged.
+- **implementation:** Implemented and qualified live (chat, web search with sources, BRN tools, writes, refinement On/Off, failure messages); Council round 1 complete (Codex 7/10, Kimi K3 8.5/10, Claude 8/10; required fixes made, nits fixed or routed to #255).
+- **checks:** Local tests, Clippy and fmt pass (brn-ai 597 passed, 1 ignored); hosted CI on PR #261.
+- **integration:** Published as PR #261 (part of #252); not merged.
 - **native:** Pending; device sign-in and native account switching need native observation.
 - **owner acceptance:** Not requested.
 
@@ -81,6 +61,10 @@ None recorded.
 
 ## Completed
 
-None recorded.
+Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-Local page reflects the last saved observations in this record (2026-11-06T15:27:00+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+
+- `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
+
+Local page reflects the last saved observations in this record (2026-11-06T18:05:00+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
