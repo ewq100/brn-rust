@@ -1,0 +1,39 @@
+{
+  "source": "4561028762529987dd2b19f724973db8a33409c5",
+  "command": "cargo build --locked --offline -p brn -p brn-threads-app --bin brn --example wiki_eval_seed --message-format=json",
+  "target": "/private/tmp/brn-agent-d-254-improvement-target",
+  "jobs": 2,
+  "binary": "/Users/evokessler/Documents/Codex/brn-agent-d-254/candidate-1-artifacts/brn",
+  "sha256": "49e8b1f6ef114c8c521ce3fb8c53e9c8640e6704b80443bc7de981c9a103f317",
+  "baseline_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "patch_sha256": "97491793b5a9da5eeb8d2507c9b62bf490a15422bfec092971532c3d9410ca70",
+  "features": [
+    {
+      "package": "path+file:///Users/evokessler/repos/brn-agent-d-254-improvement/crates/brn-threads-app#0.1.0",
+      "target": "brn_threads_app",
+      "features": [],
+      "fresh": false
+    },
+    {
+      "package": "path+file:///Users/evokessler/repos/brn-agent-d-254-improvement/crates/brn-ai#0.1.0",
+      "target": "brn_ai",
+      "features": [
+        "scripted-runs"
+      ],
+      "fresh": false
+    },
+    {
+      "package": "path+file:///Users/evokessler/repos/brn-agent-d-254-improvement/crates/brn-threads-app#0.1.0",
+      "target": "wiki_eval_seed",
+      "features": [],
+      "fresh": false
+    },
+    {
+      "package": "path+file:///Users/evokessler/repos/brn-agent-d-254-improvement/crates/brn#0.0.0",
+      "target": "brn",
+      "features": [],
+      "fresh": false
+    }
+  ],
+  "qualification": "same combined closure including brn-ai scripted-runs; actual Codex wire; no scripted-document-tests injection"
+}

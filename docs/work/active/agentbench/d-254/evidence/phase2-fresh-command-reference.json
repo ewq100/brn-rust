@@ -1,0 +1,36 @@
+{
+  "candidate": [
+    "/Users/evokessler/.local/opt/python@3.14/bin/python3.14",
+    "/Users/evokessler/repos/brn-agent-d-254/benchmarks/brn_agent/experiments/d254/supervise_outputs.py",
+    "--operation",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/evaluation-only/phase2-fresh-candidate-operation.json",
+    "--account-file",
+    "/Users/evokessler/.codex/auth.json",
+    "--cycle",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/cycle-start.json",
+    "--roles",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254"
+  ],
+  "outputs": [
+    "/Users/evokessler/repos/brn-agent-d-254/benchmarks/brn_agent/experiments/d254/evaluate_outputs.py",
+    "--root",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase2-fresh-confirmation",
+    "--suite",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/evaluation-only/phase2/suite.json",
+    "--truth",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/evaluation-only/phase2/gold.json",
+    "--task-root",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254",
+    "--binary",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn",
+    "--judge",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/agentbench-judge",
+    "--account-file",
+    "/Users/evokessler/.codex/auth.json",
+    "--phase",
+    "phase2",
+    "--role",
+    "phase2-fresh",
+    "--readers-only"
+  ]
+}

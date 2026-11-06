@@ -1,0 +1,21 @@
+{
+  "id": "phase2-broad-wiki",
+  "kind": "candidate",
+  "role": "phase2-broad",
+  "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase2-broad-wiki",
+  "fixture": "/Users/evokessler/Documents/Codex/brn-agent-d-254/regressions/fixture.json",
+  "truth": "/Users/evokessler/Documents/Codex/brn-agent-d-254/regressions/gold.json",
+  "seeder": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/wiki_eval_seed",
+  "cases": "W01,W02,W03,W04,W05,W06",
+  "repetitions": 1,
+  "model_call_limit": 6,
+  "max_calls": 432,
+  "seconds": 1800,
+  "minimum_seconds": 1500,
+  "arms": [
+    "A=/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn,model=gpt-6.1-sol",
+    "B=/Users/evokessler/Documents/Codex/brn-agent-d-254/candidate-1-artifacts/brn,model=gpt-6.1-sol"
+  ],
+  "stock_helper": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn-xberg-helper",
+  "brn_helper": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn-xberg-helper-brn"
+}

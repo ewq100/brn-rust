@@ -1,0 +1,127 @@
+{
+  "status": "STOPPED; partial evaluation; no retry",
+  "preflight": "PASS",
+  "planned_candidate_events": 8,
+  "retained_candidate_attempts": 7,
+  "completed_candidate_events": 2,
+  "by_arm": {
+    "A": {
+      "retained_attempts": 3,
+      "terminal_counts": {
+        "Completed": 1,
+        "Failed:ToolLimitReached": 2
+      },
+      "completed_events": 1,
+      "known_HTTP_started": 18,
+      "HTTP_unknown_events": 0,
+      "mechanical_pass": 3,
+      "mechanical_fail": 0,
+      "mechanical_unknown": 0,
+      "failed_check_types": {},
+      "safety_findings": 0,
+      "runtime_identity_verified_events": 3,
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium"
+    },
+    "B": {
+      "retained_attempts": 4,
+      "terminal_counts": {
+        "Failed:ToolLimitReached": 2,
+        "Completed": 1,
+        "unobserved": 1
+      },
+      "completed_events": 1,
+      "known_HTTP_started": 18,
+      "HTTP_unknown_events": 1,
+      "mechanical_pass": 3,
+      "mechanical_fail": 0,
+      "mechanical_unknown": 1,
+      "failed_check_types": {},
+      "safety_findings": 0,
+      "runtime_identity_verified_events": 3,
+      "requested_model": "gpt-6.1-sol",
+      "requested_effort": "medium"
+    }
+  },
+  "known_candidate_HTTP_started": 36,
+  "candidate_HTTP_has_unknowns": true,
+  "reader_invocations": 0,
+  "grader_actual_attempts": 0,
+  "reader_scores": null,
+  "saved_state_semantic_quality": null,
+  "qualified": false,
+  "charges": null,
+  "coordinator_actual_provider_requests": null,
+  "coordinator_actual_provider_turn_usage": null,
+  "reservation_ledgers": {
+    "BRN": {
+      "cap": 144,
+      "reserved": 42,
+      "reservations": 7
+    },
+    "local_grader": {
+      "cap": 12,
+      "reserved": 0,
+      "reservations": 0
+    },
+    "global_grader": {
+      "cap": 120,
+      "reserved": 31,
+      "reservations": 13
+    }
+  },
+  "deadlines": [
+    {
+      "path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase2-fresh-confirmation.deadline.jsonl",
+      "terminal": [
+        {
+          "event": "terminal",
+          "utc": "2026-11-06T23:29:25.122400+00:00",
+          "elapsed_seconds": 275.1102076249954,
+          "status": "deadline",
+          "exit_code": 124,
+          "cleanup_errors": [],
+          "remote_outcome": "uncertain for in-flight calls; no automatic replay"
+        }
+      ],
+      "stopped": [],
+      "sha256": "2c2a5c0e6bb74333a704f7d66cc6a305aff905ba778c5e01fdfcc06928446352"
+    },
+    {
+      "path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/evaluation-only/phase2-fresh-driver.deadline.jsonl",
+      "terminal": [
+        {
+          "event": "terminal",
+          "utc": "2026-11-06T23:29:25.207974+00:00",
+          "elapsed_seconds": 275.3409034590004,
+          "status": "failed",
+          "exit_code": 1,
+          "cleanup_errors": []
+        }
+      ],
+      "stopped": [],
+      "sha256": "b2e1e378a1101cbf3c1da1588ac41659cfddb74b4de1d072f0fc509b3e1d9270"
+    }
+  ],
+  "private_error_class_counts": {},
+  "remaining_owned_live_session_leaders": 0,
+  "phase1_dispatched": false,
+  "technical_access_isolation": false,
+  "binary_bindings": {
+    "baseline": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+    "candidate": "49e8b1f6ef114c8c521ce3fb8c53e9c8640e6704b80443bc7de981c9a103f317",
+    "fixed_judge": "dc54b46c3f083b9b146e68ae76d977d5073202b03035e81c0ff672980164bdc6"
+  },
+  "artifacts": {
+    "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase2-fresh-confirmation",
+    "status": "/Users/evokessler/Documents/Codex/brn-agent-d-254/evaluation-only/phase2-fresh-execution-status.json",
+    "command_reference": "/Users/evokessler/Documents/Codex/brn-agent-d-254/evaluation-only/phase2-fresh-command-reference.json",
+    "dispatch_freeze": "/Users/evokessler/Documents/Codex/brn-agent-d-254/evaluation-only/phase2-fresh-dispatch-freeze.json",
+    "stderr": "/Users/evokessler/Documents/Codex/brn-agent-d-254/evaluation-only/phase2-fresh-driver.stderr.txt"
+  },
+  "candidate_HTTP_unobserved_attempts": 1,
+  "candidate_HTTP_total": null,
+  "candidate_HTTP_conservative_upper_bound": 42,
+  "stop_reason": "Coordinator time boundary stopped native supervisor; seventh candidate attempt has uncertain in-flight outcome; eighth undispatched.",
+  "reader_grader_quality": "unmeasured"
+}

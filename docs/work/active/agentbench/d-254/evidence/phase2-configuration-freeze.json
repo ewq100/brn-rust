@@ -1,0 +1,59 @@
+{
+  "phase": "phase2",
+  "fixed_model": "gpt-6.1-sol",
+  "effort": "medium",
+  "baseline": {
+    "path": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn",
+    "sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44"
+  },
+  "candidate": {
+    "source": "4561028762529987dd2b19f724973db8a33409c5",
+    "command": "cargo build --locked --offline -p brn -p brn-threads-app --bin brn --example wiki_eval_seed --message-format=json",
+    "target": "/private/tmp/brn-agent-d-254-improvement-target",
+    "jobs": 2,
+    "binary": "/Users/evokessler/Documents/Codex/brn-agent-d-254/candidate-1-artifacts/brn",
+    "sha256": "49e8b1f6ef114c8c521ce3fb8c53e9c8640e6704b80443bc7de981c9a103f317",
+    "baseline_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+    "patch_sha256": "97491793b5a9da5eeb8d2507c9b62bf490a15422bfec092971532c3d9410ca70",
+    "features": [
+      {
+        "package": "path+file:///Users/evokessler/repos/brn-agent-d-254-improvement/crates/brn-threads-app#0.1.0",
+        "target": "brn_threads_app",
+        "features": [],
+        "fresh": false
+      },
+      {
+        "package": "path+file:///Users/evokessler/repos/brn-agent-d-254-improvement/crates/brn-ai#0.1.0",
+        "target": "brn_ai",
+        "features": [
+          "scripted-runs"
+        ],
+        "fresh": false
+      },
+      {
+        "package": "path+file:///Users/evokessler/repos/brn-agent-d-254-improvement/crates/brn-threads-app#0.1.0",
+        "target": "wiki_eval_seed",
+        "features": [],
+        "fresh": false
+      },
+      {
+        "package": "path+file:///Users/evokessler/repos/brn-agent-d-254-improvement/crates/brn#0.0.0",
+        "target": "brn",
+        "features": [],
+        "fresh": false
+      }
+    ],
+    "qualification": "same combined closure including brn-ai scripted-runs; actual Codex wire; no scripted-document-tests injection"
+  },
+  "operation_sha256": "89cee79183af334f5de18b7b320ed8b56e65137082fab1494fdbb1b076421abc",
+  "retention_decision": "original frozen acceptance rule; unknown dimensions cannot qualify",
+  "files": {
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/development/fixture.json": "12cb8030a6dc941c99ef821aa8b1c35fe290c794b1f871b5db9e59658ac01a3d",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/development/gold.json": "452a65d94584d7cc7a3319d33a7de8245e1aadc3036e3f8da99cb8c3ca628fa7",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/development/suite.json": "0667c32ebd9accc5677c77202746b2d4b988f04293e63a836eb81b71e468ea09",
+    "/Users/evokessler/Documents/Codex/brn-agent-d-254/grader-instructions.txt": "5ef66a89765b32fcbd8d8032f35f205105b9ad91010bd3064f1c866303fc66a3",
+    "/Users/evokessler/repos/brn-agent-d-254-improvement/benchmarks/brn_agent/experiments/d254/supervise.py": "7feda2adf65b0356172bb8fd6aff8d86285635daef344a4c1e0225ac10d3da0f",
+    "/Users/evokessler/repos/brn-agent-d-254-improvement/benchmarks/brn_agent/experiments/d254/supervise_outputs.py": "92db03aa10664cd73492c88cd48a7a345a60532d16aafe914502fe636702ea99",
+    "/Users/evokessler/repos/brn-agent-d-254-improvement/benchmarks/brn_agent/experiments/d254/evaluate_outputs.py": "1372f8dc72a53d35adadbdda977d814aa28a7e27554f0ab82aacd90ff94f9249"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "phase2_fixed_model": "gpt-6.1-sol",
+  "effort": "medium",
+  "candidate_HTTP_per_event": 6,
+  "reader_HTTP_per_invocation": 12,
+  "fresh_BRN_role_cap": 144,
+  "fresh_grade_local_cap": 12,
+  "coordinator_requested_cap": 8,
+  "coordinator_actual_provider_requests": null,
+  "whole_deadline": "2026-11-07T00:30:06.983387+00:00",
+  "baseline": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn",
+  "baseline_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "candidate": "/Users/evokessler/Documents/Codex/brn-agent-d-254/candidate-1-artifacts/brn",
+  "candidate_sha256": "49e8b1f6ef114c8c521ce3fb8c53e9c8640e6704b80443bc7de981c9a103f317",
+  "fixed_judge": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/agentbench-judge",
+  "fixed_judge_sha256": "dc54b46c3f083b9b146e68ae76d977d5073202b03035e81c0ff672980164bdc6",
+  "fixed_reader_binary": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn",
+  "configuration_receipt": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase2-configuration-freeze.json",
+  "native_freeze_receipt": "/Users/evokessler/Documents/Codex/brn-agent-d-254/frozen-phase2.json",
+  "source_runtime": "a921e325 plus capability-gated evaluator support; same combined CLI/seeder feature closure botharms",
+  "separation": "evaluator-only frozen pack authored before candidate execution, tuning lead/Council do not inspect contents; procedural same-machine withholding, no access isolation",
+  "phase1_fresh": "not authorized to dispatch after originalPhase1clockexpired; leave unopened/unrun"
+}

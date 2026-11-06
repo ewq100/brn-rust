@@ -1,0 +1,181 @@
+{
+  "version": 1,
+  "revision": "wiki-consolidation-v1",
+  "score_family": "wiki-consolidation-v1",
+  "weights": {
+    "creation": 20,
+    "maintenance": 25,
+    "research": 15,
+    "writing": 10,
+    "intake": 10,
+    "actions": 10,
+    "context": 5,
+    "recovery": 5
+  },
+  "fixture_sha256": "12cb8030a6dc941c99ef821aa8b1c35fe290c794b1f871b5db9e59658ac01a3d",
+  "gold_sha256": "452a65d94584d7cc7a3319d33a7de8245e1aadc3036e3f8da99cb8c3ca628fa7",
+  "qualification": "visible-screening",
+  "scenarios": [
+    {
+      "id": "W01",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "correctness",
+        "retained_information",
+        "source_support",
+        "temporal_handling",
+        "appropriate_organization",
+        "downstream_usefulness"
+      ],
+      "world": "harbor-observatory",
+      "events": 2,
+      "coverage": "partial",
+      "scenario_revision": "wiki-consolidation-v1",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1,
+        2
+      ],
+      "criterion_aggregation": {
+        "downstream_usefulness": "final"
+      }
+    },
+    {
+      "id": "W02",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "correctness",
+        "retained_information",
+        "source_support",
+        "temporal_handling",
+        "appropriate_organization",
+        "downstream_usefulness"
+      ],
+      "world": "meridian-projects",
+      "events": 3,
+      "coverage": "partial",
+      "scenario_revision": "wiki-consolidation-v1",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1,
+        2,
+        3
+      ],
+      "criterion_aggregation": {
+        "downstream_usefulness": "final"
+      }
+    },
+    {
+      "id": "W03",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "correctness",
+        "retained_information",
+        "source_support",
+        "temporal_handling",
+        "appropriate_organization",
+        "downstream_usefulness"
+      ],
+      "world": "linden-tool-library",
+      "events": 4,
+      "coverage": "partial",
+      "scenario_revision": "wiki-consolidation-v1",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "criterion_aggregation": {
+        "downstream_usefulness": "final"
+      }
+    },
+    {
+      "id": "W04",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "correctness",
+        "retained_information",
+        "source_support",
+        "temporal_handling",
+        "appropriate_organization",
+        "downstream_usefulness"
+      ],
+      "world": "quartz-field-school",
+      "events": 3,
+      "coverage": "partial",
+      "scenario_revision": "wiki-consolidation-v1",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1,
+        2,
+        3
+      ],
+      "criterion_aggregation": {
+        "downstream_usefulness": "final"
+      }
+    },
+    {
+      "id": "W05",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "correctness",
+        "retained_information",
+        "source_support",
+        "temporal_handling",
+        "appropriate_organization",
+        "downstream_usefulness"
+      ],
+      "world": "aster-water-trial",
+      "events": 2,
+      "coverage": "partial",
+      "scenario_revision": "wiki-consolidation-v1",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1,
+        2
+      ],
+      "criterion_aggregation": {
+        "downstream_usefulness": "final"
+      }
+    },
+    {
+      "id": "W06",
+      "category": "maintenance",
+      "weight": 1,
+      "repetitions": 1,
+      "criteria": [
+        "correctness",
+        "retained_information",
+        "source_support",
+        "temporal_handling",
+        "appropriate_organization",
+        "downstream_usefulness"
+      ],
+      "world": "moss-access-program",
+      "events": 3,
+      "coverage": "partial",
+      "scenario_revision": "wiki-consolidation-v1",
+      "checkpoint_aggregation": "minimum",
+      "grade_checkpoints": [
+        1,
+        2,
+        3
+      ],
+      "criterion_aggregation": {
+        "downstream_usefulness": "final"
+      }
+    }
+  ]
+}

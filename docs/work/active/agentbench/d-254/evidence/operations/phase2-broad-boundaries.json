@@ -1,0 +1,21 @@
+{
+  "id": "phase2-broad-boundaries",
+  "kind": "candidate",
+  "role": "phase2-broad",
+  "root": "/Users/evokessler/Documents/Codex/brn-agent-d-254/phase2-broad-boundaries",
+  "fixture": "/Users/evokessler/Documents/Codex/brn-agent-d-254/representative-v2/fixture.json",
+  "truth": "/Users/evokessler/Documents/Codex/brn-agent-d-254/representative-v2/gold.json",
+  "seeder": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/wiki_eval_seed",
+  "cases": "F04,F07,F16",
+  "repetitions": 1,
+  "model_call_limit": 6,
+  "max_calls": 432,
+  "seconds": 600,
+  "minimum_seconds": 400,
+  "arms": [
+    "A=/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn,model=gpt-6.1-sol",
+    "B=/Users/evokessler/Documents/Codex/brn-agent-d-254/candidate-1-artifacts/brn,model=gpt-6.1-sol"
+  ],
+  "stock_helper": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn-xberg-helper",
+  "brn_helper": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/brn-xberg-helper-brn"
+}

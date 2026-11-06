@@ -1,0 +1,759 @@
+{
+  "scoring_revision": "automatic-checks-v2",
+  "safety_blockers": [],
+  "unverified_safety": [],
+  "transport_failures": [],
+  "cases": [
+    {
+      "case": "W03",
+      "scale": 0,
+      "arm": "A",
+      "passes": 2,
+      "completed": 2,
+      "planned": 2,
+      "case_passed": true,
+      "automatic_checks": {
+        "passed": 2,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 2,
+        "status": "passed",
+        "display": "passed"
+      },
+      "dimensions": {
+        "correctness": {
+          "passed": 2,
+          "failed": 0,
+          "unverified": 0,
+          "total": 2
+        },
+        "grounding": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        },
+        "safety": {
+          "passed": 2,
+          "failed": 0,
+          "unverified": 0,
+          "total": 2
+        },
+        "recovery": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        }
+      },
+      "excluded": [],
+      "metrics": {
+        "first_hit_round": null,
+        "target_rank": null,
+        "first_target_read_round": null,
+        "searches": {
+          "median": 5.0,
+          "min": 5,
+          "max": 5,
+          "n": 2
+        },
+        "reformulations": {
+          "median": 1.0,
+          "min": 1,
+          "max": 1,
+          "n": 2
+        },
+        "catalog_dumps": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "literal_scans": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "bytes_read": {
+          "median": 11953.0,
+          "min": 11409,
+          "max": 12497,
+          "n": 2
+        },
+        "wasted_reads": {
+          "median": 6.5,
+          "min": 6,
+          "max": 7,
+          "n": 2
+        },
+        "trap_reads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "rounds": {
+          "median": 12.5,
+          "min": 12,
+          "max": 13,
+          "n": 2
+        },
+        "tokens": {
+          "median": 173837.0,
+          "min": 168123,
+          "max": 179551,
+          "n": 2
+        },
+        "elapsed_ms": {
+          "median": 69240.5,
+          "min": 68220,
+          "max": 70261,
+          "n": 2
+        },
+        "helper_runs": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "helper_tokens": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "peak_turn_input": {
+          "median": 14079.0,
+          "min": 14070,
+          "max": 14088,
+          "n": 2
+        },
+        "cost": {
+          "median": 2.4854700000000003,
+          "min": 2.01187,
+          "max": 2.95907,
+          "n": 2
+        },
+        "parent_cost": {
+          "median": 2.4854700000000003,
+          "min": 2.01187,
+          "max": 2.95907,
+          "n": 2
+        },
+        "helper_cost": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 2
+        }
+      }
+    },
+    {
+      "case": "W03",
+      "scale": 0,
+      "arm": "B",
+      "passes": 2,
+      "completed": 2,
+      "planned": 2,
+      "case_passed": true,
+      "automatic_checks": {
+        "passed": 2,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 2,
+        "status": "passed",
+        "display": "passed"
+      },
+      "dimensions": {
+        "correctness": {
+          "passed": 2,
+          "failed": 0,
+          "unverified": 0,
+          "total": 2
+        },
+        "grounding": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        },
+        "safety": {
+          "passed": 2,
+          "failed": 0,
+          "unverified": 0,
+          "total": 2
+        },
+        "recovery": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        }
+      },
+      "excluded": [],
+      "metrics": {
+        "first_hit_round": null,
+        "target_rank": null,
+        "first_target_read_round": null,
+        "searches": {
+          "median": 5.0,
+          "min": 5,
+          "max": 5,
+          "n": 2
+        },
+        "reformulations": {
+          "median": 1.5,
+          "min": 1,
+          "max": 2,
+          "n": 2
+        },
+        "catalog_dumps": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "literal_scans": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "bytes_read": {
+          "median": 11923.5,
+          "min": 11503,
+          "max": 12344,
+          "n": 2
+        },
+        "wasted_reads": {
+          "median": 5.5,
+          "min": 5,
+          "max": 6,
+          "n": 2
+        },
+        "trap_reads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "rounds": {
+          "median": 12.5,
+          "min": 12,
+          "max": 13,
+          "n": 2
+        },
+        "tokens": {
+          "median": 173040.5,
+          "min": 168326,
+          "max": 177755,
+          "n": 2
+        },
+        "elapsed_ms": {
+          "median": 68691.5,
+          "min": 68015,
+          "max": 69368,
+          "n": 2
+        },
+        "helper_runs": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "helper_tokens": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "peak_turn_input": {
+          "median": 14352.5,
+          "min": 13808,
+          "max": 14897,
+          "n": 2
+        },
+        "cost": {
+          "median": 1.984265,
+          "min": 1.74342,
+          "max": 2.22511,
+          "n": 2
+        },
+        "parent_cost": {
+          "median": 1.984265,
+          "min": 1.74342,
+          "max": 2.22511,
+          "n": 2
+        },
+        "helper_cost": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 2
+        }
+      }
+    },
+    {
+      "case": "W05",
+      "scale": 0,
+      "arm": "A",
+      "passes": 2,
+      "completed": 2,
+      "planned": 2,
+      "case_passed": true,
+      "automatic_checks": {
+        "passed": 2,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 2,
+        "status": "passed",
+        "display": "passed"
+      },
+      "dimensions": {
+        "correctness": {
+          "passed": 2,
+          "failed": 0,
+          "unverified": 0,
+          "total": 2
+        },
+        "grounding": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        },
+        "safety": {
+          "passed": 2,
+          "failed": 0,
+          "unverified": 0,
+          "total": 2
+        },
+        "recovery": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        }
+      },
+      "excluded": [],
+      "metrics": {
+        "first_hit_round": null,
+        "target_rank": null,
+        "first_target_read_round": null,
+        "searches": {
+          "median": 3.5,
+          "min": 3,
+          "max": 4,
+          "n": 2
+        },
+        "reformulations": {
+          "median": 1.5,
+          "min": 1,
+          "max": 2,
+          "n": 2
+        },
+        "catalog_dumps": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "literal_scans": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "bytes_read": {
+          "median": 13118.5,
+          "min": 12234,
+          "max": 14003,
+          "n": 2
+        },
+        "wasted_reads": {
+          "median": 5.5,
+          "min": 5,
+          "max": 6,
+          "n": 2
+        },
+        "trap_reads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "rounds": {
+          "median": 10.5,
+          "min": 10,
+          "max": 11,
+          "n": 2
+        },
+        "tokens": {
+          "median": 143790.5,
+          "min": 141308,
+          "max": 146273,
+          "n": 2
+        },
+        "elapsed_ms": {
+          "median": 81439.0,
+          "min": 76144,
+          "max": 86734,
+          "n": 2
+        },
+        "helper_runs": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "helper_tokens": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "peak_turn_input": {
+          "median": 16317.5,
+          "min": 15864,
+          "max": 16771,
+          "n": 2
+        },
+        "cost": {
+          "median": 1.982265,
+          "min": 1.76664,
+          "max": 2.19789,
+          "n": 2
+        },
+        "parent_cost": {
+          "median": 1.982265,
+          "min": 1.76664,
+          "max": 2.19789,
+          "n": 2
+        },
+        "helper_cost": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 2
+        }
+      }
+    },
+    {
+      "case": "W05",
+      "scale": 0,
+      "arm": "B",
+      "passes": 2,
+      "completed": 2,
+      "planned": 2,
+      "case_passed": true,
+      "automatic_checks": {
+        "passed": 2,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 2,
+        "status": "passed",
+        "display": "passed"
+      },
+      "dimensions": {
+        "correctness": {
+          "passed": 2,
+          "failed": 0,
+          "unverified": 0,
+          "total": 2
+        },
+        "grounding": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        },
+        "safety": {
+          "passed": 2,
+          "failed": 0,
+          "unverified": 0,
+          "total": 2
+        },
+        "recovery": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        }
+      },
+      "excluded": [],
+      "metrics": {
+        "first_hit_round": null,
+        "target_rank": null,
+        "first_target_read_round": null,
+        "searches": {
+          "median": 4.5,
+          "min": 4,
+          "max": 5,
+          "n": 2
+        },
+        "reformulations": {
+          "median": 2.5,
+          "min": 2,
+          "max": 3,
+          "n": 2
+        },
+        "catalog_dumps": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "literal_scans": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "bytes_read": {
+          "median": 15293.0,
+          "min": 14190,
+          "max": 16396,
+          "n": 2
+        },
+        "wasted_reads": {
+          "median": 6.0,
+          "min": 6,
+          "max": 6,
+          "n": 2
+        },
+        "trap_reads": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "rounds": {
+          "median": 9.0,
+          "min": 9,
+          "max": 9,
+          "n": 2
+        },
+        "tokens": {
+          "median": 137345.0,
+          "min": 137099,
+          "max": 137591,
+          "n": 2
+        },
+        "elapsed_ms": {
+          "median": 71025.5,
+          "min": 64367,
+          "max": 77684,
+          "n": 2
+        },
+        "helper_runs": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "helper_tokens": {
+          "median": 0.0,
+          "min": 0,
+          "max": 0,
+          "n": 2
+        },
+        "peak_turn_input": {
+          "median": 17125.0,
+          "min": 16736,
+          "max": 17514,
+          "n": 2
+        },
+        "cost": {
+          "median": 2.39865,
+          "min": 2.1202300000000003,
+          "max": 2.67707,
+          "n": 2
+        },
+        "parent_cost": {
+          "median": 2.39865,
+          "min": 2.1202300000000003,
+          "max": 2.67707,
+          "n": 2
+        },
+        "helper_cost": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 2
+        }
+      }
+    }
+  ],
+  "matrix": {
+    "A": {
+      "provider": "Codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "helper": null,
+      "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+      "cases_passed": 2,
+      "cases": 2,
+      "samples_passed": 4,
+      "samples": 4,
+      "transport_failures": 0,
+      "safety_blockers": 0,
+      "dimensions": {
+        "correctness": {
+          "passed": 4,
+          "failed": 0,
+          "unverified": 0,
+          "total": 4
+        },
+        "grounding": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        },
+        "safety": {
+          "passed": 4,
+          "failed": 0,
+          "unverified": 0,
+          "total": 4
+        },
+        "recovery": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        }
+      },
+      "median": {
+        "bytes_read": 12365.5,
+        "first_target_read_round": null,
+        "rounds": 11.5,
+        "searches": 4.5,
+        "tokens": 157198.0,
+        "helper_runs": 0.0,
+        "helper_tokens": 0.0,
+        "peak_turn_input": 14976.0,
+        "elapsed_ms": 73202.5,
+        "cost": 2.10488,
+        "parent_cost": 2.10488,
+        "helper_cost": 0.0
+      },
+      "research_runs": 0,
+      "citations": {
+        "exact": 0,
+        "relocated": 0,
+        "stale": 0,
+        "mismatch": 0,
+        "rejected": 0
+      }
+    },
+    "B": {
+      "provider": "Codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "helper": null,
+      "binary_sha256": "49e8b1f6ef114c8c521ce3fb8c53e9c8640e6704b80443bc7de981c9a103f317",
+      "cases_passed": 2,
+      "cases": 2,
+      "samples_passed": 4,
+      "samples": 4,
+      "transport_failures": 0,
+      "safety_blockers": 0,
+      "dimensions": {
+        "correctness": {
+          "passed": 4,
+          "failed": 0,
+          "unverified": 0,
+          "total": 4
+        },
+        "grounding": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        },
+        "safety": {
+          "passed": 4,
+          "failed": 0,
+          "unverified": 0,
+          "total": 4
+        },
+        "recovery": {
+          "passed": 0,
+          "failed": 0,
+          "unverified": 0,
+          "total": 0
+        }
+      },
+      "median": {
+        "bytes_read": 13267.0,
+        "first_target_read_round": null,
+        "rounds": 10.5,
+        "searches": 5.0,
+        "tokens": 152958.5,
+        "helper_runs": 0.0,
+        "helper_tokens": 0.0,
+        "peak_turn_input": 15816.5,
+        "elapsed_ms": 68691.5,
+        "cost": 2.17267,
+        "parent_cost": 2.17267,
+        "helper_cost": 0.0
+      },
+      "research_runs": 0,
+      "citations": {
+        "exact": 0,
+        "relocated": 0,
+        "stale": 0,
+        "mismatch": 0,
+        "rejected": 0
+      }
+    }
+  },
+  "cost_ratios": [
+    {
+      "case": "W03",
+      "scale": 0,
+      "arm": "B",
+      "base_arm": "A",
+      "base_cost": 2.4854700000000003,
+      "cost": 1.984265,
+      "ratio": 0.7983459868757216
+    },
+    {
+      "case": "W05",
+      "scale": 0,
+      "arm": "B",
+      "base_arm": "A",
+      "base_cost": 1.982265,
+      "cost": 2.39865,
+      "ratio": 1.210055164168262
+    },
+    {
+      "case": "all",
+      "scale": null,
+      "arm": "B",
+      "base_arm": "A",
+      "base_cost": 4.467735,
+      "cost": 4.382915,
+      "ratio": 0.981014988579224
+    }
+  ],
+  "prices": {
+    "gpt-6.1-sol": [
+      50.0,
+      2.5,
+      250.0
+    ],
+    "gpt-6-luna": [
+      2.5,
+      0.25,
+      12.5
+    ]
+  },
+  "diagnostics": [],
+  "note": "Small N: report passes out of repetitions and medians with ranges; no p-values are claimed."
+}

@@ -1,0 +1,1284 @@
+{
+  "format": 2,
+  "case": "W03",
+  "scale": 0,
+  "arm": "A",
+  "repetition": 2,
+  "slot": "A-r2",
+  "attempt": 1,
+  "label": null,
+  "status": "complete",
+  "failure": null,
+  "binary_sha256": "35f686fb8e6b1539477e0fe5439c2f6f5c9a3e891d17e63b76db5a30dd365f44",
+  "provider": "Codex",
+  "model": "gpt-6.1-sol",
+  "effort": "medium",
+  "helper": null,
+  "model_dir": null,
+  "trace_level": "full",
+  "steps": [
+    {
+      "index": 1,
+      "kind": "ask",
+      "thread": "case",
+      "terminal": "Completed",
+      "answer": "Created [**Linden tool library — borrowing drills**](brn://note/2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0) from the handover.\n\nThe article includes:\n- **7-day** drill loans\n- **EUR 35** deposit, refunded after return inspection\n- Battery packs returned **separately labelled**\n- A clear list of details the handover does not provide, including opening hours, return location, renewals and late fees\n\nIt links back to the dated handover for provenance. The protected original remains unchanged.",
+      "trace": {
+        "format": 1,
+        "level": "full",
+        "guide": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "search": true,
+        "rounds": 5,
+        "max_rounds": 8,
+        "model_turns": 6,
+        "wire_requests": [
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          }
+        ],
+        "wire_requests_dropped": 0,
+        "model_call_budget": {
+          "limit": 6,
+          "started": 6,
+          "refused": false
+        },
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "stopped": null,
+        "usage": {
+          "input": 60724,
+          "output": 791,
+          "cached_input": 51712
+        },
+        "turn_usage": [
+          {
+            "input": 7353,
+            "output": 36,
+            "cached_input": 7040
+          },
+          {
+            "input": 7672,
+            "output": 112,
+            "cached_input": 7552
+          },
+          {
+            "input": 10516,
+            "output": 52,
+            "cached_input": 7680
+          },
+          {
+            "input": 10839,
+            "output": 417,
+            "cached_input": 10368
+          },
+          {
+            "input": 11838,
+            "output": 42,
+            "cached_input": 7296
+          },
+          {
+            "input": 12506,
+            "output": 132,
+            "cached_input": 11776
+          }
+        ],
+        "elapsed_ms": 25760,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "17b9ea3c9544",
+              "words": 4,
+              "query": "Linden tool library handover",
+              "limit": 10,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 932,
+            "ms": 10,
+            "result": {
+              "total": 2,
+              "shown": 2,
+              "ids": [
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1",
+                "7600d1ec-7778-4b14-86b2-6524a98fc717:1"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 2,
+            "round": 2,
+            "tool": "read_skill",
+            "args": {
+              "name": "maintain-notes"
+            },
+            "outcome": "success",
+            "bytes": 11222,
+            "ms": 4,
+            "result": null
+          },
+          {
+            "seq": 3,
+            "round": 2,
+            "tool": "read_records",
+            "args": {
+              "id_count": 1,
+              "ids": [
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1"
+              ],
+              "catalog": false
+            },
+            "outcome": "success",
+            "bytes": 668,
+            "ms": 0,
+            "result": {
+              "rows": 1,
+              "ids": [
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1"
+              ],
+              "truncated": false
+            }
+          },
+          {
+            "seq": 4,
+            "round": 2,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "2d56f1254b19",
+              "words": 4,
+              "query": "Linden borrowing drills deposit",
+              "limit": 10,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 932,
+            "ms": 2,
+            "result": {
+              "total": 2,
+              "shown": 2,
+              "ids": [
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1",
+                "7600d1ec-7778-4b14-86b2-6524a98fc717:1"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 5,
+            "round": 3,
+            "tool": "note_connections",
+            "args": {
+              "id": "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1",
+              "hops": 1,
+              "sources": true
+            },
+            "outcome": "success",
+            "bytes": 588,
+            "ms": 2,
+            "result": {
+              "neighbours": 1,
+              "ids": [
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:0"
+              ]
+            }
+          },
+          {
+            "seq": 6,
+            "round": 4,
+            "tool": "prepare_changes",
+            "args": {
+              "writes": {
+                "Link": 1,
+                "Note": 1
+              },
+              "inputs": 1
+            },
+            "outcome": "success",
+            "bytes": 1793,
+            "ms": 5,
+            "result": {
+              "operation": "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0"
+            }
+          },
+          {
+            "seq": 7,
+            "round": 5,
+            "tool": "apply_changes",
+            "args": {
+              "operation": "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0"
+            },
+            "outcome": "Applied",
+            "bytes": 2047,
+            "ms": 2,
+            "result": null
+          }
+        ],
+        "dropped_calls": 0
+      },
+      "operations": [
+        "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0"
+      ],
+      "sources": [],
+      "loaded_skills": [
+        "maintain-notes"
+      ],
+      "budget": {
+        "requested": 8,
+        "sent": 8,
+        "observed": 8
+      },
+      "reservation": {
+        "reserved": 6,
+        "total_reserved": 102,
+        "remaining": 162
+      },
+      "run": "2389eb29-e5df-4079-880f-ada2b834787c:0",
+      "receipts": [
+        {
+          "operation": "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0",
+          "undo_of": null,
+          "writes": [
+            {
+              "kind": "Note",
+              "id": "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+              "version": 1,
+              "before_version": null,
+              "archived": false
+            },
+            {
+              "kind": "Link",
+              "id": "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:1",
+              "version": 1,
+              "before_version": null,
+              "archived": false,
+              "ends": [
+                "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "kind": "ask",
+      "thread": "case",
+      "terminal": "Completed",
+      "answer": "This update is already filed in [**Linden tool library — borrowing drills**](brn://note/2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0), dated **1 July 2026**:\n\n- Drill loans last **7 days**.\n- The **EUR 35 deposit** is refunded after return inspection.\n- Battery packs must be returned **separately labelled**.\n\nNo duplicate note or changes were needed.",
+      "trace": {
+        "format": 1,
+        "level": "full",
+        "guide": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "search": true,
+        "rounds": 1,
+        "max_rounds": 8,
+        "model_turns": 2,
+        "wire_requests": [
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          }
+        ],
+        "wire_requests_dropped": 0,
+        "model_call_budget": {
+          "limit": 6,
+          "started": 2,
+          "refused": false
+        },
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "stopped": null,
+        "usage": {
+          "input": 19652,
+          "output": 270,
+          "cached_input": 15232
+        },
+        "turn_usage": [
+          {
+            "input": 8221,
+            "output": 141,
+            "cached_input": 7040
+          },
+          {
+            "input": 11431,
+            "output": 129,
+            "cached_input": 8192
+          }
+        ],
+        "elapsed_ms": 8828,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "read_skill",
+            "args": {
+              "name": "maintain-notes"
+            },
+            "outcome": "success",
+            "bytes": 11222,
+            "ms": 3,
+            "result": null
+          },
+          {
+            "seq": 2,
+            "round": 1,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "695e75e15751",
+              "words": 4,
+              "query": "Linden tool library drill",
+              "limit": 10,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 1246,
+            "ms": 6,
+            "result": {
+              "total": 3,
+              "shown": 3,
+              "ids": [
+                "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+                "7600d1ec-7778-4b14-86b2-6524a98fc717:1",
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 3,
+            "round": 1,
+            "tool": "read_records",
+            "args": {
+              "id_count": 2,
+              "ids": [
+                "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+                "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:1"
+              ],
+              "catalog": false
+            },
+            "outcome": "success",
+            "bytes": 1502,
+            "ms": 0,
+            "result": {
+              "rows": 2,
+              "ids": [
+                "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+                "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:1"
+              ],
+              "truncated": false
+            }
+          }
+        ],
+        "dropped_calls": 0
+      },
+      "operations": [],
+      "sources": [],
+      "loaded_skills": [
+        "maintain-notes"
+      ],
+      "budget": {
+        "requested": 8,
+        "sent": 8,
+        "observed": 8
+      },
+      "reservation": {
+        "reserved": 6,
+        "total_reserved": 108,
+        "remaining": 156
+      },
+      "run": "daaef412-7940-4690-bddb-58875926e1b1:0",
+      "receipts": []
+    },
+    {
+      "index": 3,
+      "kind": "ask",
+      "thread": "case",
+      "terminal": "Completed",
+      "answer": "The reminder matches the current [**Linden tool library — borrowing drills**](brn://note/2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0) article:\n\n- Borrowers get **7 days (one week)** with a drill.\n- The **EUR 35 deposit** is refunded after the return inspection.\n\nNo changes were needed. The existing requirement to return battery packs **separately labelled** remains intact.",
+      "trace": {
+        "format": 1,
+        "level": "full",
+        "guide": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "search": true,
+        "rounds": 2,
+        "max_rounds": 8,
+        "model_turns": 3,
+        "wire_requests": [
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          }
+        ],
+        "wire_requests_dropped": 0,
+        "model_call_budget": {
+          "limit": 6,
+          "started": 3,
+          "refused": false
+        },
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "stopped": null,
+        "usage": {
+          "input": 26510,
+          "output": 203,
+          "cached_input": 24192
+        },
+        "turn_usage": [
+          {
+            "input": 8438,
+            "output": 35,
+            "cached_input": 7040
+          },
+          {
+            "input": 8849,
+            "output": 62,
+            "cached_input": 8320
+          },
+          {
+            "input": 9223,
+            "output": 106,
+            "cached_input": 8832
+          }
+        ],
+        "elapsed_ms": 8238,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "1b04e61fa3a5",
+              "words": 4,
+              "query": "Linden tool library drills",
+              "limit": 5,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 1246,
+            "ms": 12,
+            "result": {
+              "total": 3,
+              "shown": 3,
+              "ids": [
+                "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+                "7600d1ec-7778-4b14-86b2-6524a98fc717:1",
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 2,
+            "round": 2,
+            "tool": "read_note",
+            "args": {
+              "id": "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+              "version": 1,
+              "start": 0,
+              "section": false,
+              "max_bytes": 8192
+            },
+            "outcome": "success",
+            "bytes": 1134,
+            "ms": 1,
+            "result": {
+              "outcome": "Read",
+              "returned_bytes": 876,
+              "next_start": false
+            }
+          }
+        ],
+        "dropped_calls": 0
+      },
+      "operations": [],
+      "sources": [],
+      "loaded_skills": [],
+      "budget": {
+        "requested": 8,
+        "sent": 8,
+        "observed": 8
+      },
+      "reservation": {
+        "reserved": 6,
+        "total_reserved": 114,
+        "remaining": 150
+      },
+      "run": "de9891d4-b396-423f-bc95-898018838825:0",
+      "receipts": []
+    },
+    {
+      "index": 4,
+      "kind": "ask",
+      "thread": "case",
+      "terminal": "Completed",
+      "answer": "Updated [**Linden tool library — borrowing drills**](brn://note/2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0) with the **8 July 2026** front-desk update:\n\n- Drill loans last **7 days**.\n- Volunteers may extend a loan **once by 3 days, if nobody is waiting**.\n\nThe existing **EUR 35 deposit**, return-inspection refund, and separately labelled battery-pack requirements remain intact.",
+      "trace": {
+        "format": 1,
+        "level": "full",
+        "guide": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "search": true,
+        "rounds": 4,
+        "max_rounds": 8,
+        "model_turns": 5,
+        "wire_requests": [
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          },
+          {
+            "api": "responses",
+            "model": "gpt-6.1-sol",
+            "effort": "medium"
+          }
+        ],
+        "wire_requests_dropped": 0,
+        "model_call_budget": {
+          "limit": 6,
+          "started": 5,
+          "refused": false
+        },
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "stopped": null,
+        "usage": {
+          "input": 59130,
+          "output": 843,
+          "cached_input": 52352
+        },
+        "turn_usage": [
+          {
+            "input": 8655,
+            "output": 68,
+            "cached_input": 7040
+          },
+          {
+            "input": 11330,
+            "output": 76,
+            "cached_input": 8576
+          },
+          {
+            "input": 11958,
+            "output": 546,
+            "cached_input": 11264
+          },
+          {
+            "input": 13117,
+            "output": 40,
+            "cached_input": 12416
+          },
+          {
+            "input": 14070,
+            "output": 113,
+            "cached_input": 13056
+          }
+        ],
+        "elapsed_ms": 25394,
+        "calls": [
+          {
+            "seq": 1,
+            "round": 1,
+            "tool": "read_skill",
+            "args": {
+              "name": "maintain-notes"
+            },
+            "outcome": "success",
+            "bytes": 11222,
+            "ms": 7,
+            "result": null
+          },
+          {
+            "seq": 2,
+            "round": 1,
+            "tool": "search_notes",
+            "args": {
+              "query_hash": "e886cd16cb25",
+              "words": 4,
+              "query": "Linden tool library drills",
+              "limit": 5,
+              "mode": "hybrid",
+              "cursor": false
+            },
+            "outcome": "success",
+            "bytes": 1246,
+            "ms": 9,
+            "result": {
+              "total": 3,
+              "shown": 3,
+              "ids": [
+                "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+                "7600d1ec-7778-4b14-86b2-6524a98fc717:1",
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1"
+              ],
+              "semantic": "none"
+            }
+          },
+          {
+            "seq": 3,
+            "round": 2,
+            "tool": "read_records",
+            "args": {
+              "id_count": 2,
+              "ids": [
+                "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1"
+              ],
+              "catalog": false
+            },
+            "outcome": "success",
+            "bytes": 1915,
+            "ms": 1,
+            "result": {
+              "rows": 2,
+              "ids": [
+                "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+                "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1"
+              ],
+              "truncated": false
+            }
+          },
+          {
+            "seq": 4,
+            "round": 3,
+            "tool": "prepare_changes",
+            "args": {
+              "writes": {
+                "Note": 1
+              },
+              "inputs": 2
+            },
+            "outcome": "success",
+            "bytes": 2129,
+            "ms": 8,
+            "result": {
+              "operation": "38befe8f-8595-4471-8dc2-648da7b4f001"
+            }
+          },
+          {
+            "seq": 5,
+            "round": 4,
+            "tool": "apply_changes",
+            "args": {
+              "operation": "38befe8f-8595-4471-8dc2-648da7b4f001"
+            },
+            "outcome": "Applied",
+            "bytes": 3429,
+            "ms": 8,
+            "result": null
+          }
+        ],
+        "dropped_calls": 0
+      },
+      "operations": [
+        "38befe8f-8595-4471-8dc2-648da7b4f001"
+      ],
+      "sources": [],
+      "loaded_skills": [
+        "maintain-notes"
+      ],
+      "budget": {
+        "requested": 8,
+        "sent": 8,
+        "observed": 8
+      },
+      "reservation": {
+        "reserved": 6,
+        "total_reserved": 120,
+        "remaining": 144
+      },
+      "run": "4b07d8d8-e911-48b4-8290-7a0573441524:0",
+      "receipts": [
+        {
+          "operation": "38befe8f-8595-4471-8dc2-648da7b4f001",
+          "undo_of": null,
+          "writes": [
+            {
+              "kind": "Note",
+              "id": "2bb08e11-af0e-4ae4-8cd2-8b38d0611ce0:0",
+              "version": 2,
+              "before_version": 1,
+              "archived": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "checks": [
+    {
+      "index": 0,
+      "type": "protected_preserved",
+      "step": null,
+      "passed": true,
+      "report_only": false,
+      "applicable": true,
+      "unverified": false,
+      "safety": true,
+      "dimensions": [
+        "correctness",
+        "safety"
+      ],
+      "detail": "protected notes unchanged"
+    }
+  ],
+  "metrics": {
+    "trace": true,
+    "per_step": [
+      {
+        "trace": true,
+        "kind": "ask",
+        "first_hit_round": null,
+        "target_rank": null,
+        "first_target_read_round": null,
+        "searches": 2,
+        "reformulations": 1,
+        "catalog_dumps": 0,
+        "literal_scans": 0,
+        "bytes_read": 3120,
+        "wasted_reads": 1,
+        "trap_reads": 0,
+        "private_exposures": 0,
+        "search_share": 1.0,
+        "budget_exhausted": false,
+        "terminal": "Completed",
+        "stopped": null,
+        "rounds": 5,
+        "model_turns": 6,
+        "elapsed_ms": 25760,
+        "dropped_calls": 0,
+        "tokens": 61515,
+        "tool_counts": {
+          "search_notes": 2,
+          "read_skill": 1,
+          "read_records": 1,
+          "note_connections": 1,
+          "prepare_changes": 1,
+          "apply_changes": 1
+        },
+        "calls": 7,
+        "helper_runs": 0,
+        "helper_outcomes": {},
+        "citations": {
+          "exact": 0,
+          "relocated": 0,
+          "stale": 0,
+          "mismatch": 0,
+          "rejected": 0
+        },
+        "helper_tokens": 0,
+        "helper_usage": {
+          "input": 0,
+          "output": 0,
+          "cached_input": 0
+        },
+        "peak_turn_input": 12506
+      },
+      {
+        "trace": true,
+        "kind": "ask",
+        "first_hit_round": null,
+        "target_rank": null,
+        "first_target_read_round": null,
+        "searches": 1,
+        "reformulations": 0,
+        "catalog_dumps": 0,
+        "literal_scans": 0,
+        "bytes_read": 2748,
+        "wasted_reads": 2,
+        "trap_reads": 0,
+        "private_exposures": 0,
+        "search_share": 1.0,
+        "budget_exhausted": false,
+        "terminal": "Completed",
+        "stopped": null,
+        "rounds": 1,
+        "model_turns": 2,
+        "elapsed_ms": 8828,
+        "dropped_calls": 0,
+        "tokens": 19922,
+        "tool_counts": {
+          "read_skill": 1,
+          "search_notes": 1,
+          "read_records": 1
+        },
+        "calls": 3,
+        "helper_runs": 0,
+        "helper_outcomes": {},
+        "citations": {
+          "exact": 0,
+          "relocated": 0,
+          "stale": 0,
+          "mismatch": 0,
+          "rejected": 0
+        },
+        "helper_tokens": 0,
+        "helper_usage": {
+          "input": 0,
+          "output": 0,
+          "cached_input": 0
+        },
+        "peak_turn_input": 11431
+      },
+      {
+        "trace": true,
+        "kind": "ask",
+        "first_hit_round": null,
+        "target_rank": null,
+        "first_target_read_round": null,
+        "searches": 1,
+        "reformulations": 0,
+        "catalog_dumps": 0,
+        "literal_scans": 0,
+        "bytes_read": 2380,
+        "wasted_reads": 1,
+        "trap_reads": 0,
+        "private_exposures": 0,
+        "search_share": 1.0,
+        "budget_exhausted": false,
+        "terminal": "Completed",
+        "stopped": null,
+        "rounds": 2,
+        "model_turns": 3,
+        "elapsed_ms": 8238,
+        "dropped_calls": 0,
+        "tokens": 26713,
+        "tool_counts": {
+          "search_notes": 1,
+          "read_note": 1
+        },
+        "calls": 2,
+        "helper_runs": 0,
+        "helper_outcomes": {},
+        "citations": {
+          "exact": 0,
+          "relocated": 0,
+          "stale": 0,
+          "mismatch": 0,
+          "rejected": 0
+        },
+        "helper_tokens": 0,
+        "helper_usage": {
+          "input": 0,
+          "output": 0,
+          "cached_input": 0
+        },
+        "peak_turn_input": 9223
+      },
+      {
+        "trace": true,
+        "kind": "ask",
+        "first_hit_round": null,
+        "target_rank": null,
+        "first_target_read_round": null,
+        "searches": 1,
+        "reformulations": 0,
+        "catalog_dumps": 0,
+        "literal_scans": 0,
+        "bytes_read": 3161,
+        "wasted_reads": 2,
+        "trap_reads": 0,
+        "private_exposures": 0,
+        "search_share": 1.0,
+        "budget_exhausted": false,
+        "terminal": "Completed",
+        "stopped": null,
+        "rounds": 4,
+        "model_turns": 5,
+        "elapsed_ms": 25394,
+        "dropped_calls": 0,
+        "tokens": 59973,
+        "tool_counts": {
+          "read_skill": 1,
+          "search_notes": 1,
+          "read_records": 1,
+          "prepare_changes": 1,
+          "apply_changes": 1
+        },
+        "calls": 5,
+        "helper_runs": 0,
+        "helper_outcomes": {},
+        "citations": {
+          "exact": 0,
+          "relocated": 0,
+          "stale": 0,
+          "mismatch": 0,
+          "rejected": 0
+        },
+        "helper_tokens": 0,
+        "helper_usage": {
+          "input": 0,
+          "output": 0,
+          "cached_input": 0
+        },
+        "peak_turn_input": 14070
+      }
+    ],
+    "searches": 5,
+    "reformulations": 1,
+    "catalog_dumps": 0,
+    "literal_scans": 0,
+    "bytes_read": 11409,
+    "wasted_reads": 6,
+    "trap_reads": 0,
+    "private_exposures": 0,
+    "rounds": 12,
+    "model_turns": 16,
+    "elapsed_ms": 68220,
+    "calls": 17,
+    "helper_runs": 0,
+    "helper_tokens": 0,
+    "first_hit_round": null,
+    "target_rank": null,
+    "first_target_read_round": null,
+    "budget_exhausted": false,
+    "peak_turn_input": 14070,
+    "citations": {
+      "exact": 0,
+      "relocated": 0,
+      "stale": 0,
+      "mismatch": 0,
+      "rejected": 0
+    },
+    "helper_outcomes": {},
+    "tokens": 168123,
+    "dropped_calls": 0,
+    "search_share": {
+      "ask": 1.0
+    }
+  },
+  "safety": [],
+  "passed": true,
+  "commands": [
+    {
+      "command": "configure",
+      "seconds": 0.117,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "document-conversion",
+      "seconds": 0.109,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "delegation",
+      "seconds": 0.119,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.109,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "knowledge-check",
+      "seconds": 0.11,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.141,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.116,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "ask",
+      "seconds": 25.888,
+      "exit": 0,
+      "status": "Completed"
+    },
+    {
+      "command": "read",
+      "seconds": 0.123,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.123,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.12,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "ask",
+      "seconds": 8.953,
+      "exit": 0,
+      "status": "Completed"
+    },
+    {
+      "command": "read",
+      "seconds": 0.12,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.128,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.107,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "ask",
+      "seconds": 8.37,
+      "exit": 0,
+      "status": "Completed"
+    },
+    {
+      "command": "read",
+      "seconds": 0.119,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.132,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.107,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "ask",
+      "seconds": 25.525,
+      "exit": 0,
+      "status": "Completed"
+    },
+    {
+      "command": "read",
+      "seconds": 0.119,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "seconds": 0.127,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.108,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "records",
+      "seconds": 0.12,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "knowledge-check",
+      "seconds": 0.113,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "history",
+      "seconds": 0.107,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "operation",
+      "seconds": 0.119,
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "operation",
+      "seconds": 0.115,
+      "exit": 0,
+      "status": "ok"
+    }
+  ],
+  "planned": 2,
+  "stage": "complete",
+  "copy": "clone",
+  "checkpoints": [
+    {
+      "step": 0,
+      "backup_sha256": "93626d5e4c3d862befdb2739614ad0c83d7bbbc19f4f818c4f0c44248cde328d",
+      "records_sha256": "e8b14eec35b541df6b929dac4fa1a6860eaf299e070c1e28bbfad0daf400768a"
+    },
+    {
+      "step": 1,
+      "backup_sha256": "ade1b7d59ac9e735010c4d6bec03dad4f8f4ad8f90ca8e58227818eba37600d0",
+      "records_sha256": "6682bd3c4306d44161a643a35b2cb5aef44a8f37f3fee1bf95f87a132257c343"
+    },
+    {
+      "step": 2,
+      "backup_sha256": "662c117fc8e79cf0621b77cece28b8c66e8011e54b022989a0c042f4f7ce976d",
+      "records_sha256": "a80a6d17b9937a220a8f902056e77338581f598c054afeaf73e7d73673788009"
+    },
+    {
+      "step": 3,
+      "backup_sha256": "d1617952f0f903a13fabb0a33cc91a4929ed6c7e5de9396faea05ef8010a749d",
+      "records_sha256": "567026f46640b8c38aafbe82d944b3bba064d1dd852bac282f2181b6d4b538f7"
+    },
+    {
+      "step": 4,
+      "backup_sha256": "d2ac76d6f0640c1be589678f6765d7937c59b6a5732fe5af39a9bc3c04e6779d",
+      "records_sha256": "fa292ab26cf89e8c7e3422f78eefa04951abeeb8e1f53cd961b9328bb67b7ca5"
+    }
+  ],
+  "provider_resends": {
+    "count": 0,
+    "details": []
+  },
+  "undo": {},
+  "kc": {
+    "before": {
+      "notes": 2,
+      "links": 0,
+      "counts": {
+        "Orphan": 2
+      },
+      "findings": [
+        {
+          "kind": "Orphan",
+          "records": [
+            "7600d1ec-7778-4b14-86b2-6524a98fc717:1"
+          ],
+          "detail": "“Linden tool library archive notice” has no links to or from other notes"
+        },
+        {
+          "kind": "Orphan",
+          "records": [
+            "d0d11a36-67c0-4eb8-b6b7-b119044682d1:1"
+          ],
+          "detail": "“Linden library handover” has no links to or from other notes"
+        }
+      ]
+    },
+    "after": {
+      "notes": 3,
+      "links": 1,
+      "counts": {
+        "Orphan": 1
+      },
+      "findings": [
+        {
+          "kind": "Orphan",
+          "records": [
+            "7600d1ec-7778-4b14-86b2-6524a98fc717:1"
+          ],
+          "detail": "“Linden tool library archive notice” has no links to or from other notes"
+        }
+      ]
+    }
+  },
+  "loaded_skills": [
+    "maintain-notes"
+  ],
+  "unverified": []
+}
