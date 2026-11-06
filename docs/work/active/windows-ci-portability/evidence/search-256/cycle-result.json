@@ -1,0 +1,1279 @@
+{
+  "attempts": [
+    {
+      "id": "runs/R10-1000/B-base-r1/result.json",
+      "result": "runs/R10-1000/B-base-r1/result.json",
+      "result_sha256": "cfd4f8e22e91b530012b4d3449fff327da3ad41d33667c8f838f47c9b7ea4232",
+      "configuration": "B-base",
+      "scenario": "R10",
+      "repetition": 1,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 1,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 1,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 39663,
+        "cached_input": 27264,
+        "output": 460,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 15403,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 5,
+        "tool_rounds": 3,
+        "uncached_input": 12399
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "5497781af9bd72d85ea7dd5d22083972de047aaa58b385140b03b05f0e9ed94d"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 4
+      },
+      "reported_usage_totals": {
+        "input": 39663,
+        "cached_input": 27264,
+        "output": 460,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 15403,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 5,
+        "tool_rounds": 3,
+        "uncached_input": 12399
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R7-1000/B-base-r1/result.json",
+      "result": "runs/R7-1000/B-base-r1/result.json",
+      "result_sha256": "b1b5a2a48c3cdf5191755519dbd0422f89145eb411991562f81a3439dfa74ca5",
+      "configuration": "B-base",
+      "scenario": "R7",
+      "repetition": 1,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 4,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 4,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 64074,
+        "cached_input": 42112,
+        "output": 619,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 28625,
+        "cost": null,
+        "model_calls": 5,
+        "tool_calls": 12,
+        "tool_rounds": 4,
+        "uncached_input": 21962
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "5497781af9bd72d85ea7dd5d22083972de047aaa58b385140b03b05f0e9ed94d"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 5
+      },
+      "reported_usage_totals": {
+        "input": 64074,
+        "cached_input": 42112,
+        "output": 619,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 28625,
+        "cost": null,
+        "model_calls": 5,
+        "tool_calls": 12,
+        "tool_rounds": 4,
+        "uncached_input": 21962
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R8-1000/B-base-r1/result.json",
+      "result": "runs/R8-1000/B-base-r1/result.json",
+      "result_sha256": "c18a6bf9f87523aaa190ee64f463fcd19057b1b1f2a9410f63714dc5ef03c2e0",
+      "configuration": "B-base",
+      "scenario": "R8",
+      "repetition": 1,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 4,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 4,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 31513,
+        "cached_input": 14720,
+        "output": 276,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 11479,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 3,
+        "tool_rounds": 3,
+        "uncached_input": 16793
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "5497781af9bd72d85ea7dd5d22083972de047aaa58b385140b03b05f0e9ed94d"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 4
+      },
+      "reported_usage_totals": {
+        "input": 31513,
+        "cached_input": 14720,
+        "output": 276,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 11479,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 3,
+        "tool_rounds": 3,
+        "uncached_input": 16793
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R10-1000/B-candidate-r1/result.json",
+      "result": "runs/R10-1000/B-candidate-r1/result.json",
+      "result_sha256": "0fdb114a978d06ebeb2f2b4afda867e34f84064113c972359ce7fbfb925d29a7",
+      "configuration": "B-candidate",
+      "scenario": "R10",
+      "repetition": 1,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 1,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 1,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 28197,
+        "cached_input": 17024,
+        "output": 488,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 14750,
+        "cost": null,
+        "model_calls": 3,
+        "tool_calls": 6,
+        "tool_rounds": 2,
+        "uncached_input": 11173
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "235c10a2c1a83ec66d4a4475daba498a4e1d88ed7a494154829a7a25a913e0a7"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 3
+      },
+      "reported_usage_totals": {
+        "input": 28197,
+        "cached_input": 17024,
+        "output": 488,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 14750,
+        "cost": null,
+        "model_calls": 3,
+        "tool_calls": 6,
+        "tool_rounds": 2,
+        "uncached_input": 11173
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R10-1000/B-candidate-r2/result.json",
+      "result": "runs/R10-1000/B-candidate-r2/result.json",
+      "result_sha256": "884461a0c8dc8e2e45a465de9b2d4f7a3c61825266fe8718b996f8082f40f85e",
+      "configuration": "B-candidate",
+      "scenario": "R10",
+      "repetition": 2,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 1,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 1,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 28197,
+        "cached_input": 27776,
+        "output": 483,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 14211,
+        "cost": null,
+        "model_calls": 3,
+        "tool_calls": 6,
+        "tool_rounds": 2,
+        "uncached_input": 421
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "235c10a2c1a83ec66d4a4475daba498a4e1d88ed7a494154829a7a25a913e0a7"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 3
+      },
+      "reported_usage_totals": {
+        "input": 28197,
+        "cached_input": 27776,
+        "output": 483,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 14211,
+        "cost": null,
+        "model_calls": 3,
+        "tool_calls": 6,
+        "tool_rounds": 2,
+        "uncached_input": 421
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R7-1000/B-candidate-r1/result.json",
+      "result": "runs/R7-1000/B-candidate-r1/result.json",
+      "result_sha256": "8db66ab9e58b3fbf09d123160c0f0e671e9bdee793390cc93728e8c73436255f",
+      "configuration": "B-candidate",
+      "scenario": "R7",
+      "repetition": 1,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 4,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 4,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 58697,
+        "cached_input": 36736,
+        "output": 526,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 17499,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 11,
+        "tool_rounds": 3,
+        "uncached_input": 21961
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "235c10a2c1a83ec66d4a4475daba498a4e1d88ed7a494154829a7a25a913e0a7"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 4
+      },
+      "reported_usage_totals": {
+        "input": 58697,
+        "cached_input": 36736,
+        "output": 526,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 17499,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 11,
+        "tool_rounds": 3,
+        "uncached_input": 21961
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R7-1000/B-candidate-r2/result.json",
+      "result": "runs/R7-1000/B-candidate-r2/result.json",
+      "result_sha256": "4953d7af228b5cbc0d13a2e2418a555278c6ed00ade5fc3575a561de33a8b999",
+      "configuration": "B-candidate",
+      "scenario": "R7",
+      "repetition": 2,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 4,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 4,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 53831,
+        "cached_input": 41600,
+        "output": 575,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 20327,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 11,
+        "tool_rounds": 3,
+        "uncached_input": 12231
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "235c10a2c1a83ec66d4a4475daba498a4e1d88ed7a494154829a7a25a913e0a7"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 4
+      },
+      "reported_usage_totals": {
+        "input": 53831,
+        "cached_input": 41600,
+        "output": 575,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 20327,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 11,
+        "tool_rounds": 3,
+        "uncached_input": 12231
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R8-1000/B-candidate-r1/result.json",
+      "result": "runs/R8-1000/B-candidate-r1/result.json",
+      "result_sha256": "2424553214f914335df7ba37c3bfc0662631045cec5399b27195cfb373546e5e",
+      "configuration": "B-candidate",
+      "scenario": "R8",
+      "repetition": 1,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 4,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 4,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 23258,
+        "cached_input": 15104,
+        "output": 258,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 10865,
+        "cost": null,
+        "model_calls": 3,
+        "tool_calls": 3,
+        "tool_rounds": 2,
+        "uncached_input": 8154
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "235c10a2c1a83ec66d4a4475daba498a4e1d88ed7a494154829a7a25a913e0a7"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 3
+      },
+      "reported_usage_totals": {
+        "input": 23258,
+        "cached_input": 15104,
+        "output": 258,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 10865,
+        "cost": null,
+        "model_calls": 3,
+        "tool_calls": 3,
+        "tool_rounds": 2,
+        "uncached_input": 8154
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R8-1000/B-candidate-r2/result.json",
+      "result": "runs/R8-1000/B-candidate-r2/result.json",
+      "result_sha256": "27cad119ac3b098a11137e183e73b380821b1b5ab014b4ef46ac49b30043b381",
+      "configuration": "B-candidate",
+      "scenario": "R8",
+      "repetition": 2,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 4,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 4,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 25510,
+        "cached_input": 23552,
+        "output": 253,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 10413,
+        "cost": null,
+        "model_calls": 3,
+        "tool_calls": 3,
+        "tool_rounds": 2,
+        "uncached_input": 1958
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "235c10a2c1a83ec66d4a4475daba498a4e1d88ed7a494154829a7a25a913e0a7"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 3
+      },
+      "reported_usage_totals": {
+        "input": 25510,
+        "cached_input": 23552,
+        "output": 253,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 10413,
+        "cost": null,
+        "model_calls": 3,
+        "tool_calls": 3,
+        "tool_rounds": 2,
+        "uncached_input": 1958
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R10-1000/B-base-r2/result.json",
+      "result": "runs/R10-1000/B-base-r2/result.json",
+      "result_sha256": "9f19e5c04dff1c0028b895081de7de3b4a6a4cba01dba70cdcd03edd78714700",
+      "configuration": "B-base",
+      "scenario": "R10",
+      "repetition": 2,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 1,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 1,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 39897,
+        "cached_input": 27392,
+        "output": 431,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 14952,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 5,
+        "tool_rounds": 3,
+        "uncached_input": 12505
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "5497781af9bd72d85ea7dd5d22083972de047aaa58b385140b03b05f0e9ed94d"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 4
+      },
+      "reported_usage_totals": {
+        "input": 39897,
+        "cached_input": 27392,
+        "output": 431,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 14952,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 5,
+        "tool_rounds": 3,
+        "uncached_input": 12505
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R7-1000/B-base-r2/result.json",
+      "result": "runs/R7-1000/B-base-r2/result.json",
+      "result_sha256": "27dc729b2280dbd549380c49d2479e8f77672287f09fd7b0c91442336e0628f9",
+      "configuration": "B-base",
+      "scenario": "R7",
+      "repetition": 2,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 4,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 4,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 64176,
+        "cached_input": 49664,
+        "output": 575,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 23153,
+        "cost": null,
+        "model_calls": 5,
+        "tool_calls": 11,
+        "tool_rounds": 4,
+        "uncached_input": 14512
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "5497781af9bd72d85ea7dd5d22083972de047aaa58b385140b03b05f0e9ed94d"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 5
+      },
+      "reported_usage_totals": {
+        "input": 64176,
+        "cached_input": 49664,
+        "output": 575,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 23153,
+        "cost": null,
+        "model_calls": 5,
+        "tool_calls": 11,
+        "tool_rounds": 4,
+        "uncached_input": 14512
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    },
+    {
+      "id": "runs/R8-1000/B-base-r2/result.json",
+      "result": "runs/R8-1000/B-base-r2/result.json",
+      "result_sha256": "db6236823addcfb773f935a27f0ce2048acee0d04bfa6ef84c7383195f2fe134",
+      "configuration": "B-base",
+      "scenario": "R8",
+      "repetition": 2,
+      "status": "complete",
+      "execution": {
+        "status": "complete",
+        "terminals": [
+          "Completed"
+        ]
+      },
+      "automatic_checks": {
+        "passed": 4,
+        "failed": 0,
+        "unverified": 0,
+        "absent": 0,
+        "applicable": 4,
+        "status": "passed",
+        "display": "passed"
+      },
+      "native_safety_findings": [],
+      "failure_class": null,
+      "usage": {
+        "input": 31600,
+        "cached_input": 29824,
+        "output": 284,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 12271,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 3,
+        "tool_rounds": 3,
+        "uncached_input": 1776
+      },
+      "requested_identity": {
+        "provider": "Codex",
+        "model": "gpt-6.1-sol",
+        "effort": "medium",
+        "helper": null,
+        "binary_sha256": "5497781af9bd72d85ea7dd5d22083972de047aaa58b385140b03b05f0e9ed94d"
+      },
+      "runtime_identity_verified": true,
+      "identity_observation": {
+        "returned_models": [
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol",
+          "gpt-6.1-sol"
+        ],
+        "sent_requests": 4
+      },
+      "reported_usage_totals": {
+        "input": 31600,
+        "cached_input": 29824,
+        "output": 284,
+        "helper_input": 0,
+        "helper_output": 0,
+        "elapsed_ms": 12271,
+        "cost": null,
+        "model_calls": 4,
+        "tool_calls": 3,
+        "tool_rounds": 3,
+        "uncached_input": 1776
+      },
+      "all_HTTP_usage_observed": true,
+      "read_only": {
+        "passed": true,
+        "mutation_tools": [],
+        "operations": [],
+        "knowledge_unchanged": true
+      },
+      "complete_for_pair": true
+    }
+  ],
+  "operational_totals": {
+    "B-base": {
+      "input": 270923,
+      "cached_input": 190976,
+      "uncached_input": 79947,
+      "output": 2645,
+      "elapsed_ms": 105883,
+      "model_calls": 26,
+      "tool_calls": 39,
+      "tool_rounds": 20
+    },
+    "B-candidate": {
+      "input": 217690,
+      "cached_input": 161792,
+      "uncached_input": 55898,
+      "output": 2583,
+      "elapsed_ms": 88065,
+      "model_calls": 20,
+      "tool_calls": 40,
+      "tool_rounds": 14
+    }
+  },
+  "efficiency": {
+    "pairs": [
+      {
+        "case": "R10",
+        "repetition": 1,
+        "input_change": -0.28908554572271383,
+        "baseline_usage": {
+          "input": 39663,
+          "cached_input": 27264,
+          "output": 460,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 15403,
+          "cost": null,
+          "model_calls": 4,
+          "tool_calls": 5,
+          "tool_rounds": 3,
+          "uncached_input": 12399
+        },
+        "candidate_usage": {
+          "input": 28197,
+          "cached_input": 17024,
+          "output": 488,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 14750,
+          "cost": null,
+          "model_calls": 3,
+          "tool_calls": 6,
+          "tool_rounds": 2,
+          "uncached_input": 11173
+        },
+        "complete": true
+      },
+      {
+        "case": "R10",
+        "repetition": 2,
+        "input_change": -0.29325513196480935,
+        "baseline_usage": {
+          "input": 39897,
+          "cached_input": 27392,
+          "output": 431,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 14952,
+          "cost": null,
+          "model_calls": 4,
+          "tool_calls": 5,
+          "tool_rounds": 3,
+          "uncached_input": 12505
+        },
+        "candidate_usage": {
+          "input": 28197,
+          "cached_input": 27776,
+          "output": 483,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 14211,
+          "cost": null,
+          "model_calls": 3,
+          "tool_calls": 6,
+          "tool_rounds": 2,
+          "uncached_input": 421
+        },
+        "complete": true
+      },
+      {
+        "case": "R7",
+        "repetition": 1,
+        "input_change": -0.08391859412554237,
+        "baseline_usage": {
+          "input": 64074,
+          "cached_input": 42112,
+          "output": 619,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 28625,
+          "cost": null,
+          "model_calls": 5,
+          "tool_calls": 12,
+          "tool_rounds": 4,
+          "uncached_input": 21962
+        },
+        "candidate_usage": {
+          "input": 58697,
+          "cached_input": 36736,
+          "output": 526,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 17499,
+          "cost": null,
+          "model_calls": 4,
+          "tool_calls": 11,
+          "tool_rounds": 3,
+          "uncached_input": 21961
+        },
+        "complete": true
+      },
+      {
+        "case": "R7",
+        "repetition": 2,
+        "input_change": -0.1611973323360758,
+        "baseline_usage": {
+          "input": 64176,
+          "cached_input": 49664,
+          "output": 575,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 23153,
+          "cost": null,
+          "model_calls": 5,
+          "tool_calls": 11,
+          "tool_rounds": 4,
+          "uncached_input": 14512
+        },
+        "candidate_usage": {
+          "input": 53831,
+          "cached_input": 41600,
+          "output": 575,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 20327,
+          "cost": null,
+          "model_calls": 4,
+          "tool_calls": 11,
+          "tool_rounds": 3,
+          "uncached_input": 12231
+        },
+        "complete": true
+      },
+      {
+        "case": "R8",
+        "repetition": 1,
+        "input_change": -0.2619553834925269,
+        "baseline_usage": {
+          "input": 31513,
+          "cached_input": 14720,
+          "output": 276,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 11479,
+          "cost": null,
+          "model_calls": 4,
+          "tool_calls": 3,
+          "tool_rounds": 3,
+          "uncached_input": 16793
+        },
+        "candidate_usage": {
+          "input": 23258,
+          "cached_input": 15104,
+          "output": 258,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 10865,
+          "cost": null,
+          "model_calls": 3,
+          "tool_calls": 3,
+          "tool_rounds": 2,
+          "uncached_input": 8154
+        },
+        "complete": true
+      },
+      {
+        "case": "R8",
+        "repetition": 2,
+        "input_change": -0.1927215189873418,
+        "baseline_usage": {
+          "input": 31600,
+          "cached_input": 29824,
+          "output": 284,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 12271,
+          "cost": null,
+          "model_calls": 4,
+          "tool_calls": 3,
+          "tool_rounds": 3,
+          "uncached_input": 1776
+        },
+        "candidate_usage": {
+          "input": 25510,
+          "cached_input": 23552,
+          "output": 253,
+          "helper_input": 0,
+          "helper_output": 0,
+          "elapsed_ms": 10413,
+          "cost": null,
+          "model_calls": 3,
+          "tool_calls": 3,
+          "tool_rounds": 2,
+          "uncached_input": 1958
+        },
+        "complete": true
+      }
+    ],
+    "median_paired_input_change": -0.22733845123993435,
+    "frozen_efficiency_regressions": [
+      {
+        "case": "R10",
+        "metric": "tool_calls",
+        "baseline": 10,
+        "candidate": 12
+      }
+    ],
+    "efficiency_gate": false,
+    "quality": "12bound independent judgments;11all4,one candidateR7correctness3 auxiliaryMessagecoveragegap;see independent_quality",
+    "small_N": true,
+    "money_cost": null
+  },
+  "decision": "reject under frozen R10 tool-call gate;restore production description",
+  "confirmation": "not run;48 escrow unused/no refund",
+  "independent_quality": {
+    "answers_reviewed": 12,
+    "complete": 12,
+    "all_dimensions_4": 11,
+    "findings": [
+      {
+        "packet": "2dcd1e15d4e140916c96e5bee9386f1105d5e2db07066b9e0daf95d762e3919e",
+        "native_result": "/Users/evokessler/Documents/Codex/brn-agent-e-256/candidate/runs/R7-1000/B-candidate-r2/result.json",
+        "grade": {
+          "packet_sha256": "2dcd1e15d4e140916c96e5bee9386f1105d5e2db07066b9e0daf95d762e3919e",
+          "scores": {
+            "correctness": 3,
+            "completeness": 4,
+            "citations": 4,
+            "abstention": 4,
+            "visibility": 4
+          },
+          "complete": true,
+          "material_defects": [
+            {
+              "type": "unsupported_auxiliary_claim",
+              "id": "be6a3e8a-4d7b-4538-9a54-7e18bbb95dea:1",
+              "version": null,
+              "answer_excerpt": "I checked related search terms, saved discussion, coordinator Actions, the note\u2019s links and revision history; none supplied an agreed amount.",
+              "explanation": "The trace confirms record queries returned this additional record, but supplies neither its contents nor its version. The assertion about what saved discussion supplied cannot be independently verified. This is a minor evidentiary limitation, not a defect in the central abstention."
+            }
+          ],
+          "evidence": [
+            {
+              "id": "561673c6-21db-463b-b445-013737e54cda:1",
+              "version": 1,
+              "explanation": "Trace sequence 4 confirms a successful full read of this note at version 1 with no continuation. Its text says, \u201cHiring line: one coordinator; salary to be decided.\u201d The answer quotes it accurately and cites its exact ID and version."
+            },
+            {
+              "id": "561673c6-21db-463b-b445-013737e54cda:1",
+              "version": 1,
+              "explanation": "Multiple relevant searches returned only this note; the connections query returned no neighbours, and the history query returned no text. These results support reporting that no settled floor was established in the retrieved note evidence."
+            },
+            {
+              "id": "be6a3e8a-4d7b-4538-9a54-7e18bbb95dea:1",
+              "version": null,
+              "explanation": "Returned by read_records at sequences 3 and 9, but its text and version are absent from the packet. Its substantive contribution remains unknown."
+            },
+            {
+              "id": "561673c6-21db-463b-b445-013737e54cda:0",
+              "version": 1,
+              "explanation": "This chat-scoped note appears in the evaluator\u2019s gold records but not in any candidate retrieval or read result. Its presence does not establish candidate access. The answer discloses none of its private contents."
+            }
+          ],
+          "explanation": "The answer completely addresses the central question with an appropriate, visibility-scoped abstention and an accurate supporting note citation. It does not invent a salary floor or disclose hidden-scope information. All recorded operations are read-only, supporting the statement that nothing was changed. The only correction is to narrow the auxiliary claim about saved discussion, whose contents are not available for verification in this packet."
+        }
+      }
+    ],
+    "qualification": "fresh no-tuning-history no-tool fixed Sol/high;transportfixtures only,not calibrated broad semantic competence",
+    "grader_attempts": 13,
+    "failed_attempts": 1,
+    "failure": "one packetsha mistype;controlled exact-packet retry;original retained"
+  },
+  "estimator": "defer;synthetic protocol probes only;no matched full live request estimates;actual usage separately reported;no admission change",
+  "joint_D_adoption": "inapplicable:search change rejected;D knowledge not imported",
+  "money_cost": null,
+  "accounting": {
+    "BRN_actual_HTTP": 46,
+    "BRN_screening_reserved": 72,
+    "BRN_confirmation_reserved_unused": 48,
+    "grader_actual_HTTP": 13,
+    "grader_escrow": 24,
+    "Council_Codex_escrow": 24,
+    "Council_actual_HTTP": null,
+    "parent_orchestration_HTTP": null,
+    "E_upfront_escrow": 168,
+    "shared_DE_escrow": 1760,
+    "refunds": 0,
+    "money_cost": null,
+    "deadline": "2026-11-06T23:37:34.528692Z"
+  },
+  "grader_usage": {
+    "input": 248913,
+    "output": 9128,
+    "cached_input": 0
+  },
+  "grader_elapsed_ms": 226256,
+  "final_council": {
+    "rounds": 2,
+    "Sol": {
+      "round1": 7,
+      "round2": null,
+      "gap": "outputtruncation;could not independently validate coreevidence"
+    },
+    "Opus_Copilot": {
+      "round1": 6.5,
+      "round2": 7.5,
+      "gap": "partialaccounting/codeaudit;graderbindings/escrow/archiveunread"
+    },
+    "Kimi_Copilot": {
+      "round1": 7,
+      "round2": 8,
+      "gap": "partialcode/arithmetic audit;fullcycle-result/freezereceiptsunread"
+    },
+    "Kiro_Opus": "round1monthlylimitfailure;namedfallbackused",
+    "requested_final_deadline": "2026-11-06T22:30:00Z",
+    "actual_latest_completion": "2026-11-06T22:31:08.809Z",
+    "hard_time_request_enforced": false,
+    "active_runs_after_handoff": 0,
+    "model_HTTP_actual": null
+  },
+  "post_run_hardening": {
+    "changes": [
+      "partialsummaryusage remainsunknown",
+      "explicitphaseledgerheader",
+      "active sample lookup avoidsfuture stale-referenceassumption",
+      "fixedhostCycleStopreason only",
+      "preciseRigtestname"
+    ],
+    "new_unit_tests": 12,
+    "original_attempt_objects_unchanged": 12,
+    "executed_source_hashes_preserved": true,
+    "new_live_calls": 0,
+    "review": "smallleadfixes;notindependentlyre-reviewed duefrozenbudget;finalCouncilgapsremain"
+  }
+}

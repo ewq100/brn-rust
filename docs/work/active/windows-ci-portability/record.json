@@ -310,24 +310,22 @@
         "title": "Improve grounded search efficiency (#256)",
         "owner": "Agent E",
         "state": "active",
-        "activity": "12screeningruns complete;candidate1 reducesinput/HTTP butfails frozenR10 tool-call gate,therefore rejected and productiondescriptionrestored. Confirmation48unspent/unrefunded. Finishing bounded12answergrades;onehash-mismatchattemptretained.",
-        "observed_at": "2026-11-06T22:26:48.233310+00:00",
+        "activity": "Bounded cycle finished:12screeningruns/46HTTP plus13graderattempts/12boundjudgments. Candidate1rejected under frozenR10toolrule;productiondescriptionrestored;confirmation48unused/unrefunded. FinalCouncilpartialgaps/68.8srequested-boundoverrun retained. Preparing focused no-adoption PR.",
+        "observed_at": "2026-11-06T22:35:13.673445+00:00",
         "origin": "observed",
-        "next_action": "Finish source-bound baseline and grader qualification,freeze inputs;coordinate D/E timed slots and run bounded screening.",
+        "next_action": "Open focused evidence/diagnostic PR;retain explicit partial finalreview and no-adoption limits. No new live calls,merge,release or default change.",
         "depends_on": [],
-        "resource_waits": [
-          "D MacBook grader/CLI build qualification and explicit timing-slot release"
-        ],
+        "resource_waits": [],
         "evidence": [
           "https://github.com/ewq100/brn-rust/issues/256",
           "docs/work/active/windows-ci-portability/search-256.md"
         ],
         "gates": {
           "implementation": "No production search change retained. Candidate1patch/binaries/both repetitions preserved. Rigadoptiondeferred with shadow/invalidation evidence.",
-          "checks": "Baseline build/source/hash and stable corpus/index hashes recorded. Visibilitytrap0general/1private,cloned fixed-querypagesidentical. Rust initial test compile inference fixed and failure preserved;fullAI helper-envfailures corrected by9targeted passes. Required graderhash/livefreeze pending D.",
+          "checks": "Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass.",
           "integration": "Focused evidence/diagnostic PR pending finalCouncil;no merge/release/defaultmodelchange.",
           "native": "Headless assignment; no native acceptance claimed.",
-          "owner_acceptance": "Owner clarified same-machine fresh evaluation-only role with questions withheld from tuning supports a limited engineering conclusion, not technical isolation or broad superiority. Measured quality/confirmation gates remain pending."
+          "owner_acceptance": "Owner-authorized limited engineering cycle;no searchimprovementadopted. Candidate fails frozenR10toolgate;one independentminorcorrectnessfinding. Reserved/jointchecks unrun andrequiredbeforelateradoption."
         },
         "attempts": [
           {

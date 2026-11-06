@@ -2432,7 +2432,7 @@ fn rig_whole_request_estimate_pilot_is_not_an_upper_bound_for_admission() {
 /// Shadow-only protocol diagnostic. The supplied Usage is explicitly synthetic;
 /// it proves anchor/reset semantics, never accuracy against a live provider.
 #[test]
-fn rig_next_request_shadow_requires_a_route_and_account_boundary() {
+fn rig_next_request_shadow_anchor_and_fallback_protocol() {
     use rig::completion::{Message as ModelMessage, ToolDefinition, Usage};
     use rig::conversation::Conversation;
     use rig::message::ToolName;

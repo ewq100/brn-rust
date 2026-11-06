@@ -1,0 +1,4 @@
+{"version": 1, "max_calls": 120}
+{"identity": "baseline-first", "calls": 18}
+{"identity": "candidate", "calls": 36}
+{"identity": "baseline-second", "calls": 18}

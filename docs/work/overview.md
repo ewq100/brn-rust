@@ -95,21 +95,20 @@ Gates:
 ### Improve grounded search efficiency (#256)
 
 Task ID: `search-256`
-Owner: Agent E · State: **active** · Last observed: 2026-11-06T22:02:45.465227+00:00
-Activity: Source-bound baseline CLI/seeder built defaultfeatures;5corpus checks and97AgentBench tests(nativeCLI,6skips) pass. FullAI608pass/4missing-helperfail/1ignored;9helper rechecks pass;23Rigshadow/wire checks pass. E released MacBook slot to D, no live yet.
-Next: Finish source-bound baseline and grader qualification,freeze inputs;coordinate D/E timed slots and run bounded screening.
-Resource waits: D MacBook grader/CLI build qualification and explicit timing-slot release
+Owner: Agent E · State: **active** · Last observed: 2026-11-06T22:35:13.673445+00:00
+Activity: Bounded cycle finished:12screeningruns/46HTTP plus13graderattempts/12boundjudgments. Candidate1rejected under frozenR10toolrule;productiondescriptionrestored;confirmation48unused/unrefunded. FinalCouncilpartialgaps/68.8srequested-boundoverrun retained. Preparing focused no-adoption PR.
+Next: Open focused evidence/diagnostic PR;retain explicit partial finalreview and no-adoption limits. No new live calls,merge,release or default change.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Pending measured baseline and focused candidate selection.
-- **checks:** Baseline build/source/hash and stable corpus/index hashes recorded. Visibilitytrap0general/1private,cloned fixed-querypagesidentical. Rust initial test compile inference fixed and failure preserved;fullAI helper-envfailures corrected by9targeted passes. Required graderhash/livefreeze pending D.
-- **integration:** Separate PR authorized. No merge/release/default-model change.
+- **implementation:** No production search change retained. Candidate1patch/binaries/both repetitions preserved. Rigadoptiondeferred with shadow/invalidation evidence.
+- **checks:** Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass.
+- **integration:** Focused evidence/diagnostic PR pending finalCouncil;no merge/release/defaultmodelchange.
 - **native:** Headless assignment; no native acceptance claimed.
-- **owner acceptance:** Owner clarified same-machine fresh evaluation-only role with questions withheld from tuning supports a limited engineering conclusion, not technical isolation or broad superiority. Measured quality/confirmation gates remain pending.
+- **owner acceptance:** Owner-authorized limited engineering cycle;no searchimprovementadopted. Candidate fails frozenR10toolgate;one independentminorcorrectnessfinding. Reserved/jointchecks unrun andrequiredbeforelateradoption.
 
 </details>
 
@@ -128,15 +127,6 @@ Waiting:
 
 - resource: Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.
 - resource: Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
-
-### Improve grounded search efficiency (#256)
-
-Task ID: `search-256`
-Owner: Agent E
-
-Waiting:
-
-- resource: D MacBook grader/CLI build qualification and explicit timing-slot release
 
 ## Completed
 

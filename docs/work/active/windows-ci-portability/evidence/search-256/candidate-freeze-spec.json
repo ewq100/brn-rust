@@ -1,0 +1,47 @@
+{
+  "evaluation_files": {
+    "screening": "/Users/evokessler/Documents/Codex/brn-agent-e-256/screening.json",
+    "confirmation": "/Users/evokessler/Documents/Codex/brn-agent-e-256/confirmation.json",
+    "corpus_projection": "/Users/evokessler/Documents/Codex/brn-agent-e-256/corpus-fixture.json",
+    "acceptance": "/Users/evokessler/Documents/Codex/brn-agent-e-256/criteria.json",
+    "grader_instructions": "/Users/evokessler/Documents/Codex/brn-agent-e-256/grader-instructions.txt",
+    "driver": "/Users/evokessler/repos/brn-agent-e-256/benchmarks/brn_agent/experiments/search_256.py",
+    "oracle": "/Users/evokessler/repos/brn-agent-e-256/benchmarks/brn_agent/experiments/search_256_evidence.py",
+    "corpus_hash_manifest": "/Users/evokessler/Documents/Codex/brn-agent-e-256/preflight/corpus-hashes.json",
+    "judge_binary": "/Users/evokessler/Documents/Codex/brn-agent-e-256/binaries/agentbench-judge"
+  },
+  "candidate_files": {
+    "baseline_binary": "/Users/evokessler/Documents/Codex/brn-agent-e-256/binaries/brn-baseline",
+    "seed_binary": "/Users/evokessler/Documents/Codex/brn-agent-e-256/binaries/wiki_eval_seed",
+    "candidate_binary": "/Users/evokessler/Documents/Codex/brn-agent-e-256/binaries/brn-candidate"
+  },
+  "labels": {
+    "app_source_revision": "a921e32533dc03134ed8a2001bd82f27194c3302",
+    "benchmark_revision": "ebbe777a",
+    "build_source_binding": "exact baseline build command/targetfeatures;one production description change",
+    "candidate_patch_sha256": "8312b21385ad859aaa1bbc217697f23e4c5b6fe8b9162fe9841bb30676728f35",
+    "candidate_source": "a921e325 plus frozen candidate1 description and test-only diagnostic"
+  },
+  "settings": {
+    "candidate": {
+      "provider": "Codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "helpers": false,
+      "call_cap": 6
+    },
+    "reader": "same read-only candidate;no writer/modelreader changes",
+    "grader": {
+      "provider": "Codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "tools": [],
+      "HTTP_cap": 1,
+      "timeout_seconds": 45,
+      "binary_sha256": "dc54b46c3f083b9b146e68ae76d977d5073202b03035e81c0ff672980164bdc6",
+      "qualification": "transport fixtures only;independent no-tuning-history per request;limited engineering judgments"
+    },
+    "retrieval": "defaultfeatures,keyword,no dense assets;exact frozen seeded state and derived index"
+  },
+  "isolation": "visible-screening"
+}

@@ -1,0 +1,210 @@
+{
+  "format": 1,
+  "kind": "frozen-experiment-inputs",
+  "evaluation_identity": "9a20b5173c1139eaa6660dbafcb23d36ec8ecd3d973b2d170735be6c85c8424c",
+  "evaluation": {
+    "format": 1,
+    "files": {
+      "screening": {
+        "sha256": "276b15d2a6671f244b265c0f94f5125fe8cd78e151dc1cf67783bda9ab4b5520",
+        "bytes": 7167
+      },
+      "confirmation": {
+        "sha256": "d1e706923b34ea68b19eac2bd4df8da6f9d24f5f40da8d5378b17115405439fa",
+        "bytes": 11445
+      },
+      "corpus_projection": {
+        "sha256": "c93925656e3bfcefaa77ab45cbc2deacd9a009ede630b340cc278f635d810d2f",
+        "bytes": 18503
+      },
+      "acceptance": {
+        "sha256": "ccd5eb300c17814b3386adc8339516eee2174b03b4fe7e7bf23c9a2e58de467b",
+        "bytes": 2010
+      },
+      "grader_instructions": {
+        "sha256": "cd2f28e2c01b9cd25a0dc86de0114f11d17e861483fe4f838e47cd7013a8f43e",
+        "bytes": 1192
+      },
+      "driver": {
+        "sha256": "937d4b7f79bb8f23179e9b6b53c4c00c0b507f9a73dd40bc548e8c1c939bf9a2",
+        "bytes": 8010
+      },
+      "oracle": {
+        "sha256": "8399cdf8389d40cb851172089b084d702d0eee344f9aa8c7eb42439eb97e2a6a",
+        "bytes": 6014
+      },
+      "corpus_hash_manifest": {
+        "sha256": "bd1738667943c77afb92cd4d9a476a3c084fb83b99b6d88519ce4fff131aa3b6",
+        "bytes": 7311
+      },
+      "judge_binary": {
+        "sha256": "dc54b46c3f083b9b146e68ae76d977d5073202b03035e81c0ff672980164bdc6",
+        "bytes": 28664512
+      },
+      "benchmark:benchmarks/brn_agent/bench.py": {
+        "sha256": "21485a99919e9e098f8c7e9f2c13f14d0433131fc89c971f06ec96309e6f1987",
+        "bytes": 25077
+      },
+      "benchmark:benchmarks/brn_agent/calibration.py": {
+        "sha256": "2224c88c630e83398830891700838e5afe15510febe54021ea6cb4e12bf23663",
+        "bytes": 5112
+      },
+      "benchmark:benchmarks/brn_agent/check_status.py": {
+        "sha256": "bc3cd27647fb347590e4226b83957c4e350ae38426ae60554e23ecc529f9b55f",
+        "bytes": 759
+      },
+      "benchmark:benchmarks/brn_agent/diagnostics.py": {
+        "sha256": "09a8c929947d1a1fa57b98a14dee3ce5f5ff7bc731c5932707595d6e090a3d16",
+        "bytes": 2184
+      },
+      "benchmark:benchmarks/brn_agent/evidence.py": {
+        "sha256": "4e9c4366bd63d8eeb78aa714ff2da8d8aff38ababd9e450aac3e7dc2c7519ba0",
+        "bytes": 18472
+      },
+      "benchmark:benchmarks/brn_agent/external.py": {
+        "sha256": "3adc78b3cd1c05bc39b725fcedfee7302ca691c60a7aab7099a121abbaceacf0",
+        "bytes": 23495
+      },
+      "benchmark:benchmarks/brn_agent/freeze.py": {
+        "sha256": "e915828e42d36c3fcde73788d05e22ea846f8cf78f03fbd3d32c917427a945f6",
+        "bytes": 3157
+      },
+      "benchmark:benchmarks/brn_agent/helper_execution.py": {
+        "sha256": "aa758ba384986978fe62321ab1fdd8b6133e7d40f219cef317558600fdeeb610",
+        "bytes": 9642
+      },
+      "benchmark:benchmarks/brn_agent/host_checks.py": {
+        "sha256": "d9cf897e8f1c0c89f7c296e80a1ad9ae45d12b9941f4be0477ed1fa3ecfcbc30",
+        "bytes": 5087
+      },
+      "benchmark:benchmarks/brn_agent/inspect_task.py": {
+        "sha256": "21078deecf0544b4e61e1f13c62bba47f40e2300738ba31e4cefc7d6bbaf30f5",
+        "bytes": 1831
+      },
+      "benchmark:benchmarks/brn_agent/judgment.py": {
+        "sha256": "8c3bdde1ea066ccc71b8a9e15a5da70a9c8fc02b2cd71a4260da3a7cd06fceae",
+        "bytes": 4717
+      },
+      "benchmark:benchmarks/brn_agent/legacy_proof.py": {
+        "sha256": "bf660d9a9e359e36cfa1a681019786f2b01e0adda0159814e6456d150ea80b24",
+        "bytes": 7319
+      },
+      "benchmark:benchmarks/brn_agent/limits.py": {
+        "sha256": "b7bca49de333feb00e92aa147a3147933b02801921aa0c4fc8c05b506f86eb77",
+        "bytes": 3914
+      },
+      "benchmark:benchmarks/brn_agent/proof.py": {
+        "sha256": "f8f22f2341ac88e7e96e20ab0d138fa100a6c5d0a472b2c8fc09b31aa1da66f4",
+        "bytes": 25560
+      },
+      "benchmark:benchmarks/brn_agent/reader.py": {
+        "sha256": "fdaa18f59f8b4c0733c82515754a7116387831618bd8790f1527808eb773e04c",
+        "bytes": 20086
+      },
+      "benchmark:benchmarks/brn_agent/reader_grading.py": {
+        "sha256": "6dabfca2aa6c26aba5d902eda273deb8f76045a5c9bd9e3266e647d6435f40d3",
+        "bytes": 9665
+      },
+      "benchmark:benchmarks/brn_agent/reporting.py": {
+        "sha256": "b7b2b6603fbd94f4deb294bbc64d6d91e7876f2a1d317d03897784e1bf8f2e76",
+        "bytes": 13629
+      },
+      "benchmark:benchmarks/brn_agent/scenario_checks.py": {
+        "sha256": "2a25839145356b0bc1dc6b618afc9fd37fb5118a9b4af78b29220bfa5149ddf4",
+        "bytes": 6017
+      },
+      "benchmark:benchmarks/brn_agent/score.py": {
+        "sha256": "7ce0ba5a50e1c631e430767f2be3712574693d2c357c70ee36dd26af8df34ea9",
+        "bytes": 17026
+      },
+      "benchmark:benchmarks/brn_agent/semantic.py": {
+        "sha256": "7e9da0d07339f2ddf3dc9e9fe5cdf0764130f0c11d0abf32d8adf17757f6be85",
+        "bytes": 18397
+      },
+      "benchmark:benchmarks/brn_agent/wiki_challenge.py": {
+        "sha256": "ecb752f59a7f6e732a0c2014d8034f488bd304d72d24a94f1accf69ec966d83d",
+        "bytes": 19254
+      },
+      "benchmark:benchmarks/brn_agent/wiki_challenge/calibration-labels.json": {
+        "sha256": "a85a3c1761dff461f3b13578505450e8e55b72912497bd50688466d081b1f3e0",
+        "bytes": 6884
+      },
+      "benchmark:benchmarks/brn_agent/wiki_challenge/defect-rubric.json": {
+        "sha256": "94dad179abcf89fae8cbaf5b63a582f8a2b76e19ccacc43f2c5f7e8667dc9fbd",
+        "bytes": 1809
+      },
+      "benchmark:benchmarks/brn_agent/wiki_challenge/reader.json": {
+        "sha256": "9d68d6cd3d967a07324c6ebeb2019db1d2b3d22c4d568256670c7400175263df",
+        "bytes": 515
+      },
+      "benchmark:benchmarks/brn_agent/wiki_challenge/reviewer.json": {
+        "sha256": "d0a6175428e1c606bb4f7172d86c570231031ae514d5dd210cfc424cc79a8e86",
+        "bytes": 1005
+      },
+      "benchmark:scripts/evaluate_wiki_v2.py": {
+        "sha256": "e42b7cbda4154a6f7fb20f17d9ad3bc4cfd961d357db097041965ffd05350c82",
+        "bytes": 114396
+      },
+      "benchmark:scripts/evaluate-wiki-guidance.py": {
+        "sha256": "514d80d33574b47788bea3c60f53bd7a38d7ba3b9df1ee12320bb2c5a83fa47d",
+        "bytes": 36868
+      }
+    },
+    "labels": {},
+    "identity": "a07f8482469c951a09e6cae2370f7cd44edb8fc48d5d657dbbdd738ddc9ab225"
+  },
+  "candidate": {
+    "format": 1,
+    "files": {
+      "baseline_binary": {
+        "sha256": "5497781af9bd72d85ea7dd5d22083972de047aaa58b385140b03b05f0e9ed94d",
+        "bytes": 79157040
+      },
+      "seed_binary": {
+        "sha256": "4a23729e1706e74c210d0ef6d870632585b5a05d5934d4459f212a44325c44c2",
+        "bytes": 13370736
+      },
+      "candidate_binary": {
+        "sha256": "235c10a2c1a83ec66d4a4475daba498a4e1d88ed7a494154829a7a25a913e0a7",
+        "bytes": 79157040
+      }
+    },
+    "labels": {
+      "app_source_revision": "a921e32533dc03134ed8a2001bd82f27194c3302",
+      "benchmark_revision": "ebbe777a",
+      "build_source_binding": "exact baseline build command/targetfeatures;one production description change",
+      "candidate_patch_sha256": "8312b21385ad859aaa1bbc217697f23e4c5b6fe8b9162fe9841bb30676728f35",
+      "candidate_source": "a921e325 plus frozen candidate1 description and test-only diagnostic"
+    },
+    "identity": "829bb682cebabee32524870b6f034af8e6268d8e0221e4fc5a50e0c93c85d254"
+  },
+  "settings": {
+    "candidate": {
+      "provider": "Codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "helpers": false,
+      "call_cap": 6
+    },
+    "reader": "same read-only candidate;no writer/modelreader changes",
+    "grader": {
+      "provider": "Codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "tools": [],
+      "HTTP_cap": 1,
+      "timeout_seconds": 45,
+      "binary_sha256": "dc54b46c3f083b9b146e68ae76d977d5073202b03035e81c0ff672980164bdc6",
+      "qualification": "transport fixtures only;independent no-tuning-history per request;limited engineering judgments"
+    },
+    "retrieval": "defaultfeatures,keyword,no dense assets;exact frozen seeded state and derived index"
+  },
+  "isolation": "visible-screening",
+  "isolation_attested": false,
+  "qualification": "unverified",
+  "limitations": [
+    "File hashes do not attest source-to-binary identity or inaccessible evaluation ownership.",
+    "Keep the evaluator, rubric, reviewer and acceptance inputs fixed between comparisons."
+  ],
+  "identity": "4decdc10b250d0d6c74fb087f03e7221c9a4325c4772aaac5ea4e77f7f3bfc4b"
+}

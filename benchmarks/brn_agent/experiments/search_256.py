@@ -53,9 +53,21 @@ def audit_results(root, current):
         audit_result(json.loads(path.read_text()), current)
 
 
+def read_ledger(path):
+    if not path.exists():
+        return []
+    raw = path.read_text()
+    if not raw or not raw.endswith('\n'):
+        raise CycleStop('Missing or incomplete phase ledger header')
+    rows = [json.loads(line) for line in raw.splitlines()]
+    if rows[0] != {'version': 1, 'max_calls': 120}:
+        raise CycleStop('Phase ledger limits differ from frozen allocation')
+    return rows
+
+
 def audit_phases(owned, bindings, current=None):
     ledger = owned / 'BRN-phase-reservations.jsonl'
-    rows = [json.loads(line) for line in ledger.read_text().splitlines()] if ledger.exists() else []
+    rows = read_ledger(ledger)
     for row in rows[1:]:
         name = row['identity']
         argv = bindings['phases'][name]['argv']
@@ -114,7 +126,7 @@ def main():
     if end != started + timedelta(seconds=5400) or not started <= now < end:
         raise ValueError('Original live deadline expired or invalid')
     audit_phases(owned, bindings)
-    previous = [json.loads(line)['identity'] for line in ledger.read_text().splitlines()[1:]] if ledger.exists() else []
+    previous = [row['identity'] for row in read_ledger(ledger)[1:]]
     if previous != list(PHASES)[:list(PHASES).index(args.phase)]:
         raise CycleStop('Phase order differs from the frozen baseline/candidate plan')
     Reservations(ledger, 120).reserve(args.phase, calls)
@@ -126,14 +138,14 @@ def main():
         if active[0] is not None:
             # run_step observes ask's result before its subsequent read/checkpoint
             # but publishes only after returning; inspect that in-memory event.
-            audit_result(active[0], True)
+            audit_result(active[0].result, True)
 
     guard.before_launch = before_launch
     guard.install()
     original_step = v2.Sample.run_step
 
     def tracked_step(sample, *positional):
-        active[0] = sample.result
+        active[0] = sample
         try:
             return original_step(sample, *positional)
         except CycleStop:
@@ -168,7 +180,10 @@ def main():
                          '--provider', 'Codex', '--model', 'gpt-6.1-sol', '--effort', 'medium'])
         audit_phases(owned, bindings, args.phase)
     except (CycleStop, Exception) as error:
-        guard.record('stopped', error_class=type(error).__name__)
+        # CycleStop reasons are fixed host strings; arbitrary exception payloads
+        # may contain private provider/source text and remain omitted.
+        guard.record('stopped', error_class=type(error).__name__,
+                     reason=str(error) if isinstance(error, CycleStop) else None)
         status = 1
     finally:
         status = guard.finish(status)

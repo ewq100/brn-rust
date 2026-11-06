@@ -16,5 +16,16 @@
   "planned_acceptance": "frozen primary total-input criterion across6pairs;do not reclassify different query searches as identical unnecessary calls",
   "patch_sha256": "8312b21385ad859aaa1bbc217697f23e4c5b6fe8b9162fe9841bb30676728f35",
   "candidate_live_calls": 0,
-  "candidate_binary": "pending Dtiming gap build"
+  "candidate_binary": "pending Dtiming gap build",
+  "build_selection_correction": "Initial brn-only candidate build was rejected before live dispatch;rebuild with exact baseline pbrn+pbrn-threads-app CLI+seeder selection to preserve feature unification. Original build log retained.",
+  "candidate_binary_sha256": "235c10a2c1a83ec66d4a4475daba498a4e1d88ed7a494154829a7a25a913e0a7",
+  "build_command": "cargo build --locked --offline -p brn -p brn-threads-app --bin brn --example wiki_eval_seed",
+  "frozen_at": "2026-11-06T22:18:57.305279+00:00",
+  "search_regressions": "9 passed",
+  "decision": "reject under frozen R10 tool-call gate",
+  "decision_at": "2026-11-06T22:23:24.896697+00:00",
+  "reason": "R10 uses6instead of5toolcalls in eachrepetition;per-case no-toolcall-increase was frozen before results",
+  "production_description_restored": true,
+  "confirmation": "not dispatched;48 reservations retained unused,no refund",
+  "later_candidates": "not funded in this cycle"
 }

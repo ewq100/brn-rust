@@ -57,6 +57,15 @@ class ReadOnlyProjectionTests(unittest.TestCase):
 
 
 class CycleAdmissionTests(unittest.TestCase):
+    def test_missing_or_changed_ledger_header_fails_closed(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / 'ledger.jsonl'
+            for raw in ['', '{"identity":"baseline-first","calls":18}\n',
+                        '{"version":1,"max_calls":121}\n']:
+                path.write_text(raw)
+                with self.assertRaises(driver.CycleStop):
+                    driver.read_ledger(path)
+
     def test_in_progress_failed_event_blocks_followup_before_publication(self):
         pending = {'status': 'running', 'steps': [{'kind': 'ask', 'terminal': 'Failed:Network'}]}
         with self.assertRaises(driver.CycleStop):
@@ -92,6 +101,24 @@ class CycleAdmissionTests(unittest.TestCase):
             with self.assertRaises(driver.CycleStop):
                 driver.audit_phases(root, {'phases': {'baseline-first': {
                     'argv': ['--root', str(root / 'run')]}}})
+
+
+class UsageCompletenessTests(unittest.TestCase):
+    def test_partial_summary_usage_is_unknown_not_zero(self):
+        usage = {'input': 100, 'output': 10, 'cached_input': 0, 'uncached_input': 100}
+        raw = {'steps': [{'trace': {'turn_usage': [{'input': 100, 'output': 10}],
+               'wire_requests': [{}, {}], 'summary': {'usage': {'input': 20, 'output': 2}}}}]}
+        self.assertFalse(oracle.complete_usage(raw, usage))
+        self.assertIsNone(usage['input'])
+        self.assertIsNone(usage['cached_input'])
+
+    def test_unknown_parent_usage_cannot_be_repaired_by_known_summary(self):
+        usage = {'input': None, 'output': 10, 'cached_input': 0, 'uncached_input': None}
+        raw = {'steps': [{'trace': {'turn_usage': [{'input': 100, 'output': 10}],
+               'wire_requests': [{}, {}], 'summary': {
+                   'usage': {'input': 20, 'output': 2, 'cached_input': 0}}}}]}
+        self.assertFalse(oracle.complete_usage(raw, usage))
+        self.assertIsNone(usage['input'])
 
 
 if __name__ == '__main__':

@@ -32,6 +32,35 @@ def read_only(folder):
             'mutation_tools': mutations, 'operations': operations, 'knowledge_unchanged': same}
 
 
+def complete_usage(raw, usage):
+    """Include separately reported summaries without inventing missing counts."""
+    # The native extractor retains parent usage separately from compactor usage.
+    # Do not turn an unreported HTTP attempt into a zero-token observation.
+    complete = True
+    for step in raw.get('steps', []):
+        trace = step.get('trace') or {}
+        turns = trace.get('turn_usage') or []
+        summary_usage = (trace.get('summary') or {}).get('usage')
+        if summary_usage:
+            for key in ('input', 'output', 'cached_input'):
+                if usage[key] is None or summary_usage.get(key) is None:
+                    complete = False
+                else:
+                    usage[key] += summary_usage[key]
+        observed = len(turns) + bool(summary_usage)
+        if (not turns or any(not (turn.get('input') or turn.get('output')) for turn in turns)
+                or observed != len(trace.get('wire_requests') or [])):
+            complete = False
+    if any(usage[key] is None for key in ('input', 'output', 'cached_input')):
+        complete = False
+    if not complete:
+        for key in ('input', 'output', 'cached_input', 'uncached_input'):
+            usage[key] = None
+    else:
+        usage['uncached_input'] = usage['input'] - usage['cached_input']
+    return complete
+
+
 def attempt(path, root):
     """Use maintained all-attempt usage/identity extraction, preserving unknowns."""
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -39,27 +68,7 @@ def attempt(path, root):
     row = native_attempt(path, root)
     raw = json.loads(Path(path).read_text())
     row['reported_usage_totals'] = dict(row['usage'])
-    # The native extractor retains parent usage separately from compactor usage.
-    # Do not turn an unreported HTTP attempt into a zero-token observation.
-    complete_usage = True
-    for step in raw.get('steps', []):
-        trace = step.get('trace') or {}
-        turns = trace.get('turn_usage') or []
-        summary_usage = (trace.get('summary') or {}).get('usage')
-        if summary_usage:
-            for key in ('input', 'output', 'cached_input'):
-                if row['usage'][key] is not None:
-                    row['usage'][key] += summary_usage[key]
-        observed = len(turns) + bool(summary_usage)
-        if (not turns or any(not (turn.get('input') or turn.get('output')) for turn in turns)
-                or observed != len(trace.get('wire_requests') or [])):
-            complete_usage = False
-    if not complete_usage:
-        for key in ('input', 'output', 'cached_input', 'uncached_input'):
-            row['usage'][key] = None
-    elif row['usage']['input'] is not None and row['usage']['cached_input'] is not None:
-        row['usage']['uncached_input'] = row['usage']['input'] - row['usage']['cached_input']
-    row['all_HTTP_usage_observed'] = complete_usage
+    row['all_HTTP_usage_observed'] = complete_usage(raw, row['usage'])
     row['read_only'] = read_only(Path(path).parent)
     row['usage']['cost'] = None  # Subscription charges are not observed.
     row['complete_for_pair'] = (raw.get('status') == 'complete'
