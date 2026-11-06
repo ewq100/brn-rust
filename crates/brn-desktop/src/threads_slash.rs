@@ -40,6 +40,8 @@ pub(super) struct Slash {
     /// The start of a `/word` the owner dismissed with Escape; it stays
     /// closed until the caret leaves that word.
     pub dismissed: Option<usize>,
+    /// Keeps the keyboard-selected row in view when the list scrolls.
+    pub scroll: gpui_kit::ScrollHandle,
 }
 
 fn command_char(c: char) -> bool {
@@ -192,6 +194,7 @@ impl ThreadsUi {
                         .as_ref()
                         .filter(|menu| menu.query == query)
                         .map_or(0, |menu| menu.index.min(matches.len() - 1));
+                    self.slash.scroll.scroll_to_item(index);
                     self.slash.menu = Some(SlashMenu {
                         range,
                         query,
@@ -210,6 +213,7 @@ impl ThreadsUi {
         if let Some(menu) = &mut self.slash.menu {
             let len = menu.matches.len() as isize;
             menu.index = (menu.index as isize + delta).rem_euclid(len) as usize;
+            self.slash.scroll.scroll_to_item(menu.index);
             cx.notify();
         }
     }
@@ -276,6 +280,10 @@ impl ThreadsUi {
     pub(super) fn slash_menu(&self, cx: &mut Context<Self>) -> Option<gpui_kit::AnyElement> {
         let menu = self.slash.menu.as_ref()?;
         let p = pal();
+        // The New chat start surface centres the composer near the top of
+        // a short window, so the list opens below it there; a docked
+        // composer opens it above, over the transcript.
+        let below = self.chat_thread().is_none() && self.layout.primary() == TileKind::Chat;
         let mut list = div()
             .id("slash-menu")
             .role(gpui_kit::Role::ListBox)
@@ -284,8 +292,9 @@ impl ThreadsUi {
             .absolute()
             .left_0()
             .right_0()
-            .bottom(gpui_kit::relative(1.))
-            .mb_1()
+            .when(below, |list| list.top(gpui_kit::relative(1.)).mt_1())
+            .when(!below, |list| list.bottom(gpui_kit::relative(1.)).mb_1())
+            .track_scroll(&self.slash.scroll)
             .p_1()
             .flex()
             .flex_col()

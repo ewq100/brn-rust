@@ -2401,6 +2401,62 @@ fn the_slash_list_completes_a_command_into_only_the_current_message(cx: &mut Tes
     });
 }
 
+/// CHAT-08: in a short window the New chat start surface opens the list
+/// below its composer, so no row hides under the header, and ↑/↓ keep the
+/// selected row in view when the list scrolls.
+#[gpui_kit::test]
+fn the_slash_list_stays_in_the_chat_area_of_a_short_window(cx: &mut TestAppContext) {
+    let packages = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let f = fixture(cx, 900., 600., |workspace, _, _| {
+        for n in 1..=4 {
+            let package = packages.path().join(format!("skill-{n}"));
+            std::fs::create_dir(&package).unwrap();
+            std::fs::write(
+                package.join("SKILL.md"),
+                format!(
+                    "---\nname: synthetic-skill-{n}\ndescription: A synthetic skill whose \
+                     description is long enough to wrap onto a second line in a narrow window.\n\
+                     ---\nSynthetic instructions.\n"
+                ),
+            )
+            .unwrap();
+            let info = workspace.install_skill(&package).unwrap();
+            workspace
+                .set_skill_enabled(&info.id, &info.digest, None, true)
+                .unwrap();
+        }
+    });
+    cx.simulate_keystrokes(f.window, "cmd-0");
+    cx.run_until_parked();
+    cx.read(|cx| assert_eq!(f.view.read(cx).chat, ChatTarget::New));
+    update(cx, &f, |view, window, cx| {
+        view.composer.focus_handle(cx).focus(window, cx);
+        cx.notify();
+    });
+    cx.simulate_input(f.window, "/");
+    cx.run_until_parked();
+    let rows = cx.read(|cx| f.view.read(cx).slash.menu.as_ref().unwrap().matches.len());
+    assert!(rows >= 8, "{rows} commands");
+    on_window(cx, &f, |window, _| {
+        let tile = window.find("tile-chat").bounds();
+        let composer = window.find("composer-box").bounds();
+        let menu = window.find("slash-menu").bounds();
+        assert!(menu.top() >= composer.bottom(), "{menu:?} vs {composer:?}");
+        assert!(menu.bottom() <= tile.bottom(), "{menu:?} vs {tile:?}");
+        let first = window.find("slash-row-0");
+        assert!(first.visible() && first.bounds().top() >= tile.top());
+    });
+    cx.simulate_keystrokes(f.window, "up");
+    cx.run_until_parked();
+    on_window(cx, &f, |window, cx| window.simulate_next_frame(cx));
+    on_window(cx, &f, |window, _| {
+        let menu = window.find("slash-menu").bounds();
+        let last = window.find(format!("slash-row-{}", rows - 1));
+        assert!(last.visible(), "the selected last row scrolls into view");
+        assert!(last.bounds().bottom() <= menu.bottom() + px(1.));
+    });
+}
+
 fn allow_subscription_web(workspace: &mut Workspace) {
     let mut settings = workspace.settings().unwrap();
     settings.provider = "codex".into();
