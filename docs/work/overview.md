@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Finish Mac alpha package/update acceptance after updater258 merge and A response-limit hardening264.
-**Owner attention:** Updater258 merged28051188; all7 refreshed PR lanes and all4 required resulting-main contexts pass. Three inherited optional Windows failures stay visible. Final package awaits A264 merged source/build slot; native clean profile and release-manifest approval remain separate.
+**Owner attention:** A handoff resolved: selected main a921e32533dc03134ed8a2001bd82f27194c3302 (264/265). B preparing immediate exact-source release build; Mac slot21:47–22:30Z maximum; D/E window22:30–23:00Z or earlier on release. Native/publication remain separate.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -74,10 +74,10 @@ Gates:
 ### Implement and qualify the versioned Mac updater
 
 Task ID: `mac-updater-253`
-Owner: Agent B · State: **active** · Last observed: 2026-11-06T19:59:32.568699+00:00
-Activity: PR258 merged normally as28051188f7d20a817202ddf098dff5dc2f07e653; merged tree exactly matches reviewed0438bd60. All7 refreshed PR lanes and all4 required resulting-main contexts pass; independent full integration/security clear. Codex code clean; separate security receipt explicitly reports no issues on0438bd60. Private full report login unavailable/not inspected; additional independent full-task security review clear, no waiver inferred. A264 now supplies response-limit hardening candidate; not selected as final until merged.
-Next: Updater source/main checks complete; preserve three informational Windows failures. Await A264 normal merge/selected SHA and heavy-build slot. Merge that agreed main into this acceptance branch, build native-ui arm64/macOS15+ desktop/CLI plus verified existing helpers, record exact package receipts; then one native session with A and authority-approved published A/B stock HTTPS witness.
-Resource waits: A264 selected merged source and heavy-build slot not yet handed off.; Mac mini last observed locked; clean-profile normal Gatekeeper and tester-owned Copilot login needed after package ready.; Owner release-manifest approval/publication of command-enabled A/B needed for real stock HTTPS; legacy previews lack updater.
+Owner: Agent B · State: **active** · Last observed: 2026-11-06T21:47:17.547992+00:00
+Activity: A264/265 merged; selected source a921e32533dc03134ed8a2001bd82f27194c3302 verified. No build already running at21:46Z process check. B owns bounded Mac heavy slot21:47–22:30Z for desktop/CLI/helpers and headless package qualification, own target. Acceptance records normally reconciled with selected source; compiling from clean exact source follows.
+Next: Build release native-ui desktop and test-only CLI from clean a921e325 in B target; rebuild both existing helpers, regenerate notices, package proposed alpha.1/3 and alpha.2/4, verify signatures/relocation/helpers/data/recovery. Release slot on completion/blocker, hard D/E window22:30–23:00Z. Then concrete combined native session request; real published stock HTTPS waits approved command-enabled releases.
+Resource waits: Mac mini last observed locked; clean-profile normal Gatekeeper and tester-owned Copilot login needed after package ready.; Owner release-manifest approval/publication of command-enabled A/B needed for real stock HTTPS; legacy previews lack updater.
 
 <details>
 <summary>Gate status</summary>
@@ -105,7 +105,6 @@ Owner: Agent B
 
 Waiting:
 
-- resource: A264 selected merged source and heavy-build slot not yet handed off.
 - resource: Mac mini last observed locked; clean-profile normal Gatekeeper and tester-owned Copilot login needed after package ready.
 - resource: Owner release-manifest approval/publication of command-enabled A/B needed for real stock HTTPS; legacy previews lack updater.
 
@@ -117,4 +116,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
 
-Local page reflects the last saved observations in this record (2026-11-06T19:59:32.568699+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T21:47:17.547992+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
