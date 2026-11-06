@@ -155,6 +155,7 @@ jobs:
         # Qualify Linux and Mac widgets on PRs; probe Windows on main/manual runs.
         runner: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.windows_only && '["windows-2025"]' || github.event_name == 'pull_request' && '["ubuntu-24.04","macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
     steps:
+      # macOS updater checks must run on a Mac; the tooling lane skips them.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -162,6 +163,9 @@ jobs:
         with:
           lane: native-ui
           native: 'true'
+      - name: Verify signed macOS packaging and updater recovery
+        if: runner.os == 'macOS'
+        run: python3 -m unittest scripts.tests.test_macos_packaging scripts.tests.test_macos_updater -v
       - name: Prepare both locked document helper graphs
         if: runner.os != 'Windows'
         run: |

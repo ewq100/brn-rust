@@ -32,6 +32,7 @@ else
   app="$(cd -P "$self_dir/../../.." && pwd)"
   [[ "$app" == *.app && ! -L "$0" ]] || die 'Run the bundled updater from an installed app.'
 fi
+[[ "$app" != *$'\n'* && "$app" != *$'\r'* ]] || die 'Installation paths containing newlines are unsupported.'
 parent="$(dirname "$app")"
 lock="$parent/.$(basename "$app").update-lock"
 [[ -d "$parent" && -w "$parent" ]] || die 'Installation folder is not writable. Install a copy in ~/Applications and run its bundled command; do not use sudo.'
@@ -47,25 +48,33 @@ if [[ "$1" != --continue && "$1" != --recover ]]; then
   /bin/cp "$0" "$txn/brn-update"
   /bin/chmod 700 "$txn/brn-update"
   printf '%s\n' "$$" > "$txn/pid"
-  printf '%s\n' "Recovery after the updater exits: /bin/bash \"$txn/brn-update\" --recover" > "$txn/owner"
+  printf -v recovery_command '/bin/bash %q --recover' "$txn/brn-update"
+  printf '%s\n' "Recovery after the updater exits: $recovery_command" > "$txn/owner"
   if ! /bin/ln "$txn/owner" "$lock" 2>/dev/null; then
     echo "Another update or interrupted transaction owns: $lock" >&2
     [[ ! -f "$lock" ]] || /bin/cat "$lock" >&2
     /bin/rm -r "$txn"
     exit 1
   fi
-  echo "Recovery after interruption: /bin/bash \"$txn/brn-update\" --recover"
+  echo "Recovery after interruption: $recovery_command"
   exec /bin/bash "$txn/brn-update" --continue
 fi
 
+# Lock the shell's inherited descriptor, not a supervising lockf process.
+# Update/recovery and still-running filesystem children retain kernel ownership.
+exec 9> "$txn/recovery-guard"
+/usr/bin/lockf -t 0 9 || die 'Another update/recovery is still active; wait for it to exit.'
 if [[ "$1" == --recover ]]; then
+  if [[ ! -e "$lock" && -d "$app" ]]; then
+    echo 'Recovery already complete; installed app retained.'
+    exit 0
+  fi
   [[ -f "$txn/pid" ]] || die 'Incomplete initialization: preserve this directory and inspect the update lock.'
   pid="$(/bin/cat "$txn/pid")"
   [[ "$pid" =~ ^[0-9]+$ ]] || die 'Invalid transaction PID.'
   if /bin/kill -0 "$pid" 2>/dev/null; then die "Updater PID $pid is still active; wait for it to exit."; fi
-  [[ -f "$lock" ]] && /usr/bin/grep -Fq "$txn/brn-update" "$lock" || die 'Lock belongs to a different transaction; leaving it untouched.'
+  [[ -f "$lock" && ! -L "$lock" && -f "$txn/owner" && "$(/usr/bin/stat -f '%d:%i' "$lock")" == "$(/usr/bin/stat -f '%d:%i' "$txn/owner")" ]] || die 'Lock belongs to a different transaction; leaving it untouched.'
   closed
-  /bin/mkdir "$txn/recovering" 2>/dev/null || die 'Recovery already claimed. Preserve this transaction for inspection.'
   # Never swap an old binary over a potentially opened/migrated installation.
   if [[ ! -e "$app" && -d "$txn/previous.app" ]]; then
     /bin/mv "$txn/previous.app" "$app"
@@ -76,7 +85,7 @@ if [[ "$1" == --recover ]]; then
     die "No installation found. Preserve $txn and reinstall an announced package."
   fi
   # Release only the lock that actually identifies this transaction.
-  [[ -f "$lock" ]] && /usr/bin/grep -Fq "$txn/brn-update" "$lock" || die 'Lock belongs to a different transaction; leaving it untouched.'
+  [[ -f "$lock" && ! -L "$lock" && -f "$txn/owner" && "$(/usr/bin/stat -f '%d:%i' "$lock")" == "$(/usr/bin/stat -f '%d:%i' "$txn/owner")" ]] || die 'Lock belongs to a different transaction; leaving it untouched.'
   /bin/rm "$lock"
   echo "Recovery complete. Retained files: $txn"
   exit 0
@@ -94,7 +103,7 @@ cleanup() {
     /bin/rm "$lock"
   else
     echo "Update stopped; retained installation/recovery files in $txn" >&2
-    echo "After this process exits: /bin/bash \"$txn/brn-update\" --recover" >&2
+    printf 'After this process exits: /bin/bash %q --recover\n' "$txn/brn-update" >&2
   fi
   exit "$code"
 }
@@ -169,11 +178,23 @@ done
 [[ "$(hash "$candidate/Contents/Resources/bin/brn-update")" == "$(json "$manifest" updater_sha256)" ]] || die 'Updater receipt differs.'
 for binary in brn-desktop brn-xberg-helper brn-xberg-helper-brn; do
   file="$candidate/Contents/Resources/bin/$binary"
-  [[ -x "$file" && "$(/usr/bin/lipo -archs "$file")" == arm64 && \
+  [[ -x "$file" && \
      "$(hash "$file")" == "$(json "$manifest" "binaries.$binary.sha256")" && \
      "$(hash "$file")" == "$(json "$embedded" "binaries.$binary.sha256")" ]] || die "Invalid executable: $binary"
-  [[ "$(/usr/bin/otool -l "$file" | /usr/bin/awk '$1 == "minos" {print $2}')" == 15.0 ]] || die "Unsupported deployment target: $binary"
-  /usr/bin/otool -L "$file" | /usr/bin/awk 'NR > 1 && $1 !~ /^\/usr\/lib\// && $1 !~ /^\/System\/Library\// {bad=1} END {exit bad}' || die "External runtime dependency: $binary"
+  # codesign is a stock macOS executable. lipo/otool are Xcode shims and
+  # must remain build-host checks, never recipient updater dependencies.
+  /usr/bin/codesign -d --verbose=4 "$file" 2> "$txn/binary-identity"
+  /usr/bin/grep -qx 'Format=Mach-O thin (arm64)' "$txn/binary-identity" || die "Unsupported architecture: $binary"
+  /usr/bin/grep -qx 'VersionPlatform=1' "$txn/binary-identity" || die "Unsupported platform: $binary"
+  /usr/bin/grep -qx 'VersionMin=983040' "$txn/binary-identity" || die "Unsupported deployment target: $binary"
+  # Package-time otool inspection records only portable system libraries. The
+  # verified hash binds this inventory to the exact signed binary in the ZIP.
+  index=0
+  while library="$(json "$manifest" "binaries.$binary.libraries.$index" 2>/dev/null)"; do
+    [[ "$library" == /usr/lib/* || "$library" == /System/Library/* ]] || die "External runtime dependency: $binary"
+    index=$((index + 1))
+  done
+  ((index > 0)) || die "Missing library inventory: $binary"
 done
 /usr/bin/codesign --verify --strict --deep "$candidate"
 closed
@@ -182,5 +203,5 @@ closed
 /bin/mv "$candidate" "$app"
 echo "Installed $version (build $new_build). Previous app retained in: $txn/previous.app"
 echo 'Data/settings/credentials were untouched. Old apps may be incompatible after a database migration.'
-printf 'Reopen normally: /usr/bin/open "%s"\n' "$app"
+printf 'Reopen normally: /usr/bin/open %q\n' "$app"
 echo 'macOS may require Privacy & Security → Open Anyway again. No security settings were changed.'

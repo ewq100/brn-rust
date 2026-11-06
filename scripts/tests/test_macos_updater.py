@@ -121,6 +121,13 @@ done
         self.assertIn("/releases/download/v0.2.0-alpha.2/", requests)
         self.assertFalse((self.app.parent / ".BRN Threads.app.update-lock").exists())
 
+    def test_update_without_developer_tools(self):
+        # Xcode tool shims refuse this setting. codesign/plutil/ditto still work.
+        self.env["DEVELOPER_DIR"] = "/nonexistent-brn-developer-tools"
+        result = self.run_update()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.build(), 102)
+
     def test_bad_downloads_keep_current_app(self):
         for defect in ("offline", "missing", "checksum", "wrong-version", "old-build", "platform"):
             with self.subTest(defect=defect):
@@ -200,6 +207,16 @@ done
                 self.assertEqual(self.build(), 101)
                 self.assertEqual(self.recover().returncode, 0)
                 shutil.rmtree(self.transaction())
+
+    def test_external_library_inventory_refuses(self):
+        data = json.loads(self.receipt().read_text())
+        data["binaries"]["brn-desktop"]["libraries"] = ["/opt/homebrew/lib/unshipped.dylib"]
+        self.receipt().write_text(json.dumps(data))
+        self.refresh_checksums()
+        result = self.run_update()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("External runtime dependency", result.stderr)
+        self.assertEqual(self.build(), 101)
 
     def test_unsupported_os_and_architecture(self):
         saved = self.updater.read_text()
@@ -297,6 +314,56 @@ else /bin/mv "$@"; fi
         self.kill_and_recover(process)
         self.assertEqual(self.build(), 101)
 
+    def interrupted_recovery(self, phase, pid_only=False):
+        txn = self.app.parent / ".BRN Threads.app.update-fixture"
+        txn.mkdir()
+        self.app.rename(txn / "previous.app")
+        runner = txn / "brn-update"
+        original = self.updater.read_text() if self.updater.exists() else (txn / "previous.app/Contents/Resources/bin/brn-update").read_text()
+        (txn / "app-path").write_text(str(self.app) + "\n")
+        (txn / "pid").write_text("99999999\n")
+        lock = self.app.parent / ".BRN Threads.app.update-lock"
+        (txn / "owner").write_text(str(runner))
+        os.link(txn / "owner", lock)
+        self.env["FIXTURE_LOCK"] = str(lock)
+        tool = {"claim": "kill", "restore": "mv", "unlock": "rm"}[phase]
+        stub = self.root / f"recover-{tool}"
+        before = 'touch "$FIXTURE_ROOT/stopped"; sleep 60' if phase != "restore" else ':'
+        after = 'touch "$FIXTURE_ROOT/stopped"; sleep 60' if phase == "restore" else ':'
+        stub.write_text(f'#!/bin/bash\n{before}\n/bin/{tool} "$@"\ncode=$?\n{after}\nexit "$code"\n')
+        stub.chmod(0o700)
+        runner.write_text(original.replace(f"/bin/{tool}", str(stub)))
+        process = subprocess.Popen(["/bin/bash", str(runner), "--recover"], env=self.env,
+                                   stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, start_new_session=True)
+        self.await_stop(process)
+        second = subprocess.run(["/bin/bash", str(runner), "--recover"], env=self.env, capture_output=True, text=True, timeout=3)
+        self.assertNotEqual(second.returncode, 0, "Concurrent recovery must refuse")
+        if pid_only:
+            os.kill(process.pid, signal.SIGKILL)
+            process.wait(timeout=5)
+            second = subprocess.run(["/bin/bash", str(runner), "--recover"], env=self.env, capture_output=True, text=True, timeout=3)
+            self.assertNotEqual(second.returncode, 0, "Surviving filesystem worker must retain guard")
+        os.killpg(process.pid, signal.SIGKILL)
+        process.communicate(timeout=5)
+        runner.write_text(original)
+        for _ in range(2):
+            result = subprocess.run(["/bin/bash", str(runner), "--recover"], env=self.env, capture_output=True, text=True, timeout=5)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(self.build(), 101)
+        self.assertFalse(lock.exists())
+
+    def test_recovery_pid_only_sigkill_retains_worker_guard(self):
+        self.interrupted_recovery("unlock", pid_only=True)
+
+    def test_recovery_sigkill_after_claim_can_retry(self):
+        self.interrupted_recovery("claim")
+
+    def test_recovery_sigkill_after_restore_can_retry(self):
+        self.interrupted_recovery("restore")
+
+    def test_recovery_sigkill_before_unlock_can_retry(self):
+        self.interrupted_recovery("unlock")
+
     def test_running_app_is_not_terminated(self):
         process = subprocess.Popen([str(self.app / "Contents/Resources/bin/brn-desktop")], env=dict(self.env, BRN_SYNTHETIC_WAIT="1"))
         try:
@@ -321,5 +388,88 @@ else /bin/mv "$@"; fi
             self.app.parent.chmod(0o700)
 
 
+def qualify_update(delivery_a, delivery_b, host_cli, evidence):
+    """Real BRN A→B and store preservation; only HTTPS transport is substituted.
+
+    Prepare local packages v0.2.0-alpha.1/build101 and alpha.2/build102 with the
+    normal packager. These test tags must not be approved/published for this run.
+    This is headless evidence, not clean-Mac/Gatekeeper/Copilot acceptance.
+    """
+    case = UpdaterTests("test_verified_replacement_and_backup")
+    case.deliveries = [Path(delivery_a).resolve(), Path(delivery_b).resolve()]
+    # Verify both unmodified source packages before A's transport-only test edit.
+    for delivery in case.deliveries:
+        subprocess.run(["/usr/bin/codesign", "--verify", "--strict", "--deep", str(delivery / "BRN Threads.app")], check=True)
+    case.setUp()
+    try:
+        workspace = case.data / "Library/Application Support/BRN Threads Preview/workspace"
+        cli = str(Path(host_cli).resolve())
+        calls = []
+        def call(*arguments, data=workspace):
+            result = subprocess.run([cli, "--json", "--data-dir", str(data), *arguments], env=case.env, capture_output=True, text=True, timeout=30)
+            assert result.returncode == 0, (arguments, result.stdout, result.stderr)
+            payload = json.loads(result.stdout)
+            assert payload["status"] == "ok", payload
+            calls.append(list(arguments))
+            return payload["result"]
+        call("init", "--purpose", "test")
+        note = call("note-create", "--title", "Synthetic update note", "--text", "Harbor water: 12 cm. Preserve UTF-8: õ ü.")
+        project = call("project-create", "--title", "Synthetic update project")
+        chat = call("thread-start", "--title", "Synthetic update chat")
+        call("queue", "--thread", chat["id"], "--text", "Unsent synthetic work; never dispatch")
+        call("configure", "--provider", "Copilot", "--model", "synthetic-unavailable-model", "--effort", "low")
+        call("delegation", "--choice", "review-first")
+        token = case.root / "synthetic-edit-token"
+        edit = call("begin-edit", "--note", note["id"], "--base", "1", "--token-out", str(token))
+        call("update-buffer", "--session", edit["id"], "--generation", "1", "--text", "Unsaved synthetic draft", "--token-file", str(token))
+        source = case.root / "synthetic-import.md"
+        source.write_text("# Synthetic source\n\nThe quay closes at 18:00.\n")
+        # Real helper discovery uses the supplied relocated package, not a build path.
+        cli_dir = case.root / "test-cli-bin"
+        cli_dir.mkdir()
+        shutil.copy2(cli, cli_dir / "brn")
+        for name in ("brn-xberg-helper", "brn-xberg-helper-brn"):
+            shutil.copy2(case.app / "Contents/Resources/bin" / name, cli_dir / name)
+        cli = str(cli_dir / "brn")
+        call("intake", "--source", str(source), "--intent", "full", "--title", "Synthetic imported source", "--key", "update-import")
+        backup = case.root / "pre-update.sqlite3"
+        call("backup", "--destination", str(backup))
+        inspections = ("notes", "records", "history", "settings", "recovery", "projects", "threads")
+        before = {name: call(name) for name in inspections}
+        def files():
+            return {str(p.relative_to(case.data)): packaging.digest(p) for p in case.data.rglob("*") if p.is_file()}
+        hashes_before = files()
+        result = case.run_update()
+        assert result.returncode == 0, (result.stdout, result.stderr)
+        assert case.build() == 102
+        assert files() == hashes_before, "Updater changed an external data/settings/credential file"
+        startup = subprocess.run([str(case.app / "Contents/Resources/bin/brn-desktop"), "--data-dir", str(workspace), "--headless-check", "startup"], env=case.env, capture_output=True, text=True, timeout=30)
+        assert startup.returncode == 0, (startup.stdout, startup.stderr)
+        after = {name: call(name) for name in inspections}
+        assert after == before, "Real B startup changed expected saved state"
+        restored = case.root / "restored-workspace"
+        call("restore", "--source", str(backup), data=restored)
+        assert call("notes", data=restored) == before["notes"]
+        report = {"outcome": "passed", "scope": "local real BRN packages, headless A→B/store/backup/restore; HTTPS transport only substituted", "limitations": ["Not native acceptance", "Not clean-Mac installation or Gatekeeper acceptance", "Synthetic Copilot selection/credential sentinel only; no live connection", "Not publication or final integrated Agent A candidate"], "packages": [json.loads(next(p.glob("*.manifest.json")).read_text()) for p in case.deliveries], "checks": {"external_files_unchanged_before_B_reopen": True, "logical_state_unchanged_after_B_headless_startup": True, "previous_app_retained": (case.transaction() / "previous.app").is_dir(), "pre_update_backup_restored_to_fresh_store": True}, "synthetic": {"note_id": note["id"], "project_id": project["id"], "thread_id": chat["id"], "inspection_commands": list(inspections), "file_hashes_before_update": hashes_before}, "commands": calls, "update_stdout": result.stdout, "update_stderr": result.stderr, "B_headless_stdout": startup.stdout}
+        Path(evidence).write_text(json.dumps(report, indent=2) + "\n")
+        print("Real BRN local A→B, unchanged external files, B headless reopen and backup/restore passed")
+    finally:
+        # The case's byte sentinels are unchanged; the added real workspace is
+        # intentionally retained only until this disposable qualification ends.
+        case.scratch.cleanup()
+
+
 if __name__ == "__main__":
-    unittest.main()
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "--qualify-update":
+        import argparse
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--qualify-update", action="store_true")
+        parser.add_argument("--delivery-a", required=True)
+        parser.add_argument("--delivery-b", required=True)
+        parser.add_argument("--host-cli", required=True)
+        parser.add_argument("--evidence", required=True)
+        args = parser.parse_args()
+        qualify_update(args.delivery_a, args.delivery_b, args.host_cli, args.evidence)
+    else:
+        unittest.main()
