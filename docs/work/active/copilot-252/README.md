@@ -113,16 +113,72 @@ that the model cannot search; the opt-in capability probe and provider fixtures 
 Copilot models directly rather than through `copilot_completion`; provider-string parsing
 and the token-digest account pin are candidates for consolidation (#255).
 
+## Release-hardening follow-up (`work/response-limits-252`)
+
+Owner: Agent A. Scope: the response bound below, an honest notice for a Copilot chat
+HTTP 403 and the remaining #252 journeys. This is release hardening for #252/#253, not #255
+development-speed work; #255 keeps only the provider-module consolidation nits above.
+
+**Response bound.** A model response that kept sending bytes previously had no wall-clock
+or byte bound, and tool-call arguments escaped the 128 KiB answer cap.
+`crates/brn-ai/src/response_limit.rs` gives each model HTTP response of a run 20 minutes
+from send and 64 MiB of received wire bytes (text, reasoning, tool-call arguments and
+framing). The bound is enforced while the stream is read, before Rig buffers the bytes, on
+the run transport shared by chat, summary and helpers, for Codex and Copilot alike. A trip
+ends the body with a transport error, so Rig fails the turn before any of its tool calls
+dispatch. Whole-body replies (account and token exchanges) are held to the duration only;
+model responses stream. The run fails as `TimeLimitReached` or `Other` with origin `response_limit`,
+non-retryable, with "A model response reached BRN's time/size limit. Continue starts
+fresh." The guard then refuses every later request of the run, so a request the provider may
+have processed is never resent, and accepted progress stays. Rig's 300 s idle bound still ends
+a silent stream; Stop stays immediate. Headroom: about 32k output tokens at a slow 40
+tokens/s take under 14 minutes; a full 128k-token response is about 26–32 MB on the wire.
+Document conversion/refinement keep their own total timeout and 1 MiB text cap, and search
+keeps its 8 MiB caps. See [threads behavior](../../../architecture/threads-behavior.md).
+
+**Copilot chat 403.** A signed-in account refused by subscription, permission or policy
+read "The provider account needs reconnecting", which reconnecting alone does not fix. Any
+provider HTTP 403 now reads "The provider refused this account's request (subscription,
+permission or policy). Check the account's access or reconnect it, then Continue." (a
+ChatGPT token-refresh 403 can still need a reconnect). The kind stays `ReconnectNeeded` for
+the CLI contract; missing credentials and HTTP 401 keep the reconnect notice.
+
+**Deterministic checks** (short synthetic limits; `threads_response_limit_tests.rs`,
+`threads_copilot_denial_tests.rs`, `document_refine_tests.rs`, `response_limit.rs`):
+a Copilot keep-alive stream reaches the time limit with one request and no Responses retry;
+a Codex stream without end fails after accepted progress and sends nothing more; oversized
+tool arguments fail on size with no `ToolStarted`; normal completion under short limits;
+Stop during an active stream ends Interrupted promptly; unit checks for the wire cap,
+the deadline, unary bodies and refusal after a trip. Copilot simulated denials: quota 429 →
+usage limit, no other model or ChatGPT route; policy 403 → the access notice above (red before
+the fix); an account without `gpt-6-luna` → model refused in chat and in refinement, with no
+substitute model. `cargo test -p brn-ai --lib` 610 passed, 1 ignored; `brn-threads-app`,
+`brn`, `brn-desktop` all pass; workspace Clippy `-D warnings` with and without
+`capability-spike` and `cargo fmt --check` clean.
+
+**Live journeys** (debug `brn` of `b6840357`, fresh test workspace, private copy of the owner's
+Copilot business sign-in, `gpt-6-luna` high; credential copy and data deleted after):
+
+| Journey | Result |
+|---|---|
+| Knowledge consolidation | Two overlapping, contradictory synthetic notes → one review candidate keeping every quantity, the superseded 9 m/s and timber-mat figures as history, the P7/P8 exception change and both source links; Apply (2 writes) then Undo restored both notes |
+| Referenced writing, `--edit-note` grant | Edit referencing the other note applied under the one-invocation grant; Undo restored the note |
+| Referenced writing, Discard | Review candidate dismissed; note unchanged, no candidate left |
+| Stale-edit refusal | Candidate prepared, owner saved an edit, Apply → Stale (exit 3); owner text kept, candidate text absent |
+| Reconnect and restart | Cached Copilot session deleted; a new process re-exchanged the session and continued the earlier chat with correct context |
+| Intake with refinement On, web search | Applied; `web_search` ×2 cited a real release page |
+| Codex recheck (owner's Codex sign-in, `gpt-6.1-sol` low) | `search_notes`/`read_note` answer completed through the guard |
+
+Simulated only (this business account has Luna and no quota/policy limits to trigger):
+quota and policy denial, an account without Luna, and account switching (account-pin tests).
+
 ## Limits
 
 Device sign-in, account switching in the native UI and native observation remain owner or
-native-pending; this record does not claim them. Not yet qualified live on Copilot: a clean
-installed Mac, reconnect after restart, consolidation, referenced writing with
-Discard/Undo/stale refusal, quota or policy denial, and an account without Luna. The
-capability boundary is what BRN requests and verifies in each reply (requested tool set,
-echoed tools, every output item); it cannot observe provider internals beyond that.
-
-A single model turn has no wall-clock or byte bound while bytes keep arriving: idle
-detection does not fire and the 128 KiB answer cap excludes tool-call arguments. Stop
-still ends such a run. The strict-schema trigger is fixed; a turn bound is follow-up work
-(#255).
+native-pending; this record does not claim them. Not yet observed: a clean installed Mac (on
+B's #253 candidate), the desktop journeys after an update, and live quota, policy or
+no-Luna accounts (simulated only). The capability boundary is what BRN requests and verifies
+in each reply (requested tool set, echoed tools, every output item); it cannot observe
+provider internals beyond that. The response bound is per model response with run-wide
+refusal after a trip. A run's total time is bounded by its tool rounds, helper and
+compaction turns at 20 minutes per response, or by a model-call limit when the host sets one.
