@@ -44,17 +44,15 @@ def grade(args, packets, tag):
     random.Random(25420261106).shuffle(packets)
     folder = args.root/('judgments-'+tag)
     folder.mkdir(exist_ok=False)
-    replies=[]
-    for offset in range(0,len(packets),BATCH_SIZE):
+    def call(batch,label):
         used_seconds=sum(load(p).get('elapsed_ms',0)/1000 for p in
             args.task_root.glob('phase*/judgments-*/*-run/receipt.json'))
         if used_seconds+45>1200:
             raise RuntimeError('Original20min grading ceiling exhausted')
-        batch=packets[offset:offset+BATCH_SIZE]
-        path=folder/(str(offset//BATCH_SIZE)+'-packets.json')
+        path=folder/(label+'-packets.json')
         save(path,batch)
-        identity=args.root.name+'-'+tag+'-'+str(offset//BATCH_SIZE)
-        out=folder/(str(offset//BATCH_SIZE)+'-run')
+        identity=args.root.name+'-'+tag+'-'+label
+        out=folder/(label+'-run')
         dispatch(args,{'id':identity,'kind':'grader','role':'grader','phase':args.phase,
             'root':str(out),'seconds':60,'minimum_seconds':45,'binary':str(args.judge),
             'packet':str(path),'instructions':str(args.task_root/'grader-instructions.txt')})
@@ -63,10 +61,27 @@ def grade(args, packets, tag):
             decoded=json.loads(receipt['result']['text'])
             if not isinstance(decoded,list):
                 raise ValueError('Expected array')
-            replies.extend(decoded)
+            return decoded
         except (KeyError,ValueError):
-            replies.extend({'id':p['id'],'packet_sha256':p['packet_sha256'],
-                'error':'Grader did not return the frozen JSON reply schema'} for p in batch)
+            return []
+    replies=[]
+    repairs=[]
+    for offset in range(0,len(packets),BATCH_SIZE):
+        batch=packets[offset:offset+BATCH_SIZE]
+        decoded=call(batch,str(offset//BATCH_SIZE))
+        for number,packet in enumerate(batch):
+            bound=[r for r in decoded if isinstance(r,dict) and r.get('id')==packet['id']
+                and r.get('packet_sha256')==packet['packet_sha256']]
+            if len(bound)!=1:
+                # Only a malformed/missing binding gets one unchanged-packet
+                # continuation. Valid low scores are never replaced.
+                repairs.append({'id':packet['id'],'reason':'missing/duplicate/mismatched packet binding'})
+                corrected=call([packet],f'protocol-{offset+number}')
+                bound=[r for r in corrected if isinstance(r,dict) and r.get('id')==packet['id']
+                    and r.get('packet_sha256')==packet['packet_sha256']]
+            replies.append(bound[0] if len(bound)==1 else {'id':packet['id'],
+                'packet_sha256':packet['packet_sha256'],'error':'No valid hash-bound judgment after one protocol continuation'})
+    save(folder/'protocol-continuations.json',repairs)
     save(folder/'replies.json',replies)
     return folder/'replies.json'
 
