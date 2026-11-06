@@ -19,3 +19,13 @@ Current user instructions select the work and its authority. Preserve existing a
 ## Working cycle
 
 Use the [workflow](docs/development/workflow.md) for task ownership, bounded correction, facts and integration. Use [strategic programming](docs/development/strategic-programming.md) for meaningful design changes; it owns the responsibility, reuse, retirement and test-design guidance. Keep one integration owner and give helpers bounded ownership/evidence. Update the current task at meaningful transitions, regenerate the overview, and report implemented, checked, native-observed, owner-accepted and merged separately.
+
+## Code Review Rules
+
+Use the [architecture invariants](docs/architecture/invariants.md) as the behavior contract and the [threat model](docs/threat-model.md) for security context. Focus on actionable regressions introduced by the change:
+
+- **Accepted work:** flag bypasses of the shared checked writer, lost/stale edits, duplicate mutations on retry, unsafe supported-schema upgrades, and Undo/recovery that erases later work.
+- **Authority and privacy:** flag model/source-controlled grants, approval reused for a changed candidate, private content escaping its scope, exposed credentials, and new tool dispatch after authority is revoked. Trace enforcement to the existing host-owned checks.
+- **Async and integration behavior:** trace Stop/Resume, queued messages, delayed results and provider/tool failures through affected callers; flag concrete hangs, duplicate effects, silent provider/model fallback or broken supported interfaces.
+
+Explain the triggering path, impact and relevant contract for each finding. Leave formatting/lint to CI; avoid speculative findings or blanket test demands. Apply [strategic programming](docs/development/strategic-programming.md) to material design issues in the changed code. Follow the [Codex review workflow](docs/development/workflow.md#codex-pull-request-review) for current-commit review and finding disposition.
