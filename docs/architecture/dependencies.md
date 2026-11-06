@@ -6,7 +6,7 @@
 |---|---|---|
 | State and checked changes | Bundled SQLite through rusqlite 0.40.2 | `brn-threads-core` owns authoritative records, history, authorization, replay and recovery |
 | Application service | Core, transient intake and derived retrieval | `brn-threads-app` shares business operations across CLI, desktop and agent |
-| Provider runtime | Published Rig 0.45.0 and retained provider/auth transports | `brn-ai` owns bounded runtime/tools; no vendored Rig patch |
+| Provider runtime | Published Rig 0.46.0 ([upgrade record](../work/active/rig046-upgrade/README.md)) and retained provider/auth transports | `brn-ai` owns bounded runtime/tools; no vendored Rig patch |
 | Native surface | GPUI Kit 0.8.0 | `brn-writing-ui` owns the reusable panel; desktop and the native-only writing_host example compose it with shared services. GPUI/native tests remain optional; native observation stays separate |
 | Conversion | Pinned Xberg 1.3.10 stock / separately patched optional bundle, bounded PNG/JPEG/Markdown validation | Two standalone restricted helpers; `brn-intake` light DTOs and `brn-threads-intake` process adapter |
 | Search | SQLite FTS5; optional FastEmbed 7.1.0/ONNX and explicit model installer | `brn-retrieval` derived index; keyword search plus the optional native dense lane and explicitly installed model |

@@ -4,7 +4,7 @@
 //! they do not acquire an invented model context window.
 use super::*;
 use rig::completion::Message as ModelMessage;
-use rig::memory::recent::{TokenBudget, view};
+use rig_memory::recent::{TokenBudget, view};
 
 pub(super) const RESPONSE: usize = 8192;
 const SAFETY: usize = 4096;
@@ -156,7 +156,7 @@ pub(super) fn fit_prefix(text: &str, mut fits: impl FnMut(&str) -> bool) -> Opti
 pub(super) fn is_limit(error: &AiError) -> bool {
     error.is_context_limit()
 }
-fn estimate(value: &impl serde::Serialize) -> usize {
+pub(super) fn estimate(value: &impl serde::Serialize) -> usize {
     serde_json::to_vec(value).map_or(usize::MAX, |b| b.len().saturating_add(1024))
 }
 fn initial_estimate(scope: &Scope, input: &str) -> usize {

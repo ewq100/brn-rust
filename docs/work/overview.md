@@ -31,6 +31,26 @@ Gates:
 
 </details>
 
+### Upgrade the runtime to Rig 0.46 and qualify bounded reuse
+
+Task ID: `rig-046-253`
+Owner: Agent A (runtime) · State: **active** · Last observed: 2026-11-06T15:27:00+02:00
+Activity: Rig 0.45 to 0.46 implemented on work/rig-046-253 from main 2ebcf4c7: minimal 12-package lock delta, explicit serde_json preserve_order/float_roundtrip in production, stall classification, Terra same-model Responses retry, stall/Stop and HookTestHarness tests. Both reuse pilots deferred with evidence; focused survey routed account snapshot, Copilot refinement and search to #252 and the provider operation module to #255.
+Next: Publish the PR, run required CI and the three-seat Council review, merge, then post the runtime checkpoint on #253 for B, D (#254) and E (#256) and start the separate Copilot PR (#252) on that runtime.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Implemented locally; independent Council review pending.
+- **checks:** Local fmt, workspace and feature Clippy, all CI-equivalent test lanes passed (workspace 1,513 passed, 9 ignored; brn-ai capability 592 passed, 1 ignored); hosted CI pending.
+- **integration:** Not published or merged.
+- **native:** Not run; runtime-only change. Mac native acceptance stays with the alpha candidate.
+- **owner acceptance:** Not requested.
+
+</details>
+
 ## Next
 
 None recorded.
@@ -43,4 +63,4 @@ None recorded.
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-11-05T11:54:06.903957+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T15:27:00+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.

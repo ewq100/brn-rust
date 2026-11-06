@@ -4,6 +4,8 @@ Open the [development overview](work/overview.md) for current work, next actions
 
 Current assignment: [Windows CI compatibility and normal integration](work/active/windows-ci-portability/record.json), with [the initial reviewed boundaries](work/active/windows-ci-portability/handoff.md) and [hosted retry evidence](work/active/windows-ci-portability/retry-20261104.md). The owner has authorized continuing through the remaining failures and merging through the normal checked PR path. Current main includes PR244 and PR246 through `e749a83e`; that source is integrated into the Windows candidate. Exact-head Windows verification and resulting-main verification are separate gates. The generated overview records observed activity rather than live job state.
 
+Mac alpha runtime (#253): the [Rig 0.46 upgrade record](work/active/rig046-upgrade/README.md) holds versions, runtime qualification, both reuse-pilot deferrals and the [focused survey](work/active/rig046-upgrade/survey.md). Copilot chat, web search and Luna refinement (#252) follow in a separate PR on that runtime.
+
 The [subscription search/Mac acceptance record](work/active/subscription-search-mac-acceptance/record.json) is retained as earlier source-bound evidence. Its pre-merge labels are historical; PR244 is now merged. Live allocations remain closed and native acceptance gaps remain separate.
 
 The merged [bounded AgentBench record](work/active/agentbench/bounded-record.json), [readiness limits](work/active/agentbench/bounded-readiness.md) and [prepared first experiment](work/active/agentbench/first-experiment.md) remain separate evidence from PR246. Resuming Windows integration does not grant new live experiment budget or change those results.

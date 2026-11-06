@@ -24,18 +24,23 @@ required-features = ["capability-spike"]
 brn-threads-core = { path = "../brn-threads-core" }
 brn-intake = { path = "../brn-intake" }
 brn-threads-intake = { path = "../brn-threads-intake" }
-rig = { version = "=0.45.0", default-features = false, features = ["agent", "derive", "reqwest", "memory", "rmcp"] }
+rig = { version = "=0.46.0", default-features = false, features = ["agent", "derive", "reqwest", "rmcp"] }
+# Direct dependency: the facade `memory` feature adds a weak `rig-sqlite?/memory`
+# edge whose rusqlite 0.32 `links = "sqlite3"` conflicts with BRN's rusqlite.
+rig-memory = { version = "=0.46.0", default-features = false }
 rmcp = { version = "=3.5.0", default-features = false, features = ["client", "transport-streamable-http-client-reqwest"] }
 sse-stream = "=0.2.6"
-rig-core = { version = "=0.45.0", default-features = false, features = ["rustls"] }
-rig-reqwest = { version = "=0.45.0", default-features = false, features = ["rustls"] }
+rig-core = { version = "=0.46.0", default-features = false, features = ["rustls"] }
+rig-reqwest = { version = "=0.46.0", default-features = false, features = ["rustls"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "time", "sync"] }
 tokio-util = { version = "0.7", features = ["rt"] }
 futures = "0.3"
 serde = { version = "1", features = ["derive"] }
 # Same version Rig already locks; derives the propose_actions tool schema.
 schemars = { version = "=1.2.3", default-features = false, features = ["derive", "std"] }
-serde_json = "1"
+# Rig 0.46 stopped forcing these. Tool schemas, request bodies and provenance
+# JSON rely on insertion order and exact float round-trips in production builds.
+serde_json = { version = "1", features = ["preserve_order", "float_roundtrip"] }
 libc = "=0.2.189"
 chrono = { version = "=0.4.45", default-features = false, features = ["std"] }
 sha2 = "0.10"
@@ -47,4 +52,4 @@ axum = { version = "=0.8.9", default-features = false, features = ["http1", "tok
 tokio = { version = "1", features = ["net"] }
 bytes = "1"
 tempfile = "3"
-rig = { version = "=0.45.0", default-features = false, features = ["test-utils"] }
+rig = { version = "=0.46.0", default-features = false, features = ["test-utils"] }
