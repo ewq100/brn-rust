@@ -85,9 +85,13 @@ command-enabled A/B through the existing manifest/immutable-asset process.
 Legacy published previews lack updater. No release/tag/announcement or security
 setting change occurred. Headless receipts are not native or owner acceptance.
 
-B released the heavy slot at21:56:38Z, before the22:30Z cap. D/E have the free
-window immediately through23:00Z. B holds no standing reservation afterward and
-will coordinate a new short native window only when the owner is ready.
+B released the Mac mini heavy slot at21:56:38Z, before the22:30Z cap and holds
+no standing reservation. The latest owner clarification places D/E on the separate
+MacBook: no B permission/window or cross-host wait is required. The earlier slot
+messages are historical reservations, not a reservation of D/E's host. B will
+coordinate a new short Mac mini native session only when the owner is ready.
+Currentmain c388da26 (C266 docs/evidence only) was normally reconciled afterward;
+all C task objects were preserved. Qualified runtime source staysa921e325.
 
 ## Independent proposal review
 
@@ -99,3 +103,6 @@ provenance or privacy findings. One valid nonblocking P3: the archival verifier'
 relative package path is invalid from its committed location. Disposition:
 document its original execution placement above; keep the raw verifier/result
 unchanged. No build, provider, native or publication authority was delegated.
+
+Independent follow-up on97199fe2 confirmed the P3 disposition fixed, unchanged
+archival verifier body and all31 checksums valid. No actionable issue remains.

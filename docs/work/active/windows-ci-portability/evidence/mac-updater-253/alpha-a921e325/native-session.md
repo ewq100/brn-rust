@@ -3,8 +3,8 @@
 Prepared for B/A's selected runtimea921e32533dc03134ed8a2001bd82f27194c3302.
 Local A alpha.1/build3 and B alpha.2/build4 passed headless qualification. Native
 observation, Gatekeeper approval and live Copilot remain pending. B holds no Mac
-slot; D/E's current window runs through23:00Z. Coordinate a new short native
-window when the owner is ready.
+mini slot. D/E use the separate MacBook and need no B window. Coordinate a new
+short Mac mini native session with A when the owner is ready.
 
 ## Exact inputs and user actions
 

@@ -15,8 +15,9 @@ cases, both relocated helpers/all8formats/16imports, real local A→B preservati
 and B headless reopen, and full synthetic backup/restore pass. Transport is still
 substituted for that local update; it is not real published stock HTTPS.
 
-The Mac heavy slot was released21:56:38Z, before the22:30Z cap; D/E have the free
-window through23:00Z, and B holds no standing reservation afterward. No B build or
+The Mac mini heavy slot was released21:56:38Z, before the22:30Z cap; B holds
+no standing reservation. Owner clarification: D/E use the separate MacBook and
+need no B release window; coordinate only actual shared host/account resources. No B build or
 native work is running. The [one combined native-session runbook](evidence/mac-updater-253/alpha-a921e325/native-session.md)
 names exact remaining inputs and owner actions. Screen locked; no native/live
 Copilot acceptance claimed. Local outputs and the disposable-profile Shared copy
