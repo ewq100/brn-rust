@@ -84,13 +84,14 @@ impl Catalogue {
                 .iter()
                 .find(|b| b.project.as_deref() == project && b.id == id);
             let builtin = !id.starts_with("installed:");
-            let enabled = binding.map_or(builtin, |b| b.enabled);
-            let selected = binding.is_some_and(|b| b.selected);
+            let enabled = builtin || binding.is_some_and(|b| b.enabled);
+            let selected = false;
             let bytes = snapshot(store, &id);
             let actual = bytes
                 .as_ref()
                 .map(|(_, files)| guides::package_digest(files));
             let digest = binding
+                .filter(|_| !builtin)
                 .map(|b| b.digest.clone())
                 .or_else(|| actual.clone())
                 .unwrap_or_default();
