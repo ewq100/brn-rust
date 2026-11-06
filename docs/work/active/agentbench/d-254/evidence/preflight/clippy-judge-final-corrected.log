@@ -1,0 +1,2 @@
+error: target `agentbench-judge` in package `brn-ai` requires the features: `capability-spike`
+Consider enabling them by passing, e.g., `--features="capability-spike"`

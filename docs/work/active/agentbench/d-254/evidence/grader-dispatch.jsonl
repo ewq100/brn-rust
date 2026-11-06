@@ -11,3 +11,4 @@
 {"identity": "phase1-W05-reader-1", "calls": 1}
 {"identity": "phase1-W05-reader-2", "calls": 1}
 {"identity": "phase1-W05-reader-3", "calls": 1}
+{"identity": "phase2-fresh-evaluation-coordinator-requested-cap", "calls": 8}

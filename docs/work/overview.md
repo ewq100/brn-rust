@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Integrate updater PR258 normally, then prepare final Mac package/update acceptance for253 after A release-critical hardening.
-**Owner attention:** B owns updater/package integration. A owns response-limit hardening and Copilot acceptance; coordinate heavy builds. Native and publication remain separate gates.
+**Goal:** Close cloud feedback Cycle 2 with honest no-change evidence; keep the later shared-provider refactor behind its handoff gates.
+**Owner attention:** Cycle 2 retained no workflow/configuration: cache-validity failure stopped repeated qualification. Required cloud Council diagnosis/review is unavailable. Cycle 2 PR checks/review and A selected-runtime/shared-file handoff remain before Stage 2.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -51,26 +51,6 @@ Gates:
 
 </details>
 
-### Measure and improve development feedback (#255)
-
-Task ID: `development-speed-255`
-Owner: Agent C / Codex GPT-6.1 Sol · State: **active** · Last observed: 2026-11-06T17:01:08.332168+00:00
-Activity: PR #262 is open. All final corrected-evidence reviewers support no-change/incomplete qualification (Sol9/Opus8/Grok9); low documentation fixes applied. Main #261 reconciled; product/config/runtime/CI match main. Final-head CI/Codex/security review next.
-Next: Push reconciled final head, request current-head Codex review, inspect current CI/code/security results and unresolved findings, then normal merge and main verification.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Documentation/evidence only; no configuration retained because net performance is unqualified within the budget, not proven harmful. Guidance adds ABBA/same-binary checks and limits Cargo-only guards.
-- **checks:** Frozen-source suites/probes and all measurements preserved with causal limits. Final Council Sol9/Opus8/Grok9, noHigh/Medium findings; low fixes applied. Links/overview/16tests/diff pass. Current-head hosted CI/Codex/security pending publication.
-- **integration:** Published as PR #262; not merged. Normal merge after current-head CI, Codex and security review. Source/config byte-identical to main; frozen measurements remain separate.
-- **native:** Inapplicable: headless build/test tooling scope; existing hosted compatibility checks retained.
-- **owner acceptance:** Current owner assignment authorizes implementation, Council and focused PR; no manual UI acceptance requirement.
-
-</details>
-
 ### Implement and qualify the versioned Mac updater
 
 Task ID: `mac-updater-253`
@@ -95,20 +75,20 @@ Gates:
 ### Compare Terra/Sol and improve maintained knowledge (#254)
 
 Task ID: `knowledge-quality-254`
-Owner: Agent D · State: **active** · Last observed: 2026-11-06T23:14:47.922233+00:00
-Activity: Visible Terra/Sol screen complete:40candidate events, Sol16/20 andTerra20/20 Completed;8real fixed-reader answers independently graded4/4. Saved-state grades unknown after3bounded failures. Phase2 provisionalSolmedium, single-factor retentioncandidate built/sourcebound and paired baseline/candidate development running.
-Next: Complete Phase2paired development, then protected broad/fresh evaluator confirmation; retain accepted baseline unless frozen improvement criteria qualify.
+Owner: Agent D · State: **active** · Last observed: 2026-11-06T23:36:00.246249+00:00
+Activity: Both native phases attempted; no model/guide adoption. Phase1saved-state semantic grading unknown; visible readers8/8score4. Phase2candidate12/12Completed vsbaseline11/12; fresh confirmation partial7attempts/36knownHTTP+1uncertain; nofreshreaders. Guardstop respected, remainingdevelopmentreaders/broadregressions notrun. Finalreview/delivery in progress.
+Next: Bounded final Council review, full limitation/accounting handoff and two separate draftPRs; no further BRN dispatch or baseline replacement.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Retention candidate1 implemented in separate worktree at45610287; exact combined build pinned, sameSolmedium andsettings for botharms.
-- **checks:** Qualified source-bound cleanlocal CLI/seeder/defaultfeatures;2judge wire tests,2runtimecallcap,4responseguard,9documentrefine,93nativeAgentBench(1optionalInspectskip),W03/W05two-armoffline allpass. Initial invalid cacheclean and excludedcachedbuild preserved.
+- **implementation:** Single-factor candidate implemented/built/measured; retained as evidence only, accepted original baseline unchanged.
+- **checks:** Qualified nativeAgentBench97:96pass/1optionalInspectskip; graderClippy pass; original preflight2judge/2callcap/4response/9refine/12deadline/5admission pass. New4output-containment tests pass. FullhostedCI pending.
 - **integration:** Comparison and improvement PRs authorized; no merge/default change/publication
 - **native:** Headless synthetic only; desktop observation outside assignment
-- **owner acceptance:** Prepared distinct withheld packs; same-machine procedural separation, no technical isolation. Phase1unseen notrun within originalclock, comparison inconclusive. Phase2fresh pending.
+- **owner acceptance:** Not claimed. Both recommendation and knowledge-quality acceptance inconclusive; final fresh confirmation incomplete; no baseline/model default change.
 
 </details>
 
@@ -117,6 +97,31 @@ Gates:
 None recorded.
 
 ## Needs attention
+
+### Measure and improve development feedback (#255)
+
+Task ID: `development-speed-255`
+Owner: Agent C / Codex (cloud) · State: **blocked** · Last observed: 2026-11-06T23:21:25.106961+02:00
+Activity: Cycle 1 merged in PR262 as6897fe56. Cloud Cycle 2 stopped with no retained change: package-only control exceeded overhead limits; one target-kind core pair returned earlier feedback but full gate+16.9%; shared source mtimes invalidated the UI comparison. Nine comparison attempts/67m29s, no completed ABBA/fresh confirmation. All3 edits executed intended tests/full gates; controlled focused/full/pipeline exits101, only the harmless test failed, original source bytes restored and core tests passed.
+Next: Publish the scoped Cycle 2 evidence PR, complete current-head hosted CI and Codex code/security follow-through, and inspect findings. Required Council gate stays incomplete until actual cloud skill/routes are available. Normal merge only after applicable gates pass; obtain A selected final runtime and explicit shared-file handoff before Stage 2.
+Resource waits: Required Council skill and authenticated independent delegate routes are unavailable in cloud.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Documentation/evidence only. No performance workflow/configuration or product change retained; prescribed repeated qualification incomplete after cache-validity stop.
+- **checks:** All three edited paths ran nonzero intended tests/full offline gates. Controlled focused/full/pipeline exits101 with only harmless failure; restored core/fmt pass. Local tooling360 total=329passed+31skipped; Markdown/overview/diff/syntax and archive hashes pass. Current-head hosted CI and Codex code/security tracked by the PR linked from255. Council diagnosis/final review INCOMPLETE: zero sessions/no score.
+- **integration:** Cycle 1 PR262 merged6897fe56. Cycle 2 branch reconciled with updater/runtime main and A265 mergea921e325; Cycle 2 not merged. Required Council gap is not waived by ordinary review/CI.
+- **native:** Inapplicable to this headless documentation/workflow experiment; hosted macOS/platform gates preserved. No new native or owner-Mac observation.
+- **owner acceptance:** Standing normal-merge authorization applies after applicable gates; no added manual native gate. Missing required Council review remains incomplete.
+
+</details>
+
+Waiting:
+
+- resource: Required Council skill and authenticated independent delegate routes are unavailable in cloud.
 
 ### Implement and qualify the versioned Mac updater
 
@@ -128,6 +133,33 @@ Waiting:
 - resource: Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.
 - resource: Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
 
+### Consolidate shared provider policy after runtime handoff
+
+Task ID: `shared-provider-263`
+Owner: Agent C / Codex (cloud) · State: **blocked** · Last observed: 2026-11-06T23:21:25.106961+02:00
+Activity: Read-only caller/policy mapping completed separately from timing windows. Existing chat/helper client sharing and duplicated normalization, refinement/search account checks and route construction are mapped. A264 response-limit transport delta inspected at98802606. No refactor implementation branch/PR or maintainability result.
+Next: After Cycle 2 closeout and explicit A shared provider/runtime file release, branch from selected a921e325 (or a newer explicitly handed-off runtime), refresh the map, preserve contracts/response guard and coordinate later integration outside B first alpha.
+Depends on: development-speed-255 when Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (reported satisfied: false)
+Resource waits: A explicit shared provider/runtime file-ownership handoff on the selected final runtime.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Blocked. A264 merged98802606 and selected A265 mergeda921e325. Explicit C shared provider/runtime file handoff not observed. Read-only map only; no new client/routing policy implemented.
+- **checks:** Not run for a refactor. Offline before/after request/account/route/bounds/checked-write tests and three policy-change tasks plus unseen confirmation remain required. No maintainability or elapsed-speed claim.
+- **integration:** Separate branch/PR not created. Keep outside B first-alpha candidate and coordinate publication window/later adoption with A/B; preserve frozen254/256 experiments.
+- **native:** Cloud offline implementation planned; existing A/B live/native receipts retain their source limits. Any observable behavior change needs its proper qualification.
+- **owner acceptance:** Current assignment authorizes the separate refactor after sequencing gates; no release/publication authority inferred.
+
+</details>
+
+Waiting:
+
+- prerequisite development-speed-255: Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (reported satisfied: false; task state: blocked)
+- resource: A explicit shared provider/runtime file-ownership handoff on the selected final runtime.
+
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
@@ -136,4 +168,15 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
 
-Local page reflects the last saved observations in this record (2026-11-06T21:02:54.795698+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+## Dependencies
+
+```mermaid
+graph TD
+  t3["Measure and improve development feedback (#255)"]
+  t5["Consolidate shared provider policy after runtime handoff"]
+  t3 -->|Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (not satisfied)| t5
+```
+
+Resource waits are listed on tasks and are not dependency edges.
+
+Local page reflects the last saved observations in this record (2026-11-06T23:21:25.106961+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.

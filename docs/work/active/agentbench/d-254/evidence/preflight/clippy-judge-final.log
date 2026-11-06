@@ -1,0 +1,3 @@
+error: no example target named `agentbench_judge` in `brn-ai` package
+
+help: a target with a similar name exists: `agentbench-judge`

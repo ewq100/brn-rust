@@ -1,0 +1,30 @@
+{
+  "review": "FinalKimi evidence glob returned no matches; direct file stat/hash witness",
+  "files": [
+    {
+      "path": "/Users/evokessler/repos/brn-agent-d-254/docs/work/active/agentbench/d-254/evidence/active-role-caps.json",
+      "bytes": 1556,
+      "sha256": "62c0bffbad522d97bca722b30fb15e1c196e5f7750108e322eff868aff0a07eb"
+    },
+    {
+      "path": "/Users/evokessler/repos/brn-agent-d-254/docs/work/active/agentbench/d-254/evidence/accounting-final-pre-review.json",
+      "bytes": 2306,
+      "sha256": "984b711a5bc4ba6175dadedf5d0ad4ab6e15b4c2235e11d2284741e7c17fa8ee"
+    },
+    {
+      "path": "/Users/evokessler/repos/brn-agent-d-254-improvement-report/docs/work/active/agentbench/d-254/evidence/phase2-fresh-aggregate.json",
+      "bytes": 4330,
+      "sha256": "4716a93fd5c8f655a02ebe8b4e7744ab81acc3d6cfdc9e6ad02d00910323d29b"
+    },
+    {
+      "path": "/Users/evokessler/repos/brn-agent-d-254-improvement-report/docs/work/active/agentbench/d-254/evidence/phase2-fresh-artifact-manifest.json",
+      "bytes": 26298,
+      "sha256": "b1e37610e7dd2be63a7be195151866905384001cbe59a2934238622b3c6c95d9"
+    },
+    {
+      "path": "/Users/evokessler/repos/brn-agent-d-254-improvement-report/docs/work/active/agentbench/d-254/evidence/candidate-1.patch",
+      "bytes": 1305,
+      "sha256": "97491793b5a9da5eeb8d2507c9b62bf490a15422bfec092971532c3d9410ca70"
+    }
+  ]
+}
