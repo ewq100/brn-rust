@@ -14,7 +14,7 @@ passed all4 required contexts; its overall failure is confined to the three
 informational Windows lanes. [Captured full run receipt](main-ci.json.gz).
 Exact excerpts:
 
-- [Mac native job128104813019](main-mac-updater-excerpt.log): 25 packaging/updater
+- [Mac native job128104813019](main-mac-updater-excerpt.log.gz): 25 packaging/updater
   checks passed, including all19 updater failure/concurrency/recovery cases.
 - [Ubuntu Core job128104812944](main-ubuntu-fixture-excerpt.log): the previously
   failing response-identity/limits test explicitly passed at19:34:22Z.
@@ -47,3 +47,6 @@ native usability, qualify stock published HTTPS delivery or authorize publicatio
 The later acceptance branch's proposed notes/manifests are documentation only;
 lead inspection, link/checksum/overview/diff checks apply without another
 independent behavioral review. The actual release manifest is unchanged.
+
+The raw Mac excerpt contains GitHub log whitespace; it is compressed unchanged
+so source diff whitespace checks remain clean. No log line was normalized.
