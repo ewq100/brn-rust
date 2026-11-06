@@ -136,3 +136,30 @@ No issues found.
 
 The evidence is incomplete for any execution claim. It is adequate for the compile-time claims, which hold on this host and source only.
 
+
+
+# Round 3 — corrected evidence recheck
+
+Route: acpRegistry_copilot / claude-opus-5.5
+Options: [{"id":"reasoning_effort","value":"high"}]
+Thread: <t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A0d444406-0a49-4f34-8b58-7d6d083289dd%3Adelegate-task%3A255-recheck-opus-3>
+
+**Score: 8/10.** The correction addresses Opus's material objection. It can publish as a no-change, incomplete-qualification result without claiming a speedup or harm.
+
+**What I checked (read-only, no builds or tests):**
+- `origin/main` is `7ae7ebf1`. Outside `docs/`, nothing differs from main, so product code, config, CI and lockfiles are byte-identical.
+- I hashed the retained binaries myself. `brn` (`83f19589…`), `brn_ai` (`9c1edc4e…`) and `agent_journeys` (`c9b3a0df…`) match between `target/255-candidate-qualified` and `target/255-candidate-final`. `agent_contract` differs, as the docs now say.
+- Observations lines 73–75 confirm the earlier 69.90/67.11/67.08 s runs, against 148.17/91.69/91.79 s later.
+- No remaining claim that opt0 harms execution or that CGU512 causes slower compilation. Raw numbers are kept and labelled as non-causal. The new guidance covers ABBA alternation, same-binary hash checks across slots, the limits of a Cargo-only guard, and the restore gap in the script's `finally`.
+
+**Remaining issues (none block publication):**
+1. **Low, wording:** `development-speed-255.md` lines 11 and 92, and results.json line 394, say "degraded-host window". That states the cause as fact, the reverse of the claims just withdrawn. Fix: say "later slow window, cause unknown".
+2. **Low, reproducibility:** `methodological_limits.binary_sha256` doesn't say which artifact roots were compared, and candidate-runtime has no root mapping anywhere in the JSON. Fix: add `target/255-candidate-qualified` and `target/255-candidate-final`.
+3. **Low, accuracy:** the compilation gains are also from sequential, non-ABBA runs. "Repeatedly observed" is fine, but add "not ABBA-qualified". Nothing is retained, so this is not material.
+4. **Info:** older `record.json` decision entries (lines 162–170) still say "uncontended", "+37%" and "Reject". The appended entry at line 177 supersedes them; optionally mark them "superseded".
+5. **Nit:** missing spaces in the `.md` ("is102.31→108.24s", "Candidate1", "configure512CGU", "Round2: Sol9/10").
+
+**Security:** No issues. The change is docs and evidence only, logs use `${REPO}` instead of user paths, no credentials or user data, and no new authority or tool access.
+
+**Limitations of this review:** I didn't re-check every observation row or the timestamps between slots, and I didn't read the round-2 council files in full. Current-head hosted CI, Codex review and security review are still pending as separate gates.
+

@@ -391,7 +391,7 @@
     ],
     "core_median": 30.3786,
     "first_ai_edit_seconds": 56.1573,
-    "outcome": "Observed slower in an unpaired arm following the degraded-host window. No benefit demonstrated; not retained within the finite budget, not a proven causal compilation regression.",
+    "outcome": "Observed slower in an unpaired arm following the later slow window, cause unknown. No benefit demonstrated; not retained within the finite budget, not a proven causal compilation regression.",
     "flag_evidence": "Preserved Cargo.candidate-two.toml and candidate-two.py configure512CGU; opt-level1/checks retained; brn_ai fingerprint differs. Compiler argv observation was not saved as a raw log.",
     "excluded": "Stop cleanup restored manifest before the final owned process fully stopped; later/partial auth observations excluded. Corrected stop handling, reaped owned process group, restored every source/config byte."
   },
@@ -417,6 +417,17 @@
       },
       "identity_limit": "Verified these three binaries; not all test binaries are identical (agent_contract differs).",
       "conclusion": "Execution/configuration attribution unresolved. Raw differences and sums are observations, not causal regressions."
+    },
+    "artifact_roots": {
+      "candidate-runtime": "target/255-candidate-qualified",
+      "candidate-qualified": "target/255-candidate-qualified",
+      "candidate-final": "target/255-candidate-final",
+      "baseline-final": "target/255-baseline-final"
+    },
+    "compilation": "Repeated faster observations; sequential, not ABBA-qualified. No causal general speedup claimed.",
+    "differing_agent_contract_sha256": {
+      "candidate-qualified": "9638fc81390dc4c37c5b9c613e7b185163a916159f2438949fab4fff80a7750f",
+      "candidate-final": "fddd6a091eed1529f893ee02139f71531c4f0ad9e955cda3861d36078fdd51fb"
     }
   }
 }

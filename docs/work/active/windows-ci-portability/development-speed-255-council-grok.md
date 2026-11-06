@@ -108,3 +108,39 @@ Workspace full ranges overlap only because the first-run outliers were retained 
 
 No finding. Changed files do not touch the checked writer, credentials, provider transport, MCP dispatch, helper restrictions, or `agent/` prompts. Record limits still forbid production data, live provider calls, billing or security changes, check bypass, force-push, and release. Committed observations use `${REPO}` and contain no home paths, tokens, or credential material. Local logs stay untracked. The auth probe was an operand swap, tests passed, and the source was restored. No new authority or external action.
 
+
+
+# Round 3 — corrected evidence recheck
+
+Route: acpRegistry_copilot / grok-4.7
+Options: [{"id":"reasoning_effort","value":"xhigh"}]
+Thread: <t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A0d444406-0a49-4f34-8b58-7d6d083289dd%3Adelegate-task%3A255-recheck-grok-3>
+
+**9/10. Publish the no-change / incomplete-qualification result. Do not publish a speedup, an execution-harm finding, or a causal codegen-units regression.**
+
+HEAD `ac00b931` versus `7ae7ebf1` is docs, evidence, and routing only. Product, manifests, lockfile, CI, and `agent/` match main. The working tree is clean. Probe sources and `Cargo.toml` match the restored baseline, not the trial profiles.
+
+## Material objections
+
+Opus’s high finding is valid and corrected. I re-hashed the retained candidate binaries. The CLI `83f19589…`, the AI test `91edc4e…`, and the journey binary `c9b3a0df…` are identical across the earlier and later slots. The earlier workspace runs were 69.90 / 67.11 / 67.08 s, all 1491/0/9. The later runs were 148.17 / 91.69 / 91.79 s. The same important binaries were near baseline earlier and slower later, so the sequential pair cannot attribute execution to opt-level 0. `agent_contract-8eef83669256bae3` differs (`9638fc81…` versus `fddd6a09…`), so Opus’s “every test binary” claim was too broad. That does not restore a causal slowdown.
+
+The current outcome, gates, overview, and `results.json` withdraw both causal claims, keep the raw numbers, and state that execution is unresolved. Compilation stays an observation only: the AI edit is 35.30 s to 16.45 s, with two clean controls, and no net default is qualified inside 12:26–16:26 UTC. Codegen-units 512 remains an unpaired slower arm with no gain and is not retained. The no-op ranges are disjoint, and the text correctly refuses a configuration-speed claim.
+
+Guidance now requires ABBA, same-artifact hashes, and states that a Cargo/compiler guard does not prove the host was quiet. `final-pair.py` restores the candidate manifest in `finally`; the reproduction note says to restore and verify afterward. The compiler argv was not saved. `Cargo.candidate-two.toml` and `candidate-two.py` set 512 units, and the AI artifact id differs (`fa4d4d02…` versus `bbfa1693…`). Main is reconciled. Hosted CI, Codex, and security review stay pending.
+
+## Remaining issues
+
+No high or medium issue remains. No further timing is required.
+
+- **Low, non-blocking:** `record.json` attempts 4–5 still say +37% / +6% and “reject early.” Attempt 6 and the current gates supersede them. Do not cite 4–5 as the conclusion.
+- **Low, non-blocking:** The outcome lede does not name Rig. The frozen lock `39366eba…` is e210 / Rig 0.45. HEAD is Rig 0.46. No current-main speed claim is made.
+- **Low, non-blocking:** The differing `agent_contract` hashes are verified locally but not copied into `results.json`. Clean-wall deltas also include non-AI units, and the doc already says that one cold pair is not universal proof.
+
+## Security
+
+No issue. The diff does not touch the checked writer, credentials, provider transport, MCP dispatch, helper restrictions, or shipped prompts. Committed evidence uses `${USER_HOME}` and `${REPO}`. No tokens or private payloads. Local logs stay under `target/`. No new authority, external action, or check bypass. Pending gates are not marked passed.
+
+## Limits of this pass
+
+I did not rebuild, retest, retime, or run docs, CI, Codex, or security review. Identity checks used existing local binaries, which are not in the PR. Preserved round-2 reports still contain the withdrawn causal wording. They are reviews of `2283b8d8`, not the current conclusion.
+

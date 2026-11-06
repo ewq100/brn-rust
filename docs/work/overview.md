@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Publish and integrate the bounded #255 development-feedback findings and reliable measurement guidance.
-**Owner attention:** No default configuration qualified within budget. Final review found same-binary cross-slot execution confounding; causal slowdown claims withdrawn. Corrected methodology/evidence are in final bounded recheck.
+**Owner attention:** No default configuration qualified within finite budget. Corrected final Council supports publication; current-head CI/Codex/security and normal merge remain.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -54,9 +54,9 @@ Gates:
 ### Measure and improve development feedback (#255)
 
 Task ID: `development-speed-255`
-Owner: Agent C / Codex GPT-6.1 Sol · State: **active** · Last observed: 2026-11-06T16:49:06.247523+00:00
-Activity: Main reconciled. Round2 Sol9/10/Grok8/10 endorsed initial reading; Opus5/10 identified time-slot confounding. Verified identical CLI/AI/journey hashes ran near baseline earlier; withdrew causal regression claims. Product/config restored, execution qualification unresolved.
-Next: Complete bounded round3 recheck of corrected attribution, then focused no-change PR, current-head CI/Codex/security and normal integration.
+Owner: Agent C / Codex GPT-6.1 Sol · State: **active** · Last observed: 2026-11-06T16:57:20.763392+00:00
+Activity: All3 corrected-evidence rechecks support no-change/incomplete qualification: Sol9, Opus8, Grok9; noHigh/Medium findings. Low provenance/wording fixes applied. Main reconciled; product/config unchanged; ready to publish focused docs/evidence PR.
+Next: Publish PR, request current-head Codex review/security, inspect hosted CI and all findings, then normal merge and resulting-main verification.
 
 <details>
 <summary>Gate status</summary>
@@ -64,7 +64,7 @@ Next: Complete bounded round3 recheck of corrected attribution, then focused no-
 Gates:
 
 - **implementation:** Documentation/evidence only; no configuration retained because net performance is unqualified within the budget, not proven harmful. Guidance adds ABBA/same-binary checks and limits Cargo-only guards.
-- **checks:** Recorded final pair has all3 workspace1491/0/9 and AI598/0/2 passes. Earlier same-binary candidate67s versus later92s confounds execution attribution. Compilation gain observed; candidate2 unpaired slower readings not causal proof. Docs/link/overview checks pass; round3 and hosted gates pending.
+- **checks:** Frozen-source suites/probes and all measurements preserved with causal limits. Final Council Sol9/Opus8/Grok9, noHigh/Medium findings; low fixes applied. Links/overview/16tests/diff pass. Current-head hosted CI/Codex/security pending publication.
 - **integration:** Not published or merged. Preserve Agent B updater and Agent A runtime ownership.
 - **native:** Inapplicable: headless build/test tooling scope; existing hosted compatibility checks retained.
 - **owner acceptance:** Current owner assignment authorizes implementation, Council and focused PR; no manual UI acceptance requirement.
@@ -83,4 +83,4 @@ None recorded.
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-11-06T16:49:06.247523+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T16:57:20.763392+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

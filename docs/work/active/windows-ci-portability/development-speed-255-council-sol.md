@@ -65,3 +65,30 @@ Evidence is sufficient for the bounded no-change conclusion. Current-head hosted
 
 Read-only throughout: no edits, builds, tests, provider calls, delegates or watchers.
 
+
+
+# Round 3 — corrected evidence recheck
+
+Route: codex / gpt-6.1-sol
+Options: [{"id":"reasoningEffort","value":"xhigh"},{"id":"serviceTier","value":"default"}]
+Thread: <t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A0d444406-0a49-4f34-8b58-7d6d083289dd%3Adelegate-task%3A255-recheck-sol-3>
+
+**Score: 9/10.** The material corrections support publishing a **NO-CHANGE / incomplete-qualification** result, subject to the separate hosted gates. No High or Medium findings remain.
+
+Reviewed `ac00b931` against `7ae7ebf1` / local `origin/main`. All 11 changed files are documentation or evidence; the checkout remains clean.
+
+The corrected account preserves the necessary distinctions:
+
+- Faster compilation was observed; execution effects and net benefit remain unresolved.
+- Earlier candidate workspace readings reconcile with the observations and contradict treating the later slowdown as a configuration effect.
+- Hash identity is expressly limited to three binaries; `agent_contract` differs.
+- CGU512 is described as an unpaired slower observation with no demonstrated gain.
+- Guidance now covers alternation, repeated execution of identical artifacts, limited process-guard coverage, and explicit manifest restoration.
+- Raw results, exclusions, and historical review disagreements remain visible.
+
+One **Low, nonblocking accuracy issue** remains at `docs/work/active/windows-ci-portability/development-speed-255.md:178`: “Final attribution is the controlled paired outcome” retains the superseded framing. The following sentence withdraws the regression claim, limiting its impact. Replace it with: “The final sequential pair provides observations; earlier same-artifact runs prevent causal execution attribution.”
+
+**Security assessment:** No introduced security issue identified against the invariants and threat model. Runtime authority, credentials, provider dispatch, checked writes, and cancellation enforcement are unchanged. Inspection found no credential material or private absolute paths in the changed files.
+
+This recheck reconciled the correction with retained evidence; it did not independently rehash local binaries or reproduce measurements. Current-head hosted CI, Codex review, and security review remain pending. No edits, builds, tests, provider calls, delegation, publication, or watchers were performed.
+
