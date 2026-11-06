@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Complete Windows CI compatibility and merge through the normal checked PR path.
-**Owner attention:** The owner authorized continuing through fixes and normal merge. PR246 advanced main; the integration lead is reconciling its documentation routing without changing benchmark results or granting live experiment budget.
+**Goal:** Publish and integrate the bounded #255 development-feedback findings and reliable measurement guidance.
+**Owner attention:** No performance configuration retained: opt0 regressed full-suite feedback, codegen512 regressed compilation. Final independent review and normal PR/CI follow-through remain.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -31,6 +31,26 @@ Gates:
 
 </details>
 
+### Measure and improve development feedback (#255)
+
+Task ID: `development-speed-255`
+Owner: Agent C / Codex GPT-6.1 Sol · State: **active** · Last observed: 2026-11-06T16:26:54.079230+00:00
+Activity: Both bounded candidates rejected; original Cargo/Rust/CI bytes restored and trial processes reaped. Final uncongested opt0 pair preserves all tests but worsens full-suite feedback;512CGU cold/core/auth are slower. Measurement ended within original budget; slot released.
+Next: Reconcile current main, final read-only Council review of no-change/evidence/guidance, focused PR, Codex/security/current-head CI and normal integration.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** No performance configuration retained. Measurement/helper/freshness guidance corrected; frozen before/after and negative evidence recorded. No product/test/gate changes.
+- **checks:** Original and opt0 final arms each3 workspace1491/0/9 and AI598/0/2; exact nonzero probes/features/checks verified. Candidate2 early rejected on repeated core regression plus cold/auth evidence; later partial samples excluded. Docs/link/overview checks pass; final review/hosted CI pending.
+- **integration:** Not published or merged. Preserve Agent B updater and Agent A runtime ownership.
+- **native:** Inapplicable: headless build/test tooling scope; existing hosted compatibility checks retained.
+- **owner acceptance:** Current owner assignment authorizes implementation, Council and focused PR; no manual UI acceptance requirement.
+
+</details>
+
 ## Next
 
 None recorded.
@@ -43,4 +63,4 @@ None recorded.
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-11-05T11:54:06.903957+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T16:26:54.079230+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

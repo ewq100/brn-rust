@@ -2,7 +2,7 @@
 
 Open the [development overview](work/overview.md) for current work, next actions, attention items and a compact completed-task index. It is generated from the selected task record; detailed gates, evidence and attempts remain in that record and its linked receipts. A remote page shows the last published checkpoint, not live agent activity.
 
-Current assignment: [Windows CI compatibility and normal integration](work/active/windows-ci-portability/record.json), with [the initial reviewed boundaries](work/active/windows-ci-portability/handoff.md) and [hosted retry evidence](work/active/windows-ci-portability/retry-20261104.md). The owner has authorized continuing through the remaining failures and merging through the normal checked PR path. Current main includes PR244 and PR246 through `e749a83e`; that source is integrated into the Windows candidate. Exact-head Windows verification and resulting-main verification are separate gates. The generated overview records observed activity rather than live job state.
+Current assignment: [development feedback speed (#255)](work/active/windows-ci-portability/record.json), task `development-speed-255`. The [frozen cycle and evidence](work/active/windows-ci-portability/development-speed-255.md) record measurements, Council routes and candidate dispositions. Earlier Windows work remains in the same record; saved observations are historical, not live execution.
 
 The [subscription search/Mac acceptance record](work/active/subscription-search-mac-acceptance/record.json) is retained as earlier source-bound evidence. Its pre-merge labels are historical; PR244 is now merged. Live allocations remain closed and native acceptance gaps remain separate.
 

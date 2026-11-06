@@ -1,0 +1,399 @@
+{
+  "baseline-final": {
+    "cold": {
+      "seconds": [
+        214.28260495801806
+      ],
+      "median": 214.28260495801806,
+      "min": 214.28260495801806,
+      "max": 214.28260495801806
+    },
+    "noop": {
+      "seconds": [
+        1.0757,
+        0.905,
+        0.9391
+      ],
+      "median": 0.9391,
+      "min": 0.905,
+      "max": 1.0757
+    },
+    "core-edit": {
+      "seconds": [
+        21.1681,
+        20.4924,
+        17.9571
+      ],
+      "median": 20.4924,
+      "min": 17.9571,
+      "max": 21.1681
+    },
+    "core-execute": {
+      "seconds": [
+        0.3667,
+        0.2366,
+        0.2119
+      ],
+      "median": 0.2366,
+      "min": 0.2119,
+      "max": 0.3667
+    },
+    "ai-edit": {
+      "seconds": [
+        36.628,
+        35.2975,
+        35.0258
+      ],
+      "median": 35.2975,
+      "min": 35.0258,
+      "max": 36.628
+    },
+    "ai-execute": {
+      "seconds": [
+        0.6054,
+        0.507,
+        0.5299
+      ],
+      "median": 0.5299,
+      "min": 0.507,
+      "max": 0.6054
+    },
+    "ui-edit": {
+      "seconds": [
+        0.9686,
+        0.9746,
+        0.9409
+      ],
+      "median": 0.9686,
+      "min": 0.9409,
+      "max": 0.9746
+    },
+    "ui-execute": {
+      "seconds": [
+        0.298,
+        0.1875,
+        0.1719
+      ],
+      "median": 0.1875,
+      "min": 0.1719,
+      "max": 0.298
+    },
+    "ai-suite": {
+      "seconds": [
+        10.744341874989914,
+        10.113176041981205,
+        10.106153917004121
+      ],
+      "median": 10.113176041981205,
+      "min": 10.106153917004121,
+      "max": 10.744341874989914
+    },
+    "workspace": {
+      "seconds": [
+        102.9373664589948,
+        66.37007233299664,
+        67.0097600830195
+      ],
+      "median": 67.0097600830195,
+      "min": 66.37007233299664,
+      "max": 102.9373664589948
+    },
+    "cold_units": [
+      {
+        "name": "brn-ai",
+        "target": " brn_ai \"lib\" (test)",
+        "duration": 88.99
+      },
+      {
+        "name": "aws-lc-sys",
+        "target": " build-script (run)",
+        "duration": 63.96
+      },
+      {
+        "name": "rig-core",
+        "target": "",
+        "duration": 38.7
+      },
+      {
+        "name": "brn-ai",
+        "target": "",
+        "duration": 26.66
+      },
+      {
+        "name": "brn-threads-core",
+        "target": "",
+        "duration": 21.72
+      },
+      {
+        "name": "rmcp",
+        "target": "",
+        "duration": 16.39
+      },
+      {
+        "name": "brn",
+        "target": " mcp \"test\" (test)",
+        "duration": 15.64
+      },
+      {
+        "name": "libsqlite3-sys",
+        "target": " build-script (run)",
+        "duration": 14.06
+      }
+    ],
+    "ai_test_bytes": 46151312
+  },
+  "candidate-final": {
+    "cold": {
+      "seconds": [
+        133.4024513750046
+      ],
+      "median": 133.4024513750046,
+      "min": 133.4024513750046,
+      "max": 133.4024513750046
+    },
+    "noop": {
+      "seconds": [
+        0.3097,
+        0.2994,
+        0.3086
+      ],
+      "median": 0.3086,
+      "min": 0.2994,
+      "max": 0.3097
+    },
+    "core-edit": {
+      "seconds": [
+        18.4638,
+        17.9141,
+        20.6207
+      ],
+      "median": 18.4638,
+      "min": 17.9141,
+      "max": 20.6207
+    },
+    "core-execute": {
+      "seconds": [
+        0.3617,
+        0.2108,
+        0.2147
+      ],
+      "median": 0.2147,
+      "min": 0.2108,
+      "max": 0.3617
+    },
+    "ai-edit": {
+      "seconds": [
+        15.5378,
+        16.4487,
+        16.6317
+      ],
+      "median": 16.4487,
+      "min": 15.5378,
+      "max": 16.6317
+    },
+    "ai-execute": {
+      "seconds": [
+        1.1176,
+        0.6644,
+        0.6814
+      ],
+      "median": 0.6814,
+      "min": 0.6644,
+      "max": 1.1176
+    },
+    "ui-edit": {
+      "seconds": [
+        0.9852,
+        1.0101,
+        0.9496
+      ],
+      "median": 0.9852,
+      "min": 0.9496,
+      "max": 1.0101
+    },
+    "ui-execute": {
+      "seconds": [
+        0.2823,
+        0.1796,
+        0.1657
+      ],
+      "median": 0.1796,
+      "min": 0.1657,
+      "max": 0.2823
+    },
+    "ai-suite": {
+      "seconds": [
+        12.119913832983002,
+        12.084625832998427,
+        12.093588584015379
+      ],
+      "median": 12.093588584015379,
+      "min": 12.084625832998427,
+      "max": 12.119913832983002
+    },
+    "workspace": {
+      "seconds": [
+        148.16597654198995,
+        91.69336945802206,
+        91.78740745800314
+      ],
+      "median": 91.78740745800314,
+      "min": 91.69336945802206,
+      "max": 148.16597654198995
+    },
+    "cold_units": [
+      {
+        "name": "aws-lc-sys",
+        "target": " build-script (run)",
+        "duration": 48.98
+      },
+      {
+        "name": "rig-core",
+        "target": "",
+        "duration": 28.36
+      },
+      {
+        "name": "brn-ai",
+        "target": " brn_ai \"lib\" (test)",
+        "duration": 24.24
+      },
+      {
+        "name": "brn-threads-core",
+        "target": "",
+        "duration": 15.05
+      },
+      {
+        "name": "brn",
+        "target": " mcp \"test\" (test)",
+        "duration": 14.68
+      },
+      {
+        "name": "rmcp",
+        "target": "",
+        "duration": 13.18
+      },
+      {
+        "name": "rig-agent",
+        "target": "",
+        "duration": 9.81
+      },
+      {
+        "name": "libsqlite3-sys",
+        "target": " build-script (run)",
+        "duration": 9.44
+      }
+    ],
+    "ai_test_bytes": 70966688
+  },
+  "identity": {
+    "artifact_count": 378,
+    "features_identical": true,
+    "only_profile_changes": [
+      {
+        "target": "brn_ai",
+        "test": false,
+        "before": {
+          "opt_level": "1",
+          "debuginfo": 0,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        },
+        "after": {
+          "opt_level": "0",
+          "debuginfo": 0,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": false
+        }
+      },
+      {
+        "target": "brn_ai",
+        "test": true,
+        "before": {
+          "opt_level": "1",
+          "debuginfo": 0,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": true
+        },
+        "after": {
+          "opt_level": "0",
+          "debuginfo": 0,
+          "debug_assertions": true,
+          "overflow_checks": true,
+          "test": true
+        }
+      }
+    ]
+  },
+  "protocol": {
+    "frozen_revision": "e210c2c0fceb6bff4d6c24ee708f95f6ca5ec3df",
+    "frozen_tree": "4e31aa801714501571f02c8a6799d657e25aeec2",
+    "lock_sha256": "39366eba221833a44de73c6c443e0dec293cbe8b74a2a4a9f30d7255a0041055",
+    "rust_toolchain": "[toolchain]\nchannel = \"1.98.1\"\nprofile = \"minimal\"\ncomponents = [\"clippy\", \"rustfmt\"]\n",
+    "host": "aarch64-apple-darwin",
+    "machine": "Apple M5 Pro",
+    "logical_cpus": 15,
+    "memory_gib": 24,
+    "cargo_jobs": 4,
+    "cargo_incremental": 1,
+    "cache": "Warm registry; cold means empty per-arm Cargo build artifacts, not cold OS caches. Separate warm target per arm.",
+    "helpers": {
+      "brn-xberg-helper-brn": "e87072a261f0490238a862a93478ea2d801469845b27a1db09930d670d9adaef",
+      "brn-xberg-helper": "114c7955fde6c465363c7ca730a14b7a11efc9aa34a5ee54f9eaa5d7a7d0ffbf"
+    },
+    "commands": {
+      "compile": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--no-run",
+        "--locked",
+        "--offline",
+        "--timings",
+        "--message-format=json"
+      ],
+      "workspace": [
+        "cargo",
+        "test",
+        "--workspace",
+        "--no-fail-fast",
+        "--locked",
+        "--offline",
+        "--",
+        "--test-threads=4"
+      ]
+    },
+    "failed_attempts": [
+      "Initial probes: mtime contamination and Agent B build overlap, excluded.",
+      "Initial AI suite: helpers missing; 595passed/3failed/2ignored, preserved.",
+      "Corrected UI probes: Agent A build overlap, excluded.",
+      "Guarded first candidate cold build: competing Cargo, interrupted at19.813s, excluded.",
+      "First candidate workspace: helper siblings absent in new target; 1483passed/8failed/9ignored. Corrected copies; focused48tests pass."
+    ],
+    "review_policy": "Diagnosis and final review; max third concrete-issue pass. Council outside timed windows.",
+    "budget_deadline_utc": "2026-11-06T16:26:01Z",
+    "accepted_arms": [
+      "baseline-final",
+      "candidate-final"
+    ],
+    "measurement_claim": "Only this completed uncontended pair supplies the headline results; prior exploratory/interrupted observations are preserved separately.",
+    "measurement_end_utc": "2026-11-06T16:25:31.020555+00:00"
+  },
+  "candidate2": {
+    "setting": "Only profile.test.package.brn-ai codegen-units=512; opt-level remains1",
+    "cold_seconds": 263.0282428749779,
+    "core_edit_seconds": [
+      28.6906,
+      32.9869,
+      30.3786
+    ],
+    "core_median": 30.3786,
+    "first_ai_edit_seconds": 56.1573,
+    "outcome": "Rejected early: cold and all3 core edits slower, first auth edit slower. No full-suite performance/acceptance claim.",
+    "flag_evidence": "Observed owned brn_ai rustc with -C codegen-units=512 at16:17UTC",
+    "excluded": "Stop cleanup restored manifest before the final owned process fully stopped; later/partial auth observations excluded. Corrected stop handling, reaped owned process group, restored every source/config byte."
+  },
+  "outcome": "No default performance configuration retained; both candidates rejected. Documentation/evidence only."
+}
