@@ -322,6 +322,7 @@ impl ThreadsUi {
                     .gap_2()
                     .min_h(px(theme::metrics::SIDEBAR_ROW))
                     .px_2()
+                    .py_1()
                     .rounded(px(theme::metrics::RADIUS_CONTROL))
                     .when(selected, |row| row.bg(rgb(p.selection)))
                     .when(!selected, |row| row.hover(|style| style.bg(rgb(p.hover))))
@@ -340,7 +341,9 @@ impl ThreadsUi {
                         div()
                             .flex_1()
                             .min_w_0()
-                            .truncate()
+                            // Descriptions are cut at a word to 100 chars;
+                            // two lines show them whole at narrow widths.
+                            .line_clamp(2)
                             .text_size(SMALL_TEXT)
                             .text_color(rgb(p.muted))
                             .child(detail),

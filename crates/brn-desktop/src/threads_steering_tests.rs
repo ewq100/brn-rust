@@ -866,6 +866,74 @@ fn long_queue_and_attachment_labels_keep_controls_inside_the_chat_tile(cx: &mut 
     .unwrap();
 }
 
+/// Activity details below a full trace scroll inside the Activity card; none
+/// paints past it onto the attachment strip below.
+#[gpui_kit::test]
+fn activity_details_stay_inside_the_card_above_attachments(cx: &mut TestAppContext) {
+    let f = fixture(cx, RunState::Working);
+    let mut attachment = String::new();
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |ui, cx| {
+            ui.workspace.choose_quiet("activity-detailed", false).unwrap();
+            for step in 0..32 {
+                f.sender
+                    .send(WorkerEvent::Progress(format!("Synthetic step {step}")))
+                    .unwrap();
+                ui.poll_worker(window, cx);
+            }
+            let converted = ConversionResult {
+                intent: ImportIntent::FullNote,
+                markdown: "Synthetic saved document".into(),
+                assets: vec![],
+                source_sha256: [0; 32],
+                source_reference: "/missing/activity.md".into(),
+                converter: brn_threads_intake::document_conversion_label("xberg", false).unwrap(),
+                sources: vec![],
+                coverage: brn_threads_intake::Coverage {
+                    status: brn_threads_intake::CoverageStatus::Unchecked,
+                    checked_items: vec![],
+                    gaps: vec![],
+                },
+            };
+            ui.workspace
+                .attach_full("activity-attachment", &f.thread, "Attachment", &converted)
+                .unwrap();
+            ui.refresh();
+            attachment = ui
+                .records
+                .iter()
+                .find(|r| matches!(&r.data, RecordData::Note(n) if n.chat.as_ref() == Some(&f.thread)))
+                .unwrap()
+                .id
+                .clone();
+            ui.open_thread(&f.thread, window, cx);
+        });
+    })
+    .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, cx| window.click("chat-activity", cx))
+        .unwrap();
+    cx.run_until_parked();
+    cx.update_window(f.window, |_, window, _| {
+        assert!(window.find("run-activity").visible());
+        let card = window.find("chat-activity-panel").bounds();
+        let strip = window.find("chat-attachments").bounds();
+        assert!(strip.top() >= card.bottom(), "{strip:?} vs {card:?}");
+        for id in ["loaded-skill-details", "mcp-status-detail"] {
+            let detail = window.find(id);
+            assert!(
+                detail.bounds().top() < card.bottom() || !detail.visible(),
+                "{id} paints below the Activity card: {:?} vs {card:?}",
+                detail.bounds()
+            );
+        }
+        let keep = window.find(format!("attachment-keep-{attachment}"));
+        assert!(keep.visible());
+        assert!(keep.bounds().top() >= card.bottom());
+    })
+    .unwrap();
+}
+
 #[gpui_kit::test]
 fn starting_a_replacement_run_clears_the_old_paused_notice(cx: &mut TestAppContext) {
     let f = fixture(cx, RunState::Interrupted);

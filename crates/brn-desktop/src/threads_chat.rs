@@ -125,6 +125,9 @@ impl ThreadsUi {
             .px_3()
             .py_2()
             .max_h(px(220.))
+            // Guidance and MCP details can outgrow the card; they scroll
+            // inside it instead of painting over the attachments below.
+            .overflow_y_scroll()
             .rounded(px(theme::metrics::RADIUS_CARD))
             .border_1()
             .border_color(rgb(p.hairline))
@@ -132,6 +135,7 @@ impl ThreadsUi {
             .child(
                 div()
                     .flex()
+                    .flex_shrink_0()
                     .items_center()
                     .gap_2()
                     .child(subheading("Activity").flex_1())

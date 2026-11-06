@@ -2478,6 +2478,17 @@ fn tool_outcome_label<'a>(name: &str, result: Option<&'a rig::tool::ToolResult>)
     {
         return "Invalid";
     }
+    // A refused or failed search reaches the model as an explanation, but
+    // Activity must not call it a successful search.
+    if name == "web_search"
+        && result.status_name() == "success"
+        && result
+            .output()
+            .as_json()
+            .is_some_and(|v| v.get("error").is_some())
+    {
+        return "failed";
+    }
     if name == "withdraw_proposal" && result.status_name() == "success" {
         return result
             .output()
@@ -4673,6 +4684,14 @@ mod tests {
             "outcome unconfirmed"
         );
         assert_eq!(tool_outcome_label("apply_changes", None), "error");
+        let refused = ToolResult::success(ToolOutput::json(
+            json!({"error":"This Codex App Server version is not qualified for isolated web search."}),
+        ));
+        assert_eq!(tool_outcome_label("web_search", Some(&refused)), "failed");
+        let found = ToolResult::success(ToolOutput::json(
+            json!({"untrusted_web_evidence":true,"answer":"A","sources":[]}),
+        ));
+        assert_eq!(tool_outcome_label("web_search", Some(&found)), "success");
         let skipped = ToolResult::skipped("PRIVATE REASON");
         assert_eq!(
             tool_outcome_label("apply_changes", Some(&skipped)),
