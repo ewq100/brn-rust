@@ -429,5 +429,27 @@
       "candidate-qualified": "9638fc81390dc4c37c5b9c613e7b185163a916159f2438949fab4fff80a7750f",
       "candidate-final": "fddd6a091eed1529f893ee02139f71531c4f0ad9e955cda3861d36078fdd51fb"
     }
+  },
+  "review_usage": {
+    "round1_diagnosis_seconds": {
+      "codex_sol": 267.8,
+      "copilot_opus": 207.9,
+      "copilot_grok": 528.9
+    },
+    "round2_final_seconds": {
+      "codex_sol": 183.4,
+      "copilot_opus": 146.7,
+      "copilot_grok": 533.8
+    },
+    "round2_wall_seconds": 870.6,
+    "round2_dispatch": "Tool wait calls ran serially by receipt timestamps.",
+    "round3_recheck_seconds": {
+      "codex_sol": 122.5,
+      "copilot_opus": 60.1,
+      "copilot_grok": 336.6
+    },
+    "round3_parallel_wall_seconds": 339.5,
+    "delegates_total": 9,
+    "tokens_and_cost": "Not exposed; no inferred totals."
   }
 }

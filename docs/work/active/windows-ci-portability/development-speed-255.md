@@ -3,7 +3,7 @@
 ## Outcome
 
 No default performance configuration is retained. Measurements are frozen at
-e210c2c0 / Rig0.45; the reconciled main includes Rig0.46, with no new-runtime
+e210c2c0 / Rig 0.45; the reconciled main includes Rig 0.46, with no new-runtime
 performance claim. AI test opt-level0 repeatedly
 showed faster compilation, but its execution effect remains unresolved: earlier
 runs of identical core binaries were near baseline speed, while later runs were
@@ -226,17 +226,21 @@ by this correction; round3 is a bounded recheck of these material corrections.
 
 ## Final review and current verification
 
-Three Council rounds completed. Final corrected-evidence scores: Sol9/10,
-Opus8/10, Grok9/10; no High or Medium finding remains. Low wording/provenance
+Three Council rounds completed. Final corrected-evidence scores: Sol 9/10,
+Opus 8/10, Grok 9/10; no High or Medium finding remains. Low wording/provenance
 fixes applied by the lead: unknown cause of the later slow window, explicit
 artifact-root mapping and differing contract hashes, non-ABBA compilation limit,
 and withdrawal of the last controlled-pair attribution phrase. Historical
-round2 opinions remain preserved as reviews of2283b8d8, not current conclusions.
+round 2 opinions remain preserved as reviews of 2283b8d8, not current conclusions.
 
-Round2 tool wait dispatch ran serially by receipt timestamps: Opus146.7s,
-Grok533.8s, Sol183.4s (wall870.6s). Each member stayed within ten minutes.
-Round3 used parallel asynchronous dispatch. Actual routes/options remain in the
+Round2 tool wait dispatch ran serially by receipt timestamps: Opus 146.7 s,
+Grok 533.8 s, Sol 183.4 s (wall 870.6 s). Each member stayed within ten minutes.
+Round 3 used parallel asynchronous dispatch. Actual routes/options remain in the
 reports; no token/cost totals are available. No further Council round or timing
 trial is planned. Current-head hosted CI, Codex/security and normal merge remain
 separate pending gates tracked by the task/PR. Documentation links, overview
-validation and16overview tests pass; product/config/runtime/CI match main.
+validation and 16 overview tests pass; product/config/runtime/CI match main.
+
+Final async recheck runtime: Sol 122.5 s, Opus 60.1 s, Grok 336.6 s;
+parallel wall about 339.5 s including dispatch. All nine Council delegates are
+finished; no further model review is scheduled by this task.
