@@ -10,7 +10,15 @@
   ],
   "per_role_requested_max": 12,
   "known_completed": [
+    "gpt-6.1-sol",
+    "claude-opus-5.5",
     "kimi-k3"
   ],
-  "no_more_native_dispatch": true
+  "no_more_native_dispatch": true,
+  "reconciled_at": "2026-11-06T23:47:21Z",
+  "activeRunId_by_role": {
+    "sol": null,
+    "opus": null,
+    "kimi": null
+  }
 }
