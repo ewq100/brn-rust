@@ -51,6 +51,26 @@ Gates:
 
 </details>
 
+### Support Copilot chat, native web search and Luna refinement
+
+Task ID: `copilot-252`
+Owner: Agent A (runtime) · State: **active** · Last observed: 2026-11-06T17:30:00+02:00
+Activity: Implemented on work/copilot-252 stacked on #259: account pin captured at operation start for chat, helpers, web search and refinement; native Copilot hosted web_search adapter on the Rig Responses route; provider-aware Copilot Luna refinement with no Codex fallback; Copilot tools sent non-strict so write proposals work. Local checks and live qualification on a Copilot business account pass.
+Next: Rebase on the merged Rig runtime (#259), publish the PR, run Council review and hosted CI, then merge and notify B.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Implemented and qualified live (chat, web search with sources, BRN tools, writes, refinement On/Off, failure messages); Council pending.
+- **checks:** Local tests, Clippy and fmt pass; hosted CI pending.
+- **integration:** Not published or merged.
+- **native:** Pending; device sign-in and native account switching need native observation.
+- **owner acceptance:** Not requested.
+
+</details>
+
 ## Next
 
 None recorded.

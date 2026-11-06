@@ -8,6 +8,7 @@ pub mod capability_probe;
 mod chat;
 pub mod codex_auth;
 pub mod conversion;
+pub mod copilot_search;
 pub mod document_refine;
 mod error;
 #[path = "threads_mcp.rs"]
@@ -38,7 +39,7 @@ pub use action_candidates::{
     ActionCandidate, ActionCandidateData, ActionCandidatePriority, ActionCandidateState, ActionRef,
     CheckedActionRef,
 };
-pub use auth::{Auth, ProviderClient};
+pub use auth::{AccountPin, Auth, ProviderClient};
 pub use chat::{AiAnswer, AiEvent, AiTerminal, ReasoningEffort};
 #[cfg(any(test, feature = "capability-spike"))]
 pub use chat::{HistoryPair, MAX_REWRITE_BYTES};
@@ -64,6 +65,16 @@ pub use tools::{
 pub enum Provider {
     Chatgpt,
     Copilot,
+}
+impl Provider {
+    /// The provider a saved setting names ("Codex"/"ChatGPT" or "Copilot").
+    pub fn from_setting(text: &str) -> Option<Self> {
+        match text.to_ascii_lowercase().as_str() {
+            "codex" | "chatgpt" => Some(Self::Chatgpt),
+            "copilot" => Some(Self::Copilot),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

@@ -63,7 +63,7 @@ impl ThreadsUi {
                     .selected(selected.converter == DocumentConverter::XbergBrn)
                     .on_click(cx.listener(|this, _, _, cx| this.choose_document_conversion(Some(DocumentConverter::XbergBrn), None, cx)))))
             .child(components::section_header("AI conversion", None, None))
-            .child(metadata("Optional GPT-6 Luna refinement at high effort, with either converter. Turning it off does not disable the useful-information agent."))
+            .child(metadata("Optional GPT-6 Luna refinement at high effort, with either converter, using the signed-in account of your selected provider (Codex / ChatGPT or GitHub Copilot). Turning it off does not disable the useful-information agent."))
             .child(div().flex().gap_2()
                 .child(button("documents-ai-off").label("Off (default)").outline().selected(!selected.ai)
                     .on_click(cx.listener(|this, _, _, cx| this.choose_document_conversion(None, Some(false), cx))))

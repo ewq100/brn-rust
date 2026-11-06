@@ -83,6 +83,9 @@ pub enum SearchError {
     EmptyResults,
     ProviderFailed,
     ProviderWarning(PrivateWarning),
+    CopilotNoLogin,
+    CopilotAccountChanged,
+    CopilotModelCannotSearch,
 }
 impl SearchError {
     /// Sensitive, untrusted text. Only an explicitly requested private diagnostic
@@ -129,6 +132,9 @@ impl fmt::Display for SearchError {
             Self::EmptyResults => "The search did not return a cited answer with native source URLs.",
             Self::ProviderFailed => "The subscription provider could not complete the search.",
             Self::ProviderWarning(_) => "Web search stopped because the subscription provider reported a warning. Private diagnostics can retain its details.",
+            Self::CopilotNoLogin => "Connect GitHub Copilot in BRN before searching.",
+            Self::CopilotAccountChanged => "The signed-in Copilot account changed after this request started. BRN did not search with the other account; start the request again.",
+            Self::CopilotModelCannotSearch => "The selected Copilot model cannot search the web on Copilot. BRN will not switch models; choose a Copilot GPT model to search.",
         })
     }
 }

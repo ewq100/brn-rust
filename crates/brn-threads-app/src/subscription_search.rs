@@ -2,11 +2,14 @@
 //! agent's `web_search`, without workspace context.
 use crate::{AppError, RecordData, Workspace, WorkspaceSettings, resolve_run_selection};
 use brn_ai::{
-    Provider, ReasoningEffort, Selection,
+    AccountPin, Auth, Provider, ReasoningEffort, Selection, copilot_search,
     subscription_search::{Request, SearchError, check_auth_file},
     threads::{RunWebSearch, WebSearchCancel as CancellationToken, WebSearchFuture},
 };
-use std::{path::PathBuf, sync::Arc};
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 /// Whether the agent may search the web in one chat. Unavailable states why
 /// the selected route cannot search; it is never treated as the owner's Off.
@@ -17,28 +20,56 @@ pub enum WebAccessState {
     Unavailable(String),
 }
 
-/// The selected subscription route, when it supports search. BRN never
-/// substitutes another provider, account or billing route.
-fn route(
-    settings: &WorkspaceSettings,
-) -> Result<(Selection, ReasoningEffort, Option<PathBuf>), RouteError> {
-    if !matches!(
-        settings.provider.to_ascii_lowercase().as_str(),
-        "codex" | "chatgpt"
-    ) {
-        return Err(RouteError::Search(SearchError::UnsupportedProvider));
+/// The selected subscription account's search route. BRN never substitutes
+/// another provider, account, model or billing route.
+enum Route {
+    Codex {
+        selection: Selection,
+        effort: ReasoningEffort,
+        auth_file: PathBuf,
+    },
+    Copilot {
+        model: String,
+        effort: ReasoningEffort,
+        credentials_dir: PathBuf,
+    },
+}
+
+fn route(settings: &WorkspaceSettings) -> Result<Route, RouteError> {
+    let selected =
+        || resolve_run_selection(settings, None).map_err(|e| RouteError::Selection(e.to_string()));
+    match settings.provider.to_ascii_lowercase().as_str() {
+        "codex" | "chatgpt" => {
+            // Chat's credentials-folder route can select a different account. Never
+            // silently substitute the host's managed login for that saved selection,
+            // and offer search only on the account path the adapter accepts.
+            let Some(auth_file) = settings.auth_file.as_deref().map(PathBuf::from) else {
+                return Err(RouteError::Search(SearchError::UnsupportedAuthPath));
+            };
+            check_auth_file(&auth_file).map_err(RouteError::Search)?;
+            let (selection, effort) = selected()?;
+            debug_assert_eq!(selection.provider, Provider::Chatgpt);
+            Ok(Route::Codex {
+                selection,
+                effort,
+                auth_file,
+            })
+        }
+        "copilot" => {
+            // Copilot searches only with the chat's own Copilot sign-in.
+            let Some(credentials_dir) = settings.credentials_dir.as_deref().map(PathBuf::from)
+            else {
+                return Err(RouteError::Search(SearchError::CopilotNoLogin));
+            };
+            let (selection, effort) = selected()?;
+            Ok(Route::Copilot {
+                model: selection.model,
+                effort,
+                credentials_dir,
+            })
+        }
+        _ => Err(RouteError::Search(SearchError::UnsupportedProvider)),
     }
-    // Chat's credentials-folder route can select a different account. Never
-    // silently substitute the host's managed login for that saved selection,
-    // and offer search only on the account path the adapter accepts.
-    let Some(auth_file) = settings.auth_file.as_deref().map(PathBuf::from) else {
-        return Err(RouteError::Search(SearchError::UnsupportedAuthPath));
-    };
-    check_auth_file(&auth_file).map_err(RouteError::Search)?;
-    let (selection, effort) =
-        resolve_run_selection(settings, None).map_err(|e| RouteError::Selection(e.to_string()))?;
-    debug_assert_eq!(selection.provider, Provider::Chatgpt);
-    Ok((selection, effort, Some(auth_file)))
 }
 
 enum RouteError {
@@ -61,43 +92,103 @@ impl RouteError {
             Self::Search(SearchError::UnsupportedAuthPath) => {
                 "Needs the managed Codex login".into()
             }
+            Self::Search(SearchError::CopilotNoLogin) => "Connect GitHub Copilot first".into(),
             other => other.full(),
         }
     }
 }
 
-pub fn prepare(settings: &WorkspaceSettings, query: String) -> Result<Request, String> {
+/// A checked search request on the selected route.
+#[derive(Debug)]
+pub enum PreparedSearch {
+    Codex(Request),
+    Copilot(copilot_search::Request),
+}
+
+fn copilot_account(credentials_dir: &Path) -> Result<AccountPin, String> {
+    Auth::open(credentials_dir)
+        .and_then(|auth| auth.copilot_account())
+        .map_err(|e| e.to_string())
+}
+
+pub fn prepare(settings: &WorkspaceSettings, query: String) -> Result<PreparedSearch, String> {
     if query.trim().is_empty() || query.len() > 16 * 1024 {
         return Err(SearchError::InvalidQuery.to_string());
     }
-    let (selection, effort, auth_file) = route(settings).map_err(RouteError::full)?;
-    Ok(Request {
-        selection,
-        effort,
-        query,
-        auth_file,
+    Ok(match route(settings).map_err(RouteError::full)? {
+        Route::Codex {
+            selection,
+            effort,
+            auth_file,
+        } => PreparedSearch::Codex(Request {
+            selection,
+            effort,
+            query,
+            auth_file: Some(auth_file),
+        }),
+        Route::Copilot {
+            model,
+            effort,
+            credentials_dir,
+        } => PreparedSearch::Copilot(copilot_search::Request {
+            account: copilot_account(&credentials_dir)?,
+            model,
+            effort,
+            query,
+            credentials_dir,
+        }),
     })
 }
 
-struct SubscriptionWebSearch {
-    selection: Selection,
-    effort: ReasoningEffort,
-    auth_file: Option<PathBuf>,
+/// One run's searcher, fixed to the route and account captured at run start.
+enum SubscriptionWebSearch {
+    Codex {
+        selection: Selection,
+        effort: ReasoningEffort,
+        auth_file: PathBuf,
+    },
+    Copilot {
+        model: String,
+        effort: ReasoningEffort,
+        credentials_dir: PathBuf,
+        account: AccountPin,
+    },
 }
 impl RunWebSearch for SubscriptionWebSearch {
     fn search(&self, query: String, cancel: CancellationToken) -> WebSearchFuture {
-        let request = Request {
-            selection: self.selection.clone(),
-            effort: self.effort,
-            query,
-            auth_file: self.auth_file.clone(),
-        };
-        Box::pin(async move {
-            if request.query.trim().is_empty() || request.query.len() > 16 * 1024 {
-                return Err(SearchError::InvalidQuery);
+        if query.trim().is_empty() || query.len() > 16 * 1024 {
+            return Box::pin(async { Err(SearchError::InvalidQuery) });
+        }
+        match self {
+            Self::Codex {
+                selection,
+                effort,
+                auth_file,
+            } => {
+                let request = Request {
+                    selection: selection.clone(),
+                    effort: *effort,
+                    query,
+                    auth_file: Some(auth_file.clone()),
+                };
+                Box::pin(brn_ai::subscription_search::search(request, cancel))
             }
-            brn_ai::subscription_search::search(request, cancel).await
-        })
+            Self::Copilot {
+                model,
+                effort,
+                credentials_dir,
+                account,
+            } => {
+                let request = copilot_search::Request {
+                    model: model.clone(),
+                    effort: *effort,
+                    query,
+                    credentials_dir: credentials_dir.clone(),
+                    account: account.clone(),
+                };
+                Box::pin(copilot_search::search(request, cancel))
+            }
+        }
     }
 }
 
@@ -137,14 +228,30 @@ impl Workspace {
         chat: &str,
         settings: &WorkspaceSettings,
     ) -> Option<Arc<dyn RunWebSearch>> {
-        let (selection, effort, auth_file) = route(settings).ok()?;
+        let route = route(settings).ok()?;
         if !self.store.chat_web_allowed(chat).ok()? {
             return None;
         }
-        Some(Arc::new(SubscriptionWebSearch {
-            selection,
-            effort,
-            auth_file,
+        Some(Arc::new(match route {
+            Route::Codex {
+                selection,
+                effort,
+                auth_file,
+            } => SubscriptionWebSearch::Codex {
+                selection,
+                effort,
+                auth_file,
+            },
+            Route::Copilot {
+                model,
+                effort,
+                credentials_dir,
+            } => SubscriptionWebSearch::Copilot {
+                account: copilot_account(&credentials_dir).ok()?,
+                model,
+                effort,
+                credentials_dir,
+            },
         }))
     }
 }
@@ -158,13 +265,39 @@ mod tests {
         let workspace = crate::Workspace::open_without_default_credentials(root.path()).unwrap();
         let mut settings = workspace.settings().unwrap();
         assert!(prepare(&settings, "  ".into()).is_err());
-        settings.provider = "copilot".into();
-        settings.model = "gpt-4o".into();
+        settings.provider = "other".into();
+        settings.model = "gpt-6-luna".into();
         settings.effort = "medium".into();
         assert_eq!(
             prepare(&settings, "public query".into()).unwrap_err(),
             SearchError::UnsupportedProvider.to_string()
         );
+    }
+
+    #[test]
+    fn copilot_searches_only_with_the_chats_own_sign_in() {
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+        let workspace = crate::Workspace::open_without_default_credentials(root.path()).unwrap();
+        let mut settings = workspace.settings().unwrap();
+        settings.provider = "copilot".into();
+        settings.model = "gpt-6-luna".into();
+        settings.effort = "medium".into();
+        // A Codex login is never a fallback for Copilot search.
+        settings.auth_file = Some("/synthetic/codex/auth.json".into());
+        settings.credentials_dir = None;
+        assert_eq!(
+            prepare(&settings, "public query".into()).unwrap_err(),
+            SearchError::CopilotNoLogin.to_string()
+        );
+        let credentials = root.path().join("copilot");
+        settings.credentials_dir = Some(credentials.display().to_string());
+        let PreparedSearch::Copilot(request) = prepare(&settings, "public query".into()).unwrap()
+        else {
+            panic!("Copilot settings must use the Copilot route");
+        };
+        assert_eq!(request.model, "gpt-6-luna");
+        assert_eq!(request.credentials_dir, credentials);
+        assert_eq!(request.query, "public query");
     }
 
     #[test]
@@ -187,7 +320,7 @@ mod tests {
 
     #[test]
     fn chat_web_access_is_per_chat_and_unavailable_routes_never_search() {
-        let root = tempfile::tempdir().unwrap();
+        let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
         let mut workspace =
             crate::Workspace::open_without_default_credentials(root.path()).unwrap();
         let alpha = workspace.new_thread("Alpha").unwrap().id;
@@ -238,13 +371,26 @@ mod tests {
 
         let mut copilot = settings;
         copilot.provider = "copilot".into();
-        copilot.model = "gpt-4o".into();
+        copilot.model = "gpt-6-luna".into();
+        copilot.credentials_dir = None;
         workspace.configure(copilot.clone()).unwrap();
         assert_eq!(
             workspace.chat_web_access(Some(&bravo)).unwrap(),
-            WebAccessState::Unavailable("Not available for this provider".into())
+            WebAccessState::Unavailable("Connect GitHub Copilot first".into())
         );
         assert!(workspace.web_searcher(&bravo, &copilot).is_none());
+        copilot.credentials_dir = Some(root.path().join("copilot").display().to_string());
+        workspace.configure(copilot.clone()).unwrap();
+        assert_eq!(
+            workspace.chat_web_access(Some(&bravo)).unwrap(),
+            WebAccessState::Allowed
+        );
+        assert!(workspace.web_searcher(&bravo, &copilot).is_some());
+        assert_eq!(
+            workspace.chat_web_access(Some(&alpha)).unwrap(),
+            WebAccessState::Off
+        );
+        assert!(workspace.web_searcher(&alpha, &copilot).is_none());
         // The owner's saved choice survives an unavailable route.
         copilot.provider = "codex".into();
         copilot.model = "gpt-6-sol".into();

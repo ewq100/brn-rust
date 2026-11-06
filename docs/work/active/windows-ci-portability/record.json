@@ -110,6 +110,30 @@
           "owner_acceptance": "Not requested."
         },
         "attempts": []
+      },
+      {
+        "id": "copilot-252",
+        "title": "Support Copilot chat, native web search and Luna refinement",
+        "owner": "Agent A (runtime)",
+        "state": "active",
+        "activity": "Implemented on work/copilot-252 stacked on #259: account pin captured at operation start for chat, helpers, web search and refinement; native Copilot hosted web_search adapter on the Rig Responses route; provider-aware Copilot Luna refinement with no Codex fallback; Copilot tools sent non-strict so write proposals work. Local checks and live qualification on a Copilot business account pass.",
+        "observed_at": "2026-11-06T17:30:00+02:00",
+        "origin": "observed",
+        "next_action": "Rebase on the merged Rig runtime (#259), publish the PR, run Council review and hosted CI, then merge and notify B.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "docs/work/active/copilot-252/README.md",
+          "https://github.com/ewq100/brn-rust/issues/252"
+        ],
+        "gates": {
+          "implementation": "Implemented and qualified live (chat, web search with sources, BRN tools, writes, refinement On/Off, failure messages); Council pending.",
+          "checks": "Local tests, Clippy and fmt pass; hosted CI pending.",
+          "integration": "Not published or merged.",
+          "native": "Pending; device sign-in and native account switching need native observation.",
+          "owner_acceptance": "Not requested."
+        },
+        "attempts": []
       }
     ]
   }

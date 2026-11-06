@@ -1608,6 +1608,7 @@ async fn execute_document_transport(
                 intent,
                 bytes,
                 source_reference: inv.arg("source")?.into(),
+                provider: brn_ai::Provider::from_setting(&settings.provider),
                 auth_file: settings.auth_file.map(PathBuf::from),
                 credentials_dir: settings.credentials_dir.map(PathBuf::from),
             };

@@ -3591,6 +3591,7 @@ impl ThreadsUi {
                 .map(|project| project.id.clone())
         };
         let captured = canonical.document_conversion.clone();
+        let provider = brn_ai::Provider::from_setting(&canonical.provider);
         let auth_file = canonical.auth_file.map(PathBuf::from);
         let credentials_dir = canonical.credentials_dir.map(PathBuf::from);
         let (sender, receiver) = mpsc::sync_channel(8);
@@ -3623,6 +3624,7 @@ impl ThreadsUi {
                             intent,
                             bytes,
                             source_reference: reference,
+                            provider,
                             auth_file,
                             credentials_dir,
                         },
