@@ -95,7 +95,7 @@ Gates:
 ### Compare Terra/Sol and improve maintained knowledge (#254)
 
 Task ID: `knowledge-quality-254`
-Owner: Agent D · State: **active** · Last observed: 2026-11-06T21:53:20.125727+00:00
+Owner: Agent D · State: **active** · Last observed: 2026-11-06T21:58:53.986959+00:00
 Activity: Design Council complete: Sol6/10, Opus/Copilot5.5/10 after Kiro monthly-limit failure, Kimi8/10; protected role/native admission and pending in-memory failure witnesses corrected. Independent no-tuning evaluator froze2distinct2history packs; withholding procedural/shared filesystem, owner clarification posted on254. No BRN live calls/build yet.
 Next: Owner hardware correction read on254 comment6696700518: B Macmini, D/E MacBook. E takes first build; D follows with own CLI/seeder/grader build, native qualification and frozen live phases.
 Resource waits: E first MacBook baseline build, then D own target qualification; live timings serialized D/E
@@ -106,10 +106,10 @@ Resource waits: E first MacBook baseline build, then D own target qualification;
 Gates:
 
 - **implementation:** pending: actual knowledge-improvement loop required after comparison
-- **checks:** 105 runner/88 AgentBench (11 native skips)/12deadline tests pass;5new admission witnesses pass; cargo metadata/fmt/diff/overview pass; native binaries/grader compilation still pending B slot.
+- **checks:** Offline105 runner/93 AgentBench (11 native/config skips)/12 deadline/2helper-path tests pass;5new admission witnesses pass; cargo metadata/fmt/diff/overview/735Markdown links pass. Native binaries/grader compilation follows E MacBook build.
 - **integration:** Comparison and improvement PRs authorized; no merge/default change/publication
 - **native:** Headless synthetic only; desktop observation outside assignment
-- **owner acceptance:** pending; unseen ownership not provisioned, no generalization claim permitted
+- **owner acceptance:** Fresh evaluation-only role prepared2distinct2history packs; procedural withholding/shared filesystem, per owner clarification. Actual model/knowledge outcomes and final acceptance still pending.
 
 </details>
 
