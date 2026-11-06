@@ -15,8 +15,10 @@ findings, with source/mode/deletion preservation and all evidence hashes verifie
 Codex code completed cleanly on0438bd60; its separate automated security receipt
 explicitly reports no issues on that same head. The full-detail Security Report
 requires unavailable browser account login; its contents were not inspected.
-The workflow's explicit independent-security fallback and exact observations are
-[recorded on the PR](https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693227873).
+The independent full-task security review is additional evidence. The workflow
+requires any authorized fallback to be recorded; it does not itself grant a
+waiver. The current explicit no-issue receipt establishes automated completion
+and findings coverage; private full-detail report access remains unavailable.
 
 A's [response-limit PR264](https://github.com/ewq100/brn-rust/pull/264) is now open.
 Final package selection waits for its normal merge and A's selected SHA/build slot.
