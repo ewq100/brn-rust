@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Complete Windows CI compatibility and merge through the normal checked PR path.
-**Owner attention:** The owner authorized continuing through fixes and normal merge. PR246 advanced main; the integration lead is reconciling its documentation routing without changing benchmark results or granting live experiment budget.
+**Goal:** Publish and integrate the bounded #255 development-feedback findings and reliable measurement guidance.
+**Owner attention:** No default configuration qualified within finite budget. Corrected final Council supports publication; current-head CI/Codex/security and normal merge remain.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -51,6 +51,26 @@ Gates:
 
 </details>
 
+### Measure and improve development feedback (#255)
+
+Task ID: `development-speed-255`
+Owner: Agent C / Codex GPT-6.1 Sol · State: **active** · Last observed: 2026-11-06T17:01:08.332168+00:00
+Activity: PR #262 is open. All final corrected-evidence reviewers support no-change/incomplete qualification (Sol9/Opus8/Grok9); low documentation fixes applied. Main #261 reconciled; product/config/runtime/CI match main. Final-head CI/Codex/security review next.
+Next: Push reconciled final head, request current-head Codex review, inspect current CI/code/security results and unresolved findings, then normal merge and main verification.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Documentation/evidence only; no configuration retained because net performance is unqualified within the budget, not proven harmful. Guidance adds ABBA/same-binary checks and limits Cargo-only guards.
+- **checks:** Frozen-source suites/probes and all measurements preserved with causal limits. Final Council Sol9/Opus8/Grok9, noHigh/Medium findings; low fixes applied. Links/overview/16tests/diff pass. Current-head hosted CI/Codex/security pending publication.
+- **integration:** Published as PR #262; not merged. Normal merge after current-head CI, Codex and security review. Source/config byte-identical to main; frozen measurements remain separate.
+- **native:** Inapplicable: headless build/test tooling scope; existing hosted compatibility checks retained.
+- **owner acceptance:** Current owner assignment authorizes implementation, Council and focused PR; no manual UI acceptance requirement.
+
+</details>
+
 ## Next
 
 None recorded.
@@ -67,4 +87,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
 
-Local page reflects the last saved observations in this record (2026-11-06T18:05:00+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T17:01:08.332168+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

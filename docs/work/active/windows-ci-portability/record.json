@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-06T18:05:00+02:00",
-    "goal": "Complete Windows CI compatibility and merge through the normal checked PR path.",
-    "owner_attention": "The owner authorized continuing through fixes and normal merge. PR246 advanced main; the integration lead is reconciling its documentation routing without changing benchmark results or granting live experiment budget.",
+    "observed_at": "2026-11-06T17:01:08.332168+00:00",
+    "goal": "Publish and integrate the bounded #255 development-feedback findings and reliable measurement guidance.",
+    "owner_attention": "No default configuration qualified within finite budget. Corrected final Council supports publication; current-head CI/Codex/security and normal merge remain.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -137,6 +137,77 @@
           "owner_acceptance": "Not requested."
         },
         "attempts": []
+      },
+      {
+        "id": "development-speed-255",
+        "title": "Measure and improve development feedback (#255)",
+        "owner": "Agent C / Codex GPT-6.1 Sol",
+        "state": "active",
+        "activity": "PR #262 is open. All final corrected-evidence reviewers support no-change/incomplete qualification (Sol9/Opus8/Grok9); low documentation fixes applied. Main #261 reconciled; product/config/runtime/CI match main. Final-head CI/Codex/security review next.",
+        "observed_at": "2026-11-06T17:01:08.332168+00:00",
+        "origin": "observed",
+        "next_action": "Push reconciled final head, request current-head Codex review, inspect current CI/code/security results and unresolved findings, then normal merge and main verification.",
+        "depends_on": [],
+        "resource_waits": [],
+        "evidence": [
+          "https://github.com/ewq100/brn-rust/issues/255",
+          "docs/work/active/windows-ci-portability/development-speed-255.md",
+          "docs/work/active/windows-ci-portability/development-speed-255-results.json",
+          "docs/work/active/windows-ci-portability/development-speed-255-observations.jsonl",
+          "https://github.com/ewq100/brn-rust/pull/262"
+        ],
+        "gates": {
+          "implementation": "Documentation/evidence only; no configuration retained because net performance is unqualified within the budget, not proven harmful. Guidance adds ABBA/same-binary checks and limits Cargo-only guards.",
+          "checks": "Frozen-source suites/probes and all measurements preserved with causal limits. Final Council Sol9/Opus8/Grok9, noHigh/Medium findings; low fixes applied. Links/overview/16tests/diff pass. Current-head hosted CI/Codex/security pending publication.",
+          "integration": "Published as PR #262; not merged. Normal merge after current-head CI, Codex and security review. Source/config byte-identical to main; frozen measurements remain separate.",
+          "native": "Inapplicable: headless build/test tooling scope; existing hosted compatibility checks retained.",
+          "owner_acceptance": "Current owner assignment authorizes implementation, Council and focused PR; no manual UI acceptance requirement."
+        },
+        "attempts": [
+          {
+            "outcome": "Initial auth/UI first repeats contaminated by cleanup mtime; full AI execution had 3 helper-Unavailable failures. No speedup accepted.",
+            "change": "Preserve initial logs, write cleanup only on byte changes, require exact stale artifact sets and fresh no-op builds; build task-owned helpers before runtime comparison.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255.md"
+            ]
+          },
+          {
+            "outcome": "Guarded candidate cold attempt interrupted/excluded at 19.813s after competing Cargo appeared. No candidate measurement accepted.",
+            "change": "Preserve partial candidate target, require new empty target for next clean control, wait for coordinated release; no repeated retries.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255.md"
+            ]
+          },
+          {
+            "outcome": "Fresh confirmation attempts interrupted/refused by unrelated can-project Cargo. Owner selected yield, A had honored C hold.",
+            "change": "Preserve/exclude interrupted attempts and release reservation to A; no further trial until external work finishes and capacity is coordinated. Budget unchanged.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255.md"
+            ]
+          },
+          {
+            "outcome": "Completed uncontended final opt0 pair: faster AI compilation but full workspace median execution+37%; full workspace feedback after AI edit+6%.",
+            "change": "Reject package opt0 as default. Trial only512 codegen units with opt1 retained; stop if three-repeat AI compile ranges overlap baseline, before broader runtime checks.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255-results.json"
+            ]
+          },
+          {
+            "outcome": "512CGU single clean263.03s vs214.28;3 core edits 28.6906,32.9869,30.3786s vs17.96\u201321.17; first auth56.16s vs35.03\u201336.63.",
+            "change": "Reject early; no wider proposal justified in remaining finite budget. Restore original Cargo and Rust; stop only owned trial group. Later partial auth cleanup excluded. Deliver no-change result with evidence.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255-results.json"
+            ]
+          },
+          {
+            "outcome": "Opus identified identical key candidate binaries at near-baseline speed in earlier slot; later sequential slowdown is confounded. Verified3 SHA256 identities; not every test binary is identical.",
+            "change": "Withdraw execution and CGU causal-regression claims; retain observed compile signal and unqualified no-change outcome. Add ABBA/same-binary/host-load guidance; no new measurements. Third review only for this material correction.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/development-speed-255.md",
+              "docs/work/active/windows-ci-portability/development-speed-255-results.json"
+            ]
+          }
+        ]
       }
     ]
   }
