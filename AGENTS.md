@@ -20,6 +20,10 @@ Current user instructions select the work and its authority. Preserve existing a
 
 Use the [workflow](docs/development/workflow.md) for task ownership, bounded correction, facts and integration. Use [strategic programming](docs/development/strategic-programming.md) for meaningful design changes; it owns the responsibility, reuse, retirement and test-design guidance. Keep one integration owner and give helpers bounded ownership/evidence. Update the current task at meaningful transitions, regenerate the overview, and report implemented, checked, native-observed, owner-accepted and merged separately.
 
+## PR completion
+
+For assigned build/integration PRs, the standing owner instruction is to merge normally once all applicable gates pass. Honor explicit draft, stop-before-merge or narrower task limits; do not ask again for a covered merge. Own the [PR follow-through](docs/development/workflow.md#pr-follow-through) through merge or a concrete blocker. After pushing the last fix batch, request `@codex review` unless that head already has a pending or completed review; wait for completion. Verify unresolved findings (including older/outdated threads), current-head CI, security review and applicable native/owner-acceptance gates. An available `babysit-pr` skill can run the loop; BRN's workflow owns completion requirements. Review-only helpers do not start watchers, writers or merges.
+
 ## Code Review Rules
 
 Use the [architecture invariants](docs/architecture/invariants.md) as the behavior contract and the [threat model](docs/threat-model.md) for security context. Focus on actionable regressions introduced by the change:
@@ -29,3 +33,4 @@ Use the [architecture invariants](docs/architecture/invariants.md) as the behavi
 - **Async and integration behavior:** trace Stop/Resume, queued messages, delayed results and provider/tool failures through affected callers; flag concrete hangs, duplicate effects, silent provider/model fallback or broken supported interfaces.
 
 Explain the triggering path, impact and relevant contract for each finding. Leave formatting/lint to CI; avoid speculative findings or blanket test demands. Apply [strategic programming](docs/development/strategic-programming.md) to material design issues in the changed code. Follow the [Codex review workflow](docs/development/workflow.md#codex-pull-request-review) for current-commit review and finding disposition.
+
