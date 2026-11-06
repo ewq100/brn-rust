@@ -670,6 +670,57 @@ fn escape_from_comments(cx: &mut TestAppContext, f: &Fixture) {
     on_window(cx, f, |window, cx| window.press("escape", cx));
 }
 
+/// At 900×600 the bar folds its counts into the tooltip, but archiving a
+/// note stays visible in the bar itself.
+#[gpui_kit::test]
+fn a_compact_review_bar_still_shows_that_it_archives_the_note(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., TEXT);
+    let other = update(cx, &f, |view, _, _| {
+        view.workspace.new_note("Second", "Second text").unwrap()
+    });
+    let first = cx.read(|cx| {
+        f.view
+            .read(cx)
+            .workspace
+            .store
+            .note(&f.note.id)
+            .unwrap()
+            .unwrap()
+    });
+    review_writes(cx, &f, "Edit one, archive the other", |_| {
+        let mut archive = note_put(&other, "Second text");
+        archive.archived = true;
+        vec![archive, note_put(&first, REVISED)]
+    });
+    on_window(cx, &f, |window, _| {
+        let archives = window.find("review-archives");
+        assert!(archives.visible());
+        assert_eq!(archives.label(), Some("Archives this note"));
+        assert!(
+            window
+                .find("review-proposal")
+                .label()
+                .is_some_and(|label| label.ends_with("0 added · 0 removed · archives this note"))
+        );
+        assert_one_row(
+            window,
+            &[
+                "review-proposal",
+                "review-archives",
+                "review-show-changes",
+                "review-read-result",
+                "toggle-margin",
+                "apply-final",
+            ],
+        );
+    });
+    update(cx, &f, |view, window, cx| view.dismiss_review(window, cx));
+    review_writes(cx, &f, "Edit one", |_| vec![note_put(&first, REVISED)]);
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("review-archives").is_none());
+    });
+}
+
 /// The icon arrangement still fits one row at 900×600 with a two-digit
 /// comment count on a protected note.
 #[gpui_kit::test]

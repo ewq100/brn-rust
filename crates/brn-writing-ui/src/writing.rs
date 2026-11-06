@@ -2116,8 +2116,12 @@ impl<T: 'static> WritingView<'_, T> {
             if archives_this {
                 counts.push_str(" · archives this note");
             }
-            counts
+            (counts, archives_this)
         });
+        let (counts, archives_this) = match counts {
+            Some((counts, archives_this)) => (Some(counts), archives_this),
+            None => (None, false),
+        };
         let editing = self.review.is_editing();
         let edited = editing || self.review.is_edited();
         let grouped = review.groups.groups.len() > 1;
@@ -2169,6 +2173,8 @@ impl<T: 'static> WritingView<'_, T> {
         };
         let shown_counts = counts.clone().filter(|_| !fit.actions_in_menu());
         let folded = fit.icons() || (counts.is_some() && shown_counts.is_none());
+        // Archiving changes more than the text, so a folded bar still says so.
+        let archives_shown = archives_this && shown_counts.is_none();
         let label = div()
             .id("review-proposal")
             .flex()
@@ -2196,6 +2202,20 @@ impl<T: 'static> WritingView<'_, T> {
             })
             .when_some(shown_counts, |label, counts| {
                 label.child(div().text_color(rgb(p.muted)).child(counts))
+            })
+            .when(archives_shown, |label| {
+                label.child(
+                    div()
+                        .id("review-archives")
+                        .text_color(rgb(p.warning))
+                        .aria_label("Archives this note")
+                        .child(if fit.icons() {
+                            "· archives"
+                        } else {
+                            "· archives this note"
+                        })
+                        .test_support(),
+                )
             })
             .test_support();
         let protected_chip = protected.then(|| {

@@ -4087,6 +4087,15 @@ const PROVIDER_RECOVERY: &str = "Continue when the provider is ready.";
 /// Continue starts a new Run with the saved conversation and current notes.
 const FRESH_RECOVERY: &str = "Continue starts fresh.";
 
+/// A Rewrite that ended with only a reply, not the writing proposal it owes.
+/// Still `InvalidToolUse` for the CLI, with its own origin and notice.
+fn no_writing_proposal() -> AiError {
+    AiError::new(AiErrorKind::InvalidToolUse).with_detail(crate::AiFailureDetail {
+        origin: "no_writing_proposal".into(),
+        ..Default::default()
+    })
+}
+
 /// The saved failure notice: one cause in owner terms, then a recovery
 /// sentence only where it holds. It never carries provider, SQLite or
 /// file-system text. The technical cause stays in the live run outcome
@@ -4094,6 +4103,10 @@ const FRESH_RECOVERY: &str = "Continue starts fresh.";
 fn failed_attention(error: &AiError) -> String {
     use AiErrorKind as K;
     let (cause, recovery) = match error.kind {
+        _ if *error == no_writing_proposal() => (
+            "The model replied without preparing a rewrite.",
+            Some(FRESH_RECOVERY),
+        ),
         _ if error.mcp_unavailable_notice().is_some() => {
             (error.mcp_unavailable_notice().unwrap(), None)
         }
@@ -4520,9 +4533,7 @@ async fn run_model_budgeted(
     if matches!(answer.terminal, AiTerminal::Completed) && scope.writing_snapshot.is_some() {
         match has_writing_proposal(&scope) {
             Ok(true) => {}
-            Ok(false) => {
-                answer.terminal = AiTerminal::Failed(AiError::new(AiErrorKind::InvalidToolUse));
-            }
+            Ok(false) => answer.terminal = AiTerminal::Failed(no_writing_proposal()),
             Err(error) => answer.terminal = AiTerminal::Failed(error),
         }
     }
@@ -6499,6 +6510,11 @@ mod tests {
         ] {
             assert_eq!(failed_attention(&AiError::new(kind)), notice);
         }
+        // A Rewrite that only answered in text did not ask for a bad step.
+        assert_eq!(
+            failed_attention(&no_writing_proposal()),
+            "Run failed: The model replied without preparing a rewrite. Continue starts fresh."
+        );
     }
     #[tokio::test]
     async fn a_notice_saved_by_an_earlier_build_is_replaced_not_duplicated() {
@@ -6848,17 +6864,14 @@ mod tests {
                 // v2 accepts evidence, so its extra field is eligible shape
                 // feedback. The following empty answer still fails Rewrite's
                 // existing requirement to prepare an actual writing proposal.
-                assert!(
-                    matches!(
-                        answer.terminal,
-                        AiTerminal::Failed(AiError {
-                            kind: AiErrorKind::InvalidToolUse,
-                            ..
-                        })
-                    ),
-                    "{mode}/{progress_first}: {:?}",
-                    answer.terminal
-                );
+                let failure = match &answer.terminal {
+                    AiTerminal::Failed(error) => error,
+                    other => panic!("{mode}/{progress_first}: {other:?}"),
+                };
+                assert_eq!(failure.kind, AiErrorKind::InvalidToolUse);
+                if mode == "v2" {
+                    assert_eq!(failure, &no_writing_proposal(), "{mode}/{progress_first}");
+                }
                 assert_eq!(model.request_count(), if mode == "v2" { 2 } else { 1 });
                 assert!(
                     !events.lock().unwrap().iter().any(|s| s.starts_with("> ")),
