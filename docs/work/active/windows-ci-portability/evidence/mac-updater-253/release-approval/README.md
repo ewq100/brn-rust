@@ -1,6 +1,6 @@
 # Proposed command-enabled alpha pair (not approved)
 
-A: v0.2.0-alpha.1/build3. B: v0.2.0-alpha.2/build4. Both use native-ui, macos-arm64, minimum15.0, normal ad-hoc signing. These are proposed manifest bytes, outside the actual release manifest; they grant no publication authority.
+A: v0.2.0-alpha.1/build3. B: v0.2.0-alpha.2/build4. Both use native-ui, macos-arm64, minimum15.0, normal ad-hoc signing. These supporting manifest copies are outside release/preview.json. The draft approval proposal separately changes that file for A; neither draft nor local artifact grants publication authority.
 
 Selected runtime is a921e32533dc03134ed8a2001bd82f27194c3302 (264/265). Local A/B candidates built and qualified from that exact clean source; see the current alpha-a921e325 evidence. Actual published A source will be the later owner-approved current-main manifest commit. Prepare an approval PR changing release/preview.json and actual release notes; record full source SHA and locally qualified ZIP/manifest/SHA256SUMS identities. Owner release-manifest approval precedes that PR merge/publication. Existing exact-main/required-CI/immutable-asset workflow must publish A. B is a later increasing approved manifest commit, with final source identity and same checks, then the unchanged shipped A updater requests real B over fixed-repository HTTPS.
 

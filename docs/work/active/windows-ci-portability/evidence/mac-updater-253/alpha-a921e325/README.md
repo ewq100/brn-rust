@@ -57,7 +57,14 @@ not assumed.
   figure Asset), history, settings, projects and chats match exactly. Draft bytes
   and metadata survive; holder changes from caller to desktop as required by
   restore's token reset, and the old caller token refuses without mutation.
-  [Verifier](verify-full-restore.py). The [initial blanket-equality failure](full-restore-first-equality-failure.json)
+  [Archival verifier source](verify-full-restore.py), not an in-place runner.
+  Its captured execution location was
+  `/Users/evokessler/Documents/Codex/2026-11-06/you-are-agent-b-for-ewq100/work/final-alpha-a921e325/verify-full-restore.py`;
+  PACKAGE derives from that task-work layout, not this evidence directory. To
+  reproduce, put the copy in that layout, select cleana921e325 in the specified
+  REPO path and run it there with the selected CLI/packages. Keep output outside
+  this immutable evidence directory. The original body is retained unchanged.
+  The [initial blanket-equality failure](full-restore-first-equality-failure.json)
   exposed the expected holder change, not lost data. A second verifier typo used
   Rust enum names instead of public JSON spellings; its [failure log](full-restore-verifier-enum-failure.log.gz)
   is retained. Corrected expectations follow types.rs/restore.rs; final check passed.
@@ -81,3 +88,14 @@ setting change occurred. Headless receipts are not native or owner acceptance.
 B released the heavy slot at21:56:38Z, before the22:30Z cap. D/E have the free
 window immediately through23:00Z. B holds no standing reservation afterward and
 will coordinate a new short native window only when the owner is ready.
+
+## Independent proposal review
+
+Read-only review ofac5deeef againsta921e325 covered all51 changed paths,
+compressed receipts/synthetic captures, approval/provenance/privacy boundaries,
+and local/Shared metadata.43 evidence checksums matched. Runtime/CI/locks and
+unrelated task objects/authority are preserved. No actionable approval,
+provenance or privacy findings. One valid nonblocking P3: the archival verifier's
+relative package path is invalid from its committed location. Disposition:
+document its original execution placement above; keep the raw verifier/result
+unchanged. No build, provider, native or publication authority was delegated.
