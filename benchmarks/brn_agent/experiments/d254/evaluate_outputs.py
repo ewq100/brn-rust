@@ -14,10 +14,10 @@ import sys
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO/'benchmarks/brn_agent'))
 import semantic
-from evidence import verify_manifest
+from evidence import verify_manifest, anonymize_local_paths
 BENCH = REPO/'benchmarks/brn_agent/bench.py'
-SUPERVISE = Path(__file__).with_name('supervise.py')
-BATCH_SIZE = 4  # Within the predeclared maximum8; all arms use identical grouping.
+SUPERVISE = Path(__file__).with_name('supervise_outputs.py')
+BATCH_SIZE = 2  # Within the predeclared maximum8; all arms use identical grouping.
 
 def load(path):
     return json.loads(Path(path).read_text())
@@ -42,11 +42,29 @@ def dispatch(args, operation):
 def grade(args, packets, tag):
     packets = list(packets)
     random.Random(25420261106).shuffle(packets)
+    batch_size=1 if tag=='reader' else BATCH_SIZE
+    if args.grading_pass:
+        tag+='-'+args.grading_pass
     folder = args.root/('judgments-'+tag)
+    if folder.exists():
+        # One explicit correction of the known outer-deadline fault. None of
+        # that interrupted batch produced a judgment; valid replies are never
+        # regraded by this path and the original directory remains untouched.
+        prior=folder/'0-run'
+        disposition=args.task_root/'grading-dispositions'/(args.root.name+'-'+tag+'-0.json')
+        if not disposition.exists() or not (prior/'receipt.json').exists() or (prior/'receipt.json').stat().st_size:
+            raise RuntimeError('Existing grading artifacts require independent disposition')
+        folder=args.root/('judgments-'+tag+'-deadline-correction')
+        tag+='-deadline-correction'
     folder.mkdir(exist_ok=False)
     def call(batch,label):
-        used_seconds=sum(load(p).get('elapsed_ms',0)/1000 for p in
-            args.task_root.glob('phase*/judgments-*/*-run/receipt.json'))
+        used_seconds=0
+        for p in args.task_root.glob('phase*/judgments-*/*-run/receipt.json'):
+            if p.stat().st_size:
+                used_seconds+=load(p).get('elapsed_ms',0)/1000
+            else:
+                rows=[json.loads(x) for x in Path(str(p.parent)+'.deadline.jsonl').read_text().splitlines()]
+                used_seconds+=next(x['elapsed_seconds'] for x in reversed(rows) if x.get('event')=='terminal')
         if used_seconds+45>1200:
             raise RuntimeError('Original20min grading ceiling exhausted')
         path=folder/(label+'-packets.json')
@@ -54,7 +72,7 @@ def grade(args, packets, tag):
         identity=args.root.name+'-'+tag+'-'+label
         out=folder/(label+'-run')
         dispatch(args,{'id':identity,'kind':'grader','role':'grader','phase':args.phase,
-            'root':str(out),'seconds':60,'minimum_seconds':45,'binary':str(args.judge),
+            'root':str(out),'seconds':90,'minimum_seconds':45,'binary':str(args.judge),
             'packet':str(path),'instructions':str(args.task_root/'grader-instructions.txt')})
         receipt=load(out/'receipt.json')
         try:
@@ -66,9 +84,9 @@ def grade(args, packets, tag):
             return []
     replies=[]
     repairs=[]
-    for offset in range(0,len(packets),BATCH_SIZE):
-        batch=packets[offset:offset+BATCH_SIZE]
-        decoded=call(batch,str(offset//BATCH_SIZE))
+    for offset in range(0,len(packets),batch_size):
+        batch=packets[offset:offset+batch_size]
+        decoded=call(batch,str(offset//batch_size))
         for number,packet in enumerate(batch):
             bound=[r for r in decoded if isinstance(r,dict) and r.get('id')==packet['id']
                 and r.get('packet_sha256')==packet['packet_sha256']]
@@ -92,6 +110,9 @@ def main():
     p.add_argument('--phase',choices=['phase1','phase2'],required=True)
     p.add_argument('--role',choices=['phase1','phase2-development','phase2-broad','phase2-fresh'],required=True)
     p.add_argument('--no-readers',action='store_true')
+    p.add_argument('--readers-only',action='store_true',help='Preserve missing semantic grades; never infer them from reader answers')
+    p.add_argument('--grading-pass',choices=['two-packet'])
+    p.add_argument('--reader-pass',choices=['setup-correction'])
     args=p.parse_args()
     evidence=args.root/'agentbench-evidence.json'
     if evidence.exists():
@@ -113,13 +134,34 @@ def main():
     for packet in packets:
         key=private['private_key'][packet['id']]
         packet['checkpoint_number']=key['checkpoint']
-        packet['criterion_ids']=cases[attempts[key['attempt']]['scenario']]['criteria']
-    replies=grade(args,packets,'semantic')
+        attempt=attempts[key['attempt']]
+        packet['criterion_ids']=cases[attempt['scenario']]['criteria']
+        raw=load(args.root/attempt['result'])
+        # Read-only answer/recovery cases need their measured answer, not an
+        # inference from unchanged Notes. Preserve the existing packet/hash and
+        # bind this anonymous auxiliary evidence separately to its native bytes.
+        auxiliary=anonymize_local_paths({'native_result_sha256':attempt['result_sha256'],
+            'events':[{k:event.get(k) for k in ['index','terminal','answer','operations','receipts']}
+                for event in raw['steps'] if event['index']<=key['checkpoint']]},args.root)
+        packet['event_observation']=auxiliary
+        packet['event_observation_sha256']=hashlib.sha256(json.dumps(auxiliary,
+            sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+    if args.readers_only:
+        replies=args.root/'semantic-unmeasured-replies.json'
+        save(replies,[])
+    else:
+        replies=grade(args,packets,'semantic')
     reviewed=args.root/'semantic-reviewed'
     config=REPO/'benchmarks/brn_agent/wiki_challenge/reviewer.json'
-    bench('semantic-reviewed','--root',args.root,'--suite',args.suite,'--truth',args.truth,
-          '--evidence',evidence,'--prepared',prepared/'private-result.json','--replies',replies,
-          '--revision','wiki-reviewer-v1','--reviewer-config',config,'--output',reviewed)
+    if reviewed.exists():
+        expected=semantic.import_reviewed(args.root,args.suite,evidence,private,load(replies),
+            'wiki-reviewer-v1',config,truth_path=args.truth)
+        if load(reviewed/'private-result.json')!=expected:
+            raise ValueError('Existing semantic import differs from retained replies')
+    else:
+        bench('semantic-reviewed','--root',args.root,'--suite',args.suite,'--truth',args.truth,
+              '--evidence',evidence,'--prepared',prepared/'private-result.json','--replies',replies,
+              '--revision','wiki-reviewer-v1','--reviewer-config',config,'--output',reviewed)
     reader_artifact=None
     if suite.get('score_family')=='wiki-consolidation-v1' and not args.no_readers:
         truth=load(args.truth); index=[]
@@ -135,6 +177,8 @@ def main():
                 continue  # Missing maintained state stays unmeasured; never use protected raw sources.
             for q in truth['reader_questions'][attempt['scenario']]:
                 label=hashlib.sha256((attempt['id']+q['id']).encode()).hexdigest()[:16]
+                if args.reader_pass:
+                    label+='-'+args.reader_pass
                 out=args.root/'readers'/label
                 dispatch(args,{'id':args.root.name+'-reader-'+label,'kind':'reader','role':args.role,
                     'root':str(out),'seconds':120,'minimum_seconds':90,'checkpoint':str(checkpoint),
