@@ -1,0 +1,42 @@
+{
+  "revision": "E256-cycle1-v1",
+  "reference": {
+    "provider": "Codex",
+    "model": "gpt-6.1-sol",
+    "effort": "medium",
+    "helpers": false,
+    "retrieval": "default features;keyword;no dense assets"
+  },
+  "screening_pairs": 6,
+  "confirmation_pairs": 4,
+  "requests_per_BRN_event": 6,
+  "event_timeout_seconds": 90,
+  "live_seconds": 5400,
+  "money_cost": null,
+  "primary": {
+    "source": "provider-reported total input summed across every HTTP attempt including summaries/resends",
+    "population": "six screening case/repetition paired relative changes candidate/baseline-1",
+    "threshold_median": -0.1,
+    "affected_case": "input reduction in both repetitions"
+  },
+  "alternative": "one defined unnecessary model or tool call removed in both repetitions of a case",
+  "no_per_case_increase": [
+    "sum total input+output",
+    "sum HTTP requests",
+    "sum tool invocations"
+  ],
+  "unnecessary_calls": [
+    "identical search with same scope/query/limit/cursor",
+    "unchanged-version read wholly covered by earlier read",
+    "intermediate metadata read adding no evidence or version absent from prior search"
+  ],
+  "quality": "independent no-tool Sol/high reviewer;candidate correctness,completeness,citations,abstention,visibility all mandatory;no new material defect;all mechanical safety/no-write checks pass",
+  "failed_pair": "any baseline failure,timeout,cap stop or uncertain identity/usage prevents adoption;candidate failure rejects adoption",
+  "missing_usage": "unknown;never replaced by estimator;no token acceptance",
+  "grader_failure": "unknown;blocks adoption",
+  "confirmation": "same criteria plus all4 pairs valid with no quality regression;question bodies withheld from tuning lead/Council",
+  "conclusion": "limited engineering screen,same-machine evaluation role;no technical isolation or broad superiority",
+  "candidate_revisions_funded": 1,
+  "reruns": 0,
+  "joint_adoption": "pending baseline/knowledge-only/search-only/combined after both lanes freeze"
+}

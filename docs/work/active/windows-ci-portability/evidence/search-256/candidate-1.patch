@@ -1,0 +1,13 @@
+diff --git a/crates/brn-ai/src/threads_search.rs b/crates/brn-ai/src/threads_search.rs
+index 738141515..c7f13eb53 100644
+--- a/crates/brn-ai/src/threads_search.rs
++++ b/crates/brn-ai/src/threads_search.rs
+@@ -218,7 +218,7 @@ pub(super) fn validate_connections(args: &Value) -> bool {
+ pub(super) fn search_schema() -> Value {
+     object(
+         json!({
+-            "query":{"type":"string","maxLength":512,"description":"Names and terms of the subject; try 2-3 reformulations for important searches."},
++            "query":{"type":"string","maxLength":512,"description":"Names and terms of the subject; try 2-3 reformulations for important searches. Batch independent reformulations in one tool round; use later rounds for queries or pagination that depend on earlier results."},
+             "limit":{"type":"integer","minimum":1,"maximum":MAX_SEARCH_LIMIT},
+             "mode":{"type":"string","enum":["hybrid","keyword"],"description":"hybrid adds semantic matching when the host has it (see semantic in the result)."},
+             "cursor":{"type":["string","null"],"description":"The previous result's cursor, with the same limit, for more results."}

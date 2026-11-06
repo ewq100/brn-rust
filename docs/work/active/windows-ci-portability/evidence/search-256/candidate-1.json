@@ -1,0 +1,20 @@
+{
+  "id": "candidate-1",
+  "declared_at": "2026-11-06T22:10:29.936447+00:00",
+  "factor": "search query schema description:batch independent reformulations in one round",
+  "baseline_observation": "R8 independent first and second searches each occupy a model turn;R7 andR10 also separate initial and later reformulations. Existing direct passage reads already work.",
+  "unchanged": [
+    "corpus",
+    "writer/seeded records",
+    "questions",
+    "model/effort/account",
+    "retrieval implementation/assets",
+    "tool schema structure and limits",
+    "fixed evaluator",
+    "acceptance criteria"
+  ],
+  "planned_acceptance": "frozen primary total-input criterion across6pairs;do not reclassify different query searches as identical unnecessary calls",
+  "patch_sha256": "8312b21385ad859aaa1bbc217697f23e4c5b6fe8b9162fe9841bb30676728f35",
+  "candidate_live_calls": 0,
+  "candidate_binary": "pending Dtiming gap build"
+}

@@ -1,0 +1,13 @@
+{
+  "source_revision": "0c10bdb775bb8f0f8982e4f2a2927be37169b9c8",
+  "command": "cargo build --locked --offline -p brn-ai --features capability-spike --example agentbench-judge",
+  "binary": "/Users/evokessler/Documents/Codex/brn-agent-d-254/artifacts/agentbench-judge",
+  "binary_sha256": "dc54b46c3f083b9b146e68ae76d977d5073202b03035e81c0ff672980164bdc6",
+  "source_sha256": "00708c051d8e3ff180e09c4823dcf3cb7bf5f31f7388c05f2f6d8c5b3f612bbe",
+  "example_sha256": "e549be3124d632021d74255458a7dd1714d43eb3fc1b222b6e7d965b22fa2457",
+  "build_log_sha256": "f83358f7a94208443d4927fa3c9109ba66e3701fa30f1ef5395348327d6fddf0",
+  "tests_log_sha256": "7b68951e364b7bced7262d76e5f0679a0ff41d292cd0f690cbc0116a320b9390",
+  "tests": "2 passed;612 filtered; no provider calls; protocol/transport witnesses only, no semantic competence claim",
+  "limits": "HTTP1 enforced using production CallBudget, no tools,45s deadline, normal explicit Codex account auth, no fallback/retry",
+  "observed_at": "2026-11-06T22:04:10.433963+00:00"
+}
