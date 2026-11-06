@@ -1,5 +1,7 @@
 # Mac updater evidence and remaining acceptance
 
+Candidate PR: [#258](https://github.com/ewq100/brn-rust/pull/258), open and unmerged.
+
 Agent B owns [#253](https://github.com/ewq100/brn-rust/issues/253)'s updater,
 packaging and associated acceptance. The current task is `mac-updater-253` in the
 [existing selected record](record.json). This document is supporting evidence,

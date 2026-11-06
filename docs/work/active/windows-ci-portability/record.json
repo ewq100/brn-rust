@@ -7,7 +7,7 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-06T14:09:04.385761+02:00",
+    "observed_at": "2026-11-06T14:10:50.977367+02:00",
     "goal": "Implement #253\u2019s independent Mac updater and qualify disposable package replacement; retain earlier task history.",
     "owner_attention": "Agent B owns updater/packaging only. Final integrated/native acceptance waits for Agent A\u2019s selected runtime/Copilot candidate and an unlocked Mac. No release publication or new merge authority inferred.",
     "tasks": [
@@ -91,10 +91,10 @@
         "title": "Implement and qualify the versioned Mac updater",
         "owner": "Agent B",
         "state": "active",
-        "activity": "Updater and packaging implemented; independent review clear after fixing CLT dependency and interruption/concurrency findings. 353 tooling tests (11 skips), 41 focused checks and real local BRN A\u2192B/synthetic SQLite preservation/backup/restore passed on Mac mini. Packaged startup and both helpers/all eight typed formats also passed. Focused PR being published.",
-        "observed_at": "2026-11-06T14:09:04.385761+02:00",
+        "activity": "Updater and packaging implemented; independent review clear after fixing CLT dependency and interruption/concurrency findings. 353 tooling tests (11 skips), 41 focused checks and real local BRN A\u2192B/synthetic SQLite preservation/backup/restore passed on Mac mini. Packaged startup and both helpers/all eight typed formats also passed. Focused PR258 is open and attached; exact-head hosted CI is in progress.",
+        "observed_at": "2026-11-06T14:10:50.977367+02:00",
         "origin": "observed",
-        "next_action": "Open focused updater PR, inspect exact-head hosted gates and hand off final integrated acceptance. Agent A must supply the selected runtime/Copilot SHA and package dependencies; then use an unlocked Mac/clean disposable profile for Gatekeeper, install, real released A\u2192B and native Copilot journeys. No merge or publication authority inferred.",
+        "next_action": "Inspect PR258 exact-head hosted gates and hand off final integrated acceptance. Agent A must supply the selected runtime/Copilot SHA and package dependencies; then use an unlocked Mac/clean disposable profile for Gatekeeper, install, real released A\u2192B and native Copilot journeys. No merge or publication authority inferred.",
         "depends_on": [],
         "resource_waits": [
           "Mac mini CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending."
@@ -103,12 +103,13 @@
           "https://github.com/ewq100/brn-rust/issues/253",
           "docs/work/active/windows-ci-portability/mac-updater-253.md",
           "docs/work/active/windows-ci-portability/evidence/mac-updater-253/real-update.json",
-          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/tooling-tests.log"
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/tooling-tests.log",
+          "https://github.com/ewq100/brn-rust/pull/258"
         ],
         "gates": {
           "implementation": "Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.",
           "checks": "Passed on Mac mini arm64/macOS27.2: pinned1.98.1 native-ui release desktop, CLI and both document helpers; 353 tooling tests (11 skips), 41 focused tests including19 updater cases; real local package A alpha.1/build101\u2192B alpha.2/build102 with byte-identical external files and logical state after B headless reopen, figure asset, backup/fresh restore; both relocated helpers/all8formats and CLI16imports. Test transport substituted; clean-Mac/released HTTPS update not claimed.",
-          "integration": "Not merged; work/mac-updater-253 from main3b72813d, production updater/package candidate832e8888 plus test reporter/evidence only. Exact-head hosted checks pending. release/preview.json unchanged; no tags, release, announcement or publication.",
+          "integration": "PR258 open, mergeable; not merged or published. Production updater832e8888 unchanged by qualification/evidence-only follow-ups. Exact-head hosted CI in progress. release/preview.json unchanged; no tags, release or announcement.",
           "native": "Pending: screen remains locked. Local real-package/headless evidence is not native acceptance, clean-Mac Gatekeeper acceptance or a published-release transport witness.",
           "owner_acceptance": "Pending Agent A selected runtime/Copilot candidate, native install/update/reopen and required Copilot journeys, then owner use before invited distribution."
         },

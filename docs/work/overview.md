@@ -34,9 +34,9 @@ Gates:
 ### Implement and qualify the versioned Mac updater
 
 Task ID: `mac-updater-253`
-Owner: Agent B · State: **active** · Last observed: 2026-11-06T14:09:04.385761+02:00
-Activity: Updater and packaging implemented; independent review clear after fixing CLT dependency and interruption/concurrency findings. 353 tooling tests (11 skips), 41 focused checks and real local BRN A→B/synthetic SQLite preservation/backup/restore passed on Mac mini. Packaged startup and both helpers/all eight typed formats also passed. Focused PR being published.
-Next: Open focused updater PR, inspect exact-head hosted gates and hand off final integrated acceptance. Agent A must supply the selected runtime/Copilot SHA and package dependencies; then use an unlocked Mac/clean disposable profile for Gatekeeper, install, real released A→B and native Copilot journeys. No merge or publication authority inferred.
+Owner: Agent B · State: **active** · Last observed: 2026-11-06T14:10:50.977367+02:00
+Activity: Updater and packaging implemented; independent review clear after fixing CLT dependency and interruption/concurrency findings. 353 tooling tests (11 skips), 41 focused checks and real local BRN A→B/synthetic SQLite preservation/backup/restore passed on Mac mini. Packaged startup and both helpers/all eight typed formats also passed. Focused PR258 is open and attached; exact-head hosted CI is in progress.
+Next: Inspect PR258 exact-head hosted gates and hand off final integrated acceptance. Agent A must supply the selected runtime/Copilot SHA and package dependencies; then use an unlocked Mac/clean disposable profile for Gatekeeper, install, real released A→B and native Copilot journeys. No merge or publication authority inferred.
 Resource waits: Mac mini CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
 
 <details>
@@ -46,7 +46,7 @@ Gates:
 
 - **implementation:** Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.
 - **checks:** Passed on Mac mini arm64/macOS27.2: pinned1.98.1 native-ui release desktop, CLI and both document helpers; 353 tooling tests (11 skips), 41 focused tests including19 updater cases; real local package A alpha.1/build101→B alpha.2/build102 with byte-identical external files and logical state after B headless reopen, figure asset, backup/fresh restore; both relocated helpers/all8formats and CLI16imports. Test transport substituted; clean-Mac/released HTTPS update not claimed.
-- **integration:** Not merged; work/mac-updater-253 from main3b72813d, production updater/package candidate832e8888 plus test reporter/evidence only. Exact-head hosted checks pending. release/preview.json unchanged; no tags, release, announcement or publication.
+- **integration:** PR258 open, mergeable; not merged or published. Production updater832e8888 unchanged by qualification/evidence-only follow-ups. Exact-head hosted CI in progress. release/preview.json unchanged; no tags, release or announcement.
 - **native:** Pending: screen remains locked. Local real-package/headless evidence is not native acceptance, clean-Mac Gatekeeper acceptance or a published-release transport witness.
 - **owner acceptance:** Pending Agent A selected runtime/Copilot candidate, native install/update/reopen and required Copilot journeys, then owner use before invited distribution.
 
@@ -71,4 +71,4 @@ Waiting:
 
 None recorded.
 
-Local page reflects the last saved observations in this record (2026-11-06T14:09:04.385761+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T14:10:50.977367+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
