@@ -1,6 +1,6 @@
 # BRN AI runtime
 
-The production Threads runtime uses published Rig 0.45.0. No vendored Rig patch is required. Provider routing retains Codex/ChatGPT subscription Responses, OpenAI Responses, and Copilot Chat completions.
+The production Threads runtime uses published Rig 0.46.0. No vendored Rig patch is required. Provider routing retains Codex/ChatGPT subscription Responses, OpenAI Responses, and Copilot Chat completions.
 
 `subscription_search.rs` is a separate query-only research service through the version-qualified Codex App Server and normal managed ChatGPT login. It verifies effective tool/skill/app isolation, exact selected model/effort, subscription auth mode, deadlines and owned-process cleanup; unsupported routes fail closed without fallback. Ordinary Rig chat is unchanged. [Issue243 qualification](../../docs/work/active/subscription-search-mac-acceptance/README.md) records the failed initial live query and offline-only correction.
 
@@ -10,7 +10,7 @@ The production Threads runtime uses published Rig 0.45.0. No vendored Rig patch 
 
 The registered parent tools provide current-record reading, version-aware note passages, transient source reading, packaged skills, prepared/application changes, retained progress, bounded accepted revisions, same-chat pending candidate inspection, service-owned immutable candidate refresh, exact local Note passage edits and withdrawal of the run's own obsolete proposal in its chat. Exact local edits preserve untouched UTF-8 bytes and metadata, retain the whole-read guard for full replacements/refreshes, and are unavailable in frozen Rewrite and helpers. The same registration generates safe activity labels. Pending candidate inspection returns a complete encoded-bounded request with new-record placeholders for refresh; it refuses owner proposals, other chats, invisible references, retired/applied candidates and frozen writing/helper scopes. It grants no current-note read coverage, Apply authority or completion evidence. Operating guidance lives in `agent/BRN.md` and packaged `agent/skills/*/SKILL.md`.
 
-Responses routes use Rig's typed reasoning options. Copilot Chat retains its supported raw `reasoning_effort` field because Rig 0.45 does not expose verified typed generation options for that dialect.
+Responses routes use Rig's typed reasoning options. Copilot Chat retains its supported raw `reasoning_effort` field because Rig 0.46 does not expose verified typed generation options for that dialect.
 
 Verification:
 

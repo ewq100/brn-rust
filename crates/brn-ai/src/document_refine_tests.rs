@@ -225,7 +225,8 @@ async fn ai_on_receives_selected_engine_output_for_every_kind() {
                 json!({"extracted":extracted,"refined":actual,"request_body":body}),
             );
             assert_eq!(body["model"], "gpt-6-luna");
-            assert_eq!(body["reasoning"], json!({"effort":"high"}));
+            // Rig 0.46 asks ChatGPT Responses for a reasoning summary by default.
+            assert_eq!(body["reasoning"], json!({"effort":"high","summary":"auto"}));
             assert!(body.get("max_output_tokens").is_none());
             assert!(
                 body.get("tools")

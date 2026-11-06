@@ -2020,7 +2020,8 @@ mod document_route_tests {
             // Capture only body, never headers or credential bytes.
             let body: Value = serde_json::from_slice(&http.requests()[0].body).unwrap();
             assert_eq!(body["model"], "gpt-6-luna");
-            assert_eq!(body["reasoning"], json!({"effort":"high"}));
+            // Rig 0.46 requests reasoning summaries on ChatGPT-backend Responses.
+            assert_eq!(body["reasoning"], json!({"effort":"high","summary":"auto"}));
             let prompt = body["input"][0]["content"][0]["text"].as_str().unwrap();
             assert!(prompt.contains(&serde_json::to_string(&expected.markdown).unwrap()));
             if let Some(path) = std::env::var_os("BRN_TASK3_CAPTURES") {

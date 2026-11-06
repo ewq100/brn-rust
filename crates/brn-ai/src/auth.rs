@@ -95,7 +95,7 @@ pub(crate) fn pinned_session_http(http: DynHttpClient, session: &str) -> AiResul
 }
 
 /// The Copilot completion model, forced onto the Responses route when asked.
-/// Rig 0.45 selects that route only for Codex IDs, yet Copilot serves some
+/// Rig 0.46 selects that route only for Codex IDs, yet Copilot serves some
 /// other models there exclusively.
 pub(crate) fn copilot_completion(
     client: &openai::OpenAI,

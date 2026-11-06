@@ -369,10 +369,16 @@ pub(crate) fn map_provider(error: rig::error::ProviderError) -> AiError {
             } else {
                 AiErrorKind::Other
             };
+            // Only `ProviderError::Stalled` reports `Timeout`; tool timeouts are `Tool`.
+            let origin = if report.kind == rig::error::ErrorKind::Timeout {
+                "stalled"
+            } else {
+                "relayed"
+            };
             let info = AiFailureDetail {
                 status: report.http_status,
                 code: report.code.as_deref().map(provider_code),
-                ..detail("relayed")
+                ..detail(origin)
             };
             (kind, info)
         }
@@ -392,6 +398,9 @@ pub(crate) fn map_provider(error: rig::error::ProviderError) -> AiError {
         E::Json(_) => (AiErrorKind::Other, detail("decode")),
         E::Url(_) | E::Request(_) => (AiErrorKind::Other, detail("request")),
         E::UnsupportedOption(_) => (AiErrorKind::Other, detail("unsupported_option")),
+        // An opened stream that went silent past Rig's idle bound. The request
+        // may have been processed, so it is never re-sent automatically.
+        E::Stalled(_) => (AiErrorKind::Other, detail("stalled")),
         E::Provider(_) => (AiErrorKind::Other, detail("provider")),
         E::MismatchedDimensions { .. } => (AiErrorKind::Other, detail("response")),
         _ => (AiErrorKind::Other, detail("unknown")),
@@ -566,6 +575,25 @@ mod tests {
             assert_eq!(error, expected);
             assert!(!format!("{error:?} {error}").contains("SYNTHETIC_SECRET"));
         }
+    }
+
+    #[test]
+    fn rig_046_stall_is_classified_directly_and_when_relayed() {
+        let stalled = map_provider(rig::error::ProviderError::Stalled(
+            std::time::Duration::from_secs(300),
+        ));
+        let detail = stalled.detail.clone().unwrap();
+        assert_eq!(stalled.kind, AiErrorKind::Other);
+        assert_eq!(
+            (detail.origin.as_str(), detail.retryable),
+            ("stalled", true)
+        );
+        let relayed = map_provider(rig::error::ProviderError::Relayed(Box::new(
+            rig::error::ErrorReport::from(rig::error::ProviderError::Stalled(
+                std::time::Duration::from_secs(300),
+            )),
+        )));
+        assert_eq!(relayed, stalled);
     }
 
     #[test]
