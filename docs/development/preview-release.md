@@ -20,6 +20,75 @@ Settings → Documents selects **Xberg** (default) or **Xberg + BRN layer**, wit
 
 Both helpers live beside the desktop in `Contents/Resources/bin`; recipients need no build tree, developer override, Poppler or runtime source download. The optional copy contains only the four accepted Office patches and explicit UTF8 Text/Markdown identity projection; no new PDF/XLSX/EML/HTML fidelity repair is implied. Stock limitations remain visible. Encrypted PDF support is explicitly deferred; no new refusal or complete PDF fidelity claim is made.
 
+## Update after a manual announcement
+
+The source candidate bundles `brn-update`; previously published previews do not.
+Install the first command-enabled version once by downloading its announced ZIP.
+There are no automatic update notifications or background updater. Use only the
+explicit version announced by the owner in the repository's
+[releases](https://github.com/ewq100/brn-rust/releases). The examples below name
+`v0.2.0-alpha.2` as a command example, not an available or approved release.
+
+Save your work, finish or cancel active tasks, make a normal BRN backup, then quit
+BRN normally. In Terminal, for an installation in `/Applications`, run:
+
+```sh
+"/Applications/BRN Threads.app/Contents/Resources/bin/brn-update" v0.2.0-alpha.2
+```
+
+For a user-owned installation in `~/Applications`, run:
+
+```sh
+"$HOME/Applications/BRN Threads.app/Contents/Resources/bin/brn-update" v0.2.0-alpha.2
+```
+
+Substitute the announced tag and your actual installation path. A non-writable
+application folder is refused; install in your own `~/Applications` folder instead.
+Do not use `sudo`. No Python, GitHub CLI, Rust, Homebrew or Apple signing account is
+needed on the recipient's Mac.
+
+The command displays installed/requested versions, stages its own script outside
+the app, and downloads the exact tag's manifest, `SHA256SUMS` and ZIP from
+`ewq100/brn-rust` over HTTPS. It checks checksums, bundle ID `dev.brn.threads`,
+version/build ordering, macOS 15+, arm64 binaries, system library dependencies,
+embedded receipts and the ad-hoc bundle signature before replacing the app.
+Checksums downloaded alongside a ZIP detect corruption/consistency errors; neither
+these checksums nor ad-hoc signing independently authenticate the publisher.
+
+The old app and transaction files stay in the hidden `.BRN Threads.app.update-*`
+directory beside the installation. Keep that path from the terminal output until
+the new app and its data have been checked. The command prints a normal `open`
+command; it does not automatically reopen BRN. It never force-quits BRN, resumes
+an agent, changes security settings, strips quarantine, copies credentials or
+touches workspace/settings files. A second updater and normal launcher refuse
+while the transaction lock exists.
+
+If a download or replacement fails, or the terminal/update is interrupted, run
+the **exact staged recovery command printed by that attempt**, after its process
+has exited. The lock file `.BRN Threads.app.update-lock` beside the installation
+also contains that command. Recovery restores the previous bundle when the
+installation path is absent; if an app is already installed, recovery retains it.
+It releases only its own lock. Preserve transaction files when requesting help.
+After successful recovery, retry the original versioned command if necessary.
+
+Reopen BRN normally and check the same notes, drafts, projects, history, assets,
+settings and provider selection. The existing workspace path and external Copilot
+credential location remain unchanged. Expired/revoked external credentials may
+need normal reconnection. macOS can require its normal per-app **System Settings →
+Privacy & Security → Open Anyway** approval again after replacement; follow
+[Apple's per-app guidance](https://support.apple.com/en-us/102445). A terminal
+update does not guarantee bypassing Gatekeeper or managed-device policy.
+
+The updater does not migrate or downgrade databases. BRN's checked startup owns
+backup-first schema upgrade. An old bundle is usable for rollback only while the
+store schema remains compatible. After migration, use a matching pre-upgrade
+backup with its compatible app, or a forward fix; never open a newer store with
+an old binary or overwrite current work with an old snapshot automatically.
+Report problems at [the issue tracker](https://github.com/ewq100/brn-rust/issues),
+including version/build, macOS version, redacted terminal error and reproduction;
+exclude credentials and private workspace contents. Publication and final native
+Copilot/install/update acceptance remain separate from these source instructions.
+
 ## First-use provider setup
 
 The desktop preview uses existing credentials and has no sign-in dialog. For the Codex / ChatGPT route, sign in with your ChatGPT account through the installed Codex CLI's normal browser flow (`codex login`). BRN requires a file-based subscription login: OpenAI's [credential-storage instructions](https://learn.chatgpt.com/docs/auth#credential-storage) describe `cli_auth_credentials_store = "file"` in Codex configuration, which stores `auth.json` under your configured `CODEX_HOME` (normally `~/.codex`). A login stored only in the OS keyring cannot be read by this preview. Keep the authentication file private; enter its path, never its contents.

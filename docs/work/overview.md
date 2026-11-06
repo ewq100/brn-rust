@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Publish and integrate the bounded #255 development-feedback findings and reliable measurement guidance.
-**Owner attention:** No default configuration qualified within finite budget. Corrected final Council supports publication; current-head CI/Codex/security and normal merge remain.
+**Goal:** Integrate updater PR258 normally, then prepare final Mac package/update acceptance for253 after A release-critical hardening.
+**Owner attention:** B owns updater/package integration. A owns response-limit hardening and Copilot acceptance; coordinate heavy builds. Native and publication remain separate gates.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -71,13 +71,42 @@ Gates:
 
 </details>
 
+### Implement and qualify the versioned Mac updater
+
+Task ID: `mac-updater-253`
+Owner: Agent B · State: **active** · Last observed: 2026-11-06T21:02:54.795698+02:00
+Activity: Resumed normal integration of PR258 with main6897fe56 after Rig259, Copilot261 and development-speed262 merged. Resolving only task/status routing conflicts while preserving all updater source, static Linux fixture repair, raw evidence and other tasks. Prior seven green checks cover an older integration base.
+Next: Review refreshed combination, run applicable checks, request final-head Codex code/security review and normal merge under standing owner instruction; verify resulting main. Coordinate with A before heavy builds and select final package only after response-limit fixes land. Native clean-profile session and approved published stock HTTPS pair remain separate gates.
+Resource waits: Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.; Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.
+- **checks:** Original tooling corrected:353 total=342 passed+11 skipped. Resumed:360 total=349 passed+11 skipped; intake crate11 passed/1 existing ignored and all-target Clippy passed. Linux baseline/submitted identical code both reproduced ETXTBSY with concurrent forks; static fixture40 plain+400 stressed complete loops passed. Real local signed A→B rerun preserved synthetic files/state/backup. Production build/helper evidence retained unchanged; headless/local transport is not stock published HTTPS or native acceptance. OUTSTANDING: actual approved preview.1/.2 metadata/digests/source-approved receipts verified; preparation blocked because neither includes updater. New preparation plus guarded --stock-transport witness ready for an authority-approved published command-enabled A/B pair. No ZIP/app/updater executed from those legacy releases.
+- **integration:** Pending refreshed combination: normal merge main6897fe56 into PR258; prior7d2436ee checks tested older base2ebcf4c7. Current standing owner instruction authorizes normal merge after applicable checks/review; native/release acceptance separate.
+- **native:** Pending: screen remains locked. Local real-package/headless evidence is not native acceptance, clean-Mac Gatekeeper acceptance or a published-release transport witness.
+- **owner acceptance:** Pending Agent A selected runtime/Copilot candidate, native install/update/reopen and required Copilot journeys, then owner use before invited distribution.
+
+</details>
+
 ## Next
 
 None recorded.
 
 ## Needs attention
 
-None recorded.
+### Implement and qualify the versioned Mac updater
+
+Task ID: `mac-updater-253`
+Owner: Agent B
+
+Waiting:
+
+- resource: Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.
+- resource: Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
 
 ## Completed
 
@@ -87,4 +116,4 @@ Completion here means the selected task scope is complete; it does not establish
 
 - `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
 
-Local page reflects the last saved observations in this record (2026-11-06T17:01:08.332168+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-06T21:02:54.795698+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
