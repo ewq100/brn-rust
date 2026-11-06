@@ -118,6 +118,9 @@ fn limit_code(answer: &AiAnswer) -> (AiErrorKind, String, bool) {
     (error.kind, detail.code.unwrap(), detail.retryable)
 }
 
+/// Fails a regressed test instead of letting an endless stream hang it.
+const BACKSTOP: Duration = Duration::from_secs(30);
+
 /// The Copilot chat route over the guarded transport, as `run_prepared_over`
 /// builds it, without credentials.
 async fn copilot_run(
@@ -134,17 +137,21 @@ async fn copilot_run(
     )
     .connect(scope.response_limit.wrap(DynHttpClient::new(http)));
     let (events, emit) = recorder();
-    let answer = run_copilot(
-        &client,
-        "synthetic-model".into(),
-        scope,
-        &input,
-        ReasoningEffort::Medium,
-        4,
-        cancel,
-        emit,
+    let answer = tokio::time::timeout(
+        BACKSTOP,
+        run_copilot(
+            &client,
+            "synthetic-model".into(),
+            scope,
+            &input,
+            ReasoningEffort::Medium,
+            4,
+            cancel,
+            emit,
+        ),
     )
-    .await;
+    .await
+    .expect("the response limit or Stop ends the run");
     let events = events.lock().unwrap().clone();
     (answer, events)
 }
@@ -221,9 +228,13 @@ async fn codex_run(
     let prepared = prepare_run(request).unwrap();
     prepared.scope.response_limit.set(limits.0, limits.1);
     let (events, emit) = recorder();
-    let result = run_prepared_over(prepared, CancellationToken::new(), emit, Some(http))
-        .await
-        .unwrap();
+    let result = tokio::time::timeout(
+        BACKSTOP,
+        run_prepared_over(prepared, CancellationToken::new(), emit, Some(http)),
+    )
+    .await
+    .expect("the response limit ends the run")
+    .unwrap();
     let events = events.lock().unwrap().clone();
     (root, data, result, events)
 }
@@ -306,10 +317,18 @@ async fn oversized_tool_arguments_fail_at_the_size_limit_without_dispatch() {
 #[cfg(unix)]
 #[tokio::test]
 async fn normal_completion_within_the_limits_is_unchanged() {
+    let replies = [
+        cache_tests::tool_turn(1, "r1").len(),
+        cache_tests::tool_turn(2, "r2").len(),
+        cache_tests::final_turn().len(),
+    ];
+    // The size bound is per response, not per run.
+    let largest = *replies.iter().max().unwrap() as u64;
+    assert!(replies.iter().sum::<usize>() as u64 > largest);
     let http = cache_tests::script();
     let (_root, _, result, events) = codex_run(
         DynHttpClient::new(http.clone()),
-        (Duration::from_secs(5), 64 * 1024),
+        (Duration::from_secs(5), largest),
     )
     .await;
     assert!(
@@ -323,5 +342,50 @@ async fn normal_completion_within_the_limits_is_unchanged() {
         events
             .iter()
             .any(|e| matches!(e, AiEvent::AnswerFinalized(_)))
+    );
+}
+
+/// A helper shares its parent's guard: a helper response past the limit
+/// refuses the parent's next request, so the run fails without a re-send.
+#[tokio::test]
+async fn a_helper_trip_refuses_the_parents_next_request() {
+    use rig::http_client::HttpClientExt;
+    let (_root, request, _) = tests::fixture();
+    let (scope, _) = begin(&request).unwrap();
+    scope
+        .response_limit
+        .set(Duration::from_millis(50), u64::MAX);
+    let helper = research::test_child_scope(&scope);
+    let http = Trickle::new(vec![], "", KEEPALIVE, Duration::from_millis(5));
+    let request = || {
+        rig::http_client::Request::builder()
+            .uri("https://synthetic.invalid/")
+            .body(bytes::Bytes::new())
+            .unwrap()
+    };
+    let mut body = helper
+        .response_limit
+        .wrap(DynHttpClient::new(http.clone()))
+        .send_streaming(request())
+        .await
+        .unwrap()
+        .into_body();
+    let tripped = tokio::time::timeout(BACKSTOP, async {
+        while let Some(chunk) = futures::StreamExt::next(&mut body).await {
+            if chunk.is_err() {
+                return true;
+            }
+        }
+        false
+    })
+    .await
+    .expect("the helper's response ends at the duration");
+    assert!(tripped);
+    let parent = scope.response_limit.wrap(DynHttpClient::new(http.clone()));
+    assert!(parent.send_streaming(request()).await.is_err());
+    assert_eq!(http.sent(), 1, "the parent's request is never sent");
+    assert_eq!(
+        scope.response_limit.failure().unwrap().kind,
+        AiErrorKind::TimeLimitReached
     );
 }

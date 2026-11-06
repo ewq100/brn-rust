@@ -123,7 +123,7 @@ async fn copilot_policy_denial_is_not_reported_as_sign_in() {
         failure(&result),
         (
             AiErrorKind::ReconnectNeeded,
-            "Run failed: The provider refused this account's request (subscription, permission or policy). Check the account's access, then Continue.".into()
+            "Run failed: The provider refused this account's request (subscription, permission or policy). Check the account's access or reconnect it, then Continue.".into()
         )
     );
     assert_eq!(uris.len(), 2, "{uris:?}");

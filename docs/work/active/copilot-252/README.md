@@ -126,7 +126,8 @@ from send and 64 MiB of received wire bytes (text, reasoning, tool-call argument
 framing). The bound is enforced while the stream is read, before Rig buffers the bytes, on
 the run transport shared by chat, summary and helpers, for Codex and Copilot alike. A trip
 ends the body with a transport error, so Rig fails the turn before any of its tool calls
-dispatch; the run fails as `TimeLimitReached` or `Other` with origin `response_limit`,
+dispatch. Whole-body replies (account and token exchanges) are held to the duration only;
+model responses stream. The run fails as `TimeLimitReached` or `Other` with origin `response_limit`,
 non-retryable, with "A model response reached BRN's time/size limit. Continue starts
 fresh." The guard then refuses every later request of the run, so a request the provider may
 have processed is never resent, and accepted progress stays. Rig's 300 s idle bound still ends
@@ -136,10 +137,11 @@ Document conversion/refinement keep their own total timeout and 1 MiB text cap, 
 keeps its 8 MiB caps. See [threads behavior](../../../architecture/threads-behavior.md).
 
 **Copilot chat 403.** A signed-in account refused by subscription, permission or policy
-read "The provider account needs reconnecting", which reconnecting does not fix. It now reads
-"The provider refused this account's request (subscription, permission or policy). Check the
-account's access, then Continue." The kind stays `ReconnectNeeded` for the CLI contract;
-missing credentials (no HTTP status) keep the reconnect notice.
+read "The provider account needs reconnecting", which reconnecting alone does not fix. Any
+provider HTTP 403 now reads "The provider refused this account's request (subscription,
+permission or policy). Check the account's access or reconnect it, then Continue." (a
+ChatGPT token-refresh 403 can still need a reconnect). The kind stays `ReconnectNeeded` for
+the CLI contract; missing credentials and HTTP 401 keep the reconnect notice.
 
 **Deterministic checks** (short synthetic limits; `threads_response_limit_tests.rs`,
 `threads_copilot_denial_tests.rs`, `document_refine_tests.rs`, `response_limit.rs`):
@@ -178,4 +180,5 @@ B's #253 candidate), the desktop journeys after an update, and live quota, polic
 no-Luna accounts (simulated only). The capability boundary is what BRN requests and verifies
 in each reply (requested tool set, echoed tools, every output item); it cannot observe
 provider internals beyond that. The response bound is per model response with run-wide
-refusal after a trip; a run's total time remains bounded by its model-call budget.
+refusal after a trip. A run's total time is bounded by its tool rounds, helper and
+compaction turns at 20 minutes per response, or by a model-call limit when the host sets one.

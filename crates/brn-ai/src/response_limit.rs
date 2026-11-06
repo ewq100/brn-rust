@@ -1,6 +1,8 @@
 //! The bound on each provider response of one run: a total duration from send
-//! and an aggregate size of every received byte (answer text, reasoning,
-//! tool-call arguments and framing alike). Rig's idle bound only ends a silent
+//! and, for streamed responses, an aggregate size of every received byte
+//! (answer text, reasoning, tool-call arguments and framing alike). Model
+//! responses stream; a whole-body reply (an account or token exchange) is held
+//! to the duration while its transport reads it. Rig's idle bound only ends a silent
 //! stream, and the answer cap counts only answer text, so a model that keeps
 //! sending would otherwise run and buffer without end.
 //!
@@ -130,7 +132,6 @@ struct Limited {
 }
 
 impl HttpClientExt for Limited {
-    /// A whole-body reply is held to the duration; its transport reads it.
     fn send<T, U>(
         &self,
         req: Request<T>,
@@ -139,23 +140,7 @@ impl HttpClientExt for Limited {
         T: Into<Bytes> + WasmCompatSend,
         U: From<Bytes> + WasmCompatSend + 'static,
     {
-        let admitted = self.guard.admit();
-        // Built but never polled when refused, so nothing is sent.
-        let sending = self.inner.send(req);
-        let guard = self.guard.clone();
-        async move {
-            let deadline = admitted.ok_or_else(refused)?;
-            let response = tokio::time::timeout_at(deadline, sending)
-                .await
-                .map_err(|_| guard.trip(DURATION))??;
-            Ok(response.map(|body| -> LazyBody<U> {
-                Box::pin(async move {
-                    tokio::time::timeout_at(deadline, body)
-                        .await
-                        .map_err(|_| guard.trip(DURATION))?
-                })
-            }))
-        }
+        whole_body(self.guard.clone(), self.inner.send(req))
     }
 
     fn send_multipart<U>(
@@ -165,7 +150,7 @@ impl HttpClientExt for Limited {
     where
         U: From<Bytes> + WasmCompatSend + 'static,
     {
-        self.inner.send_multipart(req)
+        whole_body(self.guard.clone(), self.inner.send_multipart(req))
     }
 
     fn send_streaming<T>(
@@ -209,12 +194,40 @@ impl HttpClientExt for Limited {
                                 }
                             }
                         }
+                        Poll::Ready(None) => {
+                            ended = true;
+                            Poll::Ready(None)
+                        }
                         other => other,
                     }
                 }))
             }))
         }
     }
+}
+
+/// A whole-body reply is held to the duration; its transport reads it.
+/// `sending` is built but never polled when refused, so nothing is sent.
+// Rig's error type, not ours.
+#[allow(clippy::result_large_err)]
+async fn whole_body<U>(
+    guard: Arc<ResponseLimit>,
+    sending: impl Future<Output = http_client::Result<Response<LazyBody<U>>>> + WasmCompatSend + 'static,
+) -> http_client::Result<Response<LazyBody<U>>>
+where
+    U: From<Bytes> + WasmCompatSend + 'static,
+{
+    let deadline = guard.admit().ok_or_else(refused)?;
+    let response = tokio::time::timeout_at(deadline, sending)
+        .await
+        .map_err(|_| guard.trip(DURATION))??;
+    Ok(response.map(|body| -> LazyBody<U> {
+        Box::pin(async move {
+            tokio::time::timeout_at(deadline, body)
+                .await
+                .map_err(|_| guard.trip(DURATION))?
+        })
+    }))
 }
 
 #[cfg(test)]
@@ -294,14 +307,19 @@ mod tests {
     }
 
     async fn drain(body: &mut http_client::BoxedStream) -> (u64, bool) {
-        let mut received = 0;
-        while let Some(chunk) = body.next().await {
-            match chunk {
-                Ok(chunk) => received += chunk.len() as u64,
-                Err(_) => return (received, true),
+        let drained = async {
+            let mut received = 0;
+            while let Some(chunk) = body.next().await {
+                match chunk {
+                    Ok(chunk) => received += chunk.len() as u64,
+                    Err(_) => return (received, true),
+                }
             }
-        }
-        (received, false)
+            (received, false)
+        };
+        tokio::time::timeout(Duration::from_secs(30), drained)
+            .await
+            .expect("the guard ends the body")
     }
 
     fn code(guard: &ResponseLimit) -> Option<(AiErrorKind, String)> {
@@ -357,7 +375,10 @@ mod tests {
 
     #[tokio::test]
     async fn responses_within_both_limits_pass_unchanged() {
-        let guard = Arc::new(ResponseLimit::default());
+        let guard = Arc::new(ResponseLimit::new(
+            Duration::from_millis(100),
+            RESPONSE_OUTPUT_BYTES,
+        ));
         let http = guard.wrap(DynHttpClient::new(
             rig::test_utils::SequencedHttpClient::new([
                 rig::test_utils::MockHttpResponse::success_typed(
@@ -368,6 +389,11 @@ mod tests {
         ));
         let mut body = http.send_streaming(request()).await.unwrap().into_body();
         assert_eq!(drain(&mut body).await, (17, false));
+        tokio::time::sleep(Duration::from_millis(150)).await;
+        assert!(
+            body.next().await.is_none(),
+            "a finished body stays finished past the deadline"
+        );
         assert!(guard.failure().is_none());
     }
 }

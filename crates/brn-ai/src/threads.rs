@@ -4209,7 +4209,7 @@ fn failed_attention(error: &AiError) -> String {
         // reconnecting would not help. The kind stays for the CLI contract.
         K::ReconnectNeeded if error.detail.as_ref().and_then(|d| d.status) == Some(403) => (
             "The provider refused this account's request (subscription, permission or policy).",
-            Some("Check the account's access, then Continue."),
+            Some("Check the account's access or reconnect it, then Continue."),
         ),
         K::ReconnectNeeded => (
             "The provider account needs reconnecting.",
