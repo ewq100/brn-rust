@@ -132,3 +132,11 @@ were offline only; exact executed source remains archived. No model call replace
 a missing measurement. [Final review](review-followups.md) and [accounting](accounting.md)
 are in the comparison layer.
 No default-model change, desktop qualification, owner acceptance, merge or release.
+
+The owner subsequently requested three additional Council rounds using Sol and
+Opus. They completed with scores 8/8, 8/8 and 9/8. Grading payload, instructions,
+identity and operation binding were strengthened for future execution and checked
+offline. The final two low-severity follow-ups were lead-tested after round 5.
+Current offline verification passed 107 of 108 tests with one optional Inspect
+skip, plus two judge wire tests and strict Clippy. The original experimental
+artifacts and quality-acceptance gaps retain their recorded status.
