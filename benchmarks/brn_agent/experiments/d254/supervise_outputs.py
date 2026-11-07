@@ -1,8 +1,8 @@
-"""Original native supervisor plus explicit containment of a read-only grader fault.
+"""Admission of explicit failure dispositions around maintained native scheduling.
 
-The frozen native supervisor is unchanged. Only a separately recorded, reaped,
-read-only grader failure may be closed; its reservation is never refunded and
-its operation identity cannot be repeated. Candidate failures still stop work.
+Validated, reaped read-only grader failures retain their reservations and require
+fresh operation identities. Candidate failures stop further launches. Exact
+executed controller versions are retained with the experiment evidence.
 """
 import hashlib
 import json
@@ -22,12 +22,19 @@ def audit_operations(roles, current=None):
                 if disposition.exists():
                     closed=json.loads(disposition.read_text())
                     request=Path(closed.get('request_path',''))
+                    request_data=json.loads(request.read_text()) if request.is_file() else {}
                     if (closed.get('kind')=='reader-setup-never-dispatched'
+                            and operation.get('kind')=='reader'
                             and closed.get('root')==operation['root']
                             and not Path(operation['root']).exists()
                             and request.is_file()
                             and hashlib.sha256(request.read_bytes()).hexdigest()==closed.get('request_sha256')
-                            and json.loads(request.read_text()).get('kind')=='reader'
+                            and closed.get('request_sha256')==operation.get('request_sha256')
+                            and request_data.get('kind')=='reader'
+                            and request_data.get('id')==marker.stem.removeprefix('operation-')
+                            and request_data.get('root')==operation['root']
+                            and request_data.get('role')==operation.get('role')
+                            and operation.get('role') in ('phase1','phase2-development','phase2-broad','phase2-fresh')
                             and closed.get('actual_HTTP')==0):
                         continue
                 raise native_supervisor.CycleStop('Earlier operation never recorded terminal outcome')
@@ -41,7 +48,7 @@ def audit_operations(roles, current=None):
         if terminals[-1].get('exit_code')==0:
             continue
         disposition=roles/'grading-dispositions'/(marker.stem.removeprefix('operation-')+'.json')
-        if operation.get('role')!='grader' or not disposition.exists():
+        if operation.get('role')!='grader' or operation.get('kind')!='grader' or not disposition.exists():
             raise native_supervisor.CycleStop('Earlier operation failed')
         closed=json.loads(disposition.read_text())
         if (closed.get('kind')!='uncertain-read-only-grader-contained'

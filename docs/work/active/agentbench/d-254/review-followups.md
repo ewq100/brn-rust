@@ -48,3 +48,19 @@ corrected source was not used in the experiment and has only offline verificatio
 Saved-state quality, fresh reader quality and broader regressions remain unknown.
 Those acceptance objections are unresolved. Both reports retain the original
 baseline and make no adoption, default-model, desktop, merge or release claim.
+
+## Owner-requested additional reviews
+
+The owner requested three further rounds after delivery and selected a two-seat
+Council. This supersedes the earlier statement about the original funded rounds.
+Round 3 returned Sol 8/10 and Opus 8/10. Sol identified an exported semantic-packet
+binding defect. The lead now checks exported packets against regenerated private
+preparation, derives metadata from the bound packet and uses its existing event
+evidence. Each grading request gets a digest returned by the judge, and the
+controller verifies that digest, runtime identity and the one-request accounting
+before accepting a reply. Reader-setup dispositions now bind to the original
+operation id, root, role, kind and request digest. The automatic empty-receipt
+continuation was removed in favor of explicit fresh operation identities.
+
+These changes have offline verification and apply to future execution. Historical
+receipts and the unmeasured acceptance gaps retain their recorded status.

@@ -6,6 +6,7 @@ as an operational projection, never a new allowance. No refunds or replacements.
 """
 import argparse
 import datetime
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -118,10 +119,13 @@ def main(argv=None):
     parser.add_argument('--cycle', type=Path, required=True)
     parser.add_argument('--roles', type=Path, required=True)
     args = parser.parse_args(argv)
-    op = json.loads(args.operation.read_text())
+    operation_bytes = args.operation.read_bytes()
+    op = json.loads(operation_bytes)
     role = op['role']
     if role not in CAPS or not args.account_file.is_absolute():
         raise ValueError('Explicit frozen role and account path required')
+    if op['kind'] not in ('candidate', 'reader', 'grader') or ((role == 'grader') != (op['kind'] == 'grader')):
+        raise CycleStop('Operation kind differs from reserved role')
     now = datetime.datetime.now(datetime.timezone.utc)
     deadline = datetime.datetime.fromisoformat(json.loads(args.cycle.read_text())['whole_cycle_deadline'])
     root = Path(op['root'])
@@ -137,7 +141,8 @@ def main(argv=None):
     # reader/grader whose runner did not yet get as far as its own reservation.
     marker = roles/('operation-'+op['id']+'.json')
     with marker.open('x') as stream:
-        json.dump({'root':str(root), 'role':role}, stream)
+        json.dump({'root':str(root), 'role':role, 'kind':op['kind'],
+                   'request_sha256':hashlib.sha256(operation_bytes).hexdigest()}, stream)
     role_path = roles/(role+'-dispatch.jsonl')
     guard = Guard(str(root)+'.deadline.jsonl', min(op['seconds'], remaining),
                   {'operation':op['id'], 'role':role, 'original_deadline':deadline.isoformat()})

@@ -4,6 +4,7 @@
     "supervise.py": "7feda2adf65b0356172bb8fd6aff8d86285635daef344a4c1e0225ac10d3da0f",
     "supervise_outputs.py": "92db03aa10664cd73492c88cd48a7a345a60532d16aafe914502fe636702ea99",
     "evaluate_outputs.py": "1372f8dc72a53d35adadbdda977d814aa28a7e27554f0ab82aacd90ff94f9249",
-    "summarize.py": "306135b8ba82190f6072da5606a77882a6511e451d6acd071950d4ba498650ed"
+    "summarize.py": "306135b8ba82190f6072da5606a77882a6511e451d6acd071950d4ba498650ed",
+    "threads_benchmark_judge.rs": "00708c051d8e3ff180e09c4823dcf3cb7bf5f31f7388c05f2f6d8c5b3f612bbe"
   }
 }

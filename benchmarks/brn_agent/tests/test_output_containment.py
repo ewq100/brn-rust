@@ -20,9 +20,10 @@ class OutputContainmentTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         folder = Path(temporary.name)
         root = folder/'never-launched'
-        (folder/'operation-reader.json').write_text(json.dumps({'root':str(root),'role':'phase1'}))
         request = folder/'request.json'
-        request.write_text(json.dumps({'kind':'reader'}))
+        request.write_text(json.dumps({'kind':'reader','id':'reader','root':str(root),'role':'phase1'}))
+        (folder/'operation-reader.json').write_text(json.dumps({'root':str(root),'role':'phase1',
+            'kind':'reader','request_sha256':hashlib.sha256(request.read_bytes()).hexdigest()}))
         (folder/'grading-dispositions').mkdir()
         disposition = folder/'grading-dispositions/reader.json'
         disposition.write_text(json.dumps({'kind':'reader-setup-never-dispatched',
@@ -36,17 +37,27 @@ class OutputContainmentTests(unittest.TestCase):
         self.assertFalse(root.exists())
 
     def test_reader_setup_refuses_existing_root_changed_hash_or_non_reader(self):
-        for mutation in ('root-exists','hash-mismatch','wrong-kind'):
+        for mutation in ('root-exists','hash-mismatch','wrong-kind','wrong-id','wrong-root','wrong-role','wrong-marker-kind'):
             with self.subTest(mutation=mutation):
                 folder, root, request, disposition = self.reader_setup()
                 if mutation=='root-exists':
                     root.mkdir()
                 else:
-                    request.write_text(json.dumps({'kind':'candidate'}))
-                    if mutation=='wrong-kind':
+                    data=json.loads(request.read_text())
+                    field={'wrong-id':'id','wrong-root':'root','wrong-role':'role'}.get(mutation,'kind')
+                    if mutation!='wrong-marker-kind':
+                        data[field]='wrong'
+                    request.write_text(json.dumps(data))
+                    if mutation!='hash-mismatch':
                         row=json.loads(disposition.read_text())
                         row['request_sha256']=hashlib.sha256(request.read_bytes()).hexdigest()
                         disposition.write_text(json.dumps(row))
+                        marker=folder/'operation-reader.json'
+                        operation=json.loads(marker.read_text())
+                        operation['request_sha256']=row['request_sha256']
+                        if mutation=='wrong-marker-kind':
+                            operation['kind']='candidate'
+                        marker.write_text(json.dumps(operation))
                 with self.assertRaises(outputs.native_supervisor.CycleStop):
                     outputs.audit_operations(folder)
 
@@ -55,7 +66,8 @@ class OutputContainmentTests(unittest.TestCase):
         self.addCleanup(temporary.cleanup)
         folder = Path(temporary.name)
         root = str(folder/'run')
-        (folder/'operation-one.json').write_text(json.dumps({'root':root,'role':role}))
+        (folder/'operation-one.json').write_text(json.dumps({'root':root,'role':role,
+            'kind':'grader' if role=='grader' else 'candidate'}))
         receipt = folder/'run.deadline.jsonl'
         receipt.write_text(json.dumps({'event':'terminal','exit_code':1,
                                       'cleanup_errors':cleanup or []})+'\n')

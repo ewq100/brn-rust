@@ -78,5 +78,15 @@
     }
   ],
   "post_review_fixes": "Lead corrected audit exit status, added offline regression/reader-setup tests, disclosed sequencing/time deviations and verified evidence paths; no further Council/model calls or live rerun.",
-  "round3": "Not funded or requested"
+  "round3": "Newly authorized after original cycle delivery",
+  "current_seats": [
+    "codex/gpt-6.1-sol",
+    "acpRegistry_copilot/claude-opus-5.5"
+  ],
+  "additional_rounds_authority": "Owner request after round2: remove Kimi and run3more rounds. New72requested-turn review-only allocation.",
+  "additional_rounds": {
+    "3": "completed: Sol8/10, Opus8/10; lead corrections under offline checks",
+    "4": "planned",
+    "5": "planned"
+  }
 }
