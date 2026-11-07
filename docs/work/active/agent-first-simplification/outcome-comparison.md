@@ -1,6 +1,6 @@
 # M6 outcome comparison and retirement
 
-Historical comparison and implementation evidence from 19 October 2026. For current assignment, next steps and gates, follow [the overview](../../overview.md) → the selected task in [campaign state](../vacation-campaign/campaign.json). [The campaign plan](../vacation-campaign/plan.md) owns scope and limits; [the workflow](../../../development/workflow.md) owns the development cycle. Historical “current” and “pending” statements below describe their recorded source/time and do not assign work.
+Historical comparison and implementation evidence from 19 October 2026. For current assignment, next steps and gates, follow [the overview](../../overview.md) → the selected task in [campaign state](../vacation-campaign/campaign.json). [The campaign plan](../vacation-campaign/plan.md) owns scope and limits; [the workflow](https://github.com/ewq100/brn-rust/blob/edc0edd81adb0493ca3342c498634257f7898df4/docs/development/workflow.md) owns the development cycle. Historical “current” and “pending” statements below describe their recorded source/time and do not assign work.
 
 ## Historical 19 October follow-through
 

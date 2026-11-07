@@ -1,6 +1,6 @@
 # Strategic programming
 
-This guide expands [AGENTS.md](../../AGENTS.md) and the [workflow](workflow.md). It is standing engineering guidance, not a feature assignment or new permission. The [canonical target](../architecture/threads-target.md) and [invariants](../architecture/invariants.md) continue to own BRN's behavior.
+This guide expands [AGENTS.md](../../AGENTS.md) with standing engineering guidance. The [canonical target](../architecture/threads-target.md) and [invariants](../architecture/invariants.md) continue to own BRN's behavior.
 
 ## Goal
 
@@ -24,10 +24,6 @@ nor file access/permission. Do not have a model simulate exact processing that a
 available tool performs more reliably and cheaply. Prefer ordinary notes/artifacts
 for briefs, plans and summaries. A dedicated workflow, runner or screen must earn
 its ongoing ownership cost through useful repeated interaction or a present need.
-
-## Visibility has one source
-
-The agent selects meaning and useful next work; checked tools record facts and the owner view projects the existing task record. Keep current assignment/readiness/gates in that record, source-bound proof in receipts and old snapshots historical. Dependency edges express real prerequisites; resource waits and bounded correction history remain distinct. Prefer the smallest read-only view over another tracker, narrator agent or scheduler. The [workflow](workflow.md) owns update/freshness rules, and [status](../status.md) routes the active assignment after this campaign ends.
 
 ## Before a meaningful change
 
@@ -127,7 +123,7 @@ At an assigned milestone, or when the same category of regression recurs, review
 | Duplicated ownership | Does each replaced policy have one remaining production owner? Are temporary exceptions being retired at their trigger? |
 | Regressions | Which defects escaped or reopened? What shared design or test weakness allowed them? |
 | Feedback reliability | What are the relevant local/CI times, retries, flaky and ignored cases? Is verification getting slower without stronger evidence? |
-| Qualification | Which required journeys are automated, native-observed, owner-accepted or still outstanding on the relevant revision? |
+| Qualification | Which required journeys are automated, natively tested or still untested on the relevant revision? |
 | Deferred debt | Did the promised revisit condition arrive? Is the consequence still real? Close obsolete items instead of accumulating them. |
 
 Use lines, file sizes, dependency counts, test counts and coverage to locate questions, not as quotas. Do not establish a composite quality score without an interpretation that supports a real decision. Do not claim a trend from a single snapshot or compare test timings across different machines/features as if they were controlled measurements.

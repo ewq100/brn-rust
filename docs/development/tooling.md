@@ -1,6 +1,6 @@
 # Development tooling
 
-Use [workflow](workflow.md) and [verification](verification.md) for task scope and gates. Helpers report evidence; they do not supply provider access, settings authority or release permission.
+Use [verification](verification.md) to choose checks.
 
 ## Checkout and gate records
 
@@ -65,7 +65,7 @@ cargo run -p brn-ai --features capability-spike --example provider-capabilities 
   --locked --offline -- --synthetic-catalog
 ```
 
-Synthetic envelope/count/wire-order observations do not qualify live discovery or model availability. Real discovery returns processed model options; raw provider transport observation requires a separately scoped interface. Live examples follow the current assignment's provider authority.
+Synthetic envelope/count/wire-order observations do not qualify live discovery or model availability. Real discovery returns processed model options; raw provider transport observation requires a separately scoped interface.
 
 `scripts/qualification/threads-runtime/live-journeys.py` remains the current bounded runtime journey harness. The retired standalone Rig comparison remains at its fixed baseline and in [historical results](../archive/threads-rebuild/rig-decoder-comparison.md).
 

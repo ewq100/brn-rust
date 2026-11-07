@@ -1,6 +1,6 @@
 # Campaign resumption pointers
 
-Start with [AGENTS.md](../../../../AGENTS.md) → [overview](../../overview.md) → selected task in [campaign state](campaign.json). [The plan](plan.md) owns limits/expiry; [workflow](../../../development/workflow.md) owns fact ownership and checks. Reconcile actual quota, Git/PRs, agents/jobs and desktop actor before dispatch; saved observations are not live execution.
+Start with [AGENTS.md](../../../../AGENTS.md) → [overview](../../overview.md) → selected task in [campaign state](campaign.json). [The plan](plan.md) owns limits/expiry; [workflow](https://github.com/ewq100/brn-rust/blob/edc0edd81adb0493ca3342c498634257f7898df4/docs/development/workflow.md) owns fact ownership and checks. Reconcile actual quota, Git/PRs, agents/jobs and desktop actor before dispatch; saved observations are not live execution.
 
 ## Local resources
 
