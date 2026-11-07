@@ -10,8 +10,8 @@
     "planning/gold.json": "3786b70dbd7d700781221304473ca72ba3b115cf557f1293de34e0cf6b07fd25",
     "planning/suite.json": "f25cd5d91611a16b1e72d2187125e3fea771d8466dfa00bad4fcc78d5a6b22a6",
     "prepare_mac.py": "69677327ad1655c9d07b5af7e210a85fbda45a23405180029cd0d68149af0b3b",
-    "test_deadline.py": "714f41588270ed3bdfe0c5a6fd6c5adbe77d7c94dcd328c27c7d2b5ead7b8536",
-    "test_setup.py": "c2835dd7954a49998baae237b9d9168cd97e28f614fe193c82252fc2679bc990",
+    "test_deadline.py": "8a039ae3d0d297462510305a13f284f8e836213cab5a44f1812dc9b334297d7f",
+    "test_setup.py": "6bac883bdf1e436d812008ad4154f4fd97a978ae957d7c4bb75922e9a31fe3d1",
     "verification.json": "10d68dff0eed1d5a91d763441b2c289a8ecfe71441a7b22cce90b76e992fcef8"
   }
 }

@@ -34,16 +34,18 @@ class SetupIsolationTests(unittest.TestCase):
                 self.assertFalse(env.get(name),'Run this independent setup fixture outside an active job')
             driver = "import sys;sys.path.insert(0,"+repr(str(HERE))+");import prepare_mac\n"
             driver += "from datetime import datetime, timezone\nclass FixtureClock(datetime):\n @classmethod\n def now(cls,tz=None): return datetime(2026,10,29,5,tzinfo=timezone.utc)\n"
-            driver += "OriginalGuard=prepare_mac.Guard\nclass FixtureGuard(OriginalGuard):\n def __init__(self,receipt,seconds,identity): super().__init__(receipt,min(seconds,20),identity)\n"
+            # Include the nested deadline suite plus synthetic build steps and
+            # process-inventory/fsync contention within a bounded setup budget.
+            driver += "OriginalGuard=prepare_mac.Guard\nclass FixtureGuard(OriginalGuard):\n def __init__(self,receipt,seconds,identity): super().__init__(receipt,min(seconds,120),identity)\n"
             driver += "prepare_mac.datetime=FixtureClock;prepare_mac.Guard=FixtureGuard;prepare_mac.sys.platform='darwin';sys.exit(prepare_mac.main())"
 
             manifest=hashlib.sha256((HERE/'package-manifest.json').read_bytes()).hexdigest()
             args=[sys.executable,'-B','-c',driver,'--repository',str(repo),'--source-dir',str(root/'source'),
                   '--claim-directory',str(ledger),'--cargo-bin',str(tools),'--auth-file',str(root/'unused-auth-selector'),
                   '--output',str(root/'experiment'),'--manifest-sha256',manifest,'--authorization-reference','synthetic-offline-test']
-            result=subprocess.run(args,env=env,capture_output=True,text=True,timeout=30)
+            result=subprocess.run(args,env=env,capture_output=True,text=True,timeout=150)
             self.assertEqual(result.returncode,0,result.stdout+result.stderr)
-            self.assertIn('Ran 11 tests',result.stderr)
+            self.assertIn('Ran 12 tests',result.stderr)
             prefix=ledger/'brn-terra-sol-pilot-002'
             receipt=Path(str(prefix)+'.setup-supervisor.jsonl')
             rows=[json.loads(line) for line in receipt.read_text().splitlines()]
@@ -58,6 +60,12 @@ class SetupIsolationTests(unittest.TestCase):
                 if row['event']=='opened': active.add(row['sid'])
                 elif row['event']=='closed': active.discard(row['sid'])
             self.assertEqual(active,set())
+            # Closed accounting must agree with the OS, including helper groups.
+            sys.path.insert(0,str(HERE))
+            from deadline_guard import session_members
+            for sid in {json.loads(line)['sid'] for line in registry.splitlines()
+                        if json.loads(line)['event']=='opened'}:
+                self.assertEqual(session_members(sid,runnable_only=True),set())
             readiness=json.loads(Path(str(prefix)+'.readiness.json').read_text())
             self.assertTrue(readiness['offline_build_and_supervisor_passed'])
             self.assertEqual(readiness['model_calls'],0)
