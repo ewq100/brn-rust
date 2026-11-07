@@ -138,7 +138,7 @@ pub(super) const KEYS: [(&str, &str); 18] = [
         "⌘, · workspace menu at the bottom of the sidebar",
     ),
     ("Recent changes", "workspace menu · ⌘K"),
-    ("Theme", "Settings → General · ⌘K"),
+    ("Theme", "Settings → Appearance · ⌘K"),
     (
         "Menus",
         "Tab to ⋯ · ↵ opens · ↑↓ ↵ · Esc · right-click a chat",

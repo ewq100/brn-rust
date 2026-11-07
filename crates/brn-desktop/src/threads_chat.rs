@@ -1159,7 +1159,7 @@ impl ThreadsUi {
                         .bg(rgb(bubble_fill()))
                         .text_color(rgb(p.ink))
                         .aria_label("You")
-                        .child(self.safe_message(key, m.text.clone()))
+                        .child(self.safe_message(key, intake_message_label(&m.text).to_owned()))
                         .test_support(),
                 );
             }
@@ -1293,4 +1293,23 @@ impl ConversationView {
     pub(super) fn take_stash(&mut self, destination: &ComposerDestination) -> String {
         self.stash.remove(destination).unwrap_or_default()
     }
+}
+
+// The saved instruction remains unchanged for run identity and replay.
+fn intake_message_label(text: &str) -> &str {
+    if text == brn_threads_app::SOURCE_INTAKE_INSTRUCTION {
+        "Add useful information from the selected file."
+    } else {
+        text
+    }
+}
+
+#[cfg(test)]
+#[test]
+fn intake_label_preserves_other_messages() {
+    assert_eq!(
+        intake_message_label(brn_threads_app::SOURCE_INTAKE_INSTRUCTION),
+        "Add useful information from the selected file."
+    );
+    assert_eq!(intake_message_label("My own message"), "My own message");
 }
