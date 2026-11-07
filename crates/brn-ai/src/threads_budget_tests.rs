@@ -1247,7 +1247,7 @@ async fn copilot_maximum_prompt_and_read_survive_escaping_then_host_growth_refus
         MockHttpResponse::success_typed(cache_tests::final_turn(), "text/event-stream"),
     ]);
     let answer = run_model(
-        crate::auth::copilot_completion(
+        crate::provider::copilot_completion(
             &copilot_http(http.clone()),
             request.selection.model.clone(),
             true,

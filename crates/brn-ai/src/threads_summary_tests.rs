@@ -1,5 +1,7 @@
 //! Scripted provider traffic over canonical Messages; no live credentials.
 use super::*;
+#[cfg(unix)]
+use crate::Auth;
 use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
 
 fn history(request: &ThreadRunRequest, count: usize) -> Vec<String> {
@@ -890,7 +892,7 @@ async fn copilot_compaction_uses_same_chosen_account_model_effort_and_wire_witho
                 .unwrap();
         }
         let ids = history(&request, 68);
-        let responses = rig::providers::copilot::wire::routes_through_responses(model);
+        let responses = crate::provider::copilot_conversation_uses_responses(model);
         let turn = |text: String| {
             MockHttpResponse::success_typed(
                 cache_tests::sse(&[

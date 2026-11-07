@@ -2,7 +2,7 @@
 //! agent's `web_search`, without workspace context.
 use crate::{AppError, RecordData, Workspace, WorkspaceSettings, resolve_run_selection};
 use brn_ai::{
-    AccountPin, Auth, Provider, ReasoningEffort, Selection, copilot_search,
+    AccountPin, Provider, ReasoningEffort, Selection, copilot_search,
     subscription_search::{Request, SearchError, check_auth_file},
     threads::{RunWebSearch, WebSearchCancel as CancellationToken, WebSearchFuture},
 };
@@ -36,8 +36,8 @@ enum Route {
 fn route(settings: &WorkspaceSettings) -> Result<Route, RouteError> {
     let selected =
         || resolve_run_selection(settings, None).map_err(|e| RouteError::Selection(e.to_string()));
-    match settings.provider.to_ascii_lowercase().as_str() {
-        "codex" | "chatgpt" => {
+    match Provider::from_setting(&settings.provider) {
+        Some(Provider::Chatgpt) => {
             // Chat's credentials-folder route can select a different account. Never
             // silently substitute the host's managed login for that saved selection,
             // and offer search only on the account path the adapter accepts.
@@ -53,16 +53,15 @@ fn route(settings: &WorkspaceSettings) -> Result<Route, RouteError> {
                 auth_file,
             })
         }
-        "copilot" => {
+        Some(Provider::Copilot) => {
             // Copilot searches only with the chat's own Copilot sign-in, captured
             // now; no readable signed-in account is unavailable, never Allowed.
             let Some(credentials_dir) = settings.credentials_dir.as_deref().map(PathBuf::from)
             else {
                 return Err(RouteError::Search(SearchError::CopilotNoLogin));
             };
-            let account = Auth::open(&credentials_dir)
-                .and_then(|auth| auth.copilot_account())
-                .ok()
+            let account = Provider::Copilot
+                .capture_account(Some(&credentials_dir))
                 .filter(AccountPin::is_signed_in)
                 .ok_or(RouteError::Search(SearchError::CopilotNoLogin))?;
             let (selection, effort) = selected()?;

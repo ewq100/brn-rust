@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Implement shared provider operations in cloud after Cycle 2 no-change closeout, preserving caller contracts and first-alpha separation.
-**Owner attention:** Cycle 2 merged c388da26; all seven PR checks and all four required resulting-main contexts pass. Council explicitly skipped by owner, zero sessions/no score. Stage2 draftPR267 has a passed matched-helper baseline and preparation review; runtime implementation remains blocked on A explicit shared-source release requested on253.
+**Owner attention:** Owner confirms A done and instructs continuation; selected runtimea921e325 unchanged. C shared-provider extraction is in progress. New during-auth fixture reproduces an existing stale auth-store overwrite on untouched runtime; C isolates repair on separate branch/PR before refactor qualification. Council skipped per owner.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -72,6 +72,27 @@ Gates:
 
 </details>
 
+### Consolidate shared provider policy after runtime handoff
+
+Task ID: `shared-provider-263`
+Owner: Agent C / Codex (cloud) · State: **active** · Last reported: 2026-11-07T05:49:28.169386+02:00
+Activity: Owner reports A done and instructs continuing. Prior prep55be9ddf: all7 CI and current code/security receipts pass. Shared-provider extraction implemented locally, old763 library tests pass; new during-auth fixture exposed old token-store overwrite and reproduced on untouchedc388da26. Separate C auth-write repair in progress; no new live calls or native claims.
+Next: Complete separate guarded Copilot token-store repair/review/CI, merge it normally into this branch without changing B fixed alpha; finish refactor offline before/after, three temporary maintenance tasks, independent confirmation and current-head CI/reviews.
+Depends on: development-speed-255 when Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (reported satisfied: true)
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Owner current instruction A is done continu supplies reported completion/release for proceeding. No new A-authored file-handoff receipt claimed. Mapped runtime unchangeda921e325. Shared extraction local; separate baseline auth-write defect repair required for qualification.
+- **checks:** Before-refactor matched-helper baseline passed: workspace library suites763pass/2parent-invoked fixture ignores; explicit AI scripted suite635pass/1fixture ignore. Raw logs/hash manifest retained, including initial helper-mismatch attempt. After-tests, three maintenance tasks and independent unseen confirmation remain pending. No elapsed-speed or refactor correctness claim. Preparation1efe4281: hosted code/security receipts report no findings, zero inline threads; no independent unseen maintenance variant supplied. Local tooling corrected329pass31skip after diagnosed activation/reaper failure. Final implementation/current-head qualification remains pending.
+- **integration:** DraftPR267, branch agent-c/shared-provider-263 basedc388da26. Initial preparation1efe4281 reviewed; this checkpoint and eventual implementation need their current-head reviews/CI. No refactor merge. B268 first-alpha/publication work remains separate at runtimea921e325; preserve frozen254/256 evidence.
+- **native:** Cloud offline implementation planned; existing A/B live/native receipts retain their source limits. Any observable behavior change needs its proper qualification.
+- **owner acceptance:** Current assignment authorizes the separate refactor after sequencing gates; no release/publication authority inferred.
+
+</details>
+
 ## Next
 
 None recorded.
@@ -87,32 +108,6 @@ Waiting:
 
 - resource: Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.
 - resource: Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending.
-
-### Consolidate shared provider policy after runtime handoff
-
-Task ID: `shared-provider-263`
-Owner: Agent C / Codex (cloud) · State: **blocked** · Last observed: 2026-11-07T00:16:24.267564+02:00
-Activity: Separate draftPR267 published from agent-c/shared-provider-263. Matched-helper baseline and source-bound design saved; preparation1efe4281 has completed independent hosted code/security receipts reporting no findings and zero unresolved inline threads. Local tooling corrected329pass31skip, original environment/reaper failure retained. No runtime edits; explicit A shared-file handoff not observed.
-Next: Obtain explicit A current shared-provider/runtime source-file release on253, then implement in this same separate branch/PR. Reconcile B268/current main task records and coordinate later integration outside B fixed alpha/publication window. New implementation requires after-tests, maintenance confirmation and current-head reviews/CI.
-Depends on: development-speed-255 when Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (reported satisfied: true)
-Resource waits: A explicit shared provider/runtime file-ownership handoff on the selected final runtime.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Blocked on explicit A shared source-file release; selected runtimea921e325 (A264/A265) is merged and Cycle2 is closed. Draft267 contains baseline/design/docs only; no shared runtime code has changed.
-- **checks:** Before-refactor matched-helper baseline passed: workspace library suites763pass/2parent-invoked fixture ignores; explicit AI scripted suite635pass/1fixture ignore. Raw logs/hash manifest retained, including initial helper-mismatch attempt. After-tests, three maintenance tasks and independent unseen confirmation remain pending. No elapsed-speed or refactor correctness claim. Preparation1efe4281: hosted code/security receipts report no findings, zero inline threads; no independent unseen maintenance variant supplied. Local tooling corrected329pass31skip after diagnosed activation/reaper failure. Final implementation/current-head qualification remains pending.
-- **integration:** DraftPR267, branch agent-c/shared-provider-263 basedc388da26. Initial preparation1efe4281 reviewed; this checkpoint and eventual implementation need their current-head reviews/CI. No refactor merge. B268 first-alpha/publication work remains separate at runtimea921e325; preserve frozen254/256 evidence.
-- **native:** Cloud offline implementation planned; existing A/B live/native receipts retain their source limits. Any observable behavior change needs its proper qualification.
-- **owner acceptance:** Current assignment authorizes the separate refactor after sequencing gates; no release/publication authority inferred.
-
-</details>
-
-Waiting:
-
-- resource: A explicit shared provider/runtime file-ownership handoff on the selected final runtime.
 
 ## Completed
 
@@ -134,4 +129,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-11-07T00:16:24.267564+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-07T05:49:28.169386+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.

@@ -9,7 +9,7 @@ score is supplied. Resulting-main checks are separate from PR qualification.
 
 The implementation base contains A's selected `a921e325` runtime. A's explicit
 shared-file release was requested on [#253](https://github.com/ewq100/brn-rust/issues/253#issuecomment-6696819563).
-Until that handoff, this branch contains preparation only. B's first-alpha build
+The owner subsequently confirmed “A is done continu”; that owner-reported completion/release is recorded on #253. No new A-authored handoff receipt is claimed. This branch now contains the extraction. B's first-alpha build
 is fixed at `a921e325`; this work does not alter that candidate or the frozen
 #254/#256 experiments. Later integration must respect B's publication window.
 
@@ -33,7 +33,7 @@ guard. The guard is one Arc per run, shared with summaries/helpers: per-response
 exchanges, refusal of later requests after a trip. Existing Stop and idle limits
 remain separate. Conversion and search retain their distinct limits.
 
-## Boundary to implement after handoff
+## Shared boundary
 
 Use a small module in `brn-ai`, reusing `Selection`, `ReasoningEffort`,
 `AccountPin`, `ProviderClient` and Rig's `DynHttpClient`. Do not introduce a
@@ -41,14 +41,14 @@ public crate, generic executor or session store. Reuse `Provider::from_setting`
 instead of the duplicate alias matches. Keep catalogue checks and their error
 precedence at the app boundary.
 
-The shared owner should bind the selected credential paths/account and construct
+The shared owner binds the selected credential paths/account and construct
 the existing client with the same auth-file precedence and Copilot pre/post-auth
 checks. Transport decorators remain explicit at operations: chat/helper resend
 and A's run guard cannot silently become conversion/search retry policy. Missing
 account and unsafe-path error precedence must survive extraction.
 
-Move the existing Copilot completion-route/schema policy and same-model
-empty-refusal predicate to that owner; chat and summary retain their execution
+The existing Copilot completion-route/schema policy and same-model
+empty-refusal predicate live in that owner; chat and summary retain their execution
 loops, while search/refinement retain their explicit Responses-only contracts.
 Unknown catalogue capabilities remain unknown, not implied entitlement. Remove
 each replaced branch from callers as it migrates.
@@ -119,3 +119,32 @@ contains its release-approval work. Its Mac resource-slot release does not suppl
 A source ownership. No shared runtime file was edited while that prerequisite
 was unresolved. Resume this same draft after the handoff; reconcile B task-record
 changes and its publication window before integration.
+
+## Implementation and newly exposed runtime gap
+
+`provider.rs` now owns `ProviderOperation` credential/account/client policy,
+`Provider` saved aliases and account capture, saved effort parsing, and Copilot
+completion/schema/initial-route/fallback decisions. App chat/helper/search
+selection uses those existing normalized provider names. Chat/helper transport
+resend wrapping stays run-owned. Summary construction still reuses its parent
+client; refinement/search retain their own transport/deadline/call contracts.
+The former chat client-policy branches and conversion/search auth-policy copies
+are removed, as are duplicate provider/effort matches. Existing Auth and Rig
+remain the low-level credential/protocol owners.
+
+The original 763 workspace library tests passed after extraction. The first
+compile exposed four test-only imports that had relied on the parent runtime's
+Auth import; those imports are now explicit. A new during-auth mutation fixture
+then exposed an existing token-store overwrite, reproduced independently on
+untouched c388da26. The callback changed the account, but the old combined-record
+save restored the starting bootstrap. No extraction regression or fresh live
+qualification is inferred.
+
+That behavior repair is isolated in [PR272](https://github.com/ewq100/brn-rust/pull/272),
+not implemented as a provider-refactor policy change. It protects stale Copilot
+token-store reload/save/delete and has its own offline regression, review and
+platform qualification. The refactor's final before/after baseline will include
+that reviewed runtime, preserving the original A/Cycle2 receipts unchanged.
+Temporary maintenance-task specifications were frozen before extraction; their
+original source pin and finite allocation remain retained separately. No
+maintenance task acceptance or elapsed-speed gain has yet been claimed.

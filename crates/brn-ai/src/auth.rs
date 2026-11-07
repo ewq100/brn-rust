@@ -1,4 +1,6 @@
 use crate::error::{map_auth, map_provider, map_transport};
+#[cfg(test)]
+use crate::provider::copilot_completion;
 use crate::{
     AccountStatus, AiError, AiErrorKind, AiResult, LoginPrompt, ModelOption, Provider,
     ReasoningEffort, Selection,
@@ -129,34 +131,6 @@ pub(crate) fn pinned_session_http(http: DynHttpClient, session: &str) -> AiResul
         .parse()
         .map_err(|_| AiError::new(AiErrorKind::Other))?;
     Ok(http.with_middleware(PinnedSession(value)))
-}
-
-/// The Copilot completion model, forced onto the Responses route when asked.
-/// Rig 0.46 selects that route only for Codex IDs, yet Copilot serves some
-/// other models there exclusively.
-///
-/// Tools are sent non-strict on both routes, as on ChatGPT. Rig's Copilot
-/// Responses default sanitizes schemas for strict mode, which turns an open
-/// object such as `prepare_changes` record `data` into `{}` the model cannot
-/// fill. BRN validates every tool call's arguments itself.
-pub(crate) fn copilot_completion(
-    client: &openai::OpenAI,
-    model: String,
-    responses: bool,
-) -> rig_core::driver::Model<openai::wire::OpenAiWire> {
-    let mut completion = client.completion(model.clone());
-    if responses {
-        let config = client.config();
-        let provider =
-            openai::OpenAIConfig::with_key(&copilot::wire::DIALECT, config.api_key.clone())
-                .with_base_url(config.base_url.clone())
-                .with_route(openai::wire::Route::Responses);
-        completion.wire = openai::wire::OpenAiWire::new(provider, model);
-    }
-    if let openai::wire::OpenAiWire::Responses(wire) = &mut completion.wire {
-        wire.strict_tools = false;
-    }
-    completion
 }
 
 impl Auth {

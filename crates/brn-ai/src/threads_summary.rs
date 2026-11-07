@@ -481,9 +481,9 @@ impl ModelCompactor {
         effort: ReasoningEffort,
         cancel: CancellationToken,
     ) -> Self {
-        let responses = rig::providers::copilot::wire::routes_through_responses(&model);
+        let responses = crate::provider::copilot_conversation_uses_responses(&model);
         let mut compactor = Self::new(
-            crate::auth::copilot_completion(client, model.clone(), responses),
+            crate::provider::copilot_completion(client, model.clone(), responses),
             scope,
             effort,
             responses,
@@ -491,7 +491,7 @@ impl ModelCompactor {
         );
         if !responses {
             compactor.responses_fallback =
-                Some(crate::auth::copilot_completion(client, model, true).into());
+                Some(crate::provider::copilot_completion(client, model, true).into());
         }
         compactor
     }
@@ -568,7 +568,7 @@ impl ModelCompactor {
             .await;
         if let Some(model) = &self.responses_fallback
             && !emitted
-            && copilot_responses_retry(self.responses, &answer, &self.cancel)
+            && crate::provider::copilot_responses_retry(self.responses, &answer, &self.cancel)
         {
             answer = self.one_turn(model.clone(), true, &input, budget).await.0;
         }

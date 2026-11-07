@@ -2,10 +2,11 @@
 //! selected Copilot account's Responses route. The query is the only BRN
 //! content sent. The request's tool set is exactly the hosted search; the
 //! provider's echoed tools and every output item are checked against it.
-use crate::auth::{AccountPin, OwnedClient, copilot_completion};
+use crate::auth::{AccountPin, OwnedClient};
 use crate::error::map_provider;
+use crate::provider::{ProviderOperation, copilot_completion};
 use crate::subscription_search::{Provenance, SearchError, SearchResult, Source};
-use crate::{AiError, AiErrorKind, Auth, Provider, ReasoningEffort, Selection};
+use crate::{AiError, AiErrorKind, Provider, ReasoningEffort, Selection};
 use futures::StreamExt;
 use rig::completion::{CompletionRequest, Message, ProviderToolDefinition};
 use rig::http_client::{
@@ -92,18 +93,16 @@ async fn run(
         MAX_RESPONSE,
         oversized.clone(),
     );
-    let auth = Auth::open(&request.credentials_dir)
-        .map_err(search_error)?
-        .with_http(http);
-    auth.check_copilot_account(&request.account)
-        .map_err(search_error)?;
-    let client = auth
-        .client(&selection, cancel.clone())
-        .await
-        .map_err(search_error)?;
-    // Authentication must not have moved to another sign-in either.
-    auth.check_copilot_account(&request.account)
-        .map_err(search_error)?;
+    let (client, _) = ProviderOperation {
+        selection: &selection,
+        auth_file: None,
+        credentials_dir: Some(&request.credentials_dir),
+        account: Some(&request.account),
+        cache_key: None,
+    }
+    .client(Some(http), &cancel)
+    .await
+    .map_err(search_error)?;
     let OwnedClient::Copilot(client) = client.inner else {
         return Err(SearchError::UnsupportedProvider);
     };

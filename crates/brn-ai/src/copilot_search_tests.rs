@@ -1,4 +1,6 @@
 use super::*;
+#[cfg(unix)]
+use crate::Auth;
 use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
 
 const TOKEN_URL: &str = "https://api.github.com/copilot_internal/v2/token";

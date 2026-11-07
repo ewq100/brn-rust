@@ -91,7 +91,7 @@ pub async fn interpret_visual(
     let selection = client.selection();
     let model = selection.model.clone();
     let responses = selection.provider == Provider::Chatgpt
-        || rig::providers::copilot::wire::routes_through_responses(&model);
+        || crate::provider::copilot_conversation_uses_responses(&model);
     let model: rig_core::DynModel<rig_core::operation::Completion> = match client.inner {
         OwnedClient::Chatgpt(client) => client.completion(model).into(),
         OwnedClient::Copilot(client) => client.completion(model).into(),
