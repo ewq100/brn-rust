@@ -1498,3 +1498,154 @@ fn the_text_gets_most_of_the_note_and_keeps_a_readable_measure(cx: &mut TestAppC
         );
     });
 }
+
+#[gpui_kit::test]
+fn rename_menu_saves_same_note_and_undo_restores_its_title(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., "Body stays exactly the same.");
+    on_window(cx, &f, |window, cx| window.click("note-menu", cx));
+    assert!(menu_rows(cx, &f).contains(&"Rename…".to_string()));
+    choose(cx, &f, "Rename…");
+    on_window(cx, &f, |window, cx| {
+        assert!(window.has_active_dialog(cx));
+        assert!(window.find("rename-note-title").visible());
+        window.press("cmd-a", cx);
+    });
+    cx.simulate_input(f.window, "New discoverable title");
+    cx.run_until_parked();
+    on_window(cx, &f, |window, cx| window.click("save-note-title", cx));
+    let operation = update(cx, &f, |view, _, _| {
+        let renamed = view.workspace.store.note(&f.note.id).unwrap().unwrap();
+        assert_eq!(title(&renamed), "New discoverable title");
+        let RecordData::Note(data) = &renamed.data else {
+            unreachable!()
+        };
+        assert_eq!(data.markdown, "Body stays exactly the same.");
+        assert_eq!(renamed.version, f.note.version + 1);
+        assert_eq!(view.workspace.notes().unwrap().len(), 1);
+        view.workspace
+            .history()
+            .unwrap()
+            .into_iter()
+            .find(|receipt| receipt.reason == "Owner renamed a note")
+            .unwrap()
+            .operation
+    });
+    update(cx, &f, |view, _, _| {
+        assert!(matches!(
+            view.workspace.undo(operation.as_str()).unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        assert_eq!(
+            title(&view.workspace.store.note(&f.note.id).unwrap().unwrap()),
+            title(&f.note)
+        );
+    });
+    update(cx, &f, |view, window, cx| {
+        view.show_tile(TileKind::Notes, window, cx)
+    });
+    on_window(cx, &f, |window, cx| {
+        window.right_click(format!("note-{}", f.note.id), cx)
+    });
+    assert!(menu_rows(cx, &f).contains(&"Rename…".to_string()));
+    choose(cx, &f, "Rename…");
+    on_window(cx, &f, |window, cx| {
+        assert!(window.has_active_dialog(cx));
+        window.click("rename-note-cancel", cx);
+        assert!(!window.has_active_dialog(cx));
+    });
+}
+
+#[gpui_kit::test]
+fn rename_refuses_empty_protected_dirty_stale_and_review_states(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., "Saved body.");
+    update(cx, &f, |view, _, cx| {
+        assert!(
+            view.save_note_title(&f.note, "  ", "rename-empty", cx)
+                .is_err()
+        );
+        let mut protected = f.note.clone();
+        let RecordData::Note(data) = &mut protected.data else {
+            unreachable!()
+        };
+        data.protected = true;
+        assert!(
+            view.save_note_title(&protected, "New", "rename-protected", cx)
+                .is_err()
+        );
+    });
+    type_edit(cx, &f, " Unsaved text.");
+    update(cx, &f, |view, window, cx| {
+        assert!(
+            view.save_note_title(&f.note, "New", "rename-dirty", cx)
+                .is_err()
+        );
+        assert_eq!(
+            title(&view.workspace.store.note(&f.note.id).unwrap().unwrap()),
+            title(&f.note)
+        );
+        assert!(
+            view.writing
+                .note_editor
+                .read(cx)
+                .value()
+                .ends_with(" Unsaved text.")
+        );
+        view.save(window, cx);
+        assert!(matches!(
+            view.save_note_title(&f.note, "New", "rename-stale", cx)
+                .unwrap(),
+            ApplyOutcome::Stale { .. }
+        ));
+        let saved = view.workspace.store.note(&f.note.id).unwrap().unwrap();
+        let operation = view
+            .workspace
+            .store
+            .allocate_operation("rename-pending-review")
+            .unwrap();
+        let candidate = view
+            .workspace
+            .store
+            .prepare(
+                &operation,
+                &ChangeRequest {
+                    reason: "Review before rename".into(),
+                    writes: vec![Put {
+                        id: saved.id.clone(),
+                        expected_version: Some(saved.version),
+                        archived: false,
+                        data: saved.data.clone(),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        view.open_review(candidate, window, cx);
+        assert!(
+            view.save_note_title(&saved, "New", "rename-in-review", cx)
+                .is_err()
+        );
+    });
+}
+
+#[gpui_kit::test]
+fn rename_refuses_visible_text_before_its_recovery_buffer_exists(cx: &mut TestAppContext) {
+    let f = fixture(cx, 900., 600., "Saved body.");
+    update(cx, &f, |view, window, cx| {
+        view.writing.note_editor.update(cx, |editor, cx| {
+            editor.set_value("Typed text not yet preserved", window, cx);
+        });
+        assert!(view.writing.note.as_ref().unwrap().session().is_none());
+        assert!(
+            view.save_note_title(&f.note, "New", "rename-unpreserved", cx)
+                .is_err()
+        );
+        assert_eq!(
+            view.workspace.store.note(&f.note.id).unwrap().unwrap(),
+            f.note
+        );
+        assert_eq!(
+            view.writing.note_editor.read(cx).value().as_ref(),
+            "Typed text not yet preserved"
+        );
+    });
+}

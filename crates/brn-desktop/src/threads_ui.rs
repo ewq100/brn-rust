@@ -1717,6 +1717,166 @@ impl ThreadsUi {
         // Kit focuses the dialog as it opens; the title field takes it after.
         input.update(cx, |input, cx| input.focus(window, cx));
     }
+    /// Rename retains the saved body and uses the same checked owner write
+    /// boundary as Save, including version checks, dirty guards and Undo.
+    fn save_note_title(
+        &mut self,
+        record: &Record,
+        name: &str,
+        key: &str,
+        cx: &Context<Self>,
+    ) -> AppResult<ApplyOutcome> {
+        let name = name.trim();
+        if name.is_empty() {
+            return Err(AppError::Invalid("Enter a title.".into()));
+        }
+        let RecordData::Note(mut note) = record.data.clone() else {
+            return Err(AppError::Invalid("Choose a saved note.".into()));
+        };
+        if record.archived || note.protected {
+            return Err(AppError::Invalid(
+                "Protected or archived notes cannot be renamed.".into(),
+            ));
+        }
+        if self.writing.review.is_some() {
+            return Err(AppError::Invalid(
+                "Finish reviewing the proposal before renaming a note.".into(),
+            ));
+        }
+        let visible_edit = self.open_note_id() == Some(record.id.as_str())
+            && self
+                .writing
+                .save_status(cx)
+                .is_some_and(|status| status != brn_writing_ui::canvas::SaveStatus::Saved);
+        if visible_edit
+            || self
+                .workspace
+                .store
+                .recovery_buffers()?
+                .iter()
+                .any(|buffer| buffer.note == record.id)
+        {
+            return Err(AppError::Invalid(
+                "Save or discard the note's unsaved edit before renaming. Your title is kept here."
+                    .into(),
+            ));
+        }
+        if note.title != name {
+            note.confirmed = false;
+        }
+        note.title = name.into();
+        self.workspace.owner_change(
+            key,
+            &ChangeRequest {
+                reason: "Owner renamed a note".into(),
+                writes: vec![Put {
+                    id: record.id.clone(),
+                    expected_version: Some(record.version),
+                    archived: record.archived,
+                    data: RecordData::Note(note),
+                }],
+                inputs: vec![],
+            },
+        )
+    }
+
+    fn rename_note(&mut self, id: &str, window: &mut Window, cx: &mut Context<Self>) {
+        self.preserve_visible_note_input(cx);
+        let record = if self.open_note_id() == Some(id) {
+            self.writing.note.as_ref().map(|open| open.record().clone())
+        } else {
+            self.workspace.store.note(id).ok().flatten()
+        };
+        let Some(record) = record else {
+            return;
+        };
+        if !matches!(&record.data, RecordData::Note(note) if !note.protected && !record.archived) {
+            self.warn("Protected or archived notes cannot be renamed.");
+            cx.notify();
+            return;
+        }
+        let input = cx.new(|cx| InputState::new(window, cx).default_value(title(&record)));
+        let error = cx.new(|_| String::new());
+        let target = cx.entity().downgrade();
+        let rename: components::DialogAction = {
+            let (input, error) = (input.clone(), error.clone());
+            std::rc::Rc::new(move |window, cx| {
+                let name = input.read(cx).value().to_string();
+                let key = format!("rename-note:{}", uuid::Uuid::new_v4());
+                let mut result = Err("This window is unavailable.".to_owned());
+                let _ = target.update(cx, |this, cx| {
+                    this.preserve_visible_note_input(cx);
+                    result = match this.save_note_title(&record, &name, &key, cx) {
+                        Ok(ApplyOutcome::Applied(receipt)) => {
+                            this.report_outcome(&ApplyOutcome::Applied(receipt));
+                            this.refresh();
+                            if this.open_note_id() == Some(record.id.as_str()) {
+                                this.open_note(&record.id, None, window, cx);
+                            }
+                            Ok(())
+                        }
+                        Ok(ApplyOutcome::Deferred { .. }) => Err("Save or discard the note's unsaved edit before renaming. Your title is kept here.".into()),
+                        Ok(_) => Err("The note changed. Close Rename and reopen the current note before retrying. Your title is kept here.".into()),
+                        Err(error) => Err(error.to_string()),
+                    };
+                    cx.notify();
+                });
+                match result {
+                    Ok(()) => window.close_dialog(cx),
+                    Err(message) => error.update(cx, |error, cx| {
+                        *error = message;
+                        cx.notify();
+                    }),
+                }
+            })
+        };
+        let field = input.clone();
+        self.open_dialog(window, cx, move |dialog, window, cx| {
+            let (ok, click) = (rename.clone(), rename.clone());
+            dialog
+                .title("Rename note")
+                .on_ok(move |_, window, cx| {
+                    ok(window, cx);
+                    false
+                })
+                .child(
+                    components::dialog_body("rename-note-body", window)
+                        .child(
+                            div()
+                                .flex()
+                                .flex_col()
+                                .gap_2()
+                                .child(
+                                    Input::new(&field)
+                                        .id("rename-note-title")
+                                        .aria_label("Note title"),
+                                )
+                                .child(components::field_error(
+                                    "rename-note-error",
+                                    error.read(cx).clone(),
+                                )),
+                        )
+                        .test_support(),
+                )
+                .footer(
+                    components::dialog_footer()
+                        .child(
+                            button("rename-note-cancel")
+                                .label("Cancel")
+                                .outline()
+                                .on_click(|_, window, cx| window.close_dialog(cx)),
+                        )
+                        .child(
+                            button("save-note-title")
+                                .label("Rename")
+                                .primary()
+                                .on_click(move |_, window, cx| click(window, cx)),
+                        ),
+                )
+        });
+        input.update(cx, |input, cx| input.focus(window, cx));
+    }
+
     fn change(&mut self, reason: &str, record: Record, data: RecordData, cx: &mut Context<Self>) {
         let request = ChangeRequest {
             reason: reason.into(),
@@ -2553,7 +2713,11 @@ impl ThreadsUi {
         let target = snapshot
             .as_ref()
             .map(|snapshot| snapshot.note.id.clone())
-            .or_else(|| write.map(|write| write.id.clone()));
+            .or_else(|| {
+                write
+                    .filter(|write| write.expected_version.is_some())
+                    .map(|write| write.id.clone())
+            });
         if let Some(note) = &target
             && self.open_note_id() != Some(note.as_str())
         {
@@ -3241,7 +3405,7 @@ impl ThreadsUi {
                                         if let Some(id) = id
                                             && chat.is_none()
                                         {
-                                            self.open_note(&id, None, window, cx);
+                                            self.open_imported_note(&id, window, cx);
                                         }
                                     }
                                     Err(e) => {
@@ -4851,6 +5015,11 @@ impl ThreadsUi {
             WritingRequest::EditNote => self.edit_note_dialog(window, cx),
             WritingRequest::Connections => self.show_tile(TileKind::Connections, window, cx),
             WritingRequest::Compare => self.show_tile(TileKind::Compare, window, cx),
+            WritingRequest::Rename => {
+                if let Some(id) = self.open_note_id().map(str::to_owned) {
+                    self.rename_note(&id, window, cx);
+                }
+            }
             WritingRequest::ToggleProtection => self.toggle_protection(window, cx),
             WritingRequest::Export => self.choose_output(false, window, cx),
             WritingRequest::ToggleCoverage => {

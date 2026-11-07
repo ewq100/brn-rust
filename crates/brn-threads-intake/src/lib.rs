@@ -149,12 +149,16 @@ pub enum ConversionError {
     Budget,
     Unavailable,
     Invalid,
+    MarkdownEmbeddedImage,
     Protocol,
     Io,
 }
 impl std::fmt::Display for ConversionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{self:?}")
+        match self {
+            Self::MarkdownEmbeddedImage => f.write_str("BRN could not import this Markdown file. Its embedded data image may be the problem. Remove the image from the file and import it again."),
+            _ => write!(f, "{self:?}"),
+        }
     }
 }
 impl std::error::Error for ConversionError {}

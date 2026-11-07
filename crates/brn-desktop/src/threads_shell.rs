@@ -138,7 +138,7 @@ pub(super) const KEYS: [(&str, &str); 18] = [
         "⌘, · workspace menu at the bottom of the sidebar",
     ),
     ("Recent changes", "workspace menu · ⌘K"),
-    ("Theme", "Settings → General · ⌘K"),
+    ("Theme", "Settings → Appearance · ⌘K"),
     (
         "Menus",
         "Tab to ⋯ · ↵ opens · ↑↓ ↵ · Esc · right-click a chat",
@@ -195,7 +195,7 @@ impl ThreadsUi {
     }
     /// The header's visible title (the object, in sentence case) and its
     /// announced name, which keeps the kind: ("Pilot proposal", "Note: Pilot
-    /// proposal"). During review the Note keeps the note's title.
+    /// proposal"). During review the title comes from the selected proposal.
     pub(super) fn tile_title(&self, kind: TileKind) -> (String, String) {
         let named = |title: String| (title.clone(), format!("{}: {title}", kind.label()));
         match kind {
@@ -205,11 +205,26 @@ impl ThreadsUi {
                 format!("{}: {}", TileKind::Overview.label(), kind.label()),
             ),
             TileKind::Note => match (self.writing.review.as_ref(), self.writing.note.as_ref()) {
+                (Some(review), _) => named(
+                    review
+                        .candidate
+                        .request
+                        .writes
+                        .iter()
+                        .find(|write| Some(write.id.as_str()) == review.note.as_deref())
+                        .and_then(|write| match &write.data {
+                            RecordData::Note(note) => Some(if write.expected_version.is_none() {
+                                format!("New note: {}", one_line(&note.title))
+                            } else {
+                                one_line(&note.title)
+                            }),
+                            _ => None,
+                        })
+                        .unwrap_or_else(|| {
+                            format!("Review · {}", one_line(&review.candidate.request.reason))
+                        }),
+                ),
                 (_, Some(open)) => named(one_line(&title(open.record()))),
-                (Some(review), None) => named(format!(
-                    "Review · {}",
-                    one_line(&review.candidate.request.reason)
-                )),
                 _ => (kind.label().into(), kind.label().into()),
             },
             TileKind::Chat => named(match &self.chat {
@@ -1131,7 +1146,14 @@ impl ThreadsUi {
         }
         match primary {
             TileKind::Note => {
-                out.extend(self.save_status(cx));
+                if self
+                    .writing
+                    .review
+                    .as_ref()
+                    .is_none_or(|review| review.note.as_deref() == self.open_note_id())
+                {
+                    out.extend(self.save_status(cx));
+                }
                 if let Some(section) = self.note_menu_section(cx) {
                     out.push(
                         components::overflow_menu("note-menu", "Note actions")

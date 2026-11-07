@@ -12,7 +12,73 @@ pub(super) struct ChatScroller {
     pub state: Entity<MessageScrollerState>,
     pub keys: Vec<String>,
     pub signature: String,
+    pub history_len: usize,
 }
+/// Status of applied changes first recorded by the Run that saved this reply,
+/// including proposals the owner applied later. Older references and unapplied
+/// candidates are excluded.
+/// Compensation receipts, including Undo of Undo, are the source of truth.
+fn reply_undo_status(history: &[Receipt], message: &str) -> Option<&'static str> {
+    let receipt = history.iter().find(|receipt| {
+        receipt
+            .writes
+            .iter()
+            .any(|write| write.after.id == message && write.before.is_none())
+    })?;
+    let (run_id, run) = receipt
+        .writes
+        .iter()
+        .find_map(|write| match &write.after.data {
+            RecordData::Run(run) => Some((&write.after.id, run)),
+            _ => None,
+        })?;
+    let start = history.iter().position(|receipt| {
+        receipt
+            .writes
+            .iter()
+            .any(|write| &write.after.id == run_id && write.before.is_none())
+    })?;
+    let previous_operations: BTreeSet<_> = history[..start]
+        .iter()
+        .flat_map(|receipt| &receipt.writes)
+        .flat_map(|write| match &write.after.data {
+            RecordData::Run(run) => run.operations.as_slice(),
+            _ => &[],
+        })
+        .map(|operation| operation.as_str())
+        .collect();
+    let applied: Vec<_> = history[start..]
+        .iter()
+        .filter(|receipt| {
+            run.operations.contains(&receipt.operation)
+                && !previous_operations.contains(receipt.operation.as_str())
+                && !lists::is_background(receipt)
+        })
+        .collect();
+    if applied.is_empty() {
+        return None;
+    }
+    let mut undone = BTreeSet::new();
+    for receipt in history.iter().rev() {
+        if !undone.contains(receipt.operation.as_str())
+            && let Some(original) = &receipt.undo_of
+        {
+            undone.insert(original.as_str());
+        }
+    }
+    let count = applied
+        .iter()
+        .filter(|receipt| undone.contains(receipt.operation.as_str()))
+        .count();
+    match (count, applied.len()) {
+        (0, 1) => Some("Change applied"),
+        (0, _) => Some("Changes applied"),
+        (1, 1) => Some("Change undone"),
+        (count, total) if count == total => Some("Changes undone"),
+        _ => Some("Some changes undone"),
+    }
+}
+
 impl ThreadsUi {
     pub(super) fn observe_run_activity(&mut self, chat: &str, text: &str) {
         if self
@@ -1056,6 +1122,7 @@ impl ThreadsUi {
                 state: cx.new(|cx| MessageScrollerState::new(0, cx)),
                 keys: vec![],
                 signature: String::new(),
+                history_len: 0,
             });
             if slot.keys != keys {
                 let same = slot
@@ -1077,14 +1144,17 @@ impl ThreadsUi {
                 self.stream,
                 self.records.iter().find(|r| r.id == id).map(|r| r.version),
             );
-            if signature != slot.signature {
+            // A compensation can add a qualifier to an earlier saved reply.
+            let history_changed = slot.history_len != self.history.len();
+            if signature != slot.signature || history_changed {
                 slot.state.update(cx, |s, cx| {
                     let count = s.item_count();
                     if count > 0 {
-                        s.remeasure_items(count - 1..count, cx);
+                        s.remeasure_items(if history_changed { 0 } else { count - 1 }..count, cx);
                     }
                 });
                 slot.signature = signature;
+                slot.history_len = self.history.len();
             }
             // A search hit opened this chat: show its Message once.
             let reveal = self
@@ -1156,7 +1226,7 @@ impl ThreadsUi {
                         .bg(rgb(bubble_fill()))
                         .text_color(rgb(p.ink))
                         .aria_label("You")
-                        .child(self.safe_message(key, m.text.clone()))
+                        .child(self.safe_message(key, intake_message_label(&m.text).to_owned()))
                         .test_support(),
                 );
             }
@@ -1179,6 +1249,17 @@ impl ThreadsUi {
                                 Tone::Warning,
                             ))
                             .child(metadata("Partial reply · interrupted before it finished")),
+                    );
+                }
+                if let Some(status) = reply_undo_status(&self.history, &record.id) {
+                    column = column.child(
+                        div()
+                            .id(format!("answer-undone-{}", record.id))
+                            .text_size(SMALL_TEXT)
+                            .text_color(rgb(p.muted))
+                            .aria_label(status)
+                            .child(status)
+                            .test_support(),
                     );
                 }
                 column = column
@@ -1290,4 +1371,174 @@ impl ConversationView {
     pub(super) fn take_stash(&mut self, destination: &ComposerDestination) -> String {
         self.stash.remove(destination).unwrap_or_default()
     }
+}
+
+#[cfg(test)]
+mod undo_status_tests {
+    use super::*;
+
+    #[test]
+    fn reply_status_tracks_direct_and_owner_applied_proposals_through_undo_and_redo() {
+        let root = tempfile::Builder::new()
+            .prefix("brn-nu-qa2fix-history-status-")
+            .tempdir_in("/private/tmp")
+            .unwrap();
+        let mut workspace = Workspace::open(root.path().join("data")).unwrap();
+        let mut receipt = |name: &str| Receipt {
+            operation: workspace.store.allocate_operation(name).unwrap(),
+            request_hash: String::new(),
+            reason: name.into(),
+            writes: vec![],
+            authority: "owner:fixture".into(),
+            committed_at: "2026-11-07".into(),
+            undo_of: None,
+            needs_refresh: vec![],
+        };
+        let mut older = receipt("older-run-edit");
+        let mut start = receipt("run-start");
+        let mut edit = receipt("edit");
+        let mut second = receipt("second-edit");
+        let mut pending = receipt("older-pending");
+        let mut undo_pending = receipt("undo-older-pending");
+        let mut finish = receipt("reply");
+        let mut undo = receipt("undo");
+        let mut undo_second = receipt("undo-second");
+        let mut redo = receipt("undo-undo");
+        let record = |id: &str, data: RecordData| Record {
+            id: id.into(),
+            version: 1,
+            archived: false,
+            data,
+        };
+        let note_write = |id: &str| Written {
+            before: None,
+            after: record(id, RecordData::Note(Note::working("Brief", "Reminder"))),
+        };
+        older.writes.push(note_write("old-note"));
+        edit.writes.push(note_write("note"));
+        second.writes.push(note_write("second-note"));
+        let mut run: Run = serde_json::from_value(serde_json::json!({
+            "thread": "chat", "provider": "synthetic", "model": "synthetic", "guide_identity": "fixture",
+            "budget": 3, "effort": "medium", "loaded_skills": [], "fence": 1,
+            "state": "Working", "progress": "", "operations": [], "sources": []
+        })).unwrap();
+        let mut older_run = run.clone();
+        older_run.operations = vec![pending.operation.clone()];
+        older.writes.push(Written {
+            before: None,
+            after: record("older-run", RecordData::Run(older_run)),
+        });
+        pending.writes.push(note_write("older-pending-note"));
+        undo_pending.undo_of = Some(pending.operation.clone());
+        let initial = record("run", RecordData::Run(run.clone()));
+        start.writes.push(Written {
+            before: None,
+            after: initial.clone(),
+        });
+        run.state = RunState::Completed;
+        run.operations = vec![
+            older.operation.clone(),
+            edit.operation.clone(),
+            second.operation.clone(),
+            pending.operation.clone(),
+        ];
+        finish.writes = vec![
+            Written {
+                before: Some(initial),
+                after: record("run", RecordData::Run(run)),
+            },
+            Written {
+                before: None,
+                after: record(
+                    "reply",
+                    RecordData::Message(Message {
+                        thread: "chat".into(),
+                        role: "assistant".into(),
+                        text: "I added the reminder".into(),
+                    }),
+                ),
+            },
+        ];
+        undo.undo_of = Some(edit.operation.clone());
+        undo_second.undo_of = Some(second.operation.clone());
+        redo.undo_of = Some(undo.operation.clone());
+        // The second candidate was proposed by this reply and owner-applied later.
+        let mut history = vec![older.clone(), start, finish];
+        assert_eq!(reply_undo_status(&history, "reply"), None);
+        let mut review_only = history.clone();
+        review_only.push(second.clone());
+        assert_eq!(
+            reply_undo_status(&review_only, "reply"),
+            Some("Change applied")
+        );
+        review_only.push(undo_second.clone());
+        assert_eq!(
+            reply_undo_status(&review_only, "reply"),
+            Some("Change undone")
+        );
+        history.insert(2, edit);
+        assert_eq!(reply_undo_status(&history, "reply"), Some("Change applied"));
+        history.push(second);
+        assert_eq!(
+            reply_undo_status(&history, "reply"),
+            Some("Changes applied")
+        );
+        // An older Run's pending candidate may also be applied after this reply.
+        history.push(pending);
+        history.push(undo_pending);
+        assert_eq!(
+            reply_undo_status(&history, "reply"),
+            Some("Changes applied")
+        );
+        let mut undo_older = receipt("undo-older");
+        undo_older.undo_of = Some(older.operation);
+        history.push(undo_older);
+        assert_eq!(
+            reply_undo_status(&history, "reply"),
+            Some("Changes applied"),
+            "carried references are not this reply's changes"
+        );
+        history.push(undo);
+        assert_eq!(
+            reply_undo_status(&history, "reply"),
+            Some("Some changes undone")
+        );
+        history.push(undo_second);
+        assert_eq!(reply_undo_status(&history, "reply"), Some("Changes undone"));
+        history.push(redo);
+        assert_eq!(
+            reply_undo_status(&history, "reply"),
+            Some("Some changes undone")
+        );
+        let mut redo_second = receipt("redo-second");
+        redo_second.undo_of = history
+            .iter()
+            .find(|r| r.reason == "undo-second")
+            .map(|r| r.operation.clone());
+        history.push(redo_second);
+        assert_eq!(
+            reply_undo_status(&history, "reply"),
+            Some("Changes applied")
+        );
+        assert_eq!(reply_undo_status(&history, "unrelated-reply"), None);
+    }
+}
+
+// The saved instruction remains unchanged for run identity and replay.
+fn intake_message_label(text: &str) -> &str {
+    if text == brn_threads_app::SOURCE_INTAKE_INSTRUCTION {
+        "Add useful information from the selected file."
+    } else {
+        text
+    }
+}
+
+#[cfg(test)]
+#[test]
+fn intake_label_preserves_other_messages() {
+    assert_eq!(
+        intake_message_label(brn_threads_app::SOURCE_INTAKE_INSTRUCTION),
+        "Add useful information from the selected file."
+    );
+    assert_eq!(intake_message_label("My own message"), "My own message");
 }

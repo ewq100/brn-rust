@@ -81,6 +81,137 @@ fn archived_chip(entry: components::ListRow, row: &str, archived: bool) -> compo
     )
 }
 
+/// Remove paired inline formatting delimiters while translating byte ranges
+/// from the search index into the displayed excerpt.
+pub(super) fn plain_note_excerpt(
+    snippet: &str,
+    ranges: &[std::ops::Range<usize>],
+) -> (String, Vec<std::ops::Range<usize>>) {
+    let mut hidden = vec![false; snippet.len()];
+    let mut code = vec![false; snippet.len()];
+    for marker in ["`", "**", "__", "~~"] {
+        let mut from = 0;
+        while let Some(start) = snippet[from..].find(marker).map(|n| n + from) {
+            if code[start] {
+                from = start + marker.len();
+                continue;
+            }
+            let content = start + marker.len();
+            let Some(end) = snippet[content..]
+                .match_indices(marker)
+                .map(|(n, _)| n + content)
+                .find(|&end| !code[end])
+            else {
+                break;
+            };
+            if end > content {
+                hidden[start..content].fill(true);
+                hidden[end..end + marker.len()].fill(true);
+                if marker == "`" {
+                    code[content..end].fill(true);
+                }
+            }
+            from = end + marker.len();
+        }
+    }
+    // Only simple paired emphasis at word boundaries. Intraword underscores,
+    // arithmetic and unmatched delimiters remain literal.
+    for marker in ['*', '_'] {
+        let positions: Vec<_> = snippet
+            .char_indices()
+            .filter(|(index, ch)| *ch == marker && !hidden[*index] && !code[*index])
+            .map(|(index, _)| index)
+            .collect();
+        let mut from = 0;
+        while from < positions.len() {
+            let start = positions[from];
+            from += 1;
+            let before = snippet[..start].chars().next_back();
+            let after = snippet[start + 1..].chars().next();
+            if before.is_some_and(|ch| ch.is_alphanumeric() || ch == marker)
+                || after.is_none_or(|ch| ch.is_whitespace() || ch == marker)
+            {
+                continue;
+            }
+            if let Some((offset, &end)) = positions[from..].iter().enumerate().find(|(_, end)| {
+                **end > start + 1
+                    && snippet[..**end]
+                        .chars()
+                        .next_back()
+                        .is_some_and(|ch| !ch.is_whitespace())
+                    && snippet[**end + 1..]
+                        .chars()
+                        .next()
+                        .is_none_or(|ch| !ch.is_alphanumeric() && ch != marker)
+            }) {
+                hidden[start] = true;
+                hidden[end] = true;
+                from += offset + 1;
+            }
+        }
+    }
+    // Inline links keep their label; leave incomplete or nested syntax alone.
+    let mut from = 0;
+    while let Some(start) = snippet[from..].find('[').map(|n| n + from) {
+        from = start + 1;
+        if code[start] {
+            continue;
+        }
+        // Wiki links retain the displayed alias, as Library descriptions do.
+        if snippet[start..].starts_with("[[")
+            && let Some(end) = snippet[start + 2..].find("]]").map(|n| n + start + 2)
+        {
+            let label = &snippet[start + 2..end];
+            if !label.contains(['[', ']']) {
+                let label_start = label.rfind('|').map_or(start + 2, |n| start + 3 + n);
+                hidden[start..label_start].fill(true);
+                hidden[end..end + 2].fill(true);
+                from = end + 2;
+                continue;
+            }
+        }
+        let Some(label_end) = snippet[from..].find("](").map(|n| n + from) else {
+            continue;
+        };
+        if snippet[from..label_end].contains(['[', ']']) || snippet[..start].ends_with('!') {
+            continue;
+        }
+        let url_start = label_end + 2;
+        let Some(end) = snippet[url_start..].find(')').map(|n| n + url_start) else {
+            continue;
+        };
+        if snippet[url_start..end].contains(['(', '\n']) {
+            continue;
+        }
+        hidden[start] = true;
+        hidden[label_end..end + 1].fill(true);
+        from = end + 1;
+    }
+    let mut offsets = vec![0; snippet.len() + 1];
+    let mut plain = String::new();
+    for (index, ch) in snippet.char_indices() {
+        for (relative, offset) in offsets[index..index + ch.len_utf8()].iter_mut().enumerate() {
+            *offset = plain.len() + if hidden[index] { 0 } else { relative };
+        }
+        if !hidden[index] {
+            plain.push(ch);
+        }
+    }
+    offsets[snippet.len()] = plain.len();
+    let ranges = ranges
+        .iter()
+        .filter(|range| {
+            range.start <= range.end
+                && range.end <= snippet.len()
+                && snippet.is_char_boundary(range.start)
+                && snippet.is_char_boundary(range.end)
+        })
+        .map(|range| offsets[range.start]..offsets[range.end])
+        .filter(|range| !range.is_empty())
+        .collect();
+    (plain, ranges)
+}
+
 /// A snippet with the service's highlight ranges in ink and semibold.
 pub(super) fn highlighted(snippet: &str, ranges: &[std::ops::Range<usize>]) -> StyledText {
     let ink = pal().ink;
@@ -537,7 +668,11 @@ impl ThreadsUi {
                     .px_2()
                     .text_size(UI_TEXT)
                     .text_color(rgb(p.muted))
-                    .child(highlighted(&hit.snippet, &hit.highlights)),
+                    .child({
+                        let (excerpt, highlights) =
+                            plain_note_excerpt(&hit.snippet, &hit.highlights);
+                        highlighted(&excerpt, &highlights)
+                    }),
             );
             block = block.child(entry);
         }
@@ -655,5 +790,43 @@ impl ThreadsUi {
             block = block.child(self.search_paging(Lanes::Chats, cx));
         }
         block.test_support().into_any_element()
+    }
+}
+
+#[cfg(test)]
+mod excerpt_tests {
+    use super::plain_note_excerpt;
+
+    #[test]
+    fn note_excerpt_hides_emphasis_and_link_destinations_with_unicode_highlights() {
+        let source = "*Café* _garden_ [tööriistad](https://example.test/tools) foo_bar_baz 2 * 3";
+        let start = source.find("tööriistad").unwrap();
+        let url = source.find("https").unwrap();
+        let (plain, ranges) =
+            plain_note_excerpt(source, &[start..start + "tööriistad".len(), url..url + 5]);
+        assert_eq!(plain, "Café garden tööriistad foo_bar_baz 2 * 3");
+        assert_eq!(ranges.len(), 1);
+        assert_eq!(&plain[ranges[0].clone()], "tööriistad");
+    }
+
+    #[test]
+    fn note_excerpt_removes_paired_markers_and_preserves_highlight_bytes() {
+        let source = "Café **Garden planning** and `tools`";
+        let start = source.find("Garden").unwrap();
+        let (plain, ranges) = plain_note_excerpt(
+            source,
+            std::slice::from_ref(&(start..start + "Garden".len())),
+        );
+        assert_eq!(plain, "Café Garden planning and tools");
+        assert_eq!(&plain[ranges[0].clone()], "Garden");
+        assert_eq!(plain_note_excerpt("2 * 3", &[]).0, "2 * 3");
+        assert_eq!(
+            plain_note_excerpt("Use `__init__` and `*args*` here", &[]).0,
+            "Use __init__ and *args* here"
+        );
+        assert_eq!(
+            plain_note_excerpt("**Use `**` for bold**", &[]).0,
+            "Use ** for bold"
+        );
     }
 }

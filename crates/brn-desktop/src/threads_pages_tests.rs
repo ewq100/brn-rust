@@ -24,7 +24,10 @@ fn fixture(
         cx.set_reduce_motion(true);
     });
     cx.update(|cx| cx.bind_keys(bindings()));
-    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let root = tempfile::Builder::new()
+        .prefix("brn-nu-qa2fix-pages-")
+        .tempdir_in(std::env::temp_dir().canonicalize().unwrap())
+        .unwrap();
     let data = root.path().join("pages");
     let mut workspace = Workspace::open(&data).unwrap();
     focus_tests::configure_offline_fixture(&mut workspace);
@@ -719,7 +722,7 @@ fn each_open_task_has_one_quiet_main_action_and_a_menu_for_its_state(cx: &mut Te
         assert!(window.find("actions-empty").visible());
         assert_eq!(
             label(window, "actions-empty"),
-            "No tasks yet · Tasks keep their own progress, including after a chat is archived."
+            "No tasks yet · Ask BRN in a chat to create a task, or choose Capture outcomes after a chat."
         );
         // Empty groups are hidden.
         for key in ["suggested", "open", "waiting", "done", "cancelled"] {
@@ -913,7 +916,7 @@ fn derived_change(workspace: &mut Workspace) -> (Receipt, String) {
 }
 
 #[gpui_kit::test]
-fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &mut TestAppContext) {
+fn background_changes_group_without_undo_and_note_refresh_stays_visible(cx: &mut TestAppContext) {
     let mut refreshed = None;
     let f = fixture(cx, 1250., 860., |workspace| {
         workspace.choose_quiet("quiet-fixture", true).unwrap();
@@ -948,8 +951,7 @@ fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &m
             format!("Show {}", background.len())
         );
         assert!(window.try_find(format!("receipt-{quiet}")).is_none());
-        // A change that needs refresh is never background, and keeps its
-        // sub-row and follow-up.
+        // A note change keeps its refresh sub-row and follow-up.
         assert!(window.find(format!("receipt-{op}")).visible());
         assert_eq!(
             label(window, format!("receipt-refresh-{op}")),
@@ -962,7 +964,7 @@ fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &m
         assert!(window.find(format!("refresh-followup-{op}")).visible());
         assert_eq!(
             label(window, format!("undo-{op}")),
-            format!("Undo: {}", receipt.reason)
+            format!("Undo: {} · Changed input", receipt.reason)
         );
         // No raw version or chat-control text in the rows.
         assert!(!label(window, format!("receipt-reason-{op}")).contains("version"));
@@ -974,26 +976,20 @@ fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &m
             label(window, format!("receipt-reason-{quiet}")),
             "Change display detail"
         );
-        assert_eq!(
-            label(window, format!("undo-{quiet}")),
-            "Undo: Change display detail"
-        );
+        assert!(window.try_find(format!("undo-{quiet}")).is_none());
         assert_eq!(label(window, "history-background-toggle"), "Hide");
     });
-    // Background changes stay undoable.
-    click(cx, &f, format!("undo-{quiet}"));
+    // Inspecting background receipts changes no settings or stored history.
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert_eq!(
-            view.history
-                .last()
+        assert!(view.queue_state().quiet);
+        assert!(
+            view.workspace
+                .history()
                 .unwrap()
-                .undo_of
-                .as_ref()
-                .map(OperationId::as_str),
-            Some(quiet.as_str())
+                .iter()
+                .any(|receipt| receipt.operation.as_str() == quiet)
         );
-        assert!(!view.queue_state().quiet);
     });
     // Inbox leaves routine changes and their refresh follow-ups to Recent
     // changes, and links there; nothing here asks for approval.
@@ -1099,11 +1095,11 @@ fn delegation_is_two_radios_and_a_switch_in_settings_and_two_quiet_buttons_on_ho
         for (id, text) in [
             (
                 "delegation-maintain",
-                "Maintain ordinary notes: BRN updates ordinary notes and source references.",
+                "Maintain ordinary notes: BRN may update your unprotected notes and links to their sources.",
             ),
             (
                 "delegation-review-first",
-                "Review changes first: BRN proposes; you approve.",
+                "Review changes first: BRN suggests its own note updates for your approval.",
             ),
         ] {
             let choice = window.within("delegation-pending").find(id);
@@ -2251,5 +2247,52 @@ fn relaunch_restores_the_last_valid_workspace_location(cx: &mut TestAppContext) 
         assert!(view.chat_thread().is_none());
         assert!(view.open_note_id().is_none());
         assert!(view.notice.text().is_empty(), "{}", view.notice.text());
+    });
+}
+
+#[gpui_kit::test]
+fn settings_model_save_is_the_new_chat_selection_even_if_unavailable(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 1500., |_| {});
+    let model = "gpt-invalid-qa-model";
+    update(cx, &f, |view, window, cx| {
+        focus_tests::settings(view, SettingsSection::Models, cx);
+        view.provider_form.provider = "chatgpt".into();
+        view.model
+            .update(cx, |input, cx| input.set_value(model, window, cx));
+    });
+    click(cx, &f, "save-settings");
+    let saved = Workspace::open_without_default_credentials(&f.data)
+        .unwrap()
+        .settings()
+        .unwrap();
+    assert_eq!(saved.model, model);
+    assert_eq!(resolve_run_selection(&saved, None).unwrap().0.model, model);
+    click(cx, &f, "nav-new-chat");
+    update(cx, &f, |view, window, cx| {
+        assert_eq!(view.settings.model, model);
+        view.model_picker.chatgpt =
+            model_picker::Catalogue::Loaded(vec![brn_ai::ModelOption::bare("gpt-6.1-sol")]);
+        view.model_picker.tab = model_picker::PickerTab::Provider("chatgpt");
+        let rows = view.picker_rows(cx);
+        let current = rows
+            .iter()
+            .find(|row| row.current)
+            .expect("saved model remains visible in the catalogue");
+        assert_eq!(current.model, model);
+        assert!(current.missing);
+        assert!(!current.selectable());
+        assert_eq!(rows.len(), 2);
+        assert!(
+            rows.iter()
+                .any(|row| row.model == "gpt-6.1-sol" && !row.current)
+        );
+        // Reopening Settings and saving again retains the same selection.
+        view.open_settings_section(SettingsSection::Models, window, cx);
+        assert_eq!(view.model.read(cx).value(), model);
+    });
+    click(cx, &f, "save-settings");
+    click(cx, &f, "nav-new-chat");
+    on_window(cx, &f, |window, _| {
+        assert!(label(window, "model-pill").contains(model));
     });
 }

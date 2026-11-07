@@ -806,3 +806,105 @@ fn runtime_refresh_cannot_use_owner_suggestion_clearing_exception() {
     );
     assert_eq!(store.prepared(&original.operation).unwrap(), original);
 }
+
+#[tokio::test]
+async fn captured_comment_quotation_is_corrected_before_preparing_a_rewrite() {
+    use rig::test_utils::{MockCompletionModel, MockStreamEvent};
+    let (_root, request, snapshot, _) =
+        fixture("Reference text", WritingReadRequirements::default());
+    let (scope, input) = begin(&request).unwrap();
+    let comment = &snapshot.comments[0];
+    let RecordData::Comment(feedback) = &comment.data else {
+        panic!("comment")
+    };
+    // Captured from a real ChatGPT rewrite: the model mistook the owner's
+    // feedback for a reference Note quotation. The unqualified schema allowed
+    // it through to a generic ToolRejected result instead of useful correction.
+    let mut bad = args(&snapshot);
+    bad.writing = Some(WritingEvidenceArgs {
+        quotations: vec![WritingQuotation {
+            id: comment.id.clone(),
+            version: comment.version,
+            start: 0,
+            end: feedback.body.len(),
+            quote: feedback.body.clone(),
+        }],
+        requirements_reported: vec![WritingRequirementsClaim {
+            claim: feedback.body.clone(),
+            quotations: vec![0],
+        }],
+        proposed_addressed_comment_ids: vec![comment.id.clone()],
+    });
+    let mut corrected = args(&snapshot);
+    corrected.writing = Some(WritingEvidenceArgs {
+        proposed_addressed_comment_ids: vec![comment.id.clone()],
+        ..Default::default()
+    });
+    let arguments = |a: &PrepareArgs| json!({"request_key":a.request_key,"request":a.request,"writing":a.writing});
+    let model = MockCompletionModel::from_stream_turns([
+        vec![
+            MockStreamEvent::tool_call("bad-quote", "prepare_changes", arguments(&bad)),
+            MockStreamEvent::tool_call(
+                "sibling",
+                "retain_progress",
+                json!({"summary":"BAD_BATCH_MUST_NOT_RUN"}),
+            ),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::tool_call("corrected", "prepare_changes", arguments(&corrected)),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+        vec![
+            MockStreamEvent::text("Prepared the rewrite for review."),
+            MockStreamEvent::final_response_with_total_tokens(1),
+        ],
+    ]);
+    let answer = run_model(
+        model.clone(),
+        scope.clone(),
+        &input,
+        ReasoningEffort::Medium,
+        4,
+        true,
+        CancellationToken::new(),
+        Arc::new(|_| {}),
+    )
+    .await;
+    let retry_history = serde_json::to_value(&model.requests()[1].chat_history).unwrap();
+    let retry_context = retry_history
+        .as_array()
+        .unwrap()
+        .last()
+        .unwrap()
+        .to_string();
+    assert!(
+        retry_context.contains("captured comments"),
+        "The model needs an actionable citation error, got: {retry_context}"
+    );
+    assert!(retry_context.contains("no tool in this batch executed"));
+    assert!(
+        matches!(answer.terminal, AiTerminal::Completed),
+        "{answer:?}"
+    );
+    let store = scope.store.lock().unwrap();
+    let RecordData::Run(run) = store.record(&scope.run).unwrap().unwrap().data else {
+        panic!("run")
+    };
+    assert!(run.progress.is_empty());
+    assert_eq!(run.operations.len(), 1);
+    assert_eq!(
+        store.record(&snapshot.note.id).unwrap().unwrap(),
+        snapshot.note
+    );
+    assert_eq!(store.record(&comment.id).unwrap().unwrap(), *comment);
+    let candidates = store.candidates().unwrap();
+    assert_eq!(candidates.len(), 1);
+    let proof = evidence(&candidates[0]);
+    assert!(proof.quotations.is_empty());
+    assert!(proof.requirements_reported.is_empty());
+    assert_eq!(
+        proof.proposed_addressed_comment_ids,
+        vec![comment.id.clone()]
+    );
+}

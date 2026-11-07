@@ -132,6 +132,7 @@ fn markdown_linked_figures_are_named_gaps_in_both_helpers() {
         assert_eq!(linked.len(), 1, "{backend}: {:?}", result.coverage.gaps);
         assert_eq!(linked[0].locator, "assets/chart.png");
         assert_eq!(linked[0].kind, GapKind::Limitation);
+        assert!(linked[0].detail.contains("not files it links to"));
     }
 }
 #[test]
@@ -351,4 +352,30 @@ fn pure_validation_precedes_platform_refusal_without_scratch_or_dispatch() {
         ConversionError::Budget
     );
     assert!(!converter.temp_root.exists());
+}
+
+#[test]
+#[cfg(any(target_os = "macos", all(target_os = "linux", target_arch = "x86_64")))]
+fn markdown_data_image_refusal_explains_next_step() {
+    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let converter = Converter {
+        temp_root: root.path().join("scratch"),
+        limits: Default::default(),
+    };
+    let source = b"# Example\n\n![dot](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/a1sAAAAASUVORK5CYII=)\n";
+    let error = converter
+        .convert_document(
+            ConversionRequest {
+                kind: DocumentKind::Markdown,
+                bytes: source,
+                intent: ImportIntent::FullNote,
+                source_reference: "synthetic://image.md",
+            },
+            &helpers(),
+            "xberg",
+            &AtomicBool::new(false),
+        )
+        .unwrap_err();
+    assert_eq!(error, ConversionError::MarkdownEmbeddedImage);
+    assert!(error.to_string().contains("Remove the image from the file"));
 }

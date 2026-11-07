@@ -370,7 +370,7 @@ impl ThreadsUi {
                 "actions-empty",
                 IconName::ListTodo,
                 "No tasks yet",
-                "Tasks keep their own progress, including after a chat is archived.",
+                "Ask BRN in a chat to create a task, or choose Capture outcomes after a chat.",
                 None,
             ));
         }

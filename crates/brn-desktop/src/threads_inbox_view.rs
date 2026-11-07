@@ -116,6 +116,8 @@ pub(super) struct ForYouItem {
     pub(super) chat: Option<String>,
     pub(super) target: Target,
     pub(super) protected: bool,
+    /// Exact host notice displayed by this row, never other attention.
+    pub(super) terminal_notice: Option<Attention>,
 }
 
 /// Every For you item, grouped Review, Decision, Failed, Waiting and kept in
@@ -159,6 +161,7 @@ pub(super) fn for_you_items(
                     chat: Some(row.id.clone()),
                     target: Target::Review(candidate.operation.as_str().to_owned()),
                     protected: summary.protected,
+                    terminal_notice: None,
                 }
             } else {
                 let (need, state) = match attention.kind {
@@ -194,6 +197,8 @@ pub(super) fn for_you_items(
                     chat: None,
                     target: Target::Chat(row.id.clone()),
                     protected: false,
+                    terminal_notice: (need == Need::Failed && attention.record.is_some())
+                        .then(|| attention.clone()),
                 }
             };
             items.push(item);
@@ -213,6 +218,7 @@ pub(super) fn for_you_items(
             chat: None,
             target: Target::Review(candidate.operation.as_str().to_owned()),
             protected: summary.protected,
+            terminal_notice: None,
         });
     }
     for (index, buffer) in buffers.iter().enumerate() {
@@ -231,6 +237,7 @@ pub(super) fn for_you_items(
             chat: None,
             target: Target::Recover(index),
             protected: false,
+            terminal_notice: None,
         });
     }
     if let Some(inbox) = inbox {
@@ -245,6 +252,7 @@ pub(super) fn for_you_items(
                     chat: None,
                     target: Target::Imports,
                     protected: false,
+                    terminal_notice: None,
                 });
             }
         }
@@ -265,6 +273,7 @@ pub(super) fn for_you_items(
                 chat: None,
                 target: Target::Task(record.id.clone()),
                 protected: false,
+                terminal_notice: None,
             });
         }
     }
@@ -590,6 +599,31 @@ impl ThreadsUi {
                             .accessibility_label(format!("Open chat: {}", item.title))
                             .on_click(cx.listener(move |this, _, window, cx| {
                                 this.open_thread(&chat, window, cx)
+                            })),
+                    );
+                }
+                if let (Target::Chat(chat), Some(notice)) = (&item.target, &item.terminal_notice) {
+                    let (chat, notice) = (chat.clone(), notice.clone());
+                    line = line.child(
+                        button(format!("for-you-{}-acknowledge", item.key))
+                            .label("Acknowledge")
+                            .ghost()
+                            .compact()
+                            .h(components::tokens::COMPACT_CONTROL)
+                            .flex_shrink_0()
+                            .accessibility_label(format!("Acknowledge run notice: {}", item.title))
+                            .tooltip("Clear this notice from Inbox. Saved work and paused messages stay unchanged.")
+                            .on_click(cx.listener(move |this, _, _, cx| {
+                                match this.workspace.store.acknowledge_terminal_notice(
+                                    &chat, &notice, &HostAuthority::owner("owner acknowledged run notice"),
+                                ) {
+                                    Ok(brn_threads_app::run_attention::CleanupOutcome::Done(_)) => {
+                                        this.refresh();
+                                    }
+                                    Ok(_) => this.warn("The notice changed. Refresh and try again."),
+                                    Err(error) => this.fail(error.to_string()),
+                                }
+                                cx.notify();
                             })),
                     );
                 }

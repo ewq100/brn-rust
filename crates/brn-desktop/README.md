@@ -6,7 +6,7 @@ Launch the native build with a fresh explicit absolute data directory:
 cargo run -p brn-desktop --features native-ui -- --data-dir /absolute/fresh/threads
 ```
 
-The window is an Omakase tiled workspace: a top bar (launcher ⌘K, Write/Chat/Solo layouts, Needs-you badge), resizable tiles and a status bar (run state and Stop, note save state, layout, theme, keys). Drag gaps to resize, drag headers to swap, double-click a header to maximize, right-click it for the tile menu. Five themes (Sammal, Läänemeri, Raba, Virmalised, Paber) are saved in Settings once no run is working.
+The workspace provides navigation for chats, notes, tasks, projects and settings. Use the launcher with ⌘K. Settings › Appearance offers System, Light and Dark, plus additional palettes under Advanced palettes.
 
 The chat list shows Needs you, recent chats, an all-chats count and an archived count. Archived chats remain findable in history and ⌘K; Unarchive is explicit and leaves work paused. Answered chats stay in history. The notes tile offers filter/search, Recent, Linked, Protected & imported and A–Z sections. Notes are typed in place with explicit Save; recovery buffers survive restart and delayed generations cannot overwrite typing. Comments are highlighted with margin cards; Rewrite with AI and in-place tracked-change review apply exactly the shown candidate, then offer Mark addressed and receipt Undo. What changed exposes receipts and checked Undo.
 

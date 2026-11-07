@@ -305,6 +305,12 @@ pub(super) fn picker_rows(
                 for option in models {
                     rows.push(row(provider, &option.id, Some(option)));
                 }
+                if provider == current_provider
+                    && !current_model.trim().is_empty()
+                    && !models.iter().any(|option| option.id == current_model)
+                {
+                    rows.insert(0, row(provider, current_model, None));
+                }
             }
             _ if provider == current_provider && !current_model.trim().is_empty() => {
                 rows.push(row(provider, current_model, None));

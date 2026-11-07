@@ -2152,7 +2152,7 @@ fn keyboard_shortcuts_name_the_shell_regions_menus_dialogs_and_the_settings_them
     });
     assert_eq!(rows.len(), shell::KEYS.len());
     for expected in [
-        "Theme: Settings → General · ⌘K",
+        "Theme: Settings → Appearance · ⌘K",
         "New chat: ⌘T or ⌘0 · New chat in the sidebar",
         "Move focus: ⌘[ ⌘] · sidebar, workspace and assistant",
         "Sidebar: ⌘\\ · collapse to the rail or expand",
