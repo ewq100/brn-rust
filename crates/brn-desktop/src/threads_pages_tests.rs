@@ -719,7 +719,7 @@ fn each_open_task_has_one_quiet_main_action_and_a_menu_for_its_state(cx: &mut Te
         assert!(window.find("actions-empty").visible());
         assert_eq!(
             label(window, "actions-empty"),
-            "No tasks yet · Tasks keep their own progress, including after a chat is archived."
+            "No tasks yet · Ask BRN in a chat to create a task, or choose Capture outcomes after a chat."
         );
         // Empty groups are hidden.
         for key in ["suggested", "open", "waiting", "done", "cancelled"] {
@@ -1092,11 +1092,11 @@ fn delegation_is_two_radios_and_a_switch_in_settings_and_two_quiet_buttons_on_ho
         for (id, text) in [
             (
                 "delegation-maintain",
-                "Maintain ordinary notes: BRN updates ordinary notes and source references.",
+                "Maintain ordinary notes: BRN may update your unprotected notes and links to their sources.",
             ),
             (
                 "delegation-review-first",
-                "Review changes first: BRN proposes; you approve.",
+                "Review changes first: BRN suggests its own note updates for your approval.",
             ),
         ] {
             let choice = window.within("delegation-pending").find(id);

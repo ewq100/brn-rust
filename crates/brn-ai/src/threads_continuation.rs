@@ -5,7 +5,7 @@ const PROGRESS_BYTES: usize = 4096;
 const CONTEXT_BYTES: usize = 16 * 1024;
 const RUNS: usize = 4;
 const OPERATIONS: usize = 16;
-const GAP: &str = "Optional continuation context was omitted by the request-size estimate. Current input remains intact; inspect saved progress and exact checked operations before repeating work. No complete recovery coverage is claimed.";
+const GAP: &str = "Some earlier context did not fit. Your current message is intact, but BRN may not have all the earlier details. Check saved changes before asking it to repeat work.";
 
 #[derive(Default, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -299,7 +299,7 @@ pub(super) fn context(scope: &Scope, input: String) -> (String, Option<String>) 
                 (candidate, None)
             } else { (input, Some(GAP.into())) }
         }
-        Err(_) => (input, Some("Optional continuation context is unavailable. Current input remains intact; no complete recovery coverage is claimed. Recheck saved operations and current scope.".into())),
+        Err(_) => (input, Some("BRN could not load some earlier context. Your current message is intact, but BRN may not have all the earlier details. Check saved changes before asking it to repeat work.".into())),
     }
 }
 /// Only called after finish's live fence check. No prose parsing or guessed plan.

@@ -82,14 +82,14 @@ impl ThreadsUi {
                 DelegationChoice::MaintainOrdinaryNotes,
                 "delegation-maintain",
                 "Maintain ordinary notes",
-                "BRN updates ordinary notes and source references.",
+                "BRN may update your unprotected notes and links to their sources.",
                 chosen && !review_first,
             ),
             (
                 DelegationChoice::ReviewFirst,
                 "delegation-review-first",
                 "Review changes first",
-                "BRN proposes; you approve.",
+                "BRN suggests its own note updates for your approval.",
                 chosen && review_first,
             ),
         ];
@@ -97,8 +97,9 @@ impl ThreadsUi {
             .id("delegation-status")
             .aria_label(status)
             .test_support();
-        let protected_line =
-            metadata("Protected notes change only with your instruction or review.");
+        let protected_line = metadata(
+            "Protected notes are notes BRN will not change on its own. Changes you explicitly request are applied directly and can be undone. You can change this later in Settings › Delegation.",
+        );
         if self.delegation_host() != Some(TileKind::Settings) {
             // GPUI may wrap before "?", so the last word is its own unit: a
             // narrow chat wraps "notes?" whole onto the next line.
@@ -288,6 +289,7 @@ impl ThreadsUi {
                     |this, value| this.provider_form.effort = value.into(),
                 ),
             ))
+            .child(metadata("To use ChatGPT, install the Codex CLI and run `codex login` in Terminal, then sign in with ChatGPT. The Codex auth file below should point to the sign-in file, usually /Users/your-name/.codex/auth.json. Choose a model from the model menu in chat."))
             .child(field(
                 "Codex auth file",
                 Input::new(&self.auth_path)

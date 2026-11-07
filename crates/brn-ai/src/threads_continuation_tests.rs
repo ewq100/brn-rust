@@ -625,7 +625,10 @@ async fn continuation_is_optional_in_the_actual_request_and_cannot_grant_note_re
     assert_eq!(control.request_count(), 1);
     let (input, notice) = continuation::context(&fresh.scope, plain.clone());
     assert_eq!(input, plain);
-    assert!(notice.unwrap().contains("omitted"));
+    let notice = notice.unwrap();
+    assert!(notice.contains("did not fit"));
+    assert!(notice.contains("Your current message is intact"));
+    assert!(notice.contains("Check saved changes"));
     assert!(!fresh.scope.reads.lock().unwrap().knows(&note, 1));
     let guarded = model();
     let answer = run_model(
