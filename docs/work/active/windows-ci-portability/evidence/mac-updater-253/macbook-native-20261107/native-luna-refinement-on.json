@@ -1,0 +1,48 @@
+{
+  "note": {
+    "id": "6ced0e70-5236-42e6-88e0-ade48fb21234:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "harbor-ai-on",
+        "markdown": "# Harbor water-saving pilot\n\nDecision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration.\n\n| Site | Before | After |\n| --- | --- | --- |\n| Pier A | 120 L/day | 72 L/day |\n| Pier B | Pending | Pending |\n\nWater use before and after\n\n![120 to 72 litres/day, a 40% reduction](brn-asset://6ced0e70-5236-42e6-88e0-ade48fb21234:2)\n\nSame chart for operations handoff\n\n![120 to 72 litres/day, a 40% reduction](brn-asset://6ced0e70-5236-42e6-88e0-ade48fb21234:2)\n\nSynthetic AI-refinement variant: retain the 15 October 2026 decision, 120 and 72 L/day values, both sites and the retained chart.\n",
+        "protected": true,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": {
+          "source": "6ced0e70-5236-42e6-88e0-ade48fb21234:0",
+          "full_note": true,
+          "gaps": [],
+          "report": {
+            "conversion": {
+              "settings": {
+                "converter": "xberg",
+                "ai": true
+              },
+              "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+            },
+            "status": "Unchecked",
+            "issues": []
+          }
+        }
+      }
+    }
+  },
+  "saved_preferences": {
+    "converter": "xberg",
+    "ai": true
+  },
+  "provider": "copilot",
+  "credentials_dir": "/Users/Shared/BRN-native-functional-253-20261107/copilot-credentials",
+  "dedicated_model": "gpt-6-luna",
+  "requested_effort": "high",
+  "native_observation": "Imported through native full-note picker after Documents On; completion opened protected v1 Read view with table and retained chart",
+  "fixture": {
+    "path": "/Users/Shared/BRN-native-functional-253-20261107/fixtures/harbor-ai-on.docx",
+    "sha256": "85c5b9b829f1bc448b3311d9ec2c034af3733fdbd6e6c042039340a197bf3fbf",
+    "source_public_fixture_sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85",
+    "change": "Appended one synthetic acceptance paragraph; retained all other ZIP entries including chart; ensures new bytes for AI-On import"
+  },
+  "scope": "current-account native functional test wrapper; no Codex credential source configured"
+}

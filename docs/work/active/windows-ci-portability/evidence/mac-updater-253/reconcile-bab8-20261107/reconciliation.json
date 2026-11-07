@@ -1,0 +1,42 @@
+{
+  "observed_at": "2026-11-07T07:19:25.360738+00:00",
+  "previous_pr_head": "29af383b92cf93e18131771df47c1351c2d9b459",
+  "main": "bab8c8766fd30cadb110dfe3c57bbbd67c03ce70",
+  "qualified_artifact_source": "82657cabbf763739c03b0e479c4b343a0fee54e0",
+  "normal_merge_conflicts": [
+    "shared task record",
+    "generated overview"
+  ],
+  "resolution": "Latest B task from29af; every other task object/root source from main; B current route/attention; regenerate overview.",
+  "other_task_objects_equal_main": true,
+  "default_build_delta": [
+    "TraceUsage adds completeness; partial input/output usage is not presented as a complete total.",
+    "Summary usage reports only complete observed counters.",
+    "read_message trace records safe IDs/ranges/completeness without message text."
+  ],
+  "gated_or_nonruntime_delta": [
+    "No-tool benchmark judge/example gated behind capability-spike.",
+    "Offline grader/evidence tooling/tests/docs and added CI test step."
+  ],
+  "inference": "No model request construction, account/provider selection, consent/tool dispatch, checked write/Undo, launcher/helper/updater or release-version manifest or lock changes in this main delta. Changed usage/trace evidence still needs fresh current-head checks; original native observation is not relabeled.",
+  "current29_reviews": {
+    "code": "https://github.com/ewq100/brn-rust/pull/268#issuecomment-6703416616",
+    "security": "https://github.com/ewq100/brn-rust/pull/268#issuecomment-6703456264",
+    "findings": 0,
+    "threads": 0,
+    "full_private_report_inspected": false,
+    "CI": "no pull-request workflow run; mergeable=false before reconciliation"
+  },
+  "local_resource_update": "Owner/E reports batches finished06:54UTC; no reservation now;274 hosted candidate separate.",
+  "screen_locked": true,
+  "publication_approved": false,
+  "local_checks": {
+    "benchmark_python_total": 94,
+    "passed": 83,
+    "explicit_skips": 11,
+    "overview": "passed",
+    "markdown_links": "748files/3762links/0failures",
+    "whitespace": "passed",
+    "Rust_current_head": "pending hosted CI, no new local build or provider calls"
+  }
+}

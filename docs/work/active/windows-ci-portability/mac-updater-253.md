@@ -1,6 +1,135 @@
 # Mac updater evidence and remaining acceptance
 
-Candidate PR: [#258](https://github.com/ewq100/brn-rust/pull/258), open and unmerged.
+Updater PR: [#258](https://github.com/ewq100/brn-rust/pull/258), normally merged as
+`28051188f7d20a817202ddf098dff5dc2f07e653`. Final package acceptance remains active.
+
+## PR preparation after E salvage — 7 November 2026
+
+[Normal mainBab8reconciliation](evidence/mac-updater-253/reconcile-bab8-20261107/README.md)
+resolves shared-record/overview conflicts that prevented any CI run on29af383b.
+That head has completed clean code6703416616/security6703456264 and0threads, not
+passing CI. All non-B task objects come exactly from main; B latest results remain.
+Inspected default-build delta is usage/trace reporting; extra judge is feature-
+gated. Current integrated-head CI/reviews are required, not inferred from E's or
+82657's green receipts. Local Python83pass/11explicitskip=94total, docs/overview/
+whitespace pass. Original qualified82657packages/native receipts and idle running
+app are unchanged; no new desktop build/provider call or native source relabel.
+
+E reports all measurement batches finished06:54UTC and no local reservation now;
+274remains a separate hosted candidate. Screen still locked; owner unlock request
+is pending for normal quit/reopen/closure. No publication approval is implied.
+
+## Current combined qualification — source82657cab
+
+Owner selected currentmain272+267 plus the focused review-target fix for testing
+only. [New combined receipts, artifact identities, failed attempts and native scope](evidence/mac-updater-253/combined-82657cab-20261107/README.md)
+now supersede the older “new candidate underway” snapshot below. Exact build source
+82657cabbf763739c03b0e479c4b343a0fee54e0: all7CIjobs and clean completed code/security,
+0reviewthreads. New A3/B4 package signatures/platform/receipts, both helpers8formats/
+16imports, substituted local update/B headless reopen and restore passed.
+
+Native corrected new-article title/controls, fresh Copilot consolidation/referenced
+writing Apply/Undo, retained stale refusal/Discard, WebOff0/On12actual sources/Stop,
+and LunaOn with retained table/chart/Asset passed. Existing data/settings/account
+were preserved at startup. Supported CLI backup/new-copy restore matched6categories.
+Native normal quit/reopen/final closure now waits on the locked MacBook; idle test
+appPID59617 remains running. Owner unlock requested; no force quit or newer-source
+closure/draft/B-native claim. Earliera921native backup/reopen results stay scoped.
+
+E has started headless baseline after its actual resource check; B defers new heavy
+builds/provider calls during the measurement batch and holds no standing slot.
+After unlock, finish ordinary closure, then arrange the clean standard-user Finder
+leg separately. Newer main E salvagebab8c876 remains outside82657qualification;
+inspect affected source before publication. No approval/publication inferred.
+
+## Current continuation — staged native testing on 7 November 2026
+
+Owner's latest #253 clarification authorizes current-account functional native
+checks using supported explicit `--data-dir` and a separately configured Copilot
+folder. A clean OS account is a later acceptance method, not a prerequisite for
+this stage. [Current functional observations, new artifact identities and limits](evidence/mac-updater-253/macbook-native-20261107/README.md)
+and [staged execution instructions](evidence/mac-updater-253/macbook-20261107/native-session.md).
+
+Because original Mac mini artifacts remain unavailable here, B rebuilt separately
+identified local A3/B4 from clean pinneda921e325 in its own targets. Desktop,
+helpers, notices, package identities/signatures and relocated helper8formats/16CLI
+imports passed. Original Mac mini evidence is unchanged. Automation could not bind
+an unregistered direct desktop process; a distinct test-only wrapper passes the
+same explicit data argument to unchanged packaged executable bytes. It does not
+establish the ordinary release Finder launch path.
+
+Native functional continuation now passed isolated Copilot login, tool-backed
+multi-turn chat/citations, actual13 run-owned web sources (model-written URL alone
+was rejected as proof), Web Off, Stop/no late publication, Luna refinement On/Off,
+referenced writing Discard/Apply/Undo/stale refusal, and contradictory-source
+consolidation Apply/Undo with both originals unchanged. Normal quit/reopen restored
+an unsaved UTF-8 draft and exact canonical state/settings; a new Copilot tool reply
+needed no fresh login. Post-login native backup/new-copy restore matched all6state
+categories, including figures, sources, chats and project links. No account identity,
+device code or credential payload is in evidence. Requested high effort is not
+proof of effective effort. Optional denial/second-account/network cases stay open.
+
+The local substituted-transport A3→B4 qualifier passed after normal closure, with
+unchanged external files, B headless reopen and restore. Earlier running-process
+refusal is retained. This does not establish actual published HTTPS or nativeB
+reopening. Functional app is normally closed; no B live/timing session remains.
+
+**Native finding under correction:** a new-article review displays the previous
+note's title/Saved state and an unavailable-note banner. Canonical new note+2source
+links Apply/Undo targeted correctly, with existing notes unchanged. A focused
+regression and correction precede final presentation acceptance. Existing task
+plan: preserve source-bound receipts; reproduce through native-state test; correct
+only target selection/header/actions; run affected native-state/build/review gates;
+then requalify the changed package. No provider rewrite is assigned here.
+
+Continuation2e7bfce3 has completed successful CI42340527801 and clean code/security
+receipts6702537631/6702573318. This new batch needs its own checks/review. Accepted
+auth repair272 on75f37221 must be reconciled before publication. Currentmain now
+includes provider refactor267 as8b07e035, while first-alpha instructions exclude267
+and the existing publisher requires exact currentmain. Owner subsequently selected both changes plus the focused fix for new
+qualification only (see source-choice update below). Publication policy is
+unchanged. Currenta921
+packages/results remain pinned. PR268 remains draft/unmerged/unapproved; no alpha
+is published.
+
+No device code remains pending. For the later clean-user/ordinary Finder leg, the
+minimum owner action is to create and sign into a disposable **standard** macOS
+account without BRN data/credentials and provide its short name/readiness, remaining
+available for ordinary Gatekeeper/Copilot actions. This account does not remove
+system-wide developer tools. Browser-download/Gatekeeper and stock HTTPS remain
+separate gates requiring actual approved hosted artifacts.
+
+## Historical combined package checkpoint — 6 November 2026 UTC
+
+A's handoff is complete. Selected runtime/source is
+`a921e32533dc03134ed8a2001bd82f27194c3302` (264/265); no wait for C/D/E.
+B built from that exact clean detached checkout in its own target, then qualified
+signed local alpha.1/build3 and alpha.2/build4 packages. [Current identities,
+receipts, logs, diagnosed verifier failures and scope](evidence/mac-updater-253/alpha-a921e325/README.md).
+All4 selected-main required contexts pass.32local packaging/updater/preparation
+cases, both relocated helpers/all8formats/16imports, real local A→B preservation
+and B headless reopen, and full synthetic backup/restore pass. Transport is still
+substituted for that local update; it is not real published stock HTTPS.
+
+The Mac mini heavy slot was released21:56:38Z, before the22:30Z cap; B holds
+no standing reservation. Owner clarification: D/E use the separate MacBook and
+need no B release window; coordinate only actual shared host/account resources. No B build or
+native work is running. The [one combined native-session runbook](evidence/mac-updater-253/alpha-a921e325/native-session.md)
+names exact remaining inputs and owner actions. Screen locked; no native/live
+Copilot acceptance claimed. Local outputs and the disposable-profile Shared copy
+are ready. The local source still has the legacy approved manifest; a draft
+release-manifest/notes proposal must receive explicit owner approval before
+merge/publication. Actual approved A/B artifacts and sources will be built and
+recorded by the existing workflow; no local/hosted ZIP identity is assumed.
+
+## Historical updater integration checkpoint before A's handoff
+
+PR258 merged normally as28051188, exactly reviewed0438bd60. All7 refreshed PR
+lanes and all4 required resulting-main contexts passed;3 inherited optional
+Windows failures remain visible. [Current-source integration receipts](evidence/mac-updater-253/integration-20261106/README.md).
+Codex code and separate security receipt report no issues on0438bd60; private
+full-detail report access requires account login and was not inspected. Independent
+security review is additional evidence; workflow text grants no fallback waiver.
 
 ## Refreshed integration — 6 November 2026
 
@@ -21,8 +150,9 @@ B owns PR follow-through and resulting-main verification. One fresh independent
 integration/security review covers this combined candidate; retain the prior
 whole-updater review only for verified unchanged source. Request current-head
 Codex code/security review and inspect actual reviewed identities/reports. If
-current security reporting remains unavailable, name it and record the workflow's
-authorized independent fallback without claiming an automated-security pass.
+current security reporting remains unavailable, name the missing evidence and
+record only an actually authorized fallback; do not infer a waiver from workflow
+text or claim an automated-security pass without its current receipt.
 
 The final release package waits for A's response-limit hardening and agreed
 integrated SHA. Build-slot coordination and the combined native-session request
@@ -265,3 +395,21 @@ login. The Mac reports `CGSSessionScreenIsLocked=true`; no native UI was driven.
 Do not automatically run an old app against a migrated store. Recovery after
 schema changes requires a compatible app plus matching pre-upgrade backup, or a
 forward fix. Retained app bundles alone are not database rollback authority.
+
+## Release proposal
+
+[Draft PR268](https://github.com/ewq100/brn-rust/pull/268) contains the alpha.1/build3
+manifest/notes and exact local evidence. It stops before merge/publication pending
+explicit owner release approval. Its own final-head hosted checks and Codex
+code/security must complete; prior updater receipts are not this proposal review.
+
+## Source-choice update — 7 November 2026
+
+Owner selected currentmain with272and267 plus the focused review-target fix for
+new qualification only; publication is not approved. The target regression went
+red on the previous header, then passed after correction;18review tests pass.
+Full native-state451passed/1existingignore at2testthreads and canonical TMPDIR;
+initial8fail and later1workerfail default-parallel attempts remain recorded, and
+the isolated worker passed. No assertion/deadline/CI change. B next normally
+reconciles main, pins/builds new artifact identities and repeats affected native
+provider/review/lifecycle journeys. Existinga921artifacts stay unchanged.

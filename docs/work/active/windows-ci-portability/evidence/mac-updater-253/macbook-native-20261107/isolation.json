@@ -1,0 +1,14 @@
+{
+  "workspace": "/Users/Shared/BRN-native-functional-253-20261107/workspace",
+  "copilot_credentials": "/Users/Shared/BRN-native-functional-253-20261107/copilot-credentials",
+  "credentials_mode": "0700",
+  "credentials_empty_before_connection": true,
+  "auth_file": null,
+  "provider": "Copilot",
+  "helper": null,
+  "purpose": "test",
+  "home_unchanged": "/Users/evokessler",
+  "personal_workspace": "not opened or read",
+  "personal_signins": "not opened, copied or reset",
+  "delivery": "new pinned-source MacBook package; direct binary alternate-data functional testing only"
+}

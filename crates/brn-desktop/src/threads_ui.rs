@@ -2564,7 +2564,10 @@ impl ThreadsUi {
             .as_ref()
             .map(|snapshot| snapshot.note.id.clone())
             .or_else(|| write.map(|write| write.id.clone()));
-        if let Some(note) = &target
+        // A creation has no saved working note to open. Keep the previous
+        // editor recoverable while the review presents the proposed target.
+        if write.is_some_and(|write| write.expected_version.is_some())
+            && let Some(note) = &target
             && self.open_note_id() != Some(note.as_str())
         {
             self.open_note(note, None, window, cx);

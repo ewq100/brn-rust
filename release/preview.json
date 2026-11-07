@@ -1,10 +1,12 @@
 {
   "schema": 1,
   "enabled": true,
-  "version": "v0.1.0-preview.2",
-  "build_number": 2,
+  "version": "v0.2.0-alpha.1",
+  "build_number": 3,
   "platform": "macos-arm64",
   "minimum_macos": "15.0",
-  "features": ["native-ui"],
+  "features": [
+    "native-ui"
+  ],
   "notes_file": "docs/development/preview-release.md"
 }

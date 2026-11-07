@@ -1,0 +1,26 @@
+{
+  "source": "82657cabbf763739c03b0e479c4b343a0fee54e0",
+  "route": "supported checked CLI; native backup/restore entry points were observed on earlier a921 source, not relabeled",
+  "backup": "/Users/Shared/BRN-native-functional-253-20261107/backups/combined-82657cab.sqlite3",
+  "backup_sha256": "01fd409cc96356219904e6800d74a40aee7892d2b63aa017e36c57995e1dd924",
+  "restored": "/Users/Shared/BRN-native-functional-253-20261107/recovery-copies/combined-cli-82657cab",
+  "equal": {
+    "records": true,
+    "notes": true,
+    "history": true,
+    "settings": true,
+    "projects": true,
+    "threads": true
+  },
+  "counts": {
+    "records": 81,
+    "notes": 6,
+    "history": 112,
+    "settings": 10,
+    "projects": 1,
+    "threads": 7
+  },
+  "quick_check": "ok",
+  "screen_locked": true,
+  "provider_calls": 0
+}

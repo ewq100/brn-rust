@@ -179,6 +179,42 @@ fn note_put(record: &Record, markdown: &str) -> Put {
     }
 }
 
+/// A new article has no saved working note yet. Reviewing it must not present
+/// the previously open note as the target or offer actions for that other note.
+#[gpui_kit::test]
+fn new_article_review_names_its_target_without_opening_a_missing_note(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1400., 900., TEXT);
+    let RecordData::Note(mut article) = f.note.data.clone() else {
+        unreachable!()
+    };
+    article.title = "New consolidated article".into();
+    article.markdown =
+        "# New consolidated article\n\nCurrent requirements and retained history.".into();
+    review_writes(cx, &f, "Consolidate two sources", |operation| {
+        vec![Put {
+            id: operation.creation_id(0),
+            expected_version: None,
+            archived: false,
+            data: RecordData::Note(article),
+        }]
+    });
+    cx.read(|cx| {
+        let view = f.view.read(cx);
+        assert_eq!(
+            view.tile_title(TileKind::Note).0,
+            "New consolidated article"
+        );
+        assert_eq!(view.open_note_id(), Some(f.note.id.as_str()));
+        assert!(!view.notice.text().contains("Working Note is unavailable"));
+    });
+    on_window(cx, &f, |window, _| {
+        assert!(window.try_find("status-save").is_none());
+        assert!(window.try_find("note-menu").is_none());
+        assert!(window.try_find("toggle-assistant").is_none());
+        assert_eq!(window.find("apply-final").label(), Some("Apply whole note"));
+    });
+}
+
 /// Two open tasks, saved, as proposal targets.
 fn tasks(cx: &mut TestAppContext, f: &Fixture) -> Vec<Record> {
     update(cx, f, |view, _, _| {

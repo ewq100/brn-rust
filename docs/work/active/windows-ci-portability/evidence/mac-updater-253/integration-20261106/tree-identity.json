@@ -1,0 +1,16 @@
+{
+  "candidate": "0438bd603a86b48d4956195b89aea0fb54e648d8",
+  "normal_merge": "28051188f7d20a817202ddf098dff5dc2f07e653",
+  "merge_parents": [
+    "6897fe56ce9457fa7d60d0354b0ba4627d5049bb",
+    "0438bd603a86b48d4956195b89aea0fb54e648d8"
+  ],
+  "candidate_tree": "941a94becdd4cae11cb33812f721c93e204652fd",
+  "merged_tree": "941a94becdd4cae11cb33812f721c93e204652fd",
+  "exact_tree_match": true,
+  "informational_windows_affected_blobs_unchanged": [
+    "100644 blob 9b4c27cba1d60ca81e9dc08261bc879524d6be11\tcrates/brn-desktop/src/threads_composer.rs",
+    "100644 blob ceef90998ae7eaa04a573aa9ae2a6dd75f48ecf6\tcrates/brn-threads-app/src/skills.rs"
+  ],
+  "review_applicability": "Current independent full-task review plus current Codex code and separate explicit no-security-issues receipt. Private full-detail report unavailable due login; no waiver inferred. Acceptance-branch preparation changes are docs only and have no behavioral/configuration effect."
+}

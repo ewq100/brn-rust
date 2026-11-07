@@ -1,0 +1,52 @@
+{
+  "observed_at": "2026-11-07T05:50:01.827374+00:00",
+  "source": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "alternate_data_functional": {
+    "native_models_and_data_paths": "passed; exact separate paths visible",
+    "docx_ai_off_table_and_chart": "passed; Xberg and AI Off disclosure visible",
+    "native_edit_save": "passed v2",
+    "unsaved_discard": "passed v2 retained",
+    "operation_undo": "passed v3 save compensated to v4, prior text retained",
+    "native_keyword_search": "passed 12cm match with saved text",
+    "native_backup": "passed with exact task-owned path",
+    "native_restore": "passed, new recovery path reviewed then confirmed, recovered window opened",
+    "post_restore_state_comparison": "all6categories equal including Asset record",
+    "copilot_device_login": "passed normal tester device flow; expired first flow cancelled; fresh flow completed in separate folder",
+    "chat_tools_web_luna_ai_review_writing": "passed tool-backed cited multi-turn chat; actual13 returned web sources, Web Off zero sources; Stop interrupted without late publication; Luna On retained table/chart; writing Discard/Apply/Undo and stale v6\u2192v7 refusal; consolidation new note+2source links Apply/Undo",
+    "quit_reopen_and_local_replacement": "normal quit/reopen preserved unsaved UTF-8 draft and exact notes/projects/threads/history/settings; Copilot tool reply succeeded without fresh login. Independent substituted-transport local A3\u2192B4 qualification passed; no published/native B claim",
+    "post_login_backup_restore": "native backup/confirmed new-copy restore: all6categories exact,58records/5notes/83history/1project/5threads",
+    "unavailable_model": "explicit synthetic model refused by authenticated catalogue before Run, owner message retained; qualified Luna restored"
+  },
+  "separate_gates": {
+    "ordinary_finder_first_launch": "pending",
+    "clean_user": "pending; does not block current-account functional tests",
+    "published_browser_gatekeeper": "pending approval/hosted artifacts",
+    "stock_https_A_to_B": "pending approval/hosted artifacts",
+    "owner_acceptance": "pending",
+    "release": "draft/unapproved/unpublished"
+  },
+  "new_main_runtime_delta": {
+    "main": "75f3722142bfe5598c3871acc8a8079f991aad9a",
+    "pr": 272,
+    "fix": "refuse stale Copilot credential cache writes after account change",
+    "scope": "not included in currenta921 artifacts/observations; reconcile final release source and requalify affected native account behavior before publication",
+    "later_main": "8b07e03510f5955288cc2be945a01d5fcb1afe2f",
+    "later_main_scope": "Provider refactor267 now merged on main but remains excluded from selected first-alpha artifacts; current-main-only publication workflow means final source reconciliation needs explicit resolution.",
+    "source_decision": "Owner explicitly selected currentmain including272+267 plus focused UI fix for new qualification only. Publication remains unapproved."
+  },
+  "privacy": "No credential files, device codes or account identity copied into evidence. Personal workspace/sign-ins not opened/reset/copied.",
+  "findings": [
+    {
+      "id": "new-article-review-target",
+      "status": "corrected in source; regression and18review tests pass; new-package native reobservation pending",
+      "observation": "New-article review shows previous note title/Saved state and Working Note is unavailable. Canonical candidate/apply/Undo targeted correct new note+links; existing notes unchanged."
+    }
+  ],
+  "optional_or_unrun": [
+    "Second account/sign-out/in-flight credential switch on installed app",
+    "Real policy/quota/absent-Luna denial and network outage",
+    "Provider honoring requested high effort is unknown",
+    "Clean-user ordinary Finder first launch",
+    "Published browser/Gatekeeper and stock HTTPS A\u2192B"
+  ]
+}

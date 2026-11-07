@@ -1,0 +1,46 @@
+{
+  "status": "passed",
+  "new_group_after_native_undo": [
+    {
+      "id": "611e5af1-ecac-44ac-88e8-afe4c10e430c:0",
+      "version": 2,
+      "archived": true,
+      "data": {
+        "Note": {
+          "title": "Harbor consolidated native253",
+          "markdown": "# Harbor consolidated native253\n\n## Current plan \u2014 7 November 2026\n\nThe quay closes at **18:00**. Crane operations stop when wind speeds are **above 12 m/s**. Use **steel plates** instead of timber mats. Vessel M may use the emergency-departure exception **only at pier P8**; **P7 is not covered** by that exception.\n\nThese current requirements are from **Harbor revision 7 November 2026**, which supersedes the crane limit and revises the surface requirement and exception scope in the 1 November plan.\n\n## Superseded history \u2014 1 November 2026\n\nThe original plan stated that crane operations stop above **9 m/s**; this limit was superseded by the 7 November limit of above 12 m/s. It required **timber mats on pier P7**; the later revision replaced timber mats with steel plates. It allowed an emergency-departure exception for **vessel M** without specifying a pier; the 7 November revision narrowed that exception to **P8 only** and explicitly removed **P7** from coverage. These are historical requirements, not the current plan. The quay closing time of **18:00** is retained in the 7 November revision and remains current.\n\n## Sources\n\n- Harbor revision 7 November 2026 \u2014 current plan and explicit supersession.\n- Harbor plan 1 November 2026 \u2014 original requirements retained above as history.",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    },
+    {
+      "id": "611e5af1-ecac-44ac-88e8-afe4c10e430c:1",
+      "version": 2,
+      "archived": true,
+      "data": {
+        "Link": {
+          "from": "611e5af1-ecac-44ac-88e8-afe4c10e430c:0",
+          "to": "83e9b56e-15ee-4286-a87d-68bb4b8a9079:0",
+          "relation": "source"
+        }
+      }
+    },
+    {
+      "id": "611e5af1-ecac-44ac-88e8-afe4c10e430c:2",
+      "version": 2,
+      "archived": true,
+      "data": {
+        "Link": {
+          "from": "611e5af1-ecac-44ac-88e8-afe4c10e430c:0",
+          "to": "82b5577e-dcc7-4831-96a0-94eec19cf74e:0",
+          "relation": "source"
+        }
+      }
+    }
+  ],
+  "original_revision_and_working_unchanged": true,
+  "presentation_finding_remains": true
+}

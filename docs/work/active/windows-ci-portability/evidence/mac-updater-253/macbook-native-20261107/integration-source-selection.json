@@ -1,0 +1,14 @@
+{
+  "owner_choice": "Qualify current main with both changes",
+  "publication_approved": false,
+  "main": "8b07e03510f5955288cc2be945a01d5fcb1afe2f",
+  "bounded_fix": "e61a1cf1",
+  "previous_packages_source": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "conflicts": [
+    "shared task record",
+    "generated overview"
+  ],
+  "resolution": "main root/current non-B track records plus B latest task; regenerate overview. Runtime files merged automatically.",
+  "other_task_objects_equal_main": true,
+  "helper_script_lock_and_workflow_delta_a921_to_main": []
+}

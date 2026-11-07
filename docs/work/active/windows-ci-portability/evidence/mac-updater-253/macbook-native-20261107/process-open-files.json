@@ -1,0 +1,19 @@
+{
+  "pid": 22959,
+  "observed_test_owned_open_files": [
+    "/Users/Shared/BRN-native-functional-253-20261107/install-A/BRN Threads.app/Contents/Resources/bin/brn-desktop",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace/threads.sqlite3-shm",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace/derived/search.sqlite-shm",
+    "/Users/Shared/BRN-native-functional-253-20261107/logs/native-A.log",
+    "/Users/Shared/BRN-native-functional-253-20261107/logs/native-A.log",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace/threads.sqlite3",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace/threads.sqlite3-wal",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace/threads.sqlite3-shm",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace/threads.sqlite3",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace/threads.sqlite3-wal",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace/derived/search.sqlite",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace/derived/search.sqlite-wal",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace/derived/search.sqlite-shm"
+  ],
+  "observed_normal_workspace_or_credential_files": []
+}

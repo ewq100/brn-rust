@@ -1,0 +1,76 @@
+{
+  "observed_at": "2026-11-07T04:45:39.504646+00:00",
+  "backup_path": "/Users/Shared/BRN-native-functional-253-20261107/backups/BRN-backup-113119b8-dd1f-48e1-b6ff-b48d7d7d80c0",
+  "sha256": "218cb6dec7bba0a72167b106d30ee1fa96aba78f53d53fe0431a295d34dcf633",
+  "quick_check": "ok",
+  "native_observations": [
+    "Data screen displayed exact isolated workspace and saved backup folder",
+    "Full backup created success displayed with this path",
+    "Native DOCX import Off displayed120/72L/day table and retained chart, Xberg/AI Off coverage disclosure",
+    "Native owner edit saved v2; unsaved discard restored v2; later save v3 undone through Recent changes to v4",
+    "Native search12cm returned saved article with source text"
+  ],
+  "notes_before_restore": [
+    {
+      "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+      "version": 4,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "Native harbor working note",
+          "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    },
+    {
+      "id": "971c7121-398a-41cc-b21c-6d1b072933e4:1",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "harbor",
+          "markdown": "# Harbor water-saving pilot\n\nDecision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration.\n\n| Site | Before | After |\n| --- | --- | --- |\n| Pier A | 120 L/day | 72 L/day |\n| Pier B | Pending | Pending |\n\nWater use before and after\n\n![120 to 72 litres/day, a 40% reduction](brn-asset://971c7121-398a-41cc-b21c-6d1b072933e4:2)\n\nSame chart for operations handoff\n\n![120 to 72 litres/day, a 40% reduction](brn-asset://971c7121-398a-41cc-b21c-6d1b072933e4:2)\n",
+          "protected": true,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": {
+            "source": "971c7121-398a-41cc-b21c-6d1b072933e4:0",
+            "full_note": true,
+            "gaps": [],
+            "report": {
+              "conversion": {
+                "settings": {
+                  "converter": "xberg",
+                  "ai": false
+                },
+                "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+              },
+              "status": "Unchecked",
+              "issues": []
+            }
+          }
+        }
+      }
+    }
+  ],
+  "settings_before_restore": {
+    "provider": "Copilot",
+    "model": "gpt-6-luna",
+    "effort": "high",
+    "auth_file": null,
+    "credentials_dir": "/Users/Shared/BRN-native-functional-253-20261107/copilot-credentials",
+    "maintenance": true,
+    "review_first": true,
+    "delegation_chosen": true,
+    "backup_directory": "/Users/Shared/BRN-native-functional-253-20261107/backups",
+    "document_conversion": {
+      "converter": "xberg",
+      "ai": false
+    }
+  },
+  "scope": "test-only wrapper, unchanged packaged executable bytes, current-account alternate data directory; not Finder release launch/clean-user acceptance"
+}

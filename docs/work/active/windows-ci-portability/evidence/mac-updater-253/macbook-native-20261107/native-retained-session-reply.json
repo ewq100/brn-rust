@@ -1,0 +1,165 @@
+{
+  "run": {
+    "id": "a14c707e-85a8-43f3-a5ff-96715658218b:0",
+    "version": 2,
+    "archived": false,
+    "data": {
+      "Run": {
+        "instruction": "4588f9f9-4de5-4090-b342-11c0a79f1e34:0",
+        "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+        "provider": "Copilot",
+        "model": "gpt-6-luna",
+        "guide_identity": "brn-threads-guidance-25:a5bfefd8eed86e7fbbccd0e51716cbf23382e29a6f419ba84f1e98a000215a79",
+        "budget": 8,
+        "effort": "high",
+        "loaded_skills": [],
+        "fence": 2,
+        "state": "Completed",
+        "progress": "",
+        "operations": [],
+        "sources": []
+      }
+    }
+  },
+  "messages": {
+    "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+    "chat_archived": false,
+    "messages": [
+      {
+        "id": "8b659c20-c0ba-48f3-a6e3-133d9cfcd3b0:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "owner",
+            "text": "Find the saved article titled \u201cNative harbor working note\u201d, read it with BRN tools, and report the quay closing time and water-level measurement. Cite the saved note. Keep this brief and do not change any notes."
+          }
+        }
+      },
+      {
+        "id": "9f1da619-1c73-4e54-8576-52d4b6758456:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "assistant",
+            "text": "The quay closes at **18:00**, and the water-level measurement is **12 cm**. Source: [Native harbor working note](brn://note/46ff86d6-da76-4a27-9f42-8e0bef21db3e:0), version 4."
+          }
+        }
+      },
+      {
+        "id": "1928cdc1-bad7-4b95-92a8-c655d55311a3:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "owner",
+            "text": "Using that same saved note, repeat the measurement and express the quay closing time in 12-hour format. Do not browse the web or change anything."
+          }
+        }
+      },
+      {
+        "id": "ad6cb803-54fe-4685-a6eb-1f87b4a5b475:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "assistant",
+            "text": "The water-level measurement is **12 cm**, and the quay closes at **6:00 PM**. [Native harbor working note](brn://note/46ff86d6-da76-4a27-9f42-8e0bef21db3e:0), version 4."
+          }
+        }
+      },
+      {
+        "id": "207e8ff1-834a-4e76-b977-927d1cbfc29c:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "owner",
+            "text": "Search the web for the official Rust 1.98.0 release announcement and cite the returned official URL. If web access is disabled for this chat, say that you cannot browse and do not guess. Do not change any saved content."
+          }
+        }
+      },
+      {
+        "id": "21c19710-34b7-49d0-8bf8-75d8f9612ffd:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "assistant",
+            "text": "I can\u2019t browse the web in this chat, so I can\u2019t verify or cite the official Rust 1.98.0 release announcement URL. I won\u2019t guess."
+          }
+        }
+      },
+      {
+        "id": "468db756-fdaf-4a38-a069-153b3e0f8149:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "owner",
+            "text": "Web access is now enabled for this chat. Use the web_search tool to find the official Rust 1.98.0 release announcement. Give one brief answer citing a real returned official source URL. Do not change saved content."
+          }
+        }
+      },
+      {
+        "id": "67decd78-7c35-45ee-8e8b-64a6ca459b5c:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "assistant",
+            "text": "Rust 1.98.0\u2019s announcement is on the [official Rust blog](https://blog.rust-lang.org/2026/08/20/Rust-1.98.0/)."
+          }
+        }
+      },
+      {
+        "id": "e8d2ed3d-39c2-42d7-a5fe-bbbb9ae9be7b:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "owner",
+            "text": "Use web search to find the official SQLite backup API documentation and the official Rust filesystem documentation. Read the two sources and give two brief supported observations. Do not modify BRN content."
+          }
+        }
+      },
+      {
+        "id": "4588f9f9-4de5-4090-b342-11c0a79f1e34:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "owner",
+            "text": "After reopening BRN, use read_note to read \u201cNative harbor working note\u201d. Report its current saved version and whether OWNER-NEWER-253 is present, with a source citation. No web and no writes."
+          }
+        }
+      },
+      {
+        "id": "da3e4c2e-fb92-414a-aabc-60c47c34f2f3:0",
+        "version": 1,
+        "archived": false,
+        "data": {
+          "Message": {
+            "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+            "role": "assistant",
+            "text": "The current saved version is **7**, and **OWNER-NEWER-253 is present**. [Native harbor working note](brn://note/46ff86d6-da76-4a27-9f42-8e0bef21db3e:0), version 7."
+          }
+        }
+      }
+    ],
+    "shown": 11,
+    "cursor": null,
+    "total": null
+  }
+}

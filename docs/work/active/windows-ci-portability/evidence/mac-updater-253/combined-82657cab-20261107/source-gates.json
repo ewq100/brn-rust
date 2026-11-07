@@ -1,0 +1,45 @@
+{
+  "head": "82657cabbf763739c03b0e479c4b343a0fee54e0",
+  "ci_run": 42345378178,
+  "jobs": [
+    {
+      "name": "Native UI build and state (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native UI build and state (macos-15)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Core and CLI (macos-15)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Native retrieval and combined build (macos-15)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Core and CLI (ubuntu-24.04)",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Documentation and tooling",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "Core and CLI (windows-2025)",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "code_receipt": "https://github.com/ewq100/brn-rust/pull/268#issuecomment-6703169631",
+  "security_receipt": "https://github.com/ewq100/brn-rust/pull/268#issuecomment-6703239421",
+  "review_threads": 0,
+  "full_private_security_report_inspected": false
+}

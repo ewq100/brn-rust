@@ -1,0 +1,218 @@
+{
+  "new_note": {
+    "contract": 3,
+    "command": "read",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "id": "611e5af1-ecac-44ac-88e8-afe4c10e430c:0",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "Harbor consolidated native253",
+          "markdown": "# Harbor consolidated native253\n\n## Current plan \u2014 7 November 2026\n\nThe quay closes at **18:00**. Crane operations stop when wind speeds are **above 12 m/s**. Use **steel plates** instead of timber mats. Vessel M may use the emergency-departure exception **only at pier P8**; **P7 is not covered** by that exception.\n\nThese current requirements are from **Harbor revision 7 November 2026**, which supersedes the crane limit and revises the surface requirement and exception scope in the 1 November plan.\n\n## Superseded history \u2014 1 November 2026\n\nThe original plan stated that crane operations stop above **9 m/s**; this limit was superseded by the 7 November limit of above 12 m/s. It required **timber mats on pier P7**; the later revision replaced timber mats with steel plates. It allowed an emergency-departure exception for **vessel M** without specifying a pier; the 7 November revision narrowed that exception to **P8 only** and explicitly removed **P7** from coverage. These are historical requirements, not the current plan. The quay closing time of **18:00** is retained in the 7 November revision and remains current.\n\n## Sources\n\n- Harbor revision 7 November 2026 \u2014 current plan and explicit supersession.\n- Harbor plan 1 November 2026 \u2014 original requirements retained above as history.",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "new_link_1": {
+    "contract": 3,
+    "command": "read",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "id": "611e5af1-ecac-44ac-88e8-afe4c10e430c:1",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Link": {
+          "from": "611e5af1-ecac-44ac-88e8-afe4c10e430c:0",
+          "to": "83e9b56e-15ee-4286-a87d-68bb4b8a9079:0",
+          "relation": "source"
+        }
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "new_link_2": {
+    "contract": 3,
+    "command": "read",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "id": "611e5af1-ecac-44ac-88e8-afe4c10e430c:2",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Link": {
+          "from": "611e5af1-ecac-44ac-88e8-afe4c10e430c:0",
+          "to": "82b5577e-dcc7-4831-96a0-94eec19cf74e:0",
+          "relation": "source"
+        }
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "original": {
+    "contract": 3,
+    "command": "read",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "id": "82b5577e-dcc7-4831-96a0-94eec19cf74e:0",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "Harbor plan 1 November 2026",
+          "markdown": "# Harbor plan, 1 November 2026\n\nThe quay closes at 18:00. Crane operations stop at wind speeds above 9 m/s. Use timber mats on pier P7. The exception is vessel M during an emergency departure. This is the original plan; retain it as history when superseded.\n",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "revision": {
+    "contract": 3,
+    "command": "read",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "id": "83e9b56e-15ee-4286-a87d-68bb4b8a9079:0",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "Harbor revision 7 November 2026",
+          "markdown": "# Harbor revision, 7 November 2026\n\nThis revision supersedes the 1 November crane limit: stop above 12 m/s, replacing 9 m/s. Use steel plates instead of timber mats. The vessel M emergency-departure exception applies only at pier P8; P7 is no longer covered. The quay still closes at 18:00. Keep the original quantities and requirements explicitly as superseded history with both source references.\n",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "working": {
+    "contract": 3,
+    "command": "read",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": {
+      "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+      "version": 7,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "Native harbor working note",
+          "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.\n\nOWNER-NEWER-253: Owner saved this after the proposal was prepared.",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    },
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  }
+}

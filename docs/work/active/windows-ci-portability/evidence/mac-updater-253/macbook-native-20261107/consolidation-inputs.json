@@ -1,0 +1,35 @@
+{
+  "setup": "two synthetic source notes seeded through checked CLI for subsequent native consolidation; not a native creation claim",
+  "notes": [
+    {
+      "id": "82b5577e-dcc7-4831-96a0-94eec19cf74e:0",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "Harbor plan 1 November 2026",
+          "markdown": "# Harbor plan, 1 November 2026\n\nThe quay closes at 18:00. Crane operations stop at wind speeds above 9 m/s. Use timber mats on pier P7. The exception is vessel M during an emergency departure. This is the original plan; retain it as history when superseded.\n",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    },
+    {
+      "id": "83e9b56e-15ee-4286-a87d-68bb4b8a9079:0",
+      "version": 1,
+      "archived": false,
+      "data": {
+        "Note": {
+          "title": "Harbor revision 7 November 2026",
+          "markdown": "# Harbor revision, 7 November 2026\n\nThis revision supersedes the 1 November crane limit: stop above 12 m/s, replacing 9 m/s. Use steel plates instead of timber mats. The vessel M emergency-departure exception applies only at pier P8; P7 is no longer covered. The quay still closes at 18:00. Keep the original quantities and requirements explicitly as superseded history with both source references.\n",
+          "protected": false,
+          "confirmed": false,
+          "superseded_by": null,
+          "import": null
+        }
+      }
+    }
+  ]
+}

@@ -198,6 +198,11 @@ impl ThreadsUi {
     /// proposal"). During review the Note keeps the note's title.
     pub(super) fn tile_title(&self, kind: TileKind) -> (String, String) {
         let named = |title: String| (title.clone(), format!("{}: {title}", kind.label()));
+        if kind == TileKind::Note
+            && let Some(note) = self.review_target_without_open_note()
+        {
+            return named(one_line(&note.title));
+        }
         match kind {
             // Imports and Tasks are the Inbox's other local views.
             TileKind::Actions | TileKind::Imports => (
@@ -227,6 +232,24 @@ impl ThreadsUi {
             }),
             kind => (kind.label().into(), kind.label().into()),
         }
+    }
+    /// A proposed creation is not the saved editor still retained behind it.
+    /// Do not label that editor, or offer its actions, as the review's target.
+    fn review_target_without_open_note(&self) -> Option<&Note> {
+        let review = self.writing.review.as_ref()?;
+        let id = review.note.as_deref()?;
+        if self.open_note_id() == Some(id) {
+            return None;
+        }
+        review.candidate.request.writes.iter().find_map(|write| {
+            if write.id == id
+                && let RecordData::Note(note) = &write.data
+            {
+                Some(note)
+            } else {
+                None
+            }
+        })
     }
     /// A `narrow` header leaves Maximize to the ⋯ menu's Panel section, a
     /// double-click and ⌘⇧↵, so the title keeps room to read.
@@ -1130,6 +1153,7 @@ impl ThreadsUi {
             out.extend(self.save_status(cx));
         }
         match primary {
+            TileKind::Note if self.review_target_without_open_note().is_some() => {}
             TileKind::Note => {
                 out.extend(self.save_status(cx));
                 if let Some(section) = self.note_menu_section(cx) {

@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-07T05:38:36.807435+00:00",
-    "goal": "Complete issue256 evidence-fix salvage and bounded product token hill-climb.",
-    "owner_attention": "Salvage PR273 reconciles merged shared-provider PR267. Current-head verification and normal merge remain before old-PR closeout and live experiment. B release artifacts remain separate; product clock unstarted.",
+    "observed_at": "2026-11-07T07:19:25.360738+00:00",
+    "goal": "Qualify the owner-selected combined current-main Mac alpha with272,267and the focused review-target fix, then complete approved release/native-update acceptance.",
+    "owner_attention": "B native session still waits on owner unlock;82657qualified artifacts unchanged.29af383bcode/security completed clean,0threads; CI could not start while newer-main shared-record conflict existed. B reconciles mainBab8salvage, preserving all other track objects, and refreshes integrated-head CI/reviews. E reports measurement batches finished06:54UTC/no current local reservation;274 remains separate. No release/publication approval.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -241,16 +241,18 @@
       {
         "id": "mac-updater-253",
         "title": "Implement and qualify the versioned Mac updater",
-        "owner": "Agent B",
+        "owner": "Agent B (MacBook continuation)",
         "state": "active",
-        "activity": "Resumed normal integration of PR258 with main6897fe56 after Rig259, Copilot261 and development-speed262 merged. Resolving only task/status routing conflicts while preserving all updater source, static Linux fixture repair, raw evidence and other tasks. Prior seven green checks cover an older integration base.",
-        "observed_at": "2026-11-06T21:02:54.795698+02:00",
+        "activity": "Screen still locked, so normal quit/reopen/closure remains pending.29af383bcode/security completed clean with0threads, but no PR CI run because mainBab8shared-record conflicts. Reconcile mainBab8salvage normally; runtime files auto-merge and only shared record/overview need resolution. Preserve82657installables/active app/source-bound native evidence. E measurement batches completed06:54UTC and local reservation released; PR274 not adopted.",
+        "observed_at": "2026-11-07T07:19:25.360738+00:00",
         "origin": "observed",
-        "next_action": "Review refreshed combination, run applicable checks, request final-head Codex code/security review and normal merge under standing owner instruction; verify resulting main. Coordinate with A before heavy builds and select final package only after response-limit fixes land. Native clean-profile session and approved published stock HTTPS pair remain separate gates.",
+        "next_action": "Verify and push normal Bab8 reconciliation, refresh current-head CI/code/security; retain explicit source-delta scope (default usage/trace reporting plus capability-gated judge/evidence tooling). After owner unlock, finish normal quit/reopen/closure of existing82657native session, then clean-user Finder and approved-release steps. No runtime artifact relabel/rebuild or publication approval inferred.",
         "depends_on": [],
         "resource_waits": [
-          "Approved published command-enabled A/B pair unavailable; preview.1/.2 receipts/source approval verified but neither includes updater.",
-          "Mac mini last observed CGSSessionScreenIsLocked=true; native interaction/login/Gatekeeper pending."
+          "MacBook CGSSessionScreenIsLocked=Yes still blocks native normal quit/reopen/closure; task-owned app remains idle/running. Existing owner unlock request pending.",
+          "E reports measurement batches finished06:54UTC; no local measurement/build reservation now. Coordinate any new actual overlap; PR274 product candidate remains separate.",
+          "Clean-user ordinary Finder still needs disposable standard account/sign-in, short name/readiness and ordinary Gatekeeper/Copilot participation.",
+          "Explicit release approval and actual approved published A/B still required. Integrated-head checks and source-delta disposition precede any publication decision."
         ],
         "evidence": [
           "https://github.com/ewq100/brn-rust/issues/253",
@@ -259,14 +261,33 @@
           "docs/work/active/windows-ci-portability/evidence/mac-updater-253/tooling-tests.log",
           "https://github.com/ewq100/brn-rust/pull/258",
           "https://github.com/ewq100/brn-rust/actions/runs/42218718106",
-          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/published-preparation.json"
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/published-preparation.json",
+          "https://github.com/ewq100/brn-rust/pull/264",
+          "https://github.com/ewq100/brn-rust/actions/runs/42279604581",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/release-approval/README.md",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/integration-20261106/README.md",
+          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6694348350",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/alpha-a921e325/README.md",
+          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6696862621",
+          "https://github.com/ewq100/brn-rust/pull/268",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-20261107/README.md",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-20261107/native-session.md",
+          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6701756635",
+          "https://github.com/ewq100/brn-rust/actions/runs/42302755459",
+          "https://github.com/ewq100/brn-rust/pull/268#issuecomment-6697165573",
+          "https://github.com/ewq100/brn-rust/pull/268#issuecomment-6697213944",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-20261107/cli-build-and-smoke.json",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-native-20261107/isolation.json",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-native-20261107/functional-results.json",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/combined-82657cab-20261107/README.md",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/reconcile-bab8-20261107/README.md"
         ],
         "gates": {
-          "implementation": "Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.",
-          "checks": "Original tooling corrected:353 total=342 passed+11 skipped. Resumed:360 total=349 passed+11 skipped; intake crate11 passed/1 existing ignored and all-target Clippy passed. Linux baseline/submitted identical code both reproduced ETXTBSY with concurrent forks; static fixture40 plain+400 stressed complete loops passed. Real local signed A\u2192B rerun preserved synthetic files/state/backup. Production build/helper evidence retained unchanged; headless/local transport is not stock published HTTPS or native acceptance. OUTSTANDING: actual approved preview.1/.2 metadata/digests/source-approved receipts verified; preparation blocked because neither includes updater. New preparation plus guarded --stock-transport witness ready for an authority-approved published command-enabled A/B pair. No ZIP/app/updater executed from those legacy releases.",
-          "integration": "Pending refreshed combination: normal merge main6897fe56 into PR258; prior7d2436ee checks tested older base2ebcf4c7. Current standing owner instruction authorizes normal merge after applicable checks/review; native/release acceptance separate.",
-          "native": "Pending: screen remains locked. Local real-package/headless evidence is not native acceptance, clean-Mac Gatekeeper acceptance or a published-release transport witness.",
-          "owner_acceptance": "Pending Agent A selected runtime/Copilot candidate, native install/update/reopen and required Copilot journeys, then owner use before invited distribution."
+          "implementation": "Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5. Bounded new-article review-target correction implemented; exact red-before/green-after native-state test and18reviewtests pass.",
+          "checks": "Refreshed combination:349passed+11skipped=360local tooling,fmt/syntax/overview/links clean. All7 hosted PR lanes pass. Current Codex code clean; separate automated security receipt explicitly reports no issues on0438bd60. Full-detail report account login unavailable/not inspected; additional independent full-task security review clear; workflow does not itself grant a fallback waiver. Prior source-bound local transport-substituted A/B and Linux ETXTBSY evidence retained. All4 required resulting-main contexts passed in42279604581, including25 Mac packaging/updater cases and the original Ubuntu fixture test. All3 optional Windows lanes fail in unchanged composer/skills paths, retained visibly. Final selecteda921e325: all4 required hosted contexts pass in42294766975;32local packaging/updater/preparation cases pass; relocated helpers8formats/16imports and local real-package A\u2192B/full-restore pass. Original failed verifier assumptions/path failure retained and diagnosed; no production repair or skipped case. Independent approval review clear onac5deeef; archival-verifier P3 documentation fixed97199fe2 and independently rechecked with31 checksums passing. Final docs/currentmain machine clarification follows; no new runtime changes. MacBook refreshed checkpoint94c11669: all7proposal lanes pass in42302755459; current code/security receipts completed/no findings; zero review threads. Development native preflight passes. These reviews/checks apply to94c11669, not later documentation commits. MacBook continuation preparation:16overview tests,741Markdown files/3705links at last scan, generated overview/whitespace and27historical checksums pass;5other task objects preserved. New exacta921 CLI built and synthetic backup/restore smoke passed, with source/binary receipt. Final documentation scan is recorded in preparation-checks.json. Continuationb65d3dd4 all7CI pass in42335708965 and completed clean current code/security receipts, zero review threads, verified before current staged-native work. New MacBook rebuild desktop+bothhelpers+package/signature and relocated helper8formats/16imports qualification pass. Native-created backup quick_check and restored records/notes/history/settings/projects/threads exact comparisons pass. Local update qualifier exit1 correctly refused running BRN; qualification remains incomplete, original failure log retained. Current2e7bfce3 BRN CI42340527801 completed success; code6702537631 and security6702573318 report no findings on that head. New native evidence/target correction needs final-head checks/review. Local substituted MacBook update rerun passed after normal closure, prior refusal retained. New correction full native-state451pass/1existingignore at2threads/canonicalTMPDIR. First full attempt443pass/8fail/1ignore; canonical-temp parallel450pass/1workerfail/1ignore; isolatedworkerpassed. Preserve all attempts; no CI/assertion/deadline changes or baseline reliability claim. Combined82657cab now all7completed CI jobs pass in42345378178, code6703169631/security6703239421 completed no findings,0threads; private full report uninspected. New locked/offline desktop/CLI, strict package platform/signatures, unchanged helper binding, relocated8formats/16imports, substituted update/headless B/restore and CLI6category backup restore pass. First notices preparation lacked generated source association, original failure retained; standard offline regeneration byte-identical before fresh success. Later docs head needs applicable checks/review. Head29af383bcode6703416616/security6703456264 completed clean,0threads. No PR workflow run existed because newer-main merge conflicts; do not label this CI passed or pending execution. Normal Bab8reconciliation now requires fresh integrated-head CI/reviews.",
+          "integration": "SATISFIED updater source integration: normal merge28051188, tree identical to reviewed0438bd60, all7PR lanes pass in42276377509. All4 required resulting-main42279604581 contexts pass; overall run fails only3 inherited optional Windows lanes; no publication. A264/265 handoff resolved; a921e325 is selected and normally reconciled into acceptance branch. Publication proposal stays draft pending explicit owner approval; actual approved main manifest remains legacy until that approval/merge. Currentmain c388da26 (C266 docs/evidence only) normally merged into acceptance branch; C task objects preserved exactly. Qualified runtime staysa921e325; runtime/Cargo/CI tree unchanged. Draft release-approval PR268 opened; no merge/publication. Proposal94c11669 own CI7/7 and code/security receipts now completed/no findings, freshly inspected on MacBook. PR stays draft/unmerged pending explicit owner release approval; later continuation documentation needs applicable renewed checks/review. Main has since advanced75f37221 with accepted auth-race repair272. Currenta921native artifacts remain source-bound historical/functional evidence; final release source and affected qualification must reconcile that fix before publication. No automatic merge/publication. Currentmain8b07e035 contains267 despite selected first-alpha exclusion. No silent adoption/revert or publication-policy change; source decision remains open. Owner subsequently selected currentmain272+267+targetfix for new qualification only; source conflict resolved for testing, not publication. Normal main8b07e035 merge now resolves only shared task record/generated overview; all5non-B task objects exactly retained from main. New source-bound package qualification pending. MainBab8salvage is now normally reconciled for PR preparation; all non-B task objects exactly from main and B latest task preserved. Installed/package qualification remains82657, not silently moved. Default-build delta inspected: complete-usage reporting and safe read_message trace metadata; extra judge is capability-spike gated; no provider/model/tool/write/launcher change inferred. Current combined head checks still required; no274adoption/publication.",
+          "native": "PARTIAL PASSED combined82657alternate-directory new-source checks: retained separate Copilot account/settings, source-linked live consolidation exact review with correct new target/controls, Apply/3recordUndo, fresh referenced writing Applyv8/Undov9 exactv7data, retained stalev6\u2192v7 refusal/Discard, WebOff0/WebOn12actual sources/citation/Stop-no-late, LunaOn protected table/chart/Asset. Existing notes/projects/settings/recovery preserved at startup. Earliera921normalquit/reopen unsaved draft and native backup/restore remain separately scoped; combined CLI6category backup/restore passed. Combined normalquit/reopen/finalclosure and nativeB pending locked screen. Finder/clean-user/published browser-Gatekeeper/stockHTTPS/owner acceptance pending. Real second-account/in-flight switch/denials/network outage, enabled helper/context-summary live paths unobserved; requested high effective unknown.",
+          "owner_acceptance": "PENDING: owner native use before invited distribution. Local alpha.1/build3 and alpha.2/build4 are proposed-version candidates; approved published A/B and stock HTTPS remain outstanding. Release-manifest proposal is draft, no merge/publication authority inferred."
         },
         "attempts": [
           {
@@ -310,10 +331,33 @@
               "scripts/prepare-published-macos-update.py",
               "docs/work/active/windows-ci-portability/evidence/mac-updater-253/tooling-tests-resume.log"
             ]
+          },
+          {
+            "outcome": "PR258 conflicted after Rig259,Copilot261,C262. Earlier7green checks covered older base.",
+            "change": "Normal merge6897fe56 into0438bd60; resolve only status/task routing, preserve all206 main paths/48 prior updater paths/4 prior task objects/39checksums. Fresh all7PR CI and independent integration/security passed; normal merge28051188 exact qualified tree.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/42276377509",
+              "https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693488177",
+              "https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693227873"
+            ]
+          },
+          {
+            "outcome": "MacBook strict batch SSH to existing brn-rust alias exited255: no trusted ED25519 host key for evos-mac-mini.local; originals absent locally.",
+            "change": "No bypass or credential copy. Owner given one complete Shared folder-copy step; continue light preparation and missing pinned CLI build while awaiting artifacts/profile.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-20261107/takeover.json"
+            ]
+          },
+          {
+            "outcome": "Native consolidation review displayed previous working note header/Savedv6 and Working Note is unavailable although proposed3-record group targets new note+source links. Native Apply and Undo preserved both sources and newerworkingv7.",
+            "change": "Keep canonical mutation pass distinct from failed review presentation. Add focused red-capable native-state regression before bounded correction; no original artifact/evidence relabel.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-native-20261107/consolidation-before-apply.json"
+            ]
           }
         ],
         "authority": {
-          "source": "Current owner: continue Agent B PR258 integration through normal merge once applicable gates pass; final package/update/native acceptance in253; coordinate A response-limit fixes and Copilot acceptance.",
+          "source": "Current owner: continue all safe native functional testing in current macOS account with supported separate data directory and separate configured Copilot credentials; read253clarification. Preserve personal workspace/sign-ins. Keep Finder first-launch/clean-user pending; explain minimum owner action when remaining. Existing authorization permits new pinned-source packages if originals unavailable; no publication approval.",
           "limits": "Synthetic disposable installations/data only. No owner-store/credential copying, forced quit, security bypass or publication without existing release-manifest approval. Preserve A/C work."
         },
         "resources": {
@@ -324,8 +368,8 @@
         "external_dependencies": [
           {
             "issue": "https://github.com/ewq100/brn-rust/issues/252",
-            "condition": "Final candidate includes A response-limit hardening and selected Copilot acceptance handoff; Rig259/Copilot261 merged, no new bundled CLI/SDK required",
-            "satisfied": false
+            "condition": "A source/build handoff resolved:264/265 merged, selecteda921e325 built and qualified. Copilot native journeys remain in the separate native gate; no extra CLI/SDK binary.",
+            "satisfied": true
           },
           {
             "issue": "https://github.com/ewq100/brn-rust/issues/253",

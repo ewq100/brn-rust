@@ -1,0 +1,15 @@
+{
+  "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+  "version": 8,
+  "archived": false,
+  "data": {
+    "Note": {
+      "title": "Native harbor working note",
+      "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.\n\nOWNER-NEWER-253: Owner saved this after the proposal was prepared.\n\nCOMBINED-WRITING-82657cab: Pier A water use fell from 120 L/day to 72 L/day. Source: [harbor](brn://note/971c7121-398a-41cc-b21c-6d1b072933e4:1).",
+      "protected": false,
+      "confirmed": false,
+      "superseded_by": null,
+      "import": null
+    }
+  }
+}

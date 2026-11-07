@@ -1,0 +1,90 @@
+[
+  {
+    "url": "https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693105303",
+    "body": "<!-- codex-review-receipt:v1 -->\n\nCodex Review: Didn't find any major issues. Already looking forward to the next diff.\n\n**Reviewed commit:** `0438bd603a`\n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](https://chatgpt.com/codex/cloud/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "user": {
+      "login": "chatgpt-codex-connector[bot]",
+      "name": "chatgpt-codex-connector[bot]",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/in/1144995?v=4",
+      "id": 199175422
+    },
+    "id": 6693105303,
+    "pull_request_review_id": null,
+    "in_reply_to_id": null,
+    "created_at": null,
+    "updated_at": null,
+    "review": null,
+    "side": null,
+    "line": null,
+    "start_line": null,
+    "path": null,
+    "body_html": "\n<p dir=\"auto\">Codex Review: Didn't find any major issues. Already looking forward to the next diff.</p>\n<p dir=\"auto\"><strong>Reviewed commit:</strong> <code class=\"notranslate\">0438bd603a</code></p>\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br>\n<p dir=\"auto\"><a href=\"https://chatgpt.com/codex/cloud/settings/general\" rel=\"nofollow\">Your team has set up Codex to review pull requests in this repo</a>. Reviews are triggered when you</p>\n<ul dir=\"auto\">\n<li>Open a pull request for review</li>\n<li>Mark a draft as ready</li>\n<li>Comment \"<a class=\"user-mention notranslate\" data-hovercard-type=\"user\" data-hovercard-url=\"/users/codex/hovercard\" data-octo-click=\"hovercard-link-click\" data-octo-dimensions=\"link_type:self\" href=\"https://github.com/codex\">@codex</a> review\".</li>\n</ul>\n<p dir=\"auto\">If Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.</p>\n<p dir=\"auto\">Codex can also answer questions or update the PR. Try commenting \"<a class=\"user-mention notranslate\" data-hovercard-type=\"user\" data-hovercard-url=\"/users/codex/hovercard\" data-octo-click=\"hovercard-link-click\" data-octo-dimensions=\"link_type:self\" href=\"https://github.com/codex\">@codex</a> address that feedback\".</p>\n</details>"
+  },
+  {
+    "url": "https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693143486",
+    "body": "Independent review checkpoint for0438bd60: no actionable code/security findings. Verified206 nonshared main changes preserve blob/mode/deletion identity (Rig259/Copilot261/C262);48 prior-updater paths identical; main's4 task objects/baseline/authority unchanged;39 evidence hashes match. Full task delta reviewed: updater validation/recovery/locking, launcher, package receipts, Mac CI, Linux fixture, stock preparation/qualifier, conflict docs. Light checks passed:7preparation,overview,733Markdownfiles/3654links,syntax/diff. No heavy/local runtime/provider/native actions.\n\nCurrent Codex code receipt: https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693105303 . Security summary binds the same0438bd60 and is running. Full browser report access reaches account login; no login available in that isolated browser. This is a concrete report-access limit. Workflow permits explicitly recorded independent-security fallback if report remains unavailable; no automated clean report is inferred from empty threads. Branch protection endpoint reports unprotected/no rulesets, but all four repository-policy required CI contexts remain mandatory. Native/release gaps are separate from updater source integration.",
+    "user": {
+      "login": "ewq100",
+      "name": "ewq100",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/272537086?v=4",
+      "id": 272537086
+    },
+    "id": 6693143486,
+    "pull_request_review_id": null,
+    "in_reply_to_id": null,
+    "created_at": null,
+    "updated_at": null,
+    "review": null,
+    "side": null,
+    "line": null,
+    "start_line": null,
+    "path": null,
+    "body_html": "<p dir=\"auto\">Independent review checkpoint for0438bd60: no actionable code/security findings. Verified206 nonshared main changes preserve blob/mode/deletion identity (Rig259/Copilot261/C262);48 prior-updater paths identical; main's4 task objects/baseline/authority unchanged;39 evidence hashes match. Full task delta reviewed: updater validation/recovery/locking, launcher, package receipts, Mac CI, Linux fixture, stock preparation/qualifier, conflict docs. Light checks passed:7preparation,overview,733Markdownfiles/3654links,syntax/diff. No heavy/local runtime/provider/native actions.</p>\n<p dir=\"auto\">Current Codex code receipt: <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"6242396457\" data-permission-text=\"Title is private\" data-url=\"https://github.com/ewq100/brn-rust/issues/258\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/ewq100/brn-rust/pull/258/hovercard?comment_id=6693105303&amp;comment_type=issue_comment\" href=\"https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693105303\">#258 (comment)</a> . Security summary binds the same0438bd60 and is running. Full browser report access reaches account login; no login available in that isolated browser. This is a concrete report-access limit. Workflow permits explicitly recorded independent-security fallback if report remains unavailable; no automated clean report is inferred from empty threads. Branch protection endpoint reports unprotected/no rulesets, but all four repository-policy required CI contexts remain mandatory. Native/release gaps are separate from updater source integration.</p>"
+  },
+  {
+    "url": "https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693198126",
+    "body": "<!-- codex-review-receipt:v1 -->\n\n### \ud83d\udee1\ufe0f Codex Security Review \u00b7 _Automatically triggered_\n\nSecurity review completed. No security issues were found in this pull request.\n\n**Reviewed commit:** `0438bd603a`\n\n[View security finding report](https://chatgpt.com/codex/cloud/tasks/task_e_6aee24c84638832e97398cb4d7c816e0)\n\n_Only the user who started this review can view the report in Codex._\n\n<details> <summary>\u2139\ufe0f About Codex security reviews in GitHub</summary>\n<br/>\n\nThis is an experimental Codex feature. Security reviews are triggered when:\n- You comment \"@codex security review\"\n- A regular code review gets triggered (for example, \"@codex review\" or when a PR is opened), and you\u2019re opted in so security review runs alongside code review\n\nOnce complete, Codex will leave suggestions, or a comment if no findings are found.\n\n\n</details>",
+    "user": {
+      "login": "chatgpt-codex-connector[bot]",
+      "name": "chatgpt-codex-connector[bot]",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/in/1144995?v=4",
+      "id": 199175422
+    },
+    "id": 6693198126,
+    "pull_request_review_id": null,
+    "in_reply_to_id": null,
+    "created_at": null,
+    "updated_at": null,
+    "review": null,
+    "side": null,
+    "line": null,
+    "start_line": null,
+    "path": null,
+    "body_html": "\n<h3 dir=\"auto\">\ud83d\udee1\ufe0f Codex Security Review \u00b7 <em>Automatically triggered</em></h3>\n<p dir=\"auto\">Security review completed. No security issues were found in this pull request.</p>\n<p dir=\"auto\"><strong>Reviewed commit:</strong> <code class=\"notranslate\">0438bd603a</code></p>\n<p dir=\"auto\"><a href=\"https://chatgpt.com/codex/cloud/tasks/task_e_6aee24c84638832e97398cb4d7c816e0\" rel=\"nofollow\">View security finding report</a></p>\n<p dir=\"auto\"><em>Only the user who started this review can view the report in Codex.</em></p>\n<details> <summary>\u2139\ufe0f About Codex security reviews in GitHub</summary>\n<br>\n<p dir=\"auto\">This is an experimental Codex feature. Security reviews are triggered when:</p>\n<ul dir=\"auto\">\n<li>You comment \"<a class=\"user-mention notranslate\" data-hovercard-type=\"user\" data-hovercard-url=\"/users/codex/hovercard\" data-octo-click=\"hovercard-link-click\" data-octo-dimensions=\"link_type:self\" href=\"https://github.com/codex\">@codex</a> security review\"</li>\n<li>A regular code review gets triggered (for example, \"<a class=\"user-mention notranslate\" data-hovercard-type=\"user\" data-hovercard-url=\"/users/codex/hovercard\" data-octo-click=\"hovercard-link-click\" data-octo-dimensions=\"link_type:self\" href=\"https://github.com/codex\">@codex</a> review\" or when a PR is opened), and you\u2019re opted in so security review runs alongside code review</li>\n</ul>\n<p dir=\"auto\">Once complete, Codex will leave suggestions, or a comment if no findings are found.</p>\n</details>"
+  },
+  {
+    "url": "https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693813777",
+    "body": "Security wording clarification: workflow step6 says to record any existing authorized fallback; it does not itself grant a waiver. My earlier description of the workflow as granting an independent-security fallback was too broad. There is now direct, separate automated evidence on the actual final head0438bd603a86b48d4956195b89aea0fb54e648d8: https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693198126 explicitly says the security review completed with no issues. The same-head code review is also complete. The independent full-task security review is additional clear evidence. The private full-detail report could not be inspected because the browser requires account login; that access limit remains explicit. No missing result, null summary field or waiver is being interpreted as a clean report.",
+    "user": {
+      "login": "ewq100",
+      "name": "ewq100",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/272537086?v=4",
+      "id": 272537086
+    },
+    "id": 6693813777,
+    "pull_request_review_id": null,
+    "in_reply_to_id": null,
+    "created_at": null,
+    "updated_at": null,
+    "review": null,
+    "side": null,
+    "line": null,
+    "start_line": null,
+    "path": null,
+    "body_html": "<p dir=\"auto\">Security wording clarification: workflow step6 says to record any existing authorized fallback; it does not itself grant a waiver. My earlier description of the workflow as granting an independent-security fallback was too broad. There is now direct, separate automated evidence on the actual final head0438bd603a86b48d4956195b89aea0fb54e648d8: <a class=\"issue-link js-issue-link\" data-error-text=\"Failed to load title\" data-id=\"6242396457\" data-permission-text=\"Title is private\" data-url=\"https://github.com/ewq100/brn-rust/issues/258\" data-hovercard-type=\"pull_request\" data-hovercard-url=\"/ewq100/brn-rust/pull/258/hovercard?comment_id=6693198126&amp;comment_type=issue_comment\" href=\"https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693198126\">#258 (comment)</a> explicitly says the security review completed with no issues. The same-head code review is also complete. The independent full-task security review is additional clear evidence. The private full-detail report could not be inspected because the browser requires account login; that access limit remains explicit. No missing result, null summary field or waiver is being interpreted as a clean report.</p>"
+  }
+]

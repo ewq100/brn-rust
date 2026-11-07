@@ -1,0 +1,26 @@
+{
+  "before_after_equal": {
+    "notes": true,
+    "projects": true,
+    "threads": true,
+    "history": true,
+    "settings": true
+  },
+  "recovery": [
+    {
+      "id": "ffe067e1-2b07-4c4b-b487-cd30c6b9714d",
+      "note": "8837f71c-a363-479e-9629-ac3b73ea9615:0",
+      "base_version": 1,
+      "generation": 1,
+      "markdown": "# Native reopen draft 253\n\nUNSAVED-REOPEN-253: synthetic recovery text \u00f5 \u00fc, 12 cm.",
+      "closed": false,
+      "holder": "desktop"
+    }
+  ],
+  "native_unsaved_text_restored": true,
+  "ui_selected_provider": "copilot",
+  "ui_selected_model": "gpt-6-luna",
+  "requested_effort": "high",
+  "quit_method": "normal Workspace menu Quit BRN; process inspection then found no brn-desktop; no forced termination",
+  "local_update_qualifier": "passed after normal closure; substituted transport; independent disposable workspace, no live credential"
+}

@@ -1,0 +1,190 @@
+{
+  "selected_source": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "scope": "Real selected release CLI and relocated signed helpers; full synthetic backup/restore, no native/provider session",
+  "checks": {
+    "notes": true,
+    "records": true,
+    "history": true,
+    "settings": true,
+    "projects": true,
+    "threads": true,
+    "recovery_draft_bytes_and_metadata_preserved_owner_held": true,
+    "original_caller_token_refused_without_draft_mutation": true
+  },
+  "asset_count": 1,
+  "backup_quick_check": "ok",
+  "restore_result": {
+    "restored": "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T/brn-full-restore-a921-zfbd1dsw/restored",
+    "workspace_purpose": "owner"
+  },
+  "recovery_before": [
+    {
+      "id": "75dfca8d-9c25-4843-a1ad-3285627d97a7",
+      "note": "9460ad1d-9cb1-412e-a134-173d73637fb1:0",
+      "base_version": 1,
+      "generation": 1,
+      "markdown": "Unsaved synthetic draft",
+      "closed": false,
+      "holder": "caller"
+    }
+  ],
+  "recovery_after": [
+    {
+      "id": "75dfca8d-9c25-4843-a1ad-3285627d97a7",
+      "note": "9460ad1d-9cb1-412e-a134-173d73637fb1:0",
+      "base_version": 1,
+      "generation": 1,
+      "markdown": "Unsaved synthetic draft",
+      "closed": false,
+      "holder": "desktop"
+    }
+  ],
+  "expected_authority_change": "restore.rs deletes original edit-session token bindings; draft remains owner-held",
+  "snapshot_sha256": {
+    "notes": "ec9c73c9181bed46993a9b98f0c9089642fb171376786614e9872a9e0930ba41",
+    "records": "83cd86f463f91394303727ffbd6df6eace43151dc24f08e0def3131895e95096",
+    "history": "d664349d29e1d8e551ddfd1ef796412b7e860844f30c14c00bff0df90b23aa8d",
+    "settings": "9e8ba48295d9b959cc985c7a833e3b7d443f3068f53025f6287ce30243a5b9ae",
+    "recovery": "63277b104a03037ffb7f184a818ebc9b9ca25dc46271668e6805b6ba37d27f18",
+    "projects": "e0e7116e607de8c7079c2e2345c12cef3eedfa42d31ea7f8b6c9803835b07008",
+    "threads": "5fff7ee3b0009d6d9a385d0ef16a80b32a21b13bd5737aa23aff99e128715616"
+  },
+  "commands": [
+    [
+      "init",
+      "--purpose",
+      "test"
+    ],
+    [
+      "note-create",
+      "--title",
+      "Full restore synthetic note",
+      "--text",
+      "Harbor level: 12 cm. UTF-8 \u00f5 \u00fc."
+    ],
+    [
+      "project-create",
+      "--title",
+      "Full restore synthetic project"
+    ],
+    [
+      "project-link",
+      "--project",
+      "078fd334-e7f8-4a40-ad76-255c772529e8:0",
+      "--note",
+      "9460ad1d-9cb1-412e-a134-173d73637fb1:0"
+    ],
+    [
+      "thread-start",
+      "--title",
+      "Full restore synthetic chat"
+    ],
+    [
+      "queue",
+      "--thread",
+      "601a77da-0ef4-41b0-b960-ed6dcad84126:0",
+      "--text",
+      "Synthetic queued text, never dispatched"
+    ],
+    [
+      "configure",
+      "--provider",
+      "Copilot",
+      "--model",
+      "synthetic-unavailable-model",
+      "--effort",
+      "low"
+    ],
+    [
+      "delegation",
+      "--choice",
+      "review-first"
+    ],
+    [
+      "begin-edit",
+      "--note",
+      "9460ad1d-9cb1-412e-a134-173d73637fb1:0",
+      "--base",
+      "1",
+      "--token-out",
+      "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T/brn-full-restore-a921-zfbd1dsw/synthetic-edit-token"
+    ],
+    [
+      "update-buffer",
+      "--session",
+      "75dfca8d-9c25-4843-a1ad-3285627d97a7",
+      "--generation",
+      "1",
+      "--text",
+      "Unsaved synthetic draft",
+      "--token-file",
+      "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T/brn-full-restore-a921-zfbd1dsw/synthetic-edit-token"
+    ],
+    [
+      "intake",
+      "--source",
+      "/Users/evokessler/Documents/Codex/brn-mac-updater-253/crates/brn-intake/tests/fixtures/harbor.docx",
+      "--intent",
+      "full",
+      "--title",
+      "Synthetic figure import",
+      "--key",
+      "full-restore-figure"
+    ],
+    [
+      "notes"
+    ],
+    [
+      "records"
+    ],
+    [
+      "history"
+    ],
+    [
+      "settings"
+    ],
+    [
+      "recovery"
+    ],
+    [
+      "projects"
+    ],
+    [
+      "threads"
+    ],
+    [
+      "backup",
+      "--destination",
+      "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T/brn-full-restore-a921-zfbd1dsw/full-snapshot.sqlite3"
+    ],
+    [
+      "restore",
+      "--source",
+      "/private/var/folders/6h/97zm1_pn2bxft867_str638r0000gn/T/brn-full-restore-a921-zfbd1dsw/full-snapshot.sqlite3"
+    ],
+    [
+      "notes"
+    ],
+    [
+      "records"
+    ],
+    [
+      "history"
+    ],
+    [
+      "settings"
+    ],
+    [
+      "recovery"
+    ],
+    [
+      "projects"
+    ],
+    [
+      "threads"
+    ],
+    [
+      "recovery"
+    ]
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "note": {
+    "id": "2bc4d189-d944-4d57-a66d-d9204bbb9f50:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "harbor-combined-82657cab",
+        "markdown": "# Harbor water-saving pilot\n\nDecision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration.\n\n| Site | Before | After |\n| --- | --- | --- |\n| Pier A | 120 L/day | 72 L/day |\n| Pier B | Pending | Pending |\n\nWater use before and after\n\n![120 to 72 litres/day, a 40% reduction](brn-asset://2bc4d189-d944-4d57-a66d-d9204bbb9f50:2)\n\nSame chart for operations handoff\n\n![120 to 72 litres/day, a 40% reduction](brn-asset://2bc4d189-d944-4d57-a66d-d9204bbb9f50:2)\n\nSynthetic combined-native acceptance source 82657cab. Preserve all original facts and figures.\n",
+        "protected": true,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": {
+          "source": "2bc4d189-d944-4d57-a66d-d9204bbb9f50:0",
+          "full_note": true,
+          "gaps": [],
+          "report": {
+            "conversion": {
+              "settings": {
+                "converter": "xberg",
+                "ai": true
+              },
+              "engine_identity": "xberg/1.3.10/stock/f9859ca06d9ee171c65c91cfbb0a25287a45622e7628f1b45ba5353b473b6f0d/figures-v1"
+            },
+            "status": "Unchecked",
+            "issues": []
+          }
+        }
+      }
+    }
+  },
+  "provider": "copilot",
+  "dedicated_model": "gpt-6-luna",
+  "requested_effort": "high",
+  "credential_folder": "/Users/Shared/BRN-native-functional-253-20261107/copilot-credentials",
+  "native_table_chart_and_protected_disclosure_seen": true,
+  "retained_asset_ids": [
+    "2bc4d189-d944-4d57-a66d-d9204bbb9f50:2",
+    "2bc4d189-d944-4d57-a66d-d9204bbb9f50:2"
+  ],
+  "fixture_sha256": "4e0c3f25befc9d095e7f034160bd10bed1a306dbdf10aa30c0b47a09bcf50d1f",
+  "verifier_correction": "Initial assertion assumed brn://asset/ and failed. Actual maintained URI is brn-asset://; verified its referenced Asset records. This was a verifier error, not a conversion failure."
+}

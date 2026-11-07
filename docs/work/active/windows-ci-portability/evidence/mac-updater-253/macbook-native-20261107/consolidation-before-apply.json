@@ -1,0 +1,122 @@
+{
+  "observed_at": "2026-11-07T05:38:19.623858+00:00",
+  "candidates": {
+    "contract": 3,
+    "command": "candidates",
+    "ok": true,
+    "status": "ok",
+    "exit": 0,
+    "outcome": null,
+    "operation": null,
+    "key": null,
+    "retry": "read",
+    "changed": [],
+    "conflict": null,
+    "result": [
+      {
+        "operation": "dd89da25-03c6-4193-8fb0-9ef2bee97544",
+        "request_hash": "f82425010061980bd384729537659fdc7cd4522c9bbf32eaf2129ebcbe4a6a4e",
+        "request": {
+          "reason": "Prepare the exact owner-requested source-linked paragraph while preserving all existing note text byte-for-byte.",
+          "writes": [
+            {
+              "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+              "expected_version": 6,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Native harbor working note",
+                  "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.\n\nSTALE-CANDIDATE-253: Pier A water use fell from 120 L/day to 72 L/day. Source: [harbor](brn://note/971c7121-398a-41cc-b21c-6d1b072933e4:1).",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            }
+          ],
+          "inputs": [
+            {
+              "record": "426787a0-075b-4f45-b82a-f536681b8010:0",
+              "version": 1,
+              "expectation": "ChatContext"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "611e5af1-ecac-44ac-88e8-afe4c10e430c",
+        "request_hash": "cfe6be0365bb3aa02aecdfbc0f421617d56611a05fc9140b77c91c497a5610ad",
+        "request": {
+          "reason": "Prepare the owner-requested consolidated Harbor article as a review candidate, using the 7 November revision for current requirements and preserving the 1 November superseded values, requirements, and exception as explicit history. Leave both source notes unchanged.",
+          "writes": [
+            {
+              "id": "611e5af1-ecac-44ac-88e8-afe4c10e430c:0",
+              "expected_version": null,
+              "archived": false,
+              "data": {
+                "Note": {
+                  "title": "Harbor consolidated native253",
+                  "markdown": "# Harbor consolidated native253\n\n## Current plan \u2014 7 November 2026\n\nThe quay closes at **18:00**. Crane operations stop when wind speeds are **above 12 m/s**. Use **steel plates** instead of timber mats. Vessel M may use the emergency-departure exception **only at pier P8**; **P7 is not covered** by that exception.\n\nThese current requirements are from **Harbor revision 7 November 2026**, which supersedes the crane limit and revises the surface requirement and exception scope in the 1 November plan.\n\n## Superseded history \u2014 1 November 2026\n\nThe original plan stated that crane operations stop above **9 m/s**; this limit was superseded by the 7 November limit of above 12 m/s. It required **timber mats on pier P7**; the later revision replaced timber mats with steel plates. It allowed an emergency-departure exception for **vessel M** without specifying a pier; the 7 November revision narrowed that exception to **P8 only** and explicitly removed **P7** from coverage. These are historical requirements, not the current plan. The quay closing time of **18:00** is retained in the 7 November revision and remains current.\n\n## Sources\n\n- Harbor revision 7 November 2026 \u2014 current plan and explicit supersession.\n- Harbor plan 1 November 2026 \u2014 original requirements retained above as history.",
+                  "protected": false,
+                  "confirmed": false,
+                  "superseded_by": null,
+                  "import": null
+                }
+              }
+            },
+            {
+              "id": "611e5af1-ecac-44ac-88e8-afe4c10e430c:1",
+              "expected_version": null,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "611e5af1-ecac-44ac-88e8-afe4c10e430c:0",
+                  "to": "83e9b56e-15ee-4286-a87d-68bb4b8a9079:0",
+                  "relation": "source"
+                }
+              }
+            },
+            {
+              "id": "611e5af1-ecac-44ac-88e8-afe4c10e430c:2",
+              "expected_version": null,
+              "archived": false,
+              "data": {
+                "Link": {
+                  "from": "611e5af1-ecac-44ac-88e8-afe4c10e430c:0",
+                  "to": "82b5577e-dcc7-4831-96a0-94eec19cf74e:0",
+                  "relation": "source"
+                }
+              }
+            }
+          ],
+          "inputs": [
+            {
+              "record": "83e9b56e-15ee-4286-a87d-68bb4b8a9079:0",
+              "version": 1
+            },
+            {
+              "record": "82b5577e-dcc7-4831-96a0-94eec19cf74e:0",
+              "version": 1
+            },
+            {
+              "record": "b5f2bd89-ea8e-4c92-9bd4-21110421749b:0",
+              "version": 1,
+              "expectation": "ChatContext"
+            }
+          ]
+        }
+      }
+    ],
+    "error": null,
+    "page": null,
+    "stop": null,
+    "authority": {
+      "workspace_purpose": "test",
+      "cli_authority": "full",
+      "enforced": false,
+      "actor": null
+    }
+  },
+  "ui_finding": "New-article consolidation review retains prior Native harbor working note header and Saved v6 help, with Working Note is unavailable banner. Proposed request itself targets the correct new article plus two source links. Not counted as clean presentation acceptance."
+}

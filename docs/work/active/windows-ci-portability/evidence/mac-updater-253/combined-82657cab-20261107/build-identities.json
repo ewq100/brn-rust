@@ -1,0 +1,13 @@
+{
+  "source": "82657cabbf763739c03b0e479c4b343a0fee54e0",
+  "source_dirty": false,
+  "desktop_sha256": "efc13415a2901c000fa399f75252bb90a64d5cc11009e0ae0860b264da2ec457",
+  "cli_sha256": "6f87ce66e5ef74c75e2de8784f85a9615d239964ce0fe899eb03a81aacf3e5f7",
+  "helpers_reused": "Verified a921 helper bytes; tools/locks/scripts unchanged across new source; generated adapted source-manifest byte-identical. No helper rebuild.",
+  "helper_sha256": {
+    "brn-xberg-helper-brn": "e3b7e7c46314f6819c91aadcde01995708e0ee3d19872eee02464626fcac22e8",
+    "brn-xberg-helper": "547a34d8cc5f79af348c87b53acb9e57209ff8f5b3b5d67d3c3cf5a6e0695811"
+  },
+  "notices_first_attempt": "Failed missing generated helper-source association; original partial output/log retained; standard offline preparation restored exact association before new notices attempt.",
+  "publication_approved": false
+}

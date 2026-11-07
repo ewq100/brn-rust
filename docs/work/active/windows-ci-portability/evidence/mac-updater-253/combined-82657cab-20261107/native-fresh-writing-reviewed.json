@@ -1,0 +1,56 @@
+{
+  "candidate": {
+    "operation": "27cdd41d-969e-477d-a59b-2beac65e856f",
+    "request_hash": "dc5735b27357cc9142841c94898295e3ee23302722a5cfada81ea97b1c53071e",
+    "request": {
+      "reason": "Prepare the owner-requested whole-note proposal, preserving the complete current note and appending exactly one source-linked paragraph.",
+      "writes": [
+        {
+          "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+          "expected_version": 7,
+          "archived": false,
+          "data": {
+            "Note": {
+              "title": "Native harbor working note",
+              "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.\n\nOWNER-NEWER-253: Owner saved this after the proposal was prepared.\n\nCOMBINED-WRITING-82657cab: Pier A water use fell from 120 L/day to 72 L/day. Source: [harbor](brn://note/971c7121-398a-41cc-b21c-6d1b072933e4:1).",
+              "protected": false,
+              "confirmed": false,
+              "superseded_by": null,
+              "import": null
+            }
+          }
+        }
+      ],
+      "inputs": [
+        {
+          "record": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+          "version": 7
+        },
+        {
+          "record": "971c7121-398a-41cc-b21c-6d1b072933e4:1",
+          "version": 1
+        },
+        {
+          "record": "426787a0-075b-4f45-b82a-f536681b8010:0",
+          "version": 1,
+          "expectation": "ChatContext"
+        }
+      ]
+    }
+  },
+  "base": {
+    "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+    "version": 7,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Native harbor working note",
+        "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.\n\nOWNER-NEWER-253: Owner saved this after the proposal was prepared.",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  }
+}

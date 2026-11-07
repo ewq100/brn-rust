@@ -1,0 +1,8 @@
+{
+  "scope": "new MacBook rebuilt candidates, local transport-substituted qualification; not stock HTTPS",
+  "status": "incomplete; live-process refusal",
+  "exit_code": 1,
+  "reason": "BRN update: Quit BRN normally (including other BRN windows), then retry. No process was terminated.",
+  "original_native_process_pid": 22959,
+  "next": "Normal closure of all test-owned BRN windows/processes before rerunning. No force quit or guard bypass."
+}
