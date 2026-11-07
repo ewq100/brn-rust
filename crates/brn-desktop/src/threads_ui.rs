@@ -5197,53 +5197,111 @@ impl gpui_kit::AssetSource for BrnAssets {
 }
 
 pub fn launch(data_dir: PathBuf) -> Result<(), String> {
-    let mut workspace = Workspace::open(&data_dir).map_err(|e| e.to_string())?;
-    workspace.settings().map_err(|e| e.to_string())?;
-    // An unusable model folder is reported; keyword search still works.
-    let model_notice = match workspace.embedding_model_from_env() {
-        Some(Err(error)) => Some(format!("Semantic search is off: {error}")),
-        _ => None,
-    };
+    let opened = Workspace::open(&data_dir);
+    if let Err(error) = &opened
+        && !matches!(
+            error,
+            AppError::Core(Error::UpgradeNeedsBackupFolder { .. })
+        )
+    {
+        return Err(error.to_string());
+    }
+    let failure = std::rc::Rc::new(std::cell::RefCell::new(None));
+    let startup_failure = failure.clone();
     gpui_kit::application()
         .with_assets(BrnAssets)
         .run(move |cx| {
             gpui_kit::init(cx);
             cx.bind_keys(bindings());
-            cx.on_window_closed(|cx, _| {
-                if cx.windows().is_empty() {
-                    cx.quit();
-                }
-            })
-            .detach();
-            cx.open_window(
-                WindowOptions {
-                    window_bounds: Some(WindowBounds::Windowed(Bounds::new(
-                        point(px(70.), px(70.)),
-                        size(px(1260.), px(860.)),
-                    ))),
-                    window_min_size: Some(size(px(850.), px(600.))),
-                    ..top_bar_window_options()
-                },
-                move |window, cx| {
-                    // Give Linux window managers and external UI automation a
-                    // stable identity without exposing the workspace path.
-                    #[cfg(target_os = "linux")]
-                    window.set_window_title("BRN");
-                    let view = cx.new(|cx| {
-                        let mut view = ThreadsUi::new(workspace, data_dir, window, cx);
-                        if let Some(notice) = model_notice {
-                            view.warn(notice);
-                        }
-                        view
-                    });
-                    view.update(cx, |view, cx| view.auto_load_copilot_models(cx));
-                    install_exit_handlers(window, cx, view.downgrade());
-                    cx.new(|cx| Root::new(view, window, cx))
-                },
-            )
-            .expect("failed to open BRN Chats window");
             cx.activate(true);
+            match opened {
+                Ok(workspace) => {
+                    if let Err(error) = open_workspace_window(workspace, data_dir, cx) {
+                        *startup_failure.borrow_mut() = Some(error);
+                        cx.quit();
+                    }
+                }
+                Err(_) => {
+                    let receiver = cx.prompt_for_paths(PathPromptOptions {
+                        files: false,
+                        directories: true,
+                        multiple: false,
+                        prompt: Some(crate::startup::BACKUP_PROMPT.into()),
+                    });
+                    cx.spawn(async move |cx| {
+                        let result = match receiver.await {
+                            Ok(Ok(paths)) => crate::startup::with_backup_folder(
+                                &data_dir,
+                                paths.and_then(|paths| paths.into_iter().next()),
+                            ),
+                            Ok(Err(error)) => Err(error.to_string()),
+                            Err(error) => Err(error.to_string()),
+                        };
+                        let _ = cx.update(move |cx| match result {
+                            Ok(Some(workspace)) => {
+                                if let Err(error) = open_workspace_window(workspace, data_dir, cx) {
+                                    *startup_failure.borrow_mut() = Some(error);
+                                    cx.quit();
+                                }
+                            }
+                            Ok(None) => cx.quit(),
+                            Err(error) => {
+                                *startup_failure.borrow_mut() = Some(error);
+                                cx.quit();
+                            }
+                        });
+                    })
+                    .detach();
+                }
+            }
         });
+    failure.borrow_mut().take().map_or(Ok(()), Err)
+}
+
+fn open_workspace_window(
+    mut workspace: Workspace,
+    data_dir: PathBuf,
+    cx: &mut App,
+) -> Result<(), String> {
+    workspace.settings().map_err(|e| e.to_string())?;
+    let model_notice = match workspace.embedding_model_from_env() {
+        Some(Err(error)) => Some(format!("Semantic search is off: {error}")),
+        _ => None,
+    };
+    cx.on_window_closed(|cx, _| {
+        if cx.windows().is_empty() {
+            cx.quit();
+        }
+    })
+    .detach();
+    cx.open_window(
+        WindowOptions {
+            window_bounds: Some(WindowBounds::Windowed(Bounds::new(
+                point(px(70.), px(70.)),
+                size(px(1260.), px(860.)),
+            ))),
+            window_min_size: Some(size(px(850.), px(600.))),
+            ..top_bar_window_options()
+        },
+        move |window, cx| {
+            // Give Linux window managers and external UI automation a
+            // stable identity without exposing the workspace path.
+            #[cfg(target_os = "linux")]
+            window.set_window_title("BRN");
+            let view = cx.new(|cx| {
+                let mut view = ThreadsUi::new(workspace, data_dir, window, cx);
+                if let Some(notice) = model_notice {
+                    view.warn(notice);
+                }
+                view
+            });
+            view.update(cx, |view, cx| view.auto_load_copilot_models(cx));
+            install_exit_handlers(window, cx, view.downgrade());
+            cx.new(|cx| Root::new(view, window, cx))
+        },
+    )
+    .map_err(|error| error.to_string())?;
+    cx.activate(true);
     Ok(())
 }
 

@@ -80,7 +80,10 @@ Privacy & Security → Open Anyway** approval again after replacement; follow
 update does not guarantee bypassing Gatekeeper or managed-device policy.
 
 The updater does not migrate or downgrade databases. BRN's checked startup owns
-backup-first schema upgrade. An old bundle is usable for rollback only while the
+backup-first schema upgrade. If no backup folder is saved, BRN asks you to choose
+one before upgrading. Cancel quits without changing the workspace. You can choose
+a folder ahead of time in **Settings → Data → Choose backup folder…**.
+An old bundle is usable for rollback only while the
 store schema remains compatible. After migration, use a matching pre-upgrade
 backup with its compatible app, or a forward fix; never open a newer store with
 an old binary or overwrite current work with an old snapshot automatically.

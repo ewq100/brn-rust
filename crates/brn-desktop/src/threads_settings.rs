@@ -479,7 +479,7 @@ impl ThreadsUi {
                     .test_support(),
             )
             .child(metadata(
-                "Choose a folder covered by your separate backup system.",
+                "Choose a folder now so future updates can back up before upgrading. Use a folder covered by your separate backup system.",
             ))
             .child(
                 div()
@@ -496,7 +496,7 @@ impl ThreadsUi {
                     )
                     .child(
                         button("backup-change-folder")
-                            .label("Change folder…")
+                            .label(if self.settings.backup_directory.is_some() { "Change folder…" } else { "Choose backup folder…" })
                             .outline()
                             .on_click(cx.listener(|this, _, window, cx| {
                                 this.choose_backup_folder(false, window, cx)

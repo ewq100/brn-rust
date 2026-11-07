@@ -577,7 +577,15 @@ impl From<brn_threads_app::Error> for CliError {
                 return Self::new(Code::DestinationExists, message).with("option", "destination");
             }
             Error::Io(_) => Code::IoError,
-            Error::UnsafeDirectory(_) => Code::UnsafeDirectory,
+            Error::UpgradeNeedsBackupFolder { from, directory } => {
+                let schema = if *from < 5 {
+                    "3/4".into()
+                } else {
+                    from.to_string()
+                };
+                return Self::new(Code::UnsafeDirectory, format!("incompatible or unsafe data directory: Schema {schema} needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", directory.display()));
+            }
+            Error::UnsafeDirectory(_) | Error::UpgradeBusy => Code::UnsafeDirectory,
             Error::Invalid(text) => {
                 let error = Self::new(Code::InvalidRequest, message.clone());
                 return match refusal_reason(text) {
@@ -1491,6 +1499,22 @@ mod tests {
     fn mapped(error: impl Into<CliError>) -> (Code, Value) {
         let error = error.into();
         (error.code, Value::Object(*error.details))
+    }
+
+    #[test]
+    fn backup_folder_refusal_keeps_cli_instructions() {
+        for (from, schema) in [(3, "3/4"), (12, "12")] {
+            let error = CliError::from(brn_threads_app::Error::UpgradeNeedsBackupFolder {
+                from,
+                directory: "/synthetic/workspace".into(),
+            });
+            assert_eq!(error.code, Code::UnsafeDirectory);
+            assert!(error.message.contains(&format!("Schema {schema} needs an external pre-upgrade backup folder. Run: brn --data-dir /synthetic/workspace upgrade --backup-directory ABSOLUTE_FOLDER")));
+        }
+        assert_eq!(
+            mapped(brn_threads_app::Error::UpgradeBusy),
+            (Code::UnsafeDirectory, json!({}))
+        );
     }
 
     #[test]
