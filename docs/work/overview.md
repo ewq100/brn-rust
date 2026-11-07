@@ -75,9 +75,9 @@ Gates:
 ### Improve grounded search efficiency (#256)
 
 Task ID: `search-256`
-Owner: Agent E · State: **active** · Last observed: 2026-11-07T03:56:00+00:00
-Activity: Additional rounds3–4 complete. FourR7packet coverage limits disclosed acrossbotharms; future adapter covers verifiedMessages and errors. Original12grades/attempts unchanged. Opus requested-bound overrun recorded; future caps reduced.
-Next: Complete rounds5–6 (Sol12/Opus8 requested each),preserve original108allocation and actual-usageunknowns; update draftPR271. No newbenchmark/nativecalls or merge.
+Owner: Agent E · State: **active** · Last observed: 2026-11-07T04:03:00+00:00
+Activity: Additional rounds3–5 complete. Round5both9/10/no actionable regressions. Futurepacketlabels/IDvalidation and dependency provenance improved;21tests pass. Originalattempts/grades unchanged.
+Next: Run finalowner-requested round6 (Sol12/Opus8requested),then recordallresults and update draftPR271. No morebenchmark/nativecalls or merge.
 
 <details>
 <summary>Gate status</summary>
@@ -85,7 +85,7 @@ Next: Complete rounds5–6 (Sol12/Opus8 requested each),preserve original108allo
 Gates:
 
 - **implementation:** No production search change retained. Candidate1patch/binaries/both repetitions preserved. Rigadoptiondeferred with shadow/invalidation evidence.
-- **checks:** Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass. Additional round3:16focused tests pass;all12historical attempt objects exactly unchanged. Round4:19focusedtests pass;12futurepackets verified offline;4historicalR7coverage limits retained.
+- **checks:** Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass. Additional round3:16focused tests pass;all12historical attempt objects exactly unchanged. Round4:19focusedtests pass;12futurepackets verified offline;4historicalR7coverage limits retained. Round5:21focusedtests pass;new dependency-bound offline receipt;review outputtruncation gap preserved.
 - **integration:** Draft PR271 open. No merge assigned;hostedchecks and finalindependentauditcoverage remainpending. Currentmain hasadvanced since measured a921;baselineevidence preserved.
 - **native:** Headless assignment; no native acceptance claimed.
 - **owner acceptance:** Owner-authorized limited engineering cycle;no searchimprovementadopted. Candidate fails frozenR10toolgate;one independentminorcorrectnessfinding. Reserved/jointchecks unrun andrequiredbeforelateradoption.

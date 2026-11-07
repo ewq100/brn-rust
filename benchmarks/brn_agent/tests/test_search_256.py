@@ -240,6 +240,23 @@ class AnswerPacketCoverageTests(unittest.TestCase):
         self.assertIn(call, packet['actual_trace'])
         self.assertEqual(packet['unavailable_requested_ids'], ['absent:0'])
 
+    def test_errored_result_ids_are_not_successful_observations(self):
+        self.raw['steps'][0]['trace']['calls'] = [{
+            'tool': 'read_records', 'outcome': 'error', 'args': {'ids': ['message:1']},
+            'result': {'ids': ['absent:0']}}]
+        packet = self.packet()
+        self.assertEqual(packet['successful_result_ids'], [])
+        self.assertEqual(packet['requested_only_ids'], ['message:1'])
+        self.assertEqual(packet['additional_checkpoint_records'], self.records)
+
+    def test_malformed_id_lists_block_packet_instead_of_splitting_strings(self):
+        call = self.raw['steps'][0]['trace']['calls'][0]
+        for value in ('message:1', [1], {'id': 'message:1'}):
+            with self.subTest(value=value):
+                call['args'] = {'ids': value}
+                with self.assertRaisesRegex(ValueError, 'list of strings'):
+                    self.packet()
+
     def test_changed_or_incomplete_evidence_blocks_packet(self):
         with self.assertRaisesRegex(ValueError, 'checkpoint changed'):
             self.packet('different-checkpoint-hash')

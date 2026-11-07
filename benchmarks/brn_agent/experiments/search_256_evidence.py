@@ -114,6 +114,15 @@ def attempt(path, root):
     return row
 
 
+def record_ids(value):
+    """Malformed trace IDs cannot silently turn into character-level evidence."""
+    if value is None:
+        return []
+    if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+        raise ValueError('Record IDs must be a list of strings')
+    return value
+
+
 def answer_packet(path, root, fixture_path, manifest_path):
     """Bound anonymous evaluation packet; full records are evaluator gold only.
 
@@ -134,6 +143,7 @@ def answer_packet(path, root, fixture_path, manifest_path):
             if isinstance(key, str) and key in seed['notes']:
                 required.add(seed['notes'][key])
     requested = set()
+    observed = set()
     calls = []
     for step in raw.get('steps', []):
         traced = full_calls(step.get('trace'))
@@ -142,11 +152,12 @@ def answer_packet(path, root, fixture_path, manifest_path):
         for call in traced:
             calls.append(call)
             args = call.get('args') or {}
-            requested.update(args.get('ids') or [])
+            requested.update(record_ids(args.get('ids')))
             if isinstance(args.get('id'), str):
                 requested.add(args['id'])
             if call.get('outcome') != 'error':
-                required.update((call.get('result') or {}).get('ids') or [])
+                observed.update(record_ids((call.get('result') or {}).get('ids')))
+    required.update(observed)
     # Semantic gold excludes Messages and archived records. Retain selected
     # records of those kinds separately, from the same verified checkpoint.
     records_bytes = (Path(path).parent / 'checkpoints/1/records.json').read_bytes()
@@ -166,6 +177,8 @@ def answer_packet(path, root, fixture_path, manifest_path):
               'additional_checkpoint_records': [row for row in records
                   if row['id'] in selected and row['id'] not in gold_ids],
               'unavailable_requested_ids': sorted(requested - available),
+              'successful_result_ids': sorted(observed),
+              'requested_only_ids': sorted(requested - observed),
               'actual_trace': calls, 'gold_access_is_not_candidate_read_proof': True,
               'native_result_sha256': hashlib.sha256(Path(path).read_bytes()).hexdigest(),
               'canonical_records_sha256': gold['records_sha256']}

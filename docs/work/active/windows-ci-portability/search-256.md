@@ -313,3 +313,24 @@ Round4 review gaps: Sol ran no tests and did not independently reproduce full
 attempt-object equality or inspect native backups/build artifacts/hosted CI/live
 estimator accuracy. Opus ran focused tests and checked all twelve raw-result
 predicates; it did not qualify native behavior or live estimator accuracy.
+
+
+### Round 5 and final packet clarification
+
+Both fresh seats scored 9/10 and found no actionable regressions. Both ran the
+nineteen focused tests. Neither independently regenerated the twelve future
+packets; Sol also disclosed an oversized, truncated tool output that limited its
+review coverage. Opus reported four tool rounds plus its answer (approximately
+five model requests against eight requested); actual HTTP/token counts remain
+unknown. No unused reservation is refunded.
+
+The lead adopted the low-priority evidence clarifications before round6:
+future packets distinguish successful_result_ids from requested_only_ids,
+validate list-of-string ID fields, and retain errored result IDs without turning
+them into successful observations. Result IDs are retrieval appearances; only
+actual_trace can establish the required read, version or visibility evidence.
+The new offline receipt binds the maintained evidence dependencies, screening
+fixture, phase manifests/evidence indexes and template seeds as well as the
+adapter. It revalidates all twelve future packets and exact historical attempt
+objects without new model calls. Twenty-one focused tests pass. The earlier
+round4 receipt is preserved against its historical adapter version.
