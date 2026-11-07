@@ -1,0 +1,30 @@
+{
+  "tuning": [
+    "harbor-docx",
+    "nested-docx",
+    "study-pdf",
+    "columns-pdf",
+    "quay-pptx",
+    "island-pptx",
+    "forecast-xlsx",
+    "merged-xlsx",
+    "single-eml",
+    "plural-eml",
+    "textual-html",
+    "structure-html",
+    "notes-text",
+    "unicode-text",
+    "outline-md",
+    "literal-md"
+  ],
+  "held-out": [
+    "process-docx",
+    "reserve-pdf",
+    "harbor-pptx",
+    "reserve-xlsx",
+    "reserve-eml",
+    "reserve-html",
+    "reserve-text",
+    "reserve-md"
+  ]
+}
