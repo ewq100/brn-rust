@@ -46,7 +46,10 @@ def complete_trace_usage(trace):
     summary = trace.get('summary')
     usages = list(turns)
     if summary is not None:
-        usages.append(summary.get('usage'))
+        if not isinstance(summary, dict):
+            return None
+        if summary.get('usage') is not None:
+            usages.append(summary['usage'])
     if len(usages) != len(requests) or not usages:
         return None
     if any(not isinstance(u, dict) or u.get('complete') is not True

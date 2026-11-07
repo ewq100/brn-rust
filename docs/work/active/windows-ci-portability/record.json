@@ -7,7 +7,7 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-07T05:13:09.238089+00:00",
+    "observed_at": "2026-11-07T05:20:29.702547+00:00",
     "goal": "Close cloud feedback Cycle 2 with honest no-change evidence; keep the later shared-provider refactor behind its handoff gates.",
     "owner_attention": "Cycle 2 retained no workflow/configuration: cache-validity failure stopped repeated qualification. Required cloud Council diagnosis/review is unavailable. Cycle 2 PR checks/review and A selected-runtime/shared-file handoff remain before Stage 2.",
     "tasks": [
@@ -370,10 +370,10 @@
         "title": "Extract useful evidence fixes and run product token hill-climb",
         "owner": "Issue 256 restart lead on MacBook",
         "state": "active",
-        "activity": "Isolated main 75f37221. Council selection round one completed with Codex Sol and Copilot Opus after Kiro quota denial. Implementing small judge/evidence extraction. First Python suite 92 tests passed, 11 optional skips. Offline Rust compilation underway at two jobs.",
-        "observed_at": "2026-11-07T05:13:09.238089+00:00",
+        "activity": "PR #273 published. Fixed Codex P2 cached-summary accounting: undispatched summaries add no usage while unmatched HTTP requests still make usage unknown.",
+        "observed_at": "2026-11-07T05:20:29.702547+00:00",
         "origin": "observed",
-        "next_action": "Finish focused regressions and Rust checks, publish salvage PR for current-head Codex code/security and CI, merge before closing superseded PRs and starting live window.",
+        "next_action": "Request current-head Codex code/security review, finish hosted CI and merge salvage before old-PR closeout and product window.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -382,8 +382,8 @@
           "https://github.com/ewq100/brn-rust/issues/256"
         ],
         "gates": {
-          "implementation": "Salvage candidate in progress, historical outcomes preserved.",
-          "checks": "Python 92 tests passed with 11 optional skips; Rust and current-head CI pending.",
+          "implementation": "Small extraction implemented. Council selection findings addressed. Codex P2 fixed with cache-hit and failed-summary regressions.",
+          "checks": "94 Python tests passed, 11 optional skips; 52 focused Rust tests and strict all-target capability-spike Clippy passed. Hosted CI/current-head reviews pending.",
           "integration": "No PR or merge yet. Old PRs remain open until replacement merged.",
           "native": "No native observation required for the selected evidence-only changes.",
           "owner_acceptance": "Owner authorized focused merge after review and CI; product qualification pending."

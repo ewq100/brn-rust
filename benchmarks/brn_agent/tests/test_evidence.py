@@ -163,6 +163,17 @@ class CompleteTraceTests(unittest.TestCase):
         trace['summary'] = {'usage': dict(usage, input=20, cached_input=0)}
         self.assertEqual(complete_trace_usage(trace)['input'], 120)
 
+    def test_cached_or_undispatched_summary_adds_no_http_usage(self):
+        from evidence import complete_trace_usage
+        usage = dict(input=100, output=10, cached_input=25, complete=True)
+        trace = dict(wire_requests_dropped=0, wire_requests=[{}], turn_usage=[usage])
+        for outcome in ('cached', 'unavailable_account', 'gap'):
+            trace['summary'] = dict(outcome=outcome, usage=None)
+            self.assertEqual(complete_trace_usage(trace)['input'], 100)
+        # A failed summary with a real wire attempt still requires its counters.
+        trace['wire_requests'].append({})
+        self.assertIsNone(complete_trace_usage(trace))
+
     def test_message_and_archived_evidence_selected_without_expanding_wiki(self):
         from evidence import grading_packet
         with tempfile.TemporaryDirectory() as folder:
