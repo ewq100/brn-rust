@@ -1,0 +1,38 @@
+[
+  {
+    "label": "helper-build",
+    "sha256": "860ecfaf5834875521fa3e1e600f188e56228d4c217b16b8e2c3b255f25f4fa4",
+    "path": "/private/tmp/brn-intake-hillclimb-helper-build.log",
+    "note": "baseline build/check receipt"
+  },
+  {
+    "label": "stock-release",
+    "sha256": "2dd06fe0ebe9c8078e045dd0f03f3db8f2cfa8b979f8a5be9dbd2e0c1e374d8e",
+    "path": "/private/tmp/brn-intake-hillclimb-stock-release.log",
+    "note": "baseline build/check receipt"
+  },
+  {
+    "label": "brn-release",
+    "sha256": "ee33d3f78fbf26947a8b7e258fa20ad7f3aeeb0fbabcf16f62d68d702978aaf3",
+    "path": "/private/tmp/brn-intake-hillclimb-brn-release.log",
+    "note": "baseline build/check receipt"
+  },
+  {
+    "label": "app-build",
+    "sha256": "d69e4756b1dad938bbfc422d5b0b186ea36eab9394cb29940b602c98ebe2fcbe",
+    "path": "/private/tmp/brn-intake-hillclimb-app-build.log",
+    "note": "baseline build/check receipt"
+  },
+  {
+    "label": "baseline-crate-tests",
+    "sha256": "5b5975393b3bbdae1b940088057d133d4a261d2fb61967fb2a799cf5879e65d9",
+    "path": "/private/tmp/brn-intake-hillclimb-baseline-crate-tests.log",
+    "note": "baseline build/check receipt"
+  },
+  {
+    "label": "cli-tests",
+    "sha256": "7b7c721ec3601a9d3f9448f5a9d88ed0e4d2297ff27e905253e874f2e81ec076",
+    "path": "/private/tmp/brn-intake-hillclimb-cli-tests.log",
+    "note": "cli-tests is the preserved missing-environment setup failure"
+  }
+]

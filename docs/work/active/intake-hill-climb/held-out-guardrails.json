@@ -1,0 +1,85 @@
+{
+  "gates": {
+    "protected_sources_unchanged": true,
+    "test_receipts_pass": true,
+    "app_size_within_5_percent": true,
+    "scorecard_guardrails": true,
+    "metric_eligible": true
+  },
+  "kept": true,
+  "sizes_kib": [
+    138472,
+    138476
+  ],
+  "size_command_output": "Measurement policy: allocated usage from du -skP; symbolic links are not followed.\nOverlapping entries are reported separately and are not summed; allocated usage is not download size.\napplication bundle/executable | /private/tmp/brn-intake-hillclimb/Baseline.app | allocated=138472 KiB (135.23 MiB)\napplication bundle/executable | /private/tmp/brn-intake-hillclimb/Final.app | allocated=138476 KiB (135.23 MiB)\n",
+  "source_diff": "",
+  "tests": [
+    {
+      "command": "BRN_XBERG_HELPER=ABSOLUTE_STOCK BRN_XBERG_HELPER_BRN=ABSOLUTE_BRN cargo test -p brn-intake -p brn-threads-intake --locked --offline --jobs 2",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/final-crate-tests.log.gz",
+      "log_sha256": "9b58c7b4d8c55d72d26099b195f46d79280e28c31ebd3472a6f05490bf934fbf"
+    },
+    {
+      "command": "cargo clippy -p brn-intake -p brn-threads-intake --all-targets --locked --offline --jobs 2 -- -D warnings",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/final-crate-clippy.log.gz",
+      "log_sha256": "cfb7d5d814921e3f2a414093f605575be71670a4fd5e3d14c4e3e16202e6e804"
+    },
+    {
+      "command": "cargo test --manifest-path tools/xberg-intake-helper/Cargo.toml --all-targets --locked --offline --jobs 1",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/stock-tests.log.gz",
+      "log_sha256": "c8980e18fa4d2f76a4603ae25c5bf8045b4685de513cdd216544ed2331489a8f"
+    },
+    {
+      "command": "cargo test --manifest-path target/xberg-adapted/workspace/Cargo.toml --all-targets --locked --offline --jobs 1",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/adapted-tests.log.gz",
+      "log_sha256": "03f663c0cfb8486409be08db1803564d8c77b845379bbb309157f60bf509162b"
+    },
+    {
+      "command": "cargo clippy --manifest-path tools/xberg-intake-helper/Cargo.toml --all-targets --locked --offline --jobs 1 -- -D warnings",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/stock-clippy.log.gz",
+      "log_sha256": "4d80926e39db9db528cd1c8f1e8ae7c12b6de59c49868d7664e21b9d7bc4794c"
+    },
+    {
+      "command": "cargo clippy --manifest-path target/xberg-adapted/workspace/Cargo.toml --all-targets --locked --offline --jobs 1 -- -D warnings",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/adapted-clippy.log.gz",
+      "log_sha256": "6071d46a782727cb538d1f555bfdf34a2ee2e2d4ca3f146808125987b40d7d25"
+    },
+    {
+      "command": "BRN_XBERG_HELPER=ABSOLUTE_STOCK BRN_XBERG_HELPER_BRN=ABSOLUTE_BRN cargo test --release -p brn --test document_modes --locked --offline --jobs 2",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/cli-tests-configured.log.gz",
+      "log_sha256": "fa9b007c8ab636a3bcd335f261ec54da8c052bc4a85d9166ec1ae64f461e519a"
+    },
+    {
+      "command": "BRN_XBERG_HELPER=ABSOLUTE_STOCK BRN_XBERG_HELPER_BRN=ABSOLUTE_BRN cargo test --release -p brn --features scripted-document-tests --bin brn document_route_tests --locked --offline --jobs 2",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/scripted-tests.log.gz",
+      "log_sha256": "f15f5818b930e045085fdb0a4751e3ef9b6a91388c8b2cb03eabfa8c72789b22"
+    },
+    {
+      "command": "cargo test --release -p brn-threads-app --test source_intake_chat --test host_intake --test import_coverage --test document_conversion_settings --locked --offline --jobs 2",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/app-intake-tests.log.gz",
+      "log_sha256": "79cea11230d69ce8c70900da3be5a480c0ed34adba37f842ab811d7ab44a8161"
+    },
+    {
+      "command": "BRN_SCORE_INVENTORY=ABSOLUTE_INVENTORY python3 -m unittest discover -s tools/intake-score -p 'test_*.py'",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/scorer-tests-final.log.gz",
+      "log_sha256": "82aa7ed644a7bff4bf0810ffdf9e542001b851f7807e17a5269059cc37f9fe62"
+    },
+    {
+      "command": "cargo build --release -p brn-desktop --bin brn-desktop --features native-ui --locked --offline --jobs 2",
+      "exit_code": 0,
+      "log": "docs/work/active/intake-hill-climb/logs/candidate-app-build.log.gz",
+      "log_sha256": "a123e50bb3ae69a07474f3e419747405a4513c7e6ffcbe31eb992672a8cf9d3d"
+    }
+  ],
+  "scorecard": "docs/work/active/intake-hill-climb/held-out.json"
+}

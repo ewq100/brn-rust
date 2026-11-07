@@ -1,0 +1,5982 @@
+{
+  "schema": 1,
+  "split": "held-out",
+  "runs": 5,
+  "frozen_sha256": "c2ff7787b23d3c2bc3736f01b5cdf93d986b5c9fec7cda31a789fd2aa1f27562",
+  "machine": "macOS-26.5-arm64-arm-64bit-Mach-O",
+  "clock": "perf_counter wall seconds",
+  "timing_policy": {
+    "cold": "new host process and fresh scratch per import; includes host startup/read/conversion; OS file caches NOT evicted",
+    "warm": "persistent preheated host process, fresh helper and scratch per import; read/conversion wall clock inside host",
+    "order": "fixture then temperature then repetition then helper mode then arm, ABAB for each mode; identical source bytes and mtimes",
+    "scope": "checked AI-Off conversion, not SQLite publication or desktop interaction"
+  },
+  "artifacts": {
+    "baseline": {
+      "probe": {
+        "path": "/private/tmp/brn-intake-hillclimb/baseline/intake_probe",
+        "sha256": "d608aec9efbe20f7b5e6cc199566a7b3afd9d7ac2b5f2e241356a593615c95d4"
+      },
+      "stock": {
+        "path": "/private/tmp/brn-intake-hillclimb/baseline/brn-xberg-helper",
+        "sha256": "1961c0bdef3ae4f9895671b1f3910aea981f942baaf7854e05c7d1ac00a63567"
+      },
+      "brn": {
+        "path": "/private/tmp/brn-intake-hillclimb/baseline/brn-xberg-helper-brn",
+        "sha256": "30c46d75b345e7d417ed43efa1cecb16d941ae687da62936f7278907effac053"
+      }
+    },
+    "final": {
+      "probe": {
+        "path": "/private/tmp/brn-intake-hillclimb/final/intake_probe",
+        "sha256": "9c2728bc7536e11e0b1dd3478f5f22e850018e75c09e275f400842d08aefdfcd"
+      },
+      "stock": {
+        "path": "/private/tmp/brn-intake-hillclimb/final/brn-xberg-helper",
+        "sha256": "1961c0bdef3ae4f9895671b1f3910aea981f942baaf7854e05c7d1ac00a63567"
+      },
+      "brn": {
+        "path": "/private/tmp/brn-intake-hillclimb/final/brn-xberg-helper-brn",
+        "sha256": "30c46d75b345e7d417ed43efa1cecb16d941ae687da62936f7278907effac053"
+      }
+    }
+  },
+  "inventory_sha256": "1933ee1d450796a1ec500e5d490244ce3cef9cb4d1e4de014cd995551ccba6cf",
+  "restrictions": {
+    "baseline": {
+      "stock": {
+        "file_denied": true,
+        "network_denied": true
+      },
+      "brn": {
+        "file_denied": true,
+        "network_denied": true
+      }
+    },
+    "final": {
+      "stock": {
+        "file_denied": true,
+        "network_denied": true
+      },
+      "brn": {
+        "file_denied": true,
+        "network_denied": true
+      }
+    }
+  },
+  "rows": [
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "docx",
+      "fixture": "process-docx",
+      "cold": {
+        "median": 0.03474562498740852,
+        "min": 0.032084541977383196,
+        "max": 0.03627133404370397,
+        "spread": 0.004186792066320777,
+        "samples": [
+          0.03505512501578778,
+          0.032084541977383196,
+          0.03474562498740852,
+          0.03627133404370397,
+          0.03468325000721961
+        ]
+      },
+      "warm": {
+        "median": 0.02627775,
+        "min": 0.025065292,
+        "max": 0.026467958,
+        "spread": 0.0014026660000000003,
+        "samples": [
+          0.026288792,
+          0.026467958,
+          0.026077,
+          0.025065292,
+          0.02627775
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 1,
+          "text": "Harbor release process",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          26,
+          47,
+          148,
+          165,
+          250,
+          266,
+          338,
+          415,
+          495,
+          577,
+          602,
+          609,
+          617,
+          652,
+          660,
+          674,
+          684,
+          691,
+          703,
+          713,
+          723,
+          735,
+          746,
+          830,
+          917,
+          931,
+          1029,
+          1043,
+          1117,
+          1139
+        ],
+        "blocks": [
+          "Harbor release process",
+          "Purpose and roles",
+          "The coordinator prepares the release; the inspector verifies it; the duty lead approves exceptions.",
+          "Prerequisites",
+          "Use the current manifest and verify that the check gate is staffed before starting.",
+          "Procedure",
+          "Check the manifest against the parcel count and record any mismatch.",
+          "Test the release signal with the inspector present; retain the timestamp.",
+          "Release only after both checks pass and tell the coordinator the batch number.",
+          "Warning: stop immediately if the signal lamp is red. Never bypass the test gate.",
+          "Gate responsibilities",
+          "Gate",
+          "Owner",
+          "Time limit",
+          "Check",
+          "Coordinator",
+          "5 min",
+          "Test",
+          "Inspector",
+          "3 min",
+          "Release",
+          "Duty lead",
+          "2 min",
+          "",
+          "Figure 1. Gate order: check, test, then release; each gate must pass before the next.",
+          "Exceptions",
+          "If the inspector is unavailable, keep the batch waiting and ask the duty lead for a replacement.",
+          "References",
+          "[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3.",
+          "Appendix A. Record",
+          "Record the batch number, all three gate timestamps, and the name of the approving lead."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Harbor release process",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 26,
+            "text": "Purpose and roles",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 148,
+            "text": "Prerequisites",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 250,
+            "text": "Procedure",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 1,
+            "position": 263,
+            "text": "Check the manifest against the parcel count and record any mismatch.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 2,
+            "position": 335,
+            "text": "Test the release signal with the inspector present; retain the timestamp.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 3,
+            "position": 412,
+            "text": "Release only after both checks pass and tell the coordinator the batch number.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 577,
+            "text": "Gate responsibilities",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Gate",
+                "Owner",
+                "Time limit"
+              ],
+              [
+                "Check",
+                "Coordinator",
+                "5 min"
+              ],
+              [
+                "Test",
+                "Inspector",
+                "3 min"
+              ],
+              [
+                "Release",
+                "Duty lead",
+                "2 min"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 602,
+            "rows": 4,
+            "type": "table"
+          },
+          {
+            "context": [],
+            "height": 200,
+            "pixels_sha256": "efd7dd3591a80a54b90074718d964dbd672850ea37bc8ab439c5450219ee30ab",
+            "position": 746,
+            "sha256": [
+              117,
+              10,
+              56,
+              160,
+              123,
+              66,
+              240,
+              209,
+              28,
+              177,
+              167,
+              177,
+              149,
+              52,
+              5,
+              180,
+              87,
+              225,
+              5,
+              243,
+              138,
+              246,
+              193,
+              94,
+              183,
+              14,
+              214,
+              106,
+              201,
+              10,
+              12,
+              118
+            ],
+            "type": "image",
+            "width": 720
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 917,
+            "text": "Exceptions",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 1029,
+            "text": "References",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 1117,
+            "text": "Appendix A. Record",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "docx",
+      "fixture": "process-docx",
+      "cold": {
+        "median": 0.034876416029874235,
+        "min": 0.033110041986219585,
+        "max": 0.0382395830238238,
+        "spread": 0.005129541037604213,
+        "samples": [
+          0.035423124965745956,
+          0.0382395830238238,
+          0.034876416029874235,
+          0.034549916977994144,
+          0.033110041986219585
+        ]
+      },
+      "warm": {
+        "median": 0.026291708,
+        "min": 0.024013375,
+        "max": 0.026501583,
+        "spread": 0.0024882079999999987,
+        "samples": [
+          0.025253208,
+          0.024013375,
+          0.02637325,
+          0.026501583,
+          0.026291708
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 1,
+          "text": "Harbor release process",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          26,
+          47,
+          148,
+          165,
+          250,
+          266,
+          338,
+          415,
+          495,
+          577,
+          602,
+          609,
+          617,
+          652,
+          660,
+          674,
+          684,
+          691,
+          703,
+          713,
+          723,
+          735,
+          746,
+          830,
+          917,
+          931,
+          1029,
+          1043,
+          1117,
+          1139
+        ],
+        "blocks": [
+          "Harbor release process",
+          "Purpose and roles",
+          "The coordinator prepares the release; the inspector verifies it; the duty lead approves exceptions.",
+          "Prerequisites",
+          "Use the current manifest and verify that the check gate is staffed before starting.",
+          "Procedure",
+          "Check the manifest against the parcel count and record any mismatch.",
+          "Test the release signal with the inspector present; retain the timestamp.",
+          "Release only after both checks pass and tell the coordinator the batch number.",
+          "Warning: stop immediately if the signal lamp is red. Never bypass the test gate.",
+          "Gate responsibilities",
+          "Gate",
+          "Owner",
+          "Time limit",
+          "Check",
+          "Coordinator",
+          "5 min",
+          "Test",
+          "Inspector",
+          "3 min",
+          "Release",
+          "Duty lead",
+          "2 min",
+          "",
+          "Figure 1. Gate order: check, test, then release; each gate must pass before the next.",
+          "Exceptions",
+          "If the inspector is unavailable, keep the batch waiting and ask the duty lead for a replacement.",
+          "References",
+          "[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3.",
+          "Appendix A. Record",
+          "Record the batch number, all three gate timestamps, and the name of the approving lead."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Harbor release process",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 26,
+            "text": "Purpose and roles",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 148,
+            "text": "Prerequisites",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 250,
+            "text": "Procedure",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 1,
+            "position": 263,
+            "text": "Check the manifest against the parcel count and record any mismatch.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 2,
+            "position": 335,
+            "text": "Test the release signal with the inspector present; retain the timestamp.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 3,
+            "position": 412,
+            "text": "Release only after both checks pass and tell the coordinator the batch number.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 577,
+            "text": "Gate responsibilities",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Gate",
+                "Owner",
+                "Time limit"
+              ],
+              [
+                "Check",
+                "Coordinator",
+                "5 min"
+              ],
+              [
+                "Test",
+                "Inspector",
+                "3 min"
+              ],
+              [
+                "Release",
+                "Duty lead",
+                "2 min"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 602,
+            "rows": 4,
+            "type": "table"
+          },
+          {
+            "context": [],
+            "height": 200,
+            "pixels_sha256": "efd7dd3591a80a54b90074718d964dbd672850ea37bc8ab439c5450219ee30ab",
+            "position": 746,
+            "sha256": [
+              117,
+              10,
+              56,
+              160,
+              123,
+              66,
+              240,
+              209,
+              28,
+              177,
+              167,
+              177,
+              149,
+              52,
+              5,
+              180,
+              87,
+              225,
+              5,
+              243,
+              138,
+              246,
+              193,
+              94,
+              183,
+              14,
+              214,
+              106,
+              201,
+              10,
+              12,
+              118
+            ],
+            "type": "image",
+            "width": 720
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 917,
+            "text": "Exceptions",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 1029,
+            "text": "References",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 1117,
+            "text": "Appendix A. Record",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "docx",
+      "fixture": "process-docx",
+      "cold": {
+        "median": 0.027072083030361682,
+        "min": 0.026031500019598752,
+        "max": 0.02857816603500396,
+        "spread": 0.002546666015405208,
+        "samples": [
+          0.026031500019598752,
+          0.028258042002562433,
+          0.026660624949727207,
+          0.02857816603500396,
+          0.027072083030361682
+        ]
+      },
+      "warm": {
+        "median": 0.018044375,
+        "min": 0.016440625,
+        "max": 0.018662291,
+        "spread": 0.0022216660000000006,
+        "samples": [
+          0.018044375,
+          0.018662291,
+          0.016440625,
+          0.018240375,
+          0.018029959
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 1,
+          "text": "Harbor release process",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          26,
+          47,
+          148,
+          165,
+          250,
+          266,
+          338,
+          415,
+          495,
+          577,
+          602,
+          609,
+          617,
+          652,
+          660,
+          674,
+          684,
+          691,
+          703,
+          713,
+          723,
+          735,
+          746,
+          830,
+          917,
+          931,
+          1029,
+          1043,
+          1117,
+          1139
+        ],
+        "blocks": [
+          "Harbor release process",
+          "Purpose and roles",
+          "The coordinator prepares the release; the inspector verifies it; the duty lead approves exceptions.",
+          "Prerequisites",
+          "Use the current manifest and verify that the check gate is staffed before starting.",
+          "Procedure",
+          "Check the manifest against the parcel count and record any mismatch.",
+          "Test the release signal with the inspector present; retain the timestamp.",
+          "Release only after both checks pass and tell the coordinator the batch number.",
+          "Warning: stop immediately if the signal lamp is red. Never bypass the test gate.",
+          "Gate responsibilities",
+          "Gate",
+          "Owner",
+          "Time limit",
+          "Check",
+          "Coordinator",
+          "5 min",
+          "Test",
+          "Inspector",
+          "3 min",
+          "Release",
+          "Duty lead",
+          "2 min",
+          "",
+          "Figure 1. Gate order: check, test, then release; each gate must pass before the next.",
+          "Exceptions",
+          "If the inspector is unavailable, keep the batch waiting and ask the duty lead for a replacement.",
+          "References",
+          "[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3.",
+          "Appendix A. Record",
+          "Record the batch number, all three gate timestamps, and the name of the approving lead."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Harbor release process",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 26,
+            "text": "Purpose and roles",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 148,
+            "text": "Prerequisites",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 250,
+            "text": "Procedure",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 1,
+            "position": 263,
+            "text": "Check the manifest against the parcel count and record any mismatch.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 2,
+            "position": 335,
+            "text": "Test the release signal with the inspector present; retain the timestamp.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 3,
+            "position": 412,
+            "text": "Release only after both checks pass and tell the coordinator the batch number.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 577,
+            "text": "Gate responsibilities",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Gate",
+                "Owner",
+                "Time limit"
+              ],
+              [
+                "Check",
+                "Coordinator",
+                "5 min"
+              ],
+              [
+                "Test",
+                "Inspector",
+                "3 min"
+              ],
+              [
+                "Release",
+                "Duty lead",
+                "2 min"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 602,
+            "rows": 4,
+            "type": "table"
+          },
+          {
+            "context": [],
+            "height": 200,
+            "pixels_sha256": "efd7dd3591a80a54b90074718d964dbd672850ea37bc8ab439c5450219ee30ab",
+            "position": 746,
+            "sha256": [
+              117,
+              10,
+              56,
+              160,
+              123,
+              66,
+              240,
+              209,
+              28,
+              177,
+              167,
+              177,
+              149,
+              52,
+              5,
+              180,
+              87,
+              225,
+              5,
+              243,
+              138,
+              246,
+              193,
+              94,
+              183,
+              14,
+              214,
+              106,
+              201,
+              10,
+              12,
+              118
+            ],
+            "type": "image",
+            "width": 720
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 917,
+            "text": "Exceptions",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 1029,
+            "text": "References",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 1117,
+            "text": "Appendix A. Record",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "docx",
+      "fixture": "process-docx",
+      "cold": {
+        "median": 0.027617459010798484,
+        "min": 0.02431054098997265,
+        "max": 0.02844574995106086,
+        "spread": 0.00413520896108821,
+        "samples": [
+          0.027701957966201007,
+          0.02431054098997265,
+          0.027617459010798484,
+          0.026988792000338435,
+          0.02844574995106086
+        ]
+      },
+      "warm": {
+        "median": 0.018427291,
+        "min": 0.018193084,
+        "max": 0.018529875,
+        "spread": 0.0003367909999999995,
+        "samples": [
+          0.018529875,
+          0.018427291,
+          0.018475083,
+          0.018193084,
+          0.01823425
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 1,
+          "text": "Harbor release process",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          26,
+          47,
+          148,
+          165,
+          250,
+          266,
+          338,
+          415,
+          495,
+          577,
+          602,
+          609,
+          617,
+          652,
+          660,
+          674,
+          684,
+          691,
+          703,
+          713,
+          723,
+          735,
+          746,
+          830,
+          917,
+          931,
+          1029,
+          1043,
+          1117,
+          1139
+        ],
+        "blocks": [
+          "Harbor release process",
+          "Purpose and roles",
+          "The coordinator prepares the release; the inspector verifies it; the duty lead approves exceptions.",
+          "Prerequisites",
+          "Use the current manifest and verify that the check gate is staffed before starting.",
+          "Procedure",
+          "Check the manifest against the parcel count and record any mismatch.",
+          "Test the release signal with the inspector present; retain the timestamp.",
+          "Release only after both checks pass and tell the coordinator the batch number.",
+          "Warning: stop immediately if the signal lamp is red. Never bypass the test gate.",
+          "Gate responsibilities",
+          "Gate",
+          "Owner",
+          "Time limit",
+          "Check",
+          "Coordinator",
+          "5 min",
+          "Test",
+          "Inspector",
+          "3 min",
+          "Release",
+          "Duty lead",
+          "2 min",
+          "",
+          "Figure 1. Gate order: check, test, then release; each gate must pass before the next.",
+          "Exceptions",
+          "If the inspector is unavailable, keep the batch waiting and ask the duty lead for a replacement.",
+          "References",
+          "[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3.",
+          "Appendix A. Record",
+          "Record the batch number, all three gate timestamps, and the name of the approving lead."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Harbor release process",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 26,
+            "text": "Purpose and roles",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 148,
+            "text": "Prerequisites",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 250,
+            "text": "Procedure",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 1,
+            "position": 263,
+            "text": "Check the manifest against the parcel count and record any mismatch.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 2,
+            "position": 335,
+            "text": "Test the release signal with the inspector present; retain the timestamp.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 3,
+            "position": 412,
+            "text": "Release only after both checks pass and tell the coordinator the batch number.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 577,
+            "text": "Gate responsibilities",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Gate",
+                "Owner",
+                "Time limit"
+              ],
+              [
+                "Check",
+                "Coordinator",
+                "5 min"
+              ],
+              [
+                "Test",
+                "Inspector",
+                "3 min"
+              ],
+              [
+                "Release",
+                "Duty lead",
+                "2 min"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 602,
+            "rows": 4,
+            "type": "table"
+          },
+          {
+            "context": [],
+            "height": 200,
+            "pixels_sha256": "efd7dd3591a80a54b90074718d964dbd672850ea37bc8ab439c5450219ee30ab",
+            "position": 746,
+            "sha256": [
+              117,
+              10,
+              56,
+              160,
+              123,
+              66,
+              240,
+              209,
+              28,
+              177,
+              167,
+              177,
+              149,
+              52,
+              5,
+              180,
+              87,
+              225,
+              5,
+              243,
+              138,
+              246,
+              193,
+              94,
+              183,
+              14,
+              214,
+              106,
+              201,
+              10,
+              12,
+              118
+            ],
+            "type": "image",
+            "width": 720
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 917,
+            "text": "Exceptions",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 1029,
+            "text": "References",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 1,
+            "position": 1117,
+            "text": "Appendix A. Record",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "pdf",
+      "fixture": "reserve-pdf",
+      "cold": {
+        "median": 0.03364795900415629,
+        "min": 0.032649041968397796,
+        "max": 0.034777124994434416,
+        "spread": 0.00212808302603662,
+        "samples": [
+          0.034777124994434416,
+          0.033281999989412725,
+          0.03437645803205669,
+          0.032649041968397796,
+          0.03364795900415629
+        ]
+      },
+      "warm": {
+        "median": 0.025885709,
+        "min": 0.02377,
+        "max": 0.026137042,
+        "spread": 0.0023670419999999998,
+        "samples": [
+          0.02377,
+          0.026137042,
+          0.025876083,
+          0.025885709,
+          0.025923625
+        ]
+      },
+      "score": 0.5,
+      "retained": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ],
+      "missing": [
+        {
+          "index": 1,
+          "type": "heading",
+          "level": 2,
+          "text": "Inventory"
+        },
+        {
+          "index": 2,
+          "type": "heading",
+          "level": 2,
+          "text": "Constraints"
+        },
+        {
+          "index": 5,
+          "type": "text",
+          "text": "Counts exclude the south shed."
+        },
+        {
+          "index": 6,
+          "type": "text",
+          "text": "Repeat the count on Monday."
+        }
+      ],
+      "order_losses": [
+        5,
+        6
+      ],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          24,
+          47,
+          109,
+          168
+        ],
+        "blocks": [
+          "Reserve field report",
+          "Inventory Constraints",
+          "Seventeen seals were counted. Counts exclude the south shed.",
+          "Six valves passed inspection. Repeat the count on Monday.",
+          "Two bolts need replacement."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve field report",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "pdf",
+      "fixture": "reserve-pdf",
+      "cold": {
+        "median": 0.03479904105188325,
+        "min": 0.03379487502388656,
+        "max": 0.035803499980829656,
+        "spread": 0.0020086249569430947,
+        "samples": [
+          0.03484133299207315,
+          0.03379487502388656,
+          0.03446866601007059,
+          0.03479904105188325,
+          0.035803499980829656
+        ]
+      },
+      "warm": {
+        "median": 0.025925125,
+        "min": 0.023536875,
+        "max": 0.026021041,
+        "spread": 0.002484166000000003,
+        "samples": [
+          0.025925125,
+          0.025903042,
+          0.023536875,
+          0.026021041,
+          0.02594275
+        ]
+      },
+      "score": 0.5,
+      "retained": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ],
+      "missing": [
+        {
+          "index": 1,
+          "type": "heading",
+          "level": 2,
+          "text": "Inventory"
+        },
+        {
+          "index": 2,
+          "type": "heading",
+          "level": 2,
+          "text": "Constraints"
+        },
+        {
+          "index": 5,
+          "type": "text",
+          "text": "Counts exclude the south shed."
+        },
+        {
+          "index": 6,
+          "type": "text",
+          "text": "Repeat the count on Monday."
+        }
+      ],
+      "order_losses": [
+        5,
+        6
+      ],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          24,
+          47,
+          109,
+          168
+        ],
+        "blocks": [
+          "Reserve field report",
+          "Inventory Constraints",
+          "Seventeen seals were counted. Counts exclude the south shed.",
+          "Six valves passed inspection. Repeat the count on Monday.",
+          "Two bolts need replacement."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve field report",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "pdf",
+      "fixture": "reserve-pdf",
+      "cold": {
+        "median": 0.02638299996033311,
+        "min": 0.02578479197109118,
+        "max": 0.028110957995522767,
+        "spread": 0.0023261660244315863,
+        "samples": [
+          0.02638299996033311,
+          0.028110957995522767,
+          0.02578479197109118,
+          0.025941250030882657,
+          0.026766625000163913
+        ]
+      },
+      "warm": {
+        "median": 0.016741542,
+        "min": 0.014199875,
+        "max": 0.016768292,
+        "spread": 0.002568417,
+        "samples": [
+          0.016741542,
+          0.016634083,
+          0.01676675,
+          0.016768292,
+          0.014199875
+        ]
+      },
+      "score": 0.5,
+      "retained": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ],
+      "missing": [
+        {
+          "index": 1,
+          "type": "heading",
+          "level": 2,
+          "text": "Inventory"
+        },
+        {
+          "index": 2,
+          "type": "heading",
+          "level": 2,
+          "text": "Constraints"
+        },
+        {
+          "index": 5,
+          "type": "text",
+          "text": "Counts exclude the south shed."
+        },
+        {
+          "index": 6,
+          "type": "text",
+          "text": "Repeat the count on Monday."
+        }
+      ],
+      "order_losses": [
+        5,
+        6
+      ],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          24,
+          47,
+          109,
+          168
+        ],
+        "blocks": [
+          "Reserve field report",
+          "Inventory Constraints",
+          "Seventeen seals were counted. Counts exclude the south shed.",
+          "Six valves passed inspection. Repeat the count on Monday.",
+          "Two bolts need replacement."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve field report",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "pdf",
+      "fixture": "reserve-pdf",
+      "cold": {
+        "median": 0.026369334023911506,
+        "min": 0.024992207996547222,
+        "max": 0.028242125001270324,
+        "spread": 0.003249917004723102,
+        "samples": [
+          0.026941416959743947,
+          0.024992207996547222,
+          0.028242125001270324,
+          0.026064332982059568,
+          0.026369334023911506
+        ]
+      },
+      "warm": {
+        "median": 0.016878458,
+        "min": 0.015510917,
+        "max": 0.017414458,
+        "spread": 0.001903541,
+        "samples": [
+          0.016893333,
+          0.016796458,
+          0.016878458,
+          0.017414458,
+          0.015510917
+        ]
+      },
+      "score": 0.5,
+      "retained": [
+        true,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false,
+        true
+      ],
+      "missing": [
+        {
+          "index": 1,
+          "type": "heading",
+          "level": 2,
+          "text": "Inventory"
+        },
+        {
+          "index": 2,
+          "type": "heading",
+          "level": 2,
+          "text": "Constraints"
+        },
+        {
+          "index": 5,
+          "type": "text",
+          "text": "Counts exclude the south shed."
+        },
+        {
+          "index": 6,
+          "type": "text",
+          "text": "Repeat the count on Monday."
+        }
+      ],
+      "order_losses": [
+        5,
+        6
+      ],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          24,
+          47,
+          109,
+          168
+        ],
+        "blocks": [
+          "Reserve field report",
+          "Inventory Constraints",
+          "Seventeen seals were counted. Counts exclude the south shed.",
+          "Six valves passed inspection. Repeat the count on Monday.",
+          "Two bolts need replacement."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve field report",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "pptx",
+      "fixture": "harbor-pptx",
+      "cold": {
+        "median": 0.03542541601927951,
+        "min": 0.03273570799501613,
+        "max": 0.0364921250147745,
+        "spread": 0.0037564170197583735,
+        "samples": [
+          0.03273570799501613,
+          0.03542541601927951,
+          0.0364921250147745,
+          0.034438040980603546,
+          0.03613020799821243
+        ]
+      },
+      "warm": {
+        "median": 0.02664475,
+        "min": 0.025120125,
+        "max": 0.02677375,
+        "spread": 0.0016536249999999988,
+        "samples": [
+          0.025120125,
+          0.02664475,
+          0.026581042,
+          0.02677375,
+          0.026663
+        ]
+      },
+      "score": 0.36363636363636365,
+      "retained": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "missing": [
+        {
+          "index": 0,
+          "type": "heading",
+          "level": 1,
+          "text": "Harbor decision and dependencies"
+        },
+        {
+          "index": 2,
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "index": 3,
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "index": 4,
+          "type": "text",
+          "text": "Presenter note: ask Mira to book the inspection by 12 October."
+        },
+        {
+          "index": 5,
+          "type": "heading",
+          "level": 1,
+          "text": "Visual-only scheduling evidence: inspection capacity"
+        },
+        {
+          "index": 9,
+          "type": "text",
+          "text": "2",
+          "whole_block": true
+        },
+        {
+          "index": 10,
+          "type": "text",
+          "text": "0",
+          "whole_block": true
+        }
+      ],
+      "order_losses": [
+        2,
+        3
+      ],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 2,
+          "text": "Harbor decision and dependencies",
+          "type": "heading"
+        },
+        {
+          "context": [],
+          "level": 2,
+          "text": "Visual-only scheduling evidence: inspection capacity",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          37,
+          134,
+          231,
+          294,
+          351
+        ],
+        "blocks": [
+          "Harbor decision and dependencies",
+          "",
+          "",
+          "CRITICAL: installation may start only after valve inspection.",
+          "Visual-only scheduling evidence: inspection capacity",
+          "Available inspection slots, 12 October, 13 October, 2, 0"
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 2,
+            "position": 0,
+            "text": "Harbor decision and dependencies",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "height": 500,
+            "pixels_sha256": "1b9ee795edc5b5c85e1cb759fd5977963e7591f2a3dc37f5f12bc37eb57cdc89",
+            "position": 37,
+            "sha256": [
+              247,
+              109,
+              211,
+              121,
+              32,
+              160,
+              252,
+              88,
+              137,
+              177,
+              213,
+              58,
+              12,
+              68,
+              143,
+              126,
+              198,
+              198,
+              25,
+              237,
+              130,
+              0,
+              238,
+              245,
+              211,
+              22,
+              33,
+              227,
+              108,
+              164,
+              214,
+              29
+            ],
+            "type": "image",
+            "width": 900
+          },
+          {
+            "context": [],
+            "height": 500,
+            "pixels_sha256": "1b9ee795edc5b5c85e1cb759fd5977963e7591f2a3dc37f5f12bc37eb57cdc89",
+            "position": 134,
+            "sha256": [
+              247,
+              109,
+              211,
+              121,
+              32,
+              160,
+              252,
+              88,
+              137,
+              177,
+              213,
+              58,
+              12,
+              68,
+              143,
+              126,
+              198,
+              198,
+              25,
+              237,
+              130,
+              0,
+              238,
+              245,
+              211,
+              22,
+              33,
+              227,
+              108,
+              164,
+              214,
+              29
+            ],
+            "type": "image",
+            "width": 900
+          },
+          {
+            "context": [],
+            "level": 2,
+            "position": 294,
+            "text": "Visual-only scheduling evidence: inspection capacity",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "pptx",
+      "fixture": "harbor-pptx",
+      "cold": {
+        "median": 0.035042625037021935,
+        "min": 0.03457691700896248,
+        "max": 0.03687975002685562,
+        "spread": 0.0023028330178931355,
+        "samples": [
+          0.03457691700896248,
+          0.03506495803594589,
+          0.03687975002685562,
+          0.035042625037021935,
+          0.03495112498058006
+        ]
+      },
+      "warm": {
+        "median": 0.026644541,
+        "min": 0.024478417,
+        "max": 0.02678525,
+        "spread": 0.002306833000000001,
+        "samples": [
+          0.02678525,
+          0.026644541,
+          0.026674625,
+          0.024969917,
+          0.024478417
+        ]
+      },
+      "score": 0.36363636363636365,
+      "retained": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "missing": [
+        {
+          "index": 0,
+          "type": "heading",
+          "level": 1,
+          "text": "Harbor decision and dependencies"
+        },
+        {
+          "index": 2,
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "index": 3,
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "index": 4,
+          "type": "text",
+          "text": "Presenter note: ask Mira to book the inspection by 12 October."
+        },
+        {
+          "index": 5,
+          "type": "heading",
+          "level": 1,
+          "text": "Visual-only scheduling evidence: inspection capacity"
+        },
+        {
+          "index": 9,
+          "type": "text",
+          "text": "2",
+          "whole_block": true
+        },
+        {
+          "index": 10,
+          "type": "text",
+          "text": "0",
+          "whole_block": true
+        }
+      ],
+      "order_losses": [
+        2,
+        3
+      ],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 2,
+          "text": "Harbor decision and dependencies",
+          "type": "heading"
+        },
+        {
+          "context": [],
+          "level": 2,
+          "text": "Visual-only scheduling evidence: inspection capacity",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          37,
+          134,
+          231,
+          294,
+          351
+        ],
+        "blocks": [
+          "Harbor decision and dependencies",
+          "",
+          "",
+          "CRITICAL: installation may start only after valve inspection.",
+          "Visual-only scheduling evidence: inspection capacity",
+          "Available inspection slots, 12 October, 13 October, 2, 0"
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 2,
+            "position": 0,
+            "text": "Harbor decision and dependencies",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "height": 500,
+            "pixels_sha256": "1b9ee795edc5b5c85e1cb759fd5977963e7591f2a3dc37f5f12bc37eb57cdc89",
+            "position": 37,
+            "sha256": [
+              247,
+              109,
+              211,
+              121,
+              32,
+              160,
+              252,
+              88,
+              137,
+              177,
+              213,
+              58,
+              12,
+              68,
+              143,
+              126,
+              198,
+              198,
+              25,
+              237,
+              130,
+              0,
+              238,
+              245,
+              211,
+              22,
+              33,
+              227,
+              108,
+              164,
+              214,
+              29
+            ],
+            "type": "image",
+            "width": 900
+          },
+          {
+            "context": [],
+            "height": 500,
+            "pixels_sha256": "1b9ee795edc5b5c85e1cb759fd5977963e7591f2a3dc37f5f12bc37eb57cdc89",
+            "position": 134,
+            "sha256": [
+              247,
+              109,
+              211,
+              121,
+              32,
+              160,
+              252,
+              88,
+              137,
+              177,
+              213,
+              58,
+              12,
+              68,
+              143,
+              126,
+              198,
+              198,
+              25,
+              237,
+              130,
+              0,
+              238,
+              245,
+              211,
+              22,
+              33,
+              227,
+              108,
+              164,
+              214,
+              29
+            ],
+            "type": "image",
+            "width": 900
+          },
+          {
+            "context": [],
+            "level": 2,
+            "position": 294,
+            "text": "Visual-only scheduling evidence: inspection capacity",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "pptx",
+      "fixture": "harbor-pptx",
+      "cold": {
+        "median": 0.028637874987907708,
+        "min": 0.027634416008368134,
+        "max": 0.02908487501554191,
+        "spread": 0.0014504590071737766,
+        "samples": [
+          0.028637874987907708,
+          0.028744458977598697,
+          0.027634416008368134,
+          0.02908487501554191,
+          0.02844175003701821
+        ]
+      },
+      "warm": {
+        "median": 0.018514917,
+        "min": 0.01606825,
+        "max": 0.019047875,
+        "spread": 0.0029796249999999996,
+        "samples": [
+          0.018514917,
+          0.01606825,
+          0.018503458,
+          0.018674917,
+          0.019047875
+        ]
+      },
+      "score": 0.36363636363636365,
+      "retained": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "missing": [
+        {
+          "index": 0,
+          "type": "heading",
+          "level": 1,
+          "text": "Harbor decision and dependencies"
+        },
+        {
+          "index": 2,
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "index": 3,
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "index": 4,
+          "type": "text",
+          "text": "Presenter note: ask Mira to book the inspection by 12 October."
+        },
+        {
+          "index": 5,
+          "type": "heading",
+          "level": 1,
+          "text": "Visual-only scheduling evidence: inspection capacity"
+        },
+        {
+          "index": 9,
+          "type": "text",
+          "text": "2",
+          "whole_block": true
+        },
+        {
+          "index": 10,
+          "type": "text",
+          "text": "0",
+          "whole_block": true
+        }
+      ],
+      "order_losses": [
+        2,
+        3
+      ],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 2,
+          "text": "Harbor decision and dependencies",
+          "type": "heading"
+        },
+        {
+          "context": [],
+          "level": 2,
+          "text": "Visual-only scheduling evidence: inspection capacity",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          37,
+          134,
+          231,
+          294,
+          351
+        ],
+        "blocks": [
+          "Harbor decision and dependencies",
+          "",
+          "",
+          "CRITICAL: installation may start only after valve inspection.",
+          "Visual-only scheduling evidence: inspection capacity",
+          "Available inspection slots, 12 October, 13 October, 2, 0"
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 2,
+            "position": 0,
+            "text": "Harbor decision and dependencies",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "height": 500,
+            "pixels_sha256": "1b9ee795edc5b5c85e1cb759fd5977963e7591f2a3dc37f5f12bc37eb57cdc89",
+            "position": 37,
+            "sha256": [
+              247,
+              109,
+              211,
+              121,
+              32,
+              160,
+              252,
+              88,
+              137,
+              177,
+              213,
+              58,
+              12,
+              68,
+              143,
+              126,
+              198,
+              198,
+              25,
+              237,
+              130,
+              0,
+              238,
+              245,
+              211,
+              22,
+              33,
+              227,
+              108,
+              164,
+              214,
+              29
+            ],
+            "type": "image",
+            "width": 900
+          },
+          {
+            "context": [],
+            "height": 500,
+            "pixels_sha256": "1b9ee795edc5b5c85e1cb759fd5977963e7591f2a3dc37f5f12bc37eb57cdc89",
+            "position": 134,
+            "sha256": [
+              247,
+              109,
+              211,
+              121,
+              32,
+              160,
+              252,
+              88,
+              137,
+              177,
+              213,
+              58,
+              12,
+              68,
+              143,
+              126,
+              198,
+              198,
+              25,
+              237,
+              130,
+              0,
+              238,
+              245,
+              211,
+              22,
+              33,
+              227,
+              108,
+              164,
+              214,
+              29
+            ],
+            "type": "image",
+            "width": 900
+          },
+          {
+            "context": [],
+            "level": 2,
+            "position": 294,
+            "text": "Visual-only scheduling evidence: inspection capacity",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "pptx",
+      "fixture": "harbor-pptx",
+      "cold": {
+        "median": 0.02891487500164658,
+        "min": 0.025861874979455024,
+        "max": 0.029283332987688482,
+        "spread": 0.003421458008233458,
+        "samples": [
+          0.025861874979455024,
+          0.028100875031668693,
+          0.02891487500164658,
+          0.029283332987688482,
+          0.029027749958913773
+        ]
+      },
+      "warm": {
+        "median": 0.018517166,
+        "min": 0.016613833,
+        "max": 0.018795875,
+        "spread": 0.0021820419999999986,
+        "samples": [
+          0.0182365,
+          0.016613833,
+          0.018612125,
+          0.018795875,
+          0.018517166
+        ]
+      },
+      "score": 0.36363636363636365,
+      "retained": [
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        true,
+        false,
+        false
+      ],
+      "missing": [
+        {
+          "index": 0,
+          "type": "heading",
+          "level": 1,
+          "text": "Harbor decision and dependencies"
+        },
+        {
+          "index": 2,
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "index": 3,
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "index": 4,
+          "type": "text",
+          "text": "Presenter note: ask Mira to book the inspection by 12 October."
+        },
+        {
+          "index": 5,
+          "type": "heading",
+          "level": 1,
+          "text": "Visual-only scheduling evidence: inspection capacity"
+        },
+        {
+          "index": 9,
+          "type": "text",
+          "text": "2",
+          "whole_block": true
+        },
+        {
+          "index": 10,
+          "type": "text",
+          "text": "0",
+          "whole_block": true
+        }
+      ],
+      "order_losses": [
+        2,
+        3
+      ],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 2,
+          "text": "Harbor decision and dependencies",
+          "type": "heading"
+        },
+        {
+          "context": [],
+          "level": 2,
+          "text": "Visual-only scheduling evidence: inspection capacity",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          37,
+          134,
+          231,
+          294,
+          351
+        ],
+        "blocks": [
+          "Harbor decision and dependencies",
+          "",
+          "",
+          "CRITICAL: installation may start only after valve inspection.",
+          "Visual-only scheduling evidence: inspection capacity",
+          "Available inspection slots, 12 October, 13 October, 2, 0"
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 2,
+            "position": 0,
+            "text": "Harbor decision and dependencies",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "height": 500,
+            "pixels_sha256": "1b9ee795edc5b5c85e1cb759fd5977963e7591f2a3dc37f5f12bc37eb57cdc89",
+            "position": 37,
+            "sha256": [
+              247,
+              109,
+              211,
+              121,
+              32,
+              160,
+              252,
+              88,
+              137,
+              177,
+              213,
+              58,
+              12,
+              68,
+              143,
+              126,
+              198,
+              198,
+              25,
+              237,
+              130,
+              0,
+              238,
+              245,
+              211,
+              22,
+              33,
+              227,
+              108,
+              164,
+              214,
+              29
+            ],
+            "type": "image",
+            "width": 900
+          },
+          {
+            "context": [],
+            "height": 500,
+            "pixels_sha256": "1b9ee795edc5b5c85e1cb759fd5977963e7591f2a3dc37f5f12bc37eb57cdc89",
+            "position": 134,
+            "sha256": [
+              247,
+              109,
+              211,
+              121,
+              32,
+              160,
+              252,
+              88,
+              137,
+              177,
+              213,
+              58,
+              12,
+              68,
+              143,
+              126,
+              198,
+              198,
+              25,
+              237,
+              130,
+              0,
+              238,
+              245,
+              211,
+              22,
+              33,
+              227,
+              108,
+              164,
+              214,
+              29
+            ],
+            "type": "image",
+            "width": 900
+          },
+          {
+            "context": [],
+            "level": 2,
+            "position": 294,
+            "text": "Visual-only scheduling evidence: inspection capacity",
+            "type": "heading"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "xlsx",
+      "fixture": "reserve-xlsx",
+      "cold": {
+        "median": 0.020354208012577146,
+        "min": 0.01800433301832527,
+        "max": 0.03367170796263963,
+        "spread": 0.01566737494431436,
+        "samples": [
+          0.03367170796263963,
+          0.020354208012577146,
+          0.020847959036473185,
+          0.018571500026155263,
+          0.01800433301832527
+        ]
+      },
+      "warm": {
+        "median": 0.0251325,
+        "min": 0.013457875,
+        "max": 0.025941959,
+        "spread": 0.012484084000000001,
+        "samples": [
+          0.0251325,
+          0.023662875,
+          0.025867375,
+          0.013457875,
+          0.025941959
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 2,
+          "text": "Reserve stock",
+          "type": "heading"
+        },
+        {
+          "context": [],
+          "level": 2,
+          "text": "Dispatch",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          18,
+          25,
+          36,
+          66,
+          73,
+          86,
+          91,
+          99,
+          112,
+          118,
+          125,
+          137,
+          145,
+          158,
+          164,
+          172,
+          202,
+          211,
+          218,
+          230,
+          239,
+          245
+        ],
+        "blocks": [
+          "Reserve stock",
+          "Part",
+          "Location",
+          "Units",
+          "Seal",
+          "North shed",
+          "",
+          "Valve",
+          "South shed",
+          "6",
+          "Bolt",
+          "West shed",
+          "23",
+          "Dispatch",
+          "Day",
+          "Owner",
+          "Shift",
+          "Friday",
+          "Lena",
+          "Evening",
+          "Monday",
+          "Kai",
+          "Morning"
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 2,
+            "position": 0,
+            "text": "Reserve stock",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Part",
+                "Location",
+                "Units"
+              ],
+              [
+                "Seal",
+                "North shed",
+                ""
+              ],
+              [
+                "Valve",
+                "South shed",
+                "6"
+              ],
+              [
+                "Bolt",
+                "West shed",
+                "23"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 18,
+            "rows": 4,
+            "type": "table"
+          },
+          {
+            "context": [],
+            "level": 2,
+            "position": 145,
+            "text": "Dispatch",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Day",
+                "Owner",
+                "Shift"
+              ],
+              [
+                "Friday",
+                "Lena",
+                "Evening"
+              ],
+              [
+                "Monday",
+                "Kai",
+                "Morning"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 158,
+            "rows": 3,
+            "type": "table"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "xlsx",
+      "fixture": "reserve-xlsx",
+      "cold": {
+        "median": 0.028656582988332957,
+        "min": 0.01798129198141396,
+        "max": 0.03425345796858892,
+        "spread": 0.016272165987174958,
+        "samples": [
+          0.03425345796858892,
+          0.02985533297760412,
+          0.01798129198141396,
+          0.018370540987234563,
+          0.028656582988332957
+        ]
+      },
+      "warm": {
+        "median": 0.0215425,
+        "min": 0.013307709,
+        "max": 0.026102875,
+        "spread": 0.012795166000000002,
+        "samples": [
+          0.026102875,
+          0.0215425,
+          0.024373625,
+          0.013374167,
+          0.013307709
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 2,
+          "text": "Reserve stock",
+          "type": "heading"
+        },
+        {
+          "context": [],
+          "level": 2,
+          "text": "Dispatch",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          18,
+          25,
+          36,
+          66,
+          73,
+          86,
+          91,
+          99,
+          112,
+          118,
+          125,
+          137,
+          145,
+          158,
+          164,
+          172,
+          202,
+          211,
+          218,
+          230,
+          239,
+          245
+        ],
+        "blocks": [
+          "Reserve stock",
+          "Part",
+          "Location",
+          "Units",
+          "Seal",
+          "North shed",
+          "",
+          "Valve",
+          "South shed",
+          "6",
+          "Bolt",
+          "West shed",
+          "23",
+          "Dispatch",
+          "Day",
+          "Owner",
+          "Shift",
+          "Friday",
+          "Lena",
+          "Evening",
+          "Monday",
+          "Kai",
+          "Morning"
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 2,
+            "position": 0,
+            "text": "Reserve stock",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Part",
+                "Location",
+                "Units"
+              ],
+              [
+                "Seal",
+                "North shed",
+                ""
+              ],
+              [
+                "Valve",
+                "South shed",
+                "6"
+              ],
+              [
+                "Bolt",
+                "West shed",
+                "23"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 18,
+            "rows": 4,
+            "type": "table"
+          },
+          {
+            "context": [],
+            "level": 2,
+            "position": 145,
+            "text": "Dispatch",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Day",
+                "Owner",
+                "Shift"
+              ],
+              [
+                "Friday",
+                "Lena",
+                "Evening"
+              ],
+              [
+                "Monday",
+                "Kai",
+                "Morning"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 158,
+            "rows": 3,
+            "type": "table"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "xlsx",
+      "fixture": "reserve-xlsx",
+      "cold": {
+        "median": 0.016662040958181024,
+        "min": 0.015825292037334293,
+        "max": 0.02462762501090765,
+        "spread": 0.008802332973573357,
+        "samples": [
+          0.023620041960384697,
+          0.02462762501090765,
+          0.015825292037334293,
+          0.015898042009212077,
+          0.016662040958181024
+        ]
+      },
+      "warm": {
+        "median": 0.015515291,
+        "min": 0.012169125,
+        "max": 0.016632209,
+        "spread": 0.004463083999999999,
+        "samples": [
+          0.016632209,
+          0.015339208,
+          0.015836917,
+          0.012169125,
+          0.015515291
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 2,
+          "text": "Reserve stock",
+          "type": "heading"
+        },
+        {
+          "context": [],
+          "level": 2,
+          "text": "Dispatch",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          18,
+          25,
+          36,
+          66,
+          73,
+          86,
+          91,
+          99,
+          112,
+          118,
+          125,
+          137,
+          145,
+          158,
+          164,
+          172,
+          202,
+          211,
+          218,
+          230,
+          239,
+          245
+        ],
+        "blocks": [
+          "Reserve stock",
+          "Part",
+          "Location",
+          "Units",
+          "Seal",
+          "North shed",
+          "",
+          "Valve",
+          "South shed",
+          "6",
+          "Bolt",
+          "West shed",
+          "23",
+          "Dispatch",
+          "Day",
+          "Owner",
+          "Shift",
+          "Friday",
+          "Lena",
+          "Evening",
+          "Monday",
+          "Kai",
+          "Morning"
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 2,
+            "position": 0,
+            "text": "Reserve stock",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Part",
+                "Location",
+                "Units"
+              ],
+              [
+                "Seal",
+                "North shed",
+                ""
+              ],
+              [
+                "Valve",
+                "South shed",
+                "6"
+              ],
+              [
+                "Bolt",
+                "West shed",
+                "23"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 18,
+            "rows": 4,
+            "type": "table"
+          },
+          {
+            "context": [],
+            "level": 2,
+            "position": 145,
+            "text": "Dispatch",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Day",
+                "Owner",
+                "Shift"
+              ],
+              [
+                "Friday",
+                "Lena",
+                "Evening"
+              ],
+              [
+                "Monday",
+                "Kai",
+                "Morning"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 158,
+            "rows": 3,
+            "type": "table"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "xlsx",
+      "fixture": "reserve-xlsx",
+      "cold": {
+        "median": 0.018190667033195496,
+        "min": 0.0160130420117639,
+        "max": 0.022292708978056908,
+        "spread": 0.006279666966293007,
+        "samples": [
+          0.022292708978056908,
+          0.018190667033195496,
+          0.0160130420117639,
+          0.02047991700237617,
+          0.016993042023386806
+        ]
+      },
+      "warm": {
+        "median": 0.013914208,
+        "min": 0.01126475,
+        "max": 0.016291541,
+        "spread": 0.005026790999999999,
+        "samples": [
+          0.016291541,
+          0.016020833,
+          0.01126475,
+          0.013914208,
+          0.01265975
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "level": 2,
+          "text": "Reserve stock",
+          "type": "heading"
+        },
+        {
+          "context": [],
+          "level": 2,
+          "text": "Dispatch",
+          "type": "heading"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          18,
+          25,
+          36,
+          66,
+          73,
+          86,
+          91,
+          99,
+          112,
+          118,
+          125,
+          137,
+          145,
+          158,
+          164,
+          172,
+          202,
+          211,
+          218,
+          230,
+          239,
+          245
+        ],
+        "blocks": [
+          "Reserve stock",
+          "Part",
+          "Location",
+          "Units",
+          "Seal",
+          "North shed",
+          "",
+          "Valve",
+          "South shed",
+          "6",
+          "Bolt",
+          "West shed",
+          "23",
+          "Dispatch",
+          "Day",
+          "Owner",
+          "Shift",
+          "Friday",
+          "Lena",
+          "Evening",
+          "Monday",
+          "Kai",
+          "Morning"
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 2,
+            "position": 0,
+            "text": "Reserve stock",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Part",
+                "Location",
+                "Units"
+              ],
+              [
+                "Seal",
+                "North shed",
+                ""
+              ],
+              [
+                "Valve",
+                "South shed",
+                "6"
+              ],
+              [
+                "Bolt",
+                "West shed",
+                "23"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 18,
+            "rows": 4,
+            "type": "table"
+          },
+          {
+            "context": [],
+            "level": 2,
+            "position": 145,
+            "text": "Dispatch",
+            "type": "heading"
+          },
+          {
+            "cells": [
+              [
+                "Day",
+                "Owner",
+                "Shift"
+              ],
+              [
+                "Friday",
+                "Lena",
+                "Evening"
+              ],
+              [
+                "Monday",
+                "Kai",
+                "Morning"
+              ]
+            ],
+            "columns": 3,
+            "context": [],
+            "position": 158,
+            "rows": 3,
+            "type": "table"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "eml",
+      "fixture": "reserve-eml",
+      "cold": {
+        "median": 0.031332458020187914,
+        "min": 0.017641875019762665,
+        "max": 0.03350200003478676,
+        "spread": 0.015860125015024096,
+        "samples": [
+          0.031332458020187914,
+          0.03328566701384261,
+          0.03350200003478676,
+          0.01776062505086884,
+          0.017641875019762665
+        ]
+      },
+      "warm": {
+        "median": 0.025855083,
+        "min": 0.013283875,
+        "max": 0.025900792,
+        "spread": 0.012616916999999998,
+        "samples": [
+          0.013336916,
+          0.025897958,
+          0.025900792,
+          0.025855083,
+          0.013283875
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "text": "lena@example.test",
+          "title": null,
+          "type": "link",
+          "url": "mailto:lena@example.test"
+        },
+        {
+          "context": [],
+          "text": "kai@example.test",
+          "title": null,
+          "type": "link",
+          "url": "mailto:kai@example.test"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          28,
+          66,
+          92
+        ],
+        "blocks": [
+          "Subject: Reserve audit",
+          "From: Lena <lena@example.test>",
+          "To: kai@example.test",
+          "Lena counted 17 seals and 6 valves. The south shed remains unchecked."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "position": 45,
+            "text": "lena@example.test",
+            "title": null,
+            "type": "link",
+            "url": "mailto:lena@example.test"
+          },
+          {
+            "context": [],
+            "position": 74,
+            "text": "kai@example.test",
+            "title": null,
+            "type": "link",
+            "url": "mailto:kai@example.test"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "eml",
+      "fixture": "reserve-eml",
+      "cold": {
+        "median": 0.029845041979569942,
+        "min": 0.018301833944860846,
+        "max": 0.034048124973196536,
+        "spread": 0.01574629102833569,
+        "samples": [
+          0.034048124973196536,
+          0.029845041979569942,
+          0.03159520903136581,
+          0.018301833944860846,
+          0.01861124997958541
+        ]
+      },
+      "warm": {
+        "median": 0.025862625,
+        "min": 0.013259459,
+        "max": 0.026118,
+        "spread": 0.012858541,
+        "samples": [
+          0.025862625,
+          0.0259265,
+          0.026118,
+          0.025082791,
+          0.013259459
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "text": "lena@example.test",
+          "title": null,
+          "type": "link",
+          "url": "mailto:lena@example.test"
+        },
+        {
+          "context": [],
+          "text": "kai@example.test",
+          "title": null,
+          "type": "link",
+          "url": "mailto:kai@example.test"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          28,
+          66,
+          92
+        ],
+        "blocks": [
+          "Subject: Reserve audit",
+          "From: Lena <lena@example.test>",
+          "To: kai@example.test",
+          "Lena counted 17 seals and 6 valves. The south shed remains unchecked."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "position": 45,
+            "text": "lena@example.test",
+            "title": null,
+            "type": "link",
+            "url": "mailto:lena@example.test"
+          },
+          {
+            "context": [],
+            "position": 74,
+            "text": "kai@example.test",
+            "title": null,
+            "type": "link",
+            "url": "mailto:kai@example.test"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "eml",
+      "fixture": "reserve-eml",
+      "cold": {
+        "median": 0.020940041984431446,
+        "min": 0.015298457990866154,
+        "max": 0.030571915965992957,
+        "spread": 0.015273457975126803,
+        "samples": [
+          0.02425920800305903,
+          0.030571915965992957,
+          0.020940041984431446,
+          0.015298457990866154,
+          0.016550833999644965
+        ]
+      },
+      "warm": {
+        "median": 0.014666042,
+        "min": 0.012576417,
+        "max": 0.015719458,
+        "spread": 0.003143040999999999,
+        "samples": [
+          0.013786167,
+          0.015206583,
+          0.015719458,
+          0.014666042,
+          0.012576417
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "text": "lena@example.test",
+          "title": null,
+          "type": "link",
+          "url": "mailto:lena@example.test"
+        },
+        {
+          "context": [],
+          "text": "kai@example.test",
+          "title": null,
+          "type": "link",
+          "url": "mailto:kai@example.test"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          28,
+          66,
+          92
+        ],
+        "blocks": [
+          "Subject: Reserve audit",
+          "From: Lena <lena@example.test>",
+          "To: kai@example.test",
+          "Lena counted 17 seals and 6 valves. The south shed remains unchecked."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "position": 45,
+            "text": "lena@example.test",
+            "title": null,
+            "type": "link",
+            "url": "mailto:lena@example.test"
+          },
+          {
+            "context": [],
+            "position": 74,
+            "text": "kai@example.test",
+            "title": null,
+            "type": "link",
+            "url": "mailto:kai@example.test"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "eml",
+      "fixture": "reserve-eml",
+      "cold": {
+        "median": 0.01710649998858571,
+        "min": 0.015700916992500424,
+        "max": 0.024048083054367453,
+        "spread": 0.008347166061867028,
+        "samples": [
+          0.024048083054367453,
+          0.02152941597159952,
+          0.01710649998858571,
+          0.015884082997217774,
+          0.015700916992500424
+        ]
+      },
+      "warm": {
+        "median": 0.01545875,
+        "min": 0.015310584,
+        "max": 0.016224875,
+        "spread": 0.0009142909999999994,
+        "samples": [
+          0.015416417,
+          0.01545875,
+          0.015793417,
+          0.016224875,
+          0.015310584
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [],
+          "text": "lena@example.test",
+          "title": null,
+          "type": "link",
+          "url": "mailto:lena@example.test"
+        },
+        {
+          "context": [],
+          "text": "kai@example.test",
+          "title": null,
+          "type": "link",
+          "url": "mailto:kai@example.test"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          28,
+          66,
+          92
+        ],
+        "blocks": [
+          "Subject: Reserve audit",
+          "From: Lena <lena@example.test>",
+          "To: kai@example.test",
+          "Lena counted 17 seals and 6 valves. The south shed remains unchecked."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "position": 45,
+            "text": "lena@example.test",
+            "title": null,
+            "type": "link",
+            "url": "mailto:lena@example.test"
+          },
+          {
+            "context": [],
+            "position": 74,
+            "text": "kai@example.test",
+            "title": null,
+            "type": "link",
+            "url": "mailto:kai@example.test"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "html",
+      "fixture": "reserve-html",
+      "cold": {
+        "median": 0.01987929199822247,
+        "min": 0.019570582953747362,
+        "max": 0.033821834018453956,
+        "spread": 0.014251251064706594,
+        "samples": [
+          0.031723666994366795,
+          0.01987929199822247,
+          0.019570582953747362,
+          0.019723874982446432,
+          0.033821834018453956
+        ]
+      },
+      "warm": {
+        "median": 0.024297375,
+        "min": 0.013340708,
+        "max": 0.026097083,
+        "spread": 0.012756375,
+        "samples": [
+          0.025867667,
+          0.026097083,
+          0.013340708,
+          0.023586375,
+          0.024297375
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          17,
+          31,
+          49,
+          75,
+          92,
+          127
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Parts",
+          "Count seals.",
+          "Include the west shed.",
+          "Count valves.",
+          "The south shed remains unchecked.",
+          "See audit rules."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve audit",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 3,
+            "position": 17,
+            "text": "Parts",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 3,
+            "position": 28,
+            "text": "Count seals.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3",
+              "item:Count seals.Include the west shed.",
+              "list:false:1"
+            ],
+            "depth": 2,
+            "ordered": false,
+            "ordinal": null,
+            "position": 47,
+            "text": "Include the west shed.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 4,
+            "position": 72,
+            "text": "Count valves.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "position": 90,
+            "text": "The south shed remains unchecked.",
+            "type": "blockquote"
+          },
+          {
+            "context": [],
+            "position": 131,
+            "text": "audit rules",
+            "title": null,
+            "type": "link",
+            "url": "https://example.test/rules"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "html",
+      "fixture": "reserve-html",
+      "cold": {
+        "median": 0.03301608294714242,
+        "min": 0.01971387502271682,
+        "max": 0.03416904201731086,
+        "spread": 0.014455166994594038,
+        "samples": [
+          0.02009341598022729,
+          0.0332996670040302,
+          0.01971387502271682,
+          0.03301608294714242,
+          0.03416904201731086
+        ]
+      },
+      "warm": {
+        "median": 0.02539675,
+        "min": 0.013329417,
+        "max": 0.026033625,
+        "spread": 0.012704208000000002,
+        "samples": [
+          0.025898375,
+          0.023829416,
+          0.02539675,
+          0.026033625,
+          0.013329417
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          17,
+          31,
+          49,
+          75,
+          92,
+          127
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Parts",
+          "Count seals.",
+          "Include the west shed.",
+          "Count valves.",
+          "The south shed remains unchecked.",
+          "See audit rules."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve audit",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 3,
+            "position": 17,
+            "text": "Parts",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 3,
+            "position": 28,
+            "text": "Count seals.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3",
+              "item:Count seals.Include the west shed.",
+              "list:false:1"
+            ],
+            "depth": 2,
+            "ordered": false,
+            "ordinal": null,
+            "position": 47,
+            "text": "Include the west shed.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 4,
+            "position": 72,
+            "text": "Count valves.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "position": 90,
+            "text": "The south shed remains unchecked.",
+            "type": "blockquote"
+          },
+          {
+            "context": [],
+            "position": 131,
+            "text": "audit rules",
+            "title": null,
+            "type": "link",
+            "url": "https://example.test/rules"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "html",
+      "fixture": "reserve-html",
+      "cold": {
+        "median": 0.020165499998256564,
+        "min": 0.018739417020697147,
+        "max": 0.025166374980472028,
+        "spread": 0.006426957959774882,
+        "samples": [
+          0.019976041978225112,
+          0.021327125024981797,
+          0.018739417020697147,
+          0.020165499998256564,
+          0.025166374980472028
+        ]
+      },
+      "warm": {
+        "median": 0.014556209,
+        "min": 0.01311175,
+        "max": 0.016464542,
+        "spread": 0.0033527919999999985,
+        "samples": [
+          0.016464542,
+          0.016404166,
+          0.01311175,
+          0.014556209,
+          0.013373583
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          17,
+          31,
+          49,
+          75,
+          92,
+          127
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Parts",
+          "Count seals.",
+          "Include the west shed.",
+          "Count valves.",
+          "The south shed remains unchecked.",
+          "See audit rules."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve audit",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 3,
+            "position": 17,
+            "text": "Parts",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 3,
+            "position": 28,
+            "text": "Count seals.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3",
+              "item:Count seals.Include the west shed.",
+              "list:false:1"
+            ],
+            "depth": 2,
+            "ordered": false,
+            "ordinal": null,
+            "position": 47,
+            "text": "Include the west shed.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 4,
+            "position": 72,
+            "text": "Count valves.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "position": 90,
+            "text": "The south shed remains unchecked.",
+            "type": "blockquote"
+          },
+          {
+            "context": [],
+            "position": 131,
+            "text": "audit rules",
+            "title": null,
+            "type": "link",
+            "url": "https://example.test/rules"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "html",
+      "fixture": "reserve-html",
+      "cold": {
+        "median": 0.01960445800796151,
+        "min": 0.017903750005643815,
+        "max": 0.025040415988769382,
+        "spread": 0.0071366659831255674,
+        "samples": [
+          0.01960445800796151,
+          0.017903750005643815,
+          0.01913808297831565,
+          0.024259708006866276,
+          0.025040415988769382
+        ]
+      },
+      "warm": {
+        "median": 0.014832292,
+        "min": 0.013087,
+        "max": 0.1072065,
+        "spread": 0.0941195,
+        "samples": [
+          0.016540667,
+          0.013901292,
+          0.1072065,
+          0.014832292,
+          0.013087
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          17,
+          31,
+          49,
+          75,
+          92,
+          127
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Parts",
+          "Count seals.",
+          "Include the west shed.",
+          "Count valves.",
+          "The south shed remains unchecked.",
+          "See audit rules."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve audit",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 3,
+            "position": 17,
+            "text": "Parts",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 3,
+            "position": 28,
+            "text": "Count seals.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3",
+              "item:Count seals.Include the west shed.",
+              "list:false:1"
+            ],
+            "depth": 2,
+            "ordered": false,
+            "ordinal": null,
+            "position": 47,
+            "text": "Include the west shed.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 4,
+            "position": 72,
+            "text": "Count valves.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "position": 90,
+            "text": "The south shed remains unchecked.",
+            "type": "blockquote"
+          },
+          {
+            "context": [],
+            "position": 131,
+            "text": "audit rules",
+            "title": null,
+            "type": "link",
+            "url": "https://example.test/rules"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "text",
+      "fixture": "reserve-text",
+      "cold": {
+        "median": 0.03333012497751042,
+        "min": 0.032689290994312614,
+        "max": 0.03580220800358802,
+        "spread": 0.0031129170092754066,
+        "samples": [
+          0.03333012497751042,
+          0.03269891696982086,
+          0.03562229103408754,
+          0.03580220800358802,
+          0.032689290994312614
+        ]
+      },
+      "warm": {
+        "median": 0.025909583,
+        "min": 0.024089958,
+        "max": 0.025962958,
+        "spread": 0.0018729999999999997,
+        "samples": [
+          0.025962958,
+          0.025909583,
+          0.025962625,
+          0.0258855,
+          0.024089958
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          15
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Lena counted 17 seals and 6 valves.  Identifier: 0007; operator: Léna. The south shed remains unchecked."
+        ],
+        "elements": []
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "text",
+      "fixture": "reserve-text",
+      "cold": {
+        "median": 0.03385654103476554,
+        "min": 0.03374654200160876,
+        "max": 0.03584616701118648,
+        "spread": 0.0020996250095777214,
+        "samples": [
+          0.03378133400110528,
+          0.03385654103476554,
+          0.03562341700308025,
+          0.03584616701118648,
+          0.03374654200160876
+        ]
+      },
+      "warm": {
+        "median": 0.025954042,
+        "min": 0.025900625,
+        "max": 0.026076375,
+        "spread": 0.00017574999999999882,
+        "samples": [
+          0.026076375,
+          0.025979291,
+          0.025943084,
+          0.025900625,
+          0.025954042
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          15
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Lena counted 17 seals and 6 valves.\nIdentifier: 0007; operator: Léna.\nThe south shed remains unchecked."
+        ],
+        "elements": []
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "text",
+      "fixture": "reserve-text",
+      "cold": {
+        "median": 0.023497541958931834,
+        "min": 0.02140433300519362,
+        "max": 0.026618666015565395,
+        "spread": 0.0052143330103717744,
+        "samples": [
+          0.02436070900876075,
+          0.02140433300519362,
+          0.026618666015565395,
+          0.023497541958931834,
+          0.022679625020828098
+        ]
+      },
+      "warm": {
+        "median": 0.016231125,
+        "min": 0.015312125,
+        "max": 0.016786541,
+        "spread": 0.0014744159999999992,
+        "samples": [
+          0.015312125,
+          0.016786541,
+          0.01678225,
+          0.016113625,
+          0.016231125
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          15
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Lena counted 17 seals and 6 valves.  Identifier: 0007; operator: Léna. The south shed remains unchecked."
+        ],
+        "elements": []
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "text",
+      "fixture": "reserve-text",
+      "cold": {
+        "median": 0.027142916980665177,
+        "min": 0.025312457990366966,
+        "max": 0.02897591603687033,
+        "spread": 0.003663458046503365,
+        "samples": [
+          0.025312457990366966,
+          0.02662299998337403,
+          0.028202540997881442,
+          0.02897591603687033,
+          0.027142916980665177
+        ]
+      },
+      "warm": {
+        "median": 0.0159615,
+        "min": 0.015627542,
+        "max": 0.017707125,
+        "spread": 0.0020795829999999994,
+        "samples": [
+          0.015627542,
+          0.017707125,
+          0.0159615,
+          0.0158695,
+          0.016428625
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          15
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Lena counted 17 seals and 6 valves.\nIdentifier: 0007; operator: Léna.\nThe south shed remains unchecked."
+        ],
+        "elements": []
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "markdown",
+      "fixture": "reserve-md",
+      "cold": {
+        "median": 0.034847791015636176,
+        "min": 0.0322914999560453,
+        "max": 0.03569491597590968,
+        "spread": 0.0034034160198643804,
+        "samples": [
+          0.0322914999560453,
+          0.03407641703961417,
+          0.034847791015636176,
+          0.03569491597590968,
+          0.0352407080354169
+        ]
+      },
+      "warm": {
+        "median": 0.025474083,
+        "min": 0.022329,
+        "max": 0.026066541,
+        "spread": 0.003737540999999997,
+        "samples": [
+          0.026066541,
+          0.022329,
+          0.024497,
+          0.025474083,
+          0.025937334
+        ]
+      },
+      "score": 0.7142857142857143,
+      "retained": [
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "missing": [
+        {
+          "index": 2,
+          "type": "list_item",
+          "text": "Count seals.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 3
+        },
+        {
+          "index": 4,
+          "type": "list_item",
+          "text": "Count valves.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 4
+        }
+      ],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [
+            "list:true:1"
+          ],
+          "depth": 1,
+          "ordered": true,
+          "ordinal": 1,
+          "text": "Count seals.",
+          "type": "list_item"
+        },
+        {
+          "context": [
+            "list:true:1"
+          ],
+          "depth": 1,
+          "ordered": true,
+          "ordinal": 2,
+          "text": "Count valves.",
+          "type": "list_item"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          17,
+          31,
+          49,
+          75,
+          92,
+          127
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Parts",
+          "Count seals.",
+          "Include the west shed.",
+          "Count valves.",
+          "The south shed remains unchecked.",
+          "See audit rules."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve audit",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 3,
+            "position": 17,
+            "text": "Parts",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 1,
+            "position": 28,
+            "text": "Count seals.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1",
+              "item:Count seals.Include the west shed.",
+              "list:false:1"
+            ],
+            "depth": 2,
+            "ordered": false,
+            "ordinal": null,
+            "position": 47,
+            "text": "Include the west shed.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 2,
+            "position": 72,
+            "text": "Count valves.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "position": 90,
+            "text": "The south shed remains unchecked.",
+            "type": "blockquote"
+          },
+          {
+            "context": [],
+            "position": 131,
+            "text": "audit rules",
+            "title": null,
+            "type": "link",
+            "url": "https://example.test/rules"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "markdown",
+      "fixture": "reserve-md",
+      "cold": {
+        "median": 0.035086499992758036,
+        "min": 0.0343507090001367,
+        "max": 0.0356391670065932,
+        "spread": 0.0012884580064564943,
+        "samples": [
+          0.03450925002107397,
+          0.0343507090001367,
+          0.035086499992758036,
+          0.03535150003153831,
+          0.0356391670065932
+        ]
+      },
+      "warm": {
+        "median": 0.025669875,
+        "min": 0.013472417,
+        "max": 0.02614025,
+        "spread": 0.012667833,
+        "samples": [
+          0.026004375,
+          0.025669875,
+          0.02614025,
+          0.013472417,
+          0.023973791
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          17,
+          31,
+          49,
+          75,
+          92,
+          127
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Parts",
+          "Count seals.",
+          "Include the west shed.",
+          "Count valves.",
+          "The south shed remains unchecked.",
+          "See audit rules."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve audit",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 3,
+            "position": 17,
+            "text": "Parts",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 3,
+            "position": 28,
+            "text": "Count seals.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3",
+              "item:Count seals.Include the west shed.",
+              "list:false:1"
+            ],
+            "depth": 2,
+            "ordered": false,
+            "ordinal": null,
+            "position": 47,
+            "text": "Include the west shed.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 4,
+            "position": 72,
+            "text": "Count valves.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "position": 90,
+            "text": "The south shed remains unchecked.",
+            "type": "blockquote"
+          },
+          {
+            "context": [],
+            "position": 131,
+            "text": "audit rules",
+            "title": null,
+            "type": "link",
+            "url": "https://example.test/rules"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "markdown",
+      "fixture": "reserve-md",
+      "cold": {
+        "median": 0.026209916977677494,
+        "min": 0.02588204195490107,
+        "max": 0.026751832978334278,
+        "spread": 0.0008697910234332085,
+        "samples": [
+          0.026209916977677494,
+          0.02658733300631866,
+          0.02588204195490107,
+          0.026751832978334278,
+          0.02618987497407943
+        ]
+      },
+      "warm": {
+        "median": 0.016709458,
+        "min": 0.014349292,
+        "max": 0.022759166,
+        "spread": 0.008409874000000001,
+        "samples": [
+          0.016709458,
+          0.022759166,
+          0.016904583,
+          0.014349292,
+          0.016318459
+        ]
+      },
+      "score": 0.7142857142857143,
+      "retained": [
+        true,
+        true,
+        false,
+        true,
+        false,
+        true,
+        true
+      ],
+      "missing": [
+        {
+          "index": 2,
+          "type": "list_item",
+          "text": "Count seals.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 3
+        },
+        {
+          "index": 4,
+          "type": "list_item",
+          "text": "Count valves.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 4
+        }
+      ],
+      "order_losses": [],
+      "unexpected_structure": [
+        {
+          "context": [
+            "list:true:1"
+          ],
+          "depth": 1,
+          "ordered": true,
+          "ordinal": 1,
+          "text": "Count seals.",
+          "type": "list_item"
+        },
+        {
+          "context": [
+            "list:true:1"
+          ],
+          "depth": 1,
+          "ordered": true,
+          "ordinal": 2,
+          "text": "Count valves.",
+          "type": "list_item"
+        }
+      ],
+      "inventory": {
+        "block_positions": [
+          0,
+          17,
+          31,
+          49,
+          75,
+          92,
+          127
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Parts",
+          "Count seals.",
+          "Include the west shed.",
+          "Count valves.",
+          "The south shed remains unchecked.",
+          "See audit rules."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve audit",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 3,
+            "position": 17,
+            "text": "Parts",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 1,
+            "position": 28,
+            "text": "Count seals.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1",
+              "item:Count seals.Include the west shed.",
+              "list:false:1"
+            ],
+            "depth": 2,
+            "ordered": false,
+            "ordinal": null,
+            "position": 47,
+            "text": "Include the west shed.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:1"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 2,
+            "position": 72,
+            "text": "Count valves.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "position": 90,
+            "text": "The south shed remains unchecked.",
+            "type": "blockquote"
+          },
+          {
+            "context": [],
+            "position": 131,
+            "text": "audit rules",
+            "title": null,
+            "type": "link",
+            "url": "https://example.test/rules"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "markdown",
+      "fixture": "reserve-md",
+      "cold": {
+        "median": 0.026025208993814886,
+        "min": 0.023150541994255036,
+        "max": 0.026219416002277285,
+        "spread": 0.0030688740080222487,
+        "samples": [
+          0.023150541994255036,
+          0.02602900000056252,
+          0.02528591698501259,
+          0.026219416002277285,
+          0.026025208993814886
+        ]
+      },
+      "warm": {
+        "median": 0.015984584,
+        "min": 0.012867209,
+        "max": 0.018271083,
+        "spread": 0.005403874000000001,
+        "samples": [
+          0.016932417,
+          0.015984584,
+          0.018271083,
+          0.012867209,
+          0.015869833
+        ]
+      },
+      "score": 1.0,
+      "retained": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "missing": [],
+      "order_losses": [],
+      "unexpected_structure": [],
+      "inventory": {
+        "block_positions": [
+          0,
+          17,
+          31,
+          49,
+          75,
+          92,
+          127
+        ],
+        "blocks": [
+          "Reserve audit",
+          "Parts",
+          "Count seals.",
+          "Include the west shed.",
+          "Count valves.",
+          "The south shed remains unchecked.",
+          "See audit rules."
+        ],
+        "elements": [
+          {
+            "context": [],
+            "level": 1,
+            "position": 0,
+            "text": "Reserve audit",
+            "type": "heading"
+          },
+          {
+            "context": [],
+            "level": 3,
+            "position": 17,
+            "text": "Parts",
+            "type": "heading"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 3,
+            "position": 28,
+            "text": "Count seals.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3",
+              "item:Count seals.Include the west shed.",
+              "list:false:1"
+            ],
+            "depth": 2,
+            "ordered": false,
+            "ordinal": null,
+            "position": 47,
+            "text": "Include the west shed.",
+            "type": "list_item"
+          },
+          {
+            "context": [
+              "list:true:3"
+            ],
+            "depth": 1,
+            "ordered": true,
+            "ordinal": 4,
+            "position": 72,
+            "text": "Count valves.",
+            "type": "list_item"
+          },
+          {
+            "context": [],
+            "position": 90,
+            "text": "The south shed remains unchecked.",
+            "type": "blockquote"
+          },
+          {
+            "context": [],
+            "position": 131,
+            "text": "audit rules",
+            "title": null,
+            "type": "link",
+            "url": "https://example.test/rules"
+          }
+        ]
+      },
+      "gaps": [],
+      "error": null
+    }
+  ],
+  "comparisons": [
+    {
+      "fixture": "process-docx",
+      "mode": "xberg",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.007693168008700013,
+          "required_gain": 0.004186792066320777
+        },
+        "warm": {
+          "paired_median_gain": 0.008244416999999997,
+          "required_gain": 0.0022216660000000006
+        }
+      }
+    },
+    {
+      "fixture": "process-docx",
+      "mode": "xberg_brn",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.007561124977655709,
+          "required_gain": 0.005129541037604213
+        },
+        "warm": {
+          "paired_median_gain": 0.007898167000000001,
+          "required_gain": 0.0024882079999999987
+        }
+      }
+    },
+    {
+      "fixture": "reserve-pdf",
+      "mode": "xberg",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.006881334003992379,
+          "required_gain": 0.0023261660244315863
+        },
+        "warm": {
+          "paired_median_gain": 0.009117417,
+          "required_gain": 0.002568417
+        }
+      }
+    },
+    {
+      "fixture": "reserve-pdf",
+      "mode": "xberg_brn",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.008734708069823682,
+          "required_gain": 0.003249917004723102
+        },
+        "warm": {
+          "paired_median_gain": 0.009031792,
+          "required_gain": 0.002484166000000003
+        }
+      }
+    },
+    {
+      "fixture": "harbor-pptx",
+      "mode": "xberg",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.006680957041680813,
+          "required_gain": 0.0037564170197583735
+        },
+        "warm": {
+          "paired_median_gain": 0.008077583999999999,
+          "required_gain": 0.0029796249999999996
+        }
+      }
+    },
+    {
+      "fixture": "harbor-pptx",
+      "mode": "xberg_brn",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.0069640830042771995,
+          "required_gain": 0.003421458008233458
+        },
+        "warm": {
+          "paired_median_gain": 0.0080625,
+          "required_gain": 0.002306833000000001
+        }
+      }
+    },
+    {
+      "fixture": "reserve-xlsx",
+      "mode": "xberg",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.0026734580169431865,
+          "required_gain": 0.01566737494431436
+        },
+        "warm": {
+          "paired_median_gain": 0.008500291,
+          "required_gain": 0.012484084000000001
+        }
+      }
+    },
+    {
+      "fixture": "reserve-xlsx",
+      "mode": "xberg_brn",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.01166354096494615,
+          "required_gain": 0.016272165987174958
+        },
+        "warm": {
+          "paired_median_gain": 0.0055216669999999975,
+          "required_gain": 0.012795166000000002
+        }
+      }
+    },
+    {
+      "fixture": "reserve-eml",
+      "mode": "xberg",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.002713751047849655,
+          "required_gain": 0.015860125015024096
+        },
+        "warm": {
+          "paired_median_gain": 0.010181334,
+          "required_gain": 0.012616916999999998
+        }
+      }
+    },
+    {
+      "fixture": "reserve-eml",
+      "mode": "xberg_brn",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.008315626007970423,
+          "required_gain": 0.01574629102833569
+        },
+        "warm": {
+          "paired_median_gain": 0.010324582999999998,
+          "required_gain": 0.012858541
+        }
+      }
+    },
+    {
+      "fixture": "reserve-html",
+      "mode": "xberg",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.0008311659330502152,
+          "required_gain": 0.014251251064706594
+        },
+        "warm": {
+          "paired_median_gain": 0.009403125000000002,
+          "required_gain": 0.012756375
+        }
+      }
+    },
+    {
+      "fixture": "reserve-html",
+      "mode": "xberg_brn",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.008756374940276146,
+          "required_gain": 0.014455166994594038
+        },
+        "warm": {
+          "paired_median_gain": 0.009357708000000003,
+          "required_gain": 0.0941195
+        }
+      }
+    },
+    {
+      "fixture": "reserve-text",
+      "mode": "xberg",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.010009665973484516,
+          "required_gain": 0.0052143330103717744
+        },
+        "warm": {
+          "paired_median_gain": 0.009180375000000001,
+          "required_gain": 0.0018729999999999997
+        }
+      }
+    },
+    {
+      "fixture": "reserve-text",
+      "mode": "xberg_brn",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.007233541051391512,
+          "required_gain": 0.003663458046503365
+        },
+        "warm": {
+          "paired_median_gain": 0.009981584000000002,
+          "required_gain": 0.0020795829999999994
+        }
+      }
+    },
+    {
+      "fixture": "reserve-md",
+      "mode": "xberg",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.008943082997575402,
+          "required_gain": 0.0034034160198643804
+        },
+        "warm": {
+          "paired_median_gain": 0.009357082999999999,
+          "required_gain": 0.008409874000000001
+        }
+      }
+    },
+    {
+      "fixture": "reserve-md",
+      "mode": "xberg_brn",
+      "newly_lost_expected": [],
+      "unexpected_losses": [],
+      "unjustified_additions": [],
+      "speed": {
+        "cold": {
+          "paired_median_gain": 0.009613958012778312,
+          "required_gain": 0.0030688740080222487
+        },
+        "warm": {
+          "paired_median_gain": 0.008103958000000001,
+          "required_gain": 0.012667833
+        }
+      }
+    }
+  ],
+  "hostile": [
+    {
+      "fixture": "hostile-dtd.docx",
+      "arm": "baseline",
+      "mode": "xberg",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-dtd.docx",
+      "arm": "final",
+      "mode": "xberg",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-dtd.docx",
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-dtd.docx",
+      "arm": "final",
+      "mode": "xberg_brn",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-inflate.docx",
+      "arm": "baseline",
+      "mode": "xberg",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-inflate.docx",
+      "arm": "final",
+      "mode": "xberg",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-inflate.docx",
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-inflate.docx",
+      "arm": "final",
+      "mode": "xberg_brn",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-members.docx",
+      "arm": "baseline",
+      "mode": "xberg",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-members.docx",
+      "arm": "final",
+      "mode": "xberg",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-members.docx",
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-members.docx",
+      "arm": "final",
+      "mode": "xberg_brn",
+      "refused": true,
+      "error": "Budget"
+    },
+    {
+      "fixture": "hostile-path.docx",
+      "arm": "baseline",
+      "mode": "xberg",
+      "refused": true,
+      "error": "Invalid"
+    },
+    {
+      "fixture": "hostile-path.docx",
+      "arm": "final",
+      "mode": "xberg",
+      "refused": true,
+      "error": "Invalid"
+    },
+    {
+      "fixture": "hostile-path.docx",
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "refused": true,
+      "error": "Invalid"
+    },
+    {
+      "fixture": "hostile-path.docx",
+      "arm": "final",
+      "mode": "xberg_brn",
+      "refused": true,
+      "error": "Invalid"
+    }
+  ],
+  "summary": [
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "docx",
+      "fidelity": 1.0,
+      "cold_seconds": 0.03474562498740852,
+      "warm_seconds": 0.02627775
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "all",
+      "fidelity": 0.8222402597402597,
+      "cold_seconds": 0.03348904199083336,
+      "warm_seconds": 0.025870396
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "docx",
+      "fidelity": 1.0,
+      "cold_seconds": 0.034876416029874235,
+      "warm_seconds": 0.026291708
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "all",
+      "fidelity": 0.8579545454545454,
+      "cold_seconds": 0.034327791043324396,
+      "warm_seconds": 0.025893875
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "docx",
+      "fidelity": 1.0,
+      "cold_seconds": 0.027072083030361682,
+      "warm_seconds": 0.018044375
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "all",
+      "fidelity": 0.8222402597402597,
+      "cold_seconds": 0.024853729468304664,
+      "warm_seconds": 0.016470291499999998
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "docx",
+      "fidelity": 1.0,
+      "cold_seconds": 0.027617459010798484,
+      "warm_seconds": 0.018427291
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "all",
+      "fidelity": 0.8579545454545454,
+      "cold_seconds": 0.026197271508863196,
+      "warm_seconds": 0.015973042
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "pdf",
+      "fidelity": 0.5,
+      "cold_seconds": 0.03364795900415629,
+      "warm_seconds": 0.025885709
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "pdf",
+      "fidelity": 0.5,
+      "cold_seconds": 0.03479904105188325,
+      "warm_seconds": 0.025925125
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "pdf",
+      "fidelity": 0.5,
+      "cold_seconds": 0.02638299996033311,
+      "warm_seconds": 0.016741542
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "pdf",
+      "fidelity": 0.5,
+      "cold_seconds": 0.026369334023911506,
+      "warm_seconds": 0.016878458
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "pptx",
+      "fidelity": 0.36363636363636365,
+      "cold_seconds": 0.03542541601927951,
+      "warm_seconds": 0.02664475
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "pptx",
+      "fidelity": 0.36363636363636365,
+      "cold_seconds": 0.035042625037021935,
+      "warm_seconds": 0.026644541
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "pptx",
+      "fidelity": 0.36363636363636365,
+      "cold_seconds": 0.028637874987907708,
+      "warm_seconds": 0.018514917
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "pptx",
+      "fidelity": 0.36363636363636365,
+      "cold_seconds": 0.02891487500164658,
+      "warm_seconds": 0.018517166
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "xlsx",
+      "fidelity": 1.0,
+      "cold_seconds": 0.020354208012577146,
+      "warm_seconds": 0.0251325
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "xlsx",
+      "fidelity": 1.0,
+      "cold_seconds": 0.028656582988332957,
+      "warm_seconds": 0.0215425
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "xlsx",
+      "fidelity": 1.0,
+      "cold_seconds": 0.016662040958181024,
+      "warm_seconds": 0.015515291
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "xlsx",
+      "fidelity": 1.0,
+      "cold_seconds": 0.018190667033195496,
+      "warm_seconds": 0.013914208
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "eml",
+      "fidelity": 1.0,
+      "cold_seconds": 0.031332458020187914,
+      "warm_seconds": 0.025855083
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "eml",
+      "fidelity": 1.0,
+      "cold_seconds": 0.029845041979569942,
+      "warm_seconds": 0.025862625
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "eml",
+      "fidelity": 1.0,
+      "cold_seconds": 0.020940041984431446,
+      "warm_seconds": 0.014666042
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "eml",
+      "fidelity": 1.0,
+      "cold_seconds": 0.01710649998858571,
+      "warm_seconds": 0.01545875
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "html",
+      "fidelity": 1.0,
+      "cold_seconds": 0.01987929199822247,
+      "warm_seconds": 0.024297375
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "html",
+      "fidelity": 1.0,
+      "cold_seconds": 0.03301608294714242,
+      "warm_seconds": 0.02539675
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "html",
+      "fidelity": 1.0,
+      "cold_seconds": 0.020165499998256564,
+      "warm_seconds": 0.014556209
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "html",
+      "fidelity": 1.0,
+      "cold_seconds": 0.01960445800796151,
+      "warm_seconds": 0.014832292
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "text",
+      "fidelity": 1.0,
+      "cold_seconds": 0.03333012497751042,
+      "warm_seconds": 0.025909583
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "text",
+      "fidelity": 1.0,
+      "cold_seconds": 0.03385654103476554,
+      "warm_seconds": 0.025954042
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "text",
+      "fidelity": 1.0,
+      "cold_seconds": 0.023497541958931834,
+      "warm_seconds": 0.016231125
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "text",
+      "fidelity": 1.0,
+      "cold_seconds": 0.027142916980665177,
+      "warm_seconds": 0.0159615
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg",
+      "format": "markdown",
+      "fidelity": 0.7142857142857143,
+      "cold_seconds": 0.034847791015636176,
+      "warm_seconds": 0.025474083
+    },
+    {
+      "arm": "baseline",
+      "mode": "xberg_brn",
+      "format": "markdown",
+      "fidelity": 1.0,
+      "cold_seconds": 0.035086499992758036,
+      "warm_seconds": 0.025669875
+    },
+    {
+      "arm": "final",
+      "mode": "xberg",
+      "format": "markdown",
+      "fidelity": 0.7142857142857143,
+      "cold_seconds": 0.026209916977677494,
+      "warm_seconds": 0.016709458
+    },
+    {
+      "arm": "final",
+      "mode": "xberg_brn",
+      "format": "markdown",
+      "fidelity": 1.0,
+      "cold_seconds": 0.026025208993814886,
+      "warm_seconds": 0.015984584
+    }
+  ],
+  "guardrails": {
+    "hostile_refuse": true,
+    "hostile_same_category": true,
+    "network_denied": true,
+    "encrypted_pdf": "deferred, unmeasured, no support/refusal claim",
+    "no_new_expected_loss": true,
+    "no_unexpected_loss": true,
+    "no_unjustified_additions": true,
+    "tests_and_app_size": "separate required receipts"
+  },
+  "decision": {
+    "baseline_fidelity": 0.8400974025974026,
+    "final_fidelity": 0.8400974025974026,
+    "metric_eligible": true,
+    "speed": [
+      {
+        "mode": "xberg",
+        "temperature": "cold",
+        "median_paired_gain": 0.006781145522836596,
+        "median_spread_threshold": 0.004700562538346276,
+        "no_file_slowdown_beyond_spread": true,
+        "passes": true
+      },
+      {
+        "mode": "xberg",
+        "temperature": "warm",
+        "median_paired_gain": 0.009148896,
+        "median_spread_threshold": 0.0056947495,
+        "no_file_slowdown_beyond_spread": true,
+        "passes": true
+      },
+      {
+        "mode": "xberg_brn",
+        "temperature": "cold",
+        "median_paired_gain": 0.008525167038897052,
+        "median_spread_threshold": 0.004396499542053789,
+        "no_file_slowdown_beyond_spread": true,
+        "passes": true
+      },
+      {
+        "mode": "xberg_brn",
+        "temperature": "warm",
+        "median_paired_gain": 0.008567875,
+        "median_spread_threshold": 0.007578020499999999,
+        "no_file_slowdown_beyond_spread": true,
+        "passes": true
+      }
+    ],
+    "kept": false,
+    "reason": "metric result only; separate test, source and app-size receipts required before keeping"
+  }
+}

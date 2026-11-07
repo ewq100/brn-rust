@@ -1,0 +1,90 @@
+[
+  {
+    "candidate": 1,
+    "hypothesis": "Wake the process runner on bounded output completion instead of sleeping a full 10ms polling interval.",
+    "diff": "process::run waits on the existing output channel for at most 10ms, then polls process exit at 1ms after EOF.",
+    "status": "kept",
+    "fidelity": {
+      "tuning_baseline": 0.8122294372294372,
+      "tuning_final": 0.8122294372294372,
+      "held_out_baseline": 0.8400974025974026,
+      "held_out_final": 0.8400974025974026
+    },
+    "speed": {
+      "tuning": [
+        {
+          "mode": "xberg",
+          "temperature": "cold",
+          "median_paired_gain": 0.00845612451666966,
+          "median_spread_threshold": 0.004805416479939595,
+          "no_file_slowdown_beyond_spread": true,
+          "passes": true
+        },
+        {
+          "mode": "xberg",
+          "temperature": "warm",
+          "median_paired_gain": 0.0096221045,
+          "median_spread_threshold": 0.0021665830000000014,
+          "no_file_slowdown_beyond_spread": true,
+          "passes": true
+        },
+        {
+          "mode": "xberg_brn",
+          "temperature": "cold",
+          "median_paired_gain": 0.008398291509365663,
+          "median_spread_threshold": 0.00505945848999545,
+          "no_file_slowdown_beyond_spread": true,
+          "passes": true
+        },
+        {
+          "mode": "xberg_brn",
+          "temperature": "warm",
+          "median_paired_gain": 0.0091014375,
+          "median_spread_threshold": 0.0038026045,
+          "no_file_slowdown_beyond_spread": true,
+          "passes": true
+        }
+      ],
+      "held-out": [
+        {
+          "mode": "xberg",
+          "temperature": "cold",
+          "median_paired_gain": 0.006781145522836596,
+          "median_spread_threshold": 0.004700562538346276,
+          "no_file_slowdown_beyond_spread": true,
+          "passes": true
+        },
+        {
+          "mode": "xberg",
+          "temperature": "warm",
+          "median_paired_gain": 0.009148896,
+          "median_spread_threshold": 0.0056947495,
+          "no_file_slowdown_beyond_spread": true,
+          "passes": true
+        },
+        {
+          "mode": "xberg_brn",
+          "temperature": "cold",
+          "median_paired_gain": 0.008525167038897052,
+          "median_spread_threshold": 0.004396499542053789,
+          "no_file_slowdown_beyond_spread": true,
+          "passes": true
+        },
+        {
+          "mode": "xberg_brn",
+          "temperature": "warm",
+          "median_paired_gain": 0.008567875,
+          "median_spread_threshold": 0.007578020499999999,
+          "no_file_slowdown_beyond_spread": true,
+          "passes": true
+        }
+      ]
+    },
+    "guardrails": {
+      "tuning": "tuning-guardrails.json",
+      "held-out": "held-out-guardrails.json",
+      "all_pass": true
+    },
+    "patch_sha256": "3358c328d472e6ece4c1a84d50a6aebe2da482f26b2f68af7f8c6f824fb3d14e"
+  }
+]

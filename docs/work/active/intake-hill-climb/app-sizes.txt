@@ -1,0 +1,4 @@
+Measurement policy: allocated usage from du -skP; symbolic links are not followed.
+Overlapping entries are reported separately and are not summed; allocated usage is not download size.
+application bundle/executable | /private/tmp/brn-intake-hillclimb/Baseline.app | allocated=138472 KiB (135.23 MiB)
+application bundle/executable | /private/tmp/brn-intake-hillclimb/Final.app | allocated=138476 KiB (135.23 MiB)

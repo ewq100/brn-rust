@@ -115,7 +115,21 @@ pub(crate) fn run(
                 break child.wait().map_err(|_| ConversionError::Io);
             }
         }
-        std::thread::sleep(Duration::from_millis(10));
+        if output.is_none() {
+            // Wake when the bounded reader finishes instead of adding a full
+            // polling interval to every short conversion. The timeout keeps
+            // cancellation, deadline and scratch-budget checks at most 10 ms apart.
+            match receive.recv_timeout(Duration::from_millis(10)) {
+                Ok(Ok(bytes)) if bytes.len() <= output_limit => output = Some(bytes),
+                Ok(_) => failure = Some(ConversionError::Budget),
+                Err(mpsc::RecvTimeoutError::Disconnected) => failure = Some(ConversionError::Io),
+                Err(mpsc::RecvTimeoutError::Timeout) => (),
+            }
+        } else {
+            // EOF can precede process exit. Keep checking the owned process while
+            // retaining its output, without spinning or returning before it exits.
+            std::thread::sleep(Duration::from_millis(1));
+        }
     };
     let written = writer.join().map_err(|_| ConversionError::Io)?;
     reader.join().map_err(|_| ConversionError::Io)?;
@@ -165,6 +179,37 @@ fn kill_group(child: &mut std::process::Child) {
 mod tests {
     use super::*;
     use std::sync::Arc;
+
+    #[test]
+    fn eof_keeps_output_but_still_requires_successful_process_exit() {
+        for exit in [0, 7] {
+            let root = tempfile::tempdir().unwrap();
+            let temp = TransientDir::create(root.path()).unwrap();
+            let args = [
+                OsString::from("-c"),
+                OsString::from(format!(
+                    "printf converted; exec 1>&-; /bin/sleep 0.02; exit {exit}"
+                )),
+            ];
+            let result = run(
+                Path::new("/bin/sh"),
+                &args,
+                None,
+                &temp,
+                ProcessBudget {
+                    output_bytes: 4096,
+                    storage_bytes: 8192,
+                    deadline: Instant::now() + Duration::from_secs(5),
+                },
+                &AtomicBool::new(false),
+            );
+            if exit == 0 {
+                assert_eq!(result.unwrap(), b"converted");
+            } else {
+                assert_eq!(result, Err(ConversionError::Invalid));
+            }
+        }
+    }
 
     #[test]
     fn cancellation_kills_owned_descendant_and_joins_pipes() {
