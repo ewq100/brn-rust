@@ -242,12 +242,22 @@ async fn retrieval_finds_and_reads_the_target_section_within_three_rounds() {
         .collect();
     assert_eq!(
         calls,
-        [("search_notes", 1, "success"), ("read_note", 2, "success")]
+        [
+            ("search_notes", 1, "success"),
+            ("read_note", 1, "success"),
+            ("read_note", 2, "success")
+        ]
     );
     assert_eq!(trace.calls[0].args["query"], "quay dredged depth");
     assert_eq!(trace.calls[0].result["ids"][0], w.target.as_str());
     assert!(trace.calls[1].result["returned_bytes"].as_u64().unwrap() > 0);
-    assert!(trace.calls.iter().all(|c| c.bytes > 0));
+    assert_eq!(trace.calls[1].args["via"], "search_notes");
+    assert_eq!(trace.calls[1].args["id"], w.target.as_str());
+    assert_eq!(trace.calls[1].args["version"], best.version);
+    assert_eq!(trace.calls[1].args["start"], best.start);
+    assert_eq!(trace.calls[1].bytes, 0); // Included in the search envelope once.
+    assert!(trace.calls[0].bytes > 0 && trace.calls[2].bytes > 0);
+    assert!(trace.calls[2].result["returned_bytes"].as_u64().unwrap() > 0);
     let text = serde_json::to_string(&trace).unwrap();
     for content in [
         "Harbor berth",

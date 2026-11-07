@@ -179,6 +179,7 @@ pub struct ConnectionLink {
 }
 
 pub const MAX_SEARCH_LIMIT: usize = 20;
+pub(super) const MATCHED_PASSAGE_BYTES: usize = 1024;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -284,6 +285,7 @@ pub(super) async fn search_notes(scope: Arc<Scope>, args: SearchNotesArgs) -> Ai
     .await
     .map_err(storage)?
     .map_err(failed)?;
+    let first = page.results.first().cloned();
     let ids = page
         .results
         .iter()
@@ -322,6 +324,39 @@ pub(super) async fn search_notes(scope: Arc<Scope>, args: SearchNotesArgs) -> Ai
     }
     if let Some(hint) = research::large_notes_hint(&scope, &store, ids)? {
         value["large_notes"] = hint;
+    }
+    drop(store);
+    if scope.writing_snapshot.is_none()
+        && scope.scout.is_none()
+        && let Some(first) = first
+    {
+        let started = std::time::Instant::now();
+        let passage = read_note_with_exposure_guard(
+            &scope,
+            ReadNoteArgs {
+                id: first.id.clone(),
+                version: first.version,
+                start: first.start,
+                max_bytes: MATCHED_PASSAGE_BYTES,
+                section: false,
+            },
+            |passage| {
+                let mut envelope = value.clone();
+                envelope["matched_passage"] = passage.clone();
+                context_budget::result_fits(&envelope)
+            },
+        );
+        if let Some(trace) = &scope.trace {
+            trace.search_passage(
+                &first.id,
+                first.version,
+                first.start,
+                if passage.is_ok() { "success" } else { "error" },
+                passage.as_ref().ok(),
+                started.elapsed(),
+            );
+        }
+        value["matched_passage"] = passage.unwrap_or_else(|_| json!({"outcome":"Unavailable"}));
     }
     Ok(value)
 }

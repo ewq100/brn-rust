@@ -4,6 +4,8 @@ use rig::test_utils::{MockCompletionModel, MockStreamEvent};
 /// Records the context each call received; the model never chooses it.
 #[derive(Default)]
 struct FakeSearch {
+    note: Option<String>,
+    display_title: Option<String>,
     calls: Mutex<Vec<String>>,
 }
 
@@ -26,9 +28,12 @@ impl RunNoteSearch for FakeSearch {
             cursor: None,
             semantic: "none".into(),
             results: vec![NoteSearchResult {
-                id: "n1".into(),
+                id: self.note.clone().unwrap_or_else(|| "n1".into()),
                 version: 1,
-                title: "Harbor".into(),
+                title: self
+                    .display_title
+                    .clone()
+                    .unwrap_or_else(|| "Harbor".into()),
                 heading_path: "Plan".into(),
                 snippet: "harbor plan".into(),
                 start: 0,
@@ -243,15 +248,28 @@ async fn summary_traces_hash_queries_and_off_records_nothing() {
         .strip_prefix(&format!("{}:", crate::threads_guides::BUNDLE_VERSION))
         .expect("frozen catalogue identity");
     assert!(brn_threads_core::skill_digest_valid(digest));
-    assert_eq!((trace.rounds, trace.calls.len()), (2, 2));
+    assert_eq!((trace.rounds, trace.calls.len()), (2, 4));
+    let searches: Vec<_> = trace
+        .calls
+        .iter()
+        .filter(|c| c.tool == "search_notes")
+        .collect();
+    assert_eq!(searches.len(), 2);
+    assert!(
+        trace
+            .calls
+            .iter()
+            .filter(|c| c.tool == "read_note")
+            .all(|c| c.args["via"] == "search_notes" && c.outcome == "error")
+    );
     let text = serde_json::to_string(&trace).unwrap();
     assert!(!text.contains("secret harbor"), "{text}");
-    assert_eq!(trace.calls[0].args["words"], 3);
+    assert_eq!(searches[0].args["words"], 3);
     assert_eq!(
-        trace.calls[0].args["query_hash"],
-        trace.calls[1].args["query_hash"]
+        searches[0].args["query_hash"],
+        searches[1].args["query_hash"]
     );
-    assert_eq!(trace.calls[0].result["ids"][0], "n1");
+    assert_eq!(searches[0].result["ids"][0], "n1");
 
     let (_root, mut request, _) = tests::fixture();
     request.trace = TraceLevel::Off;
@@ -383,4 +401,105 @@ fn source_runs_start_with_intake_playbooks_and_more_rounds() {
         assert!(with.contains(text) && !without.contains(text));
     }
     assert!(with.contains("\"id\":\"resolve-conflict\"") && without.contains("\"id\":\"intake\""));
+}
+
+#[tokio::test]
+async fn matched_passage_uses_checked_read_and_retains_host_call_evidence() {
+    let (_root, mut request, note) = tests::fixture();
+    request.trace = TraceLevel::Full;
+    request.search = Some(Arc::new(FakeSearch {
+        note: Some(note.clone()),
+        ..Default::default()
+    }));
+    let (scope, _) = begin(&request).unwrap();
+    let result = note_search::search_notes(
+        scope.clone(),
+        serde_json::from_value(
+            json!({"query":"decision","limit":1,"mode":"keyword","cursor":null}),
+        )
+        .unwrap(),
+    )
+    .await
+    .unwrap();
+    let passage = &result["matched_passage"]["note"];
+    assert_eq!(passage["id"], note);
+    assert!(passage["markdown"].as_str().unwrap().len() <= note_search::MATCHED_PASSAGE_BYTES);
+    assert!(scope.reads.lock().unwrap().knows(&note, 1));
+    let trace = scope.trace.as_ref().unwrap().finish("test", true, 8);
+    assert_eq!(trace.calls.len(), 1);
+    assert_eq!(trace.calls[0].tool, "read_note");
+    assert_eq!(trace.calls[0].args["via"], "search_notes");
+    assert_eq!(trace.calls[0].outcome, "success");
+    assert_eq!(trace.calls[0].bytes, 0);
+    assert_eq!(
+        trace.calls[0].result["returned_bytes"],
+        passage["markdown"].as_str().unwrap().len()
+    );
+}
+
+#[test]
+fn undelivered_search_passage_never_grants_a_note_read() {
+    let (_root, request, note) = tests::fixture();
+    let (scope, _) = begin(&request).unwrap();
+    let result = read_note_with_exposure_guard(
+        &scope,
+        ReadNoteArgs {
+            id: note.clone(),
+            version: 1,
+            start: 0,
+            max_bytes: 1024,
+            section: false,
+        },
+        |_| false,
+    );
+    assert!(result.is_err());
+    assert!(!scope.reads.lock().unwrap().knows(&note, 1));
+}
+
+#[tokio::test]
+async fn oversized_search_envelope_keeps_passage_out_of_read_ledger() {
+    let (_root, mut request, note) = tests::fixture();
+    request.trace = TraceLevel::Full;
+    request.search = Some(Arc::new(FakeSearch {
+        note: Some(note.clone()),
+        display_title: Some("x".repeat(1_000_000)),
+        ..Default::default()
+    }));
+    let (scope, _) = begin(&request).unwrap();
+    let result = note_search::search_notes(
+        scope.clone(),
+        serde_json::from_value(
+            json!({"query":"decision","limit":1,"mode":"keyword","cursor":null}),
+        )
+        .unwrap(),
+    )
+    .await
+    .unwrap();
+    assert_eq!(result["matched_passage"]["outcome"], "Unavailable");
+    assert!(!scope.reads.lock().unwrap().knows(&note, 1));
+    let trace = scope.trace.as_ref().unwrap().finish("test", true, 8);
+    assert_eq!(trace.calls[0].outcome, "error");
+    assert_eq!(trace.calls[0].args["via"], "search_notes");
+}
+
+#[tokio::test]
+async fn helper_search_omits_automatic_passage_and_read_coverage() {
+    let (_root, mut request, note) = tests::fixture();
+    request.search = Some(Arc::new(FakeSearch {
+        note: Some(note.clone()),
+        ..Default::default()
+    }));
+    let (parent, _) = begin(&request).unwrap();
+    let helper = research::test_child_scope(&parent);
+    let page = note_search::search_notes(
+        helper.clone(),
+        serde_json::from_value(
+            json!({"query":"decision","limit":1,"mode":"keyword","cursor":null}),
+        )
+        .unwrap(),
+    )
+    .await
+    .unwrap();
+    assert!(page.get("matched_passage").is_none());
+    assert!(!helper.reads.lock().unwrap().knows(&note, 1));
 }

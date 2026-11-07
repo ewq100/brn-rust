@@ -539,6 +539,45 @@ impl TraceCollector {
         }
     }
 
+    /// A checked host read delivered inside the search result. Count the call,
+    /// while the parent search accounts for the encoded bytes sent to the model.
+    pub(crate) fn search_passage(
+        &self,
+        id: &str,
+        version: u64,
+        start: usize,
+        outcome: &str,
+        result: Option<&Value>,
+        elapsed: Duration,
+    ) {
+        let Ok(mut state) = self.state.lock() else {
+            return;
+        };
+        state.seq += 1;
+        if state.calls.len() >= MAX_CALLS {
+            state.dropped += 1;
+            return;
+        }
+        let round = state
+            .calls
+            .iter()
+            .rev()
+            .find(|call| call.tool == "search_notes" && call.outcome == "pending")
+            .map_or(state.rounds, |call| call.round);
+        let seq = state.seq;
+        state.calls.push(TraceCall {
+            seq,
+            round,
+            tool: "read_note".into(),
+            args: json!({"id":id,"version":version,"start":start,"section":false,
+                "max_bytes":super::note_search::MATCHED_PASSAGE_BYTES,"via":"search_notes"}),
+            outcome: outcome.into(),
+            bytes: 0,
+            ms: duration_ms(elapsed),
+            result: Self::result("read_note", result),
+        });
+    }
+
     pub(crate) fn model_turn(&self, usage: &rig::completion::Usage, rounds: u16) {
         let Ok(mut state) = self.state.lock() else {
             return;

@@ -834,7 +834,7 @@ impl Tool for SearchNotes {
     type Output = Value;
     type Error = AiError;
     fn description(&self) -> String {
-        "Rank current notes visible in this chat by a query (exact and inflected words; semantic when available). Returns compact results with exact total, heading path, a matching snippet and the passage start; continue with read_note at that version and start. Use the cursor for more.".into()
+        "Rank current notes visible in this chat by a query (exact and inflected words; semantic when available). Returns compact results with exact total, heading path, a matching snippet and the passage start; The first hit may include matched_passage, an exact bounded read at that version. Use its delivered coverage, or read_note for more. Use the cursor for more.".into()
     }
     fn parameters(&self) -> Value {
         schema(Self::NAME)
@@ -1330,6 +1330,13 @@ fn read_records(scope: &Scope, args: ReadArgs) -> AiResult<Value> {
     Ok(out)
 }
 fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
+    read_note_with_exposure_guard(scope, args, |_| true)
+}
+fn read_note_with_exposure_guard(
+    scope: &Scope,
+    args: ReadNoteArgs,
+    can_expose: impl FnOnce(&Value) -> bool,
+) -> AiResult<Value> {
     if scope
         .writing_snapshot
         .as_ref()
@@ -1376,7 +1383,7 @@ fn read_note(scope: &Scope, args: ReadNoteArgs) -> AiResult<Value> {
         value["note"]["end"] = json!(end);
         value["note"]["next_start"] = json!((end < limit).then_some(end));
         value["note"]["complete"] = json!(note.start == 0 && end == note.total_bytes);
-        if !context_budget::result_fits(&value) {
+        if !context_budget::result_fits(&value) || !can_expose(&value) {
             return Err(context_budget::result_failure());
         }
         scope.reads.lock().map_err(storage)?.slice(

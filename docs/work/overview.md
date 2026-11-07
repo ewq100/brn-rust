@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Complete issue256 evidence-fix salvage and bounded product token hill-climb.
-**Owner attention:** Salvage PR273 reconciles merged shared-provider PR267. Current-head verification and normal merge remain before old-PR closeout and live experiment. B release artifacts remain separate; product clock unstarted.
+**Owner attention:** Product PR274 awaiting corrected-head CI and code/security reviews. Two old-head test assertions corrected; measured runtime unchanged.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -96,20 +96,20 @@ Gates:
 ### Extract useful evidence fixes and run product token hill-climb
 
 Task ID: `search-efficiency-256-restart`
-Owner: Issue 256 restart lead on MacBook · State: **active** · Last observed: 2026-11-07T05:38:36.807435+00:00
-Activity: Merged main 8b07e035 provider refactor into salvage candidate. Rust sources auto-merged; shared record reconciled by retaining all main tasks plus issue256 restart. Regenerated overview.
-Next: Requalify integrated candidate, push normal merge, refresh current-head Codex reviews/CI, merge salvage then close old PRs and start product window.
+Owner: Issue 256 restart lead on MacBook · State: **active** · Last observed: 2026-11-07T07:30:20.289297+00:00
+Activity: Old-head Ubuntu CI additionally exposed a CLI integration test pinned to guidance25 instead of measured guidance28. Updated the expected identity. The native journey correction already passes all four tests. Runtime remains unchanged. CLI agent_runs passes locally: 15 passed, 2 pre-existing ignored live tests.
+Next: Require corrected-head code/security reviews and hosted CI, then normal merge.
 
 <details>
 <summary>Gate status</summary>
 
 Gates:
 
-- **implementation:** Small extraction implemented. Council selection findings addressed. Codex P2 fixed with cache-hit and failed-summary regressions.
-- **checks:** Prior head passed 94 Python and 52 focused Rust tests plus strict Clippy and clean Codex code/security review. Main integration invalidates affected current-head checks/reviews; refreshing.
-- **integration:** No PR or merge yet. Old PRs remain open until replacement merged.
-- **native:** No native observation required for the selected evidence-only changes.
-- **owner acceptance:** Owner authorized focused merge after review and CI; product qualification pending.
+- **implementation:** Bounded exact first-hit passage through checked read path; inline-output coverage guard and host-read tracing implemented.
+- **checks:** 52 search/research tests, 9 read-ledger, 28 summary, 3 guide and 13 writing-evidence tests passed, plus strict Clippy and 94 Python tests (11 optional skips). Both Council checkpoints completed. Hosted current-head gates pending. Corrected native-retrieval agent_journeys suite: 4/4 pass locally. CLI agent_runs: 15 passed, 2 ignored live tests after guidance identity correction.
+- **integration:** Salvage 273 merged bab8c876 and superseded PRs closed. Required salvage-main contexts passed; optional Windows main failures retained. Product merge pending.
+- **native:** Headless synthetic qualification with real selected subscription calls. B retains separate native/release qualification.
+- **owner acceptance:** Owner authorized normal merge after required reviews/CI. Hands-on owner acceptance remains separate.
 
 </details>
 
@@ -149,4 +149,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-11-07T05:38:36.807435+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-07T07:30:20.289297+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

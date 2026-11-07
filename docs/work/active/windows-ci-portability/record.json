@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-07T05:38:36.807435+00:00",
+    "observed_at": "2026-11-07T07:30:20.289297+00:00",
     "goal": "Complete issue256 evidence-fix salvage and bounded product token hill-climb.",
-    "owner_attention": "Salvage PR273 reconciles merged shared-provider PR267. Current-head verification and normal merge remain before old-PR closeout and live experiment. B release artifacts remain separate; product clock unstarted.",
+    "owner_attention": "Product PR274 awaiting corrected-head CI and code/security reviews. Two old-head test assertions corrected; measured runtime unchanged.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -409,25 +409,42 @@
         "title": "Extract useful evidence fixes and run product token hill-climb",
         "owner": "Issue 256 restart lead on MacBook",
         "state": "active",
-        "activity": "Merged main 8b07e035 provider refactor into salvage candidate. Rust sources auto-merged; shared record reconciled by retaining all main tasks plus issue256 restart. Regenerated overview.",
-        "observed_at": "2026-11-07T05:38:36.807435+00:00",
+        "activity": "Old-head Ubuntu CI additionally exposed a CLI integration test pinned to guidance25 instead of measured guidance28. Updated the expected identity. The native journey correction already passes all four tests. Runtime remains unchanged. CLI agent_runs passes locally: 15 passed, 2 pre-existing ignored live tests.",
+        "observed_at": "2026-11-07T07:30:20.289297+00:00",
         "origin": "observed",
-        "next_action": "Requalify integrated candidate, push normal merge, refresh current-head Codex reviews/CI, merge salvage then close old PRs and start product window.",
+        "next_action": "Require corrected-head code/security reviews and hosted CI, then normal merge.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/search-efficiency/plan.md",
           "docs/work/active/search-efficiency/outcomes.md",
-          "https://github.com/ewq100/brn-rust/issues/256"
+          "https://github.com/ewq100/brn-rust/issues/256",
+          "docs/work/active/search-efficiency/product.md",
+          "docs/work/active/search-efficiency/summary.json"
         ],
         "gates": {
-          "implementation": "Small extraction implemented. Council selection findings addressed. Codex P2 fixed with cache-hit and failed-summary regressions.",
-          "checks": "Prior head passed 94 Python and 52 focused Rust tests plus strict Clippy and clean Codex code/security review. Main integration invalidates affected current-head checks/reviews; refreshing.",
-          "integration": "No PR or merge yet. Old PRs remain open until replacement merged.",
-          "native": "No native observation required for the selected evidence-only changes.",
-          "owner_acceptance": "Owner authorized focused merge after review and CI; product qualification pending."
+          "implementation": "Bounded exact first-hit passage through checked read path; inline-output coverage guard and host-read tracing implemented.",
+          "checks": "52 search/research tests, 9 read-ledger, 28 summary, 3 guide and 13 writing-evidence tests passed, plus strict Clippy and 94 Python tests (11 optional skips). Both Council checkpoints completed. Hosted current-head gates pending. Corrected native-retrieval agent_journeys suite: 4/4 pass locally. CLI agent_runs: 15 passed, 2 ignored live tests after guidance identity correction.",
+          "integration": "Salvage 273 merged bab8c876 and superseded PRs closed. Required salvage-main contexts passed; optional Windows main failures retained. Product merge pending.",
+          "native": "Headless synthetic qualification with real selected subscription calls. B retains separate native/release qualification.",
+          "owner_acceptance": "Owner authorized normal merge after required reviews/CI. Hands-on owner acceptance remains separate."
         },
-        "attempts": []
+        "attempts": [
+          {
+            "outcome": "PR274 head32f5e06 native retrieval/combined CI failed: scripted journey expected only search and explicit read; actual trace additionally includes the successful automatic read in round1.",
+            "change": "Update the trace assertion to require both reads, exact automatic-read identity and zero extra envelope bytes; preserve content-free trace checks. No runtime change.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/42350469158/job/128337305249"
+            ]
+          },
+          {
+            "outcome": "PR274 head32f5e06 Ubuntu Core/CLI failed on the already-corrected native journey trace and a CLI guide_identity assertion still pinned to guidance25.",
+            "change": "Update CLI integration expectation to current measured guidance28; no runtime or evaluator changes.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/42350469158/job/128337305189"
+            ]
+          }
+        ]
       }
     ]
   }
