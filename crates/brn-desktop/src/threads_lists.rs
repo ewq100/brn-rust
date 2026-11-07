@@ -325,14 +325,39 @@ fn civil_year(day: i64) -> i64 {
     civil_from_days(day).0
 }
 
-/// Bookkeeping that writes only chat controls (queue set-up and recovery on
-/// every launch). Changes groups it under Background and Home leaves it out;
-/// a change that needs refresh is never background.
+/// Conversation and runtime bookkeeping is retained in history, but collapsed
+/// in the owner change list. Classify the writes, never model-supplied labels.
+/// A mixed change remains visible when it changes any owner work.
 pub(super) fn is_background(receipt: &Receipt) -> bool {
-    receipt.needs_refresh.is_empty()
-        && !receipt.writes.is_empty()
-        && (receipt.writes.iter().all(|write| matches!(write.after.data, RecordData::ChatControl(_)))
-            || receipt.writes.iter().all(|write| matches!(&write.after.data, RecordData::Message(m) if m.role == brn_threads_app::WRITING_CONTEXT_ROLE)))
+    !receipt.writes.is_empty() && receipt.writes.iter().all(|write| {
+        match &write.after.data {
+            RecordData::Run(_) | RecordData::ChatControl(_) | RecordData::Message(_) => true,
+            RecordData::Thread(after) => {
+                matches!(write.before.as_ref(), Some(Record { data: RecordData::Thread(before), archived, .. })
+                    if *archived == write.after.archived
+                        && before.title == after.title
+                        && before.state == after.state
+                        && before.private_context == after.private_context
+                        && before.context_epoch == after.context_epoch)
+            }
+            RecordData::Action(after) if after.internal => {
+                write.before.as_ref().is_none_or(|before| matches!(&before.data, RecordData::Action(action) if action.internal))
+            }
+            _ => false,
+        }
+    })
+}
+
+/// Runtime/control changes have their own recovery actions. They must never
+/// offer receipt Undo in the desktop, including inside the disclosure.
+pub(super) fn receipt_offers_undo(receipt: &Receipt) -> bool {
+    !is_background(receipt)
+        && !receipt.writes.iter().any(|write| {
+            matches!(
+                write.after.data,
+                RecordData::Run(_) | RecordData::ChatControl(_)
+            )
+        })
 }
 
 /// A recorded reason as the owner reads it: chat-control bookkeeping drops
@@ -1460,8 +1485,8 @@ mod tests {
         let mut refresh = only(vec![control.clone()]);
         refresh.needs_refresh = vec!["n".into()];
         assert!(
-            !is_background(&refresh),
-            "needs refresh is never background"
+            is_background(&refresh),
+            "refresh metadata does not make chat controls an owner change"
         );
         assert!(!is_background(&only(vec![
             control.clone(),
@@ -1479,6 +1504,56 @@ mod tests {
             ])),
             "Brief, Plan and 2 more"
         );
+    }
+
+    #[test]
+    fn recent_changes_collapses_chat_messages_and_attention_bookkeeping() {
+        let before = thread("chat", "Edit the brief", ThreadState::Open, None);
+        let mut after = thread(
+            "chat",
+            "Edit the brief",
+            ThreadState::Open,
+            Some("Run failed: offline"),
+        );
+        after.version = 2;
+        let message = record(
+            "reply",
+            RecordData::Message(brn_threads_app::Message {
+                thread: "chat".into(),
+                role: "assistant".into(),
+                text: "I added the reminder".into(),
+            }),
+        );
+        let mut terminal = receipt(
+            "terminal",
+            "owner:runtime",
+            "2026-10-14",
+            vec![(Some(before.clone()), after.clone()), (None, message)],
+        );
+        assert!(
+            is_background(&terminal),
+            "terminal attention and replies belong to the chat"
+        );
+        terminal.needs_refresh = vec!["reply".into()];
+        assert!(
+            is_background(&terminal),
+            "derived chat bookkeeping must not crowd note changes"
+        );
+        terminal.writes.push(Written {
+            before: None,
+            after: note("edited", "Brief", false),
+        });
+        assert!(!is_background(&terminal), "mixed note edits stay visible");
+        let mut renamed = after;
+        if let RecordData::Thread(chat) = &mut renamed.data {
+            chat.title = "New title".into();
+        }
+        assert!(!is_background(&receipt(
+            "rename",
+            "owner:x",
+            "2026-10-14",
+            vec![(Some(before), renamed)]
+        )));
     }
 
     #[test]

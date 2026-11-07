@@ -196,11 +196,11 @@ impl Store {
     }
 }
 
-/// How [`Store::clear_review_attention`] ended.
+/// How a checked attention cleanup ended.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CleanupOutcome {
-    /// No attention item names the candidate any more. The receipt is the
-    /// cleanup change's, absent when no item named it.
+    /// The requested attention is absent. The receipt is the cleanup change's,
+    /// absent when no attention item matched.
     Done(Option<Receipt>),
     /// The cleanup change returned this outcome instead of applying.
     Unexpected(ApplyOutcome),
@@ -211,6 +211,71 @@ pub enum CleanupOutcome {
 /// The shared dismissal path. The owner's Dismiss and Accept and the agent's
 /// withdrawal of its own proposal use it, each with its own authority.
 impl Store {
+    /// Acknowledges exactly the displayed terminal notice through the checked
+    /// writer. This only clears attention; retained progress, queue pause,
+    /// candidates and the terminal Run remain unchanged. A stale UI cannot
+    /// clear a replacement notice, even when it names the same Run.
+    pub fn acknowledge_terminal_notice(
+        &mut self,
+        chat: &str,
+        notice: &Attention,
+        authority: &HostAuthority,
+    ) -> Result<CleanupOutcome> {
+        if notice.kind != AttentionKind::Blocker || !is_terminal_notice(&notice.reason) {
+            return Err(Error::Invalid(
+                "Only a failed or interrupted Run notice can be acknowledged".into(),
+            ));
+        }
+        let run_id = notice
+            .record
+            .as_deref()
+            .ok_or_else(|| Error::Invalid("The notice has no linked Run".into()))?;
+        for _ in 0..3 {
+            let record = self
+                .record(chat)?
+                .ok_or_else(|| Error::Missing(chat.into()))?;
+            let RecordData::Thread(mut thread) = record.data else {
+                return Err(Error::Invalid("The notice must belong to a chat".into()));
+            };
+            if !thread.attention.contains(notice) {
+                return Ok(CleanupOutcome::Done(None));
+            }
+            let run_record = self
+                .record(run_id)?
+                .ok_or_else(|| Error::Missing(run_id.into()))?;
+            if !matches!(&run_record.data, RecordData::Run(run) if run.thread == chat && run.state != RunState::Working)
+            {
+                return Err(Error::Invalid(
+                    "Only an ended Run in this chat can be acknowledged".into(),
+                ));
+            }
+            thread.attention.retain(|item| item != notice);
+            let request = ChangeRequest {
+                reason: "Acknowledged run notice".into(),
+                writes: vec![Put {
+                    id: record.id,
+                    expected_version: Some(record.version),
+                    archived: record.archived,
+                    data: RecordData::Thread(thread),
+                }],
+                inputs: vec![RevisionInput {
+                    record: run_record.id,
+                    version: run_record.version,
+                    expectation: InputExpectation::Current,
+                }],
+            };
+            let digest = format!("{:x}", Sha256::digest(serde_json::to_vec(&request)?));
+            let op = self.allocate_operation(&format!("acknowledge-run-notice:{chat}:{digest}"))?;
+            self.prepare_owner(&op, &request, authority)?;
+            match self.apply(&op, authority)? {
+                ApplyOutcome::Applied(receipt) => return Ok(CleanupOutcome::Done(Some(receipt))),
+                ApplyOutcome::Stale { .. } => continue,
+                other => return Ok(CleanupOutcome::Unexpected(other)),
+            }
+        }
+        Ok(CleanupOutcome::Contended)
+    }
+
     /// Removes every attention item naming `candidate`, across all chats, in
     /// one checked change keyed `{key_prefix}:{candidate}:{digest}`, so a
     /// retry replays it. Other attention stays. Stale is retried up to three
@@ -286,6 +351,135 @@ impl Store {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn terminal_acknowledgement_preserves_other_attention_and_newer_failures() {
+        let root = tempfile::Builder::new()
+            .prefix("brn-nu-history-attention-")
+            .tempdir_in("/private/tmp")
+            .unwrap();
+        let path = root.path().join("data");
+        let mut store = Store::open(&path).unwrap();
+        let owner = HostAuthority::owner("synthetic owner acknowledged failure");
+        let op = store.allocate_operation("seed failure").unwrap();
+        let chat_id = op.creation_id(0);
+        let run_id = op.creation_id(1);
+        let failed = Attention {
+            kind: AttentionKind::Blocker,
+            reason: "Run failed: offline".into(),
+            record: Some(run_id.clone()),
+        };
+        let candidate = store.allocate_operation("unapplied candidate").unwrap();
+        let other = vec![
+            review(candidate.as_str()),
+            Attention {
+                kind: AttentionKind::Question,
+                reason: "Which date?".into(),
+                record: Some(run_id.clone()),
+            },
+        ];
+        let mut thread = match chat(vec![], false).data {
+            RecordData::Thread(t) => t,
+            _ => unreachable!(),
+        };
+        thread.attention = [other.clone(), vec![failed.clone()]].concat();
+        let request = ChangeRequest {
+            reason: "Seed failed chat".into(),
+            inputs: vec![],
+            writes: vec![
+                Put {
+                    id: chat_id.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Thread(thread),
+                },
+                Put {
+                    id: run_id.clone(),
+                    expected_version: None,
+                    archived: false,
+                    data: RecordData::Run(run(&chat_id, &[])),
+                },
+            ],
+        };
+        store.prepare_owner(&op, &request, &owner).unwrap();
+        assert!(matches!(
+            store.apply(&op, &owner).unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        let run_before = store.record(&run_id).unwrap();
+        assert!(
+            store
+                .acknowledge_terminal_notice(
+                    &chat_id,
+                    &failed,
+                    &HostAuthority::maintenance("cannot acknowledge for the owner"),
+                )
+                .is_err()
+        );
+        assert!(matches!(
+            store
+                .acknowledge_terminal_notice(&chat_id, &failed, &owner)
+                .unwrap(),
+            CleanupOutcome::Done(Some(_))
+        ));
+        assert!(matches!(
+            store
+                .acknowledge_terminal_notice(&chat_id, &failed, &owner)
+                .unwrap(),
+            CleanupOutcome::Done(None)
+        ));
+        drop(store);
+        let mut store = Store::open(&path).unwrap();
+        let saved = store.record(&chat_id).unwrap().unwrap();
+        let RecordData::Thread(mut thread) = saved.data else {
+            unreachable!()
+        };
+        assert_eq!(thread.attention, other);
+        assert_eq!(
+            store.record(&run_id).unwrap(),
+            run_before,
+            "acknowledging never resumes or rewrites the Run"
+        );
+        let newer = Attention {
+            reason: "Run failed: new cause".into(),
+            ..failed.clone()
+        };
+        thread.attention.push(newer.clone());
+        let op = store.allocate_operation("newer notice").unwrap();
+        let req = ChangeRequest {
+            reason: "Newer notice".into(),
+            inputs: vec![],
+            writes: vec![Put {
+                id: chat_id.clone(),
+                expected_version: Some(saved.version),
+                archived: false,
+                data: RecordData::Thread(thread),
+            }],
+        };
+        store.prepare_owner(&op, &req, &owner).unwrap();
+        assert!(matches!(
+            store.apply(&op, &owner).unwrap(),
+            ApplyOutcome::Applied(_)
+        ));
+        assert!(matches!(
+            store
+                .acknowledge_terminal_notice(&chat_id, &failed, &owner)
+                .unwrap(),
+            CleanupOutcome::Done(None)
+        ));
+        let RecordData::Thread(thread) = store.record(&chat_id).unwrap().unwrap().data else {
+            unreachable!()
+        };
+        assert!(
+            thread.attention.contains(&newer),
+            "a stale row cannot dismiss a replacement notice"
+        );
+        assert!(
+            store
+                .acknowledge_terminal_notice(&chat_id, &other[0], &owner)
+                .is_err()
+        );
+    }
 
     fn run(chat: &str, operations: &[&str]) -> Run {
         Run {
