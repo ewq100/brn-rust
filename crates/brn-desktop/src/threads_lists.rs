@@ -697,7 +697,7 @@ pub(super) fn note_description(markdown: &str) -> String {
         if !out.is_empty() {
             out.push_str(if item.is_some() { "; " } else { " " });
         }
-        out.push_str(&plain_inline(line));
+        out.push_str(&super::search_view::plain_note_excerpt(line, &[]).0);
         if out.chars().count() >= DESCRIPTION_LIMIT {
             break;
         }
@@ -711,51 +711,6 @@ pub(super) fn note_description(markdown: &str) -> String {
     format!("{}…", cut.trim_end_matches([',', ';', ':', '.', ' ']))
 }
 
-/// Inline Markdown as plain text: `[label](url)` keeps the label, `[[Note]]`
-/// keeps the name, emphasis and code marks drop.
-fn plain_inline(line: &str) -> String {
-    let mut out = String::with_capacity(line.len());
-    let mut chars = line.chars().peekable();
-    while let Some(ch) = chars.next() {
-        match ch {
-            '*' | '`' => {}
-            '_' if chars.peek() == Some(&'_') => {
-                chars.next();
-            }
-            '[' => {
-                let wiki = chars.peek() == Some(&'[');
-                if wiki {
-                    chars.next();
-                }
-                let mut label = String::new();
-                for next in chars.by_ref() {
-                    if next == ']' {
-                        break;
-                    }
-                    label.push(next);
-                }
-                if wiki {
-                    if chars.peek() == Some(&']') {
-                        chars.next();
-                    }
-                    let name = label.split('|').next_back().unwrap_or(&label);
-                    out.push_str(name);
-                    continue;
-                }
-                out.push_str(&label);
-                if chars.peek() == Some(&'(') {
-                    for next in chars.by_ref() {
-                        if next == ')' {
-                            break;
-                        }
-                    }
-                }
-            }
-            ch => out.push(ch),
-        }
-    }
-    out
-}
 pub(super) fn letter(title: &str) -> char {
     title
         .chars()
@@ -1751,6 +1706,19 @@ mod tests {
         assert_eq!(shown.len(), 11);
         let (shown, total) = filter_notes(&rows, "beta", 100);
         assert_eq!((shown.len(), total), (100, 1_250));
+    }
+
+    #[test]
+    fn library_descriptions_preserve_code_and_share_search_inline_formatting() {
+        let markdown = "Quince **bold** __strong__ ~~struck~~ `__init__` *italic* _soft_ [label](https://x.test).";
+        assert_eq!(
+            note_description(markdown),
+            "Quince bold strong struck __init__ italic soft label."
+        );
+        assert_eq!(
+            note_description("Use `[[literal]]` and [[Note|label]]."),
+            "Use [[literal]] and label."
+        );
     }
 
     #[test]

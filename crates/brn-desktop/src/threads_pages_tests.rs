@@ -24,7 +24,10 @@ fn fixture(
         cx.set_reduce_motion(true);
     });
     cx.update(|cx| cx.bind_keys(bindings()));
-    let root = tempfile::tempdir_in(std::env::temp_dir().canonicalize().unwrap()).unwrap();
+    let root = tempfile::Builder::new()
+        .prefix("brn-nu-qa2fix-pages-")
+        .tempdir_in(std::env::temp_dir().canonicalize().unwrap())
+        .unwrap();
     let data = root.path().join("pages");
     let mut workspace = Workspace::open(&data).unwrap();
     focus_tests::configure_offline_fixture(&mut workspace);
@@ -2244,5 +2247,52 @@ fn relaunch_restores_the_last_valid_workspace_location(cx: &mut TestAppContext) 
         assert!(view.chat_thread().is_none());
         assert!(view.open_note_id().is_none());
         assert!(view.notice.text().is_empty(), "{}", view.notice.text());
+    });
+}
+
+#[gpui_kit::test]
+fn settings_model_save_is_the_new_chat_selection_even_if_unavailable(cx: &mut TestAppContext) {
+    let f = fixture(cx, 1250., 1500., |_| {});
+    let model = "gpt-invalid-qa-model";
+    update(cx, &f, |view, window, cx| {
+        focus_tests::settings(view, SettingsSection::Models, cx);
+        view.provider_form.provider = "chatgpt".into();
+        view.model
+            .update(cx, |input, cx| input.set_value(model, window, cx));
+    });
+    click(cx, &f, "save-settings");
+    let saved = Workspace::open_without_default_credentials(&f.data)
+        .unwrap()
+        .settings()
+        .unwrap();
+    assert_eq!(saved.model, model);
+    assert_eq!(resolve_run_selection(&saved, None).unwrap().0.model, model);
+    click(cx, &f, "nav-new-chat");
+    update(cx, &f, |view, window, cx| {
+        assert_eq!(view.settings.model, model);
+        view.model_picker.chatgpt =
+            model_picker::Catalogue::Loaded(vec![brn_ai::ModelOption::bare("gpt-6.1-sol")]);
+        view.model_picker.tab = model_picker::PickerTab::Provider("chatgpt");
+        let rows = view.picker_rows(cx);
+        let current = rows
+            .iter()
+            .find(|row| row.current)
+            .expect("saved model remains visible in the catalogue");
+        assert_eq!(current.model, model);
+        assert!(current.missing);
+        assert!(!current.selectable());
+        assert_eq!(rows.len(), 2);
+        assert!(
+            rows.iter()
+                .any(|row| row.model == "gpt-6.1-sol" && !row.current)
+        );
+        // Reopening Settings and saving again retains the same selection.
+        view.open_settings_section(SettingsSection::Models, window, cx);
+        assert_eq!(view.model.read(cx).value(), model);
+    });
+    click(cx, &f, "save-settings");
+    click(cx, &f, "nav-new-chat");
+    on_window(cx, &f, |window, _| {
+        assert!(label(window, "model-pill").contains(model));
     });
 }

@@ -154,13 +154,26 @@ pub(super) fn plain_note_excerpt(
     let mut from = 0;
     while let Some(start) = snippet[from..].find('[').map(|n| n + from) {
         from = start + 1;
+        if code[start] {
+            continue;
+        }
+        // Wiki links retain the displayed alias, as Library descriptions do.
+        if snippet[start..].starts_with("[[")
+            && let Some(end) = snippet[start + 2..].find("]]").map(|n| n + start + 2)
+        {
+            let label = &snippet[start + 2..end];
+            if !label.contains(['[', ']']) {
+                let label_start = label.rfind('|').map_or(start + 2, |n| start + 3 + n);
+                hidden[start..label_start].fill(true);
+                hidden[end..end + 2].fill(true);
+                from = end + 2;
+                continue;
+            }
+        }
         let Some(label_end) = snippet[from..].find("](").map(|n| n + from) else {
             continue;
         };
-        if code[start]
-            || snippet[from..label_end].contains(['[', ']'])
-            || snippet[..start].ends_with('!')
-        {
+        if snippet[from..label_end].contains(['[', ']']) || snippet[..start].ends_with('!') {
             continue;
         }
         let url_start = label_end + 2;

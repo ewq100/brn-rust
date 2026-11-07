@@ -14,11 +14,12 @@ pub(super) struct ChatScroller {
     pub signature: String,
     pub history_len: usize,
 }
-/// Status of changes actually applied during the Run that saved this reply.
-/// Carried references from older Runs and unapplied candidates are excluded.
+/// Status of applied changes first recorded by the Run that saved this reply,
+/// including proposals the owner applied later. Older references and unapplied
+/// candidates are excluded.
 /// Compensation receipts, including Undo of Undo, are the source of truth.
 fn reply_undo_status(history: &[Receipt], message: &str) -> Option<&'static str> {
-    let (end, receipt) = history.iter().enumerate().find(|(_, receipt)| {
+    let receipt = history.iter().find(|receipt| {
         receipt
             .writes
             .iter()
@@ -37,10 +38,21 @@ fn reply_undo_status(history: &[Receipt], message: &str) -> Option<&'static str>
             .iter()
             .any(|write| &write.after.id == run_id && write.before.is_none())
     })?;
-    let applied: Vec<_> = history[start..=end]
+    let previous_operations: BTreeSet<_> = history[..start]
+        .iter()
+        .flat_map(|receipt| &receipt.writes)
+        .flat_map(|write| match &write.after.data {
+            RecordData::Run(run) => run.operations.as_slice(),
+            _ => &[],
+        })
+        .map(|operation| operation.as_str())
+        .collect();
+    let applied: Vec<_> = history[start..]
         .iter()
         .filter(|receipt| {
-            run.operations.contains(&receipt.operation) && !lists::is_background(receipt)
+            run.operations.contains(&receipt.operation)
+                && !previous_operations.contains(receipt.operation.as_str())
+                && !lists::is_background(receipt)
         })
         .collect();
     if applied.is_empty() {
@@ -59,7 +71,8 @@ fn reply_undo_status(history: &[Receipt], message: &str) -> Option<&'static str>
         .filter(|receipt| undone.contains(receipt.operation.as_str()))
         .count();
     match (count, applied.len()) {
-        (0, _) => None,
+        (0, 1) => Some("Change applied"),
+        (0, _) => Some("Changes applied"),
         (1, 1) => Some("Change undone"),
         (count, total) if count == total => Some("Changes undone"),
         _ => Some("Some changes undone"),
@@ -1365,9 +1378,9 @@ mod undo_status_tests {
     use super::*;
 
     #[test]
-    fn reply_status_uses_applied_receipts_and_tracks_partial_undo_and_redo() {
+    fn reply_status_tracks_direct_and_owner_applied_proposals_through_undo_and_redo() {
         let root = tempfile::Builder::new()
-            .prefix("brn-nu-history-status-")
+            .prefix("brn-nu-qa2fix-history-status-")
             .tempdir_in("/private/tmp")
             .unwrap();
         let mut workspace = Workspace::open(root.path().join("data")).unwrap();
@@ -1385,7 +1398,8 @@ mod undo_status_tests {
         let mut start = receipt("run-start");
         let mut edit = receipt("edit");
         let mut second = receipt("second-edit");
-        let pending = receipt("unapplied");
+        let mut pending = receipt("older-pending");
+        let mut undo_pending = receipt("undo-older-pending");
         let mut finish = receipt("reply");
         let mut undo = receipt("undo");
         let mut undo_second = receipt("undo-second");
@@ -1408,6 +1422,14 @@ mod undo_status_tests {
             "budget": 3, "effort": "medium", "loaded_skills": [], "fence": 1,
             "state": "Working", "progress": "", "operations": [], "sources": []
         })).unwrap();
+        let mut older_run = run.clone();
+        older_run.operations = vec![pending.operation.clone()];
+        older.writes.push(Written {
+            before: None,
+            after: record("older-run", RecordData::Run(older_run)),
+        });
+        pending.writes.push(note_write("older-pending-note"));
+        undo_pending.undo_of = Some(pending.operation.clone());
         let initial = record("run", RecordData::Run(run.clone()));
         start.writes.push(Written {
             before: None,
@@ -1440,14 +1462,40 @@ mod undo_status_tests {
         undo.undo_of = Some(edit.operation.clone());
         undo_second.undo_of = Some(second.operation.clone());
         redo.undo_of = Some(undo.operation.clone());
-        let mut history = vec![older.clone(), start, edit, second, finish];
+        // The second candidate was proposed by this reply and owner-applied later.
+        let mut history = vec![older.clone(), start, finish];
         assert_eq!(reply_undo_status(&history, "reply"), None);
+        let mut review_only = history.clone();
+        review_only.push(second.clone());
+        assert_eq!(
+            reply_undo_status(&review_only, "reply"),
+            Some("Change applied")
+        );
+        review_only.push(undo_second.clone());
+        assert_eq!(
+            reply_undo_status(&review_only, "reply"),
+            Some("Change undone")
+        );
+        history.insert(2, edit);
+        assert_eq!(reply_undo_status(&history, "reply"), Some("Change applied"));
+        history.push(second);
+        assert_eq!(
+            reply_undo_status(&history, "reply"),
+            Some("Changes applied")
+        );
+        // An older Run's pending candidate may also be applied after this reply.
+        history.push(pending);
+        history.push(undo_pending);
+        assert_eq!(
+            reply_undo_status(&history, "reply"),
+            Some("Changes applied")
+        );
         let mut undo_older = receipt("undo-older");
         undo_older.undo_of = Some(older.operation);
         history.push(undo_older);
         assert_eq!(
             reply_undo_status(&history, "reply"),
-            None,
+            Some("Changes applied"),
             "carried references are not this reply's changes"
         );
         history.push(undo);
@@ -1468,7 +1516,10 @@ mod undo_status_tests {
             .find(|r| r.reason == "undo-second")
             .map(|r| r.operation.clone());
         history.push(redo_second);
-        assert_eq!(reply_undo_status(&history, "reply"), None);
+        assert_eq!(
+            reply_undo_status(&history, "reply"),
+            Some("Changes applied")
+        );
         assert_eq!(reply_undo_status(&history, "unrelated-reply"), None);
     }
 }

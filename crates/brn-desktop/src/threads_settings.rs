@@ -276,9 +276,10 @@ impl ThreadsUi {
                 ),
             ))
             .child(field(
-                "Model",
-                Input::new(&self.model).w_full().aria_label("Model"),
+                "Model for all chats",
+                Input::new(&self.model).w_full().aria_label("Model for all chats"),
             ))
+            .child(metadata("Save settings to use this model for future replies in all chats. The chat model menu updates this same setting immediately."))
             .child(field(
                 "Reasoning effort",
                 Self::choice(
