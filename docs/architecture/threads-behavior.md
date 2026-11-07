@@ -50,6 +50,8 @@ On launch the desktop restores the last valid destination — a chat, a document
 
 The owner can start a thread from Ask or delegate, a selected note passage, a source import, or an existing Action. The agent can open one when useful work requires an owner decision. Routine processing can attach its outcome to an existing work context and remain quiet.
 
+When startup needs a schema upgrade without a saved backup folder, the desktop offers a native folder picker explaining the pre-upgrade copy. Cancel quits without changing the old store. A valid external choice publishes the pre-upgrade backup, upgrades in one transaction, and saves the folder through the checked Settings service before opening the workspace. Busy work still refuses with instructions to reopen the previous app. Settings → Data offers Choose backup folder before it is needed.
+
 ## State and attention
 
 Chats stay in conversation history after an answer. The owner may Archive or Unarchive them; archive stops the chat's work, fences its live runs, and pauses the saved queue. Unarchive never resumes work. Legacy Resolved conversations appear as archived; Unarchive keeps their identities and restores the internal Open state. Thread IDs remain the storage/API identity. Ordinary chat has no Resolve/Reopen or quick-question auto-resolution.

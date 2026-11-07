@@ -1,5 +1,7 @@
 #![recursion_limit = "256"]
 use std::{path::PathBuf, process::ExitCode};
+#[cfg(any(feature = "native-ui", test))]
+mod startup;
 #[cfg(all(test, not(feature = "native-ui")))]
 #[path = "threads_state.rs"]
 mod threads_state;

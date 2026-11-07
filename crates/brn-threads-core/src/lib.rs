@@ -100,6 +100,16 @@ pub enum Error {
         schema_found: i64,
         schema_required: i64,
     },
+    /// Startup needs an owner-chosen external backup destination; no mutation occurred.
+    #[error("Choose a backup folder so BRN can save a copy of your workspace before upgrading.")]
+    UpgradeNeedsBackupFolder {
+        from: i64,
+        directory: std::path::PathBuf,
+    },
+    #[error(
+        "Reopen the previous BRN app, stop its work and save or discard unfinished edits before trying this upgrade again."
+    )]
+    UpgradeBusy,
     /// The data folder cannot be opened or created. The message names the
     /// folder and the reason in the owner's terms; the OS detail stays in
     /// `cause`, reachable through `source()` for logs.

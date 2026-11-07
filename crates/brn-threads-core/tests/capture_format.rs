@@ -114,7 +114,11 @@ fn schema12_upgrade_and_restore_preserve_exact_history_and_pending_requests() {
     ));
     assert_eq!(std::fs::read(&db).unwrap(), bytes);
     // No remembered/chosen external backup directory: fail without mutation.
-    assert!(Store::open(&data).is_err());
+    assert!(matches!(
+        Store::open(&data),
+        Err(Error::UpgradeNeedsBackupFolder { from: 12, .. })
+    ));
+    assert_eq!(version(&db), 12);
     assert_eq!(std::fs::read(&db).unwrap(), bytes);
     let backups = root.path().join("backups");
     std::fs::create_dir(&backups).unwrap();

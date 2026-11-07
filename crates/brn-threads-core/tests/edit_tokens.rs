@@ -595,7 +595,7 @@ fn schema_5_upgrade_is_refused_with_an_open_edit_or_without_a_folder() {
     std::fs::create_dir(&backups).unwrap();
     assert!(matches!(
         Store::upgrade(&data, &backups),
-        Err(Error::UnsafeDirectory(message)) if message.contains("save/discard edits")
+        Err(Error::UpgradeBusy)
     ));
     assert_eq!(std::fs::read_dir(&backups).unwrap().count(), 0);
     assert_eq!(user_version(&data.join(DATABASE_FILENAME)), 5);
@@ -603,11 +603,10 @@ fn schema_5_upgrade_is_refused_with_an_open_edit_or_without_a_folder() {
     let mut store = Store::open(root.path().join("plain")).unwrap();
     note(&mut store, "a", "schema five");
     let plain = schema5(store);
-    // The owner host's implicit upgrade needs a remembered folder: the hint
-    // keeps the schema 3/4 wording and adds a schema 5 sentence.
+    // The owner host can ask for a folder without matching an error string.
     assert!(matches!(
         Store::open(&plain),
-        Err(Error::UnsafeDirectory(message)) if message.starts_with("Schema 5 needs an external pre-upgrade backup folder. Run: brn --data-dir ")
+        Err(Error::UpgradeNeedsBackupFolder { from: 5, .. })
     ));
     assert_eq!(user_version(&plain.join(DATABASE_FILENAME)), 5);
 }
@@ -654,7 +653,7 @@ fn schema_5_upgrade_is_refused_with_a_working_run() {
     std::fs::create_dir(&backups).unwrap();
     assert!(matches!(
         Store::upgrade(&data, &backups),
-        Err(Error::UnsafeDirectory(message)) if message.starts_with("Stop work")
+        Err(Error::UpgradeBusy)
     ));
     assert_eq!(std::fs::read_dir(&backups).unwrap().count(), 0);
     assert_eq!(user_version(&data.join(DATABASE_FILENAME)), 5);

@@ -96,21 +96,17 @@ pub(crate) fn upgrade_connection(
     let tx = Transaction::new_unchecked(conn, TransactionBehavior::Immediate)?;
     let busy: bool = tx.query_row("SELECT EXISTS(SELECT 1 FROM records WHERE json_extract(body,'$.archived')=0 AND json_extract(body,'$.data.Run.state')='Working') OR EXISTS(SELECT 1 FROM edit_sessions WHERE closed=0)", [], |r| r.get(0))?;
     if busy {
-        return Err(Error::UnsafeDirectory(
-            "Stop work and save/discard edits in the previous app before upgrading this workspace"
-                .into(),
-        ));
+        return Err(Error::UpgradeBusy);
     }
     let remembered: Option<String> = tx.query_row(
         "SELECT json_extract(body,'$.data.Settings.backup_directory') FROM records WHERE json_type(body,'$.data.Settings') IS NOT NULL AND json_extract(body,'$.archived')=0 LIMIT 1", [], |r| r.get(0)
     ).optional()?.flatten();
-    let folder = chosen.or_else(|| remembered.as_deref().map(Path::new)).ok_or_else(|| Error::UnsafeDirectory(
-        if from >= 5 {
-            format!("Schema {from} needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", workspace.display())
-        } else {
-            format!("Schema 3/4 needs an external pre-upgrade backup folder. Run: brn --data-dir {} upgrade --backup-directory ABSOLUTE_FOLDER", workspace.display())
-        }
-    ))?;
+    let folder = chosen
+        .or_else(|| remembered.as_deref().map(Path::new))
+        .ok_or_else(|| Error::UpgradeNeedsBackupFolder {
+            from,
+            directory: workspace.to_path_buf(),
+        })?;
     let folder = validate_backup_directory(workspace, folder)?;
     let destination = folder.join(format!(
         "brn-before-schema-{}-{}.sqlite3",
