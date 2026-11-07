@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Complete issue256 evidence-fix salvage and bounded product token hill-climb.
-**Owner attention:** Product PR274 awaiting corrected-head CI and code/security reviews. Native journey failure diagnosed as an outdated trace assertion; measured runtime unchanged.
+**Owner attention:** Product PR274 awaiting corrected-head CI and code/security reviews. Two old-head test assertions corrected; measured runtime unchanged.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -96,9 +96,9 @@ Gates:
 ### Extract useful evidence fixes and run product token hill-climb
 
 Task ID: `search-efficiency-256-restart`
-Owner: Issue 256 restart lead on MacBook · State: **active** · Last observed: 2026-11-07T07:26:12.781440+00:00
-Activity: Product PR274 opened. Required native CI failed at its scripted journey trace assertion because the new automatic read is now retained. Corrected test verifies both reads and single-counted envelope bytes; runtime unchanged. All four native-retrieval scripted journeys pass locally after correction; formatting, overview and documentation links pass.
-Next: Push the verified test-only correction, renew exact-head code/security and CI, then normal merge.
+Owner: Issue 256 restart lead on MacBook · State: **active** · Last observed: 2026-11-07T07:30:20.289297+00:00
+Activity: Old-head Ubuntu CI additionally exposed a CLI integration test pinned to guidance25 instead of measured guidance28. Updated the expected identity. The native journey correction already passes all four tests. Runtime remains unchanged. CLI agent_runs passes locally: 15 passed, 2 pre-existing ignored live tests.
+Next: Require corrected-head code/security reviews and hosted CI, then normal merge.
 
 <details>
 <summary>Gate status</summary>
@@ -106,7 +106,7 @@ Next: Push the verified test-only correction, renew exact-head code/security and
 Gates:
 
 - **implementation:** Bounded exact first-hit passage through checked read path; inline-output coverage guard and host-read tracing implemented.
-- **checks:** 52 search/research tests, 9 read-ledger, 28 summary, 3 guide and 13 writing-evidence tests passed, plus strict Clippy and 94 Python tests (11 optional skips). Both Council checkpoints completed. Hosted current-head gates pending. Corrected native-retrieval agent_journeys suite: 4/4 pass locally.
+- **checks:** 52 search/research tests, 9 read-ledger, 28 summary, 3 guide and 13 writing-evidence tests passed, plus strict Clippy and 94 Python tests (11 optional skips). Both Council checkpoints completed. Hosted current-head gates pending. Corrected native-retrieval agent_journeys suite: 4/4 pass locally. CLI agent_runs: 15 passed, 2 ignored live tests after guidance identity correction.
 - **integration:** Salvage 273 merged bab8c876 and superseded PRs closed. Required salvage-main contexts passed; optional Windows main failures retained. Product merge pending.
 - **native:** Headless synthetic qualification with real selected subscription calls. B retains separate native/release qualification.
 - **owner acceptance:** Owner authorized normal merge after required reviews/CI. Hands-on owner acceptance remains separate.
@@ -149,4 +149,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-11-07T07:26:12.781440+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-07T07:30:20.289297+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

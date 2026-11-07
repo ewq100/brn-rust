@@ -79,3 +79,7 @@ Sol recomputed every phase and verified 56 native-result hashes, packet/receipt 
 The first [native retrieval/combined CI run](https://github.com/ewq100/brn-rust/actions/runs/42350469158/job/128337305249) failed at an outdated scripted-journey trace assertion: it expected the search and explicit read, omitting the new automatic read. The corrected assertion requires all three calls, checks automatic-read identity/version/offset, and verifies its bytes are counted only in the parent envelope. Content-free trace checks remain. This correction changes tests and records only; measured runtime inputs are unchanged.
 
 All four scripted journeys pass locally with `cargo test -p brn-threads-app --features native-retrieval --test agent_journeys --locked --offline`. Formatting, overview consistency and Markdown links also pass. Full hosted gates and current-head reviews must pass before merge.
+
+The same old-head [Ubuntu Core/CLI run](https://github.com/ewq100/brn-rust/actions/runs/42350469158/job/128337305189) also found a CLI integration assertion pinned to guidance25. It now expects the measured guidance28 identity. This is a test-only correction.
+
+The CLI `agent_runs` suite passes locally: 15 passed and two pre-existing live tests ignored, using `cargo test -p brn --test agent_runs --locked --offline`.
