@@ -629,3 +629,36 @@ async fn ai_off_never_reads_the_copilot_account() {
     assert!(http.requests().is_empty());
     assert!(!missing.exists());
 }
+
+#[tokio::test]
+#[cfg(unix)]
+async fn transient_refinement_failure_has_no_chat_resend_or_route_fallback() {
+    let root = root();
+    let dir = copilot_credentials(&root, "SYNTHETIC_GITHUB");
+    let account = ConversionAccount::capture(Some(Provider::Copilot), None, Some(&dir));
+    let http = SequencedHttpClient::new([
+        copilot_session(),
+        MockHttpResponse::error(
+            rig::http_client::StatusCode::SERVICE_UNAVAILABLE,
+            r#"{"error":{"message":"synthetic transient failure"}}"#,
+        ),
+    ]);
+    let outcome = refine(
+        result(),
+        &account,
+        CancellationToken::new(),
+        Some(DynHttpClient::new(http.clone())),
+        TIMEOUT,
+    )
+    .await;
+    assert!(matches!(outcome, Err(ConversionFailure::Provider(_))));
+    assert_eq!(
+        http.requests().len(),
+        2,
+        "one authentication and one refinement, no resend"
+    );
+    assert_eq!(
+        http.requests()[1].uri,
+        "https://copilot.example.invalid/responses"
+    );
+}

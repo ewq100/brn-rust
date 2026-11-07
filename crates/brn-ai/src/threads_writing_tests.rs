@@ -1004,7 +1004,7 @@ async fn prepare_contract_serializes_identically_on_codex_and_copilot_responses(
                 )
                 .with_base_url("https://copilot.example.invalid")
                 .connect(DynHttpClient::new(http.clone()));
-                crate::auth::copilot_completion(&client, request.selection.model.clone(), true)
+                crate::provider::copilot_completion(&client, request.selection.model.clone(), true)
                     .into()
             } else {
                 let client = rig::providers::openai::OpenAIConfig::with_key(

@@ -281,11 +281,7 @@ impl ThreadsUi {
 /// Below this Chat panel width the composer controls compact.
 const CHAT_NARROW: f32 = 420.;
 pub(super) fn provider_key(provider: &str) -> &'static str {
-    match provider.to_ascii_lowercase().as_str() {
-        "codex" | "chatgpt" => "chatgpt",
-        "copilot" => "copilot",
-        _ => "",
-    }
+    brn_threads_app::canonical_provider_name(provider).unwrap_or("")
 }
 pub(super) const PROVIDERS: [(&str, &str); 2] =
     [("chatgpt", "ChatGPT"), ("copilot", "GitHub Copilot")];

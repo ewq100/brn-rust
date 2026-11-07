@@ -566,7 +566,7 @@ async fn responses_and_chat_second_requests_pair_each_rejected_call_with_no_effe
         )
         .connect(http.clone());
         let answer = run_model(
-            crate::auth::copilot_completion(&client, "synthetic-model".into(), responses),
+            crate::provider::copilot_completion(&client, "synthetic-model".into(), responses),
             scope.clone(),
             &input,
             ReasoningEffort::Medium,

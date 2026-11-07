@@ -344,6 +344,19 @@ pub struct WorkspaceSettings {
     pub helper: Option<HelperSettings>,
 }
 
+/// Canonical identity of an existing saved provider name, shared by runtime
+/// adapters and durable run/settings fences. This selects no model/account and
+/// establishes no capability or entitlement. Unknown names remain unknown.
+pub fn canonical_provider_name(name: &str) -> Option<&'static str> {
+    [
+        ("codex", "chatgpt"),
+        ("chatgpt", "chatgpt"),
+        ("copilot", "copilot"),
+    ]
+    .into_iter()
+    .find_map(|(alias, canonical)| name.eq_ignore_ascii_case(alias).then_some(canonical))
+}
+
 /// One explicitly approved anonymous local connection, disabled by default.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]

@@ -1,4 +1,6 @@
 use crate::error::{map_auth, map_provider, map_transport};
+#[cfg(test)]
+use crate::provider::copilot_completion;
 use crate::{
     AccountStatus, AiError, AiErrorKind, AiResult, LoginPrompt, ModelOption, Provider,
     ReasoningEffort, Selection,
@@ -129,34 +131,6 @@ pub(crate) fn pinned_session_http(http: DynHttpClient, session: &str) -> AiResul
         .parse()
         .map_err(|_| AiError::new(AiErrorKind::Other))?;
     Ok(http.with_middleware(PinnedSession(value)))
-}
-
-/// The Copilot completion model, forced onto the Responses route when asked.
-/// Rig 0.46 selects that route only for Codex IDs, yet Copilot serves some
-/// other models there exclusively.
-///
-/// Tools are sent non-strict on both routes, as on ChatGPT. Rig's Copilot
-/// Responses default sanitizes schemas for strict mode, which turns an open
-/// object such as `prepare_changes` record `data` into `{}` the model cannot
-/// fill. BRN validates every tool call's arguments itself.
-pub(crate) fn copilot_completion(
-    client: &openai::OpenAI,
-    model: String,
-    responses: bool,
-) -> rig_core::driver::Model<openai::wire::OpenAiWire> {
-    let mut completion = client.completion(model.clone());
-    if responses {
-        let config = client.config();
-        let provider =
-            openai::OpenAIConfig::with_key(&copilot::wire::DIALECT, config.api_key.clone())
-                .with_base_url(config.base_url.clone())
-                .with_route(openai::wire::Route::Responses);
-        completion.wire = openai::wire::OpenAiWire::new(provider, model);
-    }
-    if let openai::wire::OpenAiWire::Responses(wire) = &mut completion.wire {
-        wire.strict_tools = false;
-    }
-    completion
 }
 
 impl Auth {
@@ -303,9 +277,7 @@ impl Auth {
                 Provider::Chatgpt => {
                     let authenticator = chatgpt::auth::Authenticator::new(
                         chatgpt::auth::AuthSource::OAuth,
-                        LegacyTokenStore {
-                            dir: self.dir.clone(),
-                        },
+                        LegacyTokenStore::new(self.dir.clone()),
                         handler,
                         allow_device_flow,
                     );
@@ -325,9 +297,7 @@ impl Auth {
                 Provider::Copilot => {
                     let authenticator = copilot::auth::Authenticator::new(
                         copilot::auth::AuthSource::OAuth,
-                        LegacyTokenStore {
-                            dir: self.dir.clone(),
-                        },
+                        LegacyTokenStore::new(self.dir.clone()),
                         handler,
                         allow_device_flow,
                     );
@@ -491,9 +461,8 @@ impl Auth {
     /// Stable summary-cache identity from the same checked bootstrap file.
     /// Raw credential bytes stay inside the existing validated reader.
     pub(crate) fn github_token_fingerprint(&self) -> AiResult<Option<String>> {
-        use sha2::{Digest, Sha256};
         self.github_token()
-            .map(|token| token.map(|token| format!("{:x}", Sha256::digest(token.as_bytes()))))
+            .map(|token| copilot_pin(token.as_deref()).0)
     }
 
     /// The Copilot account signed in now. Capture it when an operation starts.
@@ -556,9 +525,43 @@ impl Auth {
 /// No Rig FileTokenStore, lockfiles, or per-request authenticator escapes here.
 struct LegacyTokenStore {
     dir: PathBuf,
+    // Only this short-lived authentication operation's last observed/bootstrap
+    // write. None is unread; Some(AccountPin(None)) is observed signed-out.
+    copilot_pin: std::sync::Mutex<Option<AccountPin>>,
+}
+
+fn copilot_pin(token: Option<&str>) -> AccountPin {
+    use sha2::{Digest, Sha256};
+    AccountPin(token.map(|token| format!("{:x}", Sha256::digest(token.as_bytes()))))
 }
 
 impl LegacyTokenStore {
+    fn new(dir: PathBuf) -> Self {
+        Self {
+            dir,
+            copilot_pin: std::sync::Mutex::new(None),
+        }
+    }
+
+    fn observe_copilot(
+        &self,
+        token: Option<&str>,
+    ) -> AiResult<std::sync::MutexGuard<'_, Option<AccountPin>>> {
+        let current = copilot_pin(token);
+        let mut observed = self
+            .copilot_pin
+            .lock()
+            .map_err(|_| AiError::new(AiErrorKind::Storage))?;
+        if observed
+            .as_ref()
+            .is_some_and(|previous| previous != &current)
+        {
+            return Err(account_changed());
+        }
+        observed.get_or_insert(current);
+        Ok(observed)
+    }
+
     fn load_record(&self, key: &str) -> AiResult<Option<String>> {
         validate_dir_in(&self.dir)?;
         let record = match key {
@@ -566,6 +569,7 @@ impl LegacyTokenStore {
             "copilot" => {
                 let session = json_in(&self.dir, "copilot.json")?;
                 let github = github_token_in(&self.dir)?;
+                let _observed = self.observe_copilot(github.as_deref())?;
                 if session.is_none() && github.is_none() {
                     return Ok(None);
                 }
@@ -617,6 +621,11 @@ impl LegacyTokenStore {
                 // partial GitHub-token save that precedes session exchange.
                 checked_file_in(&self.dir, "github-token", false)?;
                 let had_session = checked_file_in(&self.dir, "copilot.json", false)?.is_some();
+                // The exchange may have yielded to another sign-in. Never put
+                // the earlier combined record over that newer account/cache.
+                let current = github_token_in(&self.dir)?;
+                let mut observed = self.observe_copilot(current.as_deref())?;
+                let next = copilot_pin(github.as_deref());
                 match github {
                     Some(token) => write_record_in(&self.dir, "github-token", token.as_bytes())?,
                     None => delete_record_in(&self.dir, "github-token")?,
@@ -629,12 +638,17 @@ impl LegacyTokenStore {
                             .map_err(|_| AiError::new(AiErrorKind::Storage))?,
                     )?;
                 }
+                *observed = Some(next);
                 Ok(())
             }
             _ => Err(unsafe_credentials()),
         }
     }
 }
+
+#[cfg(all(test, unix))]
+#[path = "auth_race_tests.rs"]
+mod race_tests;
 
 impl chatgpt::auth::TokenStore for LegacyTokenStore {
     fn load<'a>(
@@ -665,8 +679,17 @@ impl chatgpt::auth::TokenStore for LegacyTokenStore {
             for name in files {
                 checked_file_in(&self.dir, name, false)?;
             }
+            let mut observed = if key == "copilot" {
+                let current = github_token_in(&self.dir)?;
+                Some(self.observe_copilot(current.as_deref())?)
+            } else {
+                None
+            };
             for name in files {
                 delete_record_in(&self.dir, name)?;
+            }
+            if let Some(observed) = &mut observed {
+                **observed = Some(AccountPin(None));
             }
             Ok(())
         })
@@ -2346,9 +2369,7 @@ mod tests {
             &serde_json::to_vec(&session).unwrap(),
         );
         write(&auth, "github-token", b"SYNTHETIC_GITHUB");
-        let store = LegacyTokenStore {
-            dir: auth.dir.clone(),
-        };
+        let store = LegacyTokenStore::new(auth.dir.clone());
         for key in ["chatgpt", "copilot"] {
             let record = store.load(key).await.unwrap().unwrap();
             store.save(key, &record).await.unwrap();
@@ -2374,9 +2395,7 @@ mod tests {
     async fn token_store_saves_partial_github_before_session_and_deletes_invalidated_bootstrap() {
         use chatgpt::auth::TokenStore;
         let (_root, auth) = fixture();
-        let store = LegacyTokenStore {
-            dir: auth.dir.clone(),
-        };
+        let store = LegacyTokenStore::new(auth.dir.clone());
         store.save("copilot", r#"{"github_token":"SYNTHETIC_GITHUB","token":null,"expires_at":null,"endpoints":null,"bootstrap_token_fingerprint":null}"#).await.unwrap();
         assert_eq!(
             auth.github_token().unwrap().as_deref(),
@@ -2414,9 +2433,7 @@ mod tests {
                 }
                 let session_before = std::fs::read(&session).unwrap();
                 let metadata_before = std::fs::symlink_metadata(&session).unwrap();
-                let store = LegacyTokenStore {
-                    dir: auth.dir.clone(),
-                };
+                let store = LegacyTokenStore::new(auth.dir.clone());
                 let error = store.save("copilot", r#"{"github_token":"SYNTHETIC_NEW_GITHUB","token":"SYNTHETIC_NEW_SESSION","expires_at":4102444800,"endpoints":null,"bootstrap_token_fingerprint":null}"#).await.unwrap_err();
                 assert_eq!(
                     error.downcast_ref::<AiError>().unwrap().kind,

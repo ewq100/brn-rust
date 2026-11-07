@@ -31,7 +31,7 @@ fn field(label: &str, control: impl IntoElement) -> gpui_kit::Div {
 /// The saved provider's credential state, as far as BRN can tell without
 /// contacting the provider: a saved location that is missing is said so.
 pub(super) fn credential_status(settings: &WorkspaceSettings) -> (Tone, String) {
-    let copilot = settings.provider.eq_ignore_ascii_case("copilot");
+    let copilot = shell::provider_key(&settings.provider) == "copilot";
     let saved = if copilot {
         settings.credentials_dir.as_deref()
     } else {
@@ -269,10 +269,7 @@ impl ThreadsUi {
                         ("copilot", "provider-copilot", "GitHub Copilot"),
                     ],
                     // The default "Codex" provider is the Codex / ChatGPT segment.
-                    |value| {
-                        provider.eq_ignore_ascii_case(value)
-                            || value == "chatgpt" && provider.eq_ignore_ascii_case("codex")
-                    },
+                    |value| shell::provider_key(provider) == value,
                     cx,
                     |this, value| this.provider_form.provider = value.into(),
                 ),

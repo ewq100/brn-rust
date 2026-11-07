@@ -15,6 +15,7 @@ mod error;
 pub mod mcp;
 #[cfg(any(test, feature = "capability-spike"))]
 mod proposal_tools;
+mod provider;
 #[cfg(any(test, feature = "capability-spike"))]
 mod provider_fixture_runtime;
 #[cfg(test)]
@@ -66,16 +67,6 @@ pub use tools::{
 pub enum Provider {
     Chatgpt,
     Copilot,
-}
-impl Provider {
-    /// The provider a saved setting names ("Codex"/"ChatGPT" or "Copilot").
-    pub fn from_setting(text: &str) -> Option<Self> {
-        match text.to_ascii_lowercase().as_str() {
-            "codex" | "chatgpt" => Some(Self::Chatgpt),
-            "copilot" => Some(Self::Copilot),
-            _ => None,
-        }
-    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]

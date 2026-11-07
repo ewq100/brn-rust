@@ -3974,7 +3974,7 @@ impl ThreadsUi {
         settings.auth_file = (!auth.trim().is_empty()).then_some(auth);
         settings.credentials_dir = (!credentials.trim().is_empty()).then_some(credentials.clone());
         settings.helper = if let Some(provider) = &self.provider_form.helper_provider {
-            let codex = !provider.eq_ignore_ascii_case("copilot");
+            let codex = shell::provider_key(provider) != "copilot";
             let auth_file = settings.auth_file.clone().filter(|_| codex);
             let credentials_dir = (!credentials.trim().is_empty()
                 && (!codex || auth_file.is_none()))

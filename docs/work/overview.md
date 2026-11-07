@@ -1,6 +1,6 @@
 # Development overview
 
-**Goal:** Complete native and approved published-update acceptance for the qualified combined Mac alpha on selected runtimea921e325.
+**Goal:** Qualify the owner-selected combined current-main Mac alpha with272,267and the focused review-target fix, then complete approved release/native-update acceptance.
 **Owner attention:** Owner selected new candidate including currentmain272+267+focused target fix for qualification only. B owns merge/pin/rebuild and affected native rechecks. Existinga921 native/core/local-update receipts preserved. Clean-user ordinary Finder needs disposable standard account; published delivery needs later explicit release approval.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
@@ -66,9 +66,30 @@ Gates:
 
 - **implementation:** Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5. Bounded new-article review-target correction implemented; exact red-before/green-after native-state test and18reviewtests pass.
 - **checks:** Refreshed combination:349passed+11skipped=360local tooling,fmt/syntax/overview/links clean. All7 hosted PR lanes pass. Current Codex code clean; separate automated security receipt explicitly reports no issues on0438bd60. Full-detail report account login unavailable/not inspected; additional independent full-task security review clear; workflow does not itself grant a fallback waiver. Prior source-bound local transport-substituted A/B and Linux ETXTBSY evidence retained. All4 required resulting-main contexts passed in42279604581, including25 Mac packaging/updater cases and the original Ubuntu fixture test. All3 optional Windows lanes fail in unchanged composer/skills paths, retained visibly. Final selecteda921e325: all4 required hosted contexts pass in42294766975;32local packaging/updater/preparation cases pass; relocated helpers8formats/16imports and local real-package A→B/full-restore pass. Original failed verifier assumptions/path failure retained and diagnosed; no production repair or skipped case. Independent approval review clear onac5deeef; archival-verifier P3 documentation fixed97199fe2 and independently rechecked with31 checksums passing. Final docs/currentmain machine clarification follows; no new runtime changes. MacBook refreshed checkpoint94c11669: all7proposal lanes pass in42302755459; current code/security receipts completed/no findings; zero review threads. Development native preflight passes. These reviews/checks apply to94c11669, not later documentation commits. MacBook continuation preparation:16overview tests,741Markdown files/3705links at last scan, generated overview/whitespace and27historical checksums pass;5other task objects preserved. New exacta921 CLI built and synthetic backup/restore smoke passed, with source/binary receipt. Final documentation scan is recorded in preparation-checks.json. Continuationb65d3dd4 all7CI pass in42335708965 and completed clean current code/security receipts, zero review threads, verified before current staged-native work. New MacBook rebuild desktop+bothhelpers+package/signature and relocated helper8formats/16imports qualification pass. Native-created backup quick_check and restored records/notes/history/settings/projects/threads exact comparisons pass. Local update qualifier exit1 correctly refused running BRN; qualification remains incomplete, original failure log retained. Current2e7bfce3 BRN CI42340527801 completed success; code6702537631 and security6702573318 report no findings on that head. New native evidence/target correction needs final-head checks/review. Local substituted MacBook update rerun passed after normal closure, prior refusal retained. New correction full native-state451pass/1existingignore at2threads/canonicalTMPDIR. First full attempt443pass/8fail/1ignore; canonical-temp parallel450pass/1workerfail/1ignore; isolatedworkerpassed. Preserve all attempts; no CI/assertion/deadline changes or baseline reliability claim.
-- **integration:** SATISFIED updater source integration: normal merge28051188, tree identical to reviewed0438bd60, all7PR lanes pass in42276377509. All4 required resulting-main42279604581 contexts pass; overall run fails only3 inherited optional Windows lanes; no publication. A264/265 handoff resolved; a921e325 is selected and normally reconciled into acceptance branch. Publication proposal stays draft pending explicit owner approval; actual approved main manifest remains legacy until that approval/merge. Currentmain c388da26 (C266 docs/evidence only) normally merged into acceptance branch; C task objects preserved exactly. Qualified runtime staysa921e325; runtime/Cargo/CI tree unchanged. Draft release-approval PR268 opened; no merge/publication. Proposal94c11669 own CI7/7 and code/security receipts now completed/no findings, freshly inspected on MacBook. PR stays draft/unmerged pending explicit owner release approval; later continuation documentation needs applicable renewed checks/review. Main has since advanced75f37221 with accepted auth-race repair272. Currenta921native artifacts remain source-bound historical/functional evidence; final release source and affected qualification must reconcile that fix before publication. No automatic merge/publication. Currentmain8b07e035 contains267 despite selected first-alpha exclusion. No silent adoption/revert or publication-policy change; source decision remains open. Owner subsequently selected currentmain272+267+targetfix for new qualification only; source conflict resolved for testing, not publication.
-- **native:** PARTIAL PASSED a921 alternate-directory native core journeys: separate Copilot device login, tool-backed multi-turn/citations, real13 web sources, Off, bounded Stop, Luna Off/On, writing Discard/Apply/Undo/stale refusal, consolidation new note+2source links/Undo, project links, normal quit/reopen unsaved UTF-8 draft and exact canonical state/settings, retained Copilot tool reply, post-login native backup/new-copy restore6categories. New-article review target presentation FAILED; correct canonical target/Apply/Undo separately verified. Focused correction pending. Clean-user Finder/published browser-Gatekeeper/native real update remain pending. Optional second-account/in-flight switch/real quota-policy/missingLuna/network outage unobserved. Requested high effort, effective unknown.
+- **integration:** SATISFIED updater source integration: normal merge28051188, tree identical to reviewed0438bd60, all7PR lanes pass in42276377509. All4 required resulting-main42279604581 contexts pass; overall run fails only3 inherited optional Windows lanes; no publication. A264/265 handoff resolved; a921e325 is selected and normally reconciled into acceptance branch. Publication proposal stays draft pending explicit owner approval; actual approved main manifest remains legacy until that approval/merge. Currentmain c388da26 (C266 docs/evidence only) normally merged into acceptance branch; C task objects preserved exactly. Qualified runtime staysa921e325; runtime/Cargo/CI tree unchanged. Draft release-approval PR268 opened; no merge/publication. Proposal94c11669 own CI7/7 and code/security receipts now completed/no findings, freshly inspected on MacBook. PR stays draft/unmerged pending explicit owner release approval; later continuation documentation needs applicable renewed checks/review. Main has since advanced75f37221 with accepted auth-race repair272. Currenta921native artifacts remain source-bound historical/functional evidence; final release source and affected qualification must reconcile that fix before publication. No automatic merge/publication. Currentmain8b07e035 contains267 despite selected first-alpha exclusion. No silent adoption/revert or publication-policy change; source decision remains open. Owner subsequently selected currentmain272+267+targetfix for new qualification only; source conflict resolved for testing, not publication. Normal main8b07e035 merge now resolves only shared task record/generated overview; all5non-B task objects exactly retained from main. New source-bound package qualification pending.
+- **native:** PARTIAL PASSED a921 alternate-directory native core journeys: separate Copilot device login, tool-backed multi-turn/citations, real13 web sources, Off, bounded Stop, Luna Off/On, writing Discard/Apply/Undo/stale refusal, consolidation new note+2source links/Undo, project links, normal quit/reopen unsaved UTF-8 draft and exact canonical state/settings, retained Copilot tool reply, post-login native backup/new-copy restore6categories. New-article review target presentation FAILED; correct canonical target/Apply/Undo separately verified. Source correction passes regression/18review/full451native-state tests at2testthreads; changed-package native reobservation pending. Clean-user Finder/published browser-Gatekeeper/native real update remain pending. Optional second-account/in-flight switch/real quota-policy/missingLuna/network outage unobserved. Requested high effort, effective unknown.
 - **owner acceptance:** PENDING: owner native use before invited distribution. Local alpha.1/build3 and alpha.2/build4 are proposed-version candidates; approved published A/B and stock HTTPS remain outstanding. Release-manifest proposal is draft, no merge/publication authority inferred.
+
+</details>
+
+### Consolidate shared provider policy and qualify normal integration
+
+Task ID: `shared-provider-263`
+Owner: Agent C / Codex (cloud) · State: **active** · Last observed: 2026-11-07T05:13:29.268453+00:00
+Activity: Shared extraction and all setting/fence consumers implemented; final72bb6241 also forwards CLI/desktop canonical keys. Full cloud storage/end-to-end gate passes,771library tests/2parent-invoked fixture ignores,108steps1266checks. Three temporary tasks and fresh evaluator challenge pass both repaired baseline/candidate; failed/limited fixture attempts retained. No experimental policy ships. Final evidence batch now needs current-head hosted CI/code/security and normal merge.
+Next: Finish current-head PR267 hosted CI including macOS, Codex code/security and thread disposition; reconcile live main/B publication window, normal merge and inspect resulting-main required checks. PR267 and #263/#253 own final completion receipts; this is the pre-merge qualification snapshot.
+Depends on: development-speed-255 when Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (reported satisfied: true)
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Owner current A-is-done instruction reconciled at selecteda921e325. Existing setting/account/client/route/schema/retry policy now has shared owners; duplicate branches removed, distinct caller contracts retained. Auth behavior repair272 merged separately75f37221; final refactor branch merges that main normally.
+- **checks:** Final72bb6241 full storage/end-to-end gate status0; libraries765→771 with2parent-invoked fixture ignores, prior passing case names retained; strict Clippy and108step/1266check CLI journey.3temporary tasks pass before/after, corrected alias real configuration/run-fence acceptance and one fresh read-only evaluator challenge (same5new+2positive+37auth cases/arm) pass; sources restored. Original attempt overruns/fixture failures and model-identity/elapsed limits explicit in qualification.json. Current final-head hosted CI/reviews still required; earlier4ef reviews are historical. Council skipped per owner,0sessions/no score, not passed.
+- **integration:** Repair272 normalmerge75f37221; its required-main contexts pass, optional3Windows failures outside product diff retained. Refactor267 now based on main, remains separate from B first-alpha a921e325. Inspect exact current-head/platform/review gates and B publication window before normal merge; no bypass/forcepush.
+- **native:** Cloud implementation/offline transports only. Hosted macOS checks required; no owner Mac/credentials/live call. Earlier A/B/D/E receipts retain original sources. Later A/B selected-package combined account/chat/helper/summary/web/refinement journeys remain separate from cloud refactor qualification.
+- **owner acceptance:** Assigned cloud implementation and normal merge authorized. Owner explicitly selected one fresh read-only evaluator and skipped Council. No release/alpha publication authority or fresh live/native acceptance inferred.
 
 </details>
 
@@ -77,31 +98,6 @@ Gates:
 None recorded.
 
 ## Needs attention
-
-### Measure and improve development feedback (#255)
-
-Task ID: `development-speed-255`
-Owner: Agent C / Codex (cloud) · State: **blocked** · Last observed: 2026-11-06T23:21:25.106961+02:00
-Activity: Cycle 1 merged in PR262 as6897fe56. Cloud Cycle 2 stopped with no retained change: package-only control exceeded overhead limits; one target-kind core pair returned earlier feedback but full gate+16.9%; shared source mtimes invalidated the UI comparison. Nine comparison attempts/67m29s, no completed ABBA/fresh confirmation. All3 edits executed intended tests/full gates; controlled focused/full/pipeline exits101, only the harmless test failed, original source bytes restored and core tests passed.
-Next: Publish the scoped Cycle 2 evidence PR, complete current-head hosted CI and Codex code/security follow-through, and inspect findings. Required Council gate stays incomplete until actual cloud skill/routes are available. Normal merge only after applicable gates pass; obtain A selected final runtime and explicit shared-file handoff before Stage 2.
-Resource waits: Required Council skill and authenticated independent delegate routes are unavailable in cloud.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Documentation/evidence only. No performance workflow/configuration or product change retained; prescribed repeated qualification incomplete after cache-validity stop.
-- **checks:** All three edited paths ran nonzero intended tests/full offline gates. Controlled focused/full/pipeline exits101 with only harmless failure; restored core/fmt pass. Local tooling360 total=329passed+31skipped; Markdown/overview/diff/syntax and archive hashes pass. Current-head hosted CI and Codex code/security tracked by the PR linked from255. Council diagnosis/final review INCOMPLETE: zero sessions/no score.
-- **integration:** Cycle 1 PR262 merged6897fe56. Cycle 2 branch reconciled with updater/runtime main and A265 mergea921e325; Cycle 2 not merged. Required Council gap is not waived by ordinary review/CI.
-- **native:** Inapplicable to this headless documentation/workflow experiment; hosted macOS/platform gates preserved. No new native or owner-Mac observation.
-- **owner acceptance:** Standing normal-merge authorization applies after applicable gates; no added manual native gate. Missing required Council review remains incomplete.
-
-</details>
-
-Waiting:
-
-- resource: Required Council skill and authenticated independent delegate routes are unavailable in cloud.
 
 ### Implement and qualify the versioned Mac updater
 
@@ -115,39 +111,13 @@ Waiting:
 - resource: Owner resolved source choice: qualify currentmain including272+267 plus target fix; new source/package and affected qualification still pending, publication unapproved.
 - resource: Explicit publication approval and actual approved hosted A/B still required for browser/Gatekeeper/stock HTTPS.
 
-### Consolidate shared provider policy after runtime handoff
-
-Task ID: `shared-provider-263`
-Owner: Agent C / Codex (cloud) · State: **blocked** · Last observed: 2026-11-06T23:21:25.106961+02:00
-Activity: Read-only caller/policy mapping completed separately from timing windows. Existing chat/helper client sharing and duplicated normalization, refinement/search account checks and route construction are mapped. A264 response-limit transport delta inspected at98802606. No refactor implementation branch/PR or maintainability result.
-Next: After Cycle 2 closeout and explicit A shared provider/runtime file release, branch from selected a921e325 (or a newer explicitly handed-off runtime), refresh the map, preserve contracts/response guard and coordinate later integration outside B first alpha.
-Depends on: development-speed-255 when Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (reported satisfied: false)
-Resource waits: A explicit shared provider/runtime file-ownership handoff on the selected final runtime.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** Blocked. A264 merged98802606 and selected A265 mergeda921e325. Explicit C shared provider/runtime file handoff not observed. Read-only map only; no new client/routing policy implemented.
-- **checks:** Not run for a refactor. Offline before/after request/account/route/bounds/checked-write tests and three policy-change tasks plus unseen confirmation remain required. No maintainability or elapsed-speed claim.
-- **integration:** Separate branch/PR not created. Keep outside B first-alpha candidate and coordinate publication window/later adoption with A/B; preserve frozen254/256 experiments.
-- **native:** Cloud offline implementation planned; existing A/B live/native receipts retain their source limits. Any observable behavior change needs its proper qualification.
-- **owner acceptance:** Current assignment authorizes the separate refactor after sequencing gates; no release/publication authority inferred.
-
-</details>
-
-Waiting:
-
-- prerequisite development-speed-255: Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (reported satisfied: false; task state: blocked)
-- resource: A explicit shared provider/runtime file-ownership handoff on the selected final runtime.
-
 ## Completed
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+2 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `development-speed-255` — Measure and improve development feedback (#255)
 - `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
 
 ## Dependencies
@@ -155,10 +125,10 @@ Completion here means the selected task scope is complete; it does not establish
 ```mermaid
 graph TD
   t3["Measure and improve development feedback (#255)"]
-  t5["Consolidate shared provider policy after runtime handoff"]
-  t3 -->|Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (not satisfied)| t5
+  t5["Consolidate shared provider policy and qualify normal integration"]
+  t3 -->|Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (satisfied)| t5
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-11-07T05:51:26.578213+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-07T06:03:32.425960+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
