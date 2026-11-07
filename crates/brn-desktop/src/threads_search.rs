@@ -97,7 +97,11 @@ pub(super) fn plain_note_excerpt(
                 continue;
             }
             let content = start + marker.len();
-            let Some(end) = snippet[content..].find(marker).map(|n| n + content) else {
+            let Some(end) = snippet[content..]
+                .match_indices(marker)
+                .map(|(n, _)| n + content)
+                .find(|&end| !code[end])
+            else {
                 break;
             };
             if end > content {
@@ -806,6 +810,10 @@ mod excerpt_tests {
         assert_eq!(
             plain_note_excerpt("Use `__init__` and `*args*` here", &[]).0,
             "Use __init__ and *args* here"
+        );
+        assert_eq!(
+            plain_note_excerpt("**Use `**` for bold**", &[]).0,
+            "Use ** for bold"
         );
     }
 }
