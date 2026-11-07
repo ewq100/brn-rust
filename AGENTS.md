@@ -12,20 +12,32 @@ These protect user data; treat a violation as a bug.
 
 ## Working
 
-- Work on a branch or worktree per task and open a PR into `main`.
-- Use fresh synthetic `--data-dir` folders; leave the owner's real BRN data untouched. Keep credentials out of logs, PRs and commits.
-- You may run the app, use computer use, call AI providers and rebase your own branch, pushing with `--force-with-lease`. `main` changes only through merged PRs.
+- Work on a branch or worktree per task and open a PR into `main`. T3 Code runs `scripts/setup-worktree.sh` on new worktrees (see `t3.json`); elsewhere run it yourself, then `source .brn-dev/env.sh` for the document helpers and a synthetic data folder.
+- Use synthetic `--data-dir` folders; leave the owner's real BRN data untouched. Keep credentials out of logs, PRs and commits.
+- You may run the app, use computer use, call AI providers and rebase your own branch, pushing with `--force-with-lease`. `main` changes only through merged PRs. The `test-brn-app` skill covers running and driving the app.
+- A user-visible change reaches every surface: desktop, CLI and agent tools share the checked service, so wire all three, plus Undo, and the schema when data changes.
 - `rust-toolchain.toml` and `Cargo.lock` pin the toolchain and dependencies.
+
+## Traps
+
+- BRN refuses data folders under a symlink, including macOS `$TMPDIR` (`/var` links to `/private/var`). `.brn-dev/env.sh` exports a resolved `TMPDIR`; copy fixtures rather than symlinking them.
+- A target directory shared between checkouts can serve another checkout's stale build; rebuild the affected crate when behavior looks wrong.
+- Stop only processes you started, by PID.
 
 ## Checks
 
-- Run the smallest check that covers the change; CI runs the full set. The [verification guide](docs/development/verification.md) maps changes to checks and scripts.
-- Workspace tests need the two document helpers built first; see [setup](docs/development/setup.md).
+- `bash scripts/check-changed.sh` formats, lints and tests what changed since `origin/main`; CI runs the full set. The [verification guide](docs/development/verification.md) maps deeper changes to checks.
+- Test at one layer and extend nearby tests; write the failing test first for bugs. Wait on observable state; fixed sleeps make tests flaky.
+- Changes to `agent/` prompts are product changes: run the relevant evals in `benchmarks/brn_agent` or `scripts/evaluate_wiki_v2.py` and report the result in the PR.
 - If tools are missing: `python3 scripts/development-preflight.py --native`.
+
+## Docs
+
+Most changes need no doc edits. Architecture docs record decisions, constraints and traps; rewrite the affected section rather than appending. Plans, status and evidence belong in issues and PRs, not committed files.
 
 ## PRs
 
-Merge when required CI is green and review findings are fixed or answered.
+Conventional-commit title; fill in the [template](.github/pull_request_template.md). Merge when required CI is green and review findings are fixed or answered.
 
 ## Code review rules
 

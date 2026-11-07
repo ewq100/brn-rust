@@ -1,0 +1,31 @@
+name: Agent context budget
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+jobs:
+  budget:
+    name: Agent context budget
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The PR merge commit's first parent is the base branch tip.
+          fetch-depth: 2
+      - name: Check the recorded budget matches the files
+        run: python3 scripts/check-agent-context-budget.py
+      - name: Compare with the base branch
+        env:
+          ALLOW_AGENT_CONTEXT_INCREASE: ${{ contains(github.event.pull_request.labels.*.name, 'agent-context-increase') }}
+        run: |
+          if ! git show HEAD^1:scripts/agent-context-budget.json > "$RUNNER_TEMP/base-budget.json" 2>/dev/null; then
+            echo "Base branch has no budget yet."
+            exit 0
+          fi
+          python3 scripts/check-agent-context-budget.py --compare "$RUNNER_TEMP/base-budget.json"

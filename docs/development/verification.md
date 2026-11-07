@@ -1,6 +1,6 @@
 # BRN Threads verification
 
-The [acceptance journeys](../architecture/threads-target.md#acceptance-journeys) define what the product must demonstrate. Run the smallest check that covers the change; CI runs the full set.
+The [acceptance journeys](../architecture/threads-target.md#acceptance-journeys) define what the product must demonstrate. Run the smallest check that covers the change; CI runs the full set. `bash scripts/check-changed.sh` is the default local check: it formats, lints and tests the changed crates and runs the matching script, link and budget checks (`--plan` prints the commands).
 
 ## Select checks for the change
 
@@ -14,14 +14,14 @@ The [acceptance journeys](../architecture/threads-target.md#acceptance-journeys)
 | Exports and backup | Fresh complete snapshot publication; failed exports stay visibly failed; restored BRN records/assets/history in a clean directory. Backup/restore staging must not expose incomplete final paths, collisions preserve existing content, and marked stores with missing databases refuse recreation. |
 | Runtime guides and thread behavior | Representative success/boundary scenarios, actual skill loading and bundle identity, quiet routine outcomes, exact attention reasons, separate Action completion and fresh-invocation continuation. |
 | Instruction packages | `cargo test -p brn-ai --lib skill_packages`, `cargo test -p brn-threads-core --test data_folder`, `cargo test -p brn-threads-app --test skills`, `cargo test -p brn --test skill_packages`. |
-| Document conversion | `cargo test -p brn --features scripted-document-tests --bin brn document_route_tests --locked --offline --jobs 1` (offline scripted transport, not a live provider check). [Conversion matrix](../work/active/modular-foundation/x2/standard-default/verification.md). |
+| Document conversion | `cargo test -p brn --features scripted-document-tests --bin brn document_route_tests --locked --offline --jobs 1` (offline scripted transport, not a live provider check). [Conversion matrix](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/modular-foundation/x2/standard-default/verification.md). |
 | Component reuse or removal | Relevant component tests plus removal of obsolete routes, commands, helpers, and tests. |
 
 A zero-test or self-skipped run is not a pass. Default workspace checks do not cover optional native features.
 
 ## Scripts
 
-Build both document helpers first (see [setup](setup.md)). For direct CLI process tests, also copy them beside the built CLI in `$CARGO_TARGET_DIR/debug/`; those tests clear `BRN_*` overrides and use sibling discovery.
+Run `bash scripts/setup-worktree.sh` and `source .brn-dev/env.sh` first (see [setup](setup.md)). It also copies both document helpers beside the built CLI in `$CARGO_TARGET_DIR/debug/`, which direct CLI process tests need; those tests clear `BRN_*` overrides and use sibling discovery.
 
 - `scripts/verify-storage.sh`: formatting, build, lint and default tests.
 - `scripts/verify-end-to-end.sh`: fresh CLI/desktop Save, recovery, search, export/backup, startup, foreign-data refusal and the `--json` CLI journey.
@@ -45,6 +45,6 @@ The [CI workflow](../../.github/workflows/ci.yml) has a documentation/tooling jo
 - `Native UI build and state (macos-15)`
 - `Native retrieval and combined build (macos-15)`
 
-CI has no account credentials. Product scope is Mac first.
+The separate [agent context budget](../../.github/workflows/agent-context-budget.yml) check fails when `AGENTS.md` or `agent/` guidance grows; trim it or add the `agent-context-increase` label. After intended changes run `python3 scripts/check-agent-context-budget.py --write`.
 
-For build/test timing experiments, use the [measurement method](../work/active/windows-ci-portability/measurement-method.md).
+CI has no account credentials. Product scope is Mac first.

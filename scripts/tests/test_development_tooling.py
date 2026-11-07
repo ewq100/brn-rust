@@ -27,6 +27,24 @@ def module(name):
 
 links = module('check-markdown-links')
 ci = module('ci-summary')
+budget = module('check-agent-context-budget')
+
+
+
+class AgentContextBudgetTests(unittest.TestCase):
+    def test_growth_and_new_files_count_but_shrinking_does_not(self):
+        base = {'AGENTS.md': 100, 'agent/BRN.md': 50}
+        current = {'AGENTS.md': 90, 'agent/BRN.md': 60, 'agent/new.md': 5}
+        self.assertEqual(budget.grown(current, base), {'agent/BRN.md': (50, 60), 'agent/new.md': (0, 5)})
+
+    def test_measures_agents_guide_and_nested_agent_guidance(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / 'agent/skills/x').mkdir(parents=True)
+            (root / 'AGENTS.md').write_text('abc')
+            (root / 'agent/skills/x/SKILL.md').write_text('hello')
+            (root / 'agent/notes.txt').write_text('ignored')
+            self.assertEqual(budget.measure(root), {'AGENTS.md': 3, 'agent/skills/x/SKILL.md': 5})
 
 
 class MarkdownTests(unittest.TestCase):

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://t3.codes/schema/t3.json",
+  "scripts": [
+    {
+      "name": "Setup worktree",
+      "command": "bash scripts/setup-worktree.sh",
+      "icon": "configure",
+      "runOnWorktreeCreate": true
+    },
+    {
+      "name": "Check changed",
+      "command": "bash scripts/check-changed.sh",
+      "icon": "test"
+    },
+    {
+      "name": "Desktop",
+      "command": "source .brn-dev/env.sh && cargo run -p brn-desktop --features native-ui -- --data-dir \"$BRN_DEV_DATA_DIR\"",
+      "icon": "play",
+      "stopOnSettle": true
+    }
+  ]
+}
