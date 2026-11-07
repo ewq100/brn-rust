@@ -43,3 +43,5 @@ The initial live dispatch proceeded headlessly after B reported no build/provide
 ## Measured product candidate
 
 Three hypotheses were measured and independently graded. Conditional reformulation and compact reading guidance increased tokens and were rejected. Bounded first-hit exact passages reduced screening tokens 9.34%; the corrected runtime reduced final six-case tokens per fully correct answer 14.03%, with 12/12 fully correct answers in each arm. Both repetitions improved. All 56 product attempts and 56 grader attempts completed, using 254 HTTP attempts and 504 conservative reservation slots. See [product result](product.md) and [machine-readable evidence](summary.json). Council checkpoint two, current-head code/security review, CI and product merge remain.
+
+Final Council found no runtime defect. Report claims now explicitly disclose held-out token use +0.27% and baseline tuning drift +11.8%. Contract and writing/helper omission tests were corrected without changing runtime inputs. Final source qualification supports bounded single-passage lookup savings, with broader efficiency uncertain.

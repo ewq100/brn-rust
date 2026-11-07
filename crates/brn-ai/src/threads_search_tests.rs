@@ -481,3 +481,25 @@ async fn oversized_search_envelope_keeps_passage_out_of_read_ledger() {
     assert_eq!(trace.calls[0].outcome, "error");
     assert_eq!(trace.calls[0].args["via"], "search_notes");
 }
+
+#[tokio::test]
+async fn helper_search_omits_automatic_passage_and_read_coverage() {
+    let (_root, mut request, note) = tests::fixture();
+    request.search = Some(Arc::new(FakeSearch {
+        note: Some(note.clone()),
+        ..Default::default()
+    }));
+    let (parent, _) = begin(&request).unwrap();
+    let helper = research::test_child_scope(&parent);
+    let page = note_search::search_notes(
+        helper.clone(),
+        serde_json::from_value(
+            json!({"query":"decision","limit":1,"mode":"keyword","cursor":null}),
+        )
+        .unwrap(),
+    )
+    .await
+    .unwrap();
+    assert!(page.get("matched_passage").is_none());
+    assert!(!helper.reads.lock().unwrap().knows(&note, 1));
+}

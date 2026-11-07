@@ -341,7 +341,7 @@ async fn top_k_snippet_exposure_binds_version_without_inventing_exact_read_cover
         id: reference.clone(),
     }));
     let (scope, _) = begin(&request).unwrap();
-    note_search::search_notes(
+    let page = note_search::search_notes(
         scope.clone(),
         serde_json::from_value(
             json!({"query":"requirement","limit":1,"cursor":null,"mode":"keyword"}),
@@ -350,6 +350,7 @@ async fn top_k_snippet_exposure_binds_version_without_inventing_exact_read_cover
     )
     .await
     .unwrap();
+    assert!(page.get("matched_passage").is_none());
     let prepared: Prepared =
         serde_json::from_value(prepare(&scope, args(&snapshot)).unwrap()).unwrap();
     let proof = evidence(&prepared);

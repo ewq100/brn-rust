@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-07T06:59:47.184933+00:00",
+    "observed_at": "2026-11-07T07:13:54.832943+00:00",
     "goal": "Complete issue256 evidence-fix salvage and bounded product token hill-climb.",
-    "owner_attention": "Measured candidate confirms 14.03% lower tokens per correct supported answer. Final Council/code/security/CI/product integration remain. 254/600 live HTTP attempts used.",
+    "owner_attention": "Measured savings on single-passage lookups. Six-case aggregate improved 14.03%, held-out pair +0.27% tokens with quality preserved. Council complete; product PR/code/security/CI integration remain.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -409,10 +409,10 @@
         "title": "Extract useful evidence fixes and run product token hill-climb",
         "owner": "Issue 256 restart lead on MacBook",
         "state": "active",
-        "activity": "Three product hypotheses measured. First two rejected for higher tokens. Corrected inline first-hit passage runtime confirms 14.03% lower tokens/correct answer on six fixed cases,12/12 fully correct per arm; 56 product and 56 grader attempts retained, 254 HTTP total, 504 reserved slots. Preparing final Council/code/security/CI gates.",
-        "observed_at": "2026-11-07T06:59:47.184933+00:00",
+        "activity": "Three product hypotheses measured. Final six-case comparison measured 14.03% fewer tokens/correct answer, 12/12 correct per arm. Held-out R1/R4 pair used 0.27% more tokens, and baseline tuning drift was 11.8%. Council found no runtime defect; report, contract and omission-test corrections completed.",
+        "observed_at": "2026-11-07T07:13:54.832943+00:00",
         "origin": "observed",
-        "next_action": "Council checkpoint two reviews actual product diff/evidence, then publish focused product PR and merge after current-head code/security and CI.",
+        "next_action": "Publish focused product PR with bounded claims, require current-head code/security and CI, then normal merge.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -424,7 +424,7 @@
         ],
         "gates": {
           "implementation": "Bounded exact first-hit passage through checked read path; inline-output coverage guard and host-read tracing implemented.",
-          "checks": "51 search/research, 9 read-ledger, 28 summary, 3 guide and 13 writing-evidence tests pass, plus strict Clippy and 94 Python tests (11 skips). All 56 live answers graded fully correct. Current-head hosted gates pending.",
+          "checks": "52 search/research tests, 9 read-ledger, 28 summary, 3 guide and 13 writing-evidence tests passed, plus strict Clippy and 94 Python tests (11 optional skips). Both Council checkpoints completed. Hosted current-head gates pending.",
           "integration": "Salvage 273 merged bab8c876 and superseded PRs closed. Required salvage-main contexts passed; optional Windows main failures retained. Product merge pending.",
           "native": "Headless synthetic qualification with real selected subscription calls. B retains separate native/release qualification.",
           "owner_acceptance": "Owner authorized normal merge after required reviews/CI. Hands-on owner acceptance remains separate."
