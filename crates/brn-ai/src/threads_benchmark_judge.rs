@@ -96,7 +96,8 @@ async fn judge_over(
     let result = tokio::time::timeout(Duration::from_secs(45), operation).await;
     cancel.cancel();
     let mut receipt = json!({"format":1,"kind":"frozen-packet-judgment",
-        "request_sha256":format!("{:x}", Sha256::digest(packet.as_bytes())),
+        "packet_file_sha256":format!("{:x}", Sha256::digest(packet.as_bytes())),
+        "instructions_sha256":format!("{:x}", Sha256::digest(instructions.as_bytes())),
         "provider":"Codex","model":"gpt-6.1-sol","effort":"high","tools":[],
         "elapsed_ms":started.elapsed().as_millis(),"model_call_budget":budget.snapshot(),
         "wire_requests":trace.map(|t| t.finish("frozen-reviewer", false, 0).wire_requests)});
@@ -168,8 +169,12 @@ mod tests {
             assert_eq!(result["status"], expected, "{result}");
             assert_eq!(http.requests().len(), 1);
             assert_eq!(
-                result["request_sha256"],
+                result["packet_file_sha256"],
                 format!("{:x}", Sha256::digest(b"SYNTHETIC_PACKET"))
+            );
+            assert_eq!(
+                result["instructions_sha256"],
+                format!("{:x}", Sha256::digest(b"Frozen instructions"))
             );
             assert_eq!(result["model_call_budget"]["started"], 1);
             assert_eq!(result["wire_requests"][0]["model"], "gpt-6.1-sol");

@@ -64,3 +64,16 @@ continuation was removed in favor of explicit fresh operation identities.
 
 These changes have offline verification and apply to future execution. Historical
 receipts and the unmeasured acceptance gaps retain their recorded status.
+
+Round 4 returned Sol 8/10 and Opus 8/10. The lead then bound the judge's packet
+bytes and instructions bytes separately and verified instructions against the
+frozen artifact before each dispatch. Both digests and fixed runtime identity
+are checked before accepting a response. Reader exports now use regenerated
+preparation equality as well as their content digest. Offline regressions cover
+instruction drift and reader content altered together with its hash.
+
+The stronger marker checks intentionally refuse old, incompletely bound markers
+for fresh dispatch. Historical auditing uses the retained executed controller
+and original protocol. The current controller does not resume the stopped cycle.
+The initial targeted Rust filter matched zero tests and is retained as an excluded
+check attempt. The corrected module filter executed the two wire tests.

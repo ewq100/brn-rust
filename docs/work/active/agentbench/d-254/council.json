@@ -86,7 +86,7 @@
   "additional_rounds_authority": "Owner request after round2: remove Kimi and run3more rounds. New72requested-turn review-only allocation.",
   "additional_rounds": {
     "3": "completed: Sol8/10, Opus8/10; lead corrections under offline checks",
-    "4": "planned",
-    "5": "planned"
+    "4": "completed: Sol8/10, Opus8/10; instructions and reader export binding corrected",
+    "5": "reserved"
   }
 }

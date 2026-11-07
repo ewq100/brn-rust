@@ -2,6 +2,8 @@
 
 No candidate reruns or custom scoring. Model dispatch goes only through supervise;
 the fixed rubric, packets and reviewer instructions remain separately frozen.
+The task root supplies frozen-phase1.json/frozen-phase2.json and the bound
+grader-instructions.txt. New invocations require the digest-returning judge.
 """
 import argparse
 import copy
@@ -15,6 +17,7 @@ import sys
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO/'benchmarks/brn_agent'))
 import semantic
+import reader_grading
 from evidence import verify_manifest, identity_matches
 BENCH = REPO/'benchmarks/brn_agent/bench.py'
 SUPERVISE = Path(__file__).with_name('supervise_outputs.py')
@@ -41,10 +44,13 @@ def dispatch(args, operation):
         '--account-file',str(args.account_file),'--cycle',str(args.task_root/'cycle-start.json'),
         '--roles',str(args.task_root)],check=True,capture_output=True,text=True)
 
-def semantic_packets(prepared, exported):
+def verified_packets(prepared, exported):
     if exported != prepared['packets']:
-        raise ValueError('Exported semantic packets differ from verified preparation')
-    packets = copy.deepcopy(exported)
+        raise ValueError('Exported packets differ from verified preparation')
+    return copy.deepcopy(exported)
+
+def semantic_packets(prepared, exported):
+    packets = verified_packets(prepared, exported)
     for packet in packets:
         packet['criterion_ids'] = packet['packet']['criteria']
         packet['checkpoint_number'] = packet['packet']['checkpoint']
@@ -60,19 +66,29 @@ def validate_packet(packet):
     if set(packet) != fields or semantic.packet_hash(packet['packet']) != packet['packet_sha256']:
         raise ValueError('Grading packet content or fields changed')
 
-def validate_judgment(receipt, request_sha256):
+def frozen_instructions(task_root, phase):
+    path = task_root/'grader-instructions.txt'
+    frozen = load(task_root/('frozen-'+phase+'.json'))
+    expected = frozen['evaluation']['files']['grader_instructions']['sha256']
+    if sha(path) != expected:
+        raise ValueError('Grading instructions differ from frozen artifact')
+    return path, expected
+
+def validate_judgment(receipt, packet_file_sha256, instructions_sha256):
     if (receipt.get('status') != 'completed'
             or receipt.get('model') != 'gpt-6.1-sol'
             or receipt.get('effort') != 'high'
             or receipt.get('tools') != []
-            or receipt.get('request_sha256') != request_sha256
+            or receipt.get('packet_file_sha256') != packet_file_sha256
+            or receipt.get('instructions_sha256') != instructions_sha256
             or receipt.get('result', {}).get('returned_model') != 'gpt-6.1-sol'
-            or len(receipt.get('wire_requests', [])) != 1
+            or len(receipt.get('wire_requests') or []) != 1
             or not identity_matches(receipt, 'gpt-6.1-sol', 'high')
             or receipt.get('model_call_budget') != {'limit':1, 'started':1, 'refused':False}):
         raise ValueError('Grader request binding, identity or accounting unverified')
 
 def grade(args, packets, tag):
+    instructions, instructions_sha256 = frozen_instructions(args.task_root, args.phase)
     packets = list(packets)
     random.Random(25420261106).shuffle(packets)
     batch_size=1 if tag=='reader' else BATCH_SIZE
@@ -96,16 +112,18 @@ def grade(args, packets, tag):
         for packet in batch:
             validate_packet(packet)
         save(path,batch)
-        request_sha256 = sha(path)
+        packet_file_sha256 = sha(path)
+        if sha(instructions) != instructions_sha256:
+            raise ValueError('Grading instructions changed before dispatch')
         identity=args.root.name+'-'+tag+'-'+label
         out=folder/(label+'-run')
         dispatch(args,{'id':identity,'kind':'grader','role':'grader','phase':args.phase,
             'root':str(out),'seconds':90,'minimum_seconds':45,'binary':str(args.judge),
-            'packet':str(path),'instructions':str(args.task_root/'grader-instructions.txt')})
+            'packet':str(path),'instructions':str(instructions)})
         receipt=load(out/'receipt.json')
-        if sha(path) != request_sha256:
-            raise ValueError('Grading request changed during dispatch')
-        validate_judgment(receipt, request_sha256)
+        if sha(path) != packet_file_sha256 or sha(instructions) != instructions_sha256:
+            raise ValueError('Grading inputs changed during dispatch')
+        validate_judgment(receipt, packet_file_sha256, instructions_sha256)
         try:
             decoded=json.loads(receipt['result']['text'])
             if not isinstance(decoded,list):
@@ -206,7 +224,11 @@ def main():
         rp=args.root/'reader-packets'
         bench('reader-review-prepare','--root',args.root,'--suite',args.suite,'--truth',args.truth,
             '--evidence',evidence,'--index',args.root/'reader-index.json','--output',rp)
-        rr=grade(args,load(rp/'packets.json'),'reader')
+        expected_reader=reader_grading.prepare(args.root,args.suite,evidence,args.truth,index)
+        if load(rp/'private-result.json') != expected_reader:
+            raise ValueError('Reader preparation differs from verified evidence')
+        reader_packets=verified_packets(expected_reader,load(rp/'packets.json'))
+        rr=grade(args,reader_packets,'reader')
         ri=args.root/'readers-reviewed'
         bench('reader-review-import','--root',args.root,'--suite',args.suite,'--truth',args.truth,
             '--evidence',evidence,'--index',args.root/'reader-index.json',
