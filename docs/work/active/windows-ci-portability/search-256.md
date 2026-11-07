@@ -227,3 +227,7 @@ Owner-accepted: experiment authority and criteria, not an adopted product change
 Merged/released: no.
 
 Delivery: [draft PR #271](https://github.com/ewq100/brn-rust/pull/271) contains this bounded no-adoption result. Hosted checks and final independent audit coverage are pending; no merge, release or default-model change. Main advanced after the frozen measurement revision; this draft does not claim current-main integration qualification.
+
+## Additional Council review authorized 7 November
+
+The owner removed Kimi and explicitly requested four more rounds, overriding the personal three-round task maximum for this follow-up. Rounds3–6 use only independent Sol and Opus seats. Historical Kimi receipts remain evidence; no Kimi delegate is started. A separate allocation reserves108 requested model requests:96 for8reviews (12 each),plus12 for one failed preferred-route attempt. Codex share is48;Opus uses the configured Kiro route or its named Copilot fallback. Requested per-seat time is600seconds;whole additional phase3600seconds. T3 cannot hard-enforce these per-request/time bounds;unobserved actual usage remains unknown. The original168E/1760D+E ledgers stay closed and unchanged. No new live benchmark,reader or grader calls,no merge or model-default change.

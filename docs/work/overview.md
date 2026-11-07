@@ -72,6 +72,26 @@ Gates:
 
 </details>
 
+### Improve grounded search efficiency (#256)
+
+Task ID: `search-256`
+Owner: Agent E · State: **active** · Last observed: 2026-11-07T03:35:15.051891+00:00
+Activity: Owner authorized four additional Council rounds3–6,with Kimi removed. Fresh Sol/Opus seats only,separate finite108requested-review allocation;original benchmark/E/D budgets and rejection unchanged.
+Next: Run four independent additional review rounds,fix verified issues with offlinechecks,preserve review gaps and update draftPR271. No new benchmark/modeldefault change or merge.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** No production search change retained. Candidate1patch/binaries/both repetitions preserved. Rigadoptiondeferred with shadow/invalidation evidence.
+- **checks:** Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass.
+- **integration:** Draft PR271 open. No merge assigned;hostedchecks and finalindependentauditcoverage remainpending. Currentmain hasadvanced since measured a921;baselineevidence preserved.
+- **native:** Headless assignment; no native acceptance claimed.
+- **owner acceptance:** Owner-authorized limited engineering cycle;no searchimprovementadopted. Candidate fails frozenR10toolgate;one independentminorcorrectnessfinding. Reserved/jointchecks unrun andrequiredbeforelateradoption.
+
+</details>
+
 ## Next
 
 None recorded.
@@ -144,9 +164,8 @@ Waiting:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-2 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
-- `search-256` — Improve grounded search efficiency (#256)
 - `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
 
 ## Dependencies

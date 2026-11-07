@@ -369,11 +369,11 @@
         "id": "search-256",
         "title": "Improve grounded search efficiency (#256)",
         "owner": "Agent E",
-        "state": "complete",
-        "activity": "Delivered bounded no-adoption cycle in draft PR271. Searchcandidate1rejected under frozenR10toolgate;Rigadoptiondeferred. Complete known accounting and explicit finalCouncil/quality/feature-closure limits retained. No merge/release/defaultmodelchange.",
-        "observed_at": "2026-11-07T03:22:15.330518+00:00",
+        "state": "active",
+        "activity": "Owner authorized four additional Council rounds3\u20136,with Kimi removed. Fresh Sol/Opus seats only,separate finite108requested-review allocation;original benchmark/E/D budgets and rejection unchanged.",
+        "observed_at": "2026-11-07T03:35:15.051891+00:00",
         "origin": "observed",
-        "next_action": "Owner review of draft PR271;hostedCI and any future integration/independentreview remain separate gates. No further model calls or reuse of unused escrow.",
+        "next_action": "Run four independent additional review rounds,fix verified issues with offlinechecks,preserve review gaps and update draftPR271. No new benchmark/modeldefault change or merge.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -422,6 +422,32 @@
           "Council_seconds": 1800,
           "refunds": false,
           "parent_orchestration_HTTP": "Not enforceable or fully observed; external quota consumption reported separately."
+        },
+        "supplemental_council": {
+          "owner_instruction": "Remove Kimi from Council and run four more rounds",
+          "authorized_at": "2026-11-07T03:34:48.779497+00:00",
+          "additional_rounds": [
+            3,
+            4,
+            5,
+            6
+          ],
+          "roster": [
+            "fresh Codex/GPT-6.1 Sol high",
+            "Kiro/Claude Opus5.5 high;named Copilot/Opus fallback only if preferredroute fails"
+          ],
+          "Kimi": "excluded from all additional rounds;historical reviews preserved",
+          "override": "explicit user instruction overrides personal three-round task maximum",
+          "whole_additional_requested_seconds": 3600,
+          "per_seat_requested_seconds": 600,
+          "requested_model_requests": 108,
+          "review_rounds_requests": 96,
+          "failed_preferred_route_reserve": 12,
+          "Codex_requested_cap": 48,
+          "enforcement": "T3 per-model-request/time caps requested,not hard-enforced;actual missing usage remainsunknown. No BRN/reader/grader live dispatch. No refunds/reset.",
+          "original_E_and_DE_ledgers": "closed and unchanged;168/1760 not silently expanded or reused",
+          "parent_orchestration_usage": "outside enforceable reviewer cap;unknown",
+          "money_cost": null
         }
       }
     ]

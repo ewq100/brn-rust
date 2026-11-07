@@ -1,0 +1,26 @@
+{
+  "owner_instruction": "Remove Kimi from Council and run four more rounds",
+  "authorized_at": "2026-11-07T03:34:48.779497+00:00",
+  "additional_rounds": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "roster": [
+    "fresh Codex/GPT-6.1 Sol high",
+    "Kiro/Claude Opus5.5 high;named Copilot/Opus fallback only if preferredroute fails"
+  ],
+  "Kimi": "excluded from all additional rounds;historical reviews preserved",
+  "override": "explicit user instruction overrides personal three-round task maximum",
+  "whole_additional_requested_seconds": 3600,
+  "per_seat_requested_seconds": 600,
+  "requested_model_requests": 108,
+  "review_rounds_requests": 96,
+  "failed_preferred_route_reserve": 12,
+  "Codex_requested_cap": 48,
+  "enforcement": "T3 per-model-request/time caps requested,not hard-enforced;actual missing usage remainsunknown. No BRN/reader/grader live dispatch. No refunds/reset.",
+  "original_E_and_DE_ledgers": "closed and unchanged;168/1760 not silently expanded or reused",
+  "parent_orchestration_usage": "outside enforceable reviewer cap;unknown",
+  "money_cost": null
+}
