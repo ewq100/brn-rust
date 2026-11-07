@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-07T07:13:54.832943+00:00",
+    "observed_at": "2026-11-07T07:26:12.781440+00:00",
     "goal": "Complete issue256 evidence-fix salvage and bounded product token hill-climb.",
-    "owner_attention": "Measured savings on single-passage lookups. Six-case aggregate improved 14.03%, held-out pair +0.27% tokens with quality preserved. Council complete; product PR/code/security/CI integration remain.",
+    "owner_attention": "Product PR274 awaiting corrected-head CI and code/security reviews. Native journey failure diagnosed as an outdated trace assertion; measured runtime unchanged.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -409,10 +409,10 @@
         "title": "Extract useful evidence fixes and run product token hill-climb",
         "owner": "Issue 256 restart lead on MacBook",
         "state": "active",
-        "activity": "Three product hypotheses measured. Final six-case comparison measured 14.03% fewer tokens/correct answer, 12/12 correct per arm. Held-out R1/R4 pair used 0.27% more tokens, and baseline tuning drift was 11.8%. Council found no runtime defect; report, contract and omission-test corrections completed.",
-        "observed_at": "2026-11-07T07:13:54.832943+00:00",
+        "activity": "Product PR274 opened. Required native CI failed at its scripted journey trace assertion because the new automatic read is now retained. Corrected test verifies both reads and single-counted envelope bytes; runtime unchanged. All four native-retrieval scripted journeys pass locally after correction; formatting, overview and documentation links pass.",
+        "observed_at": "2026-11-07T07:26:12.781440+00:00",
         "origin": "observed",
-        "next_action": "Publish focused product PR with bounded claims, require current-head code/security and CI, then normal merge.",
+        "next_action": "Push the verified test-only correction, renew exact-head code/security and CI, then normal merge.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -424,12 +424,20 @@
         ],
         "gates": {
           "implementation": "Bounded exact first-hit passage through checked read path; inline-output coverage guard and host-read tracing implemented.",
-          "checks": "52 search/research tests, 9 read-ledger, 28 summary, 3 guide and 13 writing-evidence tests passed, plus strict Clippy and 94 Python tests (11 optional skips). Both Council checkpoints completed. Hosted current-head gates pending.",
+          "checks": "52 search/research tests, 9 read-ledger, 28 summary, 3 guide and 13 writing-evidence tests passed, plus strict Clippy and 94 Python tests (11 optional skips). Both Council checkpoints completed. Hosted current-head gates pending. Corrected native-retrieval agent_journeys suite: 4/4 pass locally.",
           "integration": "Salvage 273 merged bab8c876 and superseded PRs closed. Required salvage-main contexts passed; optional Windows main failures retained. Product merge pending.",
           "native": "Headless synthetic qualification with real selected subscription calls. B retains separate native/release qualification.",
           "owner_acceptance": "Owner authorized normal merge after required reviews/CI. Hands-on owner acceptance remains separate."
         },
-        "attempts": []
+        "attempts": [
+          {
+            "outcome": "PR274 head32f5e06 native retrieval/combined CI failed: scripted journey expected only search and explicit read; actual trace additionally includes the successful automatic read in round1.",
+            "change": "Update the trace assertion to require both reads, exact automatic-read identity and zero extra envelope bytes; preserve content-free trace checks. No runtime change.",
+            "evidence": [
+              "https://github.com/ewq100/brn-rust/actions/runs/42350469158/job/128337305249"
+            ]
+          }
+        ]
       }
     ]
   }
