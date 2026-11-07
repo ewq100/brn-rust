@@ -157,7 +157,7 @@ async fn answer_with_tools(
     let model = selection.model.clone();
     let mode = RunMode::AnswerWithEffort {
         copilot_chat_effort: selection.provider == Provider::Copilot
-            && !rig::providers::copilot::wire::routes_through_responses(&model),
+            && !crate::provider::copilot_conversation_uses_responses(&model),
         effort,
         max_tool_rounds,
         progress,
@@ -303,7 +303,7 @@ pub async fn rewrite(
     let model = selection.model.clone();
     let mode = RunMode::Rewrite {
         copilot_chat_effort: selection.provider == Provider::Copilot
-            && !rig::providers::copilot::wire::routes_through_responses(&model),
+            && !crate::provider::copilot_conversation_uses_responses(&model),
         effort,
     };
     match client.inner {

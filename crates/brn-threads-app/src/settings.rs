@@ -251,22 +251,21 @@ impl Workspace {
 /// The helper is an explicit owner selection with its own explicit credentials.
 fn validate_helper(helper: &brn_threads_core::HelperSettings) -> AppResult<()> {
     let invalid = |message: &str| Err(AppError::Invalid(message.into()));
-    let codex = ["codex", "chatgpt"]
-        .iter()
-        .any(|name| helper.provider.eq_ignore_ascii_case(name));
-    if !codex && !helper.provider.eq_ignore_ascii_case("copilot") {
+    let Some(provider) = brn_ai::Provider::from_setting(&helper.provider) else {
         return invalid("Choose Codex or Copilot for the helper");
-    }
-    let model = helper.model.trim();
-    if model.is_empty()
-        || model.len() > 128
-        || !model
-            .bytes()
-            .all(|b| b.is_ascii_alphanumeric() || b"-_.:/".contains(&b))
+    };
+    // Saved helper validation has always checked trimmed syntax while keeping
+    // the original bytes. Runtime selection still validates the exact model.
+    if (brn_ai::Selection {
+        provider,
+        model: helper.model.trim().to_owned(),
+    })
+    .validate()
+    .is_err()
     {
         return invalid("Choose a helper model");
     }
-    if !["low", "medium", "high"].contains(&helper.effort.as_str()) {
+    if brn_ai::ReasoningEffort::from_setting(&helper.effort).is_none() {
         return invalid("Choose low, medium or high helper effort");
     }
     for path in [&helper.auth_file, &helper.credentials_dir]
@@ -277,7 +276,11 @@ fn validate_helper(helper: &brn_threads_core::HelperSettings) -> AppResult<()> {
             return invalid("Credential locations must be absolute paths");
         }
     }
-    match (codex, &helper.auth_file, &helper.credentials_dir) {
+    match (
+        provider == brn_ai::Provider::Chatgpt,
+        &helper.auth_file,
+        &helper.credentials_dir,
+    ) {
         (true, Some(_), None) | (true, None, Some(_)) | (false, None, Some(_)) => Ok(()),
         (false, Some(_), _) => invalid("Codex sign-in files apply only to a Codex helper"),
         _ => invalid("Choose one credential location for the helper"),

@@ -1,0 +1,526 @@
+{
+  "baseline_original": "c388da267a9e41cfe9d65051cd27b95817c9a523",
+  "baseline_repaired": "ce36eb947a5e24c36046cb72e07fb5b9ce444164",
+  "candidate_maintenance_design": "b924029a8fb7712f8383bf7a8b7f5d68f2922591",
+  "final_product_source": "72bb6241e2689845244f8232a177ecac2209f392",
+  "final_product_source_explanation": "Later adapter-only commit forwards CLI parsing and desktop canonical keys to the same name/effort owner. Independent challenge context and control-function hashes are unchanged. Final full gate runs after that adapter commit; evidence/docs commit contains no further product source changes.",
+  "before_libraries": {
+    "brn_ai": {
+      "passed": 637,
+      "failed": 0,
+      "ignored": 1
+    },
+    "brn_intake": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    "brn_retrieval": {
+      "passed": 21,
+      "failed": 0,
+      "ignored": 0
+    },
+    "brn_threads_app": {
+      "passed": 16,
+      "failed": 0,
+      "ignored": 0
+    },
+    "brn_threads_core": {
+      "passed": 49,
+      "failed": 0,
+      "ignored": 0
+    },
+    "brn_threads_intake": {
+      "passed": 4,
+      "failed": 0,
+      "ignored": 1
+    },
+    "brn_writing_ui": {
+      "passed": 37,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "after_libraries": {
+    "brn_ai": {
+      "passed": 641,
+      "failed": 0,
+      "ignored": 1
+    },
+    "brn_intake": {
+      "passed": 1,
+      "failed": 0,
+      "ignored": 0
+    },
+    "brn_retrieval": {
+      "passed": 21,
+      "failed": 0,
+      "ignored": 0
+    },
+    "brn_threads_app": {
+      "passed": 17,
+      "failed": 0,
+      "ignored": 0
+    },
+    "brn_threads_core": {
+      "passed": 50,
+      "failed": 0,
+      "ignored": 0
+    },
+    "brn_threads_intake": {
+      "passed": 4,
+      "failed": 0,
+      "ignored": 1
+    },
+    "brn_writing_ui": {
+      "passed": 37,
+      "failed": 0,
+      "ignored": 0
+    }
+  },
+  "all_prior_passed_case_names_present_after": true,
+  "baseline_repaired_log": "../provider-auth-write-263/local-library-clippy.log.gz",
+  "final_commands": [
+    "source /workspace/brn-environment/activate.sh; CARGO_TARGET_DIR=/workspace/brn-provider-target python3 /workspace/brn-environment/run-with-reaping.py bash -c \"bash scripts/verify-storage.sh && bash scripts/verify-end-to-end.sh --fixtures-only\""
+  ],
+  "final_status": {
+    "source": "72bb6241e2689845244f8232a177ecac2209f392",
+    "status": 0,
+    "completed_at": "2026-11-07T05:12:14.816824+00:00",
+    "root": "/workspace/brn-provider-target",
+    "helpers": {
+      "brn-xberg-helper": "594c4f06980164b6c8ac23586c1245ad82344fffe45c4bfcc64eb05e626a5e60",
+      "brn-xberg-helper-brn": "658fd63cdd3a7b114a16ec7fbb1549fac128095e15404a57cc0d51358787361e"
+    },
+    "note": "Final caller adapters applied after initial full gate ended; same literal helper/source association, explicit helper ENV for fixture-only leg; preserves normal commands/reaper/status. Initial complete log retained separately."
+  },
+  "maintenance_summary": {
+    "alias": "Stronger selected-runtime acceptance passes2tests per arm,7 baseline production files vs1 after core map; preliminary pilot and invalid setup retained. Counts exclude later CLI/native presentation adapters, not a complete repository edit-effort claim.",
+    "binding-diagnostic": "Both pass;2productionfiles each, alreadyshared control",
+    "retry-hint": "Both pass;1productionfile each, alreadyshared control",
+    "confirmation": "Independent fresh-context read-only evaluator; same5newcases+2positivecontrols+37authchecks per arm pass. Baseline5productionfiles/7sites; candidate2files/3sites. All temporary patches restored.",
+    "attempt_limits": "Alias baseline original2attempts exceeded by invalid fixture; one corrected bounded full-scope run/arm. Confirmation baseline original2attempts exhausted by fixture mistakes; exactly1extra fixture-only correction within15minute arm window. All failed invocations retained, no Cycle2 reset.",
+    "claims": "Localized accepted changes plus independent code/design review; no elapsed/cost/statistical coding-effort claim. Same configured lead/tools, actual codingmodel/effort/usage not independently exposed."
+  },
+  "artifacts": [
+    {
+      "file": "maintenance.tar.gz",
+      "sha256": "aaa7cf66f79b4f191f3023661b562b939e5c20b481d3e647981b556129120208",
+      "decoded_sha256": "5d865cbca18e0d98565d4b92eb37d5cbc9f8528de79b8e0d5065ed168240efa6",
+      "contents": [
+        {
+          "file": "after/alias.log",
+          "sha256": "1abee802697501f6e5518b3dc376b7014767eff82c150bc17e477820df7dfd13",
+          "bytes": 1935
+        },
+        {
+          "file": "after/alias.patch",
+          "sha256": "3d7fa845a2c406fc5194c75830a0dcbc81c572054693fb3ac67b07db8a6c907b",
+          "bytes": 2194
+        },
+        {
+          "file": "after/binding-diagnostic-existing.log",
+          "sha256": "651dd63dfaffffc34f6e6f0cd1c889c79c1af361d2ff9d126e25b5375a092896",
+          "bytes": 3077
+        },
+        {
+          "file": "after/binding-diagnostic.log",
+          "sha256": "147d7e5d7b1baec3a13037cec7efe85641a2323ae03b884941bba41ce1553779",
+          "bytes": 1868
+        },
+        {
+          "file": "after/binding-diagnostic.patch",
+          "sha256": "e74b62bad964457f00492e7f509ac283eef535accd56b850dfac610b7de93141",
+          "bytes": 2616
+        },
+        {
+          "file": "after/results.json",
+          "sha256": "c48c6cd089dd14f6a906ef557af6675c1bd5344c76b830de5e07bedafbaf4cc1",
+          "bytes": 2952
+        },
+        {
+          "file": "after/retry-hint-existing.log",
+          "sha256": "890a5b6a5d537d4b24255ae499ef1c519b8920a716b1bbc37989518b2e3576be",
+          "bytes": 5234
+        },
+        {
+          "file": "after/retry-hint.log",
+          "sha256": "41f825b7f26ef1f4442a8cb2fe2859e4abca06ccba9c273ddc44d3946cd4ee5d",
+          "bytes": 1864
+        },
+        {
+          "file": "after/retry-hint.patch",
+          "sha256": "6c129503b94bd03a183c0bcbae08e37338ee2a0a787f4ea317265251a84894b1",
+          "bytes": 1192
+        },
+        {
+          "file": "after-driver.log",
+          "sha256": "8e61932f65da9be214c4e539fe43cd51e69e9ad241cdff4787b6a25759cbf851",
+          "bytes": 76
+        },
+        {
+          "file": "alias-full-after/change.patch",
+          "sha256": "baec1fdad0adf04248f0abbb5f2abd0f5111d04df297f6117b0b07f409c78e1a",
+          "bytes": 3279
+        },
+        {
+          "file": "alias-full-after/result.json",
+          "sha256": "3e9de9a4cdb9f029608d6a5fa38cef036ad092e33bcb021a80b72949348a1bf1",
+          "bytes": 1071
+        },
+        {
+          "file": "alias-full-after/test.log",
+          "sha256": "c6c2289da5fffc5b44dfd9407f2b3ad9c25158149e2fbf7b3043f37543998330",
+          "bytes": 2328
+        },
+        {
+          "file": "alias-full-after-driver.log",
+          "sha256": "2462a07dc2e029bd8a2b6ed66344b76c71c59d6059d5cb0f2c67a9e0b06417d0",
+          "bytes": 60
+        },
+        {
+          "file": "alias-full-before/change.patch",
+          "sha256": "5cff443164610185d100265250ab3e57b294b9753459f8af115d36a6675f5c09",
+          "bytes": 6280
+        },
+        {
+          "file": "alias-full-before/result.json",
+          "sha256": "9e9c42a97b85cb7253931023cb339c6a3cc036da835572fdea76a06733eae9e0",
+          "bytes": 1329
+        },
+        {
+          "file": "alias-full-before/test.log",
+          "sha256": "fc102a711acbf946d0e864a2ce6f6e00448bd1b10a06df6e3e34b3ccd5b905e8",
+          "bytes": 2086
+        },
+        {
+          "file": "alias-full-before-corrected-driver.log",
+          "sha256": "b756e3b1356439bf28d147ac0583e52797777b8340046a11123d5a114528eb9e",
+          "bytes": 61
+        },
+        {
+          "file": "alias-full-before-driver.log",
+          "sha256": "ef0b53ffe6545bdf9856ed9c2d9b45d108102e6fe08d81f2c4f5f322a04c6d7d",
+          "bytes": 1250
+        },
+        {
+          "file": "alias-full-before-invalid-setup/change.patch",
+          "sha256": "4e8f43d691f8a54281d7d0f7c451ec100433d19a8efa2db9aa66ddffa2aa7178",
+          "bytes": 5741
+        },
+        {
+          "file": "alias-full-before-invalid-setup/diagnosis.json",
+          "sha256": "2ba861f8f91666263215e3263c37ab63fbfd77f1a37d38cf4b3b46ee1905fa54",
+          "bytes": 570
+        },
+        {
+          "file": "alias-full-before-invalid-setup/result.json",
+          "sha256": "72e5e58f2868ce9cc92acbbb8f9ce94f0c9ced132645ac71da27b197c56b3f5b",
+          "bytes": 1054
+        },
+        {
+          "file": "alias-full-before-invalid-setup/test.log",
+          "sha256": "20d3cf8cc3f3222dded8edf1c740c7c1ae0308b1c65f02a680becdb89af9c369",
+          "bytes": 2456
+        },
+        {
+          "file": "alias-supplement.py",
+          "sha256": "4ebfbb46287a96affd73c596a88abd167aedc87d1d9e096132b1a3abf3c81f3a",
+          "bytes": 6494
+        },
+        {
+          "file": "before/alias.log",
+          "sha256": "3c6df706d88b918598e3c289090c0044876d96a07dca19c9cdd67aafb0480a4f",
+          "bytes": 1956
+        },
+        {
+          "file": "before/alias.patch",
+          "sha256": "f08eda54c296766784d5182be8e3bb6140ed82e30689f4aada1346fdf690f049",
+          "bytes": 3465
+        },
+        {
+          "file": "before/binding-diagnostic-existing.log",
+          "sha256": "88ab0f39593199303fbb9f0e9aee4e0d34c8a81cc5785da5d4868fa945911965",
+          "bytes": 2979
+        },
+        {
+          "file": "before/binding-diagnostic.log",
+          "sha256": "18b51149ab22131febd395c55cf0a6b9384b694b16820c39e3e5b84e625e7056",
+          "bytes": 1889
+        },
+        {
+          "file": "before/binding-diagnostic.patch",
+          "sha256": "36b9b1f183e16b6b99a310edf155f55becdf5803b21746bcbec9d5f3ef1ba435",
+          "bytes": 2219
+        },
+        {
+          "file": "before/results.json",
+          "sha256": "385dc0cfa0822b97fd8f2824d24308584ecc65740b4b0f04508da11dde6c8955",
+          "bytes": 3102
+        },
+        {
+          "file": "before/retry-hint-existing.log",
+          "sha256": "84484e3e312b95f9d9b2df828bfd290bbd618a7cc65f6440197541ada7597b54",
+          "bytes": 5234
+        },
+        {
+          "file": "before/retry-hint.log",
+          "sha256": "a27b412011e91066eed064ddfe2604da7672488df6da30be67d0e0b4eb7dc21e",
+          "bytes": 1884
+        },
+        {
+          "file": "before/retry-hint.patch",
+          "sha256": "e7214e46045bc37c3a0ed9817a45ff0953789c11e34bd3eebd0aa29eba1c25df",
+          "bytes": 1271
+        },
+        {
+          "file": "before-driver.log",
+          "sha256": "71c3ef28ee733943d1197aab901a998a3988b437c3599dd270ca31e2b97a0cb4",
+          "bytes": 77
+        },
+        {
+          "file": "final-controls-source-identity.json",
+          "sha256": "fe6fac556018517f9e2ef77d6573d1ba6d0cc4d9fc015a839c56b63cf3c41cf0",
+          "bytes": 1184
+        },
+        {
+          "file": "protocol.json",
+          "sha256": "eb8cd615fdaf70f9b4cf443c996888c728b6717c1282929bf14c8a90dd6f913f",
+          "bytes": 2060
+        },
+        {
+          "file": "run.py",
+          "sha256": "07746dc35aa9f65f175b6f883658adc1e5ca11d7ee469b6aee4ddfa1a914f870",
+          "bytes": 7074
+        },
+        {
+          "file": "source-association.json",
+          "sha256": "d2f2118428b6403e2b44fbc0ccdf80dc581812b92e7c304142e271059f45a18b",
+          "bytes": 1344
+        }
+      ]
+    },
+    {
+      "file": "confirmation.tar.gz",
+      "sha256": "3960ad8b25cbb411b682c77371ee0aaeaf67d39ba2b77780681e1a42c6a03a3d",
+      "decoded_sha256": "9d643f765b9f3ba85cdf62177ed606234b5c18e76f6cc6ccdc93fef0892079b7",
+      "contents": [
+        {
+          "file": "after/change.patch",
+          "sha256": "424fdc716b0a6f28c7d80cee11068f2a4f97286315cbec2828590d7cc76ac276",
+          "bytes": 10829
+        },
+        {
+          "file": "after/result.json",
+          "sha256": "c63f0cf8a5091c15eff91afae4c1f5a2561d0d9ac118641ea99af05bad7d713a",
+          "bytes": 5883
+        },
+        {
+          "file": "after/test-0.log",
+          "sha256": "8b324d41ecd8a883934e83cfd47d919e00a5ea79f8e3c7d6df70d7a125b18f96",
+          "bytes": 2363
+        },
+        {
+          "file": "after/test-1.log",
+          "sha256": "87a7bfdcd3e9a5fc3dd2c62df0f5d5f965f02777720427baddf3996864641aaa",
+          "bytes": 444
+        },
+        {
+          "file": "after/test-2.log",
+          "sha256": "ee9163a26d8d4d1fb9722ecf160a60ed0dbd4b4ae897281de34dab496a769e00",
+          "bytes": 382
+        },
+        {
+          "file": "after/test-3.log",
+          "sha256": "3ea44c243d73e67b4395a396406db08aca8aab35ede833c2f5c0c3a60d1e0aac",
+          "bytes": 3472
+        },
+        {
+          "file": "after-driver.log",
+          "sha256": "64471d2bb6bbd3c28d5b8f081aeadefb94e67f42932c99dbab1eec4b4ef247e5",
+          "bytes": 5071
+        },
+        {
+          "file": "before/change.patch",
+          "sha256": "5028966382c3756758876fe243309ecce0047b097fe03f3db9c1cd4b7bfa88b6",
+          "bytes": 12548
+        },
+        {
+          "file": "before/result.json",
+          "sha256": "cdfa1e650720fbbe3840930e821db6592dbdd2b41372f3a1bfdf390c61ec5c38",
+          "bytes": 6022
+        },
+        {
+          "file": "before/test-0.log",
+          "sha256": "b1fbe7a1e9380a0bef59512dfa3efc54b296708a134da21f84aa823913425abe",
+          "bytes": 2286
+        },
+        {
+          "file": "before/test-1.log",
+          "sha256": "55a153219e2473cb3cab94964407c80579f9e0cd0b9cdcd1a8fbc1578a16d7e3",
+          "bytes": 449
+        },
+        {
+          "file": "before/test-2.log",
+          "sha256": "ea47745587a2762bfb98e3cc9885a714fa39d581a4c88c2601948f8b6782aae0",
+          "bytes": 382
+        },
+        {
+          "file": "before/test-3.log",
+          "sha256": "6e706e3877e1b778811f68a70f680df5b05ca2124d049e300c7ac0115e4c7077",
+          "bytes": 3472
+        },
+        {
+          "file": "before-attempt1/change.patch",
+          "sha256": "b546703a93c7e1497b24f97c44199e03c78819f1696378ef049b743b9c622b7c",
+          "bytes": 12318
+        },
+        {
+          "file": "before-attempt1/diagnosis.json",
+          "sha256": "2e6da5538ba24d544188bb7ae22e1bd1feaf2ae9c59e26068549ceedcb46cd6b",
+          "bytes": 322
+        },
+        {
+          "file": "before-attempt1/result.json",
+          "sha256": "5a0c0484469acd41a246c56abb5d365bedd12c19618bea8b0095d70967d8603c",
+          "bytes": 836
+        },
+        {
+          "file": "before-attempt1/test-0.log",
+          "sha256": "2bc7f2a8e7f78df11564c2ef8ac18dc076493f71483b47b202d6b18cf27ce8b2",
+          "bytes": 939
+        },
+        {
+          "file": "before-attempt2/change.patch",
+          "sha256": "df48666887203b74882610f87d14bbd2adadb3a2329977679c2eca31cafde6cf",
+          "bytes": 12546
+        },
+        {
+          "file": "before-attempt2/diagnosis.json",
+          "sha256": "56bd93cc435003ae185d14172e1ad939b5bbe487c532f076311804d5943db209",
+          "bytes": 574
+        },
+        {
+          "file": "before-attempt2/result.json",
+          "sha256": "b02249152b20eece0ff2ffc37b5f57d3bc5397291446a5f9bb097c5db2dcb758",
+          "bytes": 1166
+        },
+        {
+          "file": "before-attempt2/test-0.log",
+          "sha256": "ea3d1a117ad3c5f8005b97faada7b3bcb7aff0fcb458b3ce34c1eb0c2175c981",
+          "bytes": 3604
+        },
+        {
+          "file": "before-driver-corrected.log",
+          "sha256": "41217ffdaf820c8c5281b1fc5817f259ab309a223282e2b7c48bd50a31b33a40",
+          "bytes": 1241
+        },
+        {
+          "file": "before-driver-fixture-corrected.log",
+          "sha256": "19552e4ae3be19b34930bc6ce7b5222efd794714d1c7d18c8dd451d66a4161e9",
+          "bytes": 5199
+        },
+        {
+          "file": "before-driver.log",
+          "sha256": "0b0087ff2ef88563db70c3fa76f66d3c3d198bf66c83f85e3bc6832171b82c63",
+          "bytes": 943
+        },
+        {
+          "file": "challenge-summary.md",
+          "sha256": "7e99862937b0b6d61ef92914084f7829f9812542b55b85a875a1d633e7b9d2b7",
+          "bytes": 1897
+        },
+        {
+          "file": "challenge-verbatim.md",
+          "sha256": "412863fdddb7dec3981dce1ba92eac0b6b48e5789f9990a15b0c15ceb3076000",
+          "bytes": 3522
+        },
+        {
+          "file": "provenance.json",
+          "sha256": "8bd61328be1b3c00f5b31e8558eb5721e140768dd3240665924515b17f85ea13",
+          "bytes": 1846
+        },
+        {
+          "file": "run.py",
+          "sha256": "0500d37bef52cddc9e666ee0421926bec9b472ad504f53562c65b2865f394020",
+          "bytes": 13173
+        }
+      ]
+    },
+    {
+      "source": "after/first-lib.log",
+      "file": "extraction-first-compile.log.gz",
+      "sha256": "76c4229f3d93677e6cf64e59d56808d400c26a82c154cb331b8e17a688d67ce2",
+      "decoded_sha256": "32d37e817e6bfa71e9bc7687427805b76f461aae26114967e6899bab1a3ab110"
+    },
+    {
+      "source": "after/lib.log",
+      "file": "extraction-original-tests.log.gz",
+      "sha256": "3d68804782fbb6bc5701c703fac96a10936de3a311605b58d170655dfebb27ff",
+      "decoded_sha256": "7e72cf12c9ba587fdfd572db55cc09ca2f9332049fa79e5624c06e004f1186c6"
+    },
+    {
+      "source": "after/focused.log",
+      "file": "extraction-during-auth-failure.log.gz",
+      "sha256": "c65797c3ec0ea32d5f1af97fa09146ab330914b7e04bc1461bdfabf59d2bcf66",
+      "decoded_sha256": "c8d011a08288740af72ec0827c184ca1c13e1550f4b286cd9135cab02c64b8e8"
+    },
+    {
+      "source": "after/no-resend.log",
+      "file": "after-no-resend.log.gz",
+      "sha256": "ee06fea1226e991975ec576ad651cd39bd6f4eadc11db5e63ace06f7b7fed523",
+      "decoded_sha256": "934118e5605e7926170c7f1dd6852ba10230d7b27d422aa0f518233fdce8eff3"
+    },
+    {
+      "source": "baseline/no-resend.log",
+      "file": "before-no-resend.log.gz",
+      "sha256": "dcd9e0131b0f5ac272d920c67a871fd3c0aaf8da9e2a5df6eb647e38622a1128",
+      "decoded_sha256": "cfefc2bdf9585ee7e90b813bf100d06684a2145acc8af9b599ea43ead6e47274"
+    },
+    {
+      "source": "baseline/no-resend-tests.patch",
+      "file": "before-no-resend-tests.patch.gz",
+      "sha256": "ecb4727521b0e0e57b5be4f1b91a95a3c5a9a91268c1f94c3bdb49bc96080597",
+      "decoded_sha256": "7afc82461f7fe65b8f9a17b5727b9e118ee54db339fb3777d98e432592bc6d44"
+    },
+    {
+      "source": "after/normalization-check.log",
+      "file": "normalization-first-check.log.gz",
+      "sha256": "f493e82e03e528257556505768ed2f8f866a2a2b4b0be96d78d54a13096b9089",
+      "decoded_sha256": "92ea5653ec28b258542938170d33007661a555d960d39c41fe26ef0a7b26f5ae"
+    },
+    {
+      "source": "after/normalization-check-final.log",
+      "file": "normalization-check.log.gz",
+      "sha256": "a34ba0b097c855fa691db187f32d705f0089a4b3d451a3c17d3f21161714afea",
+      "decoded_sha256": "1e16bcc0ca9db7a69de1b43de6805c36dba9d4cd7658b7ced6c0db9183677379"
+    },
+    {
+      "source": "after/normalization-freeze-check.log",
+      "file": "normalization-freeze-check.log.gz",
+      "sha256": "18f20abedb1c157a14caccb841bc6d9b90763522b29c1ba8d3e02f33cc57cbfe",
+      "decoded_sha256": "158a7e90d711f5b4ea7049bdc68524feafa9e57f0ea9359a375775ceb2ad0db2"
+    },
+    {
+      "source": "after/adapter-tooling.json",
+      "file": "adapter-tooling.json.gz",
+      "sha256": "5fc484b05685812029574f0fdb0fbaef3d2e98f08d0b4f6ba3dacd8728a5f377",
+      "decoded_sha256": "7e93f0fa91c1966af98ee866a153e2af9da14f51c0b3eaf7a7c58b9619aadf00"
+    },
+    {
+      "source": "after/full.log",
+      "file": "initial-full.log.gz",
+      "sha256": "e6f34c7b56a082de185d52bf7abe8990f773df56191d9b882c7b05b5eb39be8e",
+      "decoded_sha256": "a76105fc75a67132850e1c2a7b25ea8d011051bc48ea42a08dd0150eb9179f28"
+    },
+    {
+      "source": "after/full-final.log",
+      "file": "full-final.log.gz",
+      "sha256": "85b1da4a4e44d6466aec5dbb0b3922ba4a89e9045138f9a6a07af87fa0075461",
+      "decoded_sha256": "576bf2a990af0f83306f59f086a71cca9ccb87f4abc28dedd61376026cbd6753"
+    }
+  ],
+  "council": "Skipped under explicit owner instruction;0sessions, no score, not passed",
+  "review": "Final evidence head requires its own hosted Codex code/security and applicable CI receipts; linked PR267 is the live completion record.",
+  "native_limit": "Cloud synthetic data only; B first alpha remainsa921e325; later source-bound combined native/live journeys remain separate."
+}

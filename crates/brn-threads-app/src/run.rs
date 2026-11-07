@@ -57,13 +57,7 @@ pub fn resolve_run_selection(
     settings: &WorkspaceSettings,
     offered: Option<&[String]>,
 ) -> std::result::Result<(Selection, ReasoningEffort), RunSelectionError> {
-    let provider = match settings.provider.to_ascii_lowercase().as_str() {
-        "codex" | "chatgpt" => Provider::Chatgpt,
-        "copilot" => Provider::Copilot,
-        _ => {
-            return Err(RunSelectionError::Provider);
-        }
-    };
+    let provider = Provider::from_setting(&settings.provider).ok_or(RunSelectionError::Provider)?;
     if provider == Provider::Copilot
         && offered.is_some_and(|models| !models.is_empty() && !models.contains(&settings.model))
     {
@@ -72,14 +66,8 @@ pub fn resolve_run_selection(
             offered: offered.unwrap_or_default().join(", "),
         });
     }
-    let effort = match settings.effort.as_str() {
-        "low" => ReasoningEffort::Low,
-        "medium" => ReasoningEffort::Medium,
-        "high" => ReasoningEffort::High,
-        _ => {
-            return Err(RunSelectionError::Effort);
-        }
-    };
+    let effort =
+        ReasoningEffort::from_setting(&settings.effort).ok_or(RunSelectionError::Effort)?;
     let selection = Selection {
         provider,
         model: settings.model.clone(),
@@ -129,5 +117,43 @@ impl Workspace {
             prepared,
             search_status,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn selection_error_precedence_stays_provider_catalogue_effort_model() {
+        let root = tempfile::tempdir().unwrap();
+        let workspace = Workspace::open_without_default_credentials(root.path()).unwrap();
+        let mut settings = workspace.settings().unwrap();
+        settings.provider = "unsupported".into();
+        settings.effort = "HIGH".into();
+        settings.model = "invalid model".into();
+        let offered = vec!["gpt-6-luna".into()];
+        assert!(matches!(
+            resolve_run_selection(&settings, Some(&offered)),
+            Err(RunSelectionError::Provider)
+        ));
+        settings.provider = "CoPiLoT".into();
+        assert!(matches!(
+            resolve_run_selection(&settings, Some(&offered)),
+            Err(RunSelectionError::CopilotCatalogue { .. })
+        ));
+        assert!(matches!(
+            resolve_run_selection(&settings, None),
+            Err(RunSelectionError::Effort)
+        ));
+        settings.effort = "high".into();
+        assert!(matches!(
+            resolve_run_selection(&settings, None),
+            Err(RunSelectionError::Model(_))
+        ));
+        settings.model = "gpt-6-luna".into();
+        let (selection, effort) = resolve_run_selection(&settings, Some(&offered)).unwrap();
+        assert_eq!(selection.provider, Provider::Copilot);
+        assert_eq!(effort, ReasoningEffort::High);
     }
 }

@@ -900,7 +900,7 @@ async fn actual_http_provider_routes_dispatch_unique_quote_with_required_nullabl
             }
             OwnedClient::Copilot(inner) => {
                 rig_core::DynModel::<rig_core::operation::Completion>::from(
-                    crate::auth::copilot_completion(&inner, model_name.to_owned(), responses),
+                    crate::provider::copilot_completion(&inner, model_name.to_owned(), responses),
                 )
             }
         };
