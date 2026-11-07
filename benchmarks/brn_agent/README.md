@@ -406,3 +406,25 @@ Remaining gates that need additional access or qualification:
 The 24-case/three-world bank is implemented and tested offline. No live model
 has completed it. Larger stress lanes, native UI and real external-service
 qualification remain separate from these CLI benchmark mechanisms.
+
+### Frozen subscription judge
+
+Build `cargo build -p brn-ai --example agentbench-judge --features capability-spike --locked`.
+The explicit invocation is `agentbench-judge --live ABS_AUTH ABS_PACKET ABS_INSTRUCTIONS TIMEOUT_SECONDS`.
+The timeout must be 1–600 seconds. Freeze it with the evaluator before dispatch.
+There is one HTTP attempt and no retry. Failed/timeout receipts retain observed
+request accounting. Grading overhead belongs outside the product token score.
+
+The maintained `frozen_judge.run` adapter accepts absolute paths, an expected
+`binary_sha256`, and a new output path. It checks exact file-byte packet and
+instruction hashes, binary identity before/after, returned model, wire model and
+effort, and the one-request budget before qualifying a receipt. It preserves
+failed attempt envelopes and refuses output overwrites. The caller owns request
+admission and validates the semantic reply against its frozen grading schema.
+Canonical JSON object hashes and file-byte hashes are distinct. Persist packet
+bytes before dispatch and compare the receipt with those same bytes.
+
+New traces expose whether input and output were both reported. Incomplete or
+unmatched HTTP usage remains unknown. Evidence packets retain successful Message
+and archived record reads from verified checkpoints, with tool traces separately
+labelled. Evaluator access to a record does not prove the product read it.

@@ -1,7 +1,7 @@
 # Development overview
 
-**Goal:** Implement shared provider operations in cloud after Cycle 2 no-change closeout, preserving caller contracts and first-alpha separation.
-**Owner attention:** C final shared-provider source72bb6241 and offline/maintenance qualification are complete; final-head hosted CI/code/security/normal integration remain in PR267. Repair272 merged75f37221. Owner A-done/one read-only evaluator/Council skip instructions honored. B current MacBook build stays pinned a921e325; no publication reservation inferred. Saved task state is a pre-merge snapshot; PR267/#263/#253 supply final live receipts.
+**Goal:** Complete issue256 evidence-fix salvage and bounded product token hill-climb.
+**Owner attention:** Salvage PR273 reconciles merged shared-provider PR267. Current-head verification and normal merge remain before old-PR closeout and live experiment. B release artifacts remain separate; product clock unstarted.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -93,6 +93,26 @@ Gates:
 
 </details>
 
+### Extract useful evidence fixes and run product token hill-climb
+
+Task ID: `search-efficiency-256-restart`
+Owner: Issue 256 restart lead on MacBook · State: **active** · Last observed: 2026-11-07T05:38:36.807435+00:00
+Activity: Merged main 8b07e035 provider refactor into salvage candidate. Rust sources auto-merged; shared record reconciled by retaining all main tasks plus issue256 restart. Regenerated overview.
+Next: Requalify integrated candidate, push normal merge, refresh current-head Codex reviews/CI, merge salvage then close old PRs and start product window.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Small extraction implemented. Council selection findings addressed. Codex P2 fixed with cache-hit and failed-summary regressions.
+- **checks:** Prior head passed 94 Python and 52 focused Rust tests plus strict Clippy and clean Codex code/security review. Main integration invalidates affected current-head checks/reviews; refreshing.
+- **integration:** No PR or merge yet. Old PRs remain open until replacement merged.
+- **native:** No native observation required for the selected evidence-only changes.
+- **owner acceptance:** Owner authorized focused merge after review and CI; product qualification pending.
+
+</details>
+
 ## Next
 
 None recorded.
@@ -129,4 +149,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-11-07T05:13:29.268453+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-07T05:38:36.807435+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

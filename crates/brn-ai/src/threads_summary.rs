@@ -436,10 +436,12 @@ impl AgentHook for UsageHook {
         _: &HookContext,
         event: ModelTurnFinished<'_>,
     ) -> ModelTurnAction {
-        if (event.usage.input_tokens.is_some() || event.usage.output_tokens.is_some())
-            && let Ok(mut usage) = self.0.lock()
-        {
+        if let Ok(mut usage) = self.0.lock() {
+            let first = usage.is_none();
             let total = usage.get_or_insert_with(Default::default);
+            let complete =
+                event.usage.input_tokens.is_some() && event.usage.output_tokens.is_some();
+            total.complete = complete && (first || total.complete);
             total.input += event.usage.input_tokens.unwrap_or(0);
             total.output += event.usage.output_tokens.unwrap_or(0);
             total.cached_input += event.usage.cached_input_tokens.unwrap_or(0);
@@ -719,7 +721,12 @@ pub(super) async fn prepare_for(
             .into(),
             covered_chunks: if omitted { 0 } else { covered },
             target_chunks: evicted.len(),
-            usage: compactor.usage.lock().ok().and_then(|u| u.clone()),
+            usage: compactor
+                .usage
+                .lock()
+                .ok()
+                .and_then(|u| u.clone())
+                .filter(|u| u.complete),
         });
     }
     if let Some(notice) = &notice {
