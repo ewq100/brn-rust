@@ -31,7 +31,7 @@ python3 scripts/ci-summary.py run --run RUN_ID --attempt ATTEMPT --commit FULL_C
 python3 scripts/ci-summary.py compare-logs /absolute/old.log /absolute/new.log
 ```
 
-The read-only summary validates the exact requested run/attempt/commit, paginates jobs and distinguishes required Mac/shared jobs from informational Windows/non-Mac probes. Missing, pending, cancelled, skipped or failed applicable jobs cannot prove success. Unknown jobs require inspection. Overall failures remain visible even when required contexts pass. Documentation/tooling is checked when present; old absence is not retroactive success.
+The read-only summary validates the exact requested run/attempt/commit, paginates jobs and distinguishes required Mac/shared jobs from informational Windows/non-Mac probes. Missing, pending, cancelled, skipped or failed applicable jobs cannot prove success. The one exception is a PR run whose `Change scope` job recorded a Markdown-only change: it passes only when change scope and documentation/tooling passed and every other job was skipped. Unknown jobs require inspection. Overall failures remain visible even when required contexts pass. Documentation/tooling is checked when present; old absence is not retroactive success.
 
 An exact-head PR run can take time to queue; absence is pending evidence, not a pass or reason to dispatch duplicate runs. Log comparison preserves ordering, compiler/assertion errors and symbols, normalizing only presentation timestamps/ANSI, explicit process IDs and numbered backtrace addresses. Equivalent failures remain failures.
 

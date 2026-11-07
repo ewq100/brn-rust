@@ -1,13 +1,17 @@
 name: BRN CI
 
+# PRs and main pushes run the four required Mac-first lanes. The scheduled and
+# manual runs add the informational Linux/Windows platform lanes.
 on:
   pull_request:
   push:
     branches: [main]
+  schedule:
+    - cron: '17 2 * * *'
   workflow_dispatch:
     inputs:
       windows_only:
-        description: Run the three Windows lanes alongside normal PR qualification
+        description: Run only the three Windows lanes (otherwise run every platform lane)
         type: boolean
         default: false
 
@@ -16,7 +20,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  # Keep scheduled/manual platform runs from cancelling main-push release gates.
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -31,6 +36,40 @@ defaults:
     shell: bash
 
 jobs:
+  changes:
+    name: Change scope
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      rust: ${{ steps.scope.outputs.rust }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: scripts/ci-change-scope.py
+          sparse-checkout-cone-mode: false
+      - name: Classify changed files
+        id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # Only PRs may skip Rust lanes; the preview release gate needs passing main-push jobs.
+          changed="$RUNNER_TEMP/changed-files.txt"
+          if [[ "$GITHUB_EVENT_NAME" != pull_request ]] ||
+             ! gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files" \
+               --jq '.[] | .filename, (.previous_filename // empty)' > "$changed"; then
+            echo rust=true >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          python3 scripts/ci-change-scope.py < "$changed" >> "$GITHUB_OUTPUT"
+      - name: Markdown-only change; Rust lanes skipped
+        if: steps.scope.outputs.rust != 'true'
+        run: cat "$RUNNER_TEMP/changed-files.txt"
+
   documentation:
     if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.windows_only) }}
     name: Documentation and tooling
@@ -62,6 +101,8 @@ jobs:
 
   headless:
     name: Core and CLI (${{ matrix.runner }})
+    needs: changes
+    if: ${{ needs.changes.outputs.rust == 'true' }}
     runs-on: ${{ matrix.runner }}
     # Mac and Linux build/test both converters; main additionally lints the workspace.
     # Allow finalization within the same bounded hour as the native lanes.
@@ -69,7 +110,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runner: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.windows_only && '["windows-2025"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
+        runner: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.windows_only && '["windows-2025"]' || (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '["ubuntu-24.04","windows-2025","macos-15"]' || '["ubuntu-24.04","macos-15"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -150,13 +191,15 @@ jobs:
 
   native-ui:
     name: Native UI build and state (${{ matrix.runner }})
+    needs: changes
+    if: ${{ needs.changes.outputs.rust == 'true' }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        # Qualify Linux and Mac widgets on PRs; probe Windows on main/manual runs.
-        runner: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.windows_only && '["windows-2025"]' || github.event_name == 'pull_request' && '["ubuntu-24.04","macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
+        # Qualify Mac widgets on PRs/main; probe Linux and Windows on scheduled/manual runs.
+        runner: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.windows_only && '["windows-2025"]' || (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '["ubuntu-24.04","windows-2025","macos-15"]' || '["macos-15"]') }}
     steps:
       # macOS updater checks must run on a Mac; the tooling lane skips them.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -242,12 +285,14 @@ jobs:
 
   native-retrieval:
     name: Native retrieval and combined build (${{ matrix.runner }})
+    needs: changes
+    if: ${{ needs.changes.outputs.rust == 'true' }}
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
-        runner: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.windows_only && '["windows-2025"]' || github.event_name == 'pull_request' && '["macos-15"]' || '["ubuntu-24.04","windows-2025","macos-15"]') }}
+        runner: ${{ fromJSON(github.event_name == 'workflow_dispatch' && inputs.windows_only && '["windows-2025"]' || (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && '["ubuntu-24.04","windows-2025","macos-15"]' || '["macos-15"]') }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
