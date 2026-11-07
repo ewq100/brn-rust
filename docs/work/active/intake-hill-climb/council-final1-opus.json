@@ -1,0 +1,132 @@
+{
+  "receipt": {
+    "taskId": "node:delegated-task:command%3Amcp%3A45e37e92-4e0b-442d-8f2b-2012d4655129%3Adelegate-task%3Aintake-final-council1-opus-20261107",
+    "childThreadId": "thread:delegated-task:command%3Amcp%3A45e37e92-4e0b-442d-8f2b-2012d4655129%3Adelegate-task%3Aintake-final-council1-opus-20261107",
+    "link": "<t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A45e37e92-4e0b-442d-8f2b-2012d4655129%3Adelegate-task%3Aintake-final-council1-opus-20261107>",
+    "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A45e37e92-4e0b-442d-8f2b-2012d4655129%253Adelegate-task%253Aintake-final-council1-opus-20261107:ordinal:1",
+    "childNodeId": "node:delegated-task:command%3Amcp%3A45e37e92-4e0b-442d-8f2b-2012d4655129%3Adelegate-task%3Aintake-final-council1-opus-20261107",
+    "status": "running",
+    "workState": "working",
+    "hasPendingChildRuns": false,
+    "latestTerminalRunId": null,
+    "latestTerminalStatus": null,
+    "latestTerminalSummary": null,
+    "latestTerminalResultContextTransferId": null,
+    "providerInstanceId": "acpRegistry_copilot",
+    "model": "claude-opus-5.5",
+    "options": [
+      {
+        "id": "reasoning_effort",
+        "value": "high"
+      }
+    ],
+    "summary": null,
+    "resultContextTransferId": null,
+    "hasPendingQuestion": false,
+    "pendingApproval": null,
+    "waitTimedOut": false,
+    "next": "Completion wakes this thread, so end your turn. Do not wait on it or poll it."
+  },
+  "review": {
+    "thread": {
+      "threadId": "thread:delegated-task:command%3Amcp%3A45e37e92-4e0b-442d-8f2b-2012d4655129%3Adelegate-task%3Aintake-final-council1-opus-20261107",
+      "projectId": "7c55f139-913d-48f3-a5e2-e3140ceeb207",
+      "title": "Intake final council 1 opus",
+      "link": "<t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A45e37e92-4e0b-442d-8f2b-2012d4655129%3Adelegate-task%3Aintake-final-council1-opus-20261107>",
+      "createdBy": "agent",
+      "creationSource": "mcp",
+      "status": "completed",
+      "latestRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A45e37e92-4e0b-442d-8f2b-2012d4655129%253Adelegate-task%253Aintake-final-council1-opus-20261107:ordinal:1",
+      "activeRunId": null,
+      "providerInstanceId": "acpRegistry_copilot",
+      "model": "claude-opus-5.5",
+      "runtimeMode": "full-access",
+      "interactionMode": "default",
+      "linkedPullRequest": null,
+      "pullRequests": [],
+      "titleRegeneration": null,
+      "branch": "t3/document-intake-hill-climb",
+      "worktreePath": "/Users/evokessler/.t3/worktrees/brn-rust/t3-1b2ceb17",
+      "parentThreadId": "thread:delegated-task:command%3Amcp%3A1563c120-85b2-46e6-9402-4d85f0c26083%3Adelegate-task%3Abrn-hillclimb-intake-20261107",
+      "relationshipToParent": "subagent",
+      "runCount": 1,
+      "itemCount": 42,
+      "pendingRequestCount": 0,
+      "archived": false,
+      "settled": false,
+      "settledAt": null,
+      "snoozed": false,
+      "snoozedUntil": null,
+      "createdAt": "2026-11-07T09:33:11.162Z",
+      "updatedAt": "2026-11-07T09:36:08.089Z"
+    },
+    "recentRuns": [
+      {
+        "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A45e37e92-4e0b-442d-8f2b-2012d4655129%253Adelegate-task%253Aintake-final-council1-opus-20261107:ordinal:1",
+        "ordinal": 1,
+        "status": "completed",
+        "providerInstanceId": "acpRegistry_copilot",
+        "model": "claude-opus-5.5",
+        "requestedAt": "2026-11-07T09:33:11.162Z",
+        "startedAt": "2026-11-07T09:33:14.015Z",
+        "completedAt": "2026-11-07T09:36:08.089Z"
+      }
+    ],
+    "items": [
+      {
+        "position": 0,
+        "visibility": "local",
+        "sourceThreadId": "thread:delegated-task:command%3Amcp%3A45e37e92-4e0b-442d-8f2b-2012d4655129%3Adelegate-task%3Aintake-final-council1-opus-20261107",
+        "itemId": "turn-item:message:message%3Adelegated-task%3Acommand%253Amcp%253A45e37e92-4e0b-442d-8f2b-2012d4655129%253Adelegate-task%253Aintake-final-council1-opus-20261107",
+        "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A45e37e92-4e0b-442d-8f2b-2012d4655129%253Adelegate-task%253Aintake-final-council1-opus-20261107:ordinal:1",
+        "messageId": "message:delegated-task:command%3Amcp%3A45e37e92-4e0b-442d-8f2b-2012d4655129%3Adelegate-task%3Aintake-final-council1-opus-20261107",
+        "createdBy": "agent",
+        "creationSource": "mcp",
+        "senderThreadId": "thread:delegated-task:command%3Amcp%3A1563c120-85b2-46e6-9402-4d85f0c26083%3Adelegate-task%3Abrn-hillclimb-intake-20261107",
+        "type": "user_message",
+        "status": "completed",
+        "title": null,
+        "text": "Act as the review sub-agent for this task.\n\nRead-only FINAL council round 1 for the BRN AI-Off intake hill-climb.\nWorktree /Users/evokessler/.t3/worktrees/brn-rust/t3-1b2ceb17. Current head b86530fe, base origin/main 3e2f9f71526f974389784554f159d8f0c36cb6c6. Review git diff origin/main...HEAD. Never access /Users/evokessler/repos/brn-rust or real BRN data. No subagents, edits, commits, pushes, PR comments, publishing, builds, tests, benchmarks, provider or network tool calls. Retrieval now owns the next machine timing window. Read-only code/evidence review only.\nOwner requested deterministic exact scorer before a <=8-candidate AI-Off climb, with stock Xberg unchanged, optional accepted four-Office-patch/UTF8 layer, no new dependencies, encrypted PDF deferred, hostile refusals preserved, all intake checks passing, native app size <=105% baseline, one final held-out baseline/final evaluation, then council and PR without merge.\nScorer freeze d8d32c6c was reviewed in round 0 by Sol and Opus backup, both 6/10. Verified findings were fixed before any measurement/candidate. Final freeze is 17aa70c7, anchor in docs/work/active/intake-hill-climb/scorer-review.json. That file hashes frozen.json and pins its committed bytes. Fixtures 24, split 16 tuning/8 held-out, 2/1 per format. See tools/intake-score/{README.md,score.py,guardrails.py,test_score.py,manifests.json,split.json,frozen.json,fixtures/generate.py}, crates/brn-intake/examples/intake_inventory.rs and crates/brn-threads-intake/examples/intake_probe.rs. See council.md and council0-*.json for prior findings/resolutions. Kiro Opus main route failed monthly usage before review; Copilot backup is authorized and disclosed.\nExactly one production candidate: crates/brn-threads-intake/src/process.rs now wakes on bounded reader completion with recv_timeout(10ms), then polls process exit at 1ms after EOF instead of unconditional sleep(10ms). Output remains bounded, success still requires process exit, cancel/deadline/scratch limits remain. New regression test covers EOF followed by success/nonzero exit. No fidelity correction or stock/layer/dependency change. candidate1.patch and candidates.json preserve the hypothesis/diff.\nEvidence: docs/work/active/intake-hill-climb/{evidence.md,tuning.json,held-out.json,tuning-guardrails.json,held-out-guardrails.json,held-out.started.json,test-receipts.json,app-sizes.txt,timing-window.log}. Full scorecards include both baseline and final, per-format/mode/file exact inventories, missing elements, raw samples/spread, paired gains, and no new loss/addition checks. External guardrails JSONs authorize keeping; scorecard decision.kept=false means metric-only pending separate receipts at capture time, documented explicitly.\nMean fidelity unchanged: tuning .8122294372294372 and held-out .8400974025974026. Median paired gains 6.78–9.62ms exceed each mode/temperature's median larger-arm spread, with no per-file slowdown beyond spread. Closest held-out BRN warm is 8.57ms gain vs 7.58ms spread. All comparison guards pass, hostile Invalid/Budget categories unchanged. Size 138472->138476KiB, +.0029%. All formats imported without errors, pre-existing fidelity losses remain visible.\nTiming followed owner's shared lock: /tmp/brn-timing-window.sh acquire intake 30 waited ~12min, admitted after two sub-100% checks at 09:29:36UTC, immediate post-admission status was 108%CPU, measured until 09:30:06UTC and released right away. Load varied; there is no continuous CPU-isolation claim. ABAB order was explicitly required, so round0 ABBA suggestion was not adopted and fixed-position bias is disclosed. Cold means fresh host/helper, not purged OS cache; warm persistent host/fresh helper. No SQLite publication/native interaction performance claim.\nCommands/checks: documented --offline helper builder; release helper/probe/native builds with pinned 1.98.1 --locked --offline; cargo test -p brn-intake -p brn-threads-intake, 20 passed plus existing ignored child witness exercised by parent; strict same-crate all-target Clippy. Each standalone stock/adapted manifest cargo test --all-targets (18 each) and strict Clippy. cargo test --release -p brn-threads-app --test source_intake_chat --test host_intake --test import_coverage --test document_conversion_settings (46). Real CLI document_modes (5, includes 16 imports), required scripted-document-tests document_route_tests (1, in-process synthetic transport only), scorer negative controls through actual AST (9), cargo fmt --check, Markdown links, git diff --check. First CLI command failed setup because I omitted BRN_XBERG_HELPER and BRN_XBERG_HELPER_BRN; failure retained, correctly configured run passed. Actual helper paths/binary hashes in scorecards, command and compressed log receipts in test-receipts.json. Test-only scripted AI On has no live provider; actual climb is AI Off.\nRubric: correctness and cancellation/process lifecycle regressions in the small production diff; scorer gameability/order/identity and freeze integrity; soundness of keep decision and speed-only claim given actual timing evidence; guardrail completeness and truthful limits. Verify actionable findings against source/receipts rather than demand unrelated scope. Return findings with severity, location, concrete evidence/trigger and proposed fix, plus score out of 10. Distinguish optional improvements. Visual/native/owner acceptance and release are untested/deferred; do not claim them. Stay strictly read-only and start no subagents.",
+        "textTruncated": false,
+        "nextTextOffset": null,
+        "updatedAt": "2026-11-07T09:33:11.162Z"
+      },
+      {
+        "position": 4,
+        "visibility": "local",
+        "sourceThreadId": "thread:delegated-task:command%3Amcp%3A45e37e92-4e0b-442d-8f2b-2012d4655129%3Adelegate-task%3Aintake-final-council1-opus-20261107",
+        "itemId": "turn-item:provider:acpRegistry:native-item:provider-instance%3AacpRegistry_copilot%3A49b78ba9-35b5-469f-bcc8-5b340a502875%3Aturn%3A1%3Aassistant%3Amessage%3Acf33bc53-175b-48bc-af39-82b79cc65146",
+        "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A45e37e92-4e0b-442d-8f2b-2012d4655129%253Adelegate-task%253Aintake-final-council1-opus-20261107:ordinal:1",
+        "messageId": "message:provider:acpRegistry:native-item:provider-instance%3AacpRegistry_copilot%3A49b78ba9-35b5-469f-bcc8-5b340a502875%3Aturn%3A1%3Aassistant%3Amessage%3Acf33bc53-175b-48bc-af39-82b79cc65146",
+        "createdBy": "agent",
+        "creationSource": "provider",
+        "type": "assistant_message",
+        "status": "completed",
+        "title": null,
+        "text": "Reviewing the diff and evidence read-only.",
+        "textTruncated": false,
+        "nextTextOffset": null,
+        "updatedAt": "2026-11-07T09:33:26.034Z"
+      },
+      {
+        "position": 40,
+        "visibility": "local",
+        "sourceThreadId": "thread:delegated-task:command%3Amcp%3A45e37e92-4e0b-442d-8f2b-2012d4655129%3Adelegate-task%3Aintake-final-council1-opus-20261107",
+        "itemId": "turn-item:provider:acpRegistry:native-item:provider-instance%3AacpRegistry_copilot%3A49b78ba9-35b5-469f-bcc8-5b340a502875%3Aturn%3A1%3Aassistant%3Amessage%3A1b492ceb-a561-4f66-aba8-00d0a2fbd34b",
+        "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A45e37e92-4e0b-442d-8f2b-2012d4655129%253Adelegate-task%253Aintake-final-council1-opus-20261107:ordinal:1",
+        "messageId": "message:provider:acpRegistry:native-item:provider-instance%3AacpRegistry_copilot%3A49b78ba9-35b5-469f-bcc8-5b340a502875%3Aturn%3A1%3Aassistant%3Amessage%3A1b492ceb-a561-4f66-aba8-00d0a2fbd34b",
+        "createdBy": "agent",
+        "creationSource": "provider",
+        "type": "assistant_message",
+        "status": "completed",
+        "title": null,
+        "text": "**Score: 8/10.** I found no P0, P1 or P2 issues. The production diff keeps the bounded-output, exit-required, cancel, deadline and scratch-limit behavior. Nothing was built, tested or measured in this review.\n\n**What I confirmed**\n- All 38 hashes in `frozen.json` match the files. The anchor hash `c2ff7787…` matches the copy at 17aa70c7, and nothing under `tools/` changed after the freeze.\n- `candidate1.patch` matches the actual `process.rs` diff. The only other non-doc additions are the two measurement examples.\n- The stock and BRN helper binaries hash the same in both arms. Only the probe differs.\n- Both guardrail files report all gates true, with sizes 138472 → 138476 KiB.\n- The logs back the receipts: 20 crate tests passed with the new test listed, plus 46 app tests, 5 CLI tests, 1 scripted test and 9 scorer tests. Hostile categories match per fixture, arm and mode.\n- No file got slower. The smallest margin is held-out BRN warm, 8.57 ms gain against a 7.58 ms spread.\n- The timing log fits the lock script, which never prints its quiet checks. Admission was at 09:29:36, and both splits ran before release at 09:30:06.\n- The ~10 ms warm drop is about one 10 ms polling interval, which fits the mechanism. Position bias is unlikely to explain it.\n\n**Findings**\n\n1. **P3: a size refusal can come back as a different error.** At `process.rs:118-127`, `recv_timeout` sets `failure = Budget` for oversized output. The next iteration's checks at lines 87-94 then overwrite `failure` unconditionally.\n   - Trigger: output goes over the limit in the same ≤10 ms window as cancel, the deadline or a scratch-check error.\n   - Effect: the caller gets Cancelled, Timeout, Invalid or Io instead of Budget. The old code killed and broke in the same iteration, so this ordering is new.\n   - Fix: after the `recv_timeout` match, kill and break right away if `failure` is set, or guard the top checks with `failure.is_none()`.\n   - Impact: still a refusal, and the hostile fixtures are unaffected.\n\n2. **P3: the after-EOF wait runs the scratch check 10× more often.** `sleep(1ms)` at line 131 means `temp.check_budget` (one directory read plus a stat per entry) runs about 1000 times a second.\n   - Trigger: a helper that closes stdout but keeps running until the deadline.\n   - Effect: wasted CPU only. Correctness holds.\n   - Optional fix: switch back to 10 ms after a few milliseconds, or only re-check scratch every 10 ms.\n\n3. **P3: test receipts aren't tied to a source tree.** Entries in `test-receipts.json` have no commit or `process.rs` hash, so they don't prove the 46 app and 5 CLI tests ran on the candidate code. Only `final-crate-tests` shows that, by listing the new test name.\n   - Also, `cargo fmt --check`, the Markdown link check and `git diff --check` are claimed in `evidence.md` but have no receipts.\n   - Fix: add `git rev-parse HEAD`, `git diff --stat` and the source hash to each receipt, and add receipts for those three checks or drop the claims.\n\n4. **Process note.** The held-out ledger is now used up. If finding 1, or any other change, touches `process.rs`, the held-out confirmation no longer covers the shipped code.\n   - Either accept finding 1 as is, or fix it and rerun tuning as the plan's step 5 says. In that case, label held-out as pre-fix in `evidence.md`.\n\n**Optional improvements**\n- The new test also passes on the old code. It's fine as a guard for the new branch, but it doesn't show the faster wake.\n- The `recv_timeout` and `try_recv` blocks repeat the same mapping. A small helper would remove the duplication.\n- A baseline-vs-baseline run would measure the position bias of the ABAB order directly.",
+        "textTruncated": false,
+        "nextTextOffset": null,
+        "updatedAt": "2026-11-07T09:36:08.077Z"
+      }
+    ],
+    "nextPosition": 40,
+    "hasMore": false
+  }
+}

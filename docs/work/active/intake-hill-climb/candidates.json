@@ -85,6 +85,11 @@
       "held-out": "held-out-guardrails.json",
       "all_pass": true
     },
-    "patch_sha256": "3358c328d472e6ece4c1a84d50a6aebe2da482f26b2f68af7f8c6f824fb3d14e"
+    "patch_sha256": "3358c328d472e6ece4c1a84d50a6aebe2da482f26b2f68af7f8c6f824fb3d14e",
+    "post_council_recheck": {
+      "scorecard": "post-council-tuning.json",
+      "guardrails": "post-council-guardrails.json",
+      "kept": true
+    }
   }
 ]

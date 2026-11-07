@@ -30,3 +30,15 @@ Validation passed: 20 intake crate tests, 36 helper tests, 46 app intake tests, 
 Conversion scoring used no provider or external network. Each exact helper passed live-loopback network denial and forbidden-file denial witnesses. All hostile fixtures kept the same Invalid/Budget refusal category in both arms. Encrypted PDF remains deferred and unmeasured, with no new support or refusal claim.
 
 Native observation, owner acceptance, broader timing/fidelity generalization and release are open. This work does not change #253/#268. The PR is not merged.
+
+Final council round 1 scored Sol 9/10 and Opus 8/10, with no blocking findings.
+Receipt source bindings and separate formatting/link/whitespace receipts address
+the evidence finding. The [council record](council.md) lists the three accepted
+nonblocking limits. Production and frozen scorer bytes have not changed since the
+held-out measurement. The [post-council tuning recheck](post-council-tuning.json) and its
+[keep gate](post-council-guardrails.json) passed. Held-out was not converted or
+scored again.
+
+The tuning recheck measured from 09:49:21 to 09:49:41 UTC and released immediately. Its [window log](post-council-window.log) records admission, source hash and load. The fresh formatting/link/whitespace/intake test receipts capture HEAD and process-source hash before each command.
+
+The post-council paired gains were 6.81-7.69 ms against spread thresholds of 2.53-4.92 ms. Its fidelity scores and all loss/refusal/size/source gates remained unchanged. The [timing comparison](timing-comparison.html) shows this final tuning recheck and the single held-out evaluation.

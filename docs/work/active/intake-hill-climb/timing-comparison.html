@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Intake conversion timings</title>
+<style>
+html,body{margin:0;padding:0;font-family:var(--font-sans,system-ui);color:var(--foreground,CanvasText);color-scheme:light dark}
+#intake-timings{display:grid;gap:12px}
+label{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+select{font:inherit;color:inherit;background:var(--secondary,Canvas);border:1px solid var(--border,GrayText);border-radius:var(--radius,6px);padding:4px 8px}
+.group{display:grid;gap:4px}
+.name{font-weight:500}
+.barline{display:grid;grid-template-columns:4.5em minmax(60px,1fr) 5.5em;align-items:center;gap:8px}
+.track{height:12px;background:color-mix(in srgb,var(--foreground,CanvasText) 6%,transparent)}
+.bar{height:12px}
+.baseline{background:var(--chart-1,var(--primary,CanvasText))}
+.final{background:var(--chart-2,var(--success,Highlight))}
+.value{font-variant-numeric:tabular-nums;text-align:right}
+.muted{color:var(--muted-foreground,GrayText)}
+.axis{margin-left:calc(4.5em + 8px);margin-right:calc(5.5em + 8px);display:flex;justify-content:space-between;font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:no-preference){.bar{transition:width 160ms ease}}
+</style>
+</head>
+<body>
+<section id="intake-timings" aria-label="Baseline and final conversion timings">
+  <label>Conversion wall time (ms)
+    <select id="temperature" aria-label="Timing condition"><option value="warm">Warm host</option><option value="cold">Fresh host and helper</option></select>
+  </label>
+  <div class="axis muted" aria-hidden="true"><span>0</span><span>10</span><span>20</span><span>30</span><span>40 ms</span></div>
+  <div id="groups" style="display:grid;gap:14px"></div>
+  <div class="muted">Median of per-file medians. OS caches retained. Fidelity unchanged.</div>
+</section>
+<script>
+const data = [{"label": "Tuning recheck / Xberg", "baseline": {"warm": 0.0260413125, "cold": 0.034550875483546406}, "final": {"warm": 0.0178931455, "cold": 0.027231708489125594}}, {"label": "Tuning recheck / BRN layer", "baseline": {"warm": 0.0258557085, "cold": 0.03446262501529418}, "final": {"warm": 0.018023145499999997, "cold": 0.028163896000478417}}, {"label": "Held-out / Xberg", "baseline": {"warm": 0.025870396, "cold": 0.03348904199083336}, "final": {"warm": 0.016470291499999998, "cold": 0.024853729468304664}}, {"label": "Held-out / BRN layer", "baseline": {"warm": 0.025893875, "cold": 0.034327791043324396}, "final": {"warm": 0.015973042, "cold": 0.026197271508863196}}];
+const root = document.getElementById('intake-timings');
+const groups = root.querySelector('#groups');
+for (const row of data) {
+  const group = document.createElement('div');
+  group.className = 'group';
+  const name = document.createElement('div');
+  name.className = 'name';
+  name.textContent = row.label;
+  group.append(name);
+  for (const arm of ['baseline','final']) {
+    const line = document.createElement('div');
+    line.className = 'barline';
+    const label = document.createElement('span');
+    label.textContent = arm === 'baseline' ? 'Baseline' : 'Final';
+    const track = document.createElement('div');
+    track.className = 'track';
+    const bar = document.createElement('div');
+    bar.className = 'bar ' + arm;
+    track.append(bar);
+    const value = document.createElement('span');
+    value.className = 'value';
+    line.append(label,track,value);
+    group.append(line);
+    row[arm].bar = bar;
+    row[arm].value = value;
+  }
+  groups.append(group);
+}
+function update() {
+  const temperature = root.querySelector('#temperature').value;
+  for (const row of data) for (const arm of ['baseline','final']) {
+    const value = row[arm][temperature] * 1000;
+    row[arm].bar.style.width = (value / 40 * 100) + '%';
+    row[arm].value.textContent = value.toFixed(2) + ' ms';
+  }
+}
+update();
+root.querySelector('#temperature').addEventListener('change',update);
+</script>
+</body>
+</html>
