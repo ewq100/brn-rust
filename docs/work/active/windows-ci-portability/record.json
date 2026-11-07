@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-07T05:38:36.807435+00:00",
+    "observed_at": "2026-11-07T06:59:47.184933+00:00",
     "goal": "Complete issue256 evidence-fix salvage and bounded product token hill-climb.",
-    "owner_attention": "Salvage PR273 reconciles merged shared-provider PR267. Current-head verification and normal merge remain before old-PR closeout and live experiment. B release artifacts remain separate; product clock unstarted.",
+    "owner_attention": "Measured candidate confirms14.03% lower tokens per correct supported answer. Final Council/code/security/CI/product integration remain;254/600live HTTP attempts used.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -409,23 +409,25 @@
         "title": "Extract useful evidence fixes and run product token hill-climb",
         "owner": "Issue 256 restart lead on MacBook",
         "state": "active",
-        "activity": "Merged main 8b07e035 provider refactor into salvage candidate. Rust sources auto-merged; shared record reconciled by retaining all main tasks plus issue256 restart. Regenerated overview.",
-        "observed_at": "2026-11-07T05:38:36.807435+00:00",
+        "activity": "Three product hypotheses measured. First two rejected for higher tokens. Corrected inline first-hit passage runtime confirms14.03% lower tokens/correct answer on six fixed cases,12/12 fully correct per arm;56product and56grader attempts retained,254HTTP total,504reserved slots. Preparing final Council/code/security/CI gates.",
+        "observed_at": "2026-11-07T06:59:47.184933+00:00",
         "origin": "observed",
-        "next_action": "Requalify integrated candidate, push normal merge, refresh current-head Codex reviews/CI, merge salvage then close old PRs and start product window.",
+        "next_action": "Council checkpoint two reviews actual product diff/evidence, then publish focused product PR and merge after current-head code/security and CI.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "docs/work/active/search-efficiency/plan.md",
           "docs/work/active/search-efficiency/outcomes.md",
-          "https://github.com/ewq100/brn-rust/issues/256"
+          "https://github.com/ewq100/brn-rust/issues/256",
+          "docs/work/active/search-efficiency/product.md",
+          "docs/work/active/search-efficiency/summary.json"
         ],
         "gates": {
-          "implementation": "Small extraction implemented. Council selection findings addressed. Codex P2 fixed with cache-hit and failed-summary regressions.",
-          "checks": "Prior head passed 94 Python and 52 focused Rust tests plus strict Clippy and clean Codex code/security review. Main integration invalidates affected current-head checks/reviews; refreshing.",
-          "integration": "No PR or merge yet. Old PRs remain open until replacement merged.",
-          "native": "No native observation required for the selected evidence-only changes.",
-          "owner_acceptance": "Owner authorized focused merge after review and CI; product qualification pending."
+          "implementation": "Bounded exact first-hit passage through checked read path; inline-output coverage guard and host-read tracing implemented.",
+          "checks": "51 search/research,9 read-ledger,28 summary,3 guide and13 writing-evidence tests pass, plus strict Clippy and94Python tests (11skips). All56live answers graded fully correct. Current-head hosted gates pending.",
+          "integration": "Salvage273 mergedbab8c876 and superseded PRs closed. Required salvage-main contexts passed; optional Windows main failures retained. Product merge pending.",
+          "native": "Headless synthetic qualification with real selected subscription calls. B retains separate native/release qualification.",
+          "owner_acceptance": "Owner authorized normal merge after required reviews/CI. Hands-on owner acceptance remains separate."
         },
         "attempts": []
       }
