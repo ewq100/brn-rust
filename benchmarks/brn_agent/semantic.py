@@ -5,7 +5,7 @@ No model or subprocess is called. The original 12 calibration pairs stay separat
 """
 import json
 from pathlib import Path
-from evidence import verify_manifest, verify_grade_references, verified_proof_packet, anonymize_local_paths
+from evidence import verify_manifest, verify_grade_references, verified_proof_packet, anonymize_local_paths, full_calls
 from reader import packet_hash
 from score import assess, sha256, validate_suite
 
@@ -58,6 +58,9 @@ def prepare(root, suite_path, manifest_path, truth_path=None):
                 packet['criterion_aggregation'] = case['criterion_aggregation']
             packet['scale'] = {'0': 'failed', '1': 'seriously flawed', '2': 'material correction required',
                                '3': 'minor correction required', '4': 'meets criterion'}
+            packet['tool_evidence'] = [full_calls(s.get('trace')) for s in raw.get('steps', [])[:number]
+                                       if s.get('kind') == 'ask']
+            packet['tool_evidence_complete'] = all(c is not None for c in packet['tool_evidence'])
             packet['events'] = [{k: step[k] for k in ('index', 'kind', 'terminal', 'answer', 'operations', 'receipts') if k in step}
                                 for step in raw.get('steps', [])[:number]]
             event = next((event for event in raw.get('steps', []) if event.get('index') == number), {})

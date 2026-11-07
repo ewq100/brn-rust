@@ -56,6 +56,9 @@ mod summary_tests;
 
 #[path = "threads_action_query.rs"]
 mod action_query;
+#[cfg(feature = "capability-spike")]
+#[path = "threads_benchmark_judge.rs"]
+pub mod benchmark_judge;
 #[path = "threads_history.rs"]
 mod history;
 #[path = "threads_intake.rs"]

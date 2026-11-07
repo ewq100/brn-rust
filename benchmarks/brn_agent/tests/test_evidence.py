@@ -140,3 +140,48 @@ class PacketAndIdentityTests(unittest.TestCase):
         self.assertIn('2027-03-03', str(proof.checkpoint_gold('J01', 2)))
         with self.assertRaises(ValueError):
             proof.checkpoint_gold('J01', 13)
+
+class CompleteTraceTests(unittest.TestCase):
+    def test_failed_calls_retained_and_pending_helpers_unknown(self):
+        from evidence import full_calls
+        trace = {'level': 'full', 'dropped_calls': 0,
+                 'calls': [{'tool': 'read_message', 'outcome': 'error'}]}
+        self.assertEqual(full_calls(trace), trace['calls'])
+        trace['helpers'] = [{'trace': dict(trace, calls=[{'tool': 'read_note', 'outcome': 'pending'}])}]
+        self.assertIsNone(full_calls(trace))
+
+    def test_usage_requires_every_http_and_both_counters(self):
+        from evidence import complete_trace_usage
+        usage = dict(input=100, output=10, cached_input=25, complete=True)
+        trace = dict(wire_requests_dropped=0, wire_requests=[{}], turn_usage=[usage])
+        self.assertEqual(complete_trace_usage(trace)['input'], 100)
+        usage['complete'] = False
+        self.assertIsNone(complete_trace_usage(trace))
+        usage['complete'] = True
+        trace['wire_requests'].append({})
+        self.assertIsNone(complete_trace_usage(trace))
+        trace['summary'] = {'usage': dict(usage, input=20, cached_input=0)}
+        self.assertEqual(complete_trace_usage(trace)['input'], 120)
+
+    def test_cached_or_undispatched_summary_adds_no_http_usage(self):
+        from evidence import complete_trace_usage
+        usage = dict(input=100, output=10, cached_input=25, complete=True)
+        trace = dict(wire_requests_dropped=0, wire_requests=[{}], turn_usage=[usage])
+        for outcome in ('cached', 'unavailable_account', 'gap'):
+            trace['summary'] = dict(outcome=outcome, usage=None)
+            self.assertEqual(complete_trace_usage(trace)['input'], 100)
+        # A failed summary with a real wire attempt still requires its counters.
+        trace['wire_requests'].append({})
+        self.assertIsNone(complete_trace_usage(trace))
+
+    def test_message_and_archived_evidence_selected_without_expanding_wiki(self):
+        from evidence import grading_packet
+        with tempfile.TemporaryDirectory() as folder:
+            records = [{'id': 'm1', 'version': 1, 'data': {'Message': {'text': 'source'}}},
+                       {'id': 'n1', 'version': 1, 'archived': True, 'data': {'Note': {'markdown': 'past'}}},
+                       {'id': 'm2', 'version': 1, 'data': {'Message': {'text': 'unselected'}}}]
+            Path(folder, 'records.json').write_text(json.dumps(records))
+            packet = grading_packet(folder, observed_ids=['m1', 'n1', 'absent'])
+            self.assertEqual([r['id'] for r in packet['additional_checkpoint_records']], ['m1', 'n1'])
+            self.assertEqual(packet['unavailable_observed_ids'], ['absent'])
+            self.assertNotIn('additional_checkpoint_records', grading_packet(folder, wiki_only=True, wiki_records=[]))

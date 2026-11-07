@@ -3,6 +3,22 @@
 Updater PR: [#258](https://github.com/ewq100/brn-rust/pull/258), normally merged as
 `28051188f7d20a817202ddf098dff5dc2f07e653`. Final package acceptance remains active.
 
+## PR preparation after E salvage — 7 November 2026
+
+[Normal mainBab8reconciliation](evidence/mac-updater-253/reconcile-bab8-20261107/README.md)
+resolves shared-record/overview conflicts that prevented any CI run on29af383b.
+That head has completed clean code6703416616/security6703456264 and0threads, not
+passing CI. All non-B task objects come exactly from main; B latest results remain.
+Inspected default-build delta is usage/trace reporting; extra judge is feature-
+gated. Current integrated-head CI/reviews are required, not inferred from E's or
+82657's green receipts. Local Python83pass/11explicitskip=94total, docs/overview/
+whitespace pass. Original qualified82657packages/native receipts and idle running
+app are unchanged; no new desktop build/provider call or native source relabel.
+
+E reports all measurement batches finished06:54UTC and no local reservation now;
+274remains a separate hosted candidate. Screen still locked; owner unlock request
+is pending for normal quit/reopen/closure. No publication approval is implied.
+
 ## Current combined qualification — source82657cab
 
 Owner selected currentmain272+267 plus the focused review-target fix for testing

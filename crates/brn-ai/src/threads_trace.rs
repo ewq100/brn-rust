@@ -29,6 +29,8 @@ pub enum TraceLevel {
 
 #[derive(Clone, Debug, Default, PartialEq, Eq, Serialize)]
 pub struct TraceUsage {
+    /// Both input and output were explicitly reported for every included turn.
+    pub complete: bool,
     pub input: u64,
     pub output: u64,
     pub cached_input: u64,
@@ -303,7 +305,7 @@ impl TraceCollector {
                 }
                 out
             }
-            "read_note" | "read_history" => json!({
+            "read_note" | "read_history" | "read_message" => json!({
                 "id": n("id"), "version": n("version"), "start": n("start"),
                 "section": n("section"), "max_bytes": n("max_bytes"),
             }),
@@ -426,6 +428,12 @@ impl TraceCollector {
                     "next_start": note.and_then(|n| n.get("next_start")).is_some_and(|v| !v.is_null()),
                 })
             }
+            "read_message" => json!({
+                "ids": field_ids(Some(&json!([value])), &["id"]),
+                "version": value.get("version"), "start": value.get("start"),
+                "end": value.get("end"), "total_bytes": value.get("total_bytes"),
+                "next_start": value.get("next_start"), "complete": value.get("complete"),
+            }),
             "note_connections" => {
                 let hops = value.get("hops").and_then(Value::as_array);
                 let neighbours: Vec<String> = hops
@@ -542,6 +550,8 @@ impl TraceCollector {
             usage.output_tokens.unwrap_or(0),
         );
         let cached = usage.cached_input_tokens.unwrap_or(0);
+        let complete = usage.input_tokens.is_some() && usage.output_tokens.is_some();
+        state.usage.complete = complete && (state.model_turns == 1 || state.usage.complete);
         if input + output > 0 {
             state.usage_seen = true;
         }
@@ -550,6 +560,7 @@ impl TraceCollector {
         state.usage.cached_input += cached;
         if state.turn_usage.len() < MAX_CALLS {
             state.turn_usage.push(TraceUsage {
+                complete,
                 input,
                 output,
                 cached_input: cached,
@@ -597,7 +608,7 @@ impl TraceCollector {
                 s.calls.clone(),
                 s.dropped,
                 s.model_turns,
-                s.usage_seen.then(|| s.usage.clone()),
+                (s.usage_seen && s.usage.complete).then(|| s.usage.clone()),
                 s.turn_usage.clone(),
                 s.rounds,
                 s.stopped.clone(),
@@ -666,6 +677,22 @@ fn duration_ms(duration: Duration) -> u64 {
 mod tests {
     use super::TraceCollector;
     use serde_json::json;
+
+    #[test]
+    fn partial_turn_usage_never_produces_a_complete_total() {
+        let trace = TraceCollector::new(super::TraceLevel::Full).unwrap();
+        let mut usage = rig::completion::Usage::default();
+        usage.input_tokens = Some(10);
+        usage.output_tokens = Some(2);
+        trace.model_turn(&usage, 1);
+        assert!(trace.finish("test", false, 8).usage.is_some());
+        usage.output_tokens = None;
+        trace.model_turn(&usage, 2);
+        let finished = trace.finish("test", false, 8);
+        assert!(finished.usage.is_none());
+        assert!(!finished.turn_usage[1].complete);
+        assert_eq!(finished.turn_usage[1].input, 10);
+    }
 
     #[test]
     fn read_records_trace_reports_only_actual_truncation() {
