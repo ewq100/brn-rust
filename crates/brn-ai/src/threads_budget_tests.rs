@@ -145,6 +145,20 @@ fn oversized_old_bilingual_message_is_exactly_retrievable_beyond_old_prefix() {
             .starts_with("EARLY ÕUN")
     );
     let passage = note_search::read_message(&scope, read_args(&first.id, 1, start, 53)).unwrap();
+    let trace = trace::TraceCollector::new(TraceLevel::Full).unwrap();
+    trace.dispatch(
+        "message-read".into(),
+        "read_message",
+        &json!({"id":first.id,"version":1,"start":start,"max_bytes":53}).to_string(),
+        1,
+    );
+    let result = rig::tool::ToolResult::success(rig::tool::ToolOutput::json(passage.clone()));
+    trace.outcome("message-read", "read_message", "success", Some(&result));
+    let recorded = serde_json::to_value(trace.finish("test", false, 8)).unwrap();
+    assert_eq!(recorded["calls"][0]["args"]["id"], first.id);
+    assert_eq!(recorded["calls"][0]["result"]["ids"][0], first.id);
+    assert_eq!(recorded["calls"][0]["result"]["start"], start);
+    assert!(!recorded.to_string().contains("EARLY ÕUN"));
     let end = passage["end"].as_u64().unwrap() as usize;
     assert_eq!(passage["text"], text[start..end]);
     assert_eq!(passage["total_bytes"], text.len());

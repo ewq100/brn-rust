@@ -72,6 +72,26 @@ Gates:
 
 </details>
 
+### Extract useful evidence fixes and run product token hill-climb
+
+Task ID: `search-efficiency-256-restart`
+Owner: Issue 256 restart lead on MacBook · State: **active** · Last observed: 2026-11-07T05:13:09.238089+00:00
+Activity: Isolated main 75f37221. Council selection round one completed with Codex Sol and Copilot Opus after Kiro quota denial. Implementing small judge/evidence extraction. First Python suite 92 tests passed, 11 optional skips. Offline Rust compilation underway at two jobs.
+Next: Finish focused regressions and Rust checks, publish salvage PR for current-head Codex code/security and CI, merge before closing superseded PRs and starting live window.
+
+<details>
+<summary>Gate status</summary>
+
+Gates:
+
+- **implementation:** Salvage candidate in progress, historical outcomes preserved.
+- **checks:** Python 92 tests passed with 11 optional skips; Rust and current-head CI pending.
+- **integration:** No PR or merge yet. Old PRs remain open until replacement merged.
+- **native:** No native observation required for the selected evidence-only changes.
+- **owner acceptance:** Owner authorized focused merge after review and CI; product qualification pending.
+
+</details>
+
 ## Next
 
 None recorded.
@@ -159,4 +179,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-11-06T23:21:25.106961+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-07T05:13:09.238089+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.

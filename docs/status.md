@@ -1,5 +1,7 @@
 # Development status
 
+**Current issue #256 restart, 7 November 2026.** The [search-efficiency plan](work/active/search-efficiency/plan.md) owns the selected evidence-fix extraction and subsequent bounded product hill-climb. [Historical outcomes](work/active/search-efficiency/outcomes.md) remain distinct from new qualification. Cleanup, current-head reviews and integration are pending; the live experiment window has not started.
+
 Open the [development overview](work/overview.md) for current work, next actions, attention items and a compact completed-task index. It is generated from the selected task record; detailed gates, evidence and attempts remain in that record and its linked receipts. A remote page shows the last published checkpoint, not live agent activity.
 
 Current assignment: Agent C's [cloud feedback Cycle 2 (#255)](work/active/windows-ci-portability/record.json), task `development-speed-255`. The [Cycle 2 report](work/active/windows-ci-portability/development-speed-255-cycle2.md) records a no-change outcome and incomplete repeated qualification; required Council review remains unavailable. [Cycle 1](work/active/windows-ci-portability/development-speed-255.md) is preserved as merged history. The same record retains B's updater/alpha acceptance and A's runtime gates. [Shared-provider refactor #263](https://github.com/ewq100/brn-rust/issues/263) remains read-only until Cycle 2 closeout and A's explicit runtime/file handoff, outside the first alpha.

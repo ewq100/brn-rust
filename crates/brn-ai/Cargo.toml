@@ -11,6 +11,11 @@ capability-spike = []
 scripted-runs = ["rig/test-utils"]
 
 [[example]]
+name = "agentbench-judge"
+path = "examples/agentbench_judge.rs"
+required-features = ["capability-spike"]
+
+[[example]]
 name = "provider-capabilities"
 path = "examples/provider_capabilities.rs"
 required-features = ["capability-spike"]
