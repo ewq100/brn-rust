@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only checkout/tool/router inventory; never installs or changes settings."""
+"""Read-only checkout/tool inventory; never installs or changes settings."""
 import argparse
 import json
 import os
@@ -14,20 +14,12 @@ from verification_evidence import ROOT, identity
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--native', action='store_true', help='also require protoc; on macOS, report Command Line Tools')
-    parser.add_argument('--router-skill', type=Path, help='override the optional local developing-product-feature skill path')
     opts = parser.parse_args()
     tools = ['git', 'bash', 'python3', 'cargo', 'rustup'] + (['protoc'] if opts.native else [])
     if opts.native and sys.platform == 'darwin':
         tools.append('xcrun')
     found = {name: shutil.which(name) for name in tools}
-    skill_root = Path(os.environ.get('CODEX_HOME', str(Path.home() / '.codex'))) / 'skills'
-    router = opts.router_skill or skill_root / 'developing-product-feature/SKILL.md'
     report = {'identity': identity(), 'tools': found,
-              'workflow': str(ROOT / 'docs/development/workflow.md'),
-              'router_skill': {'path': str(router), 'available': router.is_file(), 'required': False},
-              'pr_skill': {'path': str(skill_root / 'pr/SKILL.md'),
-                           'available': (skill_root / 'pr/SKILL.md').is_file(),
-                           'required': False, 'scope': 'explicit owner request when writing PRs'},
               'toolchain_pin': (ROOT / 'rust-toolchain.toml').read_text().strip(), 'pinned_toolchain_installed': False}
     pin = re.search(r'channel\s*=\s*"([^"]+)"', report['toolchain_pin'])
     if found['rustup']:

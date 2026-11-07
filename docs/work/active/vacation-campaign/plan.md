@@ -1,6 +1,6 @@
 # Mac vacation hardening campaign
 
-Scope, authority and resource policy live here. [Current task facts](campaign.json) and the [owner overview](../../overview.md) replace dated progress snapshots. [Workflow](../../../development/workflow.md) owns the cycle and fact routes.
+Scope, authority and resource policy live here. [Current task facts](campaign.json) and the [owner overview](../../overview.md) replace dated progress snapshots. [Workflow](https://github.com/ewq100/brn-rust/blob/edc0edd81adb0493ca3342c498634257f7898df4/docs/development/workflow.md) owns the cycle and fact routes.
 
 ## Current owner authorization
 

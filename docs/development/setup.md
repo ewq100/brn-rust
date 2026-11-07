@@ -1,25 +1,21 @@
 # Development setup
 
-**Document conversion, 18 October 2026:** local Tasks1–3 implement [stock Xberg default, optional BRN layer and independent AI conversion defaulting Off](../work/active/modular-foundation/x2/standard-default/feature-brief.md). Native Settings → Documents and the checked CLI command select subsequent imports; existing notes are unchanged. [Task3 evidence](../work/active/modular-foundation/x2/standard-default/task3/handoff.md) separates synthetic verification from pending Task4 distribution, whole-feature review, native-human and integration gates. No live-provider qualification is activated.
-
-Read [AGENTS.md](../../AGENTS.md), [status](../status.md) and the active plan linked there. Inspect local/remote state and preserve unrelated work before choosing an isolated task branch/worktree.
-
 ## Check the machine
 
 ```sh
 python3 scripts/development-preflight.py --native
 ```
 
-The read-only preflight reports checkout identity, Git/Bash/Python/Cargo/Rustup, the pinned compiler, protoc and relevant Mac compiler tools. Missing optional workflow skills are informational.
+The read-only preflight reports checkout identity, Git/Bash/Python/Cargo/Rustup, the pinned compiler, protoc and relevant Mac compiler tools.
 
-[rust-toolchain.toml](../../rust-toolchain.toml) is compiler authority; it pins Rust **1.98.1** with rustfmt and Clippy. [Cargo.lock](../../Cargo.lock) records dependencies. When compiler installation belongs to the machine setup assignment:
+[rust-toolchain.toml](../../rust-toolchain.toml) is compiler authority; it pins Rust **1.98.1** with rustfmt and Clippy. [Cargo.lock](../../Cargo.lock) records dependencies. To install it:
 
 ```sh
 rustup toolchain install 1.98.1 --profile minimal --component rustfmt --component clippy
 cargo fetch --locked
 ```
 
-Keep compiler/dependency changes separately scoped and qualified. Native GPUI targets macOS Apple Silicon first and requires an unlocked graphical session for interaction checks. Linux headless checks do not establish native readiness.
+Native GPUI targets macOS Apple Silicon first and requires an unlocked graphical session for interaction checks. Linux headless checks do not establish native readiness.
 
 For actual native Linux interaction in the saved cloud environment, follow the
 [Linux display, build and acceptance workflow](linux-cloud-ui.md). It uses the
@@ -30,7 +26,7 @@ remains separate.
 
 Use a task-owned Cargo target directory or a known compatible shared cache, plus a fresh explicit absolute BRN `--data-dir` outside Git. Use synthetic material. The core checks directory marker, application ID and supported schema before opening; incompatible old BRN data refuses without migration.
 
-Current schema **13** adds an admission gate for Capture review and privacy semantics, so older writers cannot ignore its durable proposal fence. Schema12 added machine-local inbox configuration/status after schema11’s optional Action ownership, waiting-on and follow-up fields, on top of schema10’s document converter/AI preferences and schema9’s scoped MCP policy and host-only external-data authority semantics (schema 8 introduced skill policy/fencing and delivered identities; schema 7 introduced scoped writing configuration). CLI opens of schema 3–12 refuse unchanged with `upgrade_required`; only explicit `upgrade --backup-directory ABSOLUTE_DIR` upgrades after an external verified backup. The desktop retains backup-first open using its remembered folder. Old backups upgrade only their unpublished restore copy. Preserve the pre-upgrade backup when rolling back source: older executables refuse schema13 rather than downgrade it. Scoped skill references and selection survive SQLite recovery; local instruction bytes do not. Preserve original packages and explicitly reinstall the exact approved bytes before using a restored selection. Missing/mismatched packages stay unavailable; installation alone never enables them.
+Current schema is **13**. CLI opens of schema 3–12 refuse with `upgrade_required`; `upgrade --backup-directory ABSOLUTE_DIR` upgrades after a verified external backup, and the desktop backs up before upgrading. Older executables refuse newer schemas rather than downgrade, so keep the pre-upgrade backup when rolling back source. Restored skill selections need their original packages reinstalled before use.
 
 Build the two normal document helpers from the verified cached package and accepted optional bundle:
 
@@ -48,12 +44,10 @@ The superseded typed reader, prepared-page AI protocol and Poppler tooling are r
 
 Offline in-process CLI refinement qualification uses the nondefault `scripted-document-tests` alias for existing `brn-ai/scripted-runs`. Ordinary CLI/native entry points have no transport/endpoint override. Maintained verification/CI includes this explicit lane; it is not a live-provider or subprocess AI-success proof.
 
-Provider/account checks follow the current assignment and normal authentication flow; keep credentials out of outputs. Successful builds and component tests are separate from native usability and owner acceptance.
 
+## Local instruction packages
 
-## Local instruction packages (D3a management only)
-
-An explicit owner command can copy an instruction/reference folder into the current workspace’s managed `skills/` configuration:
+A command can copy an instruction/reference folder into the current workspace’s managed `skills/` configuration:
 
 ```sh
 brn --json --data-dir /absolute/workspace skills
