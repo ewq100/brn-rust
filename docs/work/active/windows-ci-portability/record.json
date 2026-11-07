@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-06T22:10:38.537844+00:00",
+    "observed_at": "2026-11-07T03:48:43.534242+00:00",
     "goal": "Complete native and approved published-update acceptance for the qualified combined Mac alpha on selected runtimea921e325.",
-    "owner_attention": "A handoff resolved. B built/qualified exacta921e325 local alpha.1/build3 and alpha.2/build4;32tests, relocated imports, local substituted-transport update and full backup/restore pass. Slot released21:56:38Z; B holds no Mac mini reservation. Owner clarified D/E use the separate MacBook; no cross-host wait. Native profile/login and explicit release-manifest approval remain.",
+    "owner_attention": "B continuation now owned on selected MacBook EMB-60VVL9KC. Compatible arm64/macOS26.5; PR268 checkpoint94c11669 has7green CI and completed clean code/security receipts. Original package folder transfer and disposable test profile await owner action; Pinned test-only CLI built/identity checked; synthetic backup/restore smoke passes. No B host reservation. Finish available local native acceptance before release decision; no publication approval inferred.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -239,16 +239,17 @@
       {
         "id": "mac-updater-253",
         "title": "Implement and qualify the versioned Mac updater",
-        "owner": "Agent B",
-        "state": "active",
-        "activity": "Exact selected a921e32533dc03134ed8a2001bd82f27194c3302 compiled cleanly in B target (native-ui,arm64,macOS15+,Rust1.98.1); two helpers built/revalidated; signed local A3/B4 packages qualified.32packaging/updater/preparation cases pass; both helpers8formats/16imports, real local A→B/external-file preservation/B headless reopen and full synthetic backup/restore pass. A dependency resolved; Mac slot RELEASED21:56:38Z before22:30cap. Local deliverables and Shared copy ready; no native/live/stock HTTPS/publication claim.",
-        "observed_at": "2026-11-06T22:10:38.537844+00:00",
+        "owner": "Agent B (MacBook continuation)",
+        "state": "blocked",
+        "activity": "Took over existing branch/PR268 on selected MacBook in isolated brn-mac-alpha-253 at94c11669; fixed package/runtimea921e325 preserved. Refreshed7CI/code/security clean on94c11669, zero review threads. Host arm64/macOS26.5 supports prepared packages. Strict SSH refused untrusted Mac mini host key; owner folder-copy requested. D/E confirm no heavy/timing/native conflict; missing test CLI built locked/offline jobs1 from clean exact source in dedicated target; arm64/deployment identity and synthetic create/backup/fresh-restore smoke pass. Verified persistent CLI in separate Shared test-tools folder. B build processes finished; no reservation. No native/provider/publication action.",
+        "observed_at": "2026-11-07T03:48:43.534242+00:00",
         "origin": "observed",
-        "next_action": "Owner reviews draft PR268 alpha.1/build3 manifest/notes/publication proposal; do not merge/publish without explicit release approval. Existing workflow must build actual approved main A, then later approved increasing B before unchanged stock HTTPS witness. Arrange one combined B/A native session when disposable profile unlocked/tester Copilot login available. B holds no slot; D/E use the separate MacBook and need no B release window. Coordinate only actual shared host/account resources.",
+        "next_action": "Owner copies Mac mini /Users/Shared/BRN-alpha-a921e325-acceptance to same MacBook path and signs into a disposable standard macOS test account. B verifies transferred ZIP/manifests/signatures, completes available combined B/A native Copilot/web/Luna/writing/restart/backup session with normal owner Gatekeeper/device login. Then present one concrete remaining alpha.1/build3 release decision. Published browser/Gatekeeper and stock HTTPS wait for actual approved hosted A and separately approved increasing B; use existing workflow. Coordinate only actual D/E host/account overlap.",
         "depends_on": [],
         "resource_waits": [
-          "Mac mini screen last observed locked; one disposable-profile native Gatekeeper/launch/Copilot login session needs owner presence. Second Copilot account required for observed account-switch case, otherwise not observed.",
-          "Explicit owner approval and actual immutable publication of command-enabled A/B are required for real stock HTTPS; existing legacy previews lack updater."
+          "Original signed artifacts/public fixtures not on this MacBook: strict SSH lacks trusted host key; owner asked for one complete folder copy.",
+          "No disposable test profile identified; owner prepares standard clean macOS account and normal Gatekeeper/Copilot participation. Second account/optional denial cases remain unobserved if unavailable.",
+          "Explicit owner release approval not found; actual approved immutable command-enabled A/B needed for browser-download/Gatekeeper and stock HTTPS. No alpha release exists."
         ],
         "evidence": [
           "https://github.com/ewq100/brn-rust/issues/253",
@@ -265,13 +266,20 @@
           "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6694348350",
           "docs/work/active/windows-ci-portability/evidence/mac-updater-253/alpha-a921e325/README.md",
           "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6696862621",
-          "https://github.com/ewq100/brn-rust/pull/268"
+          "https://github.com/ewq100/brn-rust/pull/268",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-20261107/README.md",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-20261107/native-session.md",
+          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6701756635",
+          "https://github.com/ewq100/brn-rust/actions/runs/42302755459",
+          "https://github.com/ewq100/brn-rust/pull/268#issuecomment-6697165573",
+          "https://github.com/ewq100/brn-rust/pull/268#issuecomment-6697213944",
+          "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-20261107/cli-build-and-smoke.json"
         ],
         "gates": {
           "implementation": "Implemented bundled command, strict fixed-repository package verification, normal-closure/concurrency exclusion, staged recoverable replacement, shell-owned descriptor guard, repeatable recovery, alpha-compatible packaging and instructions. Independent reviewer has no remaining findings; production updater SHA256 7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5.",
-          "checks": "Refreshed combination:349passed+11skipped=360local tooling,fmt/syntax/overview/links clean. All7 hosted PR lanes pass. Current Codex code clean; separate automated security receipt explicitly reports no issues on0438bd60. Full-detail report account login unavailable/not inspected; additional independent full-task security review clear; workflow does not itself grant a fallback waiver. Prior source-bound local transport-substituted A/B and Linux ETXTBSY evidence retained. All4 required resulting-main contexts passed in42279604581, including25 Mac packaging/updater cases and the original Ubuntu fixture test. All3 optional Windows lanes fail in unchanged composer/skills paths, retained visibly. Final selecteda921e325: all4 required hosted contexts pass in42294766975;32local packaging/updater/preparation cases pass; relocated helpers8formats/16imports and local real-package A→B/full-restore pass. Original failed verifier assumptions/path failure retained and diagnosed; no production repair or skipped case. Independent approval review clear onac5deeef; archival-verifier P3 documentation fixed97199fe2 and independently rechecked with31 checksums passing. Final docs/currentmain machine clarification follows; no new runtime changes.",
-          "integration": "SATISFIED updater source integration: normal merge28051188, tree identical to reviewed0438bd60, all7PR lanes pass in42276377509. All4 required resulting-main42279604581 contexts pass; overall run fails only3 inherited optional Windows lanes; no publication. A264/265 handoff resolved; a921e325 is selected and normally reconciled into acceptance branch. Publication proposal stays draft pending explicit owner approval; actual approved main manifest remains legacy until that approval/merge. Currentmain c388da26 (C266 docs/evidence only) normally merged into acceptance branch; C task objects preserved exactly. Qualified runtime staysa921e325; runtime/Cargo/CI tree unchanged. Draft release-approval PR268 opened; no merge/publication. Its current-head CI and Codex code/security are separate pending checks; older source receipts are not substituted.",
-          "native": "PENDING: exact combined packages ready, screen locked. See current native-session runbook for one B/A disposable-profile Gatekeeper/Copilot/backup/update session. No Mac slot reserved; headless results are not native acceptance.",
+          "checks": "Refreshed combination:349passed+11skipped=360local tooling,fmt/syntax/overview/links clean. All7 hosted PR lanes pass. Current Codex code clean; separate automated security receipt explicitly reports no issues on0438bd60. Full-detail report account login unavailable/not inspected; additional independent full-task security review clear; workflow does not itself grant a fallback waiver. Prior source-bound local transport-substituted A/B and Linux ETXTBSY evidence retained. All4 required resulting-main contexts passed in42279604581, including25 Mac packaging/updater cases and the original Ubuntu fixture test. All3 optional Windows lanes fail in unchanged composer/skills paths, retained visibly. Final selecteda921e325: all4 required hosted contexts pass in42294766975;32local packaging/updater/preparation cases pass; relocated helpers8formats/16imports and local real-package A→B/full-restore pass. Original failed verifier assumptions/path failure retained and diagnosed; no production repair or skipped case. Independent approval review clear onac5deeef; archival-verifier P3 documentation fixed97199fe2 and independently rechecked with31 checksums passing. Final docs/currentmain machine clarification follows; no new runtime changes. MacBook refreshed checkpoint94c11669: all7proposal lanes pass in42302755459; current code/security receipts completed/no findings; zero review threads. Development native preflight passes. These reviews/checks apply to94c11669, not later documentation commits. MacBook continuation preparation:16overview tests,741Markdown files/3705links at last scan, generated overview/whitespace and27historical checksums pass;5other task objects preserved. New exacta921 CLI built and synthetic backup/restore smoke passed, with source/binary receipt. Final documentation scan is recorded in preparation-checks.json.",
+          "integration": "SATISFIED updater source integration: normal merge28051188, tree identical to reviewed0438bd60, all7PR lanes pass in42276377509. All4 required resulting-main42279604581 contexts pass; overall run fails only3 inherited optional Windows lanes; no publication. A264/265 handoff resolved; a921e325 is selected and normally reconciled into acceptance branch. Publication proposal stays draft pending explicit owner approval; actual approved main manifest remains legacy until that approval/merge. Currentmain c388da26 (C266 docs/evidence only) normally merged into acceptance branch; C task objects preserved exactly. Qualified runtime staysa921e325; runtime/Cargo/CI tree unchanged. Draft release-approval PR268 opened; no merge/publication. Proposal94c11669 own CI7/7 and code/security receipts now completed/no findings, freshly inspected on MacBook. PR stays draft/unmerged pending explicit owner release approval; later continuation documentation needs applicable renewed checks/review.",
+          "native": "PENDING on owner-selected MacBook: compatible host verified; original artifacts await copy/verification, disposable standard test account and normal Gatekeeper/Copilot login participation requested. Current MacBook runbook supersedes execution location. All app journeys unobserved; copied-package and published browser/stock-HTTPS legs remain separate.",
           "owner_acceptance": "PENDING: owner native use before invited distribution. Local alpha.1/build3 and alpha.2/build4 are proposed-version candidates; approved published A/B and stock HTTPS remain outstanding. Release-manifest proposal is draft, no merge/publication authority inferred."
         },
         "attempts": [
@@ -325,10 +333,17 @@
               "https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693488177",
               "https://github.com/ewq100/brn-rust/pull/258#issuecomment-6693227873"
             ]
+          },
+          {
+            "outcome": "MacBook strict batch SSH to existing brn-rust alias exited255: no trusted ED25519 host key for evos-mac-mini.local; originals absent locally.",
+            "change": "No bypass or credential copy. Owner given one complete Shared folder-copy step; continue light preparation and missing pinned CLI build while awaiting artifacts/profile.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/evidence/mac-updater-253/macbook-20261107/takeover.json"
+            ]
           }
         ],
         "authority": {
-          "source": "Current owner: continue Agent B PR258 integration through normal merge once applicable gates pass; final package/update/native acceptance in253; coordinate A response-limit fixes and Copilot acceptance.",
+          "source": "Current owner: continue Agent B existing253 branch/PR268 on THIS MacBook; retrieve original artifacts, build only missing test CLI if needed, own combined B/A native acceptance, update existing records and continue already authorized release workflow. Machine transfer does not approve publication.",
           "limits": "Synthetic disposable installations/data only. No owner-store/credential copying, forced quit, security bypass or publication without existing release-manifest approval. Preserve A/C work."
         },
         "resources": {

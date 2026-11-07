@@ -1,0 +1,26 @@
+{
+  "observed_at": "2026-11-07T03:40:18.704955+00:00",
+  "host": "EMB-60VVL9KC",
+  "macos": "26.5",
+  "os_build": "25F71",
+  "architecture": "arm64",
+  "compatible_with_prepared_packages": true,
+  "continuation_owner": "MacBook conversation 8e0364f8-7b83-4165-bd93-fc6b08007931",
+  "checkout": "/Users/evokessler/repos/brn-mac-alpha-253",
+  "branch": "work/mac-alpha-acceptance-253",
+  "checkpoint": "94c11669f9148bcd95910bd32ca7675aefc7b348",
+  "remote_main": "c388da267a9e41cfe9d65051cd27b95817c9a523",
+  "runtime_package_source": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "artifact_transfer": {
+    "status": "pending_owner_copy",
+    "source": "Mac mini:/Users/Shared/BRN-alpha-a921e325-acceptance",
+    "destination": "MacBook:/Users/Shared/BRN-alpha-a921e325-acceptance",
+    "attempt": "ssh -o BatchMode=yes -o ConnectTimeout=8 -o StrictHostKeyChecking=yes brn-rust",
+    "exit": 255,
+    "reason": "No ED25519 host key is known for evos-mac-mini.local and you have requested strict checking. Host key verification failed."
+  },
+  "prior_B_remote_activity": "Not independently observable: linked-environment tool unavailable; SSH stopped at host authentication. Current owner handoff supersedes prior B execution; takeover posted on253 before branch writes. No second B thread found in this MacBook project.",
+  "clean_profile": "No disposable account identified; existing evokessler and managed jamfmgmtacc preserved. Owner asked to prepare a standard clean test account.",
+  "native": "not_started",
+  "publication": "not_approved_or_published"
+}

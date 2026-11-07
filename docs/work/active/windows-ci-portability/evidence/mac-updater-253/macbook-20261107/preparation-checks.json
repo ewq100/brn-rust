@@ -1,0 +1,26 @@
+{
+  "checks": {
+    "native_development_preflight": "pass",
+    "work_overview_tests": {
+      "passed": 16,
+      "failed": 0
+    },
+    "markdown_links": {
+      "files": 741,
+      "links": 3705,
+      "failures": 0
+    },
+    "generated_overview": "pass",
+    "whitespace": "pass",
+    "historical_alpha_checksums_valid": 27,
+    "historical_alpha_evidence_changed": false,
+    "unrelated_task_objects_preserved": 5,
+    "test_cli_build_and_synthetic_smoke": "pass; source and binary identity captured separately"
+  },
+  "limits": [
+    "No transferred-artifact verification: folder absent",
+    "No native/provider or owner acceptance",
+    "No published command-enabled A/B or stock HTTPS witness",
+    "CI/code/security refreshed only for proposal checkpoint94c11669; continuation documentation requires current-head review"
+  ]
+}

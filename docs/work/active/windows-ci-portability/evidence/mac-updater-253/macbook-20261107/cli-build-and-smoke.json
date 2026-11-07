@@ -1,0 +1,72 @@
+{
+  "observed_at": "2026-11-07T03:48:02.893925+00:00",
+  "host": "EMB-60VVL9KC",
+  "source_sha": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "source_clean_before_after": true,
+  "cargo_lock_sha256": "3122299c6b07dc65427f6ffba110f571e06ecc08fb8550df4648a08f3dd09959",
+  "rustc": "rustc 1.98.1 (48a229cea 2026-09-01)\nbinary: rustc\ncommit-hash: 48a229ceaefd4985c50990b14116b6d856af0985\ncommit-date: 2026-09-01\nhost: aarch64-apple-darwin\nrelease: 1.98.1\nLLVM version: 22.1.8",
+  "command": "MACOSX_DEPLOYMENT_TARGET=15.0 CARGO_TARGET_DIR=/private/tmp/brn-mac-alpha-253-20261107/target cargo build --release -p brn --locked --offline --jobs 1",
+  "build_exit": 0,
+  "binary_path": "/private/tmp/brn-mac-alpha-253-20261107/target/release/brn",
+  "binary_identity": {
+    "sha256": "46a99f7af3ad37c0f7ebc3ecedd7233dad3e4bc20dd1a3db6d53e133e4de21e3",
+    "architecture": "arm64",
+    "minimum_macos": "15.0",
+    "libraries": [
+      "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+      "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+      "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+      "/usr/lib/libiconv.2.dylib",
+      "/usr/lib/libSystem.B.dylib"
+    ]
+  },
+  "checks": {
+    "machine_help_valid_json": true,
+    "synthetic_init_note_create": true,
+    "synthetic_backup_quick_check": "ok",
+    "fresh_restore_notes_equal": true
+  },
+  "calls": [
+    {
+      "command": "init",
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "note-create",
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "notes",
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "backup",
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "restore",
+      "exit": 0,
+      "status": "ok"
+    },
+    {
+      "command": "notes",
+      "exit": 0,
+      "status": "ok"
+    }
+  ],
+  "limits": [
+    "Test-only CLI; no desktop/helper package rebuild",
+    "No helper/import/provider or native app execution",
+    "No transferred-artifact or stock HTTPS qualification",
+    "Synthetic data used and removed; personal workspaces and credentials untouched"
+  ],
+  "verified_copy": {
+    "path": "/Users/Shared/BRN-alpha-a921e325-macbook-test-tools/brn",
+    "sha256": "46a99f7af3ad37c0f7ebc3ecedd7233dad3e4bc20dd1a3db6d53e133e4de21e3",
+    "purpose": "test-only CLI; separate from original release artifacts"
+  }
+}
