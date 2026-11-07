@@ -817,25 +817,12 @@ fn applied(outcome: ApplyOutcome) -> Value {
     }
 }
 fn effort(text: &str) -> Result<ReasoningEffort> {
-    match text {
-        "low" => Ok(ReasoningEffort::Low),
-        "medium" => Ok(ReasoningEffort::Medium),
-        "high" => Ok(ReasoningEffort::High),
-        _ => Err(CliError::invalid_value(
-            "effort",
-            "Effort must be low, medium or high",
-        )),
-    }
+    ReasoningEffort::from_setting(text)
+        .ok_or_else(|| CliError::invalid_value("effort", "Effort must be low, medium or high"))
 }
 fn provider(text: &str) -> Result<Provider> {
-    match text.to_lowercase().as_str() {
-        "codex" | "chatgpt" => Ok(Provider::Chatgpt),
-        "copilot" => Ok(Provider::Copilot),
-        _ => Err(CliError::invalid_value(
-            "provider",
-            "Provider must be Codex or Copilot",
-        )),
-    }
+    Provider::from_setting(text)
+        .ok_or_else(|| CliError::invalid_value("provider", "Provider must be Codex or Copilot"))
 }
 fn preparation_cli_error(error: RunPreparationError) -> CliError {
     match error {

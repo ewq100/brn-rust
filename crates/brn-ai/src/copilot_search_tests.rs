@@ -1,4 +1,6 @@
 use super::*;
+#[cfg(unix)]
+use crate::Auth;
 use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
 
 const TOKEN_URL: &str = "https://api.github.com/copilot_internal/v2/token";
@@ -294,4 +296,27 @@ async fn an_oversized_reply_is_refused_while_it_is_received() {
     .await;
     assert_eq!(result.unwrap_err(), SearchError::MalformedResponse);
     assert_eq!(http.requests().len(), 2);
+}
+
+#[tokio::test]
+async fn transient_search_failure_has_no_chat_resend_or_route_fallback() {
+    let (_root, dir) = account(b"SYNTHETIC_GITHUB");
+    let (result, http) = run_with(
+        request(&dir, "public query"),
+        vec![
+            session(),
+            MockHttpResponse::error(
+                rig::http_client::StatusCode::SERVICE_UNAVAILABLE,
+                r#"{"error":{"message":"synthetic transient failure"}}"#,
+            ),
+        ],
+    )
+    .await;
+    assert!(result.is_err());
+    assert_eq!(
+        http.requests().len(),
+        2,
+        "one authentication and one search, no resend"
+    );
+    assert_eq!(http.requests()[1].uri, RESPONSES_URL);
 }

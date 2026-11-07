@@ -1,7 +1,8 @@
 //! Host-owned, tool-free document conversion transport. Source content never supplies authority.
-use crate::auth::{AccountPin, OwnedClient, copilot_completion};
+use crate::auth::{AccountPin, OwnedClient};
 use crate::chat::collect_stream;
-use crate::{AiError, AiErrorKind, AiTerminal, Auth, Provider, ReasoningEffort, Selection};
+use crate::provider::{ProviderOperation, copilot_completion};
+use crate::{AiError, AiErrorKind, AiTerminal, Provider, ReasoningEffort, Selection};
 use brn_threads_intake::ConversionError;
 use futures::StreamExt;
 use rig::agent::MultiTurnStreamItem;
@@ -102,8 +103,7 @@ impl ConversionAccount {
                 credentials_dir: credentials_dir.map(Path::to_owned),
             },
             Some(Provider::Copilot) => Self::Copilot {
-                account: credentials_dir
-                    .and_then(|dir| Auth::open(dir).ok()?.copilot_account().ok()),
+                account: Provider::Copilot.capture_account(credentials_dir),
                 credentials_dir: credentials_dir.map(Path::to_owned),
             },
             None => Self::Unsupported,
@@ -117,63 +117,44 @@ async fn conversion_client(
     transport: Option<DynHttpClient>,
     cancel: &CancellationToken,
 ) -> Result<rig_core::DynModel<rig_core::operation::Completion>, AiError> {
-    let with_transport = |auth: Auth| match transport.clone() {
-        Some(http) => auth.with_http(http),
-        None => auth,
-    };
-    match account {
+    let (provider, auth_file, credentials_dir, pin) = match account {
         ConversionAccount::Chatgpt {
             auth_file,
             credentials_dir,
-        } => {
-            let selection = Selection {
-                provider: Provider::Chatgpt,
-                model: MODEL.into(),
-            };
-            let client = if let Some(file) = auth_file {
-                crate::codex_auth::codex_client_pinned(
-                    file,
-                    &selection,
-                    None,
-                    transport
-                        .clone()
-                        .unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
-                    cancel.clone(),
-                )
-                .await?
-            } else if let Some(dir) = credentials_dir {
-                with_transport(Auth::open(dir)?)
-                    .client(&selection, cancel.clone())
-                    .await?
-            } else {
-                return Err(AiError::new(AiErrorKind::ReconnectNeeded));
-            };
-            let OwnedClient::Chatgpt(client) = client.inner else {
-                return Err(AiError::new(AiErrorKind::ModelRefused));
-            };
-            Ok(client.completion(MODEL).into())
-        }
+        } => (
+            Provider::Chatgpt,
+            auth_file.as_deref(),
+            credentials_dir.as_deref(),
+            None,
+        ),
         ConversionAccount::Copilot {
             credentials_dir: Some(dir),
             account: Some(pin),
-        } => {
-            let selection = Selection {
-                provider: Provider::Copilot,
-                model: MODEL.into(),
-            };
-            let auth = with_transport(Auth::open(dir)?);
-            auth.check_copilot_account(pin)?;
-            let client = auth.client(&selection, cancel.clone()).await?;
-            auth.check_copilot_account(pin)?;
-            let OwnedClient::Copilot(client) = client.inner else {
-                return Err(AiError::new(AiErrorKind::ModelRefused));
-            };
-            // Copilot serves GPT-6 Luna on its Responses route only.
+        } => (Provider::Copilot, None, Some(dir.as_path()), Some(pin)),
+        ConversionAccount::Copilot { .. } | ConversionAccount::Unsupported => {
+            return Err(AiError::new(AiErrorKind::ReconnectNeeded));
+        }
+    };
+    let selection = Selection {
+        provider,
+        model: MODEL.into(),
+    };
+    let (client, _) = ProviderOperation {
+        selection: &selection,
+        auth_file,
+        credentials_dir,
+        account: pin,
+        cache_key: None,
+    }
+    .client(transport, cancel)
+    .await?;
+    match (provider, client.inner) {
+        (Provider::Chatgpt, OwnedClient::Chatgpt(client)) => Ok(client.completion(MODEL).into()),
+        (Provider::Copilot, OwnedClient::Copilot(client)) => {
+            // Copilot serves GPT-6 Luna on Responses only; no run resend/fallback.
             Ok(copilot_completion(&client, MODEL.into(), true).into())
         }
-        ConversionAccount::Copilot { .. } | ConversionAccount::Unsupported => {
-            Err(AiError::new(AiErrorKind::ReconnectNeeded))
-        }
+        _ => Err(AiError::new(AiErrorKind::ModelRefused)),
     }
 }
 

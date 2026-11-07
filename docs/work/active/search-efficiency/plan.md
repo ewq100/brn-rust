@@ -23,3 +23,7 @@ The experiment has not started. First live preflight starts a continuous four-ho
 ## Checks and acceptance risks
 
 Use synthetic public fixtures and explicit fresh data directories. Evidence must retain failed tool calls and Message/archived records, refuse incomplete traces and unknown usage, and bind grades to actual packets, instructions and runtime. Tests must exercise these concrete regressions. Run relevant Python benchmark tests, formatting, Rust judge tests/lint and current repository CI. Historical scores remain unchanged by collector repairs. No improvement, merge, native observation or owner acceptance is claimed in this preparation record.
+
+## Main reconciliation
+
+Merged main `8b07e035` (#267 shared provider operations) into the salvage branch after its first review. Rust changes auto-merged. Preserved all main task records and the issue256 task, and regenerated the overview. Current-head checks and reviews are refreshed before integration.

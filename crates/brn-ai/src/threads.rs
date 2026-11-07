@@ -1,7 +1,7 @@
 //! One fresh Rig invocation over BRN-owned state. Tool scope is in-process only.
 use crate::auth::{AccountPin, OwnedClient};
 use crate::{
-    AiAnswer, AiError, AiErrorKind, AiEvent, AiResult, AiTerminal, Auth, Provider, ProviderClient,
+    AiAnswer, AiError, AiErrorKind, AiEvent, AiResult, AiTerminal, Provider, ProviderClient,
     ReasoningEffort, Selection,
 };
 use brn_threads_core::*;
@@ -2925,7 +2925,10 @@ pub fn prepare_run(mut request: ThreadRunRequest) -> AiResult<PreparedThreadRun>
         source.reference = brn_threads_core::canonical_locator(&source.reference);
     }
     let (scope, input, summary_chunks) = begin_context(&request)?;
-    let account = capture_account(&request.selection, request.credentials_dir.as_deref());
+    let account = request
+        .selection
+        .provider
+        .capture_account(request.credentials_dir.as_deref());
     Ok(PreparedThreadRun {
         request,
         scope,
@@ -2933,18 +2936,6 @@ pub fn prepare_run(mut request: ThreadRunRequest) -> AiResult<PreparedThreadRun>
         summary_chunks,
         account,
     })
-}
-
-/// The Copilot account a model operation starts with, captured once so a
-/// later sign-in to another account can never serve it.
-pub(crate) fn capture_account(
-    selection: &Selection,
-    credentials_dir: Option<&std::path::Path>,
-) -> Option<AccountPin> {
-    if selection.provider != Provider::Copilot {
-        return None;
-    }
-    Auth::open(credentials_dir?).ok()?.copilot_account().ok()
 }
 
 /// The current Messages of `chat` in durable receipt order, as a Run sees
@@ -3043,81 +3034,24 @@ pub async fn run_prepared(
     run_prepared_over(prepared, cancel, emit, None).await
 }
 
-/// The provider client for a run. A Codex run's cache key pins its
-/// `session-id` on top of `transport` (the shared HTTP client when `None`).
-#[allow(clippy::too_many_arguments)]
-async fn provider_client(
-    selection: &Selection,
-    auth_file: Option<&std::path::Path>,
-    credentials_dir: Option<&std::path::Path>,
-    account: Option<&AccountPin>,
-    cache_key: Option<&str>,
-    transport: Option<DynHttpClient>,
-    on_resend: crate::resend::OnResend,
-    cancel: &CancellationToken,
-) -> AiResult<ProviderClient> {
-    provider_client_context(
-        selection,
-        auth_file,
-        credentials_dir,
-        account,
-        cache_key,
-        transport,
-        on_resend,
-        cancel,
-    )
-    .await
-    .map(|(client, _)| client)
-}
-
-/// A Copilot client is served only by `account`, the account its operation
-/// started with: a different sign-in before or during authentication, or any
-/// sign-in when none was captured, refuses rather than switches accounts.
-#[allow(clippy::too_many_arguments)]
-async fn provider_client_context(
-    selection: &Selection,
-    auth_file: Option<&std::path::Path>,
-    credentials_dir: Option<&std::path::Path>,
-    account: Option<&AccountPin>,
-    cache_key: Option<&str>,
+/// Run-only transport retry reporting. Authentication/account policy is shared;
+/// conversion and search deliberately do not acquire this resend decorator.
+async fn run_provider_client(
+    operation: crate::provider::ProviderOperation<'_>,
     transport: Option<DynHttpClient>,
     on_resend: crate::resend::OnResend,
     cancel: &CancellationToken,
 ) -> AiResult<(ProviderClient, Option<String>)> {
-    let http = crate::resend::ResendOnce::wrap(
-        transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
-        crate::resend::RESEND_DELAY,
-        on_resend,
-    );
-    // A Codex auth file only serves ChatGPT; Copilot always uses its credentials folder.
-    let codex_file = auth_file.filter(|_| selection.provider == Provider::Chatgpt);
-    if let Some(file) = codex_file {
-        crate::codex_auth::codex_client_pinned(file, selection, cache_key, http, cancel.clone())
-            .await
-            .map(|client| (client, None))
-    } else if let Some(dir) = credentials_dir {
-        let auth = Auth::open(dir)?.with_http(http);
-        if selection.provider != Provider::Copilot {
-            let client = auth
-                .client_pinned(selection, cache_key, cancel.clone())
-                .await?;
-            return Ok((client, None));
-        }
-        // No account captured at start (signed out or unreadable then) never
-        // adopts a sign-in made since.
-        let started = account
-            .cloned()
-            .ok_or_else(|| AiError::new(AiErrorKind::ReconnectNeeded))?;
-        auth.check_copilot_account(&started)?;
-        let client = auth
-            .client_pinned(selection, cache_key, cancel.clone())
-            .await?;
-        auth.check_copilot_account(&started)?;
-        let fingerprint = started.fingerprint().map(str::to_owned);
-        Ok((client, fingerprint))
-    } else {
-        Err(AiError::new(AiErrorKind::ReconnectNeeded))
-    }
+    operation
+        .client(
+            Some(crate::resend::ResendOnce::wrap(
+                transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
+                crate::resend::RESEND_DELAY,
+                on_resend,
+            )),
+            cancel,
+        )
+        .await
 }
 
 async fn run_prepared_over(
@@ -3201,12 +3135,14 @@ async fn run_prepared_over(
         Ok(()) => match mcp_runtime::connect(&scope, &cancel).await {
             Err(error) => Err(error),
             Ok(()) => {
-                provider_client_context(
-                    &request.selection,
-                    request.auth_file.as_deref(),
-                    request.credentials_dir.as_deref(),
-                    account.as_ref(),
-                    None,
+                run_provider_client(
+                    crate::provider::ProviderOperation {
+                        selection: &request.selection,
+                        auth_file: request.auth_file.as_deref(),
+                        credentials_dir: request.credentials_dir.as_deref(),
+                        account: account.as_ref(),
+                        cache_key: None,
+                    },
                     Some(base_http.clone()),
                     on_resend.clone(),
                     &cancel,
@@ -3618,13 +3554,8 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         }
     });
     if let Some((_, s)) = settings {
-        let provider_matches = match request.selection.provider {
-            Provider::Chatgpt => {
-                s.provider.eq_ignore_ascii_case("codex")
-                    || s.provider.eq_ignore_ascii_case("chatgpt")
-            }
-            Provider::Copilot => s.provider.eq_ignore_ascii_case("copilot"),
-        };
+        let provider_matches =
+            Provider::from_setting(&s.provider) == Some(request.selection.provider);
         if !provider_matches
             || request.selection.model != s.model
             || request.effort.as_str() != s.effort
@@ -4425,10 +4356,10 @@ async fn run_copilot_budgeted(
     emit: Arc<dyn Fn(AiEvent) + Send + Sync>,
     budget: context_budget::Budget,
 ) -> AiAnswer {
-    let mut responses = rig::providers::copilot::wire::routes_through_responses(&model);
+    let mut responses = crate::provider::copilot_conversation_uses_responses(&model);
     loop {
         let answer = run_model_budgeted(
-            crate::auth::copilot_completion(client, model.clone(), responses),
+            crate::provider::copilot_completion(client, model.clone(), responses),
             scope.clone(),
             input,
             effort,
@@ -4441,7 +4372,7 @@ async fn run_copilot_budgeted(
         .await;
         // Copilot serves some non-Codex models only on Responses and refuses the
         // chat route before any output; retry the same model there once.
-        if copilot_responses_retry(responses, &answer, &cancel) {
+        if crate::provider::copilot_responses_retry(responses, &answer, &cancel) {
             responses = true;
             continue;
         }
@@ -4458,14 +4389,7 @@ fn name_response_limit(scope: &Scope, answer: &mut AiAnswer) {
         answer.terminal = AiTerminal::Failed(error);
     }
 }
-/// One empty Chat refusal may retry the SAME Copilot model on Responses.
-/// Shared by parent/helper chat and the tool-free semantic compactor.
-fn copilot_responses_retry(responses: bool, answer: &AiAnswer, cancel: &CancellationToken) -> bool {
-    !responses
-        && answer.text.is_empty()
-        && matches!(&answer.terminal,AiTerminal::Failed(error) if error.kind==AiErrorKind::ModelRefused)
-        && !cancel.is_cancelled()
-}
+
 fn run_preamble(scope: &Scope) -> String {
     let external = mcp_runtime::invocation(scope)
         .map(|m| m.catalogue_context())
@@ -6173,7 +6097,7 @@ mod tests {
             "synthetic-not-a-credential",
         )
         .connect(rig::http_client::DynHttpClient::new(http.clone()));
-        let model = crate::auth::copilot_completion(&client, "synthetic-model".into(), true)
+        let model = crate::provider::copilot_completion(&client, "synthetic-model".into(), true)
             .with_idle_timeout(idle);
         let events = Arc::new(std::sync::Mutex::new(Vec::new()));
         let seen = events.clone();

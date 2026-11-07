@@ -251,22 +251,8 @@ struct HelperChoice {
 }
 impl HelperChoice {
     fn from_settings(settings: &HelperSettings) -> Option<Self> {
-        let provider = if settings.provider.eq_ignore_ascii_case("copilot") {
-            Provider::Copilot
-        } else if ["codex", "chatgpt"]
-            .iter()
-            .any(|name| settings.provider.eq_ignore_ascii_case(name))
-        {
-            Provider::Chatgpt
-        } else {
-            return None;
-        };
-        let effort = match settings.effort.as_str() {
-            "low" => ReasoningEffort::Low,
-            "medium" => ReasoningEffort::Medium,
-            "high" => ReasoningEffort::High,
-            _ => return None,
-        };
+        let provider = Provider::from_setting(&settings.provider)?;
+        let effort = ReasoningEffort::from_setting(&settings.effort)?;
         let selection = Selection {
             provider,
             model: settings.model.clone(),
@@ -274,7 +260,9 @@ impl HelperChoice {
         selection.validate().ok()?;
         let credentials_dir = settings.credentials_dir.as_ref().map(PathBuf::from);
         Some(Self {
-            account: super::capture_account(&selection, credentials_dir.as_deref()),
+            account: selection
+                .provider
+                .capture_account(credentials_dir.as_deref()),
             selection,
             effort,
             auth_file: settings.auth_file.as_ref().map(PathBuf::from),
@@ -733,12 +721,14 @@ fn run_helper<'a>(
                         trace.retry(detail);
                     }
                 });
-                let client = provider_client(
-                    &choice.selection,
-                    choice.auth_file.as_deref(),
-                    choice.credentials_dir.as_deref(),
-                    choice.account.as_ref(),
-                    child.cache_key.as_deref(),
+                let client = run_provider_client(
+                    crate::provider::ProviderOperation {
+                        selection: &choice.selection,
+                        auth_file: choice.auth_file.as_deref(),
+                        credentials_dir: choice.credentials_dir.as_deref(),
+                        account: choice.account.as_ref(),
+                        cache_key: child.cache_key.as_deref(),
+                    },
                     Some(child.response_limit.wrap(wire_trace::wrap(
                         transport.unwrap_or_else(|| DynHttpClient::new(rig::rig_reqwest::shared())),
                         &child.trace,
@@ -749,7 +739,7 @@ fn run_helper<'a>(
                 )
                 .await;
                 match client {
-                    Ok(client) => match client.inner {
+                    Ok((client, _)) => match client.inner {
                         OwnedClient::Chatgpt(client) => {
                             run_model_budgeted(
                                 client.completion(model),

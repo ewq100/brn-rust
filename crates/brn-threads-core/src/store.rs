@@ -3335,14 +3335,16 @@ fn workspace_settings_on(conn: &Connection) -> Result<Option<WorkspaceSettings>>
 }
 pub(crate) fn run_matches_settings(run: &Run, settings: &WorkspaceSettings) -> bool {
     (run.provider.eq_ignore_ascii_case(&settings.provider)
-        || (subscription_provider(&run.provider) && subscription_provider(&settings.provider)))
+        || canonical_provider_name(&run.provider)
+            .zip(canonical_provider_name(&settings.provider))
+            .is_some_and(|(run, settings)| run == settings))
         && run.model == settings.model
         && run.effort == settings.effort
 }
 
-fn subscription_provider(provider: &str) -> bool {
-    provider.eq_ignore_ascii_case("codex") || provider.eq_ignore_ascii_case("chatgpt")
-}
+#[cfg(test)]
+#[path = "provider_identity_tests.rs"]
+mod provider_identity_tests;
 
 pub(crate) fn validate_backup_directory(workspace: &Path, directory: &Path) -> Result<PathBuf> {
     if !directory.is_absolute() || directory.to_str().is_none() {

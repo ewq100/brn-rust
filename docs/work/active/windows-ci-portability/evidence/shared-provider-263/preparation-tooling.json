@@ -1,0 +1,17 @@
+{
+  "source": "1efe4281a665b38d5ba93aaef0e5ac11b59bd295",
+  "receipts": [
+    {
+      "file": "preparation-tooling.log.gz",
+      "sha256": "3bca2b7af4c89f6944ac940472cb8e50411b90bbedf162636dbf0e0f5f7aec9f",
+      "exit_status": 1
+    },
+    {
+      "file": "preparation-tooling-corrected.log.gz",
+      "sha256": "d71dedf0dd842b9724169568e4f8406b7d0a0e3a572a512bce45fe49382834ba",
+      "exit_status": 0
+    }
+  ],
+  "diagnosis": "Initial invocation omitted cloud activation and subreaper: six archive lookup errors under default Cargo home; one unreaped process-group timeout failure. Corrected invocation activates configured Cargo home and uses existing subreaper; 360 total=329passed31skipped. No source change or assertion relaxation.",
+  "corrected_command": "source /workspace/brn-environment/activate.sh; python3 /workspace/brn-environment/run-with-reaping.py python3 -m unittest discover -s scripts/tests -v"
+}

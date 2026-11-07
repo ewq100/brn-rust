@@ -7,9 +7,9 @@
     "limits": "Normal publication, offline fixtures, CI and normal merge after passing checks. No production data, live provider/model calls, billing/security setting changes, check bypass, force-push or release."
   },
   "work_view": {
-    "observed_at": "2026-11-07T05:20:29.702547+00:00",
-    "goal": "Close cloud feedback Cycle 2 with honest no-change evidence; keep the later shared-provider refactor behind its handoff gates.",
-    "owner_attention": "Cycle 2 retained no workflow/configuration: cache-validity failure stopped repeated qualification. Required cloud Council diagnosis/review is unavailable. Cycle 2 PR checks/review and A selected-runtime/shared-file handoff remain before Stage 2.",
+    "observed_at": "2026-11-07T05:38:36.807435+00:00",
+    "goal": "Complete issue256 evidence-fix salvage and bounded product token hill-climb.",
+    "owner_attention": "Salvage PR273 reconciles merged shared-provider PR267. Current-head verification and normal merge remain before old-PR closeout and live experiment. B release artifacts remain separate; product clock unstarted.",
     "tasks": [
       {
         "id": "windows-ci",
@@ -142,15 +142,13 @@
         "id": "development-speed-255",
         "title": "Measure and improve development feedback (#255)",
         "owner": "Agent C / Codex (cloud)",
-        "state": "blocked",
-        "activity": "Cycle 1 merged in PR262 as6897fe56. Cloud Cycle 2 stopped with no retained change: package-only control exceeded overhead limits; one target-kind core pair returned earlier feedback but full gate+16.9%; shared source mtimes invalidated the UI comparison. Nine comparison attempts/67m29s, no completed ABBA/fresh confirmation. All3 edits executed intended tests/full gates; controlled focused/full/pipeline exits101, only the harmless test failed, original source bytes restored and core tests passed.",
-        "observed_at": "2026-11-06T23:21:25.106961+02:00",
+        "state": "complete",
+        "activity": "Cycle 1 merged in PR262 as6897fe56. Cloud Cycle 2 stopped with no retained change: package-only control exceeded overhead limits; one target-kind core pair returned earlier feedback but full gate+16.9%; shared source mtimes invalidated the UI comparison. Nine comparison attempts/67m29s, no completed ABBA/fresh confirmation. All3 edits executed intended tests/full gates; controlled focused/full/pipeline exits101, only the harmless test failed, original source bytes restored and core tests passed. PR266 merged c388da267a9e41cfe9d65051cd27b95817c9a523 under explicit owner instruction to skip unavailable Council.",
+        "observed_at": "2026-11-07T00:16:24.267564+02:00",
         "origin": "observed",
-        "next_action": "Publish the scoped Cycle 2 evidence PR, complete current-head hosted CI and Codex code/security follow-through, and inspect findings. Required Council gate stays incomplete until actual cloud skill/routes are available. Normal merge only after applicable gates pass; obtain A selected final runtime and explicit shared-file handoff before Stage 2.",
+        "next_action": "Cycle2no-change work is closed; preserve finite budget/evidence and optional Windows main failures. Stage2proceeds separately after current owner A-done confirmation; never relabel earlier measurements as refactor results.",
         "depends_on": [],
-        "resource_waits": [
-          "Required Council skill and authenticated independent delegate routes are unavailable in cloud."
-        ],
+        "resource_waits": [],
         "evidence": [
           "https://github.com/ewq100/brn-rust/issues/255",
           "docs/work/active/windows-ci-portability/development-speed-255.md",
@@ -160,14 +158,18 @@
           "docs/work/active/windows-ci-portability/development-speed-255-cycle2.md",
           "docs/work/active/windows-ci-portability/development-speed-255-cycle2-results.json",
           "docs/work/active/windows-ci-portability/evidence/development-speed-255-cycle2/raw.tar.gz",
-          "https://github.com/ewq100/brn-rust/issues/255#issuecomment-6695771708"
+          "https://github.com/ewq100/brn-rust/issues/255#issuecomment-6695771708",
+          "https://github.com/ewq100/brn-rust/pull/266",
+          "https://github.com/ewq100/brn-rust/actions/runs/42296353235",
+          "https://github.com/ewq100/brn-rust/pull/266#issuecomment-6696798503",
+          "https://github.com/ewq100/brn-rust/actions/runs/42300540347"
         ],
         "gates": {
           "implementation": "Documentation/evidence only. No performance workflow/configuration or product change retained; prescribed repeated qualification incomplete after cache-validity stop.",
-          "checks": "All three edited paths ran nonzero intended tests/full offline gates. Controlled focused/full/pipeline exits101 with only harmless failure; restored core/fmt pass. Local tooling360 total=329passed+31skipped; Markdown/overview/diff/syntax and archive hashes pass. Current-head hosted CI and Codex code/security tracked by the PR linked from255. Council diagnosis/final review INCOMPLETE: zero sessions/no score.",
-          "integration": "Cycle 1 PR262 merged6897fe56. Cycle 2 branch reconciled with updater/runtime main and A265 mergea921e325; Cycle 2 not merged. Required Council gap is not waived by ordinary review/CI.",
+          "checks": "All three edited paths ran nonzero intended tests/full offline gates. Controlled focused/full/pipeline exits101 with only harmless failure; restored core/fmt pass. Local tooling360 total=329passed+31skipped; Markdown/overview/diff/syntax and archive hashes pass. Current-head hosted CI and Codex code/security tracked by the PR linked from255. Council diagnosis/final review INCOMPLETE: zero sessions/no score. Final head76e1fb7e: all7 PR CI jobs pass, including required macOS and signed packaging/updater recovery. Current-head code/security receipts report no findings; zero unresolved threads. Owner explicitly skipped Council; it remains unperformed/no score.",
+          "integration": "Merged PR266 as c388da26; integrated tree equals reviewed76e1fb7e. Resulting-main run42300540347: all four required contexts pass, including Mac Core/UI/retrieval and Ubuntu Core; seven supported/documentation lanes pass. Two optional Windows native lanes failed before compilation on Chocolatey protoc HTTP504; normal retry requests were rejected while the overall run remained active. Windows Core lint failed and tests were still running at this observation; no overall-main pass claimed.",
           "native": "Inapplicable to this headless documentation/workflow experiment; hosted macOS/platform gates preserved. No new native or owner-Mac observation.",
-          "owner_acceptance": "Standing normal-merge authorization applies after applicable gates; no added manual native gate. Missing required Council review remains incomplete."
+          "owner_acceptance": "Owner explicitly instructed skipping unavailable Council, normal merge and starting Stage 2. No Council pass or native acceptance inferred."
         },
         "attempts": [
           {
@@ -334,46 +336,83 @@
       },
       {
         "id": "shared-provider-263",
-        "title": "Consolidate shared provider policy after runtime handoff",
+        "title": "Consolidate shared provider policy and qualify normal integration",
         "owner": "Agent C / Codex (cloud)",
-        "state": "blocked",
-        "activity": "Read-only caller/policy mapping completed separately from timing windows. Existing chat/helper client sharing and duplicated normalization, refinement/search account checks and route construction are mapped. A264 response-limit transport delta inspected at98802606. No refactor implementation branch/PR or maintainability result.",
-        "observed_at": "2026-11-06T23:21:25.106961+02:00",
+        "state": "active",
+        "activity": "Shared extraction and all setting/fence consumers implemented; final72bb6241 also forwards CLI/desktop canonical keys. Full cloud storage/end-to-end gate passes,771library tests/2parent-invoked fixture ignores,108steps1266checks. Three temporary tasks and fresh evaluator challenge pass both repaired baseline/candidate; failed/limited fixture attempts retained. No experimental policy ships. Final evidence batch now needs current-head hosted CI/code/security and normal merge.",
+        "observed_at": "2026-11-07T05:13:29.268453+00:00",
         "origin": "observed",
-        "next_action": "After Cycle 2 closeout and explicit A shared provider/runtime file release, branch from selected a921e325 (or a newer explicitly handed-off runtime), refresh the map, preserve contracts/response guard and coordinate later integration outside B first alpha.",
+        "next_action": "Finish current-head PR267 hosted CI including macOS, Codex code/security and thread disposition; reconcile live main/B publication window, normal merge and inspect resulting-main required checks. PR267 and #263/#253 own final completion receipts; this is the pre-merge qualification snapshot.",
         "depends_on": [
           {
             "task": "development-speed-255",
             "condition": "Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge",
-            "satisfied": false
+            "satisfied": true
           }
         ],
-        "resource_waits": [
-          "A explicit shared provider/runtime file-ownership handoff on the selected final runtime."
-        ],
+        "resource_waits": [],
         "evidence": [
           "https://github.com/ewq100/brn-rust/issues/263",
           "https://github.com/ewq100/brn-rust/issues/253",
-          "https://github.com/ewq100/brn-rust/pull/264"
+          "https://github.com/ewq100/brn-rust/pull/264",
+          "docs/work/active/windows-ci-portability/shared-provider-263.md",
+          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6696819563",
+          "docs/work/active/windows-ci-portability/evidence/shared-provider-263/baseline.json",
+          "https://github.com/ewq100/brn-rust/pull/267",
+          "https://github.com/ewq100/brn-rust/pull/267#issuecomment-6697023286",
+          "https://github.com/ewq100/brn-rust/pull/267#issuecomment-6697056622",
+          "docs/work/active/windows-ci-portability/evidence/shared-provider-263/preparation-tooling.json",
+          "docs/work/active/windows-ci-portability/evidence/shared-provider-263/qualification.json",
+          "docs/work/active/windows-ci-portability/evidence/shared-provider-263/maintenance.tar.gz",
+          "docs/work/active/windows-ci-portability/evidence/shared-provider-263/confirmation.tar.gz",
+          "https://github.com/ewq100/brn-rust/pull/272",
+          "https://github.com/ewq100/brn-rust/issues/263#issuecomment-6702635467",
+          "https://github.com/ewq100/brn-rust/issues/253#issuecomment-6702515036"
         ],
         "gates": {
-          "implementation": "Blocked. A264 merged98802606 and selected A265 mergeda921e325. Explicit C shared provider/runtime file handoff not observed. Read-only map only; no new client/routing policy implemented.",
-          "checks": "Not run for a refactor. Offline before/after request/account/route/bounds/checked-write tests and three policy-change tasks plus unseen confirmation remain required. No maintainability or elapsed-speed claim.",
-          "integration": "Separate branch/PR not created. Keep outside B first-alpha candidate and coordinate publication window/later adoption with A/B; preserve frozen254/256 experiments.",
-          "native": "Cloud offline implementation planned; existing A/B live/native receipts retain their source limits. Any observable behavior change needs its proper qualification.",
-          "owner_acceptance": "Current assignment authorizes the separate refactor after sequencing gates; no release/publication authority inferred."
+          "implementation": "Owner current A-is-done instruction reconciled at selecteda921e325. Existing setting/account/client/route/schema/retry policy now has shared owners; duplicate branches removed, distinct caller contracts retained. Auth behavior repair272 merged separately75f37221; final refactor branch merges that main normally.",
+          "checks": "Final72bb6241 full storage/end-to-end gate status0; libraries765\u2192771 with2parent-invoked fixture ignores, prior passing case names retained; strict Clippy and108step/1266check CLI journey.3temporary tasks pass before/after, corrected alias real configuration/run-fence acceptance and one fresh read-only evaluator challenge (same5new+2positive+37auth cases/arm) pass; sources restored. Original attempt overruns/fixture failures and model-identity/elapsed limits explicit in qualification.json. Current final-head hosted CI/reviews still required; earlier4ef reviews are historical. Council skipped per owner,0sessions/no score, not passed.",
+          "integration": "Repair272 normalmerge75f37221; its required-main contexts pass, optional3Windows failures outside product diff retained. Refactor267 now based on main, remains separate from B first-alpha a921e325. Inspect exact current-head/platform/review gates and B publication window before normal merge; no bypass/forcepush.",
+          "native": "Cloud implementation/offline transports only. Hosted macOS checks required; no owner Mac/credentials/live call. Earlier A/B/D/E receipts retain original sources. Later A/B selected-package combined account/chat/helper/summary/web/refinement journeys remain separate from cloud refactor qualification.",
+          "owner_acceptance": "Assigned cloud implementation and normal merge authorized. Owner explicitly selected one fresh read-only evaluator and skipped Council. No release/alpha publication authority or fresh live/native acceptance inferred."
         },
-        "attempts": []
+        "attempts": [
+          {
+            "outcome": "Initial extraction passed original763library tests; new during-auth fixture failed and reproduced on untouched runtime.",
+            "change": "Isolated baseline auth-write repair in separate272, qualified/merged75f37221; final before/after uses repairedce36. Four test-only inherited Auth imports were made explicit after initial compile failure.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/provider-auth-write-263.md",
+              "docs/work/active/windows-ci-portability/evidence/shared-provider-263/extraction-first-compile.log.gz",
+              "docs/work/active/windows-ci-portability/evidence/shared-provider-263/extraction-during-auth-failure.log.gz"
+            ]
+          },
+          {
+            "outcome": "All3pilot tasks passed each arm. Alias pilot omitted helper-save/run-fence coverage; stronger baseline first failed invalid canonical-folder setup.",
+            "change": "Shared core name identity and helper/runtime consumers; corrected sibling-folder fixture passes2intended cases per arm. Original2attempt allocation exceeded by setup invocation; all receipts retained, one bounded corrected run/arm, no coding-difficulty or elapsed claim.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/evidence/shared-provider-263/maintenance.tar.gz",
+              "docs/work/active/windows-ci-portability/evidence/shared-provider-263/qualification.json"
+            ]
+          },
+          {
+            "outcome": "Fresh read-only evaluator challenge accepted in both arms with exact same5newcases+2positivecontrols+37authchecks. Baseline first failed compile/default fixture, then Text trailing-newline assertion.",
+            "change": "Exactly1extra fixture-only baseline correction beyond original2attempts within15minute arm window; unchanged temporary production policy. Baseline third/candidate first pass; all temporary source bytes restored. Passive-startup policy not shipped; no elapsed/coding-effort score.",
+            "evidence": [
+              "docs/work/active/windows-ci-portability/evidence/shared-provider-263/confirmation.tar.gz",
+              "docs/work/active/windows-ci-portability/evidence/shared-provider-263/qualification.json"
+            ]
+          }
+        ]
       },
       {
         "id": "search-efficiency-256-restart",
         "title": "Extract useful evidence fixes and run product token hill-climb",
         "owner": "Issue 256 restart lead on MacBook",
         "state": "active",
-        "activity": "PR #273 published. Fixed Codex P2 cached-summary accounting: undispatched summaries add no usage while unmatched HTTP requests still make usage unknown.",
-        "observed_at": "2026-11-07T05:20:29.702547+00:00",
+        "activity": "Merged main 8b07e035 provider refactor into salvage candidate. Rust sources auto-merged; shared record reconciled by retaining all main tasks plus issue256 restart. Regenerated overview.",
+        "observed_at": "2026-11-07T05:38:36.807435+00:00",
         "origin": "observed",
-        "next_action": "Request current-head Codex code/security review, finish hosted CI and merge salvage before old-PR closeout and product window.",
+        "next_action": "Requalify integrated candidate, push normal merge, refresh current-head Codex reviews/CI, merge salvage then close old PRs and start product window.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -383,7 +422,7 @@
         ],
         "gates": {
           "implementation": "Small extraction implemented. Council selection findings addressed. Codex P2 fixed with cache-hit and failed-summary regressions.",
-          "checks": "94 Python tests passed, 11 optional skips; 52 focused Rust tests and strict all-target capability-spike Clippy passed. Hosted CI/current-head reviews pending.",
+          "checks": "Prior head passed 94 Python and 52 focused Rust tests plus strict Clippy and clean Codex code/security review. Main integration invalidates affected current-head checks/reviews; refreshing.",
           "integration": "No PR or merge yet. Old PRs remain open until replacement merged.",
           "native": "No native observation required for the selected evidence-only changes.",
           "owner_acceptance": "Owner authorized focused merge after review and CI; product qualification pending."
