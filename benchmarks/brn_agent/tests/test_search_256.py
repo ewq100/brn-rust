@@ -1,4 +1,5 @@
 import importlib.util
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -143,7 +144,9 @@ class PairEligibilityTests(unittest.TestCase):
             path.write_text(json.dumps(raw))
             self.assertTrue(oracle.attempt(path, root)['complete_for_pair'])
             for change in ['identity', 'usage', 'budget', 'started', 'refused', 'empty',
-                           'checks', 'safety', 'terminal', 'dropped']:
+                           'checks', 'safety', 'terminal', 'dropped', 'provider', 'model',
+                           'effort', 'helper', 'hidden_helper', 'kind', 'limit',
+                           'wire_dropped', 'mutation', 'status']:
                 with self.subTest(change=change):
                     broken = json.loads(json.dumps(raw))
                     trace = broken['steps'][0]['trace']
@@ -167,29 +170,82 @@ class PairEligibilityTests(unittest.TestCase):
                         broken['steps'][0]['terminal'] = 'Failed:Network'
                     elif change == 'dropped':
                         trace['dropped_calls'] = 1
+                    elif change in ('provider', 'model', 'effort'):
+                        broken[change] = 'different'
+                    elif change == 'helper':
+                        broken['helper'] = {'model': 'gpt-6.1-sol', 'effort': 'medium'}
+                    elif change == 'hidden_helper':
+                        trace['helpers'] = [{'model': 'gpt-6.1-sol', 'effort': 'medium',
+                                             'trace': json.loads(json.dumps(trace))}]
+                    elif change == 'kind':
+                        broken['steps'][0]['kind'] = 'intake'
+                    elif change == 'limit':
+                        trace['model_call_budget']['limit'] = 7
+                    elif change == 'wire_dropped':
+                        trace['wire_requests_dropped'] = 1
+                    elif change == 'mutation':
+                        trace['calls'] = [{'tool': 'prepare_changes', 'outcome': 'error'}]
+                    elif change == 'status':
+                        broken['status'] = 'failed'
                     path.write_text(json.dumps(broken))
                     self.assertFalse(oracle.attempt(path, root)['complete_for_pair'])
 
 
 class AnswerPacketCoverageTests(unittest.TestCase):
-    def test_selected_message_missing_from_verified_gold_blocks_packet(self):
-        with tempfile.TemporaryDirectory() as temporary:
-            root = Path(temporary)
-            template = root / 'templates/R7-1000'
-            template.mkdir(parents=True)
-            (template / 'seed.json').write_text('{"notes": {}}')
-            fixture = root / 'fixture.json'
-            fixture.write_text(json.dumps({'cases': [{
-                'id': 'R7', 'steps': [{'prompt': 'Synthetic question'}], 'checks': []}]}))
-            result = root / 'result.json'
-            raw = {'case': 'R7', 'steps': [{'answer': 'Synthetic answer',
-                   'terminal': 'Completed', 'trace': {'calls': [
-                       {'tool': 'read_records', 'result': {'ids': ['message:1']}}]}}]}
-            result.write_text(json.dumps(raw))
-            with patch('evidence.verified_proof_packet', return_value={
-                    'records': [], 'records_sha256': 'synthetic-checkpoint'}):
-                with self.assertRaisesRegex(ValueError, 'message:1'):
-                    oracle.answer_packet(result, root, fixture, root / 'manifest.json')
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        template = self.root / 'templates/R7-1000'
+        template.mkdir(parents=True)
+        (template / 'seed.json').write_text('{"notes": {}}')
+        self.fixture = self.root / 'fixture.json'
+        self.fixture.write_text(json.dumps({'cases': [{
+            'id': 'R7', 'steps': [{'prompt': 'Synthetic question'}], 'checks': []}]}))
+        self.result = self.root / 'result.json'
+        self.raw = {'case': 'R7', 'steps': [{'answer': 'Synthetic answer',
+                    'terminal': 'Completed', 'trace': {'level': 'full', 'dropped_calls': 0,
+                    'calls': [{'tool': 'read_records', 'outcome': 'success',
+                               'result': {'ids': ['message:1']}}]}}]}
+        checkpoint = self.root / 'checkpoints/1'
+        checkpoint.mkdir(parents=True)
+        self.records_path = checkpoint / 'records.json'
+        self.records = [{'id': 'message:1', 'version': 3, 'data': {
+            'Message': {'text': 'Synthetic saved discussion'}}}]
+
+    def packet(self, expected_hash=None):
+        self.result.write_text(json.dumps(self.raw))
+        self.records_path.write_text(json.dumps(self.records))
+        digest = hashlib.sha256(self.records_path.read_bytes()).hexdigest()
+        with patch('evidence.verified_proof_packet', return_value={
+                'records': [], 'records_sha256': expected_hash or digest}):
+            return oracle.answer_packet(self.result, self.root, self.fixture,
+                                        self.root / 'manifest.json')['packet']
+
+    def test_observed_message_retained_with_exact_checkpoint_version(self):
+        packet = self.packet()
+        self.assertEqual(packet['additional_checkpoint_records'], self.records)
+        self.assertEqual(packet['gold_records'], [])
+        self.assertTrue(packet['gold_access_is_not_candidate_read_proof'])
+
+    def test_observed_id_missing_from_verified_checkpoint_blocks_packet(self):
+        self.records = []
+        with self.assertRaisesRegex(ValueError, 'message:1'):
+            self.packet()
+
+    def test_errored_request_is_retained_without_inventing_a_record(self):
+        call = {'tool': 'read_records', 'outcome': 'error', 'args': {'ids': ['absent:0']}}
+        self.raw['steps'][0]['trace']['calls'].append(call)
+        packet = self.packet()
+        self.assertIn(call, packet['actual_trace'])
+        self.assertEqual(packet['unavailable_requested_ids'], ['absent:0'])
+
+    def test_changed_or_incomplete_evidence_blocks_packet(self):
+        with self.assertRaisesRegex(ValueError, 'checkpoint changed'):
+            self.packet('different-checkpoint-hash')
+        self.raw['steps'][0]['trace']['dropped_calls'] = 1
+        with self.assertRaisesRegex(ValueError, 'Incomplete grader'):
+            self.packet()
 
 
 class UsageCompletenessTests(unittest.TestCase):

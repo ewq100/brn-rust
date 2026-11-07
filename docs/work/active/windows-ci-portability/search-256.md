@@ -39,13 +39,15 @@ Timing is secondary, small-sample evidence with ordering and prompt-cache limits
 It establishes neither broad latency superiority nor subscription-charge savings.
 Money cost remains unknown.
 
-The fixed independent grader produced twelve complete, hash-bound judgments:
+The fixed independent grader produced twelve complete, hash-bound judgments.
+Four R7 packets (both arms, both repetitions) omitted an observed Message record;
+three of those received all-4 scores. These packet limits constrain the judgments:
 
 - Eleven answers scored 4/4 on correctness, completeness, citations, abstention
   and visibility.
 - Candidate R7 repetition 2 scored correctness 3/4 for an auxiliary statement
-  about saved discussion. The grader packet omitted that Message's contents and
-  version. Its central abstention, citations, completeness and visibility scored
+  about saved discussion. As with the other three R7 packets, its packet omitted
+  that Message's contents and version. Its central abstention, citations, completeness and visibility scored
   4/4. We retain the finding and packet-coverage limit; we do not claim an overall
   absence of quality regression.
 - Thirteen grader HTTP attempts include one response that returned a malformed
@@ -268,3 +270,46 @@ Remaining review limits: native SQLite backups, original build artifacts/logs,
 hosted CI and live estimator accuracy were not independently inspected by Sol;
 Opus did not run Rust or read the build-feature audit/freeze/source archive
 contents beyond checking their hashes. These remain explicit coverage gaps.
+
+
+### Round 4 and coverage correction
+
+Fresh Sol scored 9/10 with no confirmed findings; Copilot/Opus scored 7/10.
+Opus confirmed that **all four R7 packets**, rather than only the lower-scoring
+candidate packet, omitted a Message returned by a successful read_records call.
+The original twelve judgments and scores are unchanged. Eight packets have full
+selected-record coverage; four carry this explicit limitation:
+
+| Original packet SHA-256 | Run |
+| --- | --- |
+| `fdecef9736cfd5788e002410543be19ee52c6f49ac709d20e1d6899ad3492cd1` | baseline R7 repetition 1 |
+| `66d06ca2cb51490263e4752662765595242ac0351cf013ffddfd705b24320ad4` | baseline R7 repetition 2 |
+| `85c8676eb39ca27d3555e40dd99b38deb3d035fa8f397149cac863e0aca4cbe5` | candidate R7 repetition 1 |
+| `2dcd1e15d4e140916c96e5bee9386f1105d5e2db07066b9e0daf95d762e3919e` | candidate R7 repetition 2 |
+
+The future adapter now includes selected Messages/archived records separately
+from semantic gold, with their exact versions from the same hash-verified
+checkpoint. It retains errored calls in actual_trace. Unknown requested IDs are
+reported without inventing records; missing fixture/observed records and changed
+or incomplete checkpoint/trace evidence still block packet creation. Evaluator
+access remains distinct from candidate read proof. An offline check rebuilt all
+twelve future packets, covering the four Messages; it neither overwrote nor
+regraded historical packets. All twelve historical attempt objects remain equal.
+Unexpected helper traces now disqualify pair and usage completeness. Nineteen
+focused tests pass, including the additional negative boundaries; the normal
+Documentation and tooling CI lane now runs these checks.
+
+Opus self-reported approximately **17 model requests against 12 requested**.
+The receipt's run interval is 180.3 seconds; its own elapsed estimate was about
+2.5 minutes. Actual provider request/token counts remain unavailable. This is a
+requested-bound overrun, not an enforced-cap success. The immutable 108-request
+reservation ledger is preserved. Remaining Opus requested caps are reduced from
+12 to 8 in each of rounds5–6: forty future requests instead of forty-eight.
+Eight future requested slots are forfeited without refund, covering the estimated
+five-request overrun and leaving three as overrun margin. No original E/D budget
+is reopened, and no claim of a hard actual-usage ceiling is made.
+
+Round4 review gaps: Sol ran no tests and did not independently reproduce full
+attempt-object equality or inspect native backups/build artifacts/hosted CI/live
+estimator accuracy. Opus ran focused tests and checked all twelve raw-result
+predicates; it did not qualify native behavior or live estimator accuracy.

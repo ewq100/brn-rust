@@ -1,0 +1,21 @@
+{
+  "original_requested_ceiling": 108,
+  "immutable_reservations_unchanged": true,
+  "round4_Opus_requested": 12,
+  "round4_Opus_self_reported_approximate": 17,
+  "self_reported_overrun_debit": 5,
+  "future_original_reservations": 48,
+  "future_reduced_requested_caps": {
+    "round-5-Sol": 12,
+    "round-5-Opus": 8,
+    "round-6-Sol": 12,
+    "round-6-Opus": 8
+  },
+  "future_requested_total": 40,
+  "forfeited_future_requested_capacity": 8,
+  "forfeiture_applied_to_approximate_overrun": 5,
+  "remaining_overrun_margin": 3,
+  "enforcement": "Requested bounds only; no claim of hard enforcement or known actual HTTP/model-request usage. No refunds, ceiling expansion, benchmark calls or original-ledger changes.",
+  "actual_model_requests": null,
+  "actual_tokens": null
+}

@@ -370,10 +370,10 @@
         "title": "Improve grounded search efficiency (#256)",
         "owner": "Agent E",
         "state": "active",
-        "activity": "Additional Council round 3 completed: Sol8/10, Copilot/Opus7.5/10; verified control gaps fixed offline. Historical 12 attempt objects unchanged; Kimi excluded.",
-        "observed_at": "2026-11-07T03:46:00+00:00",
+        "activity": "Additional rounds3\u20134 complete. FourR7packet coverage limits disclosed acrossbotharms; future adapter covers verifiedMessages and errors. Original12grades/attempts unchanged. Opus requested-bound overrun recorded; future caps reduced.",
+        "observed_at": "2026-11-07T03:56:00+00:00",
         "origin": "observed",
-        "next_action": "Complete additional rounds4\u20136 with fresh Sol and named Copilot/Opus seats; no new benchmark or native calls. Update draftPR271; no merge.",
+        "next_action": "Complete rounds5\u20136 (Sol12/Opus8 requested each),preserve original108allocation and actual-usageunknowns; update draftPR271. No newbenchmark/nativecalls or merge.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
@@ -383,7 +383,7 @@
         ],
         "gates": {
           "implementation": "No production search change retained. Candidate1patch/binaries/both repetitions preserved. Rigadoptiondeferred with shadow/invalidation evidence.",
-          "checks": "Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass. Additional round3:16focused tests pass;all12historical attempt objects exactly unchanged.",
+          "checks": "Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass. Additional round3:16focused tests pass;all12historical attempt objects exactly unchanged. Round4:19focusedtests pass;12futurepackets verified offline;4historicalR7coverage limits retained.",
           "integration": "Draft PR271 open. No merge assigned;hostedchecks and finalindependentauditcoverage remainpending. Currentmain hasadvanced since measured a921;baselineevidence preserved.",
           "native": "Headless assignment; no native acceptance claimed.",
           "owner_acceptance": "Owner-authorized limited engineering cycle;no searchimprovementadopted. Candidate fails frozenR10toolgate;one independentminorcorrectnessfinding. Reserved/jointchecks unrun andrequiredbeforelateradoption."
@@ -449,9 +449,11 @@
           "parent_orchestration_usage": "outside enforceable reviewer cap;unknown",
           "money_cost": null,
           "completed_rounds": [
-            3
+            3,
+            4
           ],
-          "preferred_route_reserve": "Consumed without refund by round3 monthly-limit failure; rounds4\u20136 direct named fallback. Actual usage unknown."
+          "preferred_route_reserve": "Consumed without refund by round3 monthly-limit failure; rounds4\u20136 direct named fallback. Actual usage unknown.",
+          "overrun": "Round4Opus self-reported~17 vs12requested. FutureOpus caps8each;8future slots forfeited,5estimated-overrun debit+3margin. Actualproviderusageunknown;immutable108ledger unchanged."
         }
       }
     ]

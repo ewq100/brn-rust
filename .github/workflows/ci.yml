@@ -52,6 +52,9 @@ jobs:
       - name: Test deterministic development tooling
         if: ${{ !cancelled() }}
         run: python3 -m unittest discover -s scripts/tests -v
+      - name: Test bounded search evidence controls
+        if: ${{ !cancelled() }}
+        run: python3 -m unittest discover -s benchmarks/brn_agent/tests -p test_search_256.py -v
       - name: Check shell syntax
         if: ${{ !cancelled() }}
         run: |

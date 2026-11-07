@@ -5,7 +5,6 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / 'scripts'))
-import evaluate_wiki_v2 as v2
 
 MUTATIONS = {'prepare_changes', 'prepare_note_edit', 'apply_changes',
              'refresh_candidate', 'withdraw_proposal', 'retain_progress'}
@@ -58,6 +57,8 @@ def complete_usage(raw, usage):
     complete = True
     for step in raw.get('steps', []):
         trace = step.get('trace') or {}
+        if trace.get('helpers'):
+            complete = False  # This frozen helper-off protocol cannot qualify their usage.
         turns = trace.get('turn_usage') or []
         summary_usage = (trace.get('summary') or {}).get('usage')
         if summary_usage:
@@ -102,7 +103,8 @@ def attempt(path, root):
             and budget.get('limit') == 6 and budget.get('refused') is False
             and type(started) is int and 1 <= started <= 6
             and started == len(trace.get('wire_requests') or [])
-            and trace.get('wire_requests_dropped') == 0)
+            and trace.get('wire_requests_dropped') == 0
+            and trace.get('helpers', []) == [])
     row['complete_for_pair'] = (raw.get('status') == 'complete' and events_complete
         and raw.get('provider') == 'Codex' and raw.get('model') == 'gpt-6.1-sol'
         and raw.get('effort') == 'medium' and raw.get('helper') is None
@@ -126,27 +128,44 @@ def answer_packet(path, root, fixture_path, manifest_path):
     case = next(c for c in fixture['cases'] if c['id'] == raw['case'])
     seed = json.loads((Path(root) / 'templates' / f'{raw["case"]}-1000' / 'seed.json').read_text())
     gold = verified_proof_packet(Path(path).parent / 'checkpoints/1', manifest_path=manifest_path)
-    selected = set()
+    required = set()
     for field in ('targets', 'useful', 'traps', 'private'):
         for key in case.get(field, []):
             if isinstance(key, str) and key in seed['notes']:
-                selected.add(seed['notes'][key])
+                required.add(seed['notes'][key])
+    requested = set()
     calls = []
     for step in raw.get('steps', []):
-        for call in v2.traced_calls(step) or []:
+        traced = full_calls(step.get('trace'))
+        if traced is None:
+            raise ValueError('Incomplete grader tool evidence')
+        for call in traced:
             calls.append(call)
             args = call.get('args') or {}
-            selected.update(args.get('ids') or [])
+            requested.update(args.get('ids') or [])
             if isinstance(args.get('id'), str):
-                selected.add(args['id'])
-            selected.update((call.get('result') or {}).get('ids') or [])
-    uncovered = selected - {row['id'] for row in gold['records']}
+                requested.add(args['id'])
+            if call.get('outcome') != 'error':
+                required.update((call.get('result') or {}).get('ids') or [])
+    # Semantic gold excludes Messages and archived records. Retain selected
+    # records of those kinds separately, from the same verified checkpoint.
+    records_bytes = (Path(path).parent / 'checkpoints/1/records.json').read_bytes()
+    if hashlib.sha256(records_bytes).hexdigest() != gold['records_sha256']:
+        raise ValueError('Verified grader checkpoint changed')
+    records = json.loads(records_bytes)
+    available = {row['id'] for row in records}
+    uncovered = required - available
     if uncovered:
-        raise ValueError('Selected records absent from verified grader gold: ' + ', '.join(sorted(uncovered)))
+        raise ValueError('Selected records absent from verified checkpoint: ' + ', '.join(sorted(uncovered)))
+    selected = required | requested
+    gold_ids = {row['id'] for row in gold['records']}
     packet = {'question': case['steps'][0]['prompt'], 'expected_rubric': case.get('rubric'),
               'expected_checks': case['checks'], 'answer': raw['steps'][0].get('answer'),
               'execution_terminal': raw['steps'][0].get('terminal'),
               'gold_records': [row for row in gold['records'] if row['id'] in selected],
+              'additional_checkpoint_records': [row for row in records
+                  if row['id'] in selected and row['id'] not in gold_ids],
+              'unavailable_requested_ids': sorted(requested - available),
               'actual_trace': calls, 'gold_access_is_not_candidate_read_proof': True,
               'native_result_sha256': hashlib.sha256(Path(path).read_bytes()).hexdigest(),
               'canonical_records_sha256': gold['records_sha256']}

@@ -1150,7 +1150,7 @@
       }
     ],
     "efficiency_gate": false,
-    "quality": "12bound independent judgments;11all4,one candidateR7correctness3 auxiliaryMessagecoveragegap;see independent_quality",
+    "quality": "12 bound judgments:11 all4,one candidateR7 correctness3;all4 R7 packets have auxiliary Message coverage limits across both arms;see independent_quality",
     "small_N": true,
     "money_cost": null
   },
@@ -1212,7 +1212,43 @@
     "qualification": "fresh no-tuning-history no-tool fixed Sol/high;transportfixtures only,not calibrated broad semantic competence",
     "grader_attempts": 13,
     "failed_attempts": 1,
-    "failure": "one packetsha mistype;controlled exact-packet retry;original retained"
+    "failure": "one packetsha mistype;controlled exact-packet retry;original retained",
+    "packet_coverage": {
+      "fully_covered_packets": 8,
+      "limited_packets": 4,
+      "limitations": [
+        {
+          "packet_sha256": "fdecef9736cfd5788e002410543be19ee52c6f49ac709d20e1d6899ad3492cd1",
+          "native_result": "baseline-first/runs/R7-1000/B-base-r1/result.json",
+          "uncovered_observed_ids": [
+            "9fb813f0-fc9b-4ab5-962a-0f97a2cf1a80:1"
+          ]
+        },
+        {
+          "packet_sha256": "85c8676eb39ca27d3555e40dd99b38deb3d035fa8f397149cac863e0aca4cbe5",
+          "native_result": "candidate/runs/R7-1000/B-candidate-r1/result.json",
+          "uncovered_observed_ids": [
+            "22c74644-89e7-47a4-9e34-1ac39da7478d:1"
+          ]
+        },
+        {
+          "packet_sha256": "2dcd1e15d4e140916c96e5bee9386f1105d5e2db07066b9e0daf95d762e3919e",
+          "native_result": "candidate/runs/R7-1000/B-candidate-r2/result.json",
+          "uncovered_observed_ids": [
+            "be6a3e8a-4d7b-4538-9a54-7e18bbb95dea:1"
+          ]
+        },
+        {
+          "packet_sha256": "66d06ca2cb51490263e4752662765595242ac0351cf013ffddfd705b24320ad4",
+          "native_result": "baseline-second/runs/R7-1000/B-base-r2/result.json",
+          "uncovered_observed_ids": [
+            "e86ae91d-f630-489d-9904-264551462a81:1"
+          ]
+        }
+      ],
+      "historical_judgments_unchanged": true,
+      "no_regrading": true
+    }
   },
   "estimator": "defer;synthetic protocol probes only;no matched full live request estimates;actual usage separately reported;no admission change",
   "joint_D_adoption": "inapplicable:search change rejected;D knowledge not imported",
