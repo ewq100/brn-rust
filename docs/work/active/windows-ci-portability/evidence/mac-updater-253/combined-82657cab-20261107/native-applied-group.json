@@ -1,0 +1,41 @@
+[
+  {
+    "id": "fd49b334-d929-4801-8b48-ef7520436811:0",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Combined harbor review 82657cab",
+        "markdown": "# Combined harbor review 82657cab\n\n## Current plan \u2014 7 November 2026\n\nThe 7 November revision is the current plan in this comparison. The quay closes at 18:00. Crane operations stop at wind speeds above 12 m/s. Use steel plates instead of timber mats. The vessel M emergency-departure exception applies only at pier P8; P7 is no longer covered. The revision does not explicitly assign the steel-plate requirement to a pier, so no pier scope is inferred here.\n\n## Superseded history \u2014 1 November 2026\n\n- **Crane threshold:** The 1 November plan said crane operations stop above 9 m/s. This quantity is superseded by the 7 November threshold of above 12 m/s.\n- **Surface requirement:** The 1 November plan required timber mats on pier P7. The 7 November revision replaces timber mats with steel plates. The revised wording does not explicitly state the pier scope for steel plates.\n- **Vessel/pier exception:** The 1 November plan recorded an exception for vessel M during an emergency departure without specifying a pier. The 7 November revision narrows this to P8 only and states that P7 is no longer covered. The earlier, non-pier-specific exception is retained here as superseded history, not as the current exception.\n\nThe 18:00 quay closing time appears in both plans and remains unchanged.\n\n## Sources\n\nThis comparison is based on the saved notes **Harbor plan 1 November 2026** and **Harbor revision 7 November 2026**, linked as sources.",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  {
+    "id": "fd49b334-d929-4801-8b48-ef7520436811:1",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Link": {
+        "from": "fd49b334-d929-4801-8b48-ef7520436811:0",
+        "to": "82b5577e-dcc7-4831-96a0-94eec19cf74e:0",
+        "relation": "source"
+      }
+    }
+  },
+  {
+    "id": "fd49b334-d929-4801-8b48-ef7520436811:2",
+    "version": 1,
+    "archived": false,
+    "data": {
+      "Link": {
+        "from": "fd49b334-d929-4801-8b48-ef7520436811:0",
+        "to": "83e9b56e-15ee-4286-a87d-68bb4b8a9079:0",
+        "relation": "source"
+      }
+    }
+  }
+]

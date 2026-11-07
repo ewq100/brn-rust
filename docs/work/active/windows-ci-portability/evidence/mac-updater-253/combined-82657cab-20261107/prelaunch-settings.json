@@ -1,0 +1,15 @@
+{
+  "document_conversion": {
+    "converter": "xberg",
+    "ai": true
+  },
+  "provider": "copilot",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "auth_file": null,
+  "credentials_dir": "/Users/Shared/BRN-native-functional-253-20261107/copilot-credentials",
+  "maintenance": true,
+  "review_first": true,
+  "delegation_chosen": true,
+  "backup_directory": "/Users/Shared/BRN-native-functional-253-20261107/backups"
+}

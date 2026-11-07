@@ -3,6 +3,29 @@
 Updater PR: [#258](https://github.com/ewq100/brn-rust/pull/258), normally merged as
 `28051188f7d20a817202ddf098dff5dc2f07e653`. Final package acceptance remains active.
 
+## Current combined qualification — source82657cab
+
+Owner selected currentmain272+267 plus the focused review-target fix for testing
+only. [New combined receipts, artifact identities, failed attempts and native scope](evidence/mac-updater-253/combined-82657cab-20261107/README.md)
+now supersede the older “new candidate underway” snapshot below. Exact build source
+82657cabbf763739c03b0e479c4b343a0fee54e0: all7CIjobs and clean completed code/security,
+0reviewthreads. New A3/B4 package signatures/platform/receipts, both helpers8formats/
+16imports, substituted local update/B headless reopen and restore passed.
+
+Native corrected new-article title/controls, fresh Copilot consolidation/referenced
+writing Apply/Undo, retained stale refusal/Discard, WebOff0/On12actual sources/Stop,
+and LunaOn with retained table/chart/Asset passed. Existing data/settings/account
+were preserved at startup. Supported CLI backup/new-copy restore matched6categories.
+Native normal quit/reopen/final closure now waits on the locked MacBook; idle test
+appPID59617 remains running. Owner unlock requested; no force quit or newer-source
+closure/draft/B-native claim. Earliera921native backup/reopen results stay scoped.
+
+E has started headless baseline after its actual resource check; B defers new heavy
+builds/provider calls during the measurement batch and holds no standing slot.
+After unlock, finish ordinary closure, then arrange the clean standard-user Finder
+leg separately. Newer main E salvagebab8c876 remains outside82657qualification;
+inspect affected source before publication. No approval/publication inferred.
+
 ## Current continuation — staged native testing on 7 November 2026
 
 Owner's latest #253 clarification authorizes current-account functional native

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "9fbeb31b-6328-46ff-8626-f0c065fe1e7b:0",
+    "state": "completed",
+    "web_sources": [
+      {
+        "url": "https://blog.rust-lang.org/",
+        "title": "The Rust Programming Language Blog"
+      },
+      {
+        "url": "https://blog.rust-lang.org/releases/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/releases/latest/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/?from_theconsensus=1"
+      },
+      {
+        "url": "https://blog.rust-lang.org/inside-rust/?trk=article-ssr-frontend-pulse_little-text-block"
+      },
+      {
+        "url": "https://blog.rust-lang.org/tags/release/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/09/03/Rust-1.98.1/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/10/01/Rust-1.99.0/?trk=public_post_comment-text"
+      },
+      {
+        "url": "https://blog.rust-lang.org/inside-rust/index.html"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/08/20/Rust-1.98.0/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/11/03/Rustup-1.29.3/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/08/21/enabling-next-solver-on-nightly/"
+      }
+    ]
+  },
+  {
+    "id": "f4342c23-a58d-48eb-892b-0b2011af5325:0",
+    "state": "completed",
+    "web_sources": []
+  }
+]

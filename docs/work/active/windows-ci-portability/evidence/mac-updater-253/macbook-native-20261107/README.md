@@ -1,5 +1,9 @@
 # MacBook alternate-directory native functional observations
 
+These are preserved a921-source observations. The [new combined source82657cab
+qualification](../combined-82657cab-20261107/README.md) owns the later272+267+target-fix
+packages/native rechecks and current locked-screen closure prerequisite.
+
 Owner's 7 November #253 clarification permits current-account functional testing
 before a clean OS account exists. These results use fixed source
 `a921e32533dc03134ed8a2001bd82f27194c3302`, synthetic data and separately configured

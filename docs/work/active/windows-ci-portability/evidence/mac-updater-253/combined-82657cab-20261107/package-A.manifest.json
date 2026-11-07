@@ -1,0 +1,89 @@
+{
+  "schema": 1,
+  "enabled": true,
+  "version": "v0.2.0-alpha.1",
+  "build_number": 3,
+  "platform": "macos-arm64",
+  "minimum_macos": "15.0",
+  "features": [
+    "native-ui"
+  ],
+  "notes_file": "docs/development/preview-release.md",
+  "source_sha": "82657cabbf763739c03b0e479c4b343a0fee54e0",
+  "signing": "ad-hoc; not notarized",
+  "binaries": {
+    "brn-desktop": {
+      "sha256": "cd3dd141acbf6859da888dea1148311fad2cd1ba66c7b7dbc27e62091d22ef0f",
+      "architecture": "arm64",
+      "minimum_macos": "15.0",
+      "libraries": [
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+        "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+        "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+        "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+        "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+        "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/libobjc.A.dylib",
+        "/System/Library/Frameworks/UserNotifications.framework/Versions/A/UserNotifications",
+        "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+        "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+        "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+        "/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData",
+        "/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage",
+        "/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit",
+        "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+        "/System/Library/Frameworks/UniformTypeIdentifiers.framework/Versions/A/UniformTypeIdentifiers",
+        "/System/Library/Frameworks/Metal.framework/Versions/A/Metal",
+        "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+        "/usr/lib/libiconv.2.dylib",
+        "/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync"
+      ],
+      "source_binary_sha256": "efc13415a2901c000fa399f75252bb90a64d5cc11009e0ae0860b264da2ec457"
+    },
+    "brn-xberg-helper": {
+      "sha256": "c341d78164b5e204ff6cbcd26a257ec672a447379c414119ce70619422d8b39e",
+      "architecture": "arm64",
+      "minimum_macos": "15.0",
+      "libraries": [
+        "/usr/lib/libsandbox.1.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/usr/lib/libiconv.2.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "source_binary_sha256": "547a34d8cc5f79af348c87b53acb9e57209ff8f5b3b5d67d3c3cf5a6e0695811"
+    },
+    "brn-xberg-helper-brn": {
+      "sha256": "efc291beb65d08d1c8d9d8f46d58b86343853ae5e48a65d1b261178643dc43f5",
+      "architecture": "arm64",
+      "minimum_macos": "15.0",
+      "libraries": [
+        "/usr/lib/libsandbox.1.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/usr/lib/libiconv.2.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "source_binary_sha256": "e3b7e7c46314f6819c91aadcde01995708e0ee3d19872eee02464626fcac22e8"
+    }
+  },
+  "data_directory": "~/Library/Application Support/BRN Threads Preview/workspace",
+  "qualification": {
+    "native_interaction": "deferred",
+    "live_provider": "deferred",
+    "recovery_acceptance": "pending"
+  },
+  "external_pdf_tools": [],
+  "notices_index_sha256": "c1a038297ff47e3ef76ae8daea5207ac5c4254291e19c808a0e3d71322ed05fa",
+  "bundled_embeddings": false,
+  "bundled_provider_credentials": false,
+  "bundle_identifier": "dev.brn.threads",
+  "updater_sha256": "7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5",
+  "cargo_lock_sha256": "3122299c6b07dc65427f6ffba110f571e06ecc08fb8550df4648a08f3dd09959",
+  "rust_toolchain": "[toolchain]\nchannel = \"1.98.1\"\nprofile = \"minimal\"\ncomponents = [\"clippy\", \"rustfmt\"]\n",
+  "archive": {
+    "name": "BRN-Threads-v0.2.0-alpha.1-macos-arm64.zip",
+    "sha256": "30c42db435730aaf961202c750de6edf9cadc28c3e56b52c5a398bcf18d4e23b",
+    "bytes": 174504936
+  }
+}

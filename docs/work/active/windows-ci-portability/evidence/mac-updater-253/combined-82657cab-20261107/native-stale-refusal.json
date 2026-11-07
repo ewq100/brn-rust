@@ -1,0 +1,22 @@
+{
+  "retained_candidate_base": 6,
+  "current_version": 7,
+  "native_apply_refused": true,
+  "native_notice": "The current content changed. This proposal was preserved; compare it with the latest content before preparing a new change.",
+  "record_after_refusal": {
+    "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+    "version": 7,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Native harbor working note",
+        "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.\n\nOWNER-NEWER-253: Owner saved this after the proposal was prepared.",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  "scope": "retained prior-source proposal compatibility on new binary, not new generation under current source"
+}

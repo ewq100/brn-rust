@@ -1,0 +1,13 @@
+{
+  "source": "82657cabbf763739c03b0e479c4b343a0fee54e0",
+  "harness": "/Users/Shared/BRN-native-functional-253-20261107/BRN Combined 253.app",
+  "data_dir": "/Users/Shared/BRN-native-functional-253-20261107/workspace",
+  "credentials_dir": "/Users/Shared/BRN-native-functional-253-20261107/copilot-credentials",
+  "unchanged_packaged_bytes": {
+    "brn-desktop": true,
+    "brn-xberg-helper": true,
+    "brn-xberg-helper-brn": true,
+    "brn-update": true
+  },
+  "scope": "separate signed test wrapper; original release signed launcher unchanged; not ordinary Finder acceptance"
+}

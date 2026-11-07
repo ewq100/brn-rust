@@ -1,0 +1,18 @@
+{
+  "A": {
+    "zip": "/Users/Shared/BRN-alpha-82657cab-acceptance/A/BRN-Threads-v0.2.0-alpha.1-macos-arm64.zip",
+    "zip_sha256": "30c42db435730aaf961202c750de6edf9cadc28c3e56b52c5a398bcf18d4e23b",
+    "size": 174504936,
+    "source": "82657cabbf763739c03b0e479c4b343a0fee54e0",
+    "version": "v0.2.0-alpha.1",
+    "build": 3
+  },
+  "B": {
+    "zip": "/Users/Shared/BRN-alpha-82657cab-acceptance/B/BRN-Threads-v0.2.0-alpha.2-macos-arm64.zip",
+    "zip_sha256": "f935c133cf320097dc77a9ddb6d691443cb802d9513288bb46716c938587138f",
+    "size": 174504940,
+    "source": "82657cabbf763739c03b0e479c4b343a0fee54e0",
+    "version": "v0.2.0-alpha.2",
+    "build": 4
+  }
+}

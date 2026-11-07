@@ -1,0 +1,19 @@
+{
+  "saved_version": 9,
+  "exact_previous_v7_data_restored": true,
+  "record": {
+    "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+    "version": 9,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Native harbor working note",
+        "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.\n\nOWNER-NEWER-253: Owner saved this after the proposal was prepared.",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  }
+}

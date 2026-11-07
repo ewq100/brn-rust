@@ -1,0 +1,44 @@
+{
+  "observed_at": "2026-11-07T06:28:23.052065+00:00",
+  "source": "82657cabbf763739c03b0e479c4b343a0fee54e0",
+  "owner_authority": "Qualify currentmain272+267+focused review fix; publication not approved",
+  "passed": [
+    "locked/offline desktop and matching CLI builds",
+    "unchanged verified helpers and regenerated exact helper-source association/legal notices",
+    "A3/B4 package platform, receipts, strict signatures and relocated both-helper8formats/16imports",
+    "substituted-transport local signed A3\u2192B4, external preservation, B headless reopen and restore",
+    "native exact separate data/Copilot paths, Luna/high, no Codex auth/helperOff",
+    "retained account works for live tool-backed consolidation/new source-linked article",
+    "new-article review target/title/controls correct, no unavailable warning",
+    "new article+2links Apply and grouped Undo; source notes unchanged",
+    "fresh referenced writing Applyv8/Undov9 restores exactv7data",
+    "retained old candidate stalev6\u2192v7 refused then nativeDiscard; v7unchanged",
+    "Web Off0sources; Web On12actual sources/cited official response; Stop interrupted/no late sources",
+    "native LunaOn protected import with table/chart and real retained Asset",
+    "checked CLI backup/new-copy restore all6categories exact,81records/6notes/112history/1project/7threads"
+  ],
+  "pending": [
+    "normal quit/reopen/final closure on new source: screen locked after saved Luna result; idle appPID59617 still running; no force quit",
+    "manual functional native B switch/reopen; actual stock versioned update separately pending publication",
+    "ordinary Finder first launch/clean standard user, browser-download Gatekeeper",
+    "actual approved published stock HTTPS A\u2192B",
+    "owner acceptance and explicit publication decision"
+  ],
+  "unobserved": [
+    "actual second account/in-flight credential switch/sign-out",
+    "real policy/quota/absent-Luna denial/network outage",
+    "native enabled helper and context-summary live paths on new source; helper staysOff",
+    "provider honoring requested high effort"
+  ],
+  "CI_review": {
+    "head": "82657cabbf763739c03b0e479c4b343a0fee54e0",
+    "run": 42345378178,
+    "seven_jobs": "all7completed success at inspection",
+    "code_receipt": 6703169631,
+    "security_receipt": 6703239421,
+    "review_threads": 0,
+    "full_private_security_report_inspected": false
+  },
+  "coordination": "E salvage mergedbab8c876; qualification pin unchanged. E proceeding headless baseline. B defers new heavy builds/provider runs during measurement batch; normal closure can continue when unlocked. No standing B reservation.",
+  "preservation": "Original Macmini/a921MacBook artifacts/evidence unchanged; no personal workspace/sign-in or credential payload copied."
+}

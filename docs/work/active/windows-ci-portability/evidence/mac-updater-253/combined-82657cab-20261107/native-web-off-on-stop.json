@@ -1,0 +1,77 @@
+{
+  "runs": [
+    {
+      "id": "9fbeb31b-6328-46ff-8626-f0c065fe1e7b:0",
+      "state": "completed",
+      "provider": "Copilot",
+      "model": "gpt-6-luna",
+      "requested_effort": "high",
+      "web_sources": [
+        {
+          "url": "https://blog.rust-lang.org/",
+          "title": "The Rust Programming Language Blog"
+        },
+        {
+          "url": "https://blog.rust-lang.org/releases/"
+        },
+        {
+          "url": "https://blog.rust-lang.org/releases/latest/"
+        },
+        {
+          "url": "https://blog.rust-lang.org/?from_theconsensus=1"
+        },
+        {
+          "url": "https://blog.rust-lang.org/inside-rust/?trk=article-ssr-frontend-pulse_little-text-block"
+        },
+        {
+          "url": "https://blog.rust-lang.org/tags/release/"
+        },
+        {
+          "url": "https://blog.rust-lang.org/2026/09/03/Rust-1.98.1/"
+        },
+        {
+          "url": "https://blog.rust-lang.org/2026/10/01/Rust-1.99.0/?trk=public_post_comment-text"
+        },
+        {
+          "url": "https://blog.rust-lang.org/inside-rust/index.html"
+        },
+        {
+          "url": "https://blog.rust-lang.org/2026/08/20/Rust-1.98.0/"
+        },
+        {
+          "url": "https://blog.rust-lang.org/2026/11/03/Rustup-1.29.3/"
+        },
+        {
+          "url": "https://blog.rust-lang.org/2026/08/21/enabling-next-solver-on-nightly/"
+        }
+      ]
+    },
+    {
+      "id": "ec12d75f-55fd-455e-b4aa-4a0ee4dc53f9:0",
+      "state": "interrupted",
+      "provider": "Copilot",
+      "model": "gpt-6-luna",
+      "requested_effort": "high",
+      "web_sources": []
+    },
+    {
+      "id": "f4342c23-a58d-48eb-892b-0b2011af5325:0",
+      "state": "completed",
+      "provider": "Copilot",
+      "model": "gpt-6-luna",
+      "requested_effort": "high",
+      "web_sources": []
+    }
+  ],
+  "assistant_messages": [
+    "Web access is unavailable in this chat, so I can\u2019t verify the latest official Rust blog announcement as of 7 November 2026. I won\u2019t guess.",
+    "The latest official Rust blog announcement listed as of **7 November 2026** is **\u201cAnnouncing rustup 1.29.3,\u201d** published 3 November. It addresses minor regressions affecting some x86_64 CPUs and Solaris. [Official announcement](https://blog.rust-lang.org/2026/11/03/Rustup-1.29.3/)"
+  ],
+  "off_setting_confirmed_in_native_menu_and_canonical_table": true,
+  "on_sources": 12,
+  "stop_observed": "working\u2192Stopped or interrupted; no late sources at recheck",
+  "limits": [
+    "No claim upstream HTTP/quota cancellation was observed.",
+    "Requested high effort; effective unknown."
+  ]
+}

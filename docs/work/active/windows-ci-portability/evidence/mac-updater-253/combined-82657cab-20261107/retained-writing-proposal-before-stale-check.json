@@ -1,0 +1,31 @@
+{
+  "operation": "dd89da25-03c6-4193-8fb0-9ef2bee97544",
+  "request_hash": "f82425010061980bd384729537659fdc7cd4522c9bbf32eaf2129ebcbe4a6a4e",
+  "request": {
+    "reason": "Prepare the exact owner-requested source-linked paragraph while preserving all existing note text byte-for-byte.",
+    "writes": [
+      {
+        "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+        "expected_version": 6,
+        "archived": false,
+        "data": {
+          "Note": {
+            "title": "Native harbor working note",
+            "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.\n\nSTALE-CANDIDATE-253: Pier A water use fell from 120 L/day to 72 L/day. Source: [harbor](brn://note/971c7121-398a-41cc-b21c-6d1b072933e4:1).",
+            "protected": false,
+            "confirmed": false,
+            "superseded_by": null,
+            "import": null
+          }
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "record": "426787a0-075b-4f45-b82a-f536681b8010:0",
+        "version": 1,
+        "expectation": "ChatContext"
+      }
+    ]
+  }
+}
