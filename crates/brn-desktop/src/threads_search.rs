@@ -83,7 +83,7 @@ fn archived_chip(entry: components::ListRow, row: &str, archived: bool) -> compo
 
 /// Remove paired inline formatting delimiters while translating byte ranges
 /// from the search index into the displayed excerpt.
-fn plain_note_excerpt(
+pub(super) fn plain_note_excerpt(
     snippet: &str,
     ranges: &[std::ops::Range<usize>],
 ) -> (String, Vec<std::ops::Range<usize>>) {

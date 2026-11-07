@@ -1199,7 +1199,11 @@ pub(super) fn launcher(
             id: row.id.clone(),
             title: row.title.clone(),
             file: row.is_file(),
-            snippet: snippet.split_whitespace().collect::<Vec<_>>().join(" "),
+            snippet: super::search_view::plain_note_excerpt(snippet, &[])
+                .0
+                .split_whitespace()
+                .collect::<Vec<_>>()
+                .join(" "),
         });
     }
     items.extend(messages.iter().map(message));
@@ -1910,7 +1914,7 @@ mod tests {
         };
         let passages = [
             hit("lamp", "Use violet lamps."),
-            hit("alpha", "The lamp is\nblue."),
+            hit("alpha", "The **lamp** is\n`blue`."),
             hit("alpha", "A second lamp passage."),
             hit("candidate", "Never listed."),
         ];
