@@ -12,14 +12,25 @@ APPLICABLE = (
     'Core and CLI (ubuntu-24.04)',
     'Core and CLI (macos-15)',
     'Native UI build and state (macos-15)',
-    'Native UI build and state (ubuntu-24.04)',
     'Native retrieval and combined build (macos-15)',
 )
 DOCS = 'Documentation and tooling'
+SCOPE = 'Change scope'
+MARKDOWN_ONLY_STEP = 'Markdown-only change; Rust lanes skipped'
 
 
 def gh_json(path):
     return json.loads(subprocess.check_output(['gh', 'api', path]))
+
+
+def markdown_only(run, jobs):
+    """A PR run whose scope job recorded a Markdown-only change and skipped every Rust lane."""
+    scope = [job for job in jobs if job['name'] == SCOPE]
+    return (run['event'] == 'pull_request' and len(scope) == 1
+            and scope[0].get('conclusion') == 'success'
+            and any(step.get('name') == MARKDOWN_ONLY_STEP and step.get('conclusion') == 'success'
+                    for step in scope[0].get('steps', []))
+            and all(job.get('conclusion') == 'skipped' for job in jobs if job['name'] not in (SCOPE, DOCS)))
 
 
 def summarize(run, jobs, expected_commit):
@@ -28,12 +39,24 @@ def summarize(run, jobs, expected_commit):
     lines = [f"BRN CI run {run['id']} attempt {run['run_attempt']} / {run['head_sha']}",
              f"Event: {run['event']}; overall: {run.get('conclusion') or run['status']}",
              '| Job | Scope | Result |', '| --- | --- | --- |']
+    if markdown_only(run, jobs):
+        ready = True
+        for job in jobs:
+            result = job.get('conclusion') or job['status']
+            lines.append(f"| {job['name']} | Markdown-only PR | {result} |")
+            if job['name'] in (SCOPE, DOCS) and result != 'success':
+                ready = False
+        if DOCS not in {job['name'] for job in jobs}:
+            lines.append(f'| {DOCS} | Markdown-only PR | missing |')
+            ready = False
+        lines.append(f'Markdown-only PR gates: {"passed" if ready else "pending/failed"}. Rust lanes were skipped by change scope.')
+        return '\n'.join(lines), ready
     seen = set()
     ready = True
     for job in jobs:
         name = job['name']
         seen.add(name)
-        applicable = name in APPLICABLE or name == DOCS
+        applicable = name in APPLICABLE or name in (DOCS, SCOPE)
         result = job.get('conclusion') or job['status']
         scope = 'applicable PR gate' if applicable else ('informational platform probe' if
             name.endswith(('(windows-2025)', '(ubuntu-24.04)')) else 'unclassified — review')

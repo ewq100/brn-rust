@@ -113,7 +113,7 @@ impl ThreadsUi {
         capture_continuation(
             continue_path(&self.queue_state(), messages, thread),
             messages,
-            latest_run(&self.records, &self.history, thread),
+            self.chat_runs.latest(thread),
         )
     }
 }

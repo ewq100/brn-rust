@@ -117,7 +117,7 @@ impl ThreadsUi {
     /// and effort as the run saved them (a later selection never relabels
     /// it), and its saved progress.
     pub(super) fn last_work_status(&self, chat: &str) -> Option<String> {
-        let record = latest_run(&self.records, &self.history, chat)?;
+        let record = self.chat_runs.latest(chat)?;
         let RecordData::Run(run) = &record.data else {
             return None;
         };
@@ -340,10 +340,7 @@ impl ThreadsUi {
     }
     pub(super) fn assets_in_chat(&self, chat: Option<&str>) -> Arc<BTreeMap<String, Arc<Image>>> {
         #[cfg(all(test, feature = "native-test-support"))]
-        WRITING_DISPLAY_LOADS.with(|loads| {
-            let (assets, runs) = loads.get();
-            loads.set((assets + 1, runs));
-        });
+        WRITING_ASSET_LOADS.with(|loads| loads.set(loads.get() + 1));
         Arc::new(
             self.records
                 .iter()

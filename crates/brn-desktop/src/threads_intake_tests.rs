@@ -652,7 +652,7 @@ fn a_killed_intake_candidate_reaches_needs_you_after_the_delegation_choice(
         ));
         // The run line above Continue shows the latest Run's state. Before
         // slice D it said Cancelled beside the "Run interrupted" notice.
-        let latest = latest_run(&ui.records, &ui.history, &chat).unwrap();
+        let latest = ui.chat_runs.latest(&chat).unwrap();
         let RecordData::Run(latest_state) = &latest.data else {
             panic!("Run")
         };

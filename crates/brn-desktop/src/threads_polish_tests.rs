@@ -1134,10 +1134,7 @@ fn changes_name_a_rewrite_request_that_may_need_refresh_in_owner_terms(cx: &mut 
 /// record is that run.
 pub(super) fn record_notice(cx: &mut TestAppContext, f: &Fixture, thread: &str, notice: &str) {
     update(cx, f, |view, _, cx| {
-        let run = latest_run(&view.records, &view.history, thread)
-            .unwrap()
-            .id
-            .clone();
+        let run = view.chat_runs.latest(thread).unwrap().id.clone();
         let chat = view.workspace.store.record(thread).unwrap().unwrap();
         let RecordData::Thread(mut data) = chat.data else {
             unreachable!()

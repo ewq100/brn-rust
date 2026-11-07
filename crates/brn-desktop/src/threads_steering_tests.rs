@@ -257,13 +257,10 @@ fn stop_and_send_click_is_durable_and_waits_then_drains_without_retargeting(
             ui.open_thread(&f.thread, window, cx);
             assert_eq!(ui.composer.read(cx).value().as_ref(), "");
             assert_eq!(ui.queue_state().queue[0].text, "Later A draft");
-            assert!(can_continue_thread(
-                &ui.records,
-                &ui.history,
-                &f.thread,
-                &ThreadState::Open,
-                false
-            ));
+            assert!(
+                ui.chat_runs
+                    .can_continue(&f.thread, &ThreadState::Open, false)
+            );
         })
     })
     .unwrap();
@@ -327,13 +324,13 @@ fn pending_disconnect_retains_instruction_and_offers_continue_after_reopen(
     })
     .unwrap();
     let workspace = Workspace::open(&f.data).unwrap();
-    assert!(can_continue_thread(
-        &workspace.records().unwrap(),
-        &workspace.history().unwrap(),
-        &f.thread,
-        &ThreadState::Open,
-        false
-    ));
+    assert!(
+        ChatRuns::new(&workspace.records().unwrap(), &workspace.history().unwrap()).can_continue(
+            &f.thread,
+            &ThreadState::Open,
+            false
+        )
+    );
     assert_eq!(workspace.messages(&f.thread).unwrap().len(), 2);
 }
 
@@ -410,24 +407,21 @@ fn terminal_race_accepts_exact_message_and_completed_run_can_continue(cx: &mut T
                 .send(WorkerEvent::Finished(Ok("Completed".into())))
                 .unwrap();
             ui.poll_worker(window, cx);
-            assert!(can_continue_thread(
-                &ui.records,
-                &ui.history,
-                &f.thread,
-                &ThreadState::Open,
-                false
-            ));
+            assert!(
+                ui.chat_runs
+                    .can_continue(&f.thread, &ThreadState::Open, false)
+            );
         })
     })
     .unwrap();
     let workspace = Workspace::open(&f.data).unwrap();
-    assert!(can_continue_thread(
-        &workspace.records().unwrap(),
-        &workspace.history().unwrap(),
-        &f.thread,
-        &ThreadState::Open,
-        false
-    ));
+    assert!(
+        ChatRuns::new(&workspace.records().unwrap(), &workspace.history().unwrap()).can_continue(
+            &f.thread,
+            &ThreadState::Open,
+            false
+        )
+    );
 }
 
 #[gpui_kit::test]

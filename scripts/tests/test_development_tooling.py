@@ -27,6 +27,7 @@ def module(name):
 
 links = module('check-markdown-links')
 ci = module('ci-summary')
+scope = module('ci-change-scope')
 budget = module('check-agent-context-budget')
 
 
@@ -152,6 +153,32 @@ class CiTests(unittest.TestCase):
             jobs = [dict(name=name, conclusion=conclusion, status='in_progress') for name in ci.APPLICABLE]
             self.assertFalse(ci.summarize(self.run_info(), jobs, 'a'*40)[1])
         self.assertFalse(ci.summarize(self.run_info(), [], 'a'*40)[1])
+
+    def test_only_prose_markdown_outside_code_skips_rust_lanes(self):
+        self.assertFalse(scope.rust_needed(['README.md', 'docs/status.md', '.github/copilot-instructions.md']))
+        for path in ('crates/brn/README.md', 'agent/skills/intake/SKILL.md', 'tools/x/notes.md',
+                     'docs/product/ux-rebuild/fixtures/reading-quality-article.md',
+                     'docs/work/active/agent-capabilities/int-d/corpus.json', '.github/workflows/ci.yml'):
+            with self.subTest(path=path):
+                self.assertTrue(scope.rust_needed(['docs/status.md', path]))
+        self.assertTrue(scope.rust_needed([]))
+
+    def markdown_only_jobs(self, docs='success', step='success', lane='skipped'):
+        steps = [dict(name='Classify changed files', conclusion='success'),
+                 dict(name=ci.MARKDOWN_ONLY_STEP, conclusion=step)]
+        return [dict(name=ci.SCOPE, conclusion='success', status='completed', steps=steps),
+                dict(name=ci.DOCS, conclusion=docs, status='completed'),
+                dict(name='Core and CLI (${{ matrix.runner }})', conclusion=lane, status='completed')]
+
+    def test_markdown_only_pr_passes_only_with_recorded_scope_and_docs(self):
+        report, ready = ci.summarize(self.run_info(), self.markdown_only_jobs(), 'a'*40)
+        self.assertTrue(ready)
+        self.assertIn('Rust lanes were skipped by change scope', report)
+        for jobs, run in ((self.markdown_only_jobs(docs='failure'), self.run_info()),
+                          (self.markdown_only_jobs(step='skipped'), self.run_info()),
+                          (self.markdown_only_jobs(lane='failure'), self.run_info()),
+                          (self.markdown_only_jobs(), self.run_info(event='push'))):
+            self.assertFalse(ci.summarize(run, jobs, 'a'*40)[1])
 
     def test_main_exit_requires_overall_success_and_all_applicable_ready(self):
         for overall, job_result, expected in (

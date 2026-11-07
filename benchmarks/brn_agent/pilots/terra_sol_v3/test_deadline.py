@@ -9,8 +9,11 @@ import unittest
 
 HERE = Path(__file__).resolve().parent
 
+# Session cleanup performs multiple process inventories and durable ledger writes.
+# Keep the original early cleanup triggers, with a separate ten-second hard
+# limit for contended inventories/fsync. Synthetic sleepers last 30 seconds.
 class DeadlineTests(unittest.TestCase):
-    def drive(self, folder, body, timeout=10):
+    def drive(self, folder, body, timeout=20):
         script = 'import sys\nsys.path.insert(0,'+repr(str(HERE))+')\nfrom deadline_guard import Guard\n'
         script += 'import subprocess,os,time,json\nfrom pathlib import Path\n'+body
         return subprocess.run([sys.executable, '-B', '-c', script], cwd=folder,
@@ -28,13 +31,24 @@ class DeadlineTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             child = "import os,time;os.setpgid(0,0);open('helper.pid','w').write(str(os.getpid()));time.sleep(30)"
             parent = 'import subprocess,sys,time;subprocess.Popen([sys.executable,"-c",'+repr(child)+']);time.sleep(30)'
-            result = self.drive(d, "g=Guard('claim',1,{})\ng.install()\nsubprocess.run([sys.executable,'-c',"+repr(parent)+"])\n")
+            result = self.drive(d, "g=Guard('claim',10,{})\ng.dispatch_seconds=.6\ng.install()\nsubprocess.run([sys.executable,'-c',"+repr(parent)+"])\n")
             self.assertEqual(result.returncode,124,result.stderr)
             self.assert_dead(int((Path(d)/'helper.pid').read_text()))
             rows=[json.loads(x) for x in (Path(d)/'claim').read_text().splitlines()]
             self.assertEqual(rows[-1]['status'],'deadline')
             self.assertEqual(rows[0]['event'],'claimed')
             self.assertEqual(rows[1]['event'],'launch_intent')
+
+    def test_slow_inventory_still_stops_helper(self):
+        with tempfile.TemporaryDirectory() as d:
+            child = "import os,time;os.setpgid(0,0);open('helper.pid','w').write(str(os.getpid()));time.sleep(30)"
+            parent = 'import subprocess,sys,time;subprocess.Popen([sys.executable,"-c",'+repr(child)+']);time.sleep(30)'
+            result = self.drive(d, "import deadline_guard\noriginal=deadline_guard.session_members\ndef slow_inventory(*args,**kwargs):\n time.sleep(.2)\n return original(*args,**kwargs)\ndeadline_guard.session_members=slow_inventory\ng=Guard('claim',10,{})\ng.dispatch_seconds=.6\ng.install()\nsubprocess.run([sys.executable,'-c',"+repr(parent)+"])\n")
+            self.assertEqual(result.returncode,124,result.stderr)
+            self.assert_dead(int((Path(d)/'helper.pid').read_text()))
+            terminal=json.loads((Path(d)/'claim').read_text().splitlines()[-1])
+            self.assertEqual(terminal['status'],'deadline')
+            self.assertEqual(terminal['cleanup_errors'],[])
 
     def test_completed_leader_cannot_leave_helper(self):
         with tempfile.TemporaryDirectory() as d:
@@ -105,14 +119,14 @@ class DeadlineTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             child="import os,time;open('nested.pid','w').write(str(os.getpid()));time.sleep(30)"
             inner="import sys;sys.path.insert(0,"+repr(str(HERE))+");from deadline_guard import Guard;import subprocess,time;g=Guard('inner',20,{});g.install();subprocess.run([sys.executable,'-c',"+repr(child)+"])"
-            result=self.drive(d,"g=Guard('outer',1.5,{})\ng.install()\nsubprocess.run([sys.executable,'-c',"+repr(inner)+"])\n")
+            result=self.drive(d,"g=Guard('outer',10,{})\ng.dispatch_seconds=.9\ng.install()\nsubprocess.run([sys.executable,'-c',"+repr(inner)+"])\n")
             self.assertEqual(result.returncode,124,result.stderr)
             self.assert_dead(int((Path(d)/'nested.pid').read_text()))
 
     def test_partial_session_ledger_still_stops_active_child(self):
         with tempfile.TemporaryDirectory() as d:
             child="import os,time;open('active.pid','w').write(str(os.getpid()));time.sleep(30)"
-            result=self.drive(d,"g=Guard('claim',1.5,{})\ng.install()\np=subprocess.Popen([sys.executable,'-c',"+repr(child)+"])\ntime.sleep(.2)\nfault=Path('fault-session.jsonl');fault.write_bytes(g.registry.path.read_bytes()+b'{broken');g.registry.path=fault\ntime.sleep(30)\n")
+            result=self.drive(d,"g=Guard('claim',10,{})\ng.dispatch_seconds=.6\ng.install()\np=subprocess.Popen([sys.executable,'-c',"+repr(child)+"])\ntime.sleep(.2)\nfault=Path('fault-session.jsonl');fault.write_bytes(g.registry.path.read_bytes()+b'{broken');g.registry.path=fault\ntime.sleep(30)\n")
             self.assertEqual(result.returncode,124,result.stderr)
             self.assert_dead(int((Path(d)/'active.pid').read_text()))
             terminal=json.loads((Path(d)/'claim').read_text().splitlines()[-1])
