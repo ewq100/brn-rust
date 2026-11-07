@@ -74,6 +74,7 @@ short_version=0.1.0
 if [[ -n "$preview_version" ]]; then short_version="${preview_version#v}"; short_version="${short_version%%-*}"; fi
 printf '  <key>CFBundleShortVersionString</key><string>%s</string>\n  <key>CFBundleVersion</key><string>%s</string>\n' "$short_version" "$build_number" >> "$output/Contents/Info.plist"
 if [[ -n "$preview_version" ]]; then
+  printf '  <key>BRNPreviewVersion</key><string>%s</string>\n' "$preview_version" >> "$output/Contents/Info.plist"
   printf '  <key>LSMinimumSystemVersion</key><string>15.0</string>\n' >> "$output/Contents/Info.plist"
 fi
 cat >> "$output/Contents/Info.plist" <<'PLIST'

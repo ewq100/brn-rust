@@ -1774,6 +1774,12 @@ fn settings_lists_its_sections_and_data_says_what_each_copy_is(cx: &mut TestAppC
         click(cx, &f, "settings-section-general");
         on_window(cx, &f, |window, _| {
             assert!(window.find("settings-keys").visible());
+            assert_eq!(
+                label(window, "app-version"),
+                crate::problem_report::AppVersion::current().label()
+            );
+            assert!(window.find("report-problem").visible());
+            assert!(window.find("app-provider-model").visible());
             assert!(window.try_find("appearance-system").is_none());
         });
         click(cx, &f, "settings-section-data");

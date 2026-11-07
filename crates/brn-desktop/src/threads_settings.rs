@@ -672,10 +672,21 @@ impl ThreadsUi {
             .test_support()
             .into_any_element()
     }
+    pub(super) fn report_problem(&self, cx: &mut Context<Self>) {
+        cx.open_url(&crate::problem_report::report_url(&self.settings));
+    }
     fn general_settings(&self, cx: &mut Context<Self>) -> gpui_kit::AnyElement {
         column()
             .id("settings-general")
             .gap_2()
+            .child(section("About BRN"))
+            .child(metadata(crate::problem_report::AppVersion::current().label())
+                .id("app-version").aria_label(crate::problem_report::AppVersion::current().label()).test_support())
+            .child(metadata(format!("Active provider: {} · Model: {}", self.settings.provider, self.settings.model))
+                .id("app-provider-model").test_support())
+            .child(div().child(button("report-problem").label("Report a problem").outline()
+                .on_click(cx.listener(|this, _, _, cx| this.report_problem(cx)))))
+            .child(metadata("Opens a GitHub form with build and model details. Review and edit it before submitting."))
             .child(section("Keyboard shortcuts"))
             .child(metadata(
                 "Every command, its shortcut and the mouse gestures BRN understands.",

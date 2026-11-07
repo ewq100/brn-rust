@@ -84,9 +84,11 @@ backup-first schema upgrade. An old bundle is usable for rollback only while the
 store schema remains compatible. After migration, use a matching pre-upgrade
 backup with its compatible app, or a forward fix; never open a newer store with
 an old binary or overwrite current work with an old snapshot automatically.
-Report problems at [the issue tracker](https://github.com/ewq100/brn-rust/issues),
-including version/build, macOS version, redacted terminal error and reproduction;
-exclude credentials and private workspace contents. Publication and final native
+Use **Settings → General → Report a problem** or **⌘K → Report a problem**.
+Settings shows the app version, build and saved provider/model. The GitHub form
+includes only those details, macOS version and CPU architecture. Review and edit
+it before submitting, and describe what happened without credentials or private
+workspace content. No logs or diagnostics bundle are attached. Publication and final native
 Copilot/install/update acceptance remain separate from these source instructions.
 
 ## First-use provider setup

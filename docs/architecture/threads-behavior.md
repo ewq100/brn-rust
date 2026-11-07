@@ -50,6 +50,8 @@ On launch the desktop restores the last valid destination — a chat, a document
 
 The owner can start a thread from Ask or delegate, a selected note passage, a source import, or an existing Action. The agent can open one when useful work requires an owner decision. Routine processing can attach its outcome to an existing work context and remain quiet.
 
+Settings → General shows the installed bundle version/build and saved provider/model. Report a problem, also in ⌘K, opens an editable GitHub issue form with only version/build, macOS version, CPU architecture and provider/model identifiers. It attaches no workspace content, paths, credentials or logs; the owner submits the form. Unbundled runs show a development-build label.
+
 ## State and attention
 
 Chats stay in conversation history after an answer. The owner may Archive or Unarchive them; archive stops the chat's work, fences its live runs, and pauses the saved queue. Unarchive never resumes work. Legacy Resolved conversations appear as archived; Unarchive keeps their identities and restores the internal Open state. Thread IDs remain the storage/API identity. Ordinary chat has no Resolve/Reopen or quick-question auto-resolution.
