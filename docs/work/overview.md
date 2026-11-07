@@ -143,8 +143,8 @@ Waiting:
 ### Compare Terra/Sol and improve maintained knowledge (#254)
 
 Task ID: `knowledge-quality-254`
-Owner: Agent D · State: **blocked** · Last observed: 2026-11-06T23:56:40.971406+00:00
-Activity: Draft PRs #269 (comparison) and #270 (knowledge attempt) delivered. Original baseline retained; no model or guidance adoption. Final quality confirmation is incomplete after the bounded fresh run stopped on an uncertain outcome. Final Council: Sol 8 / Opus 7 / Kimi 8; offline corrections and 99 passing tests complete.
+Owner: Agent D · State: **blocked** · Last observed: 2026-11-07T04:01:18.650684+00:00
+Activity: Owner-requested additional Council rounds 3–5 completed with Sol/Opus scores 8/8, 8/8 and 9/8. Kimi removed from the saved default roster. Packet, instructions, identity and operation binding fixes are offline-tested. Original benchmark quality acceptance remains incomplete.
 Next: Review draft PRs #269 and #270. Keep issue #254 open for unresolved quality acceptance; no further live dispatch under the stopped allocation.
 Resource waits: Frozen cycle stopped after an uncertain outcome; fresh quality confirmation remains pending.
 
@@ -154,8 +154,8 @@ Resource waits: Frozen cycle stopped after an uncertain outcome; fresh quality c
 Gates:
 
 - **implementation:** One retention-guidance factor implemented, built and measured in paired runs; evidence only, no adopted production change.
-- **checks:** Source-bound builds and judge Clippy passed. Post-review native AgentBench: 99 passed, 1 optional Inspect skip. Audit regression failed before and passed after correction; reader setup acceptance/refusal witnesses pass. Original executed source and results preserved.
-- **integration:** Draft comparison https://github.com/ewq100/brn-rust/pull/269 and stacked knowledge attempt https://github.com/ewq100/brn-rust/pull/270. Hosted CI pending; no merge, default change or release.
+- **checks:** Final offline benchmark suite: 107 passed, 1 optional Inspect skip. Two judge wire tests, strict Clippy, formatting and links pass. Current published heads were CI green before these review fixes; refreshed-head CI pending.
+- **integration:** Draft PR269 and stacked PR270 are being updated with three additional Council rounds and corrections. Explicit draft and acceptance gaps retained.
 - **native:** Headless synthetic only; desktop observation outside assignment
 - **owner acceptance:** Not claimed. Both recommendation and knowledge-quality acceptance inconclusive; final fresh confirmation incomplete; no baseline/model default change.
 

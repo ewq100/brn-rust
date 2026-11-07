@@ -1,0 +1,108 @@
+{
+  "rounds": [
+    3,
+    4,
+    5
+  ],
+  "seats": [
+    "codex/gpt-6.1-sol",
+    "acpRegistry_copilot/claude-opus-5.5"
+  ],
+  "scores": {
+    "3": {
+      "sol": 8,
+      "opus": 8
+    },
+    "4": {
+      "sol": 8,
+      "opus": 8
+    },
+    "5": {
+      "sol": 9,
+      "opus": 8
+    }
+  },
+  "requested_turns_reserved": 72,
+  "per_route_requested": 36,
+  "actual_provider_HTTP": null,
+  "actual_tokens": null,
+  "Council_wall_seconds": 773.607,
+  "Council_cap_seconds": 1800,
+  "timings": {
+    "3": {
+      "sol": {
+        "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-sol-r3-20261107:ordinal:1",
+        "ordinal": 1,
+        "status": "completed",
+        "providerInstanceId": "codex",
+        "model": "gpt-6.1-sol",
+        "requestedAt": "2026-11-07T03:24:55.212Z",
+        "startedAt": "2026-11-07T03:24:55.315Z",
+        "completedAt": "2026-11-07T03:26:58.274Z",
+        "activeRunId": null
+      },
+      "opus": {
+        "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-opus-r3-20261107:ordinal:1",
+        "ordinal": 1,
+        "status": "completed",
+        "providerInstanceId": "acpRegistry_copilot",
+        "model": "claude-opus-5.5",
+        "requestedAt": "2026-11-07T03:27:18.092Z",
+        "startedAt": "2026-11-07T03:27:21.154Z",
+        "completedAt": "2026-11-07T03:29:47.977Z",
+        "activeRunId": null
+      }
+    },
+    "4": {
+      "sol": {
+        "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-sol-r4-20261107:ordinal:1",
+        "ordinal": 1,
+        "status": "completed",
+        "providerInstanceId": "codex",
+        "model": "gpt-6.1-sol",
+        "requestedAt": "2026-11-07T03:41:48.028Z",
+        "startedAt": "2026-11-07T03:41:48.165Z",
+        "completedAt": "2026-11-07T03:43:24.374Z",
+        "activeRunId": null
+      },
+      "opus": {
+        "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-opus-r4-20261107:ordinal:1",
+        "ordinal": 1,
+        "status": "completed",
+        "providerInstanceId": "acpRegistry_copilot",
+        "model": "claude-opus-5.5",
+        "requestedAt": "2026-11-07T03:39:39.197Z",
+        "startedAt": "2026-11-07T03:39:41.431Z",
+        "completedAt": "2026-11-07T03:41:23.409Z",
+        "activeRunId": null
+      }
+    },
+    "5": {
+      "sol": {
+        "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-sol-r5-20261107:ordinal:1",
+        "ordinal": 1,
+        "status": "completed",
+        "providerInstanceId": "codex",
+        "model": "gpt-6.1-sol",
+        "requestedAt": "2026-11-07T03:49:25.805Z",
+        "startedAt": "2026-11-07T03:49:25.903Z",
+        "completedAt": "2026-11-07T03:51:14.792Z",
+        "activeRunId": null
+      },
+      "opus": {
+        "runId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-opus-r5-20261107:ordinal:1",
+        "ordinal": 1,
+        "status": "completed",
+        "providerInstanceId": "acpRegistry_copilot",
+        "model": "claude-opus-5.5",
+        "requestedAt": "2026-11-07T03:52:03.239Z",
+        "startedAt": "2026-11-07T03:52:05.512Z",
+        "completedAt": "2026-11-07T03:53:43.905Z",
+        "activeRunId": null
+      }
+    }
+  },
+  "post_round5_followups": "Lead offline-tested pinned freeze identity and main-reader preparation refusal. No additional review call.",
+  "default_profile": "Sol and Opus; Kimi historical receipts retained",
+  "native_experiment_status": "Original cycle closed; quality acceptance incomplete"
+}

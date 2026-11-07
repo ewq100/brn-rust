@@ -19,9 +19,15 @@ sys.path.insert(0,str(REPO/'benchmarks/brn_agent'))
 import semantic
 import reader_grading
 from evidence import verify_manifest, identity_matches
+from reporting import canonical_hash
 BENCH = REPO/'benchmarks/brn_agent/bench.py'
 SUPERVISE = Path(__file__).with_name('supervise_outputs.py')
 BATCH_SIZE = 2  # Within the predeclared maximum8; all arms use identical grouping.
+# Published D254 cycle identities. A new experiment requires new reviewed pins.
+FROZEN_IDENTITIES = {
+    'phase1':'b093f32e1254bd5b9cec1a74d40ed63e41bb8629627199c7af556668246b36a0',
+    'phase2':'0cf9351705648516264bd4f8e9fa1e8424448cb0d9790811996113d8451a65fd',
+}
 
 def load(path):
     return json.loads(Path(path).read_text())
@@ -69,6 +75,9 @@ def validate_packet(packet):
 def frozen_instructions(task_root, phase):
     path = task_root/'grader-instructions.txt'
     frozen = load(task_root/('frozen-'+phase+'.json'))
+    body = {key:value for key,value in frozen.items() if key != 'identity'}
+    if frozen.get('identity') != FROZEN_IDENTITIES[phase] or canonical_hash(body) != FROZEN_IDENTITIES[phase]:
+        raise ValueError('Freeze receipt differs from published experiment identity')
     expected = frozen['evaluation']['files']['grader_instructions']['sha256']
     if sha(path) != expected:
         raise ValueError('Grading instructions differ from frozen artifact')

@@ -126,3 +126,9 @@ command including its HTTP/tool loop. The twenty-minute figure sums eight such
 candidate commands and eight active reader windows. Setup and other work add to
 that duration. Phase clocks start on the first admission attempt. The recorded
 Phase 2 attempt at 23:09:19Z was admitted and executed its candidate block.
+
+All six additional review seats completed and reserved the 72 requested turns,
+36 per route. The sum of the three round windows was 773.607 seconds, about
+12 minutes 54 seconds, within the 30-minute review ceiling. Provider HTTP/token
+usage remains unavailable. The separate review allocation, debits, raw outputs
+and elapsed intervals are preserved in the additional Council evidence.

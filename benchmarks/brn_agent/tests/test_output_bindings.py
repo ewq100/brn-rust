@@ -6,12 +6,16 @@ import sys
 import json
 import tempfile
 import unittest
+from unittest import mock
+import shutil
 
 HERE = Path(__file__).resolve().parents[1]/'experiments/d254'
 sys.path.insert(0,str(HERE))
 spec = importlib.util.spec_from_file_location('d254_output_bindings',HERE/'evaluate_outputs.py')
 outputs = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(outputs)
+sys.path.insert(0,str(Path(__file__).resolve().parent))
+import test_reader_grading as reader_fixtures
 
 
 class OutputBindingTests(unittest.TestCase):
@@ -69,12 +73,52 @@ class OutputBindingTests(unittest.TestCase):
             path=root/'grader-instructions.txt'
             path.write_text('SYNTHETIC frozen instructions')
             digest=outputs.sha(path)
-            (root/'frozen-phase1.json').write_text(json.dumps({
-                'evaluation':{'files':{'grader_instructions':{'sha256':digest}}}}))
-            self.assertEqual(outputs.frozen_instructions(root,'phase1'),(path,digest))
-            path.write_text('ALTERED instructions')
-            with self.assertRaises(ValueError):
-                outputs.frozen_instructions(root,'phase1')
+            frozen={'evaluation':{'files':{'grader_instructions':{'sha256':digest}}}}
+            identity=outputs.canonical_hash(frozen)
+            frozen['identity']=identity
+            (root/'frozen-phase1.json').write_text(json.dumps(frozen))
+            with mock.patch.dict(outputs.FROZEN_IDENTITIES,{'phase1':identity}):
+                self.assertEqual(outputs.frozen_instructions(root,'phase1'),(path,digest))
+                path.write_text('ALTERED instructions')
+                with self.assertRaises(ValueError):
+                    outputs.frozen_instructions(root,'phase1')
+                frozen['evaluation']['files']['grader_instructions']['sha256']=outputs.sha(path)
+                body={key:value for key,value in frozen.items() if key!='identity'}
+                frozen['identity']=outputs.canonical_hash(body)
+                (root/'frozen-phase1.json').write_text(json.dumps(frozen))
+                with self.assertRaises(ValueError):
+                    outputs.frozen_instructions(root,'phase1')
+
+    def test_main_refuses_changed_reader_preparation_before_grading(self):
+        fixture=reader_fixtures.ReaderGradingTests()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        original_bench=outputs.bench
+
+        def prepare_then_alter(*args):
+            original_bench(*args)
+            if args[0]=='reader-review-prepare':
+                path=fixture.root/'reader-packets/private-result.json'
+                prepared=outputs.load(path)
+                prepared['qualified']=True
+                outputs.save(path,prepared)
+
+        def copy_synthetic_reader(args, operation):
+            question=next(i for i,q in enumerate(fixture.questions) if q['question']==operation['question'])
+            shutil.copytree(fixture.root/'readers'/str(question),operation['root'])
+
+        arguments=['evaluate_outputs','--root',str(fixture.root),'--suite',str(fixture.suite),
+            '--truth',str(fixture.truth),'--task-root',str(fixture.root),
+            '--binary',str(fixture.root/'unused-brn'),'--judge',str(fixture.root/'unused-judge'),
+            '--account-file',str(fixture.root/'unused-account'),'--phase','phase1',
+            '--role','phase1','--readers-only']
+        with mock.patch.object(sys,'argv',arguments), \
+                mock.patch.object(outputs,'dispatch',side_effect=copy_synthetic_reader), \
+                mock.patch.object(outputs,'bench',side_effect=prepare_then_alter), \
+                mock.patch.object(outputs,'grade') as grade:
+            with self.assertRaisesRegex(ValueError,'Reader preparation differs'):
+                outputs.main()
+            grade.assert_not_called()
 
     def test_judgment_requires_request_digest_model_effort_and_single_observed_request(self):
         receipt={'status':'completed','model':'gpt-6.1-sol','effort':'high','tools':[],
