@@ -913,7 +913,7 @@ fn derived_change(workspace: &mut Workspace) -> (Receipt, String) {
 }
 
 #[gpui_kit::test]
-fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &mut TestAppContext) {
+fn background_changes_group_without_undo_and_note_refresh_stays_visible(cx: &mut TestAppContext) {
     let mut refreshed = None;
     let f = fixture(cx, 1250., 860., |workspace| {
         workspace.choose_quiet("quiet-fixture", true).unwrap();
@@ -948,8 +948,7 @@ fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &m
             format!("Show {}", background.len())
         );
         assert!(window.try_find(format!("receipt-{quiet}")).is_none());
-        // A change that needs refresh is never background, and keeps its
-        // sub-row and follow-up.
+        // A note change keeps its refresh sub-row and follow-up.
         assert!(window.find(format!("receipt-{op}")).visible());
         assert_eq!(
             label(window, format!("receipt-refresh-{op}")),
@@ -962,7 +961,7 @@ fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &m
         assert!(window.find(format!("refresh-followup-{op}")).visible());
         assert_eq!(
             label(window, format!("undo-{op}")),
-            format!("Undo: {}", receipt.reason)
+            format!("Undo: {} · Changed input", receipt.reason)
         );
         // No raw version or chat-control text in the rows.
         assert!(!label(window, format!("receipt-reason-{op}")).contains("version"));
@@ -974,26 +973,20 @@ fn background_changes_group_and_keep_undo_and_refresh_changes_never_group(cx: &m
             label(window, format!("receipt-reason-{quiet}")),
             "Change display detail"
         );
-        assert_eq!(
-            label(window, format!("undo-{quiet}")),
-            "Undo: Change display detail"
-        );
+        assert!(window.try_find(format!("undo-{quiet}")).is_none());
         assert_eq!(label(window, "history-background-toggle"), "Hide");
     });
-    // Background changes stay undoable.
-    click(cx, &f, format!("undo-{quiet}"));
+    // Inspecting background receipts changes no settings or stored history.
     cx.read(|cx| {
         let view = f.view.read(cx);
-        assert_eq!(
-            view.history
-                .last()
+        assert!(view.queue_state().quiet);
+        assert!(
+            view.workspace
+                .history()
                 .unwrap()
-                .undo_of
-                .as_ref()
-                .map(OperationId::as_str),
-            Some(quiet.as_str())
+                .iter()
+                .any(|receipt| receipt.operation.as_str() == quiet)
         );
-        assert!(!view.queue_state().quiet);
     });
     // Inbox leaves routine changes and their refresh follow-ups to Recent
     // changes, and links there; nothing here asks for approval.
