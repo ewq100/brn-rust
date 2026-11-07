@@ -63,6 +63,8 @@ mod inbox_tests;
 mod inbox_view;
 #[path = "threads_settings.rs"]
 mod settings_view;
+#[path = "threads_startup.rs"]
+mod startup_view;
 #[path = "threads_tasks.rs"]
 mod tasks_view;
 use brn_writing_ui::diff;
@@ -5213,6 +5215,12 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
         .run(move |cx| {
             gpui_kit::init(cx);
             cx.bind_keys(bindings());
+            cx.on_window_closed(|cx, _| {
+                if cx.windows().is_empty() {
+                    cx.quit();
+                }
+            })
+            .detach();
             cx.activate(true);
             match opened {
                 Ok(workspace) => {
@@ -5222,36 +5230,10 @@ pub fn launch(data_dir: PathBuf) -> Result<(), String> {
                     }
                 }
                 Err(_) => {
-                    let receiver = cx.prompt_for_paths(PathPromptOptions {
-                        files: false,
-                        directories: true,
-                        multiple: false,
-                        prompt: Some(crate::startup::BACKUP_PROMPT.into()),
-                    });
-                    cx.spawn(async move |cx| {
-                        let result = match receiver.await {
-                            Ok(Ok(paths)) => crate::startup::with_backup_folder(
-                                &data_dir,
-                                paths.and_then(|paths| paths.into_iter().next()),
-                            ),
-                            Ok(Err(error)) => Err(error.to_string()),
-                            Err(error) => Err(error.to_string()),
-                        };
-                        let _ = cx.update(move |cx| match result {
-                            Ok(Some(workspace)) => {
-                                if let Err(error) = open_workspace_window(workspace, data_dir, cx) {
-                                    *startup_failure.borrow_mut() = Some(error);
-                                    cx.quit();
-                                }
-                            }
-                            Ok(None) => cx.quit(),
-                            Err(error) => {
-                                *startup_failure.borrow_mut() = Some(error);
-                                cx.quit();
-                            }
-                        });
-                    })
-                    .detach();
+                    if let Err(error) = startup_view::open(data_dir, cx) {
+                        *startup_failure.borrow_mut() = Some(error);
+                        cx.quit();
+                    }
                 }
             }
         });
@@ -5268,12 +5250,6 @@ fn open_workspace_window(
         Some(Err(error)) => Some(format!("Semantic search is off: {error}")),
         _ => None,
     };
-    cx.on_window_closed(|cx, _| {
-        if cx.windows().is_empty() {
-            cx.quit();
-        }
-    })
-    .detach();
     cx.open_window(
         WindowOptions {
             window_bounds: Some(WindowBounds::Windowed(Bounds::new(
