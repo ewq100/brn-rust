@@ -1,1 +1,0 @@
-Second copy of the same 1 March 2028 meeting minutes, not a second meeting or obligation: Mari will ask the supplier for written approval. Follow up on 3 March 2028; delivery is due 10 March 2028.

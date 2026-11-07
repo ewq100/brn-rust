@@ -122,7 +122,7 @@ button after initial rendering; inspect the current tree.
 Use clipboard paste for exact UTF-8/multiline fixtures. `xdotool type --file`
 dropped Unicode/newlines here. Wait for copy/paste and rendering before reading
 clipboard or taking evidence. This proves clipboard recovery, not IME input.
-See the [full deferred inventory](../work/active/linux-cloud-native/deferred/README.md)
+See the [full deferred inventory](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/linux-cloud-native/deferred/README.md)
 for portable results and original Mac-only gaps.
 
 ## File workflows and portal admission
@@ -145,11 +145,11 @@ activation's `/var/tmp` fixture parent is unavailable, set `TMPDIR=/tmp` for the
 app/CLI process. This uses an already writable temporary directory; it does not
 change credential-path tests, validation or host permissions. Keep conversion
 AI off and choose full-note import for offline verification. The
-[next batch evidence](../work/active/linux-native-gaps/README.md) records exact
+[next batch evidence](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/linux-native-gaps/README.md) records exact
 results, source revisions, upstream accessibility gaps and remaining blockers.
 
 The current branch qualifies released GPUI Kit 0.8.0 on the unchanged pre 0.3.9
-backend. See [the upgrade evidence](../work/active/linux-native-gaps/gpui08.md):
+backend. See [the upgrade evidence](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/linux-native-gaps/gpui08.md):
 upstream disabled-node metadata is fixed, while Linux AT-SPI enabled/sensitive
 translation still needs a compatible correction. Do not infer full accessibility
 acceptance or unreleased focus fixes from the version number.

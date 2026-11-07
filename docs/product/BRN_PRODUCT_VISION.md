@@ -43,4 +43,4 @@ The first release includes one native GPUI workspace, direct writing, threads/co
 
 DOCX/PPTX/HTML generation is required later. Direct external sending, broad connector automation, multiplayer/sync, live outside editing, arbitrary branch merging, and a plugin marketplace are deferred.
 
-The owner is not using the old application. Build a fresh core/schema without gradual migration or a permanent legacy runtime. The fresh core is implemented; see [status](../status.md) for qualification and [the active plan](../work/active/pre-release-cleanup/plan.md) for current work.
+The owner is not using the old application. Build a fresh core/schema without gradual migration or a permanent legacy runtime. The fresh core is implemented; see [status](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/status.md) for qualification and [the active plan](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/pre-release-cleanup/plan.md) for current work.

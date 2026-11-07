@@ -1,6 +1,6 @@
 # Product language
 
-The [canonical Threads target](../architecture/threads-target.md) owns intended behavior; [status](../status.md) records proof and gaps.
+The [canonical Threads target](../architecture/threads-target.md) owns intended behavior; [status](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/status.md) records proof and gaps.
 
 | Concept | Meaning |
 |---|---|

@@ -10,7 +10,7 @@ use brn_threads_app::*;
 use serde_json::{json, Value};
 use std::path::{Path, PathBuf};
 use support::{ok, Root};
-const CORPUS: &str = include_str!("../../../docs/work/active/agent-capabilities/int-d/corpus.json");
+const CORPUS: &str = include_str!("../../../benchmarks/int-d/corpus.json");
 fn project_row(receipt: Receipt, kind: &str) -> Record {
     receipt
         .writes
@@ -376,8 +376,8 @@ fn closed_copy_metadata_interoperates_for_both_history_arms() {
             .tempfile_in("/private/tmp")
             .unwrap();
         let source = Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("../../docs/work/active/agent-capabilities/int-d/prepare-qualification.py");
-        let result=std::process::Command::new("python3").args(["-c", "import importlib.util,json,sys; s=importlib.util.spec_from_file_location('preparation',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);v=json.load(open(sys.argv[2]));c=json.load(open(sys.argv[3]));json.dump({'facts':v['facts'],'context':m.history_context(v['envelope'],v['facts'],c)},open(sys.argv[4],'w'),ensure_ascii=False)"]).arg(source).arg(&input).arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("../../docs/work/active/agent-capabilities/int-d/corpus.json")).arg(expected.path()).status().unwrap();
+            .join("../../benchmarks/int-d/prepare-qualification.py");
+        let result=std::process::Command::new("python3").args(["-c", "import importlib.util,json,sys; s=importlib.util.spec_from_file_location('preparation',sys.argv[1]);m=importlib.util.module_from_spec(s);s.loader.exec_module(m);v=json.load(open(sys.argv[2]));c=json.load(open(sys.argv[3]));json.dump({'facts':v['facts'],'context':m.history_context(v['envelope'],v['facts'],c)},open(sys.argv[4],'w'),ensure_ascii=False)"]).arg(source).arg(&input).arg(Path::new(env!("CARGO_MANIFEST_DIR")).join("../../benchmarks/int-d/corpus.json")).arg(expected.path()).status().unwrap();
         assert!(result.success());
         let output = tempfile::Builder::new()
             .prefix("brn-int-d-metadata-result-20261017-default-")

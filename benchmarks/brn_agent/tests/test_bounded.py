@@ -138,7 +138,7 @@ class BoundedTests(unittest.TestCase):
             with self.assertRaises(ValueError):freeze.freeze(changed)
 
     def test_retained_pilot_and_observed_calibration_are_bound_and_not_qualified(self):
-        folder=ROOT/'docs/work/active/agentbench/bounded-evidence'
+        folder=ROOT/'benchmarks/brn_agent/tests/fixtures/bounded-evidence'
         packets=json.loads((folder/'pilot003-packets.json').read_text())
         review=json.loads((folder/'pilot003-review.json').read_text())
         self.assertEqual(sha256(folder/'pilot003-packets.json'),review['packet_file_sha256'])

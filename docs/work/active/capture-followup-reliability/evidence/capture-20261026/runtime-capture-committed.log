@@ -1,9 +1,0 @@
-
-running 4 tests
-test threads::capture_tests::capture_request_is_bound_to_chat_and_is_not_an_ordinary_message_read ... ok
-test threads::capture_tests::capture_precise_edit_keeps_review_gate_in_a_later_ordinary_run ... ok
-test threads::capture_tests::capture_cannot_apply_an_older_unmarked_candidate_but_ordinary_delegation_still_can ... ok
-test threads::capture_tests::capture_preparation_is_review_only_and_fresh_ordinary_refresh_cannot_strip_it ... ok
-
-test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 512 filtered out; finished in 0.02s
-

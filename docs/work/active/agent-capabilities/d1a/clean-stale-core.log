@@ -1,3 +1,0 @@
-error: cannot clean `/private/tmp/brn-d1a-20261016-target`: missing or invalid `CACHEDIR.TAG` file
-  |
-  = note: cleaning has been aborted to prevent accidental deletion of unrelated files
