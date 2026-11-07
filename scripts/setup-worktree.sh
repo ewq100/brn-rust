@@ -16,8 +16,9 @@ host=$(rustc --version --verbose | sed -n 's/^host: //p')
 cargo fetch --locked --quiet
 cargo fetch --locked --quiet --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host"
 
-# Rebuild only when helper sources, patches or build scripts change.
-key=$(git ls-files -s tools/xberg-intake-helper patches/xberg scripts/build-document-helpers.sh scripts/prepare-xberg-adapted.py | shasum -a 256 | cut -c1-16)
+# Key on the working-tree bytes of every build input, so uncommitted helper edits rebuild.
+key=$(git ls-files -z --cached --others --exclude-standard tools/xberg-intake-helper patches/xberg scripts/build-document-helpers.sh scripts/prepare-xberg-adapted.py \
+  | sort -z | xargs -0 shasum -a 256 2>/dev/null | shasum -a 256 | cut -c1-16)
 helpers="$cache_root/$key"
 if [[ ! -x "$helpers/artifacts/brn-xberg-helper" || ! -x "$helpers/artifacts/brn-xberg-helper-brn" ]]; then
   echo "Building document helpers into $helpers (once per helper change)"
