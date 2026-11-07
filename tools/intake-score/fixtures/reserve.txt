@@ -1,4 +1,5 @@
 Reserve audit
 
 Lena counted 17 seals and 6 valves.
+	Identifier: 0007; operator: Léna.
 The south shed remains unchecked.

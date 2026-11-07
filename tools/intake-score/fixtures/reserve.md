@@ -1,13 +1,11 @@
 # Reserve audit
 
-## Parts
+### Parts
 
-- Count seals.
-- Count valves.
+3. Count seals.
+   - Include the west shed.
+4. Count valves.
 
-| Part | Units |
-| --- | --- |
-| Seal | 17 |
-| Valve | 6 |
+> The south shed remains unchecked.
 
-The south shed remains unchecked.
+See [audit rules](https://example.test/rules).

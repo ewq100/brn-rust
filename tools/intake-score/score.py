@@ -3,9 +3,11 @@
 import argparse
 from collections import Counter, defaultdict
 import hashlib
+from html.parser import HTMLParser
 import json
 from pathlib import Path
 import platform
+import selectors
 import socket
 import statistics
 import subprocess
@@ -31,7 +33,11 @@ def canonical(value):
     return json.dumps(value, sort_keys=True, ensure_ascii=False)
 
 
-def fidelity(expected, inventory):
+def semantic(element):
+    return {k: v for k, v in element.items() if k != "position"}
+
+
+def fidelity(expected, inventory, order_groups=()):
     """Consume occurrences once. Text matches exact spans within visible blocks.
 
     Structure is typed and exact, including the whole ordered table matrix.
@@ -39,26 +45,45 @@ def fidelity(expected, inventory):
     """
     available = list(inventory["elements"])
     blocks = list(inventory["blocks"])
-    retained, missing = [], []
+    retained, missing, positions = [], [], []
     for index, want in enumerate(expected):
         found = False
+        position = None
         if want["type"] == "text":
             for i, block in enumerate(blocks):
-                if want["text"] in block:
-                    blocks[i] = block.replace(want["text"], "", 1)
+                if want["text"] in block and (not want.get("whole_block") or block == want["text"]):
+                    offset = block.index(want["text"])
+                    position = inventory.get("block_positions", list(range(len(blocks))))[i] + len(block[:offset].encode())
+                    blocks[i] = block.replace(want["text"], "\0" * len(want["text"]), 1)
                     found = True
                     break
         else:
             for i, actual in enumerate(available):
                 if all(actual.get(key) == value for key, value in want.items()):
                     available.pop(i)
+                    if "html_source" in actual:
+                        available = [e for e in available if not (e["type"] == "html" and e.get("position") == actual.get("position") and e["text"] == actual["html_source"])]
+                    position = actual.get("position", i)
                     found = True
                     break
         retained.append(found)
-        if not found:
+        positions.append(position)
+    order_losses = []
+    for group in order_groups:
+        previous = -1
+        for index in group:
+            if retained[index]:
+                if positions[index] < previous:
+                    retained[index] = False
+                    order_losses.append(index)
+                else:
+                    previous = positions[index]
+    for index, want in enumerate(expected):
+        if not retained[index]:
             missing.append({"index": index, **want})
     return {"score": sum(retained) / len(expected), "retained": retained,
-            "missing": missing, "unexpected_structure": available}
+            "missing": missing, "order_losses": order_losses,
+            "unexpected_structure": list(map(semantic, available))}
 
 
 def spread(samples):
@@ -67,7 +92,13 @@ def spread(samples):
 
 
 def verify_frozen():
+    anchor = json.loads((ROOT / "docs/work/active/intake-hill-climb/scorer-review.json").read_text())
+    if sha(HERE / "frozen.json") != anchor["frozen_sha256"]:
+        raise ValueError("freeze differs from reviewed anchor")
     frozen = json.loads((HERE / "frozen.json").read_text())
+    pin = subprocess.check_output(["git", "show", anchor["freeze_commit"] + ":tools/intake-score/frozen.json"], cwd=ROOT)
+    if hashlib.sha256(pin).hexdigest() != sha(HERE / "frozen.json"):
+        raise ValueError("freeze differs from committed anchor")
     for name, digest in frozen["files"].items():
         if sha(ROOT / name) != digest:
             raise ValueError("frozen scorer/fixture changed: " + name)
@@ -81,6 +112,8 @@ def verify_frozen():
     for f in manifests:
         if f["id"] not in split[f["split"]] or sha(ROOT / f["path"]) != f["sha256"] or not f["expected"]:
             raise ValueError("fixture/split mismatch: " + f["id"])
+    if sorted(frozen["hostile"]) != sorted(str(p.relative_to(ROOT)) for p in (ROOT / "crates/brn-intake/tests/fixtures").glob("hostile-*.docx")):
+        raise ValueError("hostile fixture set changed")
     return manifests
 
 
@@ -89,14 +122,19 @@ class Probe:
         # The driver has no provider dependency. Helpers clear their environment,
         # install the existing OS network sandbox and have no URL-input route.
         self.process = subprocess.Popen([binary], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE, text=True, env={})
+                                        stderr=subprocess.DEVNULL, text=True, env={})
 
     def run(self, request):
         self.process.stdin.write(json.dumps(request) + "\n")
         self.process.stdin.flush()
+        with selectors.DefaultSelector() as selector:
+            selector.register(self.process.stdout, selectors.EVENT_READ)
+            if not selector.select(timeout=45):
+                self.process.kill()
+                raise TimeoutError("warm probe exceeded 45 seconds")
         line = self.process.stdout.readline()
         if not line:
-            raise RuntimeError("probe failed: " + self.process.stderr.read()[:2000])
+            raise RuntimeError("probe failed without a result")
         return json.loads(line)
 
     def close(self):
@@ -105,8 +143,61 @@ class Probe:
             raise RuntimeError("probe exited unsuccessfully")
 
 
+class Tables(HTMLParser):
+    """Read actual HTML table trees without duplicating nested cell content."""
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.stack, self.tables = [], []
+        self.bad = False
+
+    def handle_starttag(self, tag, attrs):
+        if tag not in ["table", "tr", "td", "th", "tbody", "thead", "tfoot", "p", "br"]:
+            self.bad = True
+        if tag == "table":
+            self.stack.append({"rows": [], "cell": None})
+        elif self.stack and tag == "tr":
+            self.stack[-1]["rows"].append([])
+        elif self.stack and tag in ["td", "th"]:
+            self.stack[-1]["cell"] = {"before": "", "after": ""}
+
+    def handle_data(self, text):
+        if not self.stack and text.strip():
+            self.bad = True
+        if self.stack and self.stack[-1]["cell"] is not None:
+            cell = self.stack[-1]["cell"]
+            cell["after" if "table" in cell else "before"] += text
+
+    def handle_endtag(self, tag):
+        if not self.stack:
+            return
+        current = self.stack[-1]
+        if tag in ["td", "th"] and current["cell"] is not None:
+            cell = current["cell"]
+            current["rows"][-1].append({k: v.strip() if isinstance(v, str) else v for k, v in cell.items()} if "table" in cell else cell["before"].strip())
+            current["cell"] = None
+        elif tag == "table":
+            current = self.stack.pop()
+            rows = current["rows"]
+            value = {"type": "table", "rows": len(rows), "columns": len(rows[0]) if rows else 0, "cells": rows}
+            if self.stack and self.stack[-1]["cell"] is not None:
+                self.stack[-1]["cell"]["table"] = value
+            else:
+                self.tables.append(value)
+
+
 def inventory(binary, result):
-    return json.loads(subprocess.check_output([binary], input=json.dumps(result).encode(), env={}, timeout=30))
+    value = json.loads(subprocess.check_output([binary], input=json.dumps(result).encode(), env={}, timeout=30))
+    for element in list(value["elements"]):
+        if element["type"] == "html":
+            parser = Tables()
+            parser.feed(element["text"])
+            for table in parser.tables:
+                table.update({"position": element["position"], "context": element["context"]})
+                if not parser.bad:
+                    table["html_source"] = element["text"]
+                value["elements"].append(table)
+    value["elements"].sort(key=lambda e: e["position"])
+    return value
 
 
 def network_witness(helper, scratch):
@@ -130,11 +221,38 @@ def compare(base, final):
     expected_losses = [i for i, (b, f) in enumerate(zip(base["retained"], final["retained"])) if b and not f]
     unexpected = []
     for key in ["elements", "blocks"]:
-        old = Counter(map(canonical, base["inventory"][key]))
-        new = Counter(map(canonical, final["inventory"][key]))
+        old_sequence = [canonical(semantic(e) if isinstance(e, dict) else e) for e in base["inventory"][key]]
+        new_sequence = [canonical(semantic(e) if isinstance(e, dict) else e) for e in final["inventory"][key]]
+        old, new = Counter(old_sequence), Counter(new_sequence)
         unexpected += [{"kind": key, "element": json.loads(value), "count": count}
                        for value, count in (old - new).items()]
-    return {"newly_lost_expected": expected_losses, "unexpected_losses": unexpected}
+        iterator = iter(new_sequence)
+        if not all(any(candidate == old for candidate in iterator) for old in old_sequence):
+            unexpected.append({"kind": key, "reason": "baseline order or parent context lost"})
+    added = Counter(map(canonical, final.get("unexpected_structure", []))) - Counter(map(canonical, base.get("unexpected_structure", [])))
+    return {"newly_lost_expected": expected_losses, "unexpected_losses": unexpected,
+            "unjustified_additions": [{"element": json.loads(e), "count": n} for e, n in added.items()]}
+
+
+def decision(rows, comparisons):
+    """Predeclared overall rule, never choose a favorable format after measuring."""
+    baseline = [r for r in rows if r["arm"] == "baseline"]
+    final = [r for r in rows if r["arm"] == "final"]
+    old = statistics.mean(r["score"] for r in baseline)
+    new = statistics.mean(r["score"] for r in final)
+    speed = []
+    for mode in MODES:
+        pairs = [p for p in comparisons if p["mode"] == mode]
+        for temperature in ["cold", "warm"]:
+            gain = statistics.median(p["speed"][temperature]["paired_median_gain"] for p in pairs)
+            threshold = statistics.median(p["speed"][temperature]["required_gain"] for p in pairs)
+            no_slowdown = all(p["speed"][temperature]["paired_median_gain"] >= -p["speed"][temperature]["required_gain"] for p in pairs)
+            speed.append({"mode": mode, "temperature": temperature, "median_paired_gain": gain,
+                          "median_spread_threshold": threshold, "no_file_slowdown_beyond_spread": no_slowdown,
+                          "passes": gain > threshold and no_slowdown})
+    return {"baseline_fidelity": old, "final_fidelity": new,
+            "metric_eligible": new > old or (new == old and all(s["passes"] for s in speed)),
+            "speed": speed}
 
 
 def main():
@@ -145,13 +263,22 @@ def main():
     parser.add_argument("--split", choices=["tuning", "held-out"], required=True)
     parser.add_argument("--runs", type=int, default=5)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--held-out-ledger", type=Path,
+                        help="required single-use ledger for the one final baseline/final held-out evaluation")
     args = parser.parse_args()
     if args.runs < 5:
         parser.error("at least five runs required")
     fixtures = [f for f in verify_frozen() if f["split"] == args.split]
     arms = json.loads(args.arms.read_text())
-    if not arms:
-        parser.error("at least one arm required")
+    if set(arms) != {"baseline", "final"}:
+        parser.error("exactly baseline and final arms required")
+    arms = {key: arms[key] for key in ["baseline", "final"]}
+    if args.split == "held-out":
+        if args.held_out_ledger is None:
+            parser.error("held-out requires --held-out-ledger")
+        # Exclusive creation records even an interrupted attempt. Never silently rerun.
+        with args.held_out_ledger.open("x") as ledger:
+            json.dump({"arms": arms, "frozen_sha256": sha(HERE / "frozen.json"), "started": True}, ledger)
     for arm in arms.values():
         for path in arm.values():
             if not Path(path).is_absolute() or not Path(path).is_file():
@@ -206,7 +333,7 @@ def main():
                 for row in rows.values():
                     output = row.pop("payload")
                     inv = inventory(str(args.inventory), output["result"]) if "result" in output else {"elements": [], "blocks": []}
-                    row.update(fidelity(fixture["expected"], inv))
+                    row.update(fidelity(fixture["expected"], inv, fixture["order_groups"]))
                     row["inventory"] = inv
                     row["gaps"] = output.get("result", {}).get("coverage", {}).get("gaps", [])
                     row["error"] = output.get("error")
@@ -214,7 +341,7 @@ def main():
                         row[temp] = spread(row[temp])
                     result["rows"].append(row)
                 if len(arms) == 2:
-                    base_name, final_name = arms
+                    base_name, final_name = "baseline", "final"
                     for mode in MODES:
                         base, final = rows[base_name, mode], rows[final_name, mode]
                         comp = {"fixture": fixture["id"], "mode": mode, **compare(base, final)}
@@ -223,12 +350,14 @@ def main():
                         result["comparisons"].append(comp)
             # All existing hostile DOCX inputs must refuse under every arm/mode.
             result["hostile"] = []
-            for path in sorted((ROOT / "crates/brn-intake/tests/fixtures").glob("hostile-*.docx")):
+            frozen = json.loads((HERE / "frozen.json").read_text())
+            for relative in frozen["hostile"]:
+                path = ROOT / relative
                 for mode in MODES:
                     for name, arm in arms.items():
                         output = probes[name].run({"path": str(path), "kind": "Docx", "backend": mode,
                                                    "stock": arm["stock"], "brn": arm["brn"], "scratch": str(scratch / "scratch")})
-                        result["hostile"].append({"fixture": path.name, "arm": name, "mode": mode, "refused": "error" in output, "error": output.get("error")})
+                        result["hostile"].append({"fixture": path.name, "arm": name, "mode": mode, "refused": output.get("error") in ["Invalid", "Budget"], "error": output.get("error")})
         finally:
             for probe in probes.values():
                 probe.close()
@@ -241,14 +370,20 @@ def main():
                           "cold_seconds": statistics.median(r["cold"]["median"] for r in rows),
                           "warm_seconds": statistics.median(r["warm"]["median"] for r in rows)}
                          for (arm, mode, fmt), rows in groups.items()]
+    hostile_same = all(next(r["error"] for r in result["hostile"] if r["fixture"] == row["fixture"] and r["mode"] == row["mode"] and r["arm"] == "baseline") == row["error"] for row in result["hostile"] if row["arm"] == "final")
     result["guardrails"] = {"hostile_refuse": all(r["refused"] for r in result["hostile"]),
+                            "hostile_same_category": hostile_same,
                             "network_denied": True, "encrypted_pdf": "deferred, unmeasured, no support/refusal claim",
                             "no_new_expected_loss": not any(r["newly_lost_expected"] for r in result["comparisons"]),
                             "no_unexpected_loss": not any(r["unexpected_losses"] for r in result["comparisons"]),
+                            "no_unjustified_additions": not any(r["unjustified_additions"] for r in result["comparisons"]),
                             "tests_and_app_size": "separate required receipts"}
+    result["decision"] = decision(result["rows"], result["comparisons"])
+    result["decision"]["kept"] = False
+    result["decision"]["reason"] = "metric result only; separate test, source and app-size receipts required before keeping"
     dump(args.output, result)
     print(json.dumps({"output": str(args.output), "summary": [s for s in result["summary"] if s["format"] == "all"], "guardrails": result["guardrails"]}, indent=2))
-    if not all(result["guardrails"][k] for k in ["hostile_refuse", "no_new_expected_loss", "no_unexpected_loss"]):
+    if not all(v for v in result["guardrails"].values() if isinstance(v, bool)):
         raise SystemExit(1)
 
 

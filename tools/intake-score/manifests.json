@@ -134,15 +134,26 @@
           "type": "text",
           "text": "Footer constraint: budget capped at EUR 4,000."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
       ]
     },
     {
       "id": "nested-docx",
       "kind": "docx",
       "path": "tools/intake-score/fixtures/nested.docx",
-      "sha256": "128f4b39782d50b18124fa09c05a00f5ef2c093f74b0b705f893368137da03f0",
+      "sha256": "2607b8b7ef5022ecd7e9bc50d3773624ab83fd119a4ed0875fefae1731901a81",
       "split": "tuning",
-      "basis": "Hand-authored generate.py nested_docx; outer cell visible text contains the nested table in source order.",
+      "basis": "Source DOCX nested cell tree checked as one HTML table with before/after text. Flattening or duplicating the inner table cannot satisfy it.",
       "expected": [
         {
           "type": "heading",
@@ -164,33 +175,35 @@
             ],
             [
               "Prepare",
-              "Nested scheduleInner gateOwnerInspectIrisAfter nested table."
+              {
+                "before": "Nested schedule",
+                "table": {
+                  "type": "table",
+                  "rows": 2,
+                  "columns": 2,
+                  "cells": [
+                    [
+                      "Inner gate",
+                      "Owner"
+                    ],
+                    [
+                      "Inspect",
+                      "Iris"
+                    ]
+                  ]
+                },
+                "after": "After nested table."
+              }
             ]
           ]
-        },
-        {
-          "type": "table",
-          "rows": 2,
-          "columns": 2,
-          "cells": [
-            [
-              "Inner gate",
-              "Owner"
-            ],
-            [
-              "Inspect",
-              "Iris"
-            ]
-          ]
-        },
-        {
-          "type": "text",
-          "text": "Nested schedule"
-        },
-        {
-          "type": "text",
-          "text": "After nested table."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2
+        ]
       ]
     },
     {
@@ -242,15 +255,24 @@
         },
         {
           "type": "list_item",
-          "text": "Check the manifest against the parcel count and record any mismatch."
+          "text": "Check the manifest against the parcel count and record any mismatch.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 1
         },
         {
           "type": "list_item",
-          "text": "Test the release signal with the inspector present; retain the timestamp."
+          "text": "Test the release signal with the inspector present; retain the timestamp.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 2
         },
         {
           "type": "list_item",
-          "text": "Release only after both checks pass and tell the coordinator the batch number."
+          "text": "Release only after both checks pass and tell the coordinator the batch number.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 3
         },
         {
           "type": "table",
@@ -346,6 +368,30 @@
           "width": 720,
           "height": 200
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          12,
+          2,
+          13,
+          3,
+          8,
+          9,
+          10,
+          14,
+          4,
+          11,
+          19,
+          15,
+          5,
+          16,
+          6,
+          17,
+          7,
+          18
+        ]
       ]
     },
     {
@@ -448,6 +494,28 @@
           "height": 200,
           "pixels_sha256": "efd7dd3591a80a54b90074718d964dbd672850ea37bc8ab439c5450219ee30ab"
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          16,
+          6,
+          17,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
       ]
     },
     {
@@ -489,13 +557,24 @@
           "type": "text",
           "text": "No storm observations were made."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          3,
+          4,
+          2,
+          5,
+          6
+        ]
       ]
     },
     {
       "id": "reserve-pdf",
       "kind": "pdf",
       "path": "tools/intake-score/fixtures/reserve.pdf",
-      "sha256": "5741198231d59fdfb4ef0465e7d5d6cad36d87277ec325b75279570d3b379393",
+      "sha256": "ac4917c79acbf3dbab31667d06494b903725c994016a88ea0f366addbb5bea49",
       "split": "held-out",
       "basis": "Hand-authored generate.py PDF, 20pt title and 16pt section headings; columns preserve local order.",
       "expected": [
@@ -529,7 +608,23 @@
         {
           "type": "text",
           "text": "Repeat the count on Monday."
+        },
+        {
+          "type": "text",
+          "text": "Two bolts need replacement."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          3,
+          4,
+          7,
+          2,
+          5,
+          6
+        ]
       ]
     },
     {
@@ -702,13 +797,28 @@
           "type": "text",
           "text": "Do not treat a berth count as arrival authorization."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          2,
+          3,
+          4,
+          5,
+          6,
+          9,
+          1,
+          7,
+          8,
+          10
+        ]
       ]
     },
     {
       "id": "island-pptx",
       "kind": "pptx",
       "path": "tools/intake-score/fixtures/island.pptx",
-      "sha256": "fe79442e38c1fa21d1cb38ca5a1c115850ad73944308a8f320d72a6ea7bdccd6",
+      "sha256": "da3150a7a06becaf088f8776914b1be2cb81db521e993b17e038871e9ce72a10",
       "split": "tuning",
       "basis": "Hand-authored generate.py slides with title placeholders.",
       "expected": [
@@ -730,6 +840,14 @@
           "type": "text",
           "text": "Dispatch only after Iris signs the log."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3
+        ]
       ]
     },
     {
@@ -748,6 +866,84 @@
         {
           "type": "text",
           "text": "CRITICAL: installation may start only after valve inspection."
+        },
+        {
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
         },
         {
           "type": "text",
@@ -772,12 +968,29 @@
         },
         {
           "type": "text",
-          "text": "2"
+          "text": "2",
+          "whole_block": true
         },
         {
           "type": "text",
-          "text": "0"
+          "text": "0",
+          "whole_block": true
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          9,
+          8,
+          10
+        ]
       ]
     },
     {
@@ -804,13 +1017,21 @@
           "type": "text",
           "text": "4000"
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3
+        ]
       ]
     },
     {
       "id": "merged-xlsx",
       "kind": "xlsx",
       "path": "tools/intake-score/fixtures/merged.xlsx",
-      "sha256": "17d28311218be00292e7870992e97aaa8afe90ffd97ed0f40157a118ad092910",
+      "sha256": "7d7501d1afacd9ddb42f5d1929c982beaa88d1b267e404e014022f8d23dec6eb",
       "split": "tuning",
       "basis": "Hand-authored generate.py workbook; two sheets, merged A1:B1. Table dimensions include header and empty merged cell.",
       "expected": [
@@ -828,7 +1049,7 @@
           "columns": 2,
           "cells": [
             [
-              "Island budget",
+              "Warehouse budget",
               ""
             ],
             [
@@ -864,15 +1085,23 @@
             ]
           ]
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          2,
+          1,
+          3
+        ]
       ]
     },
     {
       "id": "reserve-xlsx",
       "kind": "xlsx",
       "path": "tools/intake-score/fixtures/reserve.xlsx",
-      "sha256": "8e21e6f0fb02ef4e5d0e7fc0438dcb63f5d521313d8f95989776635407bd6d6a",
+      "sha256": "a2779e6cdf12524ae77ec348c535746d14df35b237160862ffe42ec59e61905f",
       "split": "held-out",
-      "basis": "Hand-authored generate.py workbook; two sheets, merged A1:B1. Table dimensions include header and empty merged cell.",
+      "basis": "Source workbook has 3 columns and B2:C2 merged, with 4 and 3 rows in distinct sheets. Sheet labels differ from cell text.",
       "expected": [
         {
           "type": "text",
@@ -885,45 +1114,60 @@
         {
           "type": "table",
           "rows": 4,
-          "columns": 2,
+          "columns": 3,
           "cells": [
             [
-              "Reserve stock",
-              ""
-            ],
-            [
               "Part",
+              "Location",
               "Units"
             ],
             [
               "Seal",
-              "17"
+              "North shed",
+              ""
             ],
             [
               "Valve",
+              "South shed",
               "6"
+            ],
+            [
+              "Bolt",
+              "West shed",
+              "23"
             ]
           ]
         },
         {
           "type": "table",
           "rows": 3,
-          "columns": 2,
+          "columns": 3,
           "cells": [
             [
               "Day",
-              "Owner"
+              "Owner",
+              "Shift"
             ],
             [
               "Friday",
-              "Lena"
+              "Lena",
+              "Evening"
             ],
             [
               "Monday",
-              "Kai"
+              "Kai",
+              "Morning"
             ]
           ]
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          2,
+          1,
+          3
+        ]
       ]
     },
     {
@@ -985,6 +1229,13 @@
           "width": 900,
           "height": 500
         }
+      ],
+      "order_groups": [
+        [
+          1,
+          3,
+          2
+        ]
       ]
     },
     {
@@ -1046,6 +1297,13 @@
           "width": 900,
           "height": 500
         }
+      ],
+      "order_groups": [
+        [
+          1,
+          3,
+          2
+        ]
       ]
     },
     {
@@ -1064,6 +1322,12 @@
           "type": "text",
           "text": "The south shed remains unchecked."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1
+        ]
       ]
     },
     {
@@ -1090,11 +1354,17 @@
         },
         {
           "type": "list_item",
-          "text": "morning high"
+          "text": "morning high",
+          "ordered": false,
+          "depth": 1,
+          "ordinal": null
         },
         {
           "type": "list_item",
-          "text": "evening low"
+          "text": "evening low",
+          "ordered": false,
+          "depth": 1,
+          "ordinal": null
         },
         {
           "type": "text",
@@ -1107,7 +1377,30 @@
         {
           "type": "code",
           "text": "level = 3.2"
+        },
+        {
+          "type": "blockquote",
+          "text": "Readings are provisional."
+        },
+        {
+          "type": "link",
+          "text": "station notes",
+          "url": "https://example.test/notes#tides"
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          2,
+          9,
+          1,
+          3,
+          4,
+          8,
+          5,
+          7,
+          6
+        ]
       ]
     },
     {
@@ -1130,11 +1423,17 @@
         },
         {
           "type": "list_item",
-          "text": "Inspect the lamp."
+          "text": "Inspect the lamp.",
+          "ordered": false,
+          "depth": 1,
+          "ordinal": null
         },
         {
           "type": "list_item",
-          "text": "Sign the log."
+          "text": "Sign the log.",
+          "ordered": false,
+          "depth": 1,
+          "ordinal": null
         },
         {
           "type": "table",
@@ -1159,15 +1458,25 @@
           "type": "text",
           "text": "Do not open before noon."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
       ]
     },
     {
       "id": "reserve-html",
       "kind": "html",
       "path": "tools/intake-score/fixtures/reserve.html",
-      "sha256": "9c694f557c77414d51f57aa335485695844b7843cb450c2db5b73fd73575acab",
+      "sha256": "4aae8d5a3631b529f586bce6acbff81a249abbdc9e8cd67faf7fb0c977b4803b",
       "split": "held-out",
-      "basis": "Hand-authored generate.py HTML. All table cells, heading levels and list labels required.",
+      "basis": "Hand-authored source with third-level heading, list starting at 3, nested unordered item, blockquote and external link. No linked bytes fetched.",
       "expected": [
         {
           "type": "heading",
@@ -1176,40 +1485,50 @@
         },
         {
           "type": "heading",
-          "level": 2,
+          "level": 3,
           "text": "Parts"
         },
         {
           "type": "list_item",
-          "text": "Count seals."
+          "text": "Count seals.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 3
         },
         {
           "type": "list_item",
-          "text": "Count valves."
+          "text": "Include the west shed.",
+          "ordered": false,
+          "depth": 2,
+          "ordinal": null
         },
         {
-          "type": "table",
-          "rows": 3,
-          "columns": 2,
-          "cells": [
-            [
-              "Part",
-              "Units"
-            ],
-            [
-              "Seal",
-              "17"
-            ],
-            [
-              "Valve",
-              "6"
-            ]
-          ]
+          "type": "list_item",
+          "text": "Count valves.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 4
         },
         {
-          "type": "text",
+          "type": "blockquote",
           "text": "The south shed remains unchecked."
+        },
+        {
+          "type": "link",
+          "text": "audit rules",
+          "url": "https://example.test/rules"
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
       ]
     },
     {
@@ -1232,6 +1551,13 @@
           "type": "text",
           "text": "Keep the gate closed until noon."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2
+        ]
       ]
     },
     {
@@ -1254,13 +1580,20 @@
           "type": "text",
           "text": "No final newline Ω"
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2
+        ]
       ]
     },
     {
       "id": "reserve-text",
       "kind": "text",
       "path": "tools/intake-score/fixtures/reserve.txt",
-      "sha256": "82cbb78a83029e0bd765982c959fd076c75d7403532a00108c391cfb5e4c2442",
+      "sha256": "5ab594e7dc785bd05457f579f489faf13124b18f2c3b0ae3b6d1b5c8144ca9b0",
       "split": "held-out",
       "basis": "Hand-authored generate.py UTF-8 literal text; exact spans, CRLF not silently normalized for source hash.",
       "expected": [
@@ -1274,8 +1607,20 @@
         },
         {
           "type": "text",
+          "text": "Identifier: 0007; operator: Léna."
+        },
+        {
+          "type": "text",
           "text": "The south shed remains unchecked."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3
+        ]
       ]
     },
     {
@@ -1298,11 +1643,17 @@
         },
         {
           "type": "list_item",
-          "text": "Inspect the lamp."
+          "text": "Inspect the lamp.",
+          "ordered": false,
+          "depth": 1,
+          "ordinal": null
         },
         {
           "type": "list_item",
-          "text": "Sign the log."
+          "text": "Sign the log.",
+          "ordered": false,
+          "depth": 1,
+          "ordinal": null
         },
         {
           "type": "table",
@@ -1327,6 +1678,16 @@
           "type": "text",
           "text": "Do not open before noon."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
       ]
     },
     {
@@ -1349,11 +1710,17 @@
         },
         {
           "type": "list_item",
-          "text": "Read the label."
+          "text": "Read the label.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 1
         },
         {
           "type": "list_item",
-          "text": "Retain the serial number."
+          "text": "Retain the serial number.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 2
         },
         {
           "type": "code",
@@ -1363,15 +1730,25 @@
           "type": "text",
           "text": "Measured Δ = 3.2 m."
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5
+        ]
       ]
     },
     {
       "id": "reserve-md",
       "kind": "markdown",
       "path": "tools/intake-score/fixtures/reserve.md",
-      "sha256": "eec9935c5353e19989999b48e3ec27be1c4a88ae8319700279965958cb353051",
+      "sha256": "d20bcbdbacd00f928fc4c66437146e16e4caec8c3b971ebb62cd2fe87002cfdb",
       "split": "held-out",
-      "basis": "Hand-authored GFM source in generate.py, independent content from tuning.",
+      "basis": "Hand-authored source with third-level heading, list starting at 3, nested unordered item, blockquote and external link. No linked bytes fetched.",
       "expected": [
         {
           "type": "heading",
@@ -1380,40 +1757,50 @@
         },
         {
           "type": "heading",
-          "level": 2,
+          "level": 3,
           "text": "Parts"
         },
         {
           "type": "list_item",
-          "text": "Count seals."
+          "text": "Count seals.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 3
         },
         {
           "type": "list_item",
-          "text": "Count valves."
+          "text": "Include the west shed.",
+          "ordered": false,
+          "depth": 2,
+          "ordinal": null
         },
         {
-          "type": "table",
-          "rows": 3,
-          "columns": 2,
-          "cells": [
-            [
-              "Part",
-              "Units"
-            ],
-            [
-              "Seal",
-              "17"
-            ],
-            [
-              "Valve",
-              "6"
-            ]
-          ]
+          "type": "list_item",
+          "text": "Count valves.",
+          "ordered": true,
+          "depth": 1,
+          "ordinal": 4
         },
         {
-          "type": "text",
+          "type": "blockquote",
           "text": "The south shed remains unchecked."
+        },
+        {
+          "type": "link",
+          "text": "audit rules",
+          "url": "https://example.test/rules"
         }
+      ],
+      "order_groups": [
+        [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ]
       ]
     }
   ]
