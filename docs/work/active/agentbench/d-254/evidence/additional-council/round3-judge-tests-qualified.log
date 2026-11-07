@@ -1,0 +1,10 @@
+   Compiling brn-ai v0.1.0 (/Users/evokessler/repos/brn-agent-d-254/crates/brn-ai)
+    Finished `test` profile [optimized] target(s) in 30.55s
+     Running unittests src/lib.rs (/private/tmp/brn-agent-d-254-target/debug/deps/brn_ai-d9e416c55b41bbce)
+
+running 2 tests
+test threads::benchmark_judge::tests::judgment_has_no_callable_or_provider_tools_and_fixed_effort ... ok
+test threads::benchmark_judge::tests::frozen_judgment_uses_one_real_wire_request_and_refuses_tools_or_other_model ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 644 filtered out; finished in 0.01s
+

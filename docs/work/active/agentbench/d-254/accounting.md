@@ -64,7 +64,8 @@ after development candidate runs, while development acceptance was unknown.
 This deviation consumed the fresh pack on an unqualified candidate. The added
 10-minute coordination window was fixed before fresh results, during development;
 it was absent from the initial plan. Eight candidate commands plus eight readers
-need 20 minutes in the worst case, before grading, so all could not fit that
+allow at least 20 minutes of command time before setup, checkpoint work, cleanup
+and grading, so all could not fit that
 window. Its preparation/checks left only 275 seconds for native execution.
 The nested deadline, not the cycle deadline, stopped the in-flight seventh
 attempt; approximately 61 whole-cycle minutes still remained.
@@ -103,3 +104,31 @@ regressions and final confirmation remain unresolved acceptance requirements.
 No desktop observation, hosted CI pass, owner acceptance, default change, merge
 or release is claimed. A further cycle needs fresh cases and feasible evaluation
 windows; the existing stopped allowance is not silently extended.
+
+## Additional Council allocation requested on 7 November
+
+After the original delivery, the owner removed Kimi and requested three further
+Council rounds. Rounds 3–5 use Sol through Codex and Opus through the previously
+verified Copilot fallback. The saved default Council profile now uses those two
+model families. Historical Kimi receipts remain part of the original accounting.
+
+This new review-only allocation is separate from the closed benchmark cycle. It
+allows 72 requested provider turns across six seats, 12 per seat and 36 per route.
+Each round has a requested ten-minute window, with 30 minutes total Council time
+and 60 minutes for the review/correction work. T3 exposes requested limits and
+role results. Actual provider HTTP and token usage remain unknown. Failures keep
+their debits. The additional allocation and round results are recorded alongside
+this report, and the original native ledger totals remain historical.
+
+The reader's outer 120-second operation reserves 30 seconds for cleanup, leaving
+90 seconds of active dispatch. The candidate's 60-second limit covers a BRN CLI
+command including its HTTP/tool loop. The twenty-minute figure sums eight such
+candidate commands and eight active reader windows. Setup and other work add to
+that duration. Phase clocks start on the first admission attempt. The recorded
+Phase 2 attempt at 23:09:19Z was admitted and executed its candidate block.
+
+All six additional review seats completed and reserved the 72 requested turns,
+36 per route. The sum of the three round windows was 773.607 seconds, about
+12 minutes 54 seconds, within the 30-minute review ceiling. Provider HTTP/token
+usage remains unavailable. The separate review allocation, debits, raw outputs
+and elapsed intervals are preserved in the additional Council evidence.

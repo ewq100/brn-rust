@@ -7,6 +7,7 @@ use futures::StreamExt;
 use rig::completion::{CompletionRequest, FinishReason};
 use rig::{DynModel, operation::Completion};
 use serde_json::{Value, json};
+use sha2::{Digest, Sha256};
 use std::path::Path;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -79,7 +80,7 @@ async fn judge_over(
             return Err(AiError::new(AiErrorKind::InvalidToolUse));
         }
         let returned = response.model().filter(|id| crate::valid_model_id(id));
-        if returned.is_some_and(|id| id != "gpt-6.1-sol") {
+        if returned != Some("gpt-6.1-sol") {
             return Err(AiError::new(AiErrorKind::ModelRefused));
         }
         let text = response.text();
@@ -95,6 +96,8 @@ async fn judge_over(
     let result = tokio::time::timeout(Duration::from_secs(45), operation).await;
     cancel.cancel();
     let mut receipt = json!({"format":1,"kind":"frozen-packet-judgment",
+        "packet_file_sha256":format!("{:x}", Sha256::digest(packet.as_bytes())),
+        "instructions_sha256":format!("{:x}", Sha256::digest(instructions.as_bytes())),
         "provider":"Codex","model":"gpt-6.1-sol","effort":"high","tools":[],
         "elapsed_ms":started.elapsed().as_millis(),"model_call_budget":budget.snapshot(),
         "wire_requests":trace.map(|t| t.finish("frozen-reviewer", false, 0).wire_requests)});
@@ -146,6 +149,10 @@ mod tests {
             ),
             (text_sse(true, "[]"), "failed"),
             (
+                text_sse(true, "[]").replace("\"model\":\"synthetic\"", "\"model\":null"),
+                "failed",
+            ),
+            (
                 tool_sse(true, &[("read_note", json!({"id":"synthetic"}))]),
                 "failed",
             ),
@@ -161,6 +168,14 @@ mod tests {
             .await;
             assert_eq!(result["status"], expected, "{result}");
             assert_eq!(http.requests().len(), 1);
+            assert_eq!(
+                result["packet_file_sha256"],
+                format!("{:x}", Sha256::digest(b"SYNTHETIC_PACKET"))
+            );
+            assert_eq!(
+                result["instructions_sha256"],
+                format!("{:x}", Sha256::digest(b"Frozen instructions"))
+            );
             assert_eq!(result["model_call_budget"]["started"], 1);
             assert_eq!(result["wire_requests"][0]["model"], "gpt-6.1-sol");
             assert_eq!(result["wire_requests"][0]["effort"], "high");

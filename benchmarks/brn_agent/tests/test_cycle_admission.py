@@ -13,6 +13,18 @@ spec.loader.exec_module(cycle)
 
 
 class CycleAdmissionTests(unittest.TestCase):
+    def test_operation_kind_cannot_use_an_incompatible_role(self):
+        for kind, role in [('candidate','grader'),('grader','phase1')]:
+            with self.subTest(kind=kind,role=role), tempfile.TemporaryDirectory() as folder:
+                root=Path(folder)
+                operation={'id':'wrong-role','kind':kind,'role':role,'root':str(root/'run')}
+                (root/'operation.json').write_text(json.dumps(operation))
+                with self.assertRaises(cycle.CycleStop):
+                    cycle.main(['--operation',str(root/'operation.json'),
+                        '--account-file',str(root/'unused-account'),'--cycle',str(root/'absent-cycle'),
+                        '--roles',str(root/'roles')])
+                self.assertFalse((root/'roles').exists())
+
     def test_post_run_audit_rejection_has_failed_terminal_and_nonzero_exit(self):
         import datetime
         from types import SimpleNamespace

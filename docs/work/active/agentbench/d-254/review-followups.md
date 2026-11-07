@@ -1,6 +1,6 @@
 # Final review and corrections
 
-Two funded Council rounds. Actual routes: Codex/GPT-6.1 Sol, Copilot/Claude Opus
+The original cycle had two funded Council rounds. Historical routes included Codex/GPT-6.1 Sol, Copilot/Claude Opus
 5.5 and Copilot/Kimi K3, high effort. Kiro/Opus failed its monthly quota in design;
 the installed policy's named Copilot/Opus fallback was used. Provider request and
 token counts remain unknown. Six read-only tool calls per final reviewer were
@@ -17,7 +17,7 @@ boundary; reconciliation found no active runs. Holdout contents were not reviewe
 The [raw reviews](final-reviews.json) preserve findings and reviewer limitations.
 Kimi's code inspection was shallow; Opus did not inspect the actual candidate
 patch. Scores describe the reviewed state, before these lead-made corrections.
-No further review round or live rerun was funded or requested.
+At the original delivery, further review rounds were unfunded. The owner subsequently requested the additional rounds below.
 
 - Sol found that a post-run audit rejection could retain a native zero exit.
   The supervisor now sets failure status in its exception handler. A controlled
@@ -48,3 +48,51 @@ corrected source was not used in the experiment and has only offline verificatio
 Saved-state quality, fresh reader quality and broader regressions remain unknown.
 Those acceptance objections are unresolved. Both reports retain the original
 baseline and make no adoption, default-model, desktop, merge or release claim.
+
+## Owner-requested additional reviews
+
+The owner requested three further rounds after delivery and selected a two-seat
+Council. This supersedes the earlier statement about the original funded rounds.
+Round 3 returned Sol 8/10 and Opus 8/10. Sol identified an exported semantic-packet
+binding defect. The lead now checks exported packets against regenerated private
+preparation, derives metadata from the bound packet and uses its existing event
+evidence. Each grading request gets a digest returned by the judge, and the
+controller verifies that digest, runtime identity and the one-request accounting
+before accepting a reply. Reader-setup dispositions now bind to the original
+operation id, root, role, kind and request digest. The automatic empty-receipt
+continuation was removed in favor of explicit fresh operation identities.
+
+These changes have offline verification and apply to future execution. Historical
+receipts and the unmeasured acceptance gaps retain their recorded status.
+
+Round 4 returned Sol 8/10 and Opus 8/10. The lead then bound the judge's packet
+bytes and instructions bytes separately and verified instructions against the
+frozen artifact before each dispatch. Both digests and fixed runtime identity
+are checked before accepting a response. Reader exports now use regenerated
+preparation equality as well as their content digest. Offline regressions cover
+instruction drift and reader content altered together with its hash.
+
+The stronger marker checks intentionally refuse old, incompletely bound markers
+for fresh dispatch. Historical auditing uses the retained executed controller
+and original protocol. The current controller does not resume the stopped cycle.
+The initial targeted Rust filter matched zero tests and is retained as an excluded
+check attempt. The corrected module filter executed the two wire tests.
+
+Round 5 returned Sol 9/10 and Opus 8/10. Sol reported no new concrete finding.
+Opus identified two low-severity follow-ups. The lead pinned each task-root freeze
+receipt to the published experiment identity and added a test that changes both
+instructions and their receipt. A synthetic main-entrypoint test now mutates the
+reader private preparation and verifies refusal before grading. These final
+follow-ups were tested offline after round 5 and received no further Council pass.
+
+| Additional round | Sol | Opus |
+| --- | ---: | ---: |
+| 3 | 8/10 | 8/10 |
+| 4 | 8/10 | 8/10 |
+| 5 | 9/10 | 8/10 |
+
+All six new seats completed. Their raw outputs, actual routes and timing records
+are in the adjacent additional-round files and additional-council-summary.json.
+The current/default roster is Sol and Opus. The earlier Kimi evidence is historical.
+Final offline verification ran 108 benchmark tests with 107 passes and one optional
+Inspect skip, two judge wire tests, strict judge Clippy, formatting and links.

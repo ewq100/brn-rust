@@ -1,0 +1,60 @@
+{
+  "sol": {
+    "taskId": "node:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-sol-r4-20261107",
+    "childThreadId": "thread:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-sol-r4-20261107",
+    "link": "<t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-sol-r4-20261107>",
+    "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-sol-r4-20261107:ordinal:1",
+    "childNodeId": "node:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-sol-r4-20261107",
+    "status": "completed",
+    "workState": "result_available",
+    "hasPendingChildRuns": false,
+    "latestTerminalRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-sol-r4-20261107:ordinal:1",
+    "latestTerminalStatus": "completed",
+    "latestTerminalSummary": null,
+    "latestTerminalResultContextTransferId": null,
+    "providerInstanceId": "codex",
+    "model": "gpt-6.1-sol",
+    "options": [
+      {
+        "id": "reasoningEffort",
+        "value": "high"
+      },
+      {
+        "id": "serviceTier",
+        "value": "default"
+      }
+    ],
+    "summary": "**Score: 8/10. One remaining P2 finding.**\n\n- **Location:** [evaluate_outputs.py:102](/Users/evokessler/repos/brn-agent-d-254/benchmarks/brn_agent/experiments/d254/evaluate_outputs.py:102), [threads_benchmark_judge.rs:97](/Users/evokessler/repos/brn-agent-d-254/crates/brn-ai/src/threads_benchmark_judge.rs:97).\n- **Trigger:** `grader-instructions.txt` changes after freezing, while the packet remains unchanged.\n- **Impact:** The instructions become the model’s preamble, but `request_sha256` hashes only the packet. The controller checks neither the instructions against their frozen identity nor their submitted bytes. A judgment produced under changed grading instructions can therefore pass every new digest, identity and accounting check. No observed instruction drift is established.\n- **Fix:** Verify instructions against the frozen artifact before dispatch and bind both packet and instructions into the returned digest. Add an offline refusal test changing only the instructions.\n\nThe inspected round 3 fixes correctly address exported semantic-packet substitution, missing/wrong returned model, transport accounting, duplicate operation creation and reader-setup identity binding. The post-native audit exception now records failure. Reports retain the baseline and distinguish observations from acceptance.\n\n**Unresolved objections:** saved-state semantic quality, development readers, broad regressions and fresh reader/grade confirmation remain unknown. Adoption remains unsupported.\n\n**Limitations:** Static review only; no tests, builds, live calls, edits, comments, delegates or watchers. Holdout contents remained unopened; only the permitted fresh aggregate was inspected. CI and reported test passes were not independently rerun. Eight orchestration tool calls contained nine read-only shell invocations; actual provider/HTTP usage is unavailable.",
+    "resultContextTransferId": null,
+    "hasPendingQuestion": false,
+    "pendingApproval": null,
+    "waitTimedOut": false
+  },
+  "opus": {
+    "taskId": "node:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-opus-r4-20261107",
+    "childThreadId": "thread:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-opus-r4-20261107",
+    "link": "<t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-opus-r4-20261107>",
+    "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-opus-r4-20261107:ordinal:1",
+    "childNodeId": "node:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-opus-r4-20261107",
+    "status": "completed",
+    "workState": "result_available",
+    "hasPendingChildRuns": false,
+    "latestTerminalRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-opus-r4-20261107:ordinal:1",
+    "latestTerminalStatus": "completed",
+    "latestTerminalSummary": null,
+    "latestTerminalResultContextTransferId": null,
+    "providerInstanceId": "acpRegistry_copilot",
+    "model": "claude-opus-5.5",
+    "options": [
+      {
+        "id": "reasoning_effort",
+        "value": "high"
+      }
+    ],
+    "summary": "**Round 4 review: 8/10.** I found no blocking regression in the round-3 fixes at a55749a1 (diff against 6105e964). I ran no tests; the passing results below are the ones you reported.\n\n**What I confirmed in the code**\n- **Semantic packets:** before grading, the exported packets must equal a freshly regenerated preparation. Criteria and checkpoint are now taken from the hash-bound packet. `semantic.prepare` sets the same `case['criteria']` as the old path, so behaviour is unchanged.\n- **Packet checks:** `validate_packet` refuses unknown fields, wrapper metadata that doesn't match, and content changed without a new hash.\n- **Rust judge:** a missing or invalid returned model now fails, and `returned_model` is in the receipt.\n- **Controller checks:** the receipt digest is compared with the packet-file hash taken before and after dispatch. Model, effort, tools, returned model, one wire request and the call budget are all checked before any reply is decoded.\n- **Grading time limit:** the original 20-minute limit counts all earlier grading runs, so a new `--grading-pass` name does not reset it.\n- **Admission checks:** a mismatched operation kind and role is rejected before the marker is written. Operation bytes are read once and used for both parsing and the marker hash.\n\n**Findings**\n1. **Low: the digest claim is wider than the code.**\n   - **Location:** `threads_benchmark_judge.rs:99`.\n   - **Trigger:** `request_sha256` hashes only `packet`. The request actually sent is `request(packet, instructions)`, and the instructions file is not hashed.\n   - **Impact:** a changed `grader-instructions.txt` would still pass `validate_judgment`. \"SHA256 of the exact UTF8 submitted request\" overstates what is checked.\n   - **Fix:** also hash the instructions (or the serialized request) and check that in the controller, or narrow the wording to \"packet digest\".\n2. **Low: the current audit would reject the historical evidence.**\n   - **Location:** `supervise_outputs.audit_operations`.\n   - **Trigger:** both exemptions now require marker `kind`/`request_sha256`, which markers from the executed runs don't have. The phase1-W03 reader-setup and grader dispositions would now raise `CycleStop`.\n   - **Impact:** the current code cannot re-audit or resume the original run directory. The reports correctly say the new code is offline-only and for future use; I found no claim that it validates historical state.\n   - **Fix:** state this explicitly next to the reader-setup closure claim.\n3. **Trivial: one failure raises the wrong error type.** If `wire_requests` is `null` (no trace), `len(None)` raises `TypeError` instead of `ValueError`. It still fails safely.\n\n**Unresolved objection, not verified**\n- Reader packets are loaded from `rp/packets.json` and checked only by `validate_packet`. That check is self-consistent: a packet whose content and hash were both rewritten would pass. I did not confirm whether the reader path also compares them with a regenerated `reader_grading` preparation, as the semantic path now does. If it doesn't, the \"exported equals regenerated\" binding covers semantic packets only.\n\n**Limitations**\n- I used 8 read-only tool calls and did not read the Phase1/Phase2 holdout material.\n- I did not check:\n  - whether `semantic.prepare` is deterministic on the first run (it's now always called);\n  - the accounting, comparison, `council.json` and `additional-round3.json` figures;\n  - the archived executed-source parity.\n- Quality acceptance remains an open gate, and this review does not support adoption.",
+    "resultContextTransferId": null,
+    "hasPendingQuestion": false,
+    "pendingApproval": null,
+    "waitTimedOut": false
+  }
+}

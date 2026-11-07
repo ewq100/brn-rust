@@ -1,44 +1,6 @@
 {
-  "round": 2,
-  "kind": "design and final complete",
-  "seats": [
-    {
-      "provider": "codex",
-      "model": "gpt-6.1-sol",
-      "state": "completed",
-      "score": 6,
-      "tool_calls": 7,
-      "actual_requests": null,
-      "requested_max_requests": 12
-    },
-    {
-      "provider": "acpRegistry_local_acp",
-      "model": "claude-opus-5.5",
-      "state": "failed",
-      "error": "monthly usage limit",
-      "score": null,
-      "actual_requests": null,
-      "requested_max_requests": 12
-    },
-    {
-      "provider": "acpRegistry_copilot",
-      "model": "claude-opus-5.5",
-      "state": "completed",
-      "score": 5.5,
-      "tool_calls": 6,
-      "actual_requests": null,
-      "requested_max_requests": 12
-    },
-    {
-      "provider": "acpRegistry_copilot",
-      "model": "kimi-k3",
-      "state": "completed",
-      "score": 8,
-      "tool_calls": 5,
-      "actual_requests": null,
-      "requested_max_requests": 12
-    }
-  ],
+  "round": 5,
+  "kind": "Owner-requested additional rounds3\u20135 complete",
   "fallback": "Kiro/Opus monthly limit; policy-named Copilot/Opus fallback requested",
   "request_enforcement": "requested only; T3 hard enforcement unavailable",
   "round2_requested": [
@@ -78,5 +40,74 @@
     }
   ],
   "post_review_fixes": "Lead corrected audit exit status, added offline regression/reader-setup tests, disclosed sequencing/time deviations and verified evidence paths; no further Council/model calls or live rerun.",
-  "round3": "Not funded or requested"
+  "round3": "Newly authorized after original cycle delivery",
+  "current_seats": [
+    "codex/gpt-6.1-sol",
+    "acpRegistry_copilot/claude-opus-5.5"
+  ],
+  "additional_rounds_authority": "Owner request after round2: remove Kimi and run3more rounds. New72requested-turn review-only allocation.",
+  "additional_rounds": {
+    "3": {
+      "sol": 8,
+      "opus": 8
+    },
+    "4": {
+      "sol": 8,
+      "opus": 8
+    },
+    "5": {
+      "sol": 9,
+      "opus": 8
+    }
+  },
+  "historical_design_seats": [
+    {
+      "provider": "codex",
+      "model": "gpt-6.1-sol",
+      "state": "completed",
+      "score": 6,
+      "tool_calls": 7,
+      "actual_requests": null,
+      "requested_max_requests": 12
+    },
+    {
+      "provider": "acpRegistry_local_acp",
+      "model": "claude-opus-5.5",
+      "state": "failed",
+      "error": "monthly usage limit",
+      "score": null,
+      "actual_requests": null,
+      "requested_max_requests": 12
+    },
+    {
+      "provider": "acpRegistry_copilot",
+      "model": "claude-opus-5.5",
+      "state": "completed",
+      "score": 5.5,
+      "tool_calls": 6,
+      "actual_requests": null,
+      "requested_max_requests": 12
+    },
+    {
+      "provider": "acpRegistry_copilot",
+      "model": "kimi-k3",
+      "state": "completed",
+      "score": 8,
+      "tool_calls": 5,
+      "actual_requests": null,
+      "requested_max_requests": 12
+    }
+  ],
+  "seats": [
+    {
+      "provider": "codex",
+      "model": "gpt-6.1-sol"
+    },
+    {
+      "provider": "acpRegistry_copilot",
+      "model": "claude-opus-5.5"
+    }
+  ],
+  "additional_summary": "additional-council-summary.json",
+  "Kimi": "Removed from current/default roster by owner request. Original rounds1/2 receipts remain historical."
 }

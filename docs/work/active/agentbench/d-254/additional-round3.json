@@ -1,0 +1,60 @@
+{
+  "sol": {
+    "taskId": "node:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-sol-r3-20261107",
+    "childThreadId": "thread:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-sol-r3-20261107",
+    "link": "<t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-sol-r3-20261107>",
+    "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-sol-r3-20261107:ordinal:1",
+    "childNodeId": "node:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-sol-r3-20261107",
+    "status": "completed",
+    "workState": "result_available",
+    "hasPendingChildRuns": false,
+    "latestTerminalRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-sol-r3-20261107:ordinal:1",
+    "latestTerminalStatus": "completed",
+    "latestTerminalSummary": null,
+    "latestTerminalResultContextTransferId": null,
+    "providerInstanceId": "codex",
+    "model": "gpt-6.1-sol",
+    "options": [
+      {
+        "id": "reasoningEffort",
+        "value": "high"
+      },
+      {
+        "id": "serviceTier",
+        "value": "default"
+      }
+    ],
+    "summary": "**Score: 8/10. One remaining P2 finding.**\n\n- **Location:** [evaluate_outputs.py:133](/Users/evokessler/repos/brn-agent-d-254/benchmarks/brn_agent/experiments/d254/evaluate_outputs.py:133).\n  **Trigger:** `semantic-packets/packets.json` contains altered packet content while retaining the original `id` and `packet_sha256`. The controller verifies `private-result.json` against regenerated evidence, but independently loads and dispatches `packets.json` without comparing its contents.\n  **Impact:** The grader can judge different evidence while returning bindings accepted by `semantic.import_controlled`, which validates against the original private preparation. The accepted hash therefore does not guarantee the grader saw the verified packet. This does not invalidate the currently unmeasured semantic outcomes.\n  **Fix:** Require the loaded packets to equal the verified preparation’s packets before adding auxiliary fields, or dispatch directly from that preparation. Bind any grading-relevant additions into a validated request digest. Add an offline refusal case that changes packet content while preserving its original identifiers.\n\nThe post-run audit rejection fix is correct by inspection: it resets status to failure before terminal recording. The regression checks both return status and the failed terminal. All four archived source hashes matched their manifest; the archived supervisor differs from current source only by that status assignment.\n\nThe reports correctly retain the baseline and disclose missing measurements, sequencing deviations, timing limits and uncertain usage. The candidate sentence remains evidence rather than an active production-guide change.\n\n**Unresolved objections:** saved-state semantic quality, development readers, broader regressions and fresh reader/grade confirmation remain unknown. Adoption remains unsupported.\n\n**Limitations:** Static review only; no checks rerun or hosted CI independently queried. Holdout contents stayed unopened. No edits, builds, BRN/model calls, delegates, comments or watchers. Seven outer tool calls containing eight read-only shell invocations; actual provider/HTTP usage unavailable.",
+    "resultContextTransferId": null,
+    "hasPendingQuestion": false,
+    "pendingApproval": null,
+    "waitTimedOut": false
+  },
+  "opus": {
+    "taskId": "node:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-opus-r3-20261107",
+    "childThreadId": "thread:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-opus-r3-20261107",
+    "link": "<t3-thread://v2/18810396-d052-461d-8c90-3993aed1f189/thread:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-opus-r3-20261107>",
+    "childRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-opus-r3-20261107:ordinal:1",
+    "childNodeId": "node:delegated-task:command%3Amcp%3A2d298fdd-2cc4-4017-952b-5f25df8b59b0%3Adelegate-task%3Ad254-user-extra-opus-r3-20261107",
+    "status": "completed",
+    "workState": "result_available",
+    "hasPendingChildRuns": false,
+    "latestTerminalRunId": "run:thread:thread%3Adelegated-task%3Acommand%253Amcp%253A2d298fdd-2cc4-4017-952b-5f25df8b59b0%253Adelegate-task%253Ad254-user-extra-opus-r3-20261107:ordinal:1",
+    "latestTerminalStatus": "completed",
+    "latestTerminalSummary": null,
+    "latestTerminalResultContextTransferId": null,
+    "providerInstanceId": "acpRegistry_copilot",
+    "model": "claude-opus-5.5",
+    "options": [
+      {
+        "id": "reasoning_effort",
+        "value": "high"
+      }
+    ],
+    "summary": "**Verdict: 8/10.** Within the code and reports I could read, the fixes from earlier rounds are correct. I found no high- or medium-severity regressions. Adoption stays unsupported: quality acceptance is still missing, the unseen pack never ran and the fresh confirmation is partial.\n\n**Earlier fixes confirmed**\n- **Failed final audit:** if the audit after a native run rejects the result, the run now ends with exit status 1 and a failed terminal record. The regression test checks both.\n- **Reader-never-dispatched exemption:** both the valid case and the refusal cases (root exists, hash changed, wrong kind) are tested.\n- **Disclosures present:** the 111 s phase-clock overlap, Phase 1 unseen not admitted, the reordered fresh run, the nested 10-minute window and the 18 s coordinator overrun are all in the reports.\n- **Arithmetic checks out:**\n  - Dispatch debits: 336+144+42+31+24 = 577.\n  - Observed direct HTTP: 202+112+36+10 = 360; the ≤367 bound is 360+6+1.\n  - Grader 31 = 12+8+11.\n  - Fresh run: 7 attempts, 2 Completed / 4 ToolLimit / 1 unobserved, 36 known HTTP within 7×6 = 42 reserved.\n  - About 61 minutes remained when the fresh run stopped, and direct grading plus T3 setup and coordination totals 1,047.962 s.\n\n**Findings (all low severity)**\n\n1. **Weak binding on the reader-never-dispatched exemption**\n   - **Location:** `supervise_outputs.py:21-32`.\n   - **Trigger:** an operation marker with no receipt and no root, and a closing note whose request file has a matching hash and `kind:'reader'`.\n   - **Impact:** the request's own id and root are never compared with the marker, and the marker's role is not checked. Any reader request with that hash could close some other never-dispatched operation. Having no receipt and no root limits the risk.\n   - **Fix:** require `request.id == marker id`, `request.root == operation.root` and a reader-compatible role, and add mutation tests for each.\n\n2. **Grader model identity not checked when accepting judgments**\n   - **Location:** `threads_benchmark_judge.rs:81-83` and `evaluate_outputs.py:77-84`.\n   - **Trigger:** the provider response leaves out the model field or sends one that fails validation.\n   - **Impact:** the judgment is accepted with `returned_model: null`. The `audit()` check does not cover grader roots, so in the live path nothing checks that the request went to Sol at high effort; only the unit test asserts it.\n   - **Fix:** in `call()`, require the wire request's model and effort to equal `gpt-6.1-sol`/`high` before accepting the decoded judgments.\n\n3. **Worst-case window figure appears understated**\n   - **Location:** `improvement.md` and `accounting.md`, \"8 x 60 + 8 x 90\".\n   - **Detail:** reader operations are dispatched with a 120 s timeout (`evaluate_outputs.py:184`; 90 s is only the minimum time required to admit one). The 60 s candidate timeout looks like a per-request timeout with up to 6 requests per run.\n   - **Impact:** the true worst case is longer than 20 minutes. The conclusion that the window was insufficient only gets stronger, but the number is inaccurate.\n   - **Fix:** state the bound actually enforced, or say \"at least 20 minutes\". I did not check the fresh coordinator's command reference.\n\n4. **Phase clock starts on any admission attempt**\n   - **Location:** `supervise.py:131-134`.\n   - **Detail:** the phase clock file is created before the time check and the audit of earlier operations, so a refused operation still starts the clock. This errs on the safe side.\n   - **Fix:** the reports should say \"first admission attempt\" rather than \"Phase 2 started\", unless the 23:09:19 attempt was in fact admitted.\n\n5. **Deadline correction checks less than its comment claims**\n   - **Location:** `evaluate_outputs.py:50-58`.\n   - **Detail:** it checks only that `0-run` produced an empty receipt and that a closing note exists. It does not check that the folder holds no other runs or that the note's contents match. The abort-on-failure flow makes this safe in practice.\n\n6. **Council metadata not committed or reflected in accounting**\n   - **Detail:** `council.json` changes and `additional-council-allocation.json` are uncommitted. The new 72-turn allocation is not yet in `accounting.md`, so it needs adding with the real outcomes once rounds 3-5 finish.\n\n**Unresolved objections:** quality acceptance, the unseen pack, development readers, broad regressions and saved-state semantic grades remain unknown. Adoption is rightly rejected.\n\n**Review limitations:**\n- 8 tool calls, read-only, nothing run; I relied on the CI and test results you supplied.\n- Not read: the archived executed source and its freeze identities, `evaluate_wiki_v2`, `Guard`/`deadline_guard` internals, full evidence manifests, the candidate patch, PR270-specific diffs and the full `comparison.md`/`review-followups.md`.\n- Holdout boundary respected: from the fresh confirmation I read only `phase2-fresh-aggregate.json`.\n- My own provider and HTTP usage is unknown.",
+    "resultContextTransferId": null,
+    "hasPendingQuestion": false,
+    "pendingApproval": null,
+    "waitTimedOut": false
+  }
+}

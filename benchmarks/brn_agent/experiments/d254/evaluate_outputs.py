@@ -2,8 +2,11 @@
 
 No candidate reruns or custom scoring. Model dispatch goes only through supervise;
 the fixed rubric, packets and reviewer instructions remain separately frozen.
+The task root supplies frozen-phase1.json/frozen-phase2.json and the bound
+grader-instructions.txt. New invocations require the digest-returning judge.
 """
 import argparse
+import copy
 import hashlib
 import json
 from pathlib import Path
@@ -14,10 +17,17 @@ import sys
 REPO = Path(__file__).resolve().parents[4]
 sys.path.insert(0,str(REPO/'benchmarks/brn_agent'))
 import semantic
-from evidence import verify_manifest, anonymize_local_paths
+import reader_grading
+from evidence import verify_manifest, identity_matches
+from reporting import canonical_hash
 BENCH = REPO/'benchmarks/brn_agent/bench.py'
 SUPERVISE = Path(__file__).with_name('supervise_outputs.py')
 BATCH_SIZE = 2  # Within the predeclared maximum8; all arms use identical grouping.
+# Published D254 cycle identities. A new experiment requires new reviewed pins.
+FROZEN_IDENTITIES = {
+    'phase1':'b093f32e1254bd5b9cec1a74d40ed63e41bb8629627199c7af556668246b36a0',
+    'phase2':'0cf9351705648516264bd4f8e9fa1e8424448cb0d9790811996113d8451a65fd',
+}
 
 def load(path):
     return json.loads(Path(path).read_text())
@@ -34,12 +44,60 @@ def bench(*args):
 def dispatch(args, operation):
     path = args.root/'evaluation-operations'/(operation['id']+'.json')
     path.parent.mkdir(exist_ok=True)
-    save(path,operation)
+    with path.open('x') as stream:
+        json.dump(operation, stream, indent=2)
     subprocess.run([sys.executable,str(SUPERVISE),'--operation',str(path),
         '--account-file',str(args.account_file),'--cycle',str(args.task_root/'cycle-start.json'),
         '--roles',str(args.task_root)],check=True,capture_output=True,text=True)
 
+def verified_packets(prepared, exported):
+    if exported != prepared['packets']:
+        raise ValueError('Exported packets differ from verified preparation')
+    return copy.deepcopy(exported)
+
+def semantic_packets(prepared, exported):
+    packets = verified_packets(prepared, exported)
+    for packet in packets:
+        packet['criterion_ids'] = packet['packet']['criteria']
+        packet['checkpoint_number'] = packet['packet']['checkpoint']
+    return packets
+
+def validate_packet(packet):
+    fields = {'id', 'packet_sha256', 'packet'}
+    if packet['packet'].get('kind') != 'reader-answer-review-v1':
+        fields.update({'criterion_ids', 'checkpoint_number'})
+        if (packet.get('criterion_ids') != packet['packet']['criteria']
+                or packet.get('checkpoint_number') != packet['packet']['checkpoint']):
+            raise ValueError('Grading metadata differs from bound packet')
+    if set(packet) != fields or semantic.packet_hash(packet['packet']) != packet['packet_sha256']:
+        raise ValueError('Grading packet content or fields changed')
+
+def frozen_instructions(task_root, phase):
+    path = task_root/'grader-instructions.txt'
+    frozen = load(task_root/('frozen-'+phase+'.json'))
+    body = {key:value for key,value in frozen.items() if key != 'identity'}
+    if frozen.get('identity') != FROZEN_IDENTITIES[phase] or canonical_hash(body) != FROZEN_IDENTITIES[phase]:
+        raise ValueError('Freeze receipt differs from published experiment identity')
+    expected = frozen['evaluation']['files']['grader_instructions']['sha256']
+    if sha(path) != expected:
+        raise ValueError('Grading instructions differ from frozen artifact')
+    return path, expected
+
+def validate_judgment(receipt, packet_file_sha256, instructions_sha256):
+    if (receipt.get('status') != 'completed'
+            or receipt.get('model') != 'gpt-6.1-sol'
+            or receipt.get('effort') != 'high'
+            or receipt.get('tools') != []
+            or receipt.get('packet_file_sha256') != packet_file_sha256
+            or receipt.get('instructions_sha256') != instructions_sha256
+            or receipt.get('result', {}).get('returned_model') != 'gpt-6.1-sol'
+            or len(receipt.get('wire_requests') or []) != 1
+            or not identity_matches(receipt, 'gpt-6.1-sol', 'high')
+            or receipt.get('model_call_budget') != {'limit':1, 'started':1, 'refused':False}):
+        raise ValueError('Grader request binding, identity or accounting unverified')
+
 def grade(args, packets, tag):
+    instructions, instructions_sha256 = frozen_instructions(args.task_root, args.phase)
     packets = list(packets)
     random.Random(25420261106).shuffle(packets)
     batch_size=1 if tag=='reader' else BATCH_SIZE
@@ -47,15 +105,7 @@ def grade(args, packets, tag):
         tag+='-'+args.grading_pass
     folder = args.root/('judgments-'+tag)
     if folder.exists():
-        # One explicit correction of the known outer-deadline fault. None of
-        # that interrupted batch produced a judgment; valid replies are never
-        # regraded by this path and the original directory remains untouched.
-        prior=folder/'0-run'
-        disposition=args.task_root/'grading-dispositions'/(args.root.name+'-'+tag+'-0.json')
-        if not disposition.exists() or not (prior/'receipt.json').exists() or (prior/'receipt.json').stat().st_size:
-            raise RuntimeError('Existing grading artifacts require independent disposition')
-        folder=args.root/('judgments-'+tag+'-deadline-correction')
-        tag+='-deadline-correction'
+        raise RuntimeError('Existing grading artifacts require a fresh explicit operation identity')
     folder.mkdir(exist_ok=False)
     def call(batch,label):
         used_seconds=0
@@ -68,13 +118,21 @@ def grade(args, packets, tag):
         if used_seconds+45>1200:
             raise RuntimeError('Original20min grading ceiling exhausted')
         path=folder/(label+'-packets.json')
+        for packet in batch:
+            validate_packet(packet)
         save(path,batch)
+        packet_file_sha256 = sha(path)
+        if sha(instructions) != instructions_sha256:
+            raise ValueError('Grading instructions changed before dispatch')
         identity=args.root.name+'-'+tag+'-'+label
         out=folder/(label+'-run')
         dispatch(args,{'id':identity,'kind':'grader','role':'grader','phase':args.phase,
             'root':str(out),'seconds':90,'minimum_seconds':45,'binary':str(args.judge),
-            'packet':str(path),'instructions':str(args.task_root/'grader-instructions.txt')})
+            'packet':str(path),'instructions':str(instructions)})
         receipt=load(out/'receipt.json')
+        if sha(path) != packet_file_sha256 or sha(instructions) != instructions_sha256:
+            raise ValueError('Grading inputs changed during dispatch')
+        validate_judgment(receipt, packet_file_sha256, instructions_sha256)
         try:
             decoded=json.loads(receipt['result']['text'])
             if not isinstance(decoded,list):
@@ -120,32 +178,17 @@ def main():
     else:
         bench('collect','--root',args.root,'--suite',args.suite)
     prepared=args.root/'semantic-packets'
-    if prepared.exists():
-        expected=semantic.prepare(args.root,args.suite,evidence,truth_path=args.truth)
-        if load(prepared/'private-result.json') != expected:
-            raise ValueError('Previously prepared evidence changed')
-    else:
+    if not prepared.exists():
         bench('semantic-prepare','--root',args.root,'--suite',args.suite,'--truth',args.truth,
               '--evidence',evidence,'--output',prepared)
     private=load(prepared/'private-result.json')
+    expected=semantic.prepare(args.root,args.suite,evidence,truth_path=args.truth)
+    if private != expected:
+        raise ValueError('Previously prepared evidence changed')
     suite=load(args.suite); cases={c['id']:c for c in suite['scenarios']}
     attempts={a['id']:a for a in load(evidence)['attempts']}
-    packets=load(prepared/'packets.json')
-    for packet in packets:
-        key=private['private_key'][packet['id']]
-        packet['checkpoint_number']=key['checkpoint']
-        attempt=attempts[key['attempt']]
-        packet['criterion_ids']=cases[attempt['scenario']]['criteria']
-        raw=load(args.root/attempt['result'])
-        # Read-only answer/recovery cases need their measured answer, not an
-        # inference from unchanged Notes. Preserve the existing packet/hash and
-        # bind this anonymous auxiliary evidence separately to its native bytes.
-        auxiliary=anonymize_local_paths({'native_result_sha256':attempt['result_sha256'],
-            'events':[{k:event.get(k) for k in ['index','terminal','answer','operations','receipts']}
-                for event in raw['steps'] if event['index']<=key['checkpoint']]},args.root)
-        packet['event_observation']=auxiliary
-        packet['event_observation_sha256']=hashlib.sha256(json.dumps(auxiliary,
-            sort_keys=True,ensure_ascii=False).encode()).hexdigest()
+    # Native semantic preparation already binds checkpoint events and answers.
+    packets=semantic_packets(private,load(prepared/'packets.json'))
     if args.readers_only:
         replies=args.root/'semantic-unmeasured-replies.json'
         save(replies,[])
@@ -190,7 +233,11 @@ def main():
         rp=args.root/'reader-packets'
         bench('reader-review-prepare','--root',args.root,'--suite',args.suite,'--truth',args.truth,
             '--evidence',evidence,'--index',args.root/'reader-index.json','--output',rp)
-        rr=grade(args,load(rp/'packets.json'),'reader')
+        expected_reader=reader_grading.prepare(args.root,args.suite,evidence,args.truth,index)
+        if load(rp/'private-result.json') != expected_reader:
+            raise ValueError('Reader preparation differs from verified evidence')
+        reader_packets=verified_packets(expected_reader,load(rp/'packets.json'))
+        rr=grade(args,reader_packets,'reader')
         ri=args.root/'readers-reviewed'
         bench('reader-review-import','--root',args.root,'--suite',args.suite,'--truth',args.truth,
             '--evidence',evidence,'--index',args.root/'reader-index.json',
