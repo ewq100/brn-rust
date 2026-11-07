@@ -2874,6 +2874,7 @@ impl ThreadsUi {
                 self.show_tile(kind, window, cx);
             }
             lists::Command::Keys => self.show_keys(window, cx),
+            lists::Command::ReportProblem => self.report_problem(cx),
         }
     }
     fn continue_run(&mut self, thread: String, cx: &mut Context<Self>) {

@@ -173,6 +173,8 @@ class LauncherTests(unittest.TestCase):
                 info = plistlib.load(stream)
             self.assertEqual(info["LSMinimumSystemVersion"], "15.0")
             self.assertEqual(info["CFBundleShortVersionString"], "0.1.0")
+            self.assertEqual(info["BRNPreviewVersion"], f"v0.1.0-preview.{number}")
+            self.assertEqual(info["CFBundleVersion"], "1")
 
     def test_either_missing_helper_refuses_before_creating_output(self):
         for flag in ["--xberg-helper", "--xberg-helper-brn"]:

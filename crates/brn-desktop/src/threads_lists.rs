@@ -832,6 +832,7 @@ pub(super) enum Command {
     Theme(Appearance),
     OpenTile(TileKind),
     Keys,
+    ReportProblem,
 }
 impl Command {
     /// Destinations are named, never "Open tile: …".
@@ -864,6 +865,7 @@ impl Command {
             Self::OpenTile(TileKind::Chat) => "Current chat".into(),
             Self::OpenTile(kind) => kind.label().into(),
             Self::Keys => "Keyboard shortcuts".into(),
+            Self::ReportProblem => "Report a problem".into(),
         }
     }
     /// The bound keystroke, shown in launcher rows with Kit's `Kbd`.
@@ -908,6 +910,7 @@ impl Command {
             .map(Self::OpenTile),
         );
         out.push(Self::Keys);
+        out.push(Self::ReportProblem);
         out
     }
 }
