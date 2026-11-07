@@ -617,6 +617,15 @@ impl ThreadsUi {
             self.set_note_reading(true, window, cx);
         }
     }
+    /// A completed full import is an article, so open its saved text in Read.
+    pub(super) fn open_imported_note(
+        &mut self,
+        id: &str,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) {
+        self.open_from_library(id, window, cx);
+    }
     /// Related articles and sources beside the open document: the bounded
     /// Connections view as its supporting panel, with sources listed when
     /// `sources`. The document ⋯ menu and Library rows call this.

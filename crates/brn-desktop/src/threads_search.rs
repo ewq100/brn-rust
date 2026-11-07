@@ -81,6 +81,52 @@ fn archived_chip(entry: components::ListRow, row: &str, archived: bool) -> compo
     )
 }
 
+/// Remove paired inline formatting delimiters while translating byte ranges
+/// from the search index into the displayed excerpt.
+fn plain_note_excerpt(
+    snippet: &str,
+    ranges: &[std::ops::Range<usize>],
+) -> (String, Vec<std::ops::Range<usize>>) {
+    let mut hidden = vec![false; snippet.len()];
+    for marker in ["**", "__", "~~", "`"] {
+        let mut from = 0;
+        while let Some(start) = snippet[from..].find(marker).map(|n| n + from) {
+            let content = start + marker.len();
+            let Some(end) = snippet[content..].find(marker).map(|n| n + content) else {
+                break;
+            };
+            if end > content {
+                hidden[start..content].fill(true);
+                hidden[end..end + marker.len()].fill(true);
+            }
+            from = end + marker.len();
+        }
+    }
+    let mut offsets = vec![0; snippet.len() + 1];
+    let mut plain = String::new();
+    for (index, ch) in snippet.char_indices() {
+        for (relative, offset) in offsets[index..index + ch.len_utf8()].iter_mut().enumerate() {
+            *offset = plain.len() + if hidden[index] { 0 } else { relative };
+        }
+        if !hidden[index] {
+            plain.push(ch);
+        }
+    }
+    offsets[snippet.len()] = plain.len();
+    let ranges = ranges
+        .iter()
+        .filter(|range| {
+            range.start <= range.end
+                && range.end <= snippet.len()
+                && snippet.is_char_boundary(range.start)
+                && snippet.is_char_boundary(range.end)
+        })
+        .map(|range| offsets[range.start]..offsets[range.end])
+        .filter(|range| !range.is_empty())
+        .collect();
+    (plain, ranges)
+}
+
 /// A snippet with the service's highlight ranges in ink and semibold.
 pub(super) fn highlighted(snippet: &str, ranges: &[std::ops::Range<usize>]) -> StyledText {
     let ink = pal().ink;
@@ -537,7 +583,11 @@ impl ThreadsUi {
                     .px_2()
                     .text_size(UI_TEXT)
                     .text_color(rgb(p.muted))
-                    .child(highlighted(&hit.snippet, &hit.highlights)),
+                    .child({
+                        let (excerpt, highlights) =
+                            plain_note_excerpt(&hit.snippet, &hit.highlights);
+                        highlighted(&excerpt, &highlights)
+                    }),
             );
             block = block.child(entry);
         }
@@ -655,5 +705,23 @@ impl ThreadsUi {
             block = block.child(self.search_paging(Lanes::Chats, cx));
         }
         block.test_support().into_any_element()
+    }
+}
+
+#[cfg(test)]
+mod excerpt_tests {
+    use super::plain_note_excerpt;
+
+    #[test]
+    fn note_excerpt_removes_paired_markers_and_preserves_highlight_bytes() {
+        let source = "Café **Garden planning** and `tools`";
+        let start = source.find("Garden").unwrap();
+        let (plain, ranges) = plain_note_excerpt(
+            source,
+            std::slice::from_ref(&(start..start + "Garden".len())),
+        );
+        assert_eq!(plain, "Café Garden planning and tools");
+        assert_eq!(&plain[ranges[0].clone()], "Garden");
+        assert_eq!(plain_note_excerpt("2 * 3", &[]).0, "2 * 3");
     }
 }
