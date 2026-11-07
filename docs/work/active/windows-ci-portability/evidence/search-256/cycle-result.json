@@ -1163,7 +1163,7 @@
     "findings": [
       {
         "packet": "2dcd1e15d4e140916c96e5bee9386f1105d5e2db07066b9e0daf95d762e3919e",
-        "native_result": "/Users/evokessler/Documents/Codex/brn-agent-e-256/candidate/runs/R7-1000/B-candidate-r2/result.json",
+        "native_result": "candidate/runs/R7-1000/B-candidate-r2/result.json",
         "grade": {
           "packet_sha256": "2dcd1e15d4e140916c96e5bee9386f1105d5e2db07066b9e0daf95d762e3919e",
           "scores": {

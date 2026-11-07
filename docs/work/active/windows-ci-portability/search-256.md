@@ -48,8 +48,8 @@ The fixed independent grader produced twelve complete, hash-bound judgments:
   version. Its central abstention, citations, completeness and visibility scored
   4/4. We retain the finding and packet-coverage limit; we do not claim an overall
   absence of quality regression.
-- Thirteen grader HTTP attempts include one response that mistyped its packet
-  hash by one character. The original response was rejected and retained; the
+- Thirteen grader HTTP attempts include one response that returned a malformed
+  66-character packet hash. The original response was rejected and retained; the
   unchanged packet was deliberately retried within the original failed-grader
   reserve. Valid low grades were never rerun.
 
@@ -187,7 +187,7 @@ adoption needs a separate measured product benefit.
 - Final lightweight admission/oracle tests: twelve passed. Post-run hardening
   re-derived all twelve attempt objects with exact equality.
 
-Council used two rounds with three model families. Kiro/Opus hit its monthly
+The original Council used two rounds with three model families. Kiro/Opus hit its monthly
 limit in round 1; the installed named fallback was Copilot/Opus. Actual routes and
 raw receipts are retained.
 
@@ -201,15 +201,15 @@ Sol could not independently validate the core final calculations/code because
 its output was truncated. Opus checked portions of arithmetic, rejection and
 unknown-usage handling; it did not inspect grader reconciliation or the archive.
 Kimi checked arithmetic, the patch and synthetic-anchor assertions; it did not
-fully reread result/freeze receipts. **No complete final Council pass is claimed.**
+fully reread result/freeze receipts. **Those original final Council reviews were partial.**
 
 Low findings prompted post-run robustness fixes for missing summary fields,
 unknown parent usage, ledger headers and active-sample lookup, plus a precise test
 name. The suggestion that `except (CycleStop, Exception)` is redundant was rejected:
 CycleStop deliberately subclasses BaseException to escape native sample recovery.
 Only fixed host stop reasons are recorded; arbitrary exception payloads remain
-omitted for privacy. These small fixes were not independently re-reviewed; no
-further model round is funded.
+omitted for privacy. Those small fixes had not been independently re-reviewed at the original
+cutoff; the additional owner-authorized reviews are recorded below.
 
 Executed source snapshots match the pre-dispatch hashes. Historical freeze
 receipts were verified before dispatch; current future-runner hardening changes
@@ -231,3 +231,40 @@ Delivery: [draft PR #271](https://github.com/ewq100/brn-rust/pull/271) contains 
 ## Additional Council review authorized 7 November
 
 The owner removed Kimi and explicitly requested four more rounds, overriding the personal three-round task maximum for this follow-up. Rounds3–6 use only independent Sol and Opus seats. Historical Kimi receipts remain evidence; no Kimi delegate is started. A separate allocation reserves108 requested model requests:96 for8reviews (12 each),plus12 for one failed preferred-route attempt. Codex share is48;Opus uses the configured Kiro route or its named Copilot fallback. Requested per-seat time is600seconds;whole additional phase3600seconds. T3 cannot hard-enforce these per-request/time bounds;unobserved actual usage remains unknown. The original168E/1760D+E ledgers stay closed and unchanged. No new live benchmark,reader or grader calls,no merge or model-default change.
+
+
+### Round 3 and corrections
+
+The independent Codex/Sol seat scored 8/10 and Copilot/Opus scored 7.5/10.
+Both verified the screening arithmetic, source/evidence hashes, packet and grade
+bindings, restored production description and frozen-rule rejection. Kiro/Opus
+again failed at its monthly limit (request `3a5f29d8-25fe-415a-a083-ad9042c175e4`).
+The failed attempt consumes the entire 12-request preferred-route reserve;
+rounds 4–6 use the named Copilot/Opus fallback directly. Dispatch accounting is
+separate from the immutable reservation ledger, whose schema permits only
+reservations. Actual request/token usage remains unknown; Opus self-reported
+approximately twelve model requests. No refunds or additional benchmark calls.
+
+Confirmed control fixes, applied only to the future evidence adapter:
+
+- Inspect all raw parent/helper tool attempts, including top-level errors, and
+  treat summary, missing or dropped call evidence as unknown.
+- Qualify a pair only with the single expected completed ask, fixed reference
+  identity, observed usage, explicit matching HTTP budget, successful applicable
+  checks, no safety findings and a passing read-only oracle.
+- Refuse a grader packet when a selected record is absent from verified gold.
+  This prevents silent omission of a Message; the historical packets and their
+  judgments remain unchanged and limited. No retroactive grade is manufactured.
+
+Sixteen focused tests pass. All twelve historical attempt objects re-derived
+under these stricter checks are exactly equal to their published versions.
+The derived result's local finding locator is made relative, and the malformed
+hash is described accurately. Original raw native results, packets, grader
+receipts and executed-source snapshots are preserved. The suggestion about a
+canonical Proposal record is inapplicable: RecordData has no Proposal variant;
+mutation attempts and retained operations are the relevant proposal witnesses.
+
+Remaining review limits: native SQLite backups, original build artifacts/logs,
+hosted CI and live estimator accuracy were not independently inspected by Sol;
+Opus did not run Rust or read the build-feature audit/freeze/source archive
+contents beyond checking their hashes. These remain explicit coverage gaps.

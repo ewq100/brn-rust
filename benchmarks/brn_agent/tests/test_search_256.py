@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 
 MODULE = Path(__file__).resolve().parents[1] / 'experiments/search_256_evidence.py'
 spec = importlib.util.spec_from_file_location('search_256_evidence', MODULE)
@@ -20,7 +21,8 @@ class ReadOnlyProjectionTests(unittest.TestCase):
         self.root = Path(self.temporary.name)
         self.before = [{'id': 'n:0', 'version': 1, 'archived': False,
                         'data': {'Note': {'markdown': 'Source-bound synthetic evidence'}}}]
-        self.raw = {'steps': [{'operations': [], 'trace': {'calls': []}}]}
+        self.raw = {'steps': [{'operations': [], 'trace': {
+            'level': 'full', 'dropped_calls': 0, 'calls': []}}]}
 
     def assess(self, after, calls=None):
         for index, records in enumerate((self.before, after)):
@@ -44,6 +46,22 @@ class ReadOnlyProjectionTests(unittest.TestCase):
         result = self.assess(self.before, [{'tool': 'prepare_changes', 'round': 1,
                                            'args': {}, 'result': {'outcome': 'Rejected'}}])
         self.assertFalse(result['passed'])
+
+    def test_errored_parent_and_helper_mutations_do_not_pass(self):
+        call = {'tool': 'prepare_changes', 'outcome': 'error', 'args': {}}
+        self.assertFalse(self.assess(self.before, [call])['passed'])
+        self.raw['steps'][0]['trace']['helpers'] = [{'trace': {
+            'level': 'full', 'dropped_calls': 0, 'calls': [call]}}]
+        self.assertFalse(self.assess(self.before, [])['passed'])
+
+    def test_incomplete_parent_and_helper_evidence_is_unknown(self):
+        for field, value in [('level', 'summary'), ('dropped_calls', 1),
+                             ('calls', None), ('helpers', [{'trace': None}])]:
+            with self.subTest(field=field):
+                trace = {'level': 'full', 'dropped_calls': 0, 'calls': []}
+                trace[field] = value
+                self.raw['steps'][0]['trace'] = trace
+                self.assertIsNone(self.assess(self.before)['passed'])
 
     def test_changed_or_missing_knowledge_is_detected(self):
         changed = json.loads(json.dumps(self.before))
@@ -101,6 +119,77 @@ class CycleAdmissionTests(unittest.TestCase):
             with self.assertRaises(driver.CycleStop):
                 driver.audit_phases(root, {'phases': {'baseline-first': {
                     'argv': ['--root', str(root / 'run')]}}})
+
+
+class PairEligibilityTests(unittest.TestCase):
+    def test_unknown_or_failed_evidence_cannot_qualify_a_pair(self):
+        raw = {'status': 'complete', 'arm': 'synthetic', 'case': 'R7', 'repetition': 1,
+               'attempt': 1, 'provider': 'Codex', 'model': 'gpt-6.1-sol',
+               'effort': 'medium', 'helper': None, 'safety': [], 'checks': [{'passed': True}],
+               'steps': [{'kind': 'ask', 'terminal': 'Completed', 'operations': [], 'trace': {
+                   'level': 'full', 'calls': [], 'dropped_calls': 0, 'rounds': 0,
+                   'usage': {'input': 100, 'output': 10, 'cached_input': 0},
+                   'turn_usage': [{'input': 100, 'output': 10}],
+                   'wire_requests': [{'model': 'gpt-6.1-sol', 'effort': 'medium'}],
+                   'wire_requests_dropped': 0,
+                   'model_call_budget': {'limit': 6, 'started': 1, 'refused': False}}}]}
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for index in (0, 1):
+                checkpoint = root / 'checkpoints' / str(index)
+                checkpoint.mkdir(parents=True)
+                (checkpoint / 'records.json').write_text('[]')
+            path = root / 'result.json'
+            path.write_text(json.dumps(raw))
+            self.assertTrue(oracle.attempt(path, root)['complete_for_pair'])
+            for change in ['identity', 'usage', 'budget', 'started', 'refused', 'empty',
+                           'checks', 'safety', 'terminal', 'dropped']:
+                with self.subTest(change=change):
+                    broken = json.loads(json.dumps(raw))
+                    trace = broken['steps'][0]['trace']
+                    if change == 'identity':
+                        trace['wire_requests'][0]['model'] = 'different-model'
+                    elif change == 'usage':
+                        trace['usage'] = None
+                    elif change == 'budget':
+                        del trace['model_call_budget']
+                    elif change == 'started':
+                        trace['model_call_budget']['started'] = 2
+                    elif change == 'refused':
+                        del trace['model_call_budget']['refused']
+                    elif change == 'empty':
+                        broken['steps'] = []
+                    elif change == 'checks':
+                        broken['checks'] = []
+                    elif change == 'safety':
+                        broken['safety'] = ['synthetic safety finding']
+                    elif change == 'terminal':
+                        broken['steps'][0]['terminal'] = 'Failed:Network'
+                    elif change == 'dropped':
+                        trace['dropped_calls'] = 1
+                    path.write_text(json.dumps(broken))
+                    self.assertFalse(oracle.attempt(path, root)['complete_for_pair'])
+
+
+class AnswerPacketCoverageTests(unittest.TestCase):
+    def test_selected_message_missing_from_verified_gold_blocks_packet(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            template = root / 'templates/R7-1000'
+            template.mkdir(parents=True)
+            (template / 'seed.json').write_text('{"notes": {}}')
+            fixture = root / 'fixture.json'
+            fixture.write_text(json.dumps({'cases': [{
+                'id': 'R7', 'steps': [{'prompt': 'Synthetic question'}], 'checks': []}]}))
+            result = root / 'result.json'
+            raw = {'case': 'R7', 'steps': [{'answer': 'Synthetic answer',
+                   'terminal': 'Completed', 'trace': {'calls': [
+                       {'tool': 'read_records', 'result': {'ids': ['message:1']}}]}}]}
+            result.write_text(json.dumps(raw))
+            with patch('evidence.verified_proof_packet', return_value={
+                    'records': [], 'records_sha256': 'synthetic-checkpoint'}):
+                with self.assertRaisesRegex(ValueError, 'message:1'):
+                    oracle.answer_packet(result, root, fixture, root / 'manifest.json')
 
 
 class UsageCompletenessTests(unittest.TestCase):

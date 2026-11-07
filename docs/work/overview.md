@@ -75,9 +75,9 @@ Gates:
 ### Improve grounded search efficiency (#256)
 
 Task ID: `search-256`
-Owner: Agent E · State: **active** · Last observed: 2026-11-07T03:35:15.051891+00:00
-Activity: Owner authorized four additional Council rounds3–6,with Kimi removed. Fresh Sol/Opus seats only,separate finite108requested-review allocation;original benchmark/E/D budgets and rejection unchanged.
-Next: Run four independent additional review rounds,fix verified issues with offlinechecks,preserve review gaps and update draftPR271. No new benchmark/modeldefault change or merge.
+Owner: Agent E · State: **active** · Last observed: 2026-11-07T03:46:00+00:00
+Activity: Additional Council round 3 completed: Sol8/10, Copilot/Opus7.5/10; verified control gaps fixed offline. Historical 12 attempt objects unchanged; Kimi excluded.
+Next: Complete additional rounds4–6 with fresh Sol and named Copilot/Opus seats; no new benchmark or native calls. Update draftPR271; no merge.
 
 <details>
 <summary>Gate status</summary>
@@ -85,7 +85,7 @@ Next: Run four independent additional review rounds,fix verified issues with off
 Gates:
 
 - **implementation:** No production search change retained. Candidate1patch/binaries/both repetitions preserved. Rigadoptiondeferred with shadow/invalidation evidence.
-- **checks:** Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass.
+- **checks:** Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass. Additional round3:16focused tests pass;all12historical attempt objects exactly unchanged.
 - **integration:** Draft PR271 open. No merge assigned;hostedchecks and finalindependentauditcoverage remainpending. Currentmain hasadvanced since measured a921;baselineevidence preserved.
 - **native:** Headless assignment; no native acceptance claimed.
 - **owner acceptance:** Owner-authorized limited engineering cycle;no searchimprovementadopted. Candidate fails frozenR10toolgate;one independentminorcorrectnessfinding. Reserved/jointchecks unrun andrequiredbeforelateradoption.

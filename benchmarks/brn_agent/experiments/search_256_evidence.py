@@ -11,11 +11,30 @@ MUTATIONS = {'prepare_changes', 'prepare_note_edit', 'apply_changes',
              'refresh_candidate', 'withdraw_proposal', 'retain_progress'}
 
 
+def full_calls(trace):
+    """Retain failed attempts; incomplete parent/helper evidence is unknown."""
+    if (not isinstance(trace, dict) or trace.get('level') != 'full'
+            or trace.get('dropped_calls') != 0 or not isinstance(trace.get('calls'), list)):
+        return None
+    calls = list(trace['calls'])
+    if any(not isinstance(call, dict) or not isinstance(call.get('tool'), str) for call in calls):
+        return None
+    helpers = trace.get('helpers', [])
+    if not isinstance(helpers, list):
+        return None
+    for helper in helpers:
+        nested = full_calls(helper.get('trace') if isinstance(helper, dict) else None)
+        if nested is None:
+            return None
+        calls.extend(nested)
+    return calls
+
+
 def read_only(folder):
     """Bookkeeping may change; knowledge, proposals and mutation attempts may not."""
     folder = Path(folder)
     raw = json.loads((folder / 'result.json').read_text())
-    calls = [v2.traced_calls(step) for step in raw.get('steps', [])]
+    calls = [full_calls(step.get('trace')) for step in raw.get('steps', [])]
     if not calls or any(group is None for group in calls):
         return {'passed': None, 'reason': 'Missing full tool trace'}
     mutations = [call['tool'] for group in calls for call in group if call['tool'] in MUTATIONS]
@@ -71,11 +90,25 @@ def attempt(path, root):
     row['all_HTTP_usage_observed'] = complete_usage(raw, row['usage'])
     row['read_only'] = read_only(Path(path).parent)
     row['usage']['cost'] = None  # Subscription charges are not observed.
-    row['complete_for_pair'] = (raw.get('status') == 'complete'
-        and all(step.get('terminal') == 'Completed' for step in raw.get('steps', []))
-        and row['read_only']['passed'] is True
-        and all(not (step.get('trace') or {}).get('model_call_budget', {}).get('refused')
-                for step in raw.get('steps', [])))
+    steps = raw.get('steps', [])
+    # This frozen projection has exactly one ask and no helper. Missing event,
+    # identity, usage, safety, check or budget evidence cannot qualify a pair.
+    events_complete = len(steps) == 1 and steps[0].get('kind') == 'ask'
+    for step in steps:
+        trace = step.get('trace') or {}
+        budget = trace.get('model_call_budget') or {}
+        started = budget.get('started')
+        events_complete = (events_complete and step.get('terminal') == 'Completed'
+            and budget.get('limit') == 6 and budget.get('refused') is False
+            and type(started) is int and 1 <= started <= 6
+            and started == len(trace.get('wire_requests') or [])
+            and trace.get('wire_requests_dropped') == 0)
+    row['complete_for_pair'] = (raw.get('status') == 'complete' and events_complete
+        and raw.get('provider') == 'Codex' and raw.get('model') == 'gpt-6.1-sol'
+        and raw.get('effort') == 'medium' and raw.get('helper') is None
+        and row['runtime_identity_verified'] is True and row['all_HTTP_usage_observed']
+        and row['automatic_checks']['status'] == 'passed' and raw.get('safety') == []
+        and row['read_only']['passed'] is True)
     return row
 
 
@@ -107,6 +140,9 @@ def answer_packet(path, root, fixture_path, manifest_path):
             if isinstance(args.get('id'), str):
                 selected.add(args['id'])
             selected.update((call.get('result') or {}).get('ids') or [])
+    uncovered = selected - {row['id'] for row in gold['records']}
+    if uncovered:
+        raise ValueError('Selected records absent from verified grader gold: ' + ', '.join(sorted(uncovered)))
     packet = {'question': case['steps'][0]['prompt'], 'expected_rubric': case.get('rubric'),
               'expected_checks': case['checks'], 'answer': raw['steps'][0].get('answer'),
               'execution_terminal': raw['steps'][0].get('terminal'),
