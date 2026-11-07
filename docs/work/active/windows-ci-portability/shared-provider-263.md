@@ -1,178 +1,155 @@
 # Shared provider operations (#263)
 
-This is Agent C's separate cloud stage after [Cycle 2](development-speed-255-cycle2.md).
-Cycle 2 merged in [PR266](https://github.com/ewq100/brn-rust/pull/266) as
-`c388da267a9e41cfe9d65051cd27b95817c9a523`, with all seven PR CI jobs passing,
-current-head Codex code/security receipts reporting no findings, and the owner's
-explicit instruction to skip unavailable Council. No Council sessions ran and no
-score is supplied. Resulting-main checks are separate from PR qualification.
+Agent C's separate cloud implementation is [PR267](https://github.com/ewq100/brn-rust/pull/267).
+The preceding [Cycle 2](development-speed-255-cycle2.md) closed with no retained
+performance change in [PR266](https://github.com/ewq100/brn-rust/pull/266), merged
+`c388da267a9e41cfe9d65051cd27b95817c9a523`. Its finite measurement budget and
+negative findings remain unchanged. This refactor makes no elapsed-speed claim.
 
-The implementation base contains A's selected `a921e325` runtime. A's explicit
-shared-file release was requested on [#253](https://github.com/ewq100/brn-rust/issues/253#issuecomment-6696819563).
-The owner subsequently confirmed “A is done continu”; that owner-reported completion/release is recorded on #253. No new A-authored handoff receipt is claimed. This branch now contains the extraction. B's first-alpha build
-is fixed at `a921e325`; this work does not alter that candidate or the frozen
-#254/#256 experiments. Later integration must respect B's publication window.
+A's selected response-limit runtime is `a921e325`. The owner subsequently
+confirmed “A is done continu”, supplying the reported completion/release after
+C's current handoff request on #253. No A-authored handoff receipt is invented.
+A newly exposed, independently reproduced stale Copilot auth-write defect was
+separated into [PR272](https://github.com/ewq100/brn-rust/pull/272), normally merged
+as `75f3722142bfe5598c3871acc8a8079f991aad9a` (reviewed `ce36eb94` product tree).
+The final refactor baseline includes that repair; earlier A/Cycle2/live receipts
+are not relabeled. See [the repair record](provider-auth-write-263.md).
 
-## Inspected responsibilities
+## Maintained policy and retired copies
 
-| Caller | Existing policy and contract |
+| Policy owner | Consumers and contracts |
 |---|---|
-| App `run.rs` | Provider aliases, catalogue refusal, effort/model validation, caller-specific error order before allocating a Run. |
-| Chat `threads.rs` | Copilot account captured at preparation; ChatGPT auth-file precedence; pre/post-authentication account checks; session pin and resend reporting. |
-| Summary `threads_summary.rs` | Parent authenticated client/account and account-scoped cache; tool-free compaction; existing same-model fallback before output. |
-| Helper `threads_research.rs` | Independent saved selection/effort/auth; own account captured when parent starts; restricted tools and parent cancellation/response guard. |
-| Refinement `conversion.rs` | Off opens no credentials; On uses its own provider/account, fixed Luna/high, one tool-free turn, separate deadlines and text cap. |
-| App `subscription_search.rs` | Codex supported auth-file route only; Copilot's own captured sign-in; effective web permission and late-result fencing remain host-owned. |
-| Native `copilot_search.rs` | Query-only Responses request; captured account checks; exact hosted tool, real cited sources, existing byte/call/time limits. |
-| Auth adapters | Existing credential validation and authenticated Rig construction; non-strict Copilot schemas; no new auth/discovery request or fallback. |
+| Core `canonical_provider_name` | Pure persisted-name identity: case-insensitive Codex/ChatGPT and Copilot; unknown stays unknown. The durable run/settings fence reuses it while preserving raw unknown-name equality and exact model/effort. Core cannot depend on AI. |
+| AI `provider.rs`: `Provider` / `ReasoningEffort` | Typed saved-name projection, case-sensitive effort parsing and Copilot-only operation-start account capture. App chat/helper/search settings, helper-save validation and runtime preflight use this owner. No universal account snapshot is introduced. |
+| AI `ProviderOperation::client` | Existing ChatGPT auth-file preference; selected Copilot credential folder and captured pin before/after authentication; existing safe Auth/Rig client construction; existing errors and optional summary-cache identity. Replaces the chat/helper context and refinement/search copies. Holds references and an existing pin, never serialized raw credentials. |
+| AI Copilot completion / route / retry functions | Existing Rig conversation route choice, non-strict Responses schemas and same-model empty-refusal predicate. Chat/helper and summary loops call the shared rule; refinement/search explicitly force their existing Responses route. |
+| Existing host/caller services | Catalogue refusal/error precedence, effective permissions, transport decorators, operation limits, state/cancellation, checked writes, approval scope, versions, provenance and Undo. These are not moved into a generic executor. |
 
-Eight mapped callers are byte-identical between measurement baseline `6897fe56`
-and selected runtime `a921e325`; chat and helpers changed to share A's response
-guard. The guard is one Arc per run, shared with summaries/helpers: per-response
-20-minute and 64-MiB streamed-wire limits, duration-only whole-body account
-exchanges, refusal of later requests after a trip. Existing Stop and idle limits
-remain separate. Conversion and search retain their distinct limits.
+Chat/helper resend and A's response guard stay at the run transport boundary;
+constructing a client cannot add resend to refinement/search. Summaries retain
+the parent client/account and account-scoped cache. Helpers retain independent
+saved provider/model/effort/credentials and restricted tools. Refinement retains
+Off/no credential access and On/tool-free Luna/high, its own deadline and text cap.
+Native search retains query-only input, exact hosted search tool/cited sources,
+its limits and host-owned late-result fence. Unknown catalogue capability is not
+entitlement. Missing-account versus unsafe-path error order remains caller-specific.
 
-## Shared boundary
+The old provider/client branches and repeated setting matches were removed from
+those callers. Low-level Auth remains the credential/protocol owner. The small
+core identity function is the dependency-safe primitive, not a second policy map.
+No new crate, SDK, framework, session store, provider, setting value, model default,
+token estimator or direct-to-Responses optimization is introduced. The legacy
+helper-save check still validates trimmed model syntax but stores original bytes;
+runtime selection still validates the exact model. CLI flag parsing retains its own error objects while reusing the shared provider/effort parsers. The desktop canonical key and its credential/form presentation reuse the core identity; labels/icons remain presentation. These final forwarding adapters are outside the measured seven-file runtime alias task. Unknown/default presentation is preserved.
 
-Use a small module in `brn-ai`, reusing `Selection`, `ReasoningEffort`,
-`AccountPin`, `ProviderClient` and Rig's `DynHttpClient`. Do not introduce a
-public crate, generic executor or session store. Reuse `Provider::from_setting`
-instead of the duplicate alias matches. Keep catalogue checks and their error
-precedence at the app boundary.
+Missing credential directories
+still have their existing product behavior: the confirmation's passive-open
+change was temporary and is not shipped.
 
-The shared owner binds the selected credential paths/account and construct
-the existing client with the same auth-file precedence and Copilot pre/post-auth
-checks. Transport decorators remain explicit at operations: chat/helper resend
-and A's run guard cannot silently become conversion/search retry policy. Missing
-account and unsafe-path error precedence must survive extraction.
+## Offline behavior qualification
 
-The existing Copilot completion-route/schema policy and same-model
-empty-refusal predicate live in that owner; chat and summary retain their execution
-loops, while search/refinement retain their explicit Responses-only contracts.
-Unknown catalogue capabilities remain unknown, not implied entitlement. Remove
-each replaced branch from callers as it migrates.
+The original matched-helper baseline at `c388da26` passed 763 library tests and
+an explicit 635-test AI scripted suite. Those overlap; counts are not added.
+The repaired baseline at `ce36eb94` passed 765 library tests with two
+parent-invoked subprocess fixtures ignored, strict all-target Clippy, full storage
+verification and the fixture-only 108-step/1,266-check CLI journey. Its dedicated
+helper root and exact source are recorded separately from the earlier baseline.
 
-Tools, writing authority, canonical state, checked writes, version guards,
-provenance and Undo stay with existing services. Token estimation, new direct
-Responses optimization, defaults, providers and SDK changes are excluded.
+Final product source `72bb6241` passes the same existing full storage and
+fixture-only end-to-end commands, including strict all-target Clippy and the
+108-step/1,266-check CLI journey. Its library suites pass 771 tests with two
+parent-invoked fixture ignores (AI 641, App 17, Core 50); every prior passing
+case name remains present. Dedicated final helper identities and explicit helper
+ENV for both legs are recorded; this is behavior qualification, not timing.
+The initial complete full-gate log is retained before the adapter-only pass.
 
-## Qualification plan
+Existing synthetic transport/handler checks cover selected payload/model/effort,
+route order/counts, non-strict schema behavior, independent helper configuration,
+summary account/cache identity, missing/changed accounts, late sign-in refusal,
+web Off/no dispatch, Stop/cancellation/late results, response bounds, malformed
+streams, tool permissions and checked-write/Undo guards. Two permanent 503
+regressions execute both before and after: search and refinement each make one
+authentication plus one operation request, then fail without chat resend or route
+fallback. A new during-auth switch fixture verifies that the account actually
+changed, its bytes survive, only authentication was sent, and dispatch refuses.
+The repair's baseline reproduction and initial failed extraction witness remain
+recorded; no refactor regression or live acceptance is inferred from them.
 
-Run existing offline transports/handler suites before and after. Compare exact
-payload/schema assertions, route order/counts, operation-specific errors and
-checked effects. Cover missing/changed accounts before and during authentication,
-no adoption of later sign-in, independent helper settings, refinement Off/On,
-web Off/no dispatch, cancellation/late results, retry bounds, malformed/oversized
-streams and checked-write guards. Keep actual skipped/failed results visible.
+## Maintenance tasks and independent confirmation
 
-Freeze three temporary maintenance tasks before implementation: add one saved
-provider alias; change one account-binding refusal policy; change one existing
-same-model route-refusal condition. Specify accepted behavior independently of
-the eventual module shape, run the corresponding offline checks on baseline and
-candidate patches, and restore all experimental changes. Record patch spread,
-review findings and rework. An independent reviewer must supply a confirmation
-variant after the main design is fixed. Without that independent confirmation,
-do not claim the full maintainability acceptance or an elapsed-speed improvement.
+[Evidence index](evidence/shared-provider-263/qualification.json) records commands,
+source/hash identities, all attempts, restored patches and raw compressed receipts.
+The three tasks were frozen before extraction. The same lead/configuration/tools
+were used across arms; actual coding-model/effort identity and usage are not
+independently exposed by this executor. No elapsed times, costs, statistical
+coding-effort improvement or composite score are claimed.
 
-Hosted Codex code/security review and applicable normal platform CI, including
-macOS production-feature lanes, remain required for the eventual implementation.
-Prior live/native receipts keep their original source scope. No implemented,
-preserved-behavior, maintainability or fresh native acceptance is claimed here.
+| Temporary task | Executed result and interpretation |
+|---|---|
+| Add a saved Copilot alias across the selected runtime services | Corrected acceptance passes before/after: save actual parent/helper configuration, prepare a canonical-provider Run through the durable fence, and check helper/search/refinement selection plus error precedence. Seven measured baseline production files versus one core map after; executable integration acceptance supports the ownership observation. |
+| Change the account-changed diagnostic code | Both arms pass the new diagnostic assertions and existing account checks. Two production files in each; already-shared control, no localization gain claimed. |
+| Refuse empty same-model fallback when a retry hint exists | Both arms pass the predicate matrix and existing Copilot checks. One production file in each; already-shared control, no localization gain claimed. |
+| Fresh evaluator's passive Copilot startup challenge | Both arms pass the same five new integration cases, Copilot-refinement and ChatGPT positive controls, and 37 auth checks. Before: five production files/seven sites; after: Auth plus provider.rs, three sites. Missing-directory, late-sign-in, helper-unavailable, Off conversion and provider-isolation outcomes are exercised. The unchanged conversion-response source also retains one Message, fixed effort and no conversation history. |
 
-## Offline baseline receipt
+The alias routing pilot omitted helper-save and durable/runtime fence coverage;
+its successful result is explicitly limited. The first stronger baseline fixture
+put credentials inside the canonical data folder; Store correctly refused it.
+The corrected sibling-folder fixture passes on both trees. The original
+2-attempt alias allocation was exceeded by that setup invocation; all receipts
+are retained, with one bounded corrected run per arm, no coding-difficulty claim
+and no reopening of Cycle2's budget.
 
-[Baseline and artifact identities](evidence/shared-provider-263/baseline.json)
-record source `c388da26`, the existing subreaper, locked offline commands and
-helper hashes. Workspace library suites passed 763 tests with two parent-invoked
-subprocess witnesses ignored. The explicit AI scripted-runs command passed 635
-with one such witness ignored; the same AI binary also ran in the workspace
-command, so these counts are not distinct coverage. An initial passing attempt
-used different activation-default helper binaries; its log remains recorded, but
-the matched baseline uses the exact helpers recorded in Cycle 2. No refactor
-after-result or performance comparison exists yet.
+The general hosted Codex task route could not create a confirmation task
+(“create an environment for this repo”). The owner selected exactly one fresh
+read-only evaluation subagent, `/root/provider_confirmation`, with no inherited
+conversation. It inspected immutable before/candidate sources in eight read-only
+calls, specified the challenge independently of the tuning receipts, and changed
+no files. This is procedural fresh-context independence, not technical filesystem
+isolation. The full specification and provenance are archived. It did not implement,
+execute or review the resulting patches. Normal hosted code/security review is
+separate. No Council sessions ran, under the owner's explicit skip instruction;
+missing Council is not counted as completed and no score is supplied.
 
-## Preparation publication and remaining handoff
+The confirmation's original two baseline attempts failed on test-fixture mistakes:
+`WorkspaceSettings` has no `Default`, then Text conversion correctly added a
+terminal newline. One additional fixture-only correction was explicitly recorded
+within the original 15-minute arm window, with unchanged production policy.
+The corrected baseline passes on its third invocation; the candidate passes on
+its first invocation using the exact same corrected harness and case set. Both
+arms stay inside the original 15-minute wall allowance. No production-policy
+rework was needed after either fixture correction.
+All temporary behaviors and tests are restored to their pinned source bytes;
+none of the experimental alias/diagnostic/retry/passive-startup changes ships.
+The observations support localized, executable changes for the selected policies;
+they do not establish that future changes take less time or fewer attempts.
 
-This separate branch is [draft PR267](https://github.com/ewq100/brn-rust/pull/267).
-Preparation commit `1efe4281` has completed [code](https://github.com/ewq100/brn-rust/pull/267#issuecomment-6697023286)
-and [security](https://github.com/ewq100/brn-rust/pull/267#issuecomment-6697056622)
-receipts reporting no findings; zero inline threads were open. The owner-only
-detailed security report was inaccessible through available cloud tools. No
-independent maintenance confirmation variant was supplied. These are preparation
-reviews, not a completed refactor review; later heads require their own checks.
+## Review, integration and later A/B adoption
 
-[Local tooling receipts](evidence/shared-provider-263/preparation-tooling.json)
-retain the failed invocation and the corrected 329-passed/31-skipped run. The
-first invocation omitted cloud activation and the existing subreaper, producing
-six locked-archive lookup errors and one orphan-process assertion failure.
-Correcting that invocation required no source or assertion change.
+Product source `72bb6241` is the local qualification pin. The final evidence/docs
+commit preserves that product tree. PR267 owns the current-head hosted macOS/
+Linux/tooling checks, Codex code/security receipts, thread dispositions and
+normal merge; earlier clean reviews of `4ef6ced8` are historical. This source
+record is the pre-merge qualification snapshot; the linked PR and #263/#253
+closeout receipts record actual integration and resulting-main outcomes.
 
-Stage1 resulting-main run [42300540347](https://github.com/ewq100/brn-rust/actions/runs/42300540347)
-has all four required contexts passing. Optional Windows failures remain separate
-in the selected record and #255; no overall-main success is claimed.
+Repair272 had all seven PR lanes and current explicit code/security receipts
+reporting no findings. Its resulting-main run42337726231 has all four required
+contexts and all Linux/macOS lanes passing. Three optional Windows failures remain:
+core Clippy's existing `skills.rs`187/191 dead code and both native builds' existing
+`threads_composer.rs` cfg/import errors. They are outside the repair/refactor
+product diff; overall-main success is not claimed. Earlier preparation reviews,
+helper-mismatch/activation/reaper attempts and corrected tooling checks remain
+historical receipts, not current implementation reviews.
 
-A current explicit release of shared source ownership is still required by
-[#263](https://github.com/ewq100/brn-rust/issues/263). B has built its separate
-fixed `a921e325` alpha artifacts; [PR268](https://github.com/ewq100/brn-rust/pull/268)
-contains its release-approval work. Its Mac resource-slot release does not supply
-A source ownership. No shared runtime file was edited while that prerequisite
-was unresolved. Resume this same draft after the handoff; reconcile B task-record
-changes and its publication window before integration.
+B's first-alpha artifacts and new MacBook rebuild stay pinned to `a921e325`;
+D/E's frozen #254/#256 experiments retain their original source. C uses cloud and
+normal hosted macOS CI, with no owner Mac, copied credentials or live product
+provider call. B's latest coordination records a fixed-source build, not a final
+publication reservation. Recheck #253 immediately before integration; do not move
+main during B's reserved publication window.
 
-## Implementation and newly exposed runtime gap
-
-`provider.rs` now owns `ProviderOperation` credential/account/client policy,
-`Provider` saved aliases and account capture, saved effort parsing, and Copilot
-completion/schema/initial-route/fallback decisions. App chat/helper/search
-selection uses those existing normalized provider names. Chat/helper transport
-resend wrapping stays run-owned. Summary construction still reuses its parent
-client; refinement/search retain their own transport/deadline/call contracts.
-The former chat client-policy branches and conversion/search auth-policy copies
-are removed, as are duplicate provider/effort matches. Existing Auth and Rig
-remain the low-level credential/protocol owners.
-
-The original 763 workspace library tests passed after extraction. The first
-compile exposed four test-only imports that had relied on the parent runtime's
-Auth import; those imports are now explicit. A new during-auth mutation fixture
-then exposed an existing token-store overwrite, reproduced independently on
-untouched c388da26. The callback changed the account, but the old combined-record
-save restored the starting bootstrap. No extraction regression or fresh live
-qualification is inferred.
-
-That behavior repair is isolated in [PR272](https://github.com/ewq100/brn-rust/pull/272),
-not implemented as a provider-refactor policy change. It protects stale Copilot
-token-store reload/save/delete and has its own offline regression, review and
-platform qualification. The refactor's final before/after baseline will include
-that reviewed runtime, preserving the original A/Cycle2 receipts unchanged.
-Temporary maintenance-task specifications were frozen before extraction; their
-original source pin and finite allocation remain retained separately. No
-maintenance task acceptance or elapsed-speed gain has yet been claimed.
-
-## Completing the settings/fence boundary
-
-A full-consumer audit found three further name-policy copies beyond the first
-routing pilot: helper-save validation, the durable core run/settings fence, and
-the runtime preflight settings check. These now use the same identity map.
-`brn-threads-core::canonical_provider_name` owns only persisted provider-name
-identity because the durable fence cannot depend on `brn-ai`. The internal AI
-provider module projects that identity into `Provider` and owns operation policy.
-No new crate, dependency, account store, setting value, schema or model default is
-introduced. Unknown raw names retain their prior core equality behavior; runtime
-selection still refuses unsupported providers.
-
-Helper saving reuses shared provider/effort/model validation while retaining its
-existing error order, absolute-path and one-credential-route rules. The legacy
-trimmed-model syntax check still preserves the saved bytes; runtime helper
-selection continues to validate the exact model bytes. A core compatibility
-matrix preserves known alias pairs, unknown-name equality and exact model/effort
-fencing. Existing runtime/account settings-snapshot integration checks remain.
-
-The original alias pilot proved only direct runtime resolution, not successful
-helper configuration and durable Run preparation. It is retained with that limit.
-The stronger acceptance test saves both parent/helper settings and prepares a
-canonical-provider Run. Its first launch had an invalid fixture: credentials were
-placed inside the canonical data folder, which Store correctly refused. That
-receipt is preserved as setup failure, not evidence of baseline coding difficulty.
-The corrected fixture uses sibling data/credential folders and a bounded run on
-both trees. No elapsed-speed or statistical coding-effort claim is made.
+Later A/B adoption requires a newly selected source/package and affected combined
+sign-in/reconnect/switch (including during token exchange), chat/helper/summary,
+web and refinement journeys. Prior live/native receipts cover only their recorded
+source; cloud fixtures and hosted builds are not fresh installed-app or owner
+acceptance. No alpha publication or release authority is inferred here.

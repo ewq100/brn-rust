@@ -1,7 +1,7 @@
 # Development overview
 
 **Goal:** Implement shared provider operations in cloud after Cycle 2 no-change closeout, preserving caller contracts and first-alpha separation.
-**Owner attention:** Owner confirms A done and instructs continuation; selected runtimea921e325 unchanged. C shared-provider extraction is in progress. New during-auth fixture reproduces an existing stale auth-store overwrite on untouched runtime; C isolates repair on separate branch/PR before refactor qualification. Council skipped per owner.
+**Owner attention:** C final shared-provider source72bb6241 and offline/maintenance qualification are complete; final-head hosted CI/code/security/normal integration remain in PR267. Repair272 merged75f37221. Owner A-done/one read-only evaluator/Council skip instructions honored. B current MacBook build stays pinned a921e325; no publication reservation inferred. Saved task state is a pre-merge snapshot; PR267/#263/#253 supply final live receipts.
 
 Activity below is the last reported or observed update. It does not establish that work is running now.
 
@@ -72,12 +72,12 @@ Gates:
 
 </details>
 
-### Consolidate shared provider policy after runtime handoff
+### Consolidate shared provider policy and qualify normal integration
 
 Task ID: `shared-provider-263`
-Owner: Agent C / Codex (cloud) · State: **active** · Last observed: 2026-11-07T06:35:22.314122+02:00
-Activity: Owner A-done instruction reconciled; separate auth-write repair272 merged75f37221 after7green PR checks/full offline gate/current clean reviews. Shared extraction now includes saved helper validation and core/runtime run-fence identity through one canonical-name map. Pilot3 tasks passed both trees, but alias pilot lacked save/fence coverage; stronger corrected acceptance is running and invalid fixture receipt retained. Fresh independent evaluation subagent explicitly authorized by owner, to receive frozen source checkpoint.
-Next: Freeze corrected source checkpoint and obtain one fresh read-only evaluator challenge. Finish full-scope alias supplement, independent variant, all offline before/after/required CI/reviews, then reconcile normal main/B publication window before refactor merge.
+Owner: Agent C / Codex (cloud) · State: **active** · Last observed: 2026-11-07T05:13:29.268453+00:00
+Activity: Shared extraction and all setting/fence consumers implemented; final72bb6241 also forwards CLI/desktop canonical keys. Full cloud storage/end-to-end gate passes,771library tests/2parent-invoked fixture ignores,108steps1266checks. Three temporary tasks and fresh evaluator challenge pass both repaired baseline/candidate; failed/limited fixture attempts retained. No experimental policy ships. Final evidence batch now needs current-head hosted CI/code/security and normal merge.
+Next: Finish current-head PR267 hosted CI including macOS, Codex code/security and thread disposition; reconcile live main/B publication window, normal merge and inspect resulting-main required checks. PR267 and #263/#253 own final completion receipts; this is the pre-merge qualification snapshot.
 Depends on: development-speed-255 when Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (reported satisfied: true)
 
 <details>
@@ -85,11 +85,11 @@ Depends on: development-speed-255 when Cycle 2 closeout as its own PR with appli
 
 Gates:
 
-- **implementation:** Owner current instruction A is done continu supplies reported completion/release for proceeding. No new A-authored file-handoff receipt claimed. Mapped runtime unchangeda921e325. Shared extraction local; separate baseline auth-write defect repair required for qualification.
-- **checks:** Before-refactor matched-helper baseline passed: workspace library suites763pass/2parent-invoked fixture ignores; explicit AI scripted suite635pass/1fixture ignore. Raw logs/hash manifest retained, including initial helper-mismatch attempt. After-tests, three maintenance tasks and independent unseen confirmation remain pending. No elapsed-speed or refactor correctness claim. Preparation1efe4281: hosted code/security receipts report no findings, zero inline threads; no independent unseen maintenance variant supplied. Local tooling corrected329pass31skip after diagnosed activation/reaper failure. Final implementation/current-head qualification remains pending.
-- **integration:** Repair272 merged75f37221 (exact ce36 product tree); refactor267 temporarily stacked on repair branch, will merge current main normally and retargetmain. No refactor merge; B first alpha remainsa921e325.
-- **native:** Cloud offline implementation planned; existing A/B live/native receipts retain their source limits. Any observable behavior change needs its proper qualification.
-- **owner acceptance:** Current assignment authorizes the separate refactor after sequencing gates; no release/publication authority inferred.
+- **implementation:** Owner current A-is-done instruction reconciled at selecteda921e325. Existing setting/account/client/route/schema/retry policy now has shared owners; duplicate branches removed, distinct caller contracts retained. Auth behavior repair272 merged separately75f37221; final refactor branch merges that main normally.
+- **checks:** Final72bb6241 full storage/end-to-end gate status0; libraries765→771 with2parent-invoked fixture ignores, prior passing case names retained; strict Clippy and108step/1266check CLI journey.3temporary tasks pass before/after, corrected alias real configuration/run-fence acceptance and one fresh read-only evaluator challenge (same5new+2positive+37auth cases/arm) pass; sources restored. Original attempt overruns/fixture failures and model-identity/elapsed limits explicit in qualification.json. Current final-head hosted CI/reviews still required; earlier4ef reviews are historical. Council skipped per owner,0sessions/no score, not passed.
+- **integration:** Repair272 normalmerge75f37221; its required-main contexts pass, optional3Windows failures outside product diff retained. Refactor267 now based on main, remains separate from B first-alpha a921e325. Inspect exact current-head/platform/review gates and B publication window before normal merge; no bypass/forcepush.
+- **native:** Cloud implementation/offline transports only. Hosted macOS checks required; no owner Mac/credentials/live call. Earlier A/B/D/E receipts retain original sources. Later A/B selected-package combined account/chat/helper/summary/web/refinement journeys remain separate from cloud refactor qualification.
+- **owner acceptance:** Assigned cloud implementation and normal merge authorized. Owner explicitly selected one fresh read-only evaluator and skipped Council. No release/alpha publication authority or fresh live/native acceptance inferred.
 
 </details>
 
@@ -123,10 +123,10 @@ Completion here means the selected task scope is complete; it does not establish
 ```mermaid
 graph TD
   t3["Measure and improve development feedback (#255)"]
-  t5["Consolidate shared provider policy after runtime handoff"]
+  t5["Consolidate shared provider policy and qualify normal integration"]
   t3 -->|Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (satisfied)| t5
 ```
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-11-07T06:35:22.314122+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-07T05:13:29.268453+00:00). A remote page reflects the last published commit. Neither indicates that work is live now.
