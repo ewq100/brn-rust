@@ -3094,6 +3094,39 @@ fn b3_converted_reference() -> ConversionResult {
 }
 
 #[gpui_kit::test]
+fn completed_full_import_opens_the_protected_note_in_read_mode(cx: &mut TestAppContext) {
+    let f = fixture(cx);
+    cx.update_window(f.window, |_, window, cx| {
+        f.view.update(cx, |view, cx| {
+            view.open_note(&f.a.id, None, window, cx);
+            let outcome = view
+                .workspace
+                .import_full_scoped_with_conversion(
+                    "read-import",
+                    "Imported reference",
+                    &b3_converted_reference(),
+                    None,
+                    &DocumentConversionSettings::default(),
+                )
+                .unwrap();
+            let ApplyOutcome::Applied(receipt) = outcome else {
+                panic!("import")
+            };
+            let imported = receipt
+                .writes
+                .iter()
+                .find(|write| matches!(&write.after.data, RecordData::Note(_)))
+                .unwrap();
+            assert!(matches!(&imported.after.data, RecordData::Note(note) if note.protected));
+            view.open_imported_note(&imported.after.id, window, cx);
+            assert_eq!(view.open_note_id(), Some(imported.after.id.as_str()));
+            assert!(view.writing.note.is_reading());
+        });
+    })
+    .unwrap();
+}
+
+#[gpui_kit::test]
 fn b3_full_note_import_attaches_once_and_wrong_target_completion_keeps_canonical_result(
     cx: &mut TestAppContext,
 ) {

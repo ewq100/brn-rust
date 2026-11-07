@@ -3251,7 +3251,7 @@ impl ThreadsUi {
                                         if let Some(id) = id
                                             && chat.is_none()
                                         {
-                                            self.open_note(&id, None, window, cx);
+                                            self.open_imported_note(&id, window, cx);
                                         }
                                     }
                                     Err(e) => {
