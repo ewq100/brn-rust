@@ -38,12 +38,16 @@ Follow [strategic programming](strategic-programming.md). A regression test shou
 
 ## CI
 
-The [CI workflow](../../.github/workflows/ci.yml) has a documentation/tooling job and core/native lanes. Required contexts on `main`:
+The [CI workflow](../../.github/workflows/ci.yml) has a change-scope job, a documentation/tooling job and core/native lanes. PRs and main pushes run only the four required Mac-first contexts, which the preview release gate and `scripts/ci-summary.py` check:
 
 - `Core and CLI (ubuntu-24.04)`
 - `Core and CLI (macos-15)`
 - `Native UI build and state (macos-15)`
 - `Native retrieval and combined build (macos-15)`
+
+A PR that changes only Markdown outside `crates/`, `agent/`, `tools/` and `fixtures/` directories skips these Rust lanes; its `Change scope` job records the skip, and Documentation and tooling still runs. Main pushes never skip them, because the [preview release gate](preview-release.md#publication-gate) needs them to pass.
+
+The informational Linux native and Windows lanes run nightly and on manual dispatch (`gh workflow run ci.yml --ref BRANCH`, or `-f windows_only=true` for Windows alone). Dispatch the full matrix before a change that targets those platforms, or before an owner-approved preview release.
 
 The separate [agent context budget](../../.github/workflows/agent-context-budget.yml) check fails when `AGENTS.md` or `agent/` guidance grows; trim it or add the `agent-context-increase` label. After intended changes run `python3 scripts/check-agent-context-budget.py --write`.
 
