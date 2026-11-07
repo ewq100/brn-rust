@@ -1,0 +1,36 @@
+{
+  "observed_at": "2026-11-07T05:31:46.125377+00:00",
+  "scope": "checked CLI owner edit on explicit test-owned target while native v6 proposal remains open",
+  "before": {
+    "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+    "version": 6,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Native harbor working note",
+        "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  "after": {
+    "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+    "version": 7,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Native harbor working note",
+        "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.\n\nOWNER-NEWER-253: Owner saved this after the proposal was prepared.",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  "native_candidate_base": 6,
+  "token_file": "test-only edit token excluded from evidence"
+}

@@ -1,0 +1,12 @@
+{
+  "status": "passed bounded preflight refusal",
+  "configured_negative_model": "brn-native-253-unavailable-model",
+  "native_message": "is not offered by GitHub Copilot, so BRN has not started. Choose a model from the model menu.",
+  "owner_message_preserved": true,
+  "no_success_or_fallback_claimed": true,
+  "restored_model": "gpt-6-luna",
+  "limitations": [
+    "This is catalogue preflight refusal, not a live policy/quota/Luna entitlement denial or network outage.",
+    "During settings test CmdS saved the underlying recovered synthetic note. Native recovery had already been observed; keyboard shortcut is not claimed as settings Save. Actual visible Save settings button was used."
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "backup": "/Users/Shared/BRN-native-functional-253-20261107/backups/BRN-backup-b02157ea-d7ea-4637-9d87-0f79885ce078",
+  "backup_sha256": "c7d9d8052f477d44bd1dd50d5c221b91a5156c6309ec933f20f4b8e0626e2011",
+  "restore": "/Users/Shared/BRN-native-functional-253-20261107/recovery-copies/BRN-restored-e1e7b670-bbf2-4a0e-8287-cec27882740b",
+  "native_backup_and_final_restore_confirmation": true,
+  "comparison": {
+    "records": true,
+    "notes": true,
+    "history": true,
+    "settings": true,
+    "projects": true,
+    "threads": true
+  },
+  "counts": {
+    "records": 58,
+    "notes": 5,
+    "history": 83,
+    "settings": 10,
+    "projects": 1,
+    "threads": 5
+  },
+  "canonical_sha256": {
+    "records": "3672c40148b0f3d237845e7546308893d3df0cc4dee45254061c9dd082c9d124",
+    "notes": "ed66babc1f1dcb7762182071be86daddfaf113efdfb760ebc6fcb17ad2f74e1b",
+    "history": "3bdab464b5bc701f781e55876dd6ced5fc03c93b0a0cdaf9b439d0d6fe1adb7f",
+    "settings": "c148004182bcb187e4754af0d3d353f0035b507e707eafb010082e145ad6b4d7",
+    "projects": "f97e3f3225927ee3db7cc2c90f12066c9a7db91d24d29efbb9b492730b8fab0b",
+    "threads": "06e47d0981d83f1b31dd3819f3c12543c76ba996de2b8f900e5ceb5a3583f69e"
+  },
+  "sqlite_quick_check": "ok",
+  "scope": "post-login chats/runs/sources, imported figure assets, source-linked notes, project links/history/settings; external credential files not copied as backup artifacts"
+}

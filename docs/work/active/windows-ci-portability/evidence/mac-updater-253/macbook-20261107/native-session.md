@@ -3,7 +3,9 @@
 Current execution location: MacBook `EMB-60VVL9KC`, arm64/macOS26.5. B owns the
 combined session using A's recorded handoff; no new A execution dependency.
 This derives from the unchanged [original checklist](../alpha-a921e325/native-session.md).
-All native cases below are **pending** until an observation is recorded.
+The separate source-bound [observations](../macbook-native-20261107/README.md) now
+record the completed Stage1 core journeys and remaining limits. Checklist items
+are not blanket completion claims.
 
 ## Stage 1: current-account functional testing
 
@@ -44,7 +46,8 @@ unique bundle ID and explicit task-owned data/log paths. The original release ap
 and signed launcher are unchanged. This remains functional test scaffolding.
 
 Use the following as a functional checklist, recording actual native results;
-all cases start pending. Offline checks can proceed before tester device sign-in.
+the linked observations own each outcome. Copilot sign-in is complete; no device
+code is pending.
 
 1. Inspect the isolated empty/new synthetic workspace, Settings and exact Models
    credential folder. Save/inspect settings without touching the normal profile.
@@ -78,12 +81,20 @@ all cases start pending. Offline checks can proceed before tester device sign-in
 This is **alternate-data-directory functional testing**, not ordinary Finder
 first-launch or clean-user acceptance. The host has system-wide Xcode/Rust;
 record that environment rather than claiming a fresh machine without dev tools.
-D/E current threads are complete and no competing cargo/rustc/BRN run was observed
-before B's new build. Coordinate any new actual host/account overlap.
+D/E activity is refreshed independently of saved checkpoints. E has reported a
+new separate-worktree two-job offline compile with no live window yet. B's
+native session is normally closed; a two-job focused native-state regression
+compile is underway. Neither is a latency measurement; coordinate before a
+heavy rebuild or live/timed window.
 
 ## Stage 2: ordinary launch and clean-user acceptance — pending
 
-When Stage 1 is complete, the straightforward remaining clean-user method is one
+Stage1 core journeys passed with a new-article review-target display finding
+under correction. Final source must also reconcile accepted272 and the conflict
+between first-alpha267exclusion and the current-main-only publisher.
+
+When the affected local qualification is complete, the straightforward remaining
+clean-user method is one
 standard disposable macOS account with no BRN data or credentials. Sign into it,
 make the verified package/public fixtures available, install into its writable
 `~/Applications` and open through Finder using the unchanged signed launcher.
@@ -99,7 +110,7 @@ OS account does not block Stage 1. Do not fake HOME or edit the signed launcher.
 ## Published-artifact leg, after explicit approval
 
 1. Finish available local acceptance before the release decision. Present exact
-   alpha.1/build3 manifest/notes, fixed runtimea921e325 and actual candidate head,
+   alpha.1/build3 manifest/notes, reconciled runtime and actual candidate head,
    pending hosted source identity and remaining limitations. The machine move
    does not approve publication. Preserve any later explicit owner decision.
 2. After authorized normal merge and required resulting-main CI, let the existing

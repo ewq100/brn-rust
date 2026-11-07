@@ -1,0 +1,21 @@
+{
+  "base": "2e7bfce321d5eec4ce0f134e3b1f39abbaaee4af",
+  "native_reproduction": "existing note open; open proposed new consolidated article from Inbox; header reports old note/Saved and unavailable banner",
+  "minimal_test_command": "MACOSX_DEPLOYMENT_TARGET=15.0 CARGO_TARGET_DIR=/private/tmp/brn-mac-alpha-253-20261107/target cargo test --release -p brn-desktop --features native-test-support --locked --offline --jobs 2 new_article_review_names_its_target_without_opening_a_missing_note",
+  "before": "FAILED exit101: left Polish witness, right New consolidated article;1test executed;451filtered;0ignored",
+  "cause": "OpenReview tried to open creation ID as saved working note; failed load retained old editor. Header/actions preferred retained editor over the different review target.",
+  "correction": "Do not open a creation as a saved working note. Present exact proposed target title and withhold unrelated retained-editor header actions. Canonical prepare/apply/Undo authority unchanged.",
+  "after": "focused regression1passed; all18review tests passed. Full native-state451passed/1existing fixture ignore with canonical TMPDIR and --test-threads=2.",
+  "packages": "Original a921 MacBook ZIPs unchanged; correction not packaged/native-reobserved yet",
+  "source_files": [
+    "crates/brn-desktop/src/threads_ui.rs",
+    "crates/brn-desktop/src/threads_shell.rs",
+    "crates/brn-desktop/src/threads_review_tests.rs"
+  ],
+  "broader_attempts": [
+    "Default macOS symlinked TMPDIR:443pass/8fail/1ignore.3explicit SymlinkRefused and5document-worker failures.",
+    "Canonical task-owned TMPDIR, default parallelism:450pass/1document-worker failure/1ignore.",
+    "That exact worker test alone passed. Full suite at2threads then451pass/1ignore. No deadline/assertion/CI configuration changed; default-parallel reliability and baseline attribution are not established."
+  ],
+  "source_authority_update": "Owner selected current main including272+267 plus review-target fix for qualification only; publication remains unapproved."
+}

@@ -1,0 +1,26 @@
+{
+  "observed_at": "2026-11-07T05:28:58.264483+00:00",
+  "target": {
+    "id": "46ff86d6-da76-4a27-9f42-8e0bef21db3e:0",
+    "version": 5,
+    "archived": false,
+    "data": {
+      "Note": {
+        "title": "Native harbor working note",
+        "markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.\n\nPier A water use fell from 120 L/day to 72 L/day. Source: [harbor](brn://note/971c7121-398a-41cc-b21c-6d1b072933e4:1).",
+        "protected": false,
+        "confirmed": false,
+        "superseded_by": null,
+        "import": null
+      }
+    }
+  },
+  "reference_unchanged": true,
+  "native_steps": [
+    "First candidate inspected at savedv4 then Discard; Inbox review cleared and saved note remainedv4",
+    "Second candidate inspected with exact preserved text and source link; Apply whole note clicked; UI showed savedv5"
+  ],
+  "original_markdown": "# Native harbor working note\n\nThe quay closes at 18:00. Preserve the 12 cm water-level measurement and the UTF-8 text \u00f5 \u00fc.\n\nThis is synthetic acceptance material.",
+  "original_text_preserved": true,
+  "source_link_committed": true
+}

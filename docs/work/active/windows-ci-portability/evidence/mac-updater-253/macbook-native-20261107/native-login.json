@@ -1,0 +1,15 @@
+{
+  "observed_at": "2026-11-07T05:11:05.419733+00:00",
+  "normal_device_login": "completed by tester; completion and offered model catalogue observed natively",
+  "credential_folder": "/Users/Shared/BRN-native-functional-253-20261107/copilot-credentials",
+  "mode": "0700",
+  "bootstrap_and_session_files_present": true,
+  "credentials_read_or_copied_to_evidence": false,
+  "provider": "copilot",
+  "model": "gpt-6-luna",
+  "effort": "high",
+  "native_offered_gpt_6_luna": true,
+  "auth_file": null,
+  "helper": null,
+  "scope": "current-account functional test wrapper; not clean-user/Finder release launch"
+}

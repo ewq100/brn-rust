@@ -1,0 +1,201 @@
+{
+  "observed_at": "2026-11-07T05:17:05.200435+00:00",
+  "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+  "native_observations": [
+    "device sign-in completed to exact test-owned credential folder; offered Luna model/high selected",
+    "first completed native reply cited working notev4 and read_note activity; correct18:00/12cm",
+    "multi-turn reply retained12cm and converted18:00 to6:00PM",
+    "native plus-menu web toggled Off, then model explicitly refused to browse instead of guessing",
+    "native web toggled On; successful reply cited officialRustblog returned source",
+    "Stop clicked on active native reply; state became Stopped or interrupted and Continue appeared"
+  ],
+  "notes_unchanged": true,
+  "runs": [
+    {
+      "id": "0a9980f9-0ea1-43da-ab8a-77dcf08f223f:0",
+      "provider": "Copilot",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "state": "completed",
+      "budget": 8,
+      "operations_total": 0
+    },
+    {
+      "id": "61e6178d-3320-48f3-bd1c-41f3b581670b:0",
+      "provider": "Copilot",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "state": "interrupted",
+      "budget": 8,
+      "operations_total": 0
+    },
+    {
+      "id": "63142b1a-c315-4dfd-9839-780b2a22f4ce:0",
+      "provider": "Copilot",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "state": "completed",
+      "budget": 8,
+      "operations_total": 0
+    },
+    {
+      "id": "63bcf6ae-7b44-4e60-a9d9-d0906a2603e2:0",
+      "provider": "Copilot",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "state": "completed",
+      "budget": 8,
+      "operations_total": 0
+    },
+    {
+      "id": "84a0c32e-9852-4439-97ae-f7a124ab8cc9:0",
+      "provider": "Copilot",
+      "model": "gpt-6-luna",
+      "effort": "high",
+      "state": "completed",
+      "budget": 8,
+      "operations_total": 0
+    }
+  ],
+  "messages": [
+    {
+      "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+      "role": "owner",
+      "text": "Find the saved article titled \u201cNative harbor working note\u201d, read it with BRN tools, and report the quay closing time and water-level measurement. Cite the saved note. Keep this brief and do not change any notes."
+    },
+    {
+      "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+      "role": "assistant",
+      "text": "The quay closes at **18:00**, and the water-level measurement is **12 cm**. Source: [Native harbor working note](brn://note/46ff86d6-da76-4a27-9f42-8e0bef21db3e:0), version 4."
+    },
+    {
+      "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+      "role": "owner",
+      "text": "Using that same saved note, repeat the measurement and express the quay closing time in 12-hour format. Do not browse the web or change anything."
+    },
+    {
+      "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+      "role": "assistant",
+      "text": "The water-level measurement is **12 cm**, and the quay closes at **6:00 PM**. [Native harbor working note](brn://note/46ff86d6-da76-4a27-9f42-8e0bef21db3e:0), version 4."
+    },
+    {
+      "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+      "role": "owner",
+      "text": "Search the web for the official Rust 1.98.0 release announcement and cite the returned official URL. If web access is disabled for this chat, say that you cannot browse and do not guess. Do not change any saved content."
+    },
+    {
+      "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+      "role": "assistant",
+      "text": "I can\u2019t browse the web in this chat, so I can\u2019t verify or cite the official Rust 1.98.0 release announcement URL. I won\u2019t guess."
+    },
+    {
+      "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+      "role": "owner",
+      "text": "Web access is now enabled for this chat. Use the web_search tool to find the official Rust 1.98.0 release announcement. Give one brief answer citing a real returned official source URL. Do not change saved content."
+    },
+    {
+      "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+      "role": "assistant",
+      "text": "Rust 1.98.0\u2019s announcement is on the [official Rust blog](https://blog.rust-lang.org/2026/08/20/Rust-1.98.0/)."
+    },
+    {
+      "thread": "7f8ebb07-c52b-4561-8d76-2d9947680f82:0",
+      "role": "owner",
+      "text": "Use web search to find the official SQLite backup API documentation and the official Rust filesystem documentation. Read the two sources and give two brief supported observations. Do not modify BRN content."
+    }
+  ],
+  "returned_sources": [
+    {
+      "run_id": "0a9980f9-0ea1-43da-ab8a-77dcf08f223f:0",
+      "sources": []
+    },
+    {
+      "run_id": "61e6178d-3320-48f3-bd1c-41f3b581670b:0",
+      "sources": []
+    },
+    {
+      "run_id": "63142b1a-c315-4dfd-9839-780b2a22f4ce:0",
+      "sources": []
+    },
+    {
+      "run_id": "63bcf6ae-7b44-4e60-a9d9-d0906a2603e2:0",
+      "sources": []
+    },
+    {
+      "run_id": "84a0c32e-9852-4439-97ae-f7a124ab8cc9:0",
+      "sources": []
+    }
+  ],
+  "limits": [
+    "Sourcea921; newer272auth-race repair not included",
+    "Functional test wrapper/alternate data; not ordinary Finder/clean user",
+    "Stop does not establish upstream processing/quota cancellation"
+  ],
+  "verification_correction": "The first Web-On answer contained a URL but no web_sources; it is not counted as a search pass. A fresh chat explicitly requiring search produced13 actual sources and native source rows.",
+  "actual_web_search": {
+    "thread": "bdb7ab58-6ab0-4c6f-a90b-acc4b522e3c1:0",
+    "run_id": "3f16d0e6-d3f4-417a-96a2-d1c316643d5c:0",
+    "provider": "Copilot",
+    "model": "gpt-6-luna",
+    "requested_effort": "high",
+    "state": "completed",
+    "budget": 8,
+    "web_sources": [
+      {
+        "url": "https://blog.rust-lang.org/releases/latest/?utm_source=openai",
+        "title": "Announcing Rust 1.99.1 | Rust Blog"
+      },
+      {
+        "url": "https://blog.rust-lang.org/releases/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/releases/latest/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/09/03/Rust-1.98.1/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/10/01/Rust-1.99.0/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/08/20/Rust-1.98.0/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/07/09/Rust-1.97.0/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/06/30/Rust-1.96.1/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/inside-rust/index.html"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/09/01/Rustup-1.29.1/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/08/21/enabling-next-solver-on-nightly/"
+      },
+      {
+        "url": "https://blog.rust-lang.org/2026/03/26/1.94.1-release/"
+      }
+    ],
+    "messages": [
+      {
+        "thread": "bdb7ab58-6ab0-4c6f-a90b-acc4b522e3c1:0",
+        "role": "owner",
+        "text": "Use the web_search tool now to search the official Rust blog for the most recent release announcement as of 7 November 2026. Do not answer from memory. Report the title and one actual returned source URL; if the search tool is missing or fails, report that explicitly. Do not change saved content."
+      },
+      {
+        "thread": "bdb7ab58-6ab0-4c6f-a90b-acc4b522e3c1:0",
+        "role": "assistant",
+        "text": "The search returned **\u201cAnnouncing Rust 1.99.1\u201d** as the latest Rust release announcement as of 7 November 2026.\n\nSource: https://blog.rust-lang.org/releases/latest/?utm_source=openai"
+      }
+    ],
+    "native_source_list_observed": true
+  },
+  "web_off_no_returned_web_sources": true,
+  "interrupted_run_no_late_sources_at_recheck": true
+}

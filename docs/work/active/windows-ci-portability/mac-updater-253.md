@@ -19,26 +19,46 @@ an unregistered direct desktop process; a distinct test-only wrapper passes the
 same explicit data argument to unchanged packaged executable bytes. It does not
 establish the ordinary release Finder launch path.
 
-Native UI verified the exact task-owned data/Copilot paths with no Codex auth and
-helper Off. DOCX import Off retained/rendered its table and figure; owner Save,
-unsaved Discard, operation Undo and keyword search passed. Native backup and
-separate new-copy restore passed, including a recovered window and exact records/
-assets/notes/history/settings/projects/threads comparison. Normal Copilot device
-login is now awaiting tester action in the verified test folder. Live chat/tools,
-web/Luna-On, AI consolidation/writing and later lifecycle cases remain pending.
-No new OS account is needed for this next step.
+Native functional continuation now passed isolated Copilot login, tool-backed
+multi-turn chat/citations, actual13 run-owned web sources (model-written URL alone
+was rejected as proof), Web Off, Stop/no late publication, Luna refinement On/Off,
+referenced writing Discard/Apply/Undo/stale refusal, and contradictory-source
+consolidation Apply/Undo with both originals unchanged. Normal quit/reopen restored
+an unsaved UTF-8 draft and exact canonical state/settings; a new Copilot tool reply
+needed no fresh login. Post-login native backup/new-copy restore matched all6state
+categories, including figures, sources, chats and project links. No account identity,
+device code or credential payload is in evidence. Requested high effort is not
+proof of effective effort. Optional denial/second-account/network cases stay open.
 
-The local substituted-transport updater qualification exited1 with the intended
-running-BRN refusal; original log retained. Normally close all test-owned BRN
-instances before rerun. No forced closure, stock HTTPS or owner/native-complete
-claim. Finder first-launch/clean-user and actual published browser/Gatekeeper/
-HTTPS remain separate pending gates; publication approval is not inferred.
+The local substituted-transport A3→B4 qualifier passed after normal closure, with
+unchanged external files, B headless reopen and restore. Earlier running-process
+refusal is retained. This does not establish actual published HTTPS or nativeB
+reopening. Functional app is normally closed; no B live/timing session remains.
 
-Prior continuation headb65d3dd4 has7/7CI and completed clean code/security receipts;
-this new documentation/evidence needs its own applicable review/checks. Main has
-since advanced75f37221 with accepted auth-racefix272, outside thesea921artifacts.
-Reconcile final release source and affected account qualification before release.
-No alpha is published, and PR268 remains draft/unmerged/unapproved.
+**Native finding under correction:** a new-article review displays the previous
+note's title/Saved state and an unavailable-note banner. Canonical new note+2source
+links Apply/Undo targeted correctly, with existing notes unchanged. A focused
+regression and correction precede final presentation acceptance. Existing task
+plan: preserve source-bound receipts; reproduce through native-state test; correct
+only target selection/header/actions; run affected native-state/build/review gates;
+then requalify the changed package. No provider rewrite is assigned here.
+
+Continuation2e7bfce3 has completed successful CI42340527801 and clean code/security
+receipts6702537631/6702573318. This new batch needs its own checks/review. Accepted
+auth repair272 on75f37221 must be reconciled before publication. Currentmain now
+includes provider refactor267 as8b07e035, while first-alpha instructions exclude267
+and the existing publisher requires exact currentmain. Owner subsequently selected both changes plus the focused fix for new
+qualification only (see source-choice update below). Publication policy is
+unchanged. Currenta921
+packages/results remain pinned. PR268 remains draft/unmerged/unapproved; no alpha
+is published.
+
+No device code remains pending. For the later clean-user/ordinary Finder leg, the
+minimum owner action is to create and sign into a disposable **standard** macOS
+account without BRN data/credentials and provide its short name/readiness, remaining
+available for ordinary Gatekeeper/Copilot actions. This account does not remove
+system-wide developer tools. Browser-download/Gatekeeper and stock HTTPS remain
+separate gates requiring actual approved hosted artifacts.
 
 ## Historical combined package checkpoint — 6 November 2026 UTC
 
@@ -343,3 +363,14 @@ forward fix. Retained app bundles alone are not database rollback authority.
 manifest/notes and exact local evidence. It stops before merge/publication pending
 explicit owner release approval. Its own final-head hosted checks and Codex
 code/security must complete; prior updater receipts are not this proposal review.
+
+## Source-choice update — 7 November 2026
+
+Owner selected currentmain with272and267 plus the focused review-target fix for
+new qualification only; publication is not approved. The target regression went
+red on the previous header, then passed after correction;18review tests pass.
+Full native-state451passed/1existingignore at2testthreads and canonical TMPDIR;
+initial8fail and later1workerfail default-parallel attempts remain recorded, and
+the isolated worker passed. No assertion/deadline/CI change. B next normally
+reconciles main, pins/builds new artifact identities and repeats affected native
+provider/review/lifecycle journeys. Existinga921artifacts stay unchanged.

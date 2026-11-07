@@ -79,16 +79,71 @@ all test-owned BRN instances remains necessary before updater qualification.
   notes, history, settings, projects and threads match the original; backup bytes
   are unchanged. [Native backup/observations](native-offline-so-far.json),
   [restore](native-restore.json), [state comparison](native-restore-full-comparison.json).
-- Native Models again showed the exact separate Copilot folder, no Codex auth,
-  helper Off and Luna/high. Connect started the normal device flow. Tester action
-  is pending; no chat/tools/web/Luna-On/AI consolidation or writing pass is claimed.
-  Device codes, account identity and credential files are excluded from evidence.
+- Native Models showed the exact separate Copilot folder, no Codex auth and
+  helper Off. The tester completed a fresh normal device flow after the earlier
+  flow expired. Copilot/Luna/high remained selected; high is requested effort,
+  not proof the provider honored it. Device codes, account identity and credential
+  files are excluded from evidence. [Login receipt](native-login.json).
 
-The new local transport-substituted update attempt exited1 because BRN windows
-were running. The stock guard refused normal replacement and terminated no
-process. [Original refusal log](local-substituted-update.log.gz),
-[incomplete qualification disposition](local-update-status.json). Rerun only after
-normal closure; no force quit, process-guard bypass or stock HTTPS result claimed.
+## Post-login native continuation
+
+- Copilot Luna used `read_note` and cited saved v4, continued the conversation,
+  and later read v7 after normal reopen without another sign-in. Web Off returned
+  no search sources. A first Web On reply contained only a model-written URL and
+  is explicitly **not** counted as search success. A fresh native search then
+  returned **13 actual run-owned web sources** and cited one returned URL. Stop
+  interrupted a working turn; no late sources appeared on recheck. This does not
+  prove cancellation of an upstream HTTP request or quota charge.
+  [Chat/web/Stop and correction](native-copilot-chat-web-stop.json),
+  [reopened tool-backed reply](native-retained-session-reply.json).
+- Native DOCX refinement On succeeded through the selected Copilot Luna route,
+  retaining the120→72L/day table, date, pending exception and figure asset. The
+  synthetic variant differs from the earlier Off fixture to prevent deduplication.
+  [Fixture identity](refinement-fixture.json), [result](native-luna-refinement-on.json).
+- Referenced writing Discard leftv4 unchanged. A second exact proposal with the
+  original source link applied asv5; native operation Undo restored exact baseline
+  asv6. A third candidate prepared fromv6 refused Apply after a checked synthetic
+  owner save advanced tov7; the newer owner text and pending proposal survived.
+  [Apply](native-writing-apply-before-undo.json), [Undo](native-writing-undo.json),
+  [stale refusal](native-writing-stale-refusal.json).
+- Consolidation read two contradictory source notes and proposed one new article
+  with two real source Link records. Review retained current12m/s/steel/P8-only
+  requirements and superseded9m/s/timber/original exception history. Native Apply
+  saved the new3-record group; Undo archived all3 asv2. Both originals remainedv1
+  and the newer working notev7 was unchanged.
+  [Applied group](native-consolidation-applied.json), [Undo](native-consolidation-undo.json).
+- **Finding:** that new-article review showed the previously open note's title/
+  Saved state and a misleading “Working Note is unavailable” banner. Its actual
+  request, Apply and Undo targets were correct. The source correction
+  now passes the exact red-before/green-after regression and all18review tests.
+  New-package native reobservation remains pending. This is not hidden
+  behind the successful canonical-write checks.
+  [Exact pending request and observation](consolidation-before-apply.json).
+- Native project creation and linking succeeded. Normal Quit/reopen retained the
+  unsaved UTF-8 recovery draft and exact notes/projects/threads/history/settings.
+  Copilot then completed another tool-backed reply with no fresh device login.
+  [Reopen](native-lifecycle-reopened-A.json),
+  [baseline digests](native-lifecycle-baseline-digests.json).
+- A synthetic model absent from the authenticated catalogue refused before a Run,
+  retained the owner message, and offered supported models. Luna was restored.
+  This is not policy/quota/absent-Luna or network-outage qualification. During this
+  settings experiment CmdS saved the underlying recovered synthetic note; the
+  recovery pass preceded that action. Actual settings submission used the visible
+  Save settings button. [Bounded refusal and limitation](native-unavailable-model.json).
+- A second native full backup/new-copy restore passed after login, with exact
+  comparison of all6categories:58records,5notes,83history entries,1project and
+  5threads, including imported figures and run sources. Credentials remain external.
+  [Post-login backup/restore](native-post-login-backup-restore.json).
+
+The first local transport-substituted update attempt exited1 because BRN windows
+were running; its [original refusal](local-substituted-update.log.gz) remains.
+After normal Quit, process inspection found no BRN desktop. The same qualifier
+then passed real signed local A3→B4 replacement, unchanged external files, B
+headless reopen and backup/restore. [Passing report](local-substituted-update-passed.json),
+[rerun log](local-substituted-update-rerun.log.gz). It uses an independent disposable
+synthetic store and substituted transport, without live credentials. It does not
+establish native B reopening or stock published HTTPS delivery. The functional
+wrapper was normally quit at the end; native app inventory confirmed not running.
 
 ## Remaining source and user gates
 
@@ -99,10 +154,41 @@ artifacts. Preserve these source-bound functional observations; reconcile the
 final release source and requalify affected account behavior before publication.
 No account-switch success on the old runtime is claimed.
 
-The next actual user action is normal Copilot device login in the test app's
-already verified folder. B then continues live and lifecycle checks. No new OS
-account is needed for that leg. A standard disposable account is a straightforward
-later method for the still-pending clean-user/ordinary-launch leg; describe its
-minimum action when the available functional checks are finished. Release approval
-and actual approved hosted A/B remain independent prerequisites for published
-browser/Gatekeeper and stock HTTPS acceptance.
+No further device code is pending. Current-account functional work has progressed
+without creating an OS account. Remaining local work includes the review-target
+presentation correction and final-source/package reconciliation with affected
+qualification. Actual second-account/in-flight account switch, policy/quota denial,
+absent Luna and network outage remain unobserved optional/account-bound cases.
+
+Main now includes provider refactor267 as8b07e035. The first-alpha instructions
+exclude that refactor, while the existing release workflow publishes only an exact
+current-main SHA. The owner subsequently selected currentmain with272and267 plus the focused
+review-target fix for new qualification only, as recorded below. Publication
+policy is unchanged; currenta921packages/observations retain their exact scope.
+
+For the later clean-user/ordinary-launch leg, the minimum owner action is to create
+and sign into a disposable **standard** macOS account with no BRN data/credentials,
+then provide its short name/readiness and remain available for ordinary Gatekeeper
+and Copilot sign-in. B will use the unchanged release launcher there. A new account
+does not remove system-wide developer tools. Actual published browser/Gatekeeper
+and stock HTTPS A→B still require explicit release approval and approved hosted
+artifacts. No alpha is published, approved or owner-accepted by these checks.
+
+## Qualified source correction and next candidate
+
+The [focused correction](review-target-correction.json) avoids opening an unsaved
+creation as an existing working note, names the exact proposed target and withholds
+unrelated retained-editor actions. Shared checked prepare/Apply/Undo is unchanged.
+The test reproduced the old title before the fix and passes after it; all18review
+tests pass. The full native-state suite passed451tests with1existing CLI-supplied
+fixture ignore at2testthreads and canonical task-owned TMPDIR. First default-temp
+and parallel attempts are preserved, including the remaining worker failure under
+default parallelism; its isolated run passed. No assertions, deadlines or CI gates
+were relaxed, and baseline/default-parallel reliability is not claimed.
+
+The owner has now explicitly selected currentmain including272and267 plus this
+focused fix for **new candidate qualification only**. This resolves the earlier
+first-alpha source exclusion for that qualification. Publication remains unapproved.
+Merge currentmain normally, preserve all track records, pin/build the new source,
+record new package identities and repeat affected account/chat/web/refinement and
+review/lifecycle native checks. Existinga921packages/receipts stay unchanged.

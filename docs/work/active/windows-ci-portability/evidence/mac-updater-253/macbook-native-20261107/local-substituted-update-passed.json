@@ -1,0 +1,372 @@
+{
+  "outcome": "passed",
+  "scope": "local real BRN packages, headless A\u2192B/store/backup/restore; HTTPS transport only substituted",
+  "stock_updater_unmodified": false,
+  "limitations": [
+    "Not native acceptance",
+    "Not clean-Mac installation or Gatekeeper acceptance",
+    "Synthetic Copilot selection/credential sentinel only; no live connection",
+    "Not publication or final integrated Agent A candidate"
+  ],
+  "packages": [
+    {
+      "schema": 1,
+      "enabled": true,
+      "version": "v0.2.0-alpha.1",
+      "build_number": 3,
+      "platform": "macos-arm64",
+      "minimum_macos": "15.0",
+      "features": [
+        "native-ui"
+      ],
+      "notes_file": "docs/development/preview-release.md",
+      "source_sha": "a921e32533dc03134ed8a2001bd82f27194c3302",
+      "signing": "ad-hoc; not notarized",
+      "binaries": {
+        "brn-desktop": {
+          "sha256": "af3bb9ccefceb04401b3483d96867933950c62b25e04b5643ae840df14dfaa09",
+          "architecture": "arm64",
+          "minimum_macos": "15.0",
+          "libraries": [
+            "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+            "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+            "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+            "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+            "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+            "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+            "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+            "/usr/lib/libSystem.B.dylib",
+            "/usr/lib/libobjc.A.dylib",
+            "/System/Library/Frameworks/UserNotifications.framework/Versions/A/UserNotifications",
+            "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+            "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+            "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+            "/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData",
+            "/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage",
+            "/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit",
+            "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+            "/System/Library/Frameworks/UniformTypeIdentifiers.framework/Versions/A/UniformTypeIdentifiers",
+            "/System/Library/Frameworks/Metal.framework/Versions/A/Metal",
+            "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+            "/usr/lib/libiconv.2.dylib",
+            "/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync"
+          ],
+          "source_binary_sha256": "26f266d66d45a79e76bbab4b7e7518c7035cdb12f5566006e35224db30d88645"
+        },
+        "brn-xberg-helper": {
+          "sha256": "c341d78164b5e204ff6cbcd26a257ec672a447379c414119ce70619422d8b39e",
+          "architecture": "arm64",
+          "minimum_macos": "15.0",
+          "libraries": [
+            "/usr/lib/libsandbox.1.dylib",
+            "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+            "/usr/lib/libiconv.2.dylib",
+            "/usr/lib/libSystem.B.dylib"
+          ],
+          "source_binary_sha256": "547a34d8cc5f79af348c87b53acb9e57209ff8f5b3b5d67d3c3cf5a6e0695811"
+        },
+        "brn-xberg-helper-brn": {
+          "sha256": "efc291beb65d08d1c8d9d8f46d58b86343853ae5e48a65d1b261178643dc43f5",
+          "architecture": "arm64",
+          "minimum_macos": "15.0",
+          "libraries": [
+            "/usr/lib/libsandbox.1.dylib",
+            "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+            "/usr/lib/libiconv.2.dylib",
+            "/usr/lib/libSystem.B.dylib"
+          ],
+          "source_binary_sha256": "e3b7e7c46314f6819c91aadcde01995708e0ee3d19872eee02464626fcac22e8"
+        }
+      },
+      "data_directory": "~/Library/Application Support/BRN Threads Preview/workspace",
+      "qualification": {
+        "native_interaction": "deferred",
+        "live_provider": "deferred",
+        "recovery_acceptance": "pending"
+      },
+      "external_pdf_tools": [],
+      "notices_index_sha256": "0d32fc44a3c0885219bc55a318ad9a5ba76e1ac4b59dca8a240a54e6fd9c1b50",
+      "bundled_embeddings": false,
+      "bundled_provider_credentials": false,
+      "bundle_identifier": "dev.brn.threads",
+      "updater_sha256": "7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5",
+      "cargo_lock_sha256": "3122299c6b07dc65427f6ffba110f571e06ecc08fb8550df4648a08f3dd09959",
+      "rust_toolchain": "[toolchain]\nchannel = \"1.98.1\"\nprofile = \"minimal\"\ncomponents = [\"clippy\", \"rustfmt\"]\n",
+      "archive": {
+        "name": "BRN-Threads-v0.2.0-alpha.1-macos-arm64.zip",
+        "sha256": "09466cd6ad7ef0e6b803739475563c41ba489d0c3535986d3ddfb4520dee077e",
+        "bytes": 174492662
+      }
+    },
+    {
+      "schema": 1,
+      "enabled": true,
+      "version": "v0.2.0-alpha.2",
+      "build_number": 4,
+      "platform": "macos-arm64",
+      "minimum_macos": "15.0",
+      "features": [
+        "native-ui"
+      ],
+      "notes_file": "docs/development/preview-release.md",
+      "source_sha": "a921e32533dc03134ed8a2001bd82f27194c3302",
+      "signing": "ad-hoc; not notarized",
+      "binaries": {
+        "brn-desktop": {
+          "sha256": "af3bb9ccefceb04401b3483d96867933950c62b25e04b5643ae840df14dfaa09",
+          "architecture": "arm64",
+          "minimum_macos": "15.0",
+          "libraries": [
+            "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+            "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+            "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+            "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+            "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+            "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+            "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+            "/usr/lib/libSystem.B.dylib",
+            "/usr/lib/libobjc.A.dylib",
+            "/System/Library/Frameworks/UserNotifications.framework/Versions/A/UserNotifications",
+            "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+            "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+            "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+            "/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData",
+            "/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage",
+            "/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit",
+            "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+            "/System/Library/Frameworks/UniformTypeIdentifiers.framework/Versions/A/UniformTypeIdentifiers",
+            "/System/Library/Frameworks/Metal.framework/Versions/A/Metal",
+            "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+            "/usr/lib/libiconv.2.dylib",
+            "/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync"
+          ],
+          "source_binary_sha256": "26f266d66d45a79e76bbab4b7e7518c7035cdb12f5566006e35224db30d88645"
+        },
+        "brn-xberg-helper": {
+          "sha256": "c341d78164b5e204ff6cbcd26a257ec672a447379c414119ce70619422d8b39e",
+          "architecture": "arm64",
+          "minimum_macos": "15.0",
+          "libraries": [
+            "/usr/lib/libsandbox.1.dylib",
+            "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+            "/usr/lib/libiconv.2.dylib",
+            "/usr/lib/libSystem.B.dylib"
+          ],
+          "source_binary_sha256": "547a34d8cc5f79af348c87b53acb9e57209ff8f5b3b5d67d3c3cf5a6e0695811"
+        },
+        "brn-xberg-helper-brn": {
+          "sha256": "efc291beb65d08d1c8d9d8f46d58b86343853ae5e48a65d1b261178643dc43f5",
+          "architecture": "arm64",
+          "minimum_macos": "15.0",
+          "libraries": [
+            "/usr/lib/libsandbox.1.dylib",
+            "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+            "/usr/lib/libiconv.2.dylib",
+            "/usr/lib/libSystem.B.dylib"
+          ],
+          "source_binary_sha256": "e3b7e7c46314f6819c91aadcde01995708e0ee3d19872eee02464626fcac22e8"
+        }
+      },
+      "data_directory": "~/Library/Application Support/BRN Threads Preview/workspace",
+      "qualification": {
+        "native_interaction": "deferred",
+        "live_provider": "deferred",
+        "recovery_acceptance": "pending"
+      },
+      "external_pdf_tools": [],
+      "notices_index_sha256": "0d32fc44a3c0885219bc55a318ad9a5ba76e1ac4b59dca8a240a54e6fd9c1b50",
+      "bundled_embeddings": false,
+      "bundled_provider_credentials": false,
+      "bundle_identifier": "dev.brn.threads",
+      "updater_sha256": "7f5ea95caa55c0f552d54fd215a28c18d3a55e16b1011db7bfe6889d565157b5",
+      "cargo_lock_sha256": "3122299c6b07dc65427f6ffba110f571e06ecc08fb8550df4648a08f3dd09959",
+      "rust_toolchain": "[toolchain]\nchannel = \"1.98.1\"\nprofile = \"minimal\"\ncomponents = [\"clippy\", \"rustfmt\"]\n",
+      "archive": {
+        "name": "BRN-Threads-v0.2.0-alpha.2-macos-arm64.zip",
+        "sha256": "13cbecfc3e64e5ecda1bd71a4c9107a71a7cfbe6bd2db8d6de4d8af3634c428b",
+        "bytes": 174492666
+      }
+    }
+  ],
+  "checks": {
+    "external_files_unchanged_before_B_reopen": true,
+    "logical_state_unchanged_after_B_headless_startup": true,
+    "previous_app_retained": true,
+    "pre_update_backup_restored_to_fresh_store": true
+  },
+  "synthetic": {
+    "note_id": "f6da5d60-70a6-4aea-8dfb-b274a5363dd8:0",
+    "project_id": "f561248f-47f6-4c01-96a1-49d31df65a07:0",
+    "thread_id": "336190ec-da69-4c43-8576-f225314b597d:0",
+    "asset_count": 1,
+    "inspection_commands": [
+      "notes",
+      "records",
+      "history",
+      "settings",
+      "recovery",
+      "projects",
+      "threads"
+    ],
+    "file_hashes_before_update": {
+      "draft": "4caf7812aab6d39831dc64ef5f6e6d0a2338e57f0195f3cfced02c0f5272db87",
+      "settings.json": "072df900717a7aa060e6a0d86505be3bcd015e686587d504470fbeceebcdc710",
+      "copilot-credential-sentinel": "d289accaceeae214533e2efaac513891d6a8bf2ba5e322753ef96fd1538ef81d",
+      "notes.sqlite3": "090f752ba02c145c0c14dd10041ddce4034749033ecf183b86e1608bfab2d6b5",
+      "Library/Application Support/BRN Threads Preview/workspace/.brn-threads-data": "fcfb1474a9320049b178a6e7d4c8f5fc6c089bf2e12bb0a9946014287385ae2d",
+      "Library/Application Support/BRN Threads Preview/workspace/threads.sqlite3": "9e17284fbd58003e120e3b866ef1cdf751ad6b21256ea714f63913a1559f8af3"
+    }
+  },
+  "commands": [
+    [
+      "init",
+      "--purpose",
+      "test"
+    ],
+    [
+      "note-create",
+      "--title",
+      "Synthetic update note",
+      "--text",
+      "Harbor water: 12 cm. Preserve UTF-8: \u00f5 \u00fc."
+    ],
+    [
+      "project-create",
+      "--title",
+      "Synthetic update project"
+    ],
+    [
+      "project-link",
+      "--project",
+      "f561248f-47f6-4c01-96a1-49d31df65a07:0",
+      "--note",
+      "f6da5d60-70a6-4aea-8dfb-b274a5363dd8:0"
+    ],
+    [
+      "thread-start",
+      "--title",
+      "Synthetic update chat"
+    ],
+    [
+      "queue",
+      "--thread",
+      "336190ec-da69-4c43-8576-f225314b597d:0",
+      "--text",
+      "Unsent synthetic work; never dispatch"
+    ],
+    [
+      "configure",
+      "--provider",
+      "Copilot",
+      "--model",
+      "synthetic-unavailable-model",
+      "--effort",
+      "low"
+    ],
+    [
+      "delegation",
+      "--choice",
+      "review-first"
+    ],
+    [
+      "begin-edit",
+      "--note",
+      "f6da5d60-70a6-4aea-8dfb-b274a5363dd8:0",
+      "--base",
+      "1",
+      "--token-out",
+      "/private/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-update-test-k0gdxyu9/synthetic-edit-token"
+    ],
+    [
+      "update-buffer",
+      "--session",
+      "bb9aeaff-894c-42e7-9b66-af7cd60d2651",
+      "--generation",
+      "1",
+      "--text",
+      "Unsaved synthetic draft",
+      "--token-file",
+      "/private/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-update-test-k0gdxyu9/synthetic-edit-token"
+    ],
+    [
+      "intake",
+      "--source",
+      "/private/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-update-test-k0gdxyu9/synthetic-import.md",
+      "--intent",
+      "full",
+      "--title",
+      "Synthetic imported source",
+      "--key",
+      "update-import"
+    ],
+    [
+      "intake",
+      "--source",
+      "/Users/evokessler/repos/brn-mac-alpha-253-source/crates/brn-intake/tests/fixtures/harbor.docx",
+      "--intent",
+      "full",
+      "--title",
+      "Synthetic figures",
+      "--key",
+      "update-figures"
+    ],
+    [
+      "backup",
+      "--destination",
+      "/private/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-update-test-k0gdxyu9/pre-update.sqlite3"
+    ],
+    [
+      "notes"
+    ],
+    [
+      "records"
+    ],
+    [
+      "history"
+    ],
+    [
+      "settings"
+    ],
+    [
+      "recovery"
+    ],
+    [
+      "projects"
+    ],
+    [
+      "threads"
+    ],
+    [
+      "notes"
+    ],
+    [
+      "records"
+    ],
+    [
+      "history"
+    ],
+    [
+      "settings"
+    ],
+    [
+      "recovery"
+    ],
+    [
+      "projects"
+    ],
+    [
+      "threads"
+    ],
+    [
+      "restore",
+      "--source",
+      "/private/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-update-test-k0gdxyu9/pre-update.sqlite3"
+    ],
+    [
+      "notes"
+    ]
+  ],
+  "update_stdout": "Recovery after interruption: /bin/bash /private/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-update-test-k0gdxyu9/Applications\\ \u00fc\\ \\'\\ /.BRN\\ Threads.app.update-tbpFib/brn-update --recover\nInstalled: v0.2.0-alpha.1 (build 3); requested: v0.2.0-alpha.2\nInstalled v0.2.0-alpha.2 (build 4). Previous app retained in: /private/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-update-test-k0gdxyu9/Applications \u00fc ' /.BRN Threads.app.update-tbpFib/previous.app\nData/settings/credentials were untouched. Old apps may be incompatible after a database migration.\nReopen normally: /usr/bin/open /private/var/folders/zb/wm5x0l6j0sqc2503006y96x40000gn/T/brn-update-test-k0gdxyu9/Applications\\ \u00fc\\ \\'\\ /BRN\\ Threads.app\nmacOS may require Privacy & Security \u2192 Open Anyway again. No security settings were changed.\n",
+  "update_stderr": "",
+  "B_headless_stdout": "Threads ready: 12 records\n"
+}
