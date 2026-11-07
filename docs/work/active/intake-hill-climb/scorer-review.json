@@ -1,0 +1,28 @@
+{
+  "stage": "council round 0, before measurement and candidates",
+  "fixtures": 24,
+  "split": {
+    "tuning": 16,
+    "held-out": 8
+  },
+  "formats": [
+    "pdf",
+    "docx",
+    "pptx",
+    "xlsx",
+    "eml",
+    "html",
+    "text",
+    "markdown"
+  ],
+  "modes": [
+    "xberg",
+    "xberg_brn"
+  ],
+  "expected_elements": 160,
+  "scorer_negative_tests": "5 passed",
+  "release_probe_build": "passed",
+  "helper_release_builds": "running",
+  "native_app_size_baseline_build": "running",
+  "held_out_scored": false
+}

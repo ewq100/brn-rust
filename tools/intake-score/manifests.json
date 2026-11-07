@@ -1,0 +1,1420 @@
+{
+  "schema": 1,
+  "authorship": "Written from source files and pre-existing source inventories before first measurement. Never generated from converter output.",
+  "fixtures": [
+    {
+      "id": "harbor-docx",
+      "kind": "docx",
+      "path": "crates/brn-intake/tests/fixtures/harbor.docx",
+      "sha256": "46a227162352ff616344ab5bc91350d1c1f2810bb099f873ab49979c3133df85",
+      "split": "tuning",
+      "basis": "Source XML and existing office/harbor.inventory.json; Title style scored as text, not invented heading depth.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Harbor water-saving pilot"
+        },
+        {
+          "type": "text",
+          "text": "Decision: extend the pilot to Pier B on 15 October 2026. Owner: Mira. The chart is evidence, not decoration."
+        },
+        {
+          "type": "table",
+          "rows": 3,
+          "columns": 3,
+          "cells": [
+            [
+              "Site",
+              "Before",
+              "After"
+            ],
+            [
+              "Pier A",
+              "120 L/day",
+              "72 L/day"
+            ],
+            [
+              "Pier B",
+              "Pending",
+              "Pending"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Water use before and after"
+        },
+        {
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "type": "text",
+          "text": "Same chart for operations handoff"
+        },
+        {
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        },
+        {
+          "type": "text",
+          "text": "Internal synthetic briefing — review date 12 October 2026"
+        },
+        {
+          "type": "text",
+          "text": "Footer constraint: budget capped at EUR 4,000."
+        }
+      ]
+    },
+    {
+      "id": "nested-docx",
+      "kind": "docx",
+      "path": "tools/intake-score/fixtures/nested.docx",
+      "sha256": "128f4b39782d50b18124fa09c05a00f5ef2c093f74b0b705f893368137da03f0",
+      "split": "tuning",
+      "basis": "Hand-authored generate.py nested_docx; outer cell visible text contains the nested table in source order.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Island handoff"
+        },
+        {
+          "type": "text",
+          "text": "Use the inner gate before dispatch."
+        },
+        {
+          "type": "table",
+          "rows": 2,
+          "columns": 2,
+          "cells": [
+            [
+              "Stage",
+              "Detail"
+            ],
+            [
+              "Prepare",
+              "Nested scheduleInner gateOwnerInspectIrisAfter nested table."
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": 2,
+          "columns": 2,
+          "cells": [
+            [
+              "Inner gate",
+              "Owner"
+            ],
+            [
+              "Inspect",
+              "Iris"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Nested schedule"
+        },
+        {
+          "type": "text",
+          "text": "After nested table."
+        }
+      ]
+    },
+    {
+      "id": "process-docx",
+      "kind": "docx",
+      "path": "crates/brn-threads-intake/tests/fixtures/harbor-process.docx",
+      "sha256": "9ddfe6b3e116b3334513b5048e4c326682da3ec886c87fdbcfe3b311d23a0b87",
+      "split": "held-out",
+      "basis": "Source XML and pre-existing harbor-process.inventory.json, including all procedure steps and substantive spans.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Harbor release process"
+        },
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Purpose and roles"
+        },
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Prerequisites"
+        },
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Procedure"
+        },
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Gate responsibilities"
+        },
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Exceptions"
+        },
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "References"
+        },
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Appendix A. Record"
+        },
+        {
+          "type": "list_item",
+          "text": "Check the manifest against the parcel count and record any mismatch."
+        },
+        {
+          "type": "list_item",
+          "text": "Test the release signal with the inspector present; retain the timestamp."
+        },
+        {
+          "type": "list_item",
+          "text": "Release only after both checks pass and tell the coordinator the batch number."
+        },
+        {
+          "type": "table",
+          "rows": 4,
+          "columns": 3,
+          "cells": [
+            [
+              "Gate",
+              "Owner",
+              "Time limit"
+            ],
+            [
+              "Check",
+              "Coordinator",
+              "5 min"
+            ],
+            [
+              "Test",
+              "Inspector",
+              "3 min"
+            ],
+            [
+              "Release",
+              "Duty lead",
+              "2 min"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "The coordinator prepares the release; the inspector verifies it; the duty lead approves exceptions."
+        },
+        {
+          "type": "text",
+          "text": "Use the current manifest and verify that the check gate is staffed before starting."
+        },
+        {
+          "type": "text",
+          "text": "Warning: stop immediately if the signal lamp is red. Never bypass the test gate."
+        },
+        {
+          "type": "text",
+          "text": "Figure 1. Gate order: check, test, then release; each gate must pass before the next."
+        },
+        {
+          "type": "text",
+          "text": "If the inspector is unavailable, keep the batch waiting and ask the duty lead for a replacement."
+        },
+        {
+          "type": "text",
+          "text": "[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3."
+        },
+        {
+          "type": "text",
+          "text": "Record the batch number, all three gate timestamps, and the name of the approving lead."
+        },
+        {
+          "type": "image",
+          "sha256": [
+            117,
+            10,
+            56,
+            160,
+            123,
+            66,
+            240,
+            209,
+            28,
+            177,
+            167,
+            177,
+            149,
+            52,
+            5,
+            180,
+            87,
+            225,
+            5,
+            243,
+            138,
+            246,
+            193,
+            94,
+            183,
+            14,
+            214,
+            106,
+            201,
+            10,
+            12,
+            118
+          ],
+          "width": 720,
+          "height": 200
+        }
+      ]
+    },
+    {
+      "id": "study-pdf",
+      "kind": "pdf",
+      "path": "crates/brn-threads-intake/tests/fixtures/harbor-study.pdf",
+      "sha256": "f5739675823b6900a212bdd10e27423f7fc29038c03fb7d103fa78430abd3fe0",
+      "split": "tuning",
+      "basis": "Existing hand inventory plus direct PDF image stream ASCII85/Flate decoding; no extractor.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Harbor handoff study"
+        },
+        {
+          "type": "text",
+          "text": "1. Purpose"
+        },
+        {
+          "type": "text",
+          "text": "This synthetic study compares two inspection routes over six weekday trials."
+        },
+        {
+          "type": "text",
+          "text": "The observations describe this sample only; weather and staffing were held constant."
+        },
+        {
+          "type": "text",
+          "text": "2. Findings"
+        },
+        {
+          "type": "text",
+          "text": "Table 1 records median elapsed time and the number of missed handoffs."
+        },
+        {
+          "type": "text",
+          "text": "The check-first route was faster by 7 minutes, but this is not a causal estimate."
+        },
+        {
+          "type": "text",
+          "text": "Figure 1. Gate order: check, test, then release; each gate must pass before the next."
+        },
+        {
+          "type": "text",
+          "text": "3. Limits"
+        },
+        {
+          "type": "text",
+          "text": "The trial excluded overnight operations and must not be generalized to storms."
+        },
+        {
+          "type": "text",
+          "text": "4. References"
+        },
+        {
+          "type": "text",
+          "text": "[1] Harbor Lab. Handoff protocol, synthetic edition, 2026, sections 2-3."
+        },
+        {
+          "type": "text",
+          "text": "[2] Harbor Lab. Trial log, synthetic edition, 2026, entries 1-6."
+        },
+        {
+          "type": "text",
+          "text": "Appendix A. Observation rule"
+        },
+        {
+          "type": "text",
+          "text": "A missed handoff means a parcel waited more than 5 minutes after its release signal."
+        },
+        {
+          "type": "text",
+          "text": "Observers recorded one timestamp per gate and did not change the route mid-trial."
+        },
+        {
+          "type": "table",
+          "rows": 3,
+          "columns": 3,
+          "cells": [
+            [
+              "Route",
+              "Median (min)",
+              "Missed handoffs"
+            ],
+            [
+              "Check first",
+              "12",
+              "1"
+            ],
+            [
+              "Test first",
+              "19",
+              "3"
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "width": 720,
+          "height": 200,
+          "pixels_sha256": "efd7dd3591a80a54b90074718d964dbd672850ea37bc8ab439c5450219ee30ab"
+        }
+      ]
+    },
+    {
+      "id": "columns-pdf",
+      "kind": "pdf",
+      "path": "tools/intake-score/fixtures/columns.pdf",
+      "sha256": "00b101914f3f30ceb5eff2ea7c423d238a38886c68fd8b8fad2e362da2cd14b5",
+      "split": "tuning",
+      "basis": "Hand-authored generate.py PDF, 20pt title and 16pt section headings; columns preserve local order.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Island field report"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Measurements"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Limitations"
+        },
+        {
+          "type": "text",
+          "text": "Morning tide was 3 metres."
+        },
+        {
+          "type": "text",
+          "text": "Wind held steady at 4 knots."
+        },
+        {
+          "type": "text",
+          "text": "Only two stations were sampled."
+        },
+        {
+          "type": "text",
+          "text": "No storm observations were made."
+        }
+      ]
+    },
+    {
+      "id": "reserve-pdf",
+      "kind": "pdf",
+      "path": "tools/intake-score/fixtures/reserve.pdf",
+      "sha256": "5741198231d59fdfb4ef0465e7d5d6cad36d87277ec325b75279570d3b379393",
+      "split": "held-out",
+      "basis": "Hand-authored generate.py PDF, 20pt title and 16pt section headings; columns preserve local order.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Reserve field report"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Inventory"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Constraints"
+        },
+        {
+          "type": "text",
+          "text": "Seventeen seals were counted."
+        },
+        {
+          "type": "text",
+          "text": "Six valves passed inspection."
+        },
+        {
+          "type": "text",
+          "text": "Counts exclude the south shed."
+        },
+        {
+          "type": "text",
+          "text": "Repeat the count on Monday."
+        }
+      ]
+    },
+    {
+      "id": "quay-pptx",
+      "kind": "pptx",
+      "path": "crates/brn-intake/tests/fixtures/quay.pptx",
+      "sha256": "64ae69174985357d81523fc92a239fc9f947620e813f30a899e79b15848cdc46",
+      "split": "tuning",
+      "basis": "Source slide XML, authored notes, table and image bytes; duplicate title/figure occurrences are distinct expectations.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Dock review is pending."
+        },
+        {
+          "type": "text",
+          "text": "Dock review is pending."
+        },
+        {
+          "type": "text",
+          "text": "Inspect pier A"
+        },
+        {
+          "type": "text",
+          "text": "before cargo arrival."
+        },
+        {
+          "type": "text",
+          "text": "Display date: 14 October"
+        },
+        {
+          "type": "table",
+          "rows": 2,
+          "columns": 3,
+          "cells": [
+            [
+              "Pier",
+              "Owner",
+              "State"
+            ],
+            [
+              "A",
+              "Leena",
+              "Pending"
+            ]
+          ]
+        },
+        {
+          "type": "image",
+          "sha256": [
+            195,
+            245,
+            254,
+            186,
+            14,
+            251,
+            147,
+            243,
+            117,
+            68,
+            136,
+            94,
+            84,
+            61,
+            173,
+            10,
+            225,
+            86,
+            98,
+            75,
+            30,
+            75,
+            101,
+            25,
+            133,
+            137,
+            91,
+            117,
+            153,
+            222,
+            55,
+            17
+          ],
+          "width": 480,
+          "height": 240
+        },
+        {
+          "type": "image",
+          "sha256": [
+            195,
+            245,
+            254,
+            186,
+            14,
+            251,
+            147,
+            243,
+            117,
+            68,
+            136,
+            94,
+            84,
+            61,
+            173,
+            10,
+            225,
+            86,
+            98,
+            75,
+            30,
+            75,
+            101,
+            25,
+            133,
+            137,
+            91,
+            117,
+            153,
+            222,
+            55,
+            17
+          ],
+          "width": 480,
+          "height": 240
+        },
+        {
+          "type": "image",
+          "sha256": [
+            106,
+            120,
+            13,
+            174,
+            143,
+            166,
+            163,
+            120,
+            178,
+            158,
+            255,
+            186,
+            188,
+            108,
+            16,
+            216,
+            160,
+            166,
+            89,
+            218,
+            86,
+            23,
+            127,
+            116,
+            20,
+            94,
+            231,
+            70,
+            72,
+            78,
+            150,
+            202
+          ],
+          "width": 480,
+          "height": 240
+        },
+        {
+          "type": "text",
+          "text": "Notes only: Leena must confirm the crane by 14 October."
+        },
+        {
+          "type": "text",
+          "text": "Do not treat a berth count as arrival authorization."
+        }
+      ]
+    },
+    {
+      "id": "island-pptx",
+      "kind": "pptx",
+      "path": "tools/intake-score/fixtures/island.pptx",
+      "sha256": "fe79442e38c1fa21d1cb38ca5a1c115850ad73944308a8f320d72a6ea7bdccd6",
+      "split": "tuning",
+      "basis": "Hand-authored generate.py slides with title placeholders.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Island inspection"
+        },
+        {
+          "type": "text",
+          "text": "Inspect the north gate before noon."
+        },
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Island dispatch"
+        },
+        {
+          "type": "text",
+          "text": "Dispatch only after Iris signs the log."
+        }
+      ]
+    },
+    {
+      "id": "harbor-pptx",
+      "kind": "pptx",
+      "path": "crates/brn-intake/tests/fixtures/harbor.pptx",
+      "sha256": "8fa8c3d08fc157cd08d4a5cb17c48c54ca7b7723930b6d35c484f9b975455280",
+      "split": "held-out",
+      "basis": "Source slide, notes and native chart XML. Native-chart facts are required text, with no fabricated raster equivalent.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Harbor decision and dependencies"
+        },
+        {
+          "type": "text",
+          "text": "CRITICAL: installation may start only after valve inspection."
+        },
+        {
+          "type": "text",
+          "text": "Presenter note: ask Mira to book the inspection by 12 October."
+        },
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Visual-only scheduling evidence: inspection capacity"
+        },
+        {
+          "type": "text",
+          "text": "Available inspection slots"
+        },
+        {
+          "type": "text",
+          "text": "12 October"
+        },
+        {
+          "type": "text",
+          "text": "13 October"
+        },
+        {
+          "type": "text",
+          "text": "2"
+        },
+        {
+          "type": "text",
+          "text": "0"
+        }
+      ]
+    },
+    {
+      "id": "forecast-xlsx",
+      "kind": "xlsx",
+      "path": "crates/brn-intake/tests/fixtures/forecast.xlsx",
+      "sha256": "916dc333d40b37dce3b0a32e4b9ea6bea145fee8369271778ca7e71196d04704",
+      "split": "tuning",
+      "basis": "Direct source worksheet inline strings and numeric cell. No semantic heading inferred for ordinary cells.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Out of scope forecast"
+        },
+        {
+          "type": "text",
+          "text": "EUR"
+        },
+        {
+          "type": "text",
+          "text": "Harbor budget"
+        },
+        {
+          "type": "text",
+          "text": "4000"
+        }
+      ]
+    },
+    {
+      "id": "merged-xlsx",
+      "kind": "xlsx",
+      "path": "tools/intake-score/fixtures/merged.xlsx",
+      "sha256": "17d28311218be00292e7870992e97aaa8afe90ffd97ed0f40157a118ad092910",
+      "split": "tuning",
+      "basis": "Hand-authored generate.py workbook; two sheets, merged A1:B1. Table dimensions include header and empty merged cell.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Island budget"
+        },
+        {
+          "type": "text",
+          "text": "Staff"
+        },
+        {
+          "type": "table",
+          "rows": 4,
+          "columns": 2,
+          "cells": [
+            [
+              "Island budget",
+              ""
+            ],
+            [
+              "Item",
+              "EUR"
+            ],
+            [
+              "Lamp",
+              "45"
+            ],
+            [
+              "Rope",
+              "12"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": 3,
+          "columns": 2,
+          "cells": [
+            [
+              "Name",
+              "Role"
+            ],
+            [
+              "Iris",
+              "Inspector"
+            ],
+            [
+              "Omar",
+              "Lead"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reserve-xlsx",
+      "kind": "xlsx",
+      "path": "tools/intake-score/fixtures/reserve.xlsx",
+      "sha256": "8e21e6f0fb02ef4e5d0e7fc0438dcb63f5d521313d8f95989776635407bd6d6a",
+      "split": "held-out",
+      "basis": "Hand-authored generate.py workbook; two sheets, merged A1:B1. Table dimensions include header and empty merged cell.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Reserve stock"
+        },
+        {
+          "type": "text",
+          "text": "Dispatch"
+        },
+        {
+          "type": "table",
+          "rows": 4,
+          "columns": 2,
+          "cells": [
+            [
+              "Reserve stock",
+              ""
+            ],
+            [
+              "Part",
+              "Units"
+            ],
+            [
+              "Seal",
+              "17"
+            ],
+            [
+              "Valve",
+              "6"
+            ]
+          ]
+        },
+        {
+          "type": "table",
+          "rows": 3,
+          "columns": 2,
+          "cells": [
+            [
+              "Day",
+              "Owner"
+            ],
+            [
+              "Friday",
+              "Lena"
+            ],
+            [
+              "Monday",
+              "Kai"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "single-eml",
+      "kind": "eml",
+      "path": "crates/brn-intake/tests/fixtures/single.eml",
+      "sha256": "47f34537c79fb7ad86f4751f6b59d856af5819e4e5918b93775403fd4970dd82",
+      "split": "tuning",
+      "basis": "Manually decoded MIME text alternatives and CID source PNG. Attached original Office files are external source payloads, not required full-import contents.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Please review the attached Harbor pilot. Extend to Pier B after inspection."
+        },
+        {
+          "type": "text",
+          "text": "Water use fell 40%."
+        },
+        {
+          "type": "text",
+          "text": "See attached decision."
+        },
+        {
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        }
+      ]
+    },
+    {
+      "id": "plural-eml",
+      "kind": "eml",
+      "path": "crates/brn-intake/tests/fixtures/plural.eml",
+      "sha256": "f10516cc3db6eb065290c9e372aba0a80373f2a7bc9b8582e51562e719c48c14",
+      "split": "tuning",
+      "basis": "Manually decoded MIME text alternatives and CID source PNG. Attached original Office files are external source payloads, not required full-import contents.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Please review the attached Harbor pilot. Extend to Pier B after inspection."
+        },
+        {
+          "type": "text",
+          "text": "Water use fell 40%."
+        },
+        {
+          "type": "text",
+          "text": "See attached decision."
+        },
+        {
+          "type": "image",
+          "sha256": [
+            247,
+            109,
+            211,
+            121,
+            32,
+            160,
+            252,
+            88,
+            137,
+            177,
+            213,
+            58,
+            12,
+            68,
+            143,
+            126,
+            198,
+            198,
+            25,
+            237,
+            130,
+            0,
+            238,
+            245,
+            211,
+            22,
+            33,
+            227,
+            108,
+            164,
+            214,
+            29
+          ],
+          "width": 900,
+          "height": 500
+        }
+      ]
+    },
+    {
+      "id": "reserve-eml",
+      "kind": "eml",
+      "path": "tools/intake-score/fixtures/reserve.eml",
+      "sha256": "5577ca9728b7a3538c3bf3978938a0e2b9a2712e1b11e0d9e3444b08aa951f73",
+      "split": "held-out",
+      "basis": "Hand-authored generate.py plain MIME body.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Lena counted 17 seals and 6 valves."
+        },
+        {
+          "type": "text",
+          "text": "The south shed remains unchecked."
+        }
+      ]
+    },
+    {
+      "id": "textual-html",
+      "kind": "html",
+      "path": "crates/brn-intake/tests/fixtures/textual.html",
+      "sha256": "04973e04d349c4415c5d89a97d754650f94a3128de0a35fd4044eaf5a2c7c1f5",
+      "split": "tuning",
+      "basis": "Source HTML, decoded character references. Code block level = 3.2 is separately inventoried below.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Tide observations"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Readings"
+        },
+        {
+          "type": "text",
+          "text": "Synthetic public fixture about Gezeitenströme and 潮, see station notes."
+        },
+        {
+          "type": "list_item",
+          "text": "morning high"
+        },
+        {
+          "type": "list_item",
+          "text": "evening low"
+        },
+        {
+          "type": "text",
+          "text": "Readings are provisional."
+        },
+        {
+          "type": "text",
+          "text": "Last line."
+        },
+        {
+          "type": "code",
+          "text": "level = 3.2"
+        }
+      ]
+    },
+    {
+      "id": "structure-html",
+      "kind": "html",
+      "path": "tools/intake-score/fixtures/structure.html",
+      "sha256": "f721376527fdc414dbb355a5c5ba2194e3343c478b45e256c72a257de28c7f56",
+      "split": "tuning",
+      "basis": "Hand-authored generate.py HTML. All table cells, heading levels and list labels required.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Island log"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Gate checks"
+        },
+        {
+          "type": "list_item",
+          "text": "Inspect the lamp."
+        },
+        {
+          "type": "list_item",
+          "text": "Sign the log."
+        },
+        {
+          "type": "table",
+          "rows": 3,
+          "columns": 2,
+          "cells": [
+            [
+              "Gate",
+              "Owner"
+            ],
+            [
+              "North",
+              "Iris"
+            ],
+            [
+              "South",
+              "Omar"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Do not open before noon."
+        }
+      ]
+    },
+    {
+      "id": "reserve-html",
+      "kind": "html",
+      "path": "tools/intake-score/fixtures/reserve.html",
+      "sha256": "9c694f557c77414d51f57aa335485695844b7843cb450c2db5b73fd73575acab",
+      "split": "held-out",
+      "basis": "Hand-authored generate.py HTML. All table cells, heading levels and list labels required.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Reserve audit"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Parts"
+        },
+        {
+          "type": "list_item",
+          "text": "Count seals."
+        },
+        {
+          "type": "list_item",
+          "text": "Count valves."
+        },
+        {
+          "type": "table",
+          "rows": 3,
+          "columns": 2,
+          "cells": [
+            [
+              "Part",
+              "Units"
+            ],
+            [
+              "Seal",
+              "17"
+            ],
+            [
+              "Valve",
+              "6"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "The south shed remains unchecked."
+        }
+      ]
+    },
+    {
+      "id": "notes-text",
+      "kind": "text",
+      "path": "tools/intake-score/fixtures/notes.txt",
+      "sha256": "36af697b35d3f65b0215366fdf1bb61b8792cbd4eb363378e147265308b75540",
+      "split": "tuning",
+      "basis": "Hand-authored generate.py UTF-8 literal text; exact spans, CRLF not silently normalized for source hash.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Island log"
+        },
+        {
+          "type": "text",
+          "text": "Iris checked 12 lamps at 09:30."
+        },
+        {
+          "type": "text",
+          "text": "Keep the gate closed until noon."
+        }
+      ]
+    },
+    {
+      "id": "unicode-text",
+      "kind": "text",
+      "path": "tools/intake-score/fixtures/unicode.txt",
+      "sha256": "83537d8f6e821050f5fdae9e21f1ef739884e08b35afc08dcea19461b959509d",
+      "split": "tuning",
+      "basis": "Hand-authored generate.py UTF-8 literal text; exact spans, CRLF not silently normalized for source hash.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Café observations"
+        },
+        {
+          "type": "text",
+          "text": "Tide Δ = 3.2 m; water 8 °C."
+        },
+        {
+          "type": "text",
+          "text": "No final newline Ω"
+        }
+      ]
+    },
+    {
+      "id": "reserve-text",
+      "kind": "text",
+      "path": "tools/intake-score/fixtures/reserve.txt",
+      "sha256": "82cbb78a83029e0bd765982c959fd076c75d7403532a00108c391cfb5e4c2442",
+      "split": "held-out",
+      "basis": "Hand-authored generate.py UTF-8 literal text; exact spans, CRLF not silently normalized for source hash.",
+      "expected": [
+        {
+          "type": "text",
+          "text": "Reserve audit"
+        },
+        {
+          "type": "text",
+          "text": "Lena counted 17 seals and 6 valves."
+        },
+        {
+          "type": "text",
+          "text": "The south shed remains unchecked."
+        }
+      ]
+    },
+    {
+      "id": "outline-md",
+      "kind": "markdown",
+      "path": "tools/intake-score/fixtures/outline.md",
+      "sha256": "4d6acc05c5ce3dd0dae5afec500080a4c84cdc5b41085877a68ee55ae314502d",
+      "split": "tuning",
+      "basis": "Hand-authored GFM source in generate.py.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Island log"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Gate checks"
+        },
+        {
+          "type": "list_item",
+          "text": "Inspect the lamp."
+        },
+        {
+          "type": "list_item",
+          "text": "Sign the log."
+        },
+        {
+          "type": "table",
+          "rows": 3,
+          "columns": 2,
+          "cells": [
+            [
+              "Gate",
+              "Owner"
+            ],
+            [
+              "North",
+              "Iris"
+            ],
+            [
+              "South",
+              "Omar"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "Do not open before noon."
+        }
+      ]
+    },
+    {
+      "id": "literal-md",
+      "kind": "markdown",
+      "path": "tools/intake-score/fixtures/literal.md",
+      "sha256": "552e611000c8f6e91430bc3af4deba3e5226964f40f4280a2d0a14b8da3a6944",
+      "split": "tuning",
+      "basis": "Hand-authored GFM source in generate.py; code must remain code.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Literal examples"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Safety"
+        },
+        {
+          "type": "list_item",
+          "text": "Read the label."
+        },
+        {
+          "type": "list_item",
+          "text": "Retain the serial number."
+        },
+        {
+          "type": "code",
+          "text": "# This is code, not a heading\n- This is code, not a list item"
+        },
+        {
+          "type": "text",
+          "text": "Measured Δ = 3.2 m."
+        }
+      ]
+    },
+    {
+      "id": "reserve-md",
+      "kind": "markdown",
+      "path": "tools/intake-score/fixtures/reserve.md",
+      "sha256": "eec9935c5353e19989999b48e3ec27be1c4a88ae8319700279965958cb353051",
+      "split": "held-out",
+      "basis": "Hand-authored GFM source in generate.py, independent content from tuning.",
+      "expected": [
+        {
+          "type": "heading",
+          "level": 1,
+          "text": "Reserve audit"
+        },
+        {
+          "type": "heading",
+          "level": 2,
+          "text": "Parts"
+        },
+        {
+          "type": "list_item",
+          "text": "Count seals."
+        },
+        {
+          "type": "list_item",
+          "text": "Count valves."
+        },
+        {
+          "type": "table",
+          "rows": 3,
+          "columns": 2,
+          "cells": [
+            [
+              "Part",
+              "Units"
+            ],
+            [
+              "Seal",
+              "17"
+            ],
+            [
+              "Valve",
+              "6"
+            ]
+          ]
+        },
+        {
+          "type": "text",
+          "text": "The south shed remains unchecked."
+        }
+      ]
+    }
+  ]
+}
