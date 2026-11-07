@@ -75,9 +75,9 @@ Gates:
 ### Consolidate shared provider policy after runtime handoff
 
 Task ID: `shared-provider-263`
-Owner: Agent C / Codex (cloud) · State: **active** · Last reported: 2026-11-07T05:49:28.169386+02:00
-Activity: Owner reports A done and instructs continuing. Prior prep55be9ddf: all7 CI and current code/security receipts pass. Shared-provider extraction implemented locally, old763 library tests pass; new during-auth fixture exposed old token-store overwrite and reproduced on untouchedc388da26. Separate C auth-write repair in progress; no new live calls or native claims.
-Next: Complete separate guarded Copilot token-store repair/review/CI, merge it normally into this branch without changing B fixed alpha; finish refactor offline before/after, three temporary maintenance tasks, independent confirmation and current-head CI/reviews.
+Owner: Agent C / Codex (cloud) · State: **active** · Last observed: 2026-11-07T06:35:22.314122+02:00
+Activity: Owner A-done instruction reconciled; separate auth-write repair272 merged75f37221 after7green PR checks/full offline gate/current clean reviews. Shared extraction now includes saved helper validation and core/runtime run-fence identity through one canonical-name map. Pilot3 tasks passed both trees, but alias pilot lacked save/fence coverage; stronger corrected acceptance is running and invalid fixture receipt retained. Fresh independent evaluation subagent explicitly authorized by owner, to receive frozen source checkpoint.
+Next: Freeze corrected source checkpoint and obtain one fresh read-only evaluator challenge. Finish full-scope alias supplement, independent variant, all offline before/after/required CI/reviews, then reconcile normal main/B publication window before refactor merge.
 Depends on: development-speed-255 when Cycle 2 closeout as its own PR with applicable reviews/checks and normal merge (reported satisfied: true)
 
 <details>
@@ -87,7 +87,7 @@ Gates:
 
 - **implementation:** Owner current instruction A is done continu supplies reported completion/release for proceeding. No new A-authored file-handoff receipt claimed. Mapped runtime unchangeda921e325. Shared extraction local; separate baseline auth-write defect repair required for qualification.
 - **checks:** Before-refactor matched-helper baseline passed: workspace library suites763pass/2parent-invoked fixture ignores; explicit AI scripted suite635pass/1fixture ignore. Raw logs/hash manifest retained, including initial helper-mismatch attempt. After-tests, three maintenance tasks and independent unseen confirmation remain pending. No elapsed-speed or refactor correctness claim. Preparation1efe4281: hosted code/security receipts report no findings, zero inline threads; no independent unseen maintenance variant supplied. Local tooling corrected329pass31skip after diagnosed activation/reaper failure. Final implementation/current-head qualification remains pending.
-- **integration:** DraftPR267, branch agent-c/shared-provider-263 basedc388da26. Initial preparation1efe4281 reviewed; this checkpoint and eventual implementation need their current-head reviews/CI. No refactor merge. B268 first-alpha/publication work remains separate at runtimea921e325; preserve frozen254/256 evidence.
+- **integration:** Repair272 merged75f37221 (exact ce36 product tree); refactor267 temporarily stacked on repair branch, will merge current main normally and retargetmain. No refactor merge; B first alpha remainsa921e325.
 - **native:** Cloud offline implementation planned; existing A/B live/native receipts retain their source limits. Any observable behavior change needs its proper qualification.
 - **owner acceptance:** Current assignment authorizes the separate refactor after sequencing gates; no release/publication authority inferred.
 
@@ -129,4 +129,4 @@ graph TD
 
 Resource waits are listed on tasks and are not dependency edges.
 
-Local page reflects the last saved observations in this record (2026-11-07T05:49:28.169386+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
+Local page reflects the last saved observations in this record (2026-11-07T06:35:22.314122+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.

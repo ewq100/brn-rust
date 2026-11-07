@@ -3551,13 +3551,8 @@ fn begin_context(request: &ThreadRunRequest) -> AiResult<(Arc<Scope>, String, Ve
         }
     });
     if let Some((_, s)) = settings {
-        let provider_matches = match request.selection.provider {
-            Provider::Chatgpt => {
-                s.provider.eq_ignore_ascii_case("codex")
-                    || s.provider.eq_ignore_ascii_case("chatgpt")
-            }
-            Provider::Copilot => s.provider.eq_ignore_ascii_case("copilot"),
-        };
+        let provider_matches =
+            Provider::from_setting(&s.provider) == Some(request.selection.provider);
         if !provider_matches
             || request.selection.model != s.model
             || request.effort.as_str() != s.effort

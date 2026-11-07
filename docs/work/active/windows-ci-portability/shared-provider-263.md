@@ -148,3 +148,31 @@ that reviewed runtime, preserving the original A/Cycle2 receipts unchanged.
 Temporary maintenance-task specifications were frozen before extraction; their
 original source pin and finite allocation remain retained separately. No
 maintenance task acceptance or elapsed-speed gain has yet been claimed.
+
+## Completing the settings/fence boundary
+
+A full-consumer audit found three further name-policy copies beyond the first
+routing pilot: helper-save validation, the durable core run/settings fence, and
+the runtime preflight settings check. These now use the same identity map.
+`brn-threads-core::canonical_provider_name` owns only persisted provider-name
+identity because the durable fence cannot depend on `brn-ai`. The internal AI
+provider module projects that identity into `Provider` and owns operation policy.
+No new crate, dependency, account store, setting value, schema or model default is
+introduced. Unknown raw names retain their prior core equality behavior; runtime
+selection still refuses unsupported providers.
+
+Helper saving reuses shared provider/effort/model validation while retaining its
+existing error order, absolute-path and one-credential-route rules. The legacy
+trimmed-model syntax check still preserves the saved bytes; runtime helper
+selection continues to validate the exact model bytes. A core compatibility
+matrix preserves known alias pairs, unknown-name equality and exact model/effort
+fencing. Existing runtime/account settings-snapshot integration checks remain.
+
+The original alias pilot proved only direct runtime resolution, not successful
+helper configuration and durable Run preparation. It is retained with that limit.
+The stronger acceptance test saves both parent/helper settings and prepares a
+canonical-provider Run. Its first launch had an invalid fixture: credentials were
+placed inside the canonical data folder, which Store correctly refused. That
+receipt is preserved as setup failure, not evidence of baseline coding difficulty.
+The corrected fixture uses sibling data/credential folders and a bounded run on
+both trees. No elapsed-speed or statistical coding-effort claim is made.

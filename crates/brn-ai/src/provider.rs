@@ -16,8 +16,8 @@ use tokio_util::sync::CancellationToken;
 impl Provider {
     /// The provider a saved setting names ("Codex"/"ChatGPT" or "Copilot").
     pub fn from_setting(text: &str) -> Option<Self> {
-        match text.to_ascii_lowercase().as_str() {
-            "codex" | "chatgpt" => Some(Self::Chatgpt),
+        match brn_threads_core::canonical_provider_name(text)? {
+            "chatgpt" => Some(Self::Chatgpt),
             "copilot" => Some(Self::Copilot),
             _ => None,
         }
