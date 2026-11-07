@@ -605,19 +605,15 @@ impl ThreadsUi {
     /// owns it.
     fn shows_recovery_card(&self, thread: &str, state: &ThreadState, path: &ContinuePath) -> bool {
         !matches!(path, ContinuePath::RetryRewrite(_))
-            && can_continue_thread(
-                &self.records,
-                &self.history,
-                thread,
-                state,
-                self.worker.is_some(),
-            )
+            && self
+                .chat_runs
+                .can_continue(thread, state, self.worker.is_some())
     }
     /// The chat's latest run when it is saved as Working and this window
     /// does not hold it: it may still run in another window or the CLI, so
     /// the recovery card offers Stop….
     fn saved_run_to_stop(&self, thread: &str) -> Option<String> {
-        let latest = latest_run(&self.records, &self.history, thread)?;
+        let latest = self.chat_runs.latest(thread)?;
         let local = self
             .worker
             .as_ref()
@@ -673,12 +669,12 @@ impl ThreadsUi {
         path: &ContinuePath,
         cx: &mut Context<Self>,
     ) -> gpui_kit::AnyElement {
-        let latest = latest_run(&self.records, &self.history, thread);
+        let latest = self.chat_runs.latest(thread);
         let run = latest.and_then(|record| match &record.data {
             RecordData::Run(run) => Some(run),
             _ => None,
         });
-        let owner_after = owner_message_after_latest_run(&self.records, &self.history, thread);
+        let owner_after = self.chat_runs.owner_message_after_latest(thread);
         // The chat's recorded notice for its latest run (U10), unless a
         // newer owner message makes line 1 "Not answered yet".
         let notice = latest

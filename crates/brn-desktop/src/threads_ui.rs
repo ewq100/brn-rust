@@ -116,9 +116,8 @@ use layout::{Layout, TileKind};
 use lists::{Activity, NoteRow, ThreadFilter, ThreadRow};
 use state::{
     ComposerDestination, ComposerDrafts, ContinuePath, ProviderForm, Severity, WorkerKind,
-    can_continue_thread, comment_location, continue_path, delegation_status, latest_run, linked,
-    outcome_message, owner_message_after_latest_run, recovery, refresh_hint, review_label,
-    review_summary, save_message,
+    comment_location, continue_path, delegation_status, linked, outcome_message, recovery,
+    refresh_hint, review_label, review_summary, save_message,
 };
 use theme::{Appearance, ThemeId, pal};
 use worker::{EditNoteTarget, Worker, WorkerBatchEnd, WorkerEvent};
@@ -361,19 +360,7 @@ fn finish_tone(ok: bool, stopped: bool, has_run: bool, state: Option<&RunState>)
 }
 #[cfg(all(test, feature = "native-test-support"))]
 thread_local! {
-    static WRITING_DISPLAY_LOADS: std::cell::Cell<(usize, usize)> = const { std::cell::Cell::new((0, 0)) };
-}
-#[cfg(all(test, feature = "native-test-support"))]
-fn observed_writing_latest_run<'a>(
-    records: &'a [Record],
-    history: &[Receipt],
-    thread: &str,
-) -> Option<&'a Record> {
-    WRITING_DISPLAY_LOADS.with(|loads| {
-        let (assets, runs) = loads.get();
-        loads.set((assets, runs + 1));
-    });
-    latest_run(records, history, thread)
+    static WRITING_ASSET_LOADS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
 }
 
 type WritingReviewCacheKey = (
@@ -462,6 +449,7 @@ struct ThreadsUi {
     mcp_view: mcp_view::McpView,
     records: Vec<Record>,
     history: Vec<Receipt>,
+    chat_runs: ChatRuns,
     candidates: Vec<Prepared>,
     buffers: Vec<EditSession>,
     activity: Activity,
@@ -795,6 +783,7 @@ impl ThreadsUi {
             mcp_view: mcp_view::McpView::new(window, cx),
             records: vec![],
             history: vec![],
+            chat_runs: ChatRuns::default(),
             candidates: vec![],
             buffers: vec![],
             activity: Activity::default(),
@@ -947,6 +936,7 @@ impl ThreadsUi {
         let result = (|| -> AppResult<()> {
             self.records = self.workspace.records()?;
             self.history = self.workspace.history()?;
+            self.chat_runs = ChatRuns::new(&self.records, &self.history);
             self.candidates = self.workspace.candidates()?;
             self.buffers = self.workspace.store.recovery_buffers()?;
             let settings = self.workspace.settings()?;
@@ -4717,6 +4707,7 @@ impl ThreadsUi {
             workspace: &self.workspace,
             records: &self.records,
             history: &self.history,
+            chat_runs: &self.chat_runs,
             candidates: &self.candidates,
             buffers: &self.buffers,
             writing_threads: &self.writing_threads,
@@ -4730,10 +4721,6 @@ impl ThreadsUi {
             edit_note_blocked: Self::edit_note_blocked,
             chat_card_stop: Self::chat_card_stop,
             assets_in_chat: Self::assets_in_chat,
-            #[cfg(all(test, feature = "native-test-support"))]
-            latest_run: observed_writing_latest_run,
-            #[cfg(not(all(test, feature = "native-test-support")))]
-            latest_run,
             dispatch: Self::writing_request,
         }
     }

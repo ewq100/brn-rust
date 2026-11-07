@@ -639,10 +639,7 @@ fn a_saved_working_rewrite_offers_the_same_confirmed_stop_in_the_note(cx: &mut T
     record_rewrite_run(cx, &f, RunState::Working, "Started elsewhere");
     let run = cx.read(|cx| {
         let view = f.view.read(cx);
-        latest_run(&view.records, &view.history, &thread)
-            .unwrap()
-            .id
-            .clone()
+        view.chat_runs.latest(&thread).unwrap().id.clone()
     });
     let stop = format!("stop-saved-run-{run}");
     on_window(cx, &f, |window, cx| {
@@ -732,10 +729,7 @@ fn the_note_leaves_stop_to_the_chat_card_only_while_that_card_shows_it(cx: &mut 
     });
     let run = cx.read(|cx| {
         let view = f.view.read(cx);
-        latest_run(&view.records, &view.history, &thread)
-            .unwrap()
-            .id
-            .clone()
+        view.chat_runs.latest(&thread).unwrap().id.clone()
     });
     let stop = format!("stop-saved-run-{run}");
     // The visible chat's recovery card offers Stop… for this run, so the

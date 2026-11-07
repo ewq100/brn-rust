@@ -486,6 +486,7 @@ pub struct WritingView<'a, T: 'static> {
     pub workspace: &'a Workspace,
     pub records: &'a Vec<Record>,
     pub history: &'a Vec<Receipt>,
+    pub chat_runs: &'a ChatRuns,
     pub candidates: &'a Vec<Prepared>,
     pub buffers: &'a Vec<EditSession>,
     pub writing_threads: &'a BTreeMap<String, String>,
@@ -499,8 +500,6 @@ pub struct WritingView<'a, T: 'static> {
     pub edit_note_blocked: fn(&T) -> Option<&'static str>,
     pub chat_card_stop: fn(&T) -> Option<String>,
     pub assets_in_chat: fn(&T, Option<&str>) -> WritingAssets,
-    pub latest_run:
-        for<'records> fn(&'records [Record], &[Receipt], &str) -> Option<&'records Record>,
     pub dispatch: WritingDispatch<T>,
 }
 impl<T: 'static> std::ops::Deref for WritingView<'_, T> {
@@ -584,7 +583,7 @@ impl<T: 'static> WritingView<'_, T> {
             .on_click(self.on(cx, WritingRequest::StopSaved(run.into())))
     }
     pub(crate) fn latest_run(&self, thread: &str) -> Option<&Record> {
-        (self.latest_run)(self.records, self.history, thread)
+        self.chat_runs.latest(thread)
     }
 }
 
