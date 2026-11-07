@@ -1,0 +1,11 @@
+{
+  "pid": 22959,
+  "executable": "/Users/Shared/BRN-native-functional-253-20261107/install-A/BRN Threads.app/Contents/Resources/bin/brn-desktop",
+  "arguments": [
+    "--data-dir",
+    "/Users/Shared/BRN-native-functional-253-20261107/workspace"
+  ],
+  "HOME_unchanged": true,
+  "process_only_override_names_removed": [],
+  "launch_route": "direct packaged desktop binary; not Finder launcher"
+}

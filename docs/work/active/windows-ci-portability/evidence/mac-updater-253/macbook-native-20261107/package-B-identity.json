@@ -1,0 +1,69 @@
+{
+  "scope": "new MacBook local unapproved rebuild; original Mac mini receipt unchanged",
+  "archive": {
+    "name": "BRN-Threads-v0.2.0-alpha.2-macos-arm64.zip",
+    "sha256": "13cbecfc3e64e5ecda1bd71a4c9107a71a7cfbe6bd2db8d6de4d8af3634c428b",
+    "bytes": 174492666
+  },
+  "source_sha": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "version": "v0.2.0-alpha.2",
+  "build_number": 4,
+  "binary_identities": {
+    "brn-desktop": {
+      "sha256": "af3bb9ccefceb04401b3483d96867933950c62b25e04b5643ae840df14dfaa09",
+      "architecture": "arm64",
+      "minimum_macos": "15.0",
+      "libraries": [
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+        "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+        "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+        "/System/Library/Frameworks/Carbon.framework/Versions/A/Carbon",
+        "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+        "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+        "/usr/lib/libSystem.B.dylib",
+        "/usr/lib/libobjc.A.dylib",
+        "/System/Library/Frameworks/UserNotifications.framework/Versions/A/UserNotifications",
+        "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+        "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+        "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+        "/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData",
+        "/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage",
+        "/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit",
+        "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+        "/System/Library/Frameworks/UniformTypeIdentifiers.framework/Versions/A/UniformTypeIdentifiers",
+        "/System/Library/Frameworks/Metal.framework/Versions/A/Metal",
+        "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+        "/usr/lib/libiconv.2.dylib",
+        "/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync"
+      ],
+      "source_binary_sha256": "26f266d66d45a79e76bbab4b7e7518c7035cdb12f5566006e35224db30d88645"
+    },
+    "brn-xberg-helper": {
+      "sha256": "c341d78164b5e204ff6cbcd26a257ec672a447379c414119ce70619422d8b39e",
+      "architecture": "arm64",
+      "minimum_macos": "15.0",
+      "libraries": [
+        "/usr/lib/libsandbox.1.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/usr/lib/libiconv.2.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "source_binary_sha256": "547a34d8cc5f79af348c87b53acb9e57209ff8f5b3b5d67d3c3cf5a6e0695811"
+    },
+    "brn-xberg-helper-brn": {
+      "sha256": "efc291beb65d08d1c8d9d8f46d58b86343853ae5e48a65d1b261178643dc43f5",
+      "architecture": "arm64",
+      "minimum_macos": "15.0",
+      "libraries": [
+        "/usr/lib/libsandbox.1.dylib",
+        "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+        "/usr/lib/libiconv.2.dylib",
+        "/usr/lib/libSystem.B.dylib"
+      ],
+      "source_binary_sha256": "e3b7e7c46314f6819c91aadcde01995708e0ee3d19872eee02464626fcac22e8"
+    }
+  },
+  "signature_after_copy": "passed",
+  "installed_app": "/Users/Shared/BRN-native-functional-253-20261107/install-B/BRN Threads.app"
+}

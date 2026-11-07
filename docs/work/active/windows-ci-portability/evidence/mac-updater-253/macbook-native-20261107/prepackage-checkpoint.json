@@ -1,0 +1,38 @@
+{
+  "observed_at": "2026-11-07T04:33:18.630639+00:00",
+  "source_sha": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "source_clean": true,
+  "desktop_build": "passed; native-ui release Rust1.98.1 deployment15",
+  "helper_build": "stock complete; adapted still building",
+  "local_unapproved_manifest_copies": {
+    "A": {
+      "schema": 1,
+      "enabled": true,
+      "version": "v0.2.0-alpha.1",
+      "build_number": 3,
+      "platform": "macos-arm64",
+      "minimum_macos": "15.0",
+      "features": [
+        "native-ui"
+      ],
+      "notes_file": "docs/development/preview-release.md"
+    },
+    "B": {
+      "schema": 1,
+      "enabled": true,
+      "version": "v0.2.0-alpha.2",
+      "build_number": 4,
+      "platform": "macos-arm64",
+      "minimum_macos": "15.0",
+      "features": [
+        "native-ui"
+      ],
+      "notes_file": "docs/development/preview-release.md"
+    }
+  },
+  "native_launched": false,
+  "scope": "current account supported alternate-data functional tests; no Finder/clean-user claim",
+  "ordinary_finder_first_launch": "pending",
+  "clean_user": "pending",
+  "published_browser_gatekeeper_and_stock_https": "pending explicit approval and hosted artifacts"
+}

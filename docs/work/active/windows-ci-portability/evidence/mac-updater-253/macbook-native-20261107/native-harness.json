@@ -1,0 +1,17 @@
+{
+  "path": "/Users/Shared/BRN-native-functional-253-20261107/BRN Functional 253.app",
+  "bundle_identifier": "dev.brn.native-functional-253",
+  "data_dir": "/Users/Shared/BRN-native-functional-253-20261107/workspace",
+  "log_directory": "/Users/Shared/BRN-native-functional-253-20261107/logs/functional-wrapper",
+  "packaged_executable_bytes_match_before_signing": {
+    "brn-desktop": true,
+    "brn-xberg-helper": true,
+    "brn-xberg-helper-brn": true,
+    "brn-update": true
+  },
+  "desktop_sha256_after_signing": "af3bb9ccefceb04401b3483d96867933950c62b25e04b5643ae840df14dfaa09",
+  "packaged_desktop_sha256": "af3bb9ccefceb04401b3483d96867933950c62b25e04b5643ae840df14dfaa09",
+  "release_app_and_signed_launcher": "unchanged",
+  "scope": "test-only wrapper around packaged bytes; functional native testing, not ordinary Finder release launch",
+  "reason": "Native UI tool refused the directly launched unregistered binary path/name"
+}

@@ -5,64 +5,96 @@ combined session using A's recorded handoff; no new A execution dependency.
 This derives from the unchanged [original checklist](../alpha-a921e325/native-session.md).
 All native cases below are **pending** until an observation is recorded.
 
-## Inputs and owner participation
+## Stage 1: current-account functional testing
 
-1. Copy the complete Mac mini `/Users/Shared/BRN-alpha-a921e325-acceptance` folder
-   to that same path on this MacBook. Transfer release artifacts and public
-   fixtures only. B verifies original A alpha.1/build3 and B alpha.2/build4 against
-   committed hashes/signatures before use. Keep originals unchanged.
-2. Create and sign into a disposable standard macOS account with no BRN workspace,
-   Copilot or Codex credentials. Keep the existing personal/managed profiles
-   untouched. Make the Shared artifacts accessible to the test account. B uses
-   only fresh synthetic data in this profile.
-3. Remain present for ordinary per-app Gatekeeper approval if shown and the
-   tester's normal Copilot browser/device login. Never copy credentials from the
-   Mac mini or another app. A second account is optional for live switching;
-   record unavailable quota/policy/no-Luna/account-switch cases as unobserved,
-   retaining A's simulated evidence separately.
+The owner's 7 November clarification in #253 authorizes this stage before a clean
+OS account exists. Use the packaged desktop's supported explicit data argument;
+ordinary Finder launch uses the user's fixed preview workspace and is reserved
+for Stage 2. Keep the signed launcher unchanged and HOME unchanged.
 
-This MacBook has Xcode and the pinned Rust toolchain installed. Record that
-environment; use the app and stock updater through ordinary recipient paths
-without invoking development tools. Preserve the installed tools.
+Current task-owned locations, verified before launch:
 
-Before starting, coordinate any actual D/E heavy build, timing run, native session
-or shared-account conflict. There is no standing reservation or wait for their
-experiments. Record package/source/version/build, OS, delivery route, account type
-without identity/secrets, exact model and requested/effective effort where known.
+- Root: `/Users/Shared/BRN-native-functional-253-20261107` (mode0700).
+- Synthetic workspace: root's `workspace` directory.
+- Copilot credentials: root's `copilot-credentials` (mode0700, initially empty).
+- Fixtures, backups, logs and A/B installations: separate named directories under
+  that root. Credentials are excluded from committed evidence.
 
-## Available copied-package leg
+The verified test CLI created the fresh test workspace and configured Copilot,
+`gpt-6-luna`/high, this exact credentials folder, no Codex auth file, helper Off
+and review-first before any desktop connection. Read canonical settings and the
+native Models form again before clicking Connect. Confirm the running process's
+`--data-dir`, executable and open database target. Preserve personal workspace
+and sign-ins without opening, copying or resetting them.
 
-1. Extract verified A into a fresh directory; install `BRN Threads.app` in the
-   clean profile's writable `~/Applications`. Open normally, observe first launch
-   and empty workspace. Follow ordinary per-app approval if macOS requests it.
-   Record if no prompt appears. No security-setting or quarantine workaround.
-   This copied-artifact leg cannot satisfy browser-download Gatekeeper acceptance.
-2. Connect GitHub Copilot in BRN via normal device flow. Observe cancellation of
-   sign-in then successful sign-in, connection status and account model catalogue.
-   Select an offered qualified model, preferably A's `gpt-6-luna`, and record the
-   exact identifier and effort. No Codex account is configured.
-3. Stream a reply, invoke BRN read tools, continue across turns and Stop an active
-   run. With web allowed, require provider-native search with inspectable returned
-   source URLs. Observe Web Off/no search and cancellation/late-result behavior.
-   Preserve clear provider/network errors and drafts rather than retry blindly.
-4. Import supplied synthetic `harbor.docx` with refinement Off, then On through
-   Copilot Luna/high. Inspect retained quantities, exceptions, structure, source
-   references and figure assets. Record actual provider/model/provenance; Off
-   must work without model processing. Exercise useful knowledge/local search and
-   an evidence-based answer plus a question whose information is absent.
-5. Prepare consolidation of overlapping/contradictory synthetic notes, inspect
-   exact candidates, Apply, then Undo. For referenced writing: Discard; Apply and
-   Undo; prepare another candidate, edit the target note, then verify stale Apply
-   refusal keeps the newer owner text. Check cancellation/protected content.
-6. Create identifiable synthetic notes/project links, chat/history, figure asset
-   and draft; save provider/model/document settings. Check compact archive
-   disclosure at900×600 and relevant remaining #243 native journeys. Create a
-   normal backup outside the workspace. Quit through normal prompts and reopen A;
-   inspect data/settings and continue chat. Sign out/reconnect normally and
-   continue. If a second account exists, verify started work refuses the changed
-   account and fresh work uses it. Restore the backup into a separate fresh
-   workspace; inspect useful state and retained drafts. Old editor tokens should
-   be revoked on restore. Never test an old app against a migrated store.
+The original transfer folder remains unavailable; rebuilds from exacta921e325
+are permitted by the existing task and receive separate MacBook identities.
+Never relabel a rebuilt ZIP as an original Mac mini ZIP. Verify package signatures,
+receipts, helper/updater identities and platform before starting its binary:
+
+```sh
+"/Users/Shared/BRN-native-functional-253-20261107/install-A/BRN Threads.app/Contents/Resources/bin/brn-desktop" \
+  --data-dir /Users/Shared/BRN-native-functional-253-20261107/workspace
+```
+
+Current observations are in the [separate native evidence](../macbook-native-20261107/README.md).
+Automation could not bind the unregistered direct process. A distinct signed
+`BRN Functional 253.app` test wrapper uses unchanged packaged executable bytes,
+unique bundle ID and explicit task-owned data/log paths. The original release app
+and signed launcher are unchanged. This remains functional test scaffolding.
+
+Use the following as a functional checklist, recording actual native results;
+all cases start pending. Offline checks can proceed before tester device sign-in.
+
+1. Inspect the isolated empty/new synthetic workspace, Settings and exact Models
+   credential folder. Save/inspect settings without touching the normal profile.
+   Import public synthetic fixtures with refinement Off; inspect content/assets,
+   edit and search notes, archive disclosure at900×600, history and ordinary Undo.
+2. Connect Copilot through normal device flow only after target verification.
+   Ask the tester for the required browser/device-login action when the prompt is
+   present. Observe cancellation then successful connection, model catalogue,
+   exact offered model/effort and any accurate unavailable states. No existing
+   Copilot credentials are copied; no Codex route is configured.
+3. Stream chat, invoke BRN tools, continue and Stop. Require real cited native web
+   search with web allowed; test Web Off and late-result/cancellation behavior.
+   Import harbor.docx with refinement On through Copilot Luna/high as well as Off.
+   Inspect quantities, exceptions, source links, figure assets and provenance.
+4. Consolidate overlapping/contradictory synthetic notes: inspect candidate, Apply
+   and Undo. Referenced writing: Discard; Apply/Undo; prepare again, edit its target,
+   then verify stale refusal keeps the newer text. Check protection/cancellation.
+5. Create identifiable notes/project links, chat/history, figure asset and draft.
+   Save model/document settings. Make a native backup outside the workspace;
+   quit normally, reopen the same binary with the same explicit data argument,
+   verify preservation and continue. Reconnect using only the test-owned folder.
+   Account-switch/sign-out checks require verified test-owned targets; unavailable
+   second-account/quota/policy/no-Luna cases remain honestly unobserved.
+6. Restore only into a separate fresh task-owned workspace after confirming the
+   actual restore target and backup source. Inspect useful state and drafts;
+   old editor tokens are revoked. A manual switch to separately verified local B
+   after normal quit can check functional app replacement/preservation, recorded
+   separately from the real stock HTTPS update. Never open a migrated store with
+   an old binary or silently replace owner data.
+
+This is **alternate-data-directory functional testing**, not ordinary Finder
+first-launch or clean-user acceptance. The host has system-wide Xcode/Rust;
+record that environment rather than claiming a fresh machine without dev tools.
+D/E current threads are complete and no competing cargo/rustc/BRN run was observed
+before B's new build. Coordinate any new actual host/account overlap.
+
+## Stage 2: ordinary launch and clean-user acceptance — pending
+
+When Stage 1 is complete, the straightforward remaining clean-user method is one
+standard disposable macOS account with no BRN data or credentials. Sign into it,
+make the verified package/public fixtures available, install into its writable
+`~/Applications` and open through Finder using the unchanged signed launcher.
+Observe fresh per-user data setup, standard-user permissions and normal Copilot
+sign-in. Be present for ordinary per-app Gatekeeper approval if macOS requests it.
+A fresh OS account does not remove system-wide development tools.
+
+For full browser/Gatekeeper delivery acceptance, use the actual approved published
+ZIP through the browser. A copied/rebuilt ZIP or direct-binary launch is recorded
+by its actual route and does not satisfy that published-download leg. Creating an
+OS account does not block Stage 1. Do not fake HOME or edit the signed launcher.
 
 ## Published-artifact leg, after explicit approval
 

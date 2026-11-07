@@ -1,0 +1,21 @@
+{
+  "restored": "/Users/Shared/BRN-native-functional-253-20261107/recovery-copies/BRN-restored-b0e2680a-aec2-41a9-9f9f-b851ffdbc9fd",
+  "compared": {
+    "records": true,
+    "notes": true,
+    "history": true,
+    "settings": true,
+    "projects": true,
+    "threads": true
+  },
+  "counts": {
+    "records": 7,
+    "notes": 2,
+    "history": 13,
+    "settings": null,
+    "projects": 0,
+    "threads": 0
+  },
+  "asset_included_in_records_comparison": true,
+  "scope": "native-created backup and native-confirmed restore; post-observation CLI state comparison"
+}

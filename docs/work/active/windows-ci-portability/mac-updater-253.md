@@ -3,37 +3,42 @@
 Updater PR: [#258](https://github.com/ewq100/brn-rust/pull/258), normally merged as
 `28051188f7d20a817202ddf098dff5dc2f07e653`. Final package acceptance remains active.
 
-## Current continuation — 7 November 2026 UTC
+## Current continuation — staged native testing on 7 November 2026
 
-The owner's selected MacBook conversation now owns B's existing branch and
-draft PR268. Isolated checkout `/Users/evokessler/repos/brn-mac-alpha-253` starts at
-94c11669; runtime/package source staysa921e325. MacBook EMB-60VVL9KC is arm64,
-macOS26.5/build25F71 and supports the prepared arm64/macOS15+ packages.
-[Takeover, refreshed gates and transfer evidence](evidence/mac-updater-253/macbook-20261107/README.md)
-and [current native execution instructions](evidence/mac-updater-253/macbook-20261107/native-session.md)
-supersede the earlier execution location without changing Mac mini receipts.
+Owner's latest #253 clarification authorizes current-account functional native
+checks using supported explicit `--data-dir` and a separately configured Copilot
+folder. A clean OS account is a later acceptance method, not a prerequisite for
+this stage. [Current functional observations, new artifact identities and limits](evidence/mac-updater-253/macbook-native-20261107/README.md)
+and [staged execution instructions](evidence/mac-updater-253/macbook-20261107/native-session.md).
 
-All7 PR268 CI lanes passed on94c11669; its code and separate security receipts
-are completed with no findings, and there are zero review threads. The PR stays
-draft/unmerged; explicit release approval was not found. Future documentation
-commits need their own applicable checks/review. No native acceptance or alpha
-publication is claimed. Only legacy preview.1/.2 releases are currently published.
+Because original Mac mini artifacts remain unavailable here, B rebuilt separately
+identified local A3/B4 from clean pinneda921e325 in its own targets. Desktop,
+helpers, notices, package identities/signatures and relocated helper8formats/16CLI
+imports passed. Original Mac mini evidence is unchanged. Automation could not bind
+an unregistered direct desktop process; a distinct test-only wrapper passes the
+same explicit data argument to unchanged packaged executable bytes. It does not
+establish the ordinary release Finder launch path.
 
-Artifact transfer is pending: existing SSH alias reaches the Mac mini but strict
-host authentication refuses its untrusted host key. The owner was given one copy
-step for `/Users/Shared/BRN-alpha-a921e325-acceptance` to the same MacBook path.
-A clean standard test profile and normal Gatekeeper/Copilot user participation
-are also pending. Existing personal/managed profiles and credentials are untouched.
-D/E confirm no heavy/timing/native conflict; their shared-account review calls
-are separate. B built only the missing test CLI from clean pinneda921e325, locked/offline
-jobs1 in a dedicated target. Binary identity and synthetic backup/restore smoke
-passed; verified test-only CLI is in Shared macbook-test-tools. No desktop/helper
-rebuild; no B build/native/provider process or standing host reservation.
+Native UI verified the exact task-owned data/Copilot paths with no Codex auth and
+helper Off. DOCX import Off retained/rendered its table and figure; owner Save,
+unsaved Discard, operation Undo and keyword search passed. Native backup and
+separate new-copy restore passed, including a recovered window and exact records/
+assets/notes/history/settings/projects/threads comparison. Normal Copilot device
+login is now awaiting tester action in the verified test folder. Live chat/tools,
+web/Luna-On, AI consolidation/writing and later lifecycle cases remain pending.
+No new OS account is needed for this next step.
 
-Finish available copied-package native acceptance before presenting the concrete
-release decision. Browser-download/Gatekeeper and stock HTTPS A→B still require
-the actual approved hosted A and separately approved increasing B. The original
-substituted-transport witness remains separate. B has no standing host reservation.
+The local substituted-transport updater qualification exited1 with the intended
+running-BRN refusal; original log retained. Normally close all test-owned BRN
+instances before rerun. No forced closure, stock HTTPS or owner/native-complete
+claim. Finder first-launch/clean-user and actual published browser/Gatekeeper/
+HTTPS remain separate pending gates; publication approval is not inferred.
+
+Prior continuation headb65d3dd4 has7/7CI and completed clean code/security receipts;
+this new documentation/evidence needs its own applicable review/checks. Main has
+since advanced75f37221 with accepted auth-racefix272, outside thesea921artifacts.
+Reconcile final release source and affected account qualification before release.
+No alpha is published, and PR268 remains draft/unmerged/unapproved.
 
 ## Historical combined package checkpoint — 6 November 2026 UTC
 

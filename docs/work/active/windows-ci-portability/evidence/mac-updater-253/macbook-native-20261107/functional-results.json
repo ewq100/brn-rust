@@ -1,0 +1,33 @@
+{
+  "observed_at": "2026-11-07T04:52:49.146283+00:00",
+  "source": "a921e32533dc03134ed8a2001bd82f27194c3302",
+  "alternate_data_functional": {
+    "native_models_and_data_paths": "passed; exact separate paths visible",
+    "docx_ai_off_table_and_chart": "passed; Xberg and AI Off disclosure visible",
+    "native_edit_save": "passed v2",
+    "unsaved_discard": "passed v2 retained",
+    "operation_undo": "passed v3 save compensated to v4, prior text retained",
+    "native_keyword_search": "passed 12cm match with saved text",
+    "native_backup": "passed with exact task-owned path",
+    "native_restore": "passed, new recovery path reviewed then confirmed, recovered window opened",
+    "post_restore_state_comparison": "all6categories equal including Asset record",
+    "copilot_device_login": "started; awaiting normal tester action",
+    "chat_tools_web_luna_ai_review_writing": "pending tester device login",
+    "quit_reopen_and_local_replacement": "pending normal closure after login leg"
+  },
+  "separate_gates": {
+    "ordinary_finder_first_launch": "pending",
+    "clean_user": "pending; does not block current-account functional tests",
+    "published_browser_gatekeeper": "pending approval/hosted artifacts",
+    "stock_https_A_to_B": "pending approval/hosted artifacts",
+    "owner_acceptance": "pending",
+    "release": "draft/unapproved/unpublished"
+  },
+  "new_main_runtime_delta": {
+    "main": "75f3722142bfe5598c3871acc8a8079f991aad9a",
+    "pr": 272,
+    "fix": "refuse stale Copilot credential cache writes after account change",
+    "scope": "not included in currenta921 artifacts/observations; reconcile final release source and requalify affected native account behavior before publication"
+  },
+  "privacy": "No credential files, device codes or account identity copied into evidence. Personal workspace/sign-ins not opened/reset/copied."
+}
