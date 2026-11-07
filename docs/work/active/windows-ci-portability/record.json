@@ -309,21 +309,22 @@
         "id": "search-256",
         "title": "Improve grounded search efficiency (#256)",
         "owner": "Agent E",
-        "state": "active",
-        "activity": "Bounded cycle finished:12screeningruns/46HTTP plus13graderattempts/12boundjudgments. Candidate1rejected under frozenR10toolrule;productiondescriptionrestored;confirmation48unused/unrefunded. FinalCouncilpartialgaps/68.8srequested-boundoverrun retained. Preparing focused no-adoption PR.",
-        "observed_at": "2026-11-06T22:35:13.673445+00:00",
+        "state": "complete",
+        "activity": "Delivered bounded no-adoption cycle in draft PR271. Searchcandidate1rejected under frozenR10toolgate;Rigadoptiondeferred. Complete known accounting and explicit finalCouncil/quality/feature-closure limits retained. No merge/release/defaultmodelchange.",
+        "observed_at": "2026-11-07T03:22:15.330518+00:00",
         "origin": "observed",
-        "next_action": "Open focused evidence/diagnostic PR;retain explicit partial finalreview and no-adoption limits. No new live calls,merge,release or default change.",
+        "next_action": "Owner review of draft PR271;hostedCI and any future integration/independentreview remain separate gates. No further model calls or reuse of unused escrow.",
         "depends_on": [],
         "resource_waits": [],
         "evidence": [
           "https://github.com/ewq100/brn-rust/issues/256",
-          "docs/work/active/windows-ci-portability/search-256.md"
+          "docs/work/active/windows-ci-portability/search-256.md",
+          "https://github.com/ewq100/brn-rust/pull/271"
         ],
         "gates": {
           "implementation": "No production search change retained. Candidate1patch/binaries/both repetitions preserved. Rigadoptiondeferred with shadow/invalidation evidence.",
           "checks": "Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass.",
-          "integration": "Focused evidence/diagnostic PR pending finalCouncil;no merge/release/defaultmodelchange.",
+          "integration": "Draft PR271 open. No merge assigned;hostedchecks and finalindependentauditcoverage remainpending. Currentmain hasadvanced since measured a921;baselineevidence preserved.",
           "native": "Headless assignment; no native acceptance claimed.",
           "owner_acceptance": "Owner-authorized limited engineering cycle;no searchimprovementadopted. Candidate fails frozenR10toolgate;one independentminorcorrectnessfinding. Reserved/jointchecks unrun andrequiredbeforelateradoption."
         },

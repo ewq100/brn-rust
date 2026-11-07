@@ -225,3 +225,5 @@ Verified: the checks and limited measurements above.
 Native-observed: not assigned or claimed.
 Owner-accepted: experiment authority and criteria, not an adopted product change.
 Merged/released: no.
+
+Delivery: [draft PR #271](https://github.com/ewq100/brn-rust/pull/271) contains this bounded no-adoption result. Hosted checks and final independent audit coverage are pending; no merge, release or default-model change. Main advanced after the frozen measurement revision; this draft does not claim current-main integration qualification.

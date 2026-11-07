@@ -92,26 +92,6 @@ Gates:
 
 </details>
 
-### Improve grounded search efficiency (#256)
-
-Task ID: `search-256`
-Owner: Agent E · State: **active** · Last observed: 2026-11-06T22:35:13.673445+00:00
-Activity: Bounded cycle finished:12screeningruns/46HTTP plus13graderattempts/12boundjudgments. Candidate1rejected under frozenR10toolrule;productiondescriptionrestored;confirmation48unused/unrefunded. FinalCouncilpartialgaps/68.8srequested-boundoverrun retained. Preparing focused no-adoption PR.
-Next: Open focused evidence/diagnostic PR;retain explicit partial finalreview and no-adoption limits. No new live calls,merge,release or default change.
-
-<details>
-<summary>Gate status</summary>
-
-Gates:
-
-- **implementation:** No production search change retained. Candidate1patch/binaries/both repetitions preserved. Rigadoptiondeferred with shadow/invalidation evidence.
-- **checks:** Baseline/source/corpus,97AgentBench(nativeCLI,6skips),9search,23shadow/wire,12lightweightoracle/admission tests passed;608fullAIpass+4helper-envfail corrected by9targetedpasses;1ignored. Frozen metrics and13graderattempts retained;no broad finalCouncilpass.
-- **integration:** Focused evidence/diagnostic PR pending finalCouncil;no merge/release/defaultmodelchange.
-- **native:** Headless assignment; no native acceptance claimed.
-- **owner acceptance:** Owner-authorized limited engineering cycle;no searchimprovementadopted. Candidate fails frozenR10toolgate;one independentminorcorrectnessfinding. Reserved/jointchecks unrun andrequiredbeforelateradoption.
-
-</details>
-
 ## Next
 
 None recorded.
@@ -132,8 +112,9 @@ Waiting:
 
 Completion here means the selected task scope is complete; it does not establish every gate, native observation, or owner acceptance.
 
-1 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
+2 completed tasks total; showing up to 10 most recently observed by last-updated time, not completion time. Older IDs, titles and history remain in the selected record.
 
+- `search-256` — Improve grounded search efficiency (#256)
 - `rig-046-253` — Upgrade the runtime to Rig 0.46 and qualify bounded reuse
 
 Local page reflects the last saved observations in this record (2026-11-06T21:02:54.795698+02:00). A remote page reflects the last published commit. Neither indicates that work is live now.
