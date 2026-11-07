@@ -31,7 +31,9 @@
   "qualification.json": "78f50669caa3a98fe8e1d0272460cf57e5e3f5bf00a537ebc939344db292dc03",
   "screening-evidence.json.gz": "b872b3cf5d3798b258a12a268c08b25998a4df7d02d5dee30e12097b2f2020cc",
   "supplemental-council/allocation.json": "c65c7db19beb3723269f378c7b56a12c41e041ae98b275395416d641f82775e7",
-  "supplemental-council/dispatch.jsonl": "8c308ef8d46a4316e445f0d7099d826be23982c43a7b6af84bda228228aad0f7",
+  "supplemental-council/dispatch.jsonl": "64fce04b53faee7cba6ad18150269e41da31e85e9c74ff6e5bf7c4b3019fd5dd",
+  "supplemental-council/final-accounting.json": "551d0fb9880b07d0e5134c6cc4b3acff2768692fd24d45e100f12ab29ecbbb74",
+  "supplemental-council/final-offline-validation.json": "5a86d13770c7dfcda71891a07aa50dbff2bc187128e81b3fcea1ccd664edb762",
   "supplemental-council/overrun-policy.json": "da18c2c29405281619322ea6c274e9a516deecb6db348a762ce706229530c7e2",
   "supplemental-council/reservations.jsonl": "a8e50d6e6be0efa7d3f9334833417978f4d955199df05a715e6db44e88714f1b",
   "supplemental-council/round-3-opus.json": "83c915c741a100710054e35f0fd5785f3c9d16f5c44a42d09b140cf1ad9f0254",
@@ -41,5 +43,7 @@
   "supplemental-council/round-4-sol.json": "1ae03cbce1b218221363decf07f00d28a4851c8b60c6ede84eb3a69eedef43ac",
   "supplemental-council/round-5-offline-validation.json": "7c80f677debc6bad803221bd41d410b7e1dc91c3d9dce717345fc50950527494",
   "supplemental-council/round-5-opus.json": "4d1e0fc3a4fca21508adeb4e839a5f889d113152f1b8d22b4d44cec0854372bb",
-  "supplemental-council/round-5-sol.json": "c7db3ac6948ea88f31133cf6b2a48434e65cd2581356d23de8042b58595b3c17"
+  "supplemental-council/round-5-sol.json": "c7db3ac6948ea88f31133cf6b2a48434e65cd2581356d23de8042b58595b3c17",
+  "supplemental-council/round-6-opus.json": "58fe4de4ada0c224ad277e4f315338b3676f6b14b3601dcb9f9cddd88b8449df",
+  "supplemental-council/round-6-sol.json": "eafdfb9856a63d56a9d5bfed994adb3d9fa4dda31a38584a7741edfb595e5bd7"
 }

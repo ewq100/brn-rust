@@ -251,11 +251,19 @@ class AnswerPacketCoverageTests(unittest.TestCase):
 
     def test_malformed_id_lists_block_packet_instead_of_splitting_strings(self):
         call = self.raw['steps'][0]['trace']['calls'][0]
-        for value in ('message:1', [1], {'id': 'message:1'}):
-            with self.subTest(value=value):
-                call['args'] = {'ids': value}
-                with self.assertRaisesRegex(ValueError, 'list of strings'):
-                    self.packet()
+        for field in ('args', 'result'):
+            for value in ('message:1', [1], {'id': 'message:1'}):
+                with self.subTest(field=field, value=value):
+                    call.pop('args', None)
+                    call['result'] = {'ids': ['message:1']}
+                    call[field] = {'ids': value}
+                    with self.assertRaisesRegex(ValueError, 'list of strings'):
+                        self.packet()
+
+    def test_malformed_single_id_blocks_packet(self):
+        self.raw['steps'][0]['trace']['calls'][0]['args'] = {'id': 123}
+        with self.assertRaisesRegex(ValueError, 'id must be a string'):
+            self.packet()
 
     def test_changed_or_incomplete_evidence_blocks_packet(self):
         with self.assertRaisesRegex(ValueError, 'checkpoint changed'):

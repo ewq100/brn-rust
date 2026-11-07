@@ -153,6 +153,8 @@ def answer_packet(path, root, fixture_path, manifest_path):
             calls.append(call)
             args = call.get('args') or {}
             requested.update(record_ids(args.get('ids')))
+            if args.get('id') is not None and not isinstance(args['id'], str):
+                raise ValueError('Record id must be a string')
             if isinstance(args.get('id'), str):
                 requested.add(args['id'])
             if call.get('outcome') != 'error':

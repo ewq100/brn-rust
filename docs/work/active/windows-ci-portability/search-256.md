@@ -228,7 +228,7 @@ Native-observed: not assigned or claimed.
 Owner-accepted: experiment authority and criteria, not an adopted product change.
 Merged/released: no.
 
-Delivery: [draft PR #271](https://github.com/ewq100/brn-rust/pull/271) contains this bounded no-adoption result. Hosted checks and final independent audit coverage are pending; no merge, release or default-model change. Main advanced after the frozen measurement revision; this draft does not claim current-main integration qualification.
+Delivery: [draft PR #271](https://github.com/ewq100/brn-rust/pull/271) contains this bounded no-adoption result. The additional reviews and limits are recorded below. The published parent head passed all seven hosted CI jobs; updated-head CI remains separate from local verification. No merge, release or default-model change. Main advanced after the frozen measurement revision; this draft does not claim a new current-main live benchmark.
 
 ## Additional Council review authorized 7 November
 
@@ -334,3 +334,49 @@ fixture, phase manifests/evidence indexes and template seeds as well as the
 adapter. It revalidates all twelve future packets and exact historical attempt
 objects without new model calls. Twenty-one focused tests pass. The earlier
 round4 receipt is preserved against its historical adapter version.
+
+
+### Round 6 and final handoff
+
+The fourth additional round is complete. Sol scored 8/10 with no concrete
+regression and Opus scored 9/10 with no confirmed regression. Both ran the
+21 focused tests. Sol disclosed truncated context/capture output and incomplete
+binding revalidation. Opus checked all 43 then-listed evidence hashes and four
+maintained dependency hashes without truncation. Neither regenerated the future
+packets or independently inspected raw checkpoints; Opus did not inspect the
+screening gzip, and neither checked hosted CI. These are review coverage limits,
+not successful witnesses for the uninspected material.
+
+The lead fixed the two small remaining malformed-input cases: non-string args.id
+now refuses packet generation, and malformed result.ids shares the list validation
+test matrix. Twenty-two focused tests pass. These final guard/test changes were
+not independently re-reviewed; no seventh round was started. Offline validation
+again establishes exact equality of all twelve historical attempt objects and
+unchanged hashes for all twelve future packets. Original measured packets,
+judgments, raw native results, frozen executed sources and ledgers remain intact.
+
+| Actual reviewer route | Round 3 | Round 4 | Round 5 | Round 6 |
+| --- | --- | --- | --- | --- |
+| Codex / GPT-6.1 Sol high | 8/10 | 9/10 | 9/10 | 8/10; coverage limited |
+| Copilot / Claude Opus 5.5 high | 7.5/10 | 7/10 | 9/10 | 9/10 |
+
+Kimi was excluded from all four additional rounds. Kiro's round3 monthly-limit
+failure and named fallback remain recorded. All eight review tasks settled by
+04:05:59.334Z. Review completion occupied 1,870.555 seconds from the additional
+phase authorization, within its requested 3,600 seconds; all observed route-run
+intervals were below 600 seconds. This is route/run wall time, not measured BRN
+latency or reported provider compute time.
+
+The original 108 supplemental reservations remain immutable. Reduced seat request
+caps total 88, plus the 12-request failed-route reserve; adding the estimated
+five-request round4 overrun gives a conservative requested/estimated debit of
+105 and three retained margin slots. Unused capacity is not refunded. Actual
+provider model/HTTP/token totals and parent orchestration usage remain unknown;
+these requested caps were not hard-enforced. No further review, BRN, reader,
+grader or native call is planned. Original E168/shared1760 ledgers stay closed.
+
+The draft handoff includes all findings, dispositions, actual routes, failed and
+overrun attempts, coverage gaps and the estimator defer recommendation. Automated
+Codex/security review was not newly dispatched outside the finite review
+allocation. Any later adoption or merge needs its own applicable current-head
+checks and authority. No search/knowledge combination was adopted.
