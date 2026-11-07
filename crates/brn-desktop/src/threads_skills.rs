@@ -346,7 +346,7 @@ impl ThreadsUi {
     }
     fn current_loaded_skills(&self) -> Option<(String, LoadedSkillDetails)> {
         self.chat_thread()
-            .and_then(|chat| latest_run(&self.records, &self.history, chat))
+            .and_then(|chat| self.chat_runs.latest(chat))
             .and_then(|r| {
                 self.workspace
                     .loaded_skill_details(&r.id)
@@ -368,7 +368,7 @@ impl ThreadsUi {
     }
     pub(super) fn loaded_skill_details(&self, chat: &str) -> gpui_kit::AnyElement {
         let mut panel = div().id("loaded-skill-details").flex().flex_col().gap_1();
-        if let Some(record) = latest_run(&self.records, &self.history, chat)
+        if let Some(record) = self.chat_runs.latest(chat)
             && let RecordData::Run(run) = &record.data
         {
             panel = panel.child(metadata(format!(

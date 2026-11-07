@@ -16,6 +16,7 @@ pub struct WritingHost {
     pub reference: Record,
     records: Vec<Record>,
     history: Vec<Receipt>,
+    chat_runs: ChatRuns,
     candidates: Vec<Prepared>,
     buffers: Vec<EditSession>,
     threads: BTreeMap<String, String>,
@@ -93,7 +94,7 @@ impl WritingHost {
             runtime: tokio::runtime::Builder::new_current_thread().enable_all().build().expect("offline script executor"),
             panel,
             reference: f.reference,
-            records: vec![], history: vec![], candidates: vec![], buffers: vec![],
+            records: vec![], history: vec![], chat_runs: ChatRuns::default(), candidates: vec![], buffers: vec![],
             threads: BTreeMap::new(), reviews: BTreeMap::new(), requests: BTreeMap::new(),
             notice: "Disposable synthetic data; all AI replies are scripted offline. No provider or file picker is connected.".into(),
             next: 0, last_request: None, last_run: None, model_requests: String::new(),
@@ -128,6 +129,7 @@ impl WritingHost {
         let context = self.context()?;
         self.records = self.workspace.records()?;
         self.history = self.workspace.history()?;
+        self.chat_runs = ChatRuns::new(&self.records, &self.history);
         self.candidates = self.workspace.candidates()?;
         self.buffers = self.workspace.store.recovery_buffers()?;
         let mut shown = self.candidates.clone();
@@ -159,6 +161,7 @@ impl WritingHost {
             reference_importing: false,
             records: &self.records,
             history: &self.history,
+            chat_runs: &self.chat_runs,
             candidates: &self.candidates,
             buffers: &self.buffers,
             writing_threads: &self.threads,
@@ -172,17 +175,6 @@ impl WritingHost {
             },
             chat_card_stop: |_| None,
             assets_in_chat: |_, _| std::sync::Arc::new(BTreeMap::new()), // Fixture imports have no assets.
-            latest_run: |records, receipts, thread| {
-                receipts
-                    .iter()
-                    .rev()
-                    .flat_map(|r| &r.writes)
-                    .filter(|w| {
-                        w.before.is_none()
-                            && matches!(&w.after.data, RecordData::Run(r) if r.thread == thread)
-                    })
-                    .find_map(|w| records.iter().find(|r| r.id == w.after.id && !r.archived))
-            },
             dispatch: Self::dispatch,
         }
     }

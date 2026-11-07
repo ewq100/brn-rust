@@ -1236,7 +1236,7 @@ fn pure_writing_queries_and_write_notifies_do_not_load_unconsumed_display_data(
     cx.run_until_parked();
     let before = cx.read(|cx| {
         (
-            WRITING_DISPLAY_LOADS.with(|loads| loads.get()),
+            WRITING_ASSET_LOADS.with(|loads| loads.get()),
             f.view.read(cx).writing_review_loads,
         )
     });
@@ -1259,13 +1259,13 @@ fn pure_writing_queries_and_write_notifies_do_not_load_unconsumed_display_data(
         cx.run_until_parked();
         let after = cx.read(|cx| {
             (
-                WRITING_DISPLAY_LOADS.with(|loads| loads.get()),
+                WRITING_ASSET_LOADS.with(|loads| loads.get()),
                 f.view.read(cx).writing_review_loads,
             )
         });
         assert_eq!(
             after, before,
-            "without a saved writing request, pure queries, per-candidate filters and unchanged Write redraws must not resolve assets/read latest Run/reload the canonical batch"
+            "without a saved writing request, pure queries, per-candidate filters and unchanged Write redraws must not resolve assets or reload the canonical batch"
         );
     }
     // Positive controls use real consumers, so a disconnected counter cannot
@@ -1287,15 +1287,10 @@ fn pure_writing_queries_and_write_notifies_do_not_load_unconsumed_display_data(
                 )
                 .unwrap();
             view.open_note(&f.first.id, None, window, cx);
-            let runs = WRITING_DISPLAY_LOADS.with(|loads| loads.get().1);
             assert!(matches!(
                 view.writing_run_outcome(),
                 Some(RunOutcome::InputsSaved)
             ));
-            assert!(
-                WRITING_DISPLAY_LOADS.with(|loads| loads.get().1) > runs,
-                "the actual status query invokes its deferred latest-run reader"
-            );
             view.set_note_reading(true, window, cx);
         });
     })
@@ -1303,7 +1298,7 @@ fn pure_writing_queries_and_write_notifies_do_not_load_unconsumed_display_data(
     cx.run_until_parked();
     cx.read(|_| {
         assert!(
-            WRITING_DISPLAY_LOADS.with(|loads| loads.get().0) > before.0.0,
+            WRITING_ASSET_LOADS.with(|loads| loads.get()) > before.0,
             "the actual formatted Read consumer resolves its scoped assets"
         );
     });

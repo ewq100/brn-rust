@@ -87,7 +87,7 @@ impl ThreadsUi {
             if let Some(project) = project_for_chat(&self.records, chat) {
                 ids.push(project.id.clone());
             }
-            if let Some(run) = latest_run(&self.records, &self.history, chat) {
+            if let Some(run) = self.chat_runs.latest(chat) {
                 ids.push(run.id.clone());
             }
         }

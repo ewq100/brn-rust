@@ -618,7 +618,9 @@ fn archived_chats_leave_the_sidebar_stay_findable_and_require_unarchive(cx: &mut
 fn finish_run(cx: &mut TestAppContext, f: &Fixture, thread: &str) {
     update(cx, f, |view, window, cx| {
         let (sender, receiver) = mpsc::sync_channel(4);
-        let run = latest_run(&view.records, &view.history, thread)
+        let run = view
+            .chat_runs
+            .latest(thread)
             .expect("recorded terminal Run")
             .id
             .clone();
