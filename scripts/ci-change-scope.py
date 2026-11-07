@@ -4,12 +4,10 @@ import sys
 
 # Rust builds embed or read Markdown under these paths, so they are never prose-only.
 CODE_PREFIXES = ('crates/', 'agent/', 'tools/')
-# GitHub's PR files API stops listing at 3,000 files; treat a full page set as incomplete.
-API_FILE_LIMIT = 3000
 
 
 def rust_needed(paths):
-    if not paths or len(paths) >= API_FILE_LIMIT:
+    if not paths:
         return True
     return any(not path.endswith('.md') or path.startswith(CODE_PREFIXES) or '/fixtures/' in path
                for path in paths)

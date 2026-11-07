@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "design": "docs/work/active/knowledge-retrieval/evaluation-design.md",
+  "design": "https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/knowledge-retrieval/evaluation-design.md",
   "cases": [
     {
       "id": "R1",

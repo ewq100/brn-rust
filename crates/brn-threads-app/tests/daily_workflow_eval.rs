@@ -1,4 +1,4 @@
-//! Daily-workflow journey (docs/work/active/daily-workflow-reliability): a
+//! Daily-workflow journey: a
 //! project, a document, an email, a protected-decision contradiction, a drafted
 //! reply, a restart and a re-supply. A scripted model drives the real runtime
 //! tools over fresh synthetic data; no provider is contacted. It asserts what

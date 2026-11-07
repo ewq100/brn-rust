@@ -6,6 +6,6 @@
 # Python tooling caches are disposable, not evidence inputs.
 __pycache__/
 
-# cargo-mutants scratch output; runs target temporary copies (see
-# docs/work/active/quality-simplify/evidence.md).
+# cargo-mutants scratch output.
 mutants.out/
+.brn-dev/

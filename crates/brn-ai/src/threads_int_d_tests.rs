@@ -6,10 +6,7 @@ use rig::test_utils::{MockHttpResponse, SequencedHttpClient};
 use std::sync::atomic::AtomicUsize;
 
 fn corpus() -> Value {
-    serde_json::from_str(include_str!(
-        "../../../docs/work/active/agent-capabilities/int-d/corpus.json"
-    ))
-    .unwrap()
+    serde_json::from_str(include_str!("../../../benchmarks/int-d/corpus.json")).unwrap()
 }
 fn next(request: &ThreadRunRequest, prompt: &str) -> ThreadRunRequest {
     ThreadRunRequest {
@@ -1782,16 +1779,10 @@ mod capture_runner {
         prompt: String,
     }
     fn compiled_input_set() -> Checked<BTreeMap<String, String>> {
-        let raw = include_bytes!(
-            "../../../docs/work/active/agent-capabilities/int-d/diagnosis/capture/material-hashes.json"
-        );
+        let raw = include_bytes!("../../../benchmarks/int-d/material-hashes.json");
         let mut inputs: BTreeMap<String, String> =
             serde_json::from_slice(raw).map_err(|_| "compiled input set")?;
-        inputs.insert(
-            "docs/work/active/agent-capabilities/int-d/diagnosis/capture/material-hashes.json"
-                .into(),
-            digest(raw),
-        );
+        inputs.insert("benchmarks/int-d/material-hashes.json".into(), digest(raw));
         Ok(inputs)
     }
     fn source_checks(p: &Preflight, source: &Path) -> Checked<()> {
@@ -1903,10 +1894,7 @@ mod capture_runner {
         {
             return Err("artifact mismatch");
         }
-        if p.corpus_sha256
-            != digest(include_bytes!(
-                "../../../docs/work/active/agent-capabilities/int-d/corpus.json"
-            ))
+        if p.corpus_sha256 != digest(include_bytes!("../../../benchmarks/int-d/corpus.json"))
             || hash_file(&preflight.with_file_name("prompt.txt"), 128 * 1024)? != p.prompt_sha256
             || hash_file(&preflight.with_file_name("rubric.json"), 16 * 1024)? != p.rubric_sha256
             || hash_file(&p.fixture.join("manifest.json"), 64 * 1024)? != p.manifest_sha256
@@ -2409,8 +2397,9 @@ mod capture_runner {
         .into_iter()
         .collect::<std::collections::BTreeSet<_>>();
         let retirement: Value = serde_json::from_slice(include_bytes!(
-            "../../../docs/work/active/modular-foundation/x2/standard-default/retirement/source-pin.json"
-        )).unwrap();
+            "../../../benchmarks/int-d/retirement-source-pin.json"
+        ))
+        .unwrap();
         let recorded = retirement["material_deleted_files"]
             .as_array()
             .unwrap()
@@ -2662,9 +2651,7 @@ mod capture_runner {
             executable: exe.clone(),
             executable_sha256: hash_file(&exe, 1024 * 1024 * 1024).unwrap(),
             dep_info_sha256: hash_file(&exe.with_extension("d"), 8 * 1024 * 1024).unwrap(),
-            corpus_sha256: digest(include_bytes!(
-                "../../../docs/work/active/agent-capabilities/int-d/corpus.json"
-            )),
+            corpus_sha256: digest(include_bytes!("../../../benchmarks/int-d/corpus.json")),
             prompt_sha256: hash_file(&files.path().join("prompt.txt"), 128 * 1024).unwrap(),
             rubric_sha256: hash_file(&files.path().join("rubric.json"), 16 * 1024).unwrap(),
             fixture: pair.path().into(),

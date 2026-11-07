@@ -40,28 +40,24 @@ jobs:
     name: Change scope
     runs-on: ubuntu-24.04
     timeout-minutes: 5
-    permissions:
-      contents: read
-      pull-requests: read
     outputs:
       rust: ${{ steps.scope.outputs.rust }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          # The tested PR merge commit's first parent is the base it merges into;
+          # reruns keep this commit even after the branch moves.
+          fetch-depth: 2
           sparse-checkout: scripts/ci-change-scope.py
           sparse-checkout-cone-mode: false
       - name: Classify changed files
         id: scope
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           # Only PRs may skip Rust lanes; the preview release gate needs passing main-push jobs.
           changed="$RUNNER_TEMP/changed-files.txt"
           if [[ "$GITHUB_EVENT_NAME" != pull_request ]] ||
-             ! gh api --paginate "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files" \
-               --jq '.[] | .filename, (.previous_filename // empty)' > "$changed"; then
+             ! git diff --no-renames --name-only HEAD^1 HEAD > "$changed"; then
             echo rust=true >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -86,8 +82,6 @@ jobs:
           cargo fetch --locked --manifest-path tools/xberg-intake-helper/Cargo.toml --target "$host_target"
       - name: Check current Markdown file and fragment links
         run: python3 scripts/check-markdown-links.py
-      - name: Check the generated owner overview
-        run: python3 scripts/render-work-overview.py --check
       - name: Test deterministic development tooling
         if: ${{ !cancelled() }}
         run: python3 -m unittest discover -s scripts/tests -v

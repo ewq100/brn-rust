@@ -1,6 +1,6 @@
 # BRN Threads architecture overview
 
-The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. See the current snapshot in [status](../status.md) for the repository baseline, proposed/assigned work and verification/acceptance limits. Historical cleanup and milestone records do not define the current assignment.
+The [canonical Threads target](threads-target.md) owns the detailed architecture. This page is a navigation summary. The [behavior design](threads-behavior.md) supplies concrete thread and packaged runtime-guide defaults. The SQLite Threads core, runtime and native workspace are implemented. See the current snapshot in [status](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/status.md) for the repository baseline, proposed/assigned work and verification/acceptance limits. Historical cleanup and milestone records do not define the current assignment.
 
 ## One state owner
 
@@ -31,7 +31,7 @@ The agent and existing skills own interpretation and task strategy. Maintained
 libraries/shared tools own exact processing; the existing service/core owns durable
 state and execution guarantees; native controls present actual state and owner
 actions. The [selected agent-first direction](threads-target.md#accepted-agent-first-direction19october2026)
-and [workstream reconciliation](../work/active/agent-first-simplification/reconciliation.md)
+and [workstream reconciliation](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/agent-first-simplification/reconciliation.md)
 refine these boundaries without replacing the campaign, store or skills platform.
 
 ## Reuse boundary
@@ -54,4 +54,4 @@ Full-note import shares the same notes, assets, source references, and protectio
 | `brn-desktop` | Headless desktop entry and optional GPUI workspace/state |
 | `brn` | Thin CLI over the shared service |
 
-Read the [invariants](invariants.md), [dependency boundaries](dependencies.md) and [verification guide](../development/verification.md) before changing these seams. [Archived reports](../archive/README.md) retain implementation history without assigning old work.
+Read the [invariants](invariants.md), [dependency boundaries](dependencies.md) and [verification guide](../development/verification.md) before changing these seams. [Archived reports](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/archive/README.md) retain implementation history without assigning old work.
