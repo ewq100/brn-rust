@@ -156,7 +156,7 @@ pub enum ConversionError {
 impl std::fmt::Display for ConversionError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::MarkdownEmbeddedImage => f.write_str("BRN could not import this Markdown file. Its embedded data image may be the problem. Save the image separately and import it, or use a document format with embedded images."),
+            Self::MarkdownEmbeddedImage => f.write_str("BRN could not import this Markdown file. Its embedded data image may be the problem. Remove the image from the file and import it again."),
             _ => write!(f, "{self:?}"),
         }
     }

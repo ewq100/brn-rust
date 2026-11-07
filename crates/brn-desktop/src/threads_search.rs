@@ -88,9 +88,14 @@ fn plain_note_excerpt(
     ranges: &[std::ops::Range<usize>],
 ) -> (String, Vec<std::ops::Range<usize>>) {
     let mut hidden = vec![false; snippet.len()];
-    for marker in ["**", "__", "~~", "`"] {
+    let mut code = vec![false; snippet.len()];
+    for marker in ["`", "**", "__", "~~"] {
         let mut from = 0;
         while let Some(start) = snippet[from..].find(marker).map(|n| n + from) {
+            if code[start] {
+                from = start + marker.len();
+                continue;
+            }
             let content = start + marker.len();
             let Some(end) = snippet[content..].find(marker).map(|n| n + content) else {
                 break;
@@ -98,6 +103,9 @@ fn plain_note_excerpt(
             if end > content {
                 hidden[start..content].fill(true);
                 hidden[end..end + marker.len()].fill(true);
+                if marker == "`" {
+                    code[content..end].fill(true);
+                }
             }
             from = end + marker.len();
         }
@@ -107,7 +115,7 @@ fn plain_note_excerpt(
     for marker in ['*', '_'] {
         let positions: Vec<_> = snippet
             .char_indices()
-            .filter(|(index, ch)| *ch == marker && !hidden[*index])
+            .filter(|(index, ch)| *ch == marker && !hidden[*index] && !code[*index])
             .map(|(index, _)| index)
             .collect();
         let mut from = 0;
@@ -145,7 +153,10 @@ fn plain_note_excerpt(
         let Some(label_end) = snippet[from..].find("](").map(|n| n + from) else {
             continue;
         };
-        if snippet[from..label_end].contains(['[', ']']) || snippet[..start].ends_with('!') {
+        if code[start]
+            || snippet[from..label_end].contains(['[', ']'])
+            || snippet[..start].ends_with('!')
+        {
             continue;
         }
         let url_start = label_end + 2;
@@ -792,5 +803,9 @@ mod excerpt_tests {
         assert_eq!(plain, "Café Garden planning and tools");
         assert_eq!(&plain[ranges[0].clone()], "Garden");
         assert_eq!(plain_note_excerpt("2 * 3", &[]).0, "2 * 3");
+        assert_eq!(
+            plain_note_excerpt("Use `__init__` and `*args*` here", &[]).0,
+            "Use __init__ and *args* here"
+        );
     }
 }

@@ -132,7 +132,7 @@ fn markdown_linked_figures_are_named_gaps_in_both_helpers() {
         assert_eq!(linked.len(), 1, "{backend}: {:?}", result.coverage.gaps);
         assert_eq!(linked[0].locator, "assets/chart.png");
         assert_eq!(linked[0].kind, GapKind::Limitation);
-        assert!(linked[0].detail.contains("Import the image separately"));
+        assert!(linked[0].detail.contains("not files it links to"));
     }
 }
 #[test]
@@ -377,5 +377,5 @@ fn markdown_data_image_refusal_explains_next_step() {
         )
         .unwrap_err();
     assert_eq!(error, ConversionError::MarkdownEmbeddedImage);
-    assert!(error.to_string().contains("Save the image separately"));
+    assert!(error.to_string().contains("Remove the image from the file"));
 }

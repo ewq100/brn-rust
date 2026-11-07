@@ -197,7 +197,7 @@ fn linked_figure_gaps(request: &ConversionRequest<'_>) -> Vec<CoverageGap> {
         .map(|locator| CoverageGap {
             kind: GapKind::Limitation,
             locator,
-            detail: "Linked figure not retained: BRN reads only the selected file. Import the image separately or use a document with embedded images.".into(),
+            detail: "Linked figure not retained: BRN reads only the selected file, not files it links to. Describe the figure in the note if it matters.".into(),
         })
         .collect()
 }
