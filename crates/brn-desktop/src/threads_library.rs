@@ -523,6 +523,7 @@ fn library_menu(
 fn note_menu(menu: PopupMenu, this: &WeakEntity<ThreadsUi>, id: String) -> PopupMenu {
     let open = id.clone();
     let related = id.clone();
+    let rename = id.clone();
     menu.item(item(
         this,
         "Open",
@@ -530,6 +531,14 @@ fn note_menu(menu: PopupMenu, this: &WeakEntity<ThreadsUi>, id: String) -> Popup
         false,
         false,
         move |view, window, cx| view.open_from_library(&open, window, cx),
+    ))
+    .item(item(
+        this,
+        "Rename…",
+        None,
+        false,
+        false,
+        move |view, window, cx| view.rename_note(&rename, window, cx),
     ))
     .item(item(
         this,

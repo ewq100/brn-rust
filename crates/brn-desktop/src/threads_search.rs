@@ -102,6 +102,63 @@ fn plain_note_excerpt(
             from = end + marker.len();
         }
     }
+    // Only simple paired emphasis at word boundaries. Intraword underscores,
+    // arithmetic and unmatched delimiters remain literal.
+    for marker in ['*', '_'] {
+        let positions: Vec<_> = snippet
+            .char_indices()
+            .filter(|(index, ch)| *ch == marker && !hidden[*index])
+            .map(|(index, _)| index)
+            .collect();
+        let mut from = 0;
+        while from < positions.len() {
+            let start = positions[from];
+            from += 1;
+            let before = snippet[..start].chars().next_back();
+            let after = snippet[start + 1..].chars().next();
+            if before.is_some_and(|ch| ch.is_alphanumeric() || ch == marker)
+                || after.is_none_or(|ch| ch.is_whitespace() || ch == marker)
+            {
+                continue;
+            }
+            if let Some((offset, &end)) = positions[from..].iter().enumerate().find(|(_, end)| {
+                **end > start + 1
+                    && snippet[..**end]
+                        .chars()
+                        .next_back()
+                        .is_some_and(|ch| !ch.is_whitespace())
+                    && snippet[**end + 1..]
+                        .chars()
+                        .next()
+                        .is_none_or(|ch| !ch.is_alphanumeric() && ch != marker)
+            }) {
+                hidden[start] = true;
+                hidden[end] = true;
+                from += offset + 1;
+            }
+        }
+    }
+    // Inline links keep their label; leave incomplete or nested syntax alone.
+    let mut from = 0;
+    while let Some(start) = snippet[from..].find('[').map(|n| n + from) {
+        from = start + 1;
+        let Some(label_end) = snippet[from..].find("](").map(|n| n + from) else {
+            continue;
+        };
+        if snippet[from..label_end].contains(['[', ']']) || snippet[..start].ends_with('!') {
+            continue;
+        }
+        let url_start = label_end + 2;
+        let Some(end) = snippet[url_start..].find(')').map(|n| n + url_start) else {
+            continue;
+        };
+        if snippet[url_start..end].contains(['(', '\n']) {
+            continue;
+        }
+        hidden[start] = true;
+        hidden[label_end..end + 1].fill(true);
+        from = end + 1;
+    }
     let mut offsets = vec![0; snippet.len() + 1];
     let mut plain = String::new();
     for (index, ch) in snippet.char_indices() {
@@ -711,6 +768,18 @@ impl ThreadsUi {
 #[cfg(test)]
 mod excerpt_tests {
     use super::plain_note_excerpt;
+
+    #[test]
+    fn note_excerpt_hides_emphasis_and_link_destinations_with_unicode_highlights() {
+        let source = "*Café* _garden_ [tööriistad](https://example.test/tools) foo_bar_baz 2 * 3";
+        let start = source.find("tööriistad").unwrap();
+        let url = source.find("https").unwrap();
+        let (plain, ranges) =
+            plain_note_excerpt(source, &[start..start + "tööriistad".len(), url..url + 5]);
+        assert_eq!(plain, "Café garden tööriistad foo_bar_baz 2 * 3");
+        assert_eq!(ranges.len(), 1);
+        assert_eq!(&plain[ranges[0].clone()], "tööriistad");
+    }
 
     #[test]
     fn note_excerpt_removes_paired_markers_and_preserves_highlight_bytes() {
