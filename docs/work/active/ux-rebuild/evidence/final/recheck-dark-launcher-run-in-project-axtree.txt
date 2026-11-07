@@ -1,3 +1,0 @@
-AXList	AXUnknown	Search results
-  AXStaticText	AXUnknown	This project · Project documents · not in Library
-  AXStaticText	AXUnknown	Project document: Run sheet · only in Harbour festival

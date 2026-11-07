@@ -1,3 +1,0 @@
-888aecd84cf2f3304951d23ebb85584c5a6d3a41fabb65e4918da3e6972b6b04  /workspace/brn-next-evidence/native/qualified-ef09669e/brn-desktop
-4552b8a922cb7b599a45285b7e836002bda9452ca8d7079ba416711d5c47a399  /workspace/brn-next-evidence/native/qualified-ef09669e/brn
-4c28aeb6ee4ac47f6e33c2570a3e569e761e88371cd08a352ded220612af4dbc  /workspace/brn-next-evidence/native/qualified-ef09669e/native_outcomes_fixture

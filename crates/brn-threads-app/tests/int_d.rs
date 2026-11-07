@@ -9,10 +9,7 @@ use brn_threads_app::*;
 use rig::test_utils::{MockCompletionModel, MockStreamEvent};
 use serde_json::{Value, json};
 fn corpus() -> Value {
-    serde_json::from_str(include_str!(
-        "../../../docs/work/active/agent-capabilities/int-d/corpus.json"
-    ))
-    .unwrap()
+    serde_json::from_str(include_str!("../../../benchmarks/int-d/corpus.json")).unwrap()
 }
 fn start(chat: &str, prompt: &str) -> ThreadRunStart {
     ThreadRunStart {

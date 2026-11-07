@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Harness v2: compare BRN arms (bundles, retrieval bundles or models) on synthetic wiki cases.
 
-Design: docs/work/active/knowledge-retrieval/evaluation-design.md (sections 1, 2 and 5).
+Design: https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/knowledge-retrieval/evaluation-design.md (sections 1, 2 and 5).
 Fixture: scripts/fixtures/wiki-eval-cases-v2.json. The v1 harness and fixture stay frozen.
 
 Without --live nothing contacts a provider and no provider is configured: the run only validates the

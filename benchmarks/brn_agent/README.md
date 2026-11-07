@@ -7,7 +7,7 @@ separate. It extends
 provider route and tools. It adds no provider gateway or production dependency.
 The original implementation below describes offline proof machinery. Later
 pilot003 completed 16 candidate runs; execution did not establish output quality.
-The [current readiness record](../../docs/work/active/agentbench/bounded-readiness.md)
+The [current readiness record](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/agentbench/bounded-readiness.md)
 reconciles those results, all 16 retained anonymous packet reviews, observed short
 reviewer screening and remaining qualification gaps. No model ranking is qualified.
 
@@ -48,8 +48,8 @@ hashed evaluator sources and configurations. `report --freeze-spec FILE
 requires it to match. Include all retrieval asset files; directory labels are not
 asset attestation. No credential bytes belong in receipts.
 
-See [six expected outcomes and limits](../../docs/work/active/agentbench/bounded-readiness.md)
-and [exact capped first-experiment commands](../../docs/work/active/agentbench/first-experiment.md).
+See [six expected outcomes and limits](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/agentbench/bounded-readiness.md)
+and [exact capped first-experiment commands](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/agentbench/first-experiment.md).
 No new live experiment budget has been supplied; old pilots are consumed.
 
 ## Prepare and check

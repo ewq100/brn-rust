@@ -44,6 +44,12 @@ Main protection requires these unchanged contexts:
 
 Read actual protection and exact candidate checks before integration; preserve strict/current protection and visible platform failures. Historical unprotected-main configuration proposals are archived, not setup instructions.
 
+## Daily scripts
+
+- `scripts/setup-worktree.sh`: prepares a checkout (helpers, `.brn-dev/env.sh`, synthetic data folder); see [setup](setup.md).
+- `scripts/check-changed.sh`: local check scoped to changes since `origin/main`; see [verification](verification.md).
+- `scripts/check-agent-context-budget.py`: keeps `AGENTS.md` and `agent/` guidance from growing unnoticed; `--write` records intended changes.
+
 ## Documentation gate
 
 ```sh
@@ -54,7 +60,7 @@ python3 -m unittest discover -s scripts/tests -v
 
 The default checks tracked and non-ignored new current Markdown files, local targets/fragments, reference links, encoded paths, duplicate/Unicode heading anchors and explicit HTML anchors. Code fences and inline-code samples are excluded; external URLs are not fetched. Missing files/fragments produce a nonzero result.
 
-Only outgoing links under `docs/archive/` are historical exemptions. Incoming current links to archive files/fragments always validate. `--all` audits outgoing archive links too. CI checks Markdown, synthetic tooling tests and shell syntax on PR/main/manual events. See the [archive index](../archive/README.md) for exact deleted-history provenance.
+Only outgoing links under `docs/archive/` are historical exemptions. Incoming current links to archive files/fragments always validate. `--all` audits outgoing archive links too. CI checks Markdown, synthetic tooling tests and shell syntax on PR/main/manual events. See the [archive index](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/archive/README.md) for exact deleted-history provenance.
 
 ## Retained qualification and packaging helpers
 
@@ -67,7 +73,7 @@ cargo run -p brn-ai --features capability-spike --example provider-capabilities 
 
 Synthetic envelope/count/wire-order observations do not qualify live discovery or model availability. Real discovery returns processed model options; raw provider transport observation requires a separately scoped interface.
 
-`scripts/qualification/threads-runtime/live-journeys.py` remains the current bounded runtime journey harness. The retired standalone Rig comparison remains at its fixed baseline and in [historical results](../archive/threads-rebuild/rig-decoder-comparison.md).
+`scripts/qualification/threads-runtime/live-journeys.py` remains the current bounded runtime journey harness. The retired standalone Rig comparison remains at its fixed baseline and in [historical results](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/archive/threads-rebuild/rig-decoder-comparison.md).
 
 For a native qualification artifact, preserve the source-bound original and copy the app plus its matching helpers. Read-only executable copies retain execute permission (for example0555); verify both hashes and executable access before marking the set ready to launch. A matching hash with0444 permissions is a retained file, not a runnable executable.
 

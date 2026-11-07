@@ -1,6 +1,6 @@
 # BRN Threads invariant summary
 
-These summarize the [canonical Threads target](threads-target.md). They are obligations of the implemented core; [status](../status.md) distinguishes demonstrated checks from remaining gaps.
+These summarize the [canonical Threads target](threads-target.md). They are obligations of the implemented core; [status](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/status.md) distinguishes demonstrated checks from remaining gaps.
 
 1. **One authority.** SQLite owns live BRN work. A Markdown export or derived index cannot independently become current state.
 2. **One write boundary.** UI, built-in agent, CLI, and eventual external agents use the same checked service. Generated scripts and tools cannot bypass it with raw canonical SQL.

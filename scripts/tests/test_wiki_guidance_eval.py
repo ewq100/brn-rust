@@ -363,7 +363,7 @@ class MeetingActionOracleTests(unittest.TestCase):
         self.assertEqual(len(candidate['request']['inputs']), 2)
 
     def test_published_duplicate_receipt_requires_second_source_on_active_request(self):
-        receipt = json.loads((SCRIPT.parents[1] / 'docs/work/active/daily-followups-inbox-restore/evidence/mac-completion-20261025/receipt.json').read_text())
+        receipt = json.loads((SCRIPT.parents[1] / 'scripts/tests/fixtures/mac-completion-receipt.json').read_text())
         after = receipt['steps'][-1]['snapshot']
         checks = wiki_eval.action_source_checks([0, 1], after)
         self.assertTrue(checks['action_sources_resolved'])

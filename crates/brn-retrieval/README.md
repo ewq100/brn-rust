@@ -1,6 +1,6 @@
 # brn-retrieval
 
-Derived search components for the BRN application, built for the [knowledge and retrieval architecture](../../docs/work/active/knowledge-retrieval/spec.md). SQLite in `brn-threads-core` stays authoritative: everything here can be deleted and rebuilt.
+Derived search components for the BRN application, built for the [knowledge and retrieval architecture](https://github.com/ewq100/brn-rust/blob/3e2f9f71526f974389784554f159d8f0c36cb6c6/docs/work/active/knowledge-retrieval/spec.md). SQLite in `brn-threads-core` stays authoritative: everything here can be deleted and rebuilt.
 
 - **`search_index`**: the persisted workspace index `derived/search.sqlite` (brand `BRNS`, schema v2).
   - Exact, English-stemmed and all-words keyword lanes over `markdown_chunk` v1 passages, fused by RRF and collapsed per document.
