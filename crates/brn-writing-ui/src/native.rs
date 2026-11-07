@@ -403,6 +403,7 @@ pub enum WritingRequest {
     EditNote,
     Connections,
     Compare,
+    Rename,
     ToggleProtection,
     Export,
     ToggleCoverage,

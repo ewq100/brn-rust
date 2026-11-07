@@ -160,6 +160,15 @@ impl<T: 'static> WritingView<'_, T> {
                 ))
                 .item(item(
                     &this,
+                    "Rename…",
+                    None,
+                    protected,
+                    false,
+                    WritingRequest::Rename,
+                    dispatch,
+                ))
+                .item(item(
+                    &this,
                     "Reload saved note",
                     None,
                     dirty,

@@ -1315,13 +1315,12 @@ fn review_states_keep_one_primary_and_the_exact_footer(cx: &mut TestAppContext) 
 /// otherwise; they never render in Chat.
 #[gpui_kit::test]
 fn comment_placement_follows_the_note_width(cx: &mut TestAppContext) {
-    // The pane policy decides the Note's width: dominant alone at 900
-    // (assistant as a closed sheet), docked beside the assistant from about
-    // 940. The margin sits beside the text only while the text keeps its
+    // The pane policy reflows the Note beside the assistant at 900.
+    // The margin sits beside the text only while the text keeps its
     // 560 pt region; otherwise the comments stack.
     for (width, height, mode) in [
         (620., 600., MarginMode::Stacked),
-        (900., 600., MarginMode::Wide),
+        (900., 600., MarginMode::Stacked),
         (960., 700., MarginMode::Stacked),
         (1250., 860., MarginMode::Stacked),
         (1340., 860., MarginMode::Narrow),
@@ -2152,5 +2151,82 @@ fn action_review_displays_exact_unknown_and_changed_followup_facts(cx: &mut Test
         assert!(label.contains("Owner: Märta\nWaiting on: Unspecified"));
         assert!(label.contains("Due: Unspecified\nFollow up: 2028-02-29"));
         assert!(label.contains("Completion evidence: Unspecified"));
+    });
+}
+
+#[gpui_kit::test]
+fn new_note_review_after_browsing_uses_its_destination_and_applies_exactly(
+    cx: &mut TestAppContext,
+) {
+    let f = fixture(cx, 900., 600., TEXT);
+    let (candidate, unrelated) = update(cx, &f, |view, window, cx| {
+        let operation = view
+            .workspace
+            .store
+            .allocate_operation("new-note-import-review")
+            .unwrap();
+        let candidate = view
+            .workspace
+            .store
+            .prepare(
+                &operation,
+                &ChangeRequest {
+                    reason: "Useful information from import".into(),
+                    writes: vec![Put {
+                        id: operation.creation_id(0),
+                        expected_version: None,
+                        archived: false,
+                        data: RecordData::Note(Note::working(
+                            "Imported garden advice",
+                            "Exact imported advice",
+                        )),
+                    }],
+                    inputs: vec![],
+                },
+            )
+            .unwrap();
+        let unrelated = view
+            .workspace
+            .new_note("Unrelated note", "Do not change")
+            .unwrap();
+        view.open_note(&unrelated.id, None, window, cx);
+        view.refresh();
+        view.show_tile(TileKind::Overview, window, cx);
+        (candidate, unrelated)
+    });
+    on_window(cx, &f, |window, cx| {
+        window.click(
+            format!("for-you-review-{}", candidate.operation.as_str()),
+            cx,
+        );
+    });
+    on_window(cx, &f, |window, _| {
+        assert_eq!(
+            window.find("tile-title-note").label(),
+            Some("Note: New note: Imported garden advice")
+        );
+    });
+    update(cx, &f, |view, window, cx| {
+        assert!(
+            !view.notice.text().contains("Working Note is unavailable"),
+            "{}",
+            view.notice.text()
+        );
+        assert_eq!(
+            view.writing.review.exact_candidate().unwrap().request,
+            candidate.request
+        );
+        view.apply_review(window, cx);
+        let saved = view
+            .workspace
+            .store
+            .note(&candidate.request.writes[0].id)
+            .unwrap()
+            .unwrap();
+        assert_eq!(saved.data, candidate.request.writes[0].data);
+        assert_eq!(
+            view.workspace.store.note(&unrelated.id).unwrap().unwrap(),
+            unrelated
+        );
     });
 }

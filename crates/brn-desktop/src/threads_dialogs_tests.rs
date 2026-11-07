@@ -514,9 +514,9 @@ fn escape_from_a_menu_launched_dialog_returns_focus_to_the_panel(cx: &mut TestAp
 /// overlays the document without squeezing it, and Escape (or Back to
 /// document) returns without changing the stored preference.
 #[gpui_kit::test]
-fn a_compact_window_shows_the_assistant_as_a_sheet_and_escape_returns(cx: &mut TestAppContext) {
+fn below_minimum_width_the_assistant_sheet_keeps_escape_return(cx: &mut TestAppContext) {
     let (mut note, mut chat) = (String::new(), String::new());
-    let f = fixture(cx, 900., 600., |workspace| {
+    let f = fixture(cx, 800., 600., |workspace| {
         note = workspace
             .new_note("Sheet witness", "Saved text")
             .unwrap()
@@ -876,4 +876,36 @@ fn shell_controls_name_what_they_act_on(cx: &mut TestAppContext) {
         );
         assert_eq!(window.find("nav-library").label(), Some("Library"));
     });
+}
+
+#[gpui_kit::test]
+fn compact_notes_reflow_beside_the_open_assistant_without_overlap(cx: &mut TestAppContext) {
+    for width in [850., 900.] {
+        let mut note = String::new();
+        let f = fixture(cx, width, 600., |workspace| {
+            note = workspace.new_note("Readable note", "A full sentence that should reflow beside the assistant instead of being hidden beneath it.").unwrap().id;
+        });
+        update(cx, &f, |view, window, cx| {
+            view.show_tile(TileKind::Notes, window, cx);
+            view.open_from_library(&note, window, cx)
+        });
+        let alone = on_window(cx, &f, |window, _| {
+            window.find("tile-note").bounds().size.width
+        });
+        on_window(cx, &f, |window, cx| window.click("toggle-assistant", cx));
+        next_frame(cx, &f);
+        on_window(cx, &f, |window, cx| {
+            assert!(f.view.read(cx).arrangement.support_docked());
+            let note = window.find("tile-note").bounds();
+            let assistant = window.find("assistant-pane").bounds();
+            assert!(note.size.width < alone);
+            assert!(note.size.width >= px(440.));
+            assert!(
+                note.right() <= assistant.left(),
+                "{width}: {note:?} and {assistant:?}"
+            );
+            assert_inside(window, "note-body", note);
+            assert_inside(window, "assistant-pane", window_bounds(&f));
+        });
+    }
 }

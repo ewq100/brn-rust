@@ -340,7 +340,7 @@ Use logical pixels/points and native scaling. The main desktop acceptance viewpo
 | Document reading column | 680–760 | Do not stretch prose across an ultrawide window. |
 | Docked article outline | 200 | Useful range 180–240; counts separately from the document region. |
 | Assistant pane | 320 | Useful range 280–400; collapsible and resizable. |
-| Document region in split view | At least 560 | Includes inner margins; preserve readable prose. |
+| Document region in split view | Prefer 560; compact floor 440 | Includes inner margins; prose reflows beside the assistant. |
 | Page inset | 32–40 | Reduce to 20–24 where needed in a small window. |
 | Standard control height | 32–36 | Fine-pointer desktop; clear effective hit targets. |
 | Compact icon control | 30–32 | Avoid adjacent tiny targets and clipped focus. |
@@ -348,9 +348,9 @@ Use logical pixels/points and native scaling. The main desktop acceptance viewpo
 | Composer | 2–8 text rows | Cap growth; retain access to conversation and Send/Stop. |
 | Major divider | 1 | Neutral and visible without a heavy frame around every region. |
 
-Compute split availability from remaining usable width after navigation, scaling and padding. Do not assume a screen-name breakpoint guarantees enough room. When document plus assistant cannot fit their usable widths, collapse navigation first if the owner has not deliberately expanded it; then use a contextual assistant sheet or a local document/assistant switch. Preserve work when moving between layouts.
+Compute split availability from remaining usable width after navigation, scaling and padding. Do not assume a screen-name breakpoint guarantees enough room. When document plus assistant cannot fit their usable widths, collapse navigation first if the owner has not deliberately expanded it; then reflow the document down to 440 points beside the assistant. Below that, use a contextual assistant sheet or a local document/assistant switch. Preserve work when moving between layouts.
 
-At 900 × 600, writing should open with the document dominant and supporting panes closed by default. Opening the assistant must not squeeze the document into a narrow unreadable strip. Give the owner a clear return to the document.
+Notes opened from Library keep supporting panes closed by default. Opening the assistant at the 850-point minimum window width or at 900 points docks the default assistant beside reflowed prose, without covering note text. A deliberately expanded sidebar or wider assistant can require the sheet fallback. Give the owner a clear return to the document.
 
 The outline is a local contents region beside the document, not another global navigation destination. Dock it only when the remaining document region still meets the 560 minimum, including its inner margins. Count navigation, outline, assistant, dividers and usable window width before choosing the layout. Never shrink text or margins below the stated reading rules just to keep four panes visible.
 

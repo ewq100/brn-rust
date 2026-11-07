@@ -486,11 +486,9 @@ impl Layout {
         self.focus = panes[(index + delta).rem_euclid(panes.len() as isize) as usize];
     }
 
-    /// The pane policy at a usable `width` (spec §8). A document beside the
-    /// assistant needs its 560 pt region; when that does not fit, the
-    /// sidebar collapses to its rail unless the owner expanded it on
-    /// purpose, and then the assistant becomes a temporary sheet rather than
-    /// squeezing the document. Preferences are read, never written.
+    /// Prefer a 560 pt document beside the assistant, collapsing the sidebar
+    /// first. Compact windows may reflow the document down to 440 pt before
+    /// falling back to a sheet. Preferences are read, never written.
     pub(super) fn arrange(&self, width: f32) -> Arrangement {
         let width = width.max(0.);
         let expanded = self.sidebar_width + metrics::DIVIDER;
@@ -537,6 +535,11 @@ impl Layout {
             return done(chosen, Support::Docked(self.support_width));
         }
         let chosen = *sidebars.last().unwrap();
+        if self.primary == TileKind::Note
+            && width - chosen.0 >= 440. + metrics::DIVIDER + self.support_width
+        {
+            return done(chosen, Support::Docked(self.support_width));
+        }
         let region = (width - chosen.0).max(0.);
         // The sheet leaves a strip of the document visible as the way back.
         let sheet = self
@@ -557,13 +560,28 @@ mod tests {
     use super::*;
 
     const WIDE: f32 = 1280.;
-    const SMALL: f32 = 900.;
+    const SMALL: f32 = 800.;
 
     fn note_with_assistant() -> Layout {
         let mut layout = Layout::default();
         layout.open(TileKind::Chat);
         layout.open(TileKind::Note);
         layout
+    }
+
+    #[test]
+    fn minimum_window_and_900_point_notes_reflow_beside_the_assistant() {
+        for width in [850., 900.] {
+            let mut layout = note_with_assistant();
+            layout.set_support_open(true);
+            let arranged = layout.arrange(width);
+            assert!(arranged.support_docked(), "{width}: {arranged:?}");
+            assert!(arranged.primary >= 440.);
+            assert_eq!(
+                arranged.primary + arranged.sidebar + arranged.support_width().unwrap() + 2.,
+                width
+            );
+        }
     }
 
     #[test]
@@ -680,7 +698,7 @@ mod tests {
         assert!(!collapsed.sidebar_expanded);
         assert!(collapsed.support_docked());
         assert!(collapsed.primary >= metrics::DOCUMENT_REGION_MIN);
-        // 900: no docked assistant fits, so the document stays dominant and
+        // 800: no docked assistant fits, so the document stays dominant and
         // the assistant is a sheet that starts closed.
         let small = layout.arrange(SMALL);
         assert!(!small.sidebar_expanded);
